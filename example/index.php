@@ -17,6 +17,6 @@ if (isset($_SERVER['DC_BLOG_ID'])) {
     define('DC_BLOG_ID', 'default');
 }
 
-require dirname(__FILE__) . '/../src/Process.php';
+require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), '..', 'src', 'Process.php']);
 
 new Dotclear\Process('public');
