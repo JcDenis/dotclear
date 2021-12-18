@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Dotclear
- * @subpackage Public
+ * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

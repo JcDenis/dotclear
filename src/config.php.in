@@ -1,87 +1,94 @@
 <?php
 /**
+ * @brief Dotclear constants user (plateform) configuration
+ *
  * @package Dotclear
+ * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
-if (!defined('DC_RC_PATH')) {
+if (!defined('DOTCLEAR_CONFIG_PATH')) {
   return;
 }
 
 // Database driver (mysql (deprecated, disabled in PHP7), mysqli, mysqlimb4 (full UTF-8), pgsql, sqlite)
-define('DC_DBDRIVER', '');
+define('DOTCLEAR_DATABASE_DRIVER', '');
 
 // Database hostname (usually "localhost")
-define('DC_DBHOST', '');
+define('DOTCLEAR_DATABASE_HOST', '');
 
 // Database user
-define('DC_DBUSER', '');
+define('DOTCLEAR_DATABASE_USER', '');
 
 // Database password
-define('DC_DBPASSWORD', '');
+define('DOTCLEAR_DATABASE_PASSWORD', '');
 
 // Database name
-define('DC_DBNAME', '');
+define('DOTCLEAR_DATABASE_NAME', '');
 
 // Tables' prefix
-define('DC_DBPREFIX', 'dc_');
+define('DOTCLEAR_DATABASE_PREFIX', 'dc_');
 
 // Persistent database connection
-define('DC_DBPERSIST', false);
+define('DOTCLEAR_DATABASE_PERSIST', false);
 
 // Crypt key (password storage)
-define('DC_MASTER_KEY', '');
+define('DOTCLEAR_MASTER_KEY', '');
+
+// Use SSL on admin pages
+define('DOTCLEAR_ADMIN_SSL', false);
 
 // Admin URL. You need to set it for some features.
-define('DC_ADMIN_URL', '');
+define('DOTCLEAR_ADMIN_URL', '');
 
 // Admin mail from address. For password recovery and such.
-define('DC_ADMIN_MAILFROM', '');
+define('DOTCLEAR_ADMIN_MAILFROM', '');
 
 // Cookie's name
-define('DC_SESSION_NAME', 'dcxd');
+define('DOTCLEAR_SESSION_NAME', 'dcxd');
 
 // Session TTL
-//define('DC_SESSION_TTL','120 seconds');
+//define('DOTCLEAR_SESSION_TTL','120 seconds');
 
 // Plugins root
-define('DC_PLUGINS_ROOT', dirname(__FILE__) . '/../plugins');
+define('DOTCLEAR_PLUGINS_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
 
 // Template cache directory
-define('DC_TPL_CACHE', path::real(dirname(__FILE__) . '/..') . '/cache');
+define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));
 
 // Var directory
-define('DC_VAR', path::real(dirname(__FILE__) . '/..') . '/var');
+define('DOTCLEAR_VAR_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'var']));
 
 // Cryptographic algorithm
-define('DC_CRYPT_ALGO', 'sha512');
+define('DOTCLEAR_CRYPT_ALGO', 'sha512');
 
 // Vendor name
-//define('DC_VENDOR_NAME', 'Dotclear');
+//define('DOTCLEAR_VENDOR_NAME', 'Dotclear');
 
 // Do not check for update
-//define('DC_NOT_UPDATE', false);
+//define('DOTCLEAR_UPDATE_NOCHECK', false);
 
 // Update URL
-//define('DC_UPDATE_URL','https://download.dotclear.org/versions.xml');
+//define('DOTCLEAR_UPDATE_URL','https://download.dotclear.org/versions.xml');
 
 // Update channel (stable, unstable, testing)
-//define('DC_UPDATE_VERSION', 'stable');
+//define('DOTCLEAR_UPDATE_VERSION', 'stable');
 
 // Proxy config
 //define('HTTP_PROXY_HOST','127.0.0.1');
 //define('HTTP_PROXY_PORT','8080');
 
 // Reverse Proxy
-//define('DC_REVERSE_PROXY',false);
+//define('DOTCLEAR_REVERSE_PROXY',false);
 
 // Show hidden media dirs
-//define('DC_SHOW_HIDDEN_DIRS', false);
+//define('DOTCLEAR_SHOW_HIDDEN_DIRS', false);
 
 // Store update checking
-//define('DC_STORE_NOT_UPDATE', false);
+//define('DOTCLEAR_STORE_NOCHECK', false);
 
 // If you have PATH_INFO issue, uncomment following lines
 //if (!isset($_SERVER['ORIG_PATH_INFO'])) {

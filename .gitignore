@@ -5,6 +5,7 @@
 /behat.yml
 /build-tools/ckeditor/ckbuilder.jar
 /var
+/src/config.php
 
 # composer stuff
 /vendor
