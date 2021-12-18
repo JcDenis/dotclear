@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief Blog namespace for settings handler
+ * @brief Dotclear core nspace (namespace) class
  *
  * @package Dotclear
  * @subpackage Core
@@ -8,11 +8,15 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcNamespace
+class Nspace
 {
     protected $con;     ///< <b>connection</b> Database connection object
     protected $table;   ///< <b>string</b> Settings table name
@@ -37,12 +41,12 @@ class dcNamespace
      *
      * @throws     Exception  (description)
      */
-    public function __construct(dcCore &$core, $blog_id, $name, $rs = null)
+    public function __construct(Core &$core, $blog_id, $name, $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
         } else {
-            throw new Exception(sprintf(__('Invalid setting dcNamespace: %s'), $name));
+            throw new Exception(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
         $this->con     = &$core->con;

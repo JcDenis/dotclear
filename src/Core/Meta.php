@@ -1,8 +1,6 @@
 <?php
 /**
- * @brief Dotclear metadata class.
- *
- * Dotclear metadata class instance is provided by dcCore $meta property.
+ * @brief Dotclear core meta class
  *
  * @package Dotclear
  * @subpackage Core
@@ -10,22 +8,29 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Text;
+use Dotclear\Database\StaticRecord;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcMeta
+class Meta
 {
-    private $core;  ///< <b>dcCore</b> dcCore instance
+    private $core;  ///< <b>Core</b> Core instance
     private $con;   ///< <b>connection</b>    Database connection object
     private $table; ///< <b>string</b> Media table name
 
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
         $this->core  = &$core;
         $this->con   = &$this->core->con;
@@ -64,7 +69,7 @@ class dcMeta
      */
     public static function sanitizeMetaID($str)
     {
-        return text::tidyURL($str, false, true);
+        return Text::tidyURL($str, false, true);
     }
 
     /**
@@ -113,7 +118,7 @@ class dcMeta
      * @param      string  $str    The serialized metadata
      * @param      string  $type   The meta type to retrieve metaIDs from
      *
-     * @return     staticRecord  The meta recordset.
+     * @return     StaticRecord  The meta recordset.
      */
     public function getMetaRecordset($str, $type)
     {
@@ -133,7 +138,7 @@ class dcMeta
             }
         }
 
-        return staticRecord::newFromArray($data);
+        return StaticRecord::newFromArray($data);
     }
 
     /**
@@ -336,7 +341,7 @@ class dcMeta
      *
      * @param      record  $rs     The metadata recordset
      *
-     * @return     staticRecord  The meta statistics.
+     * @return     StaticRecord  The meta statistics.
      */
     public function computeMetaStats($rs)
     {

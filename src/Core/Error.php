@@ -1,10 +1,6 @@
 <?php
 /**
- * @brief Error class
- *
- * dcError is a very simple error class, with a stack. Call dcError::add to
- * add an error in stack. In administration area, errors are automatically
- * displayed.
+ * @brief Dotclear core error class
  *
  * @package Dotclear
  * @subpackage Core
@@ -12,11 +8,15 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcError
+class Error
 {
     /** @var array Errors stack */
     protected $errors = [];

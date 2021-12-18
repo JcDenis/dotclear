@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief User workspace for preferences handler
+ * @brief Dotclear core workspace class
  *
  * @package Dotclear
  * @subpackage Core
@@ -8,11 +8,15 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcWorkspace
+class Workspace
 {
     protected $con;     ///< <b>connection</b> Database connection object
     protected $table;   ///< <b>string</b> Preferences table name
@@ -30,14 +34,14 @@ class dcWorkspace
      * Object constructor. Retrieves user prefs and puts them in $prefs
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param      dcCore     $core     The core
+     * @param      Core     $core     The core
      * @param      string     $user_id  The user identifier
      * @param      string     $name     The name
      * @param      mixed      $rs       The recordset
      *
      * @throws     Exception
      */
-    public function __construct(&$core, $user_id, $name, $rs = null)
+    public function __construct(Core &$core, $user_id, $name, $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;

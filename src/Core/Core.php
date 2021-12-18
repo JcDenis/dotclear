@@ -2,126 +2,173 @@
 /**
  * @brief Dotclear core class
  *
- * True to its name dcCore is the core of Dotclear. It handles everything related
- * to blogs, database connection, plugins...
- *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-class dcCore
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Form;
+use Dotclear\Utils\Html;
+
+class Core
 {
-    public $con;        ///< <b>connection</b>          Database connection object
-    public $prefix;     ///< <b>string</b>              Database tables prefix
-    public $blog;       ///< <b>dcBlog</b>              dcBlog object
-    public $error;      ///< <b>dcError</b>             dcError object
-    public $auth;       ///< <b>dcAuth</b>              dcAuth object
-    public $session;    ///< <b>sessionDB</b>           sessionDB object
-    public $url;        ///< <b>urlHandler</b>          urlHandler object
-    public $wiki2xhtml; ///< <b>wiki2xhtml</b>          wiki2xhtml object
-    public $plugins;    ///< <b>dcModules</b>           dcModules object
-    public $themes;     ///< <b>dcThemes</b>            dcThemes object
-    public $media;      ///< <b>dcMedia</b>             dcMedia object
-    public $postmedia;  ///< <b>dcPostMedia</b>         dcPostMedia object
-    public $rest;       ///< <b>dcRestServer</b>        dcRestServer object
-    public $log;        ///< <b>dcLog</b>               dcLog object
-    public $stime;      ///< <b>float</b>               starting time
-    public $meta;       ///< <b>dcMeta</b>              dcMeta object
+    /** @var Connection         Connetion instance */
+    public $con;
 
-    public $adminurl;   ///< <b>dcAdminURL</b>          dcAdminURL object
-    public $notices;    ///< <b>dcAdminNotices</b>      dcNotices object
-    public $favs;       ///< <b>dcFavorites</b>         dcFavorites object
+    /** @var string             Database table prefix */
+    public $prefix;
 
-    private $versions   = null;
-    private $formaters  = [];
-    private $behaviors  = [];
-    private $post_types = [];
+    /** @var Error              Error instance */
+    public $error;
+
+    /** @var Auth               Auth instance */
+    public $auth;
+
+    /** @var Session            Session instance */
+    public $session;
+
+    /** @var UrlHandler         UrlHandler instance */
+    public $url;
+
+    /** @var RestServer         RestServer instance */
+    public $rest;
+
+    /** @var Log                Log instance */
+    public $log;
+
+    /** @var Meta               Meta instance */
+    public $meta;
+
+    /** @var Blog               Blog instance */
+    public $blog;
+
+    /** @var array              Behaviors */
+    private $behaviors = [];
 
     /**
-     * dcCore constructor inits everything related to Dotclear. It takes arguments
-     * to init database connection.
+     * Start Dotclear process
      *
-     * @param      string  $driver    The db driver
-     * @param      string  $host      The db host
-     * @param      string  $db        The db name
-     * @param      string  $user      The db user
-     * @param      string  $password  The db password
-     * @param      string  $prefix    The tables prefix
-     * @param      bool    $persist   Persistent database connection
+     * @param  string $process public/admin/install/...
      */
-    public function __construct($driver, $host, $db, $user, $password, $prefix, $persist)
+    public function __construct()
     {
-        if (defined('DC_START_TIME')) {
-            $this->stime = DC_START_TIME;
-        } else {
-            $this->stime = microtime(true);
-        }
+        $this->con     = $this->conInstance();
+        $this->error   = new Error();
+        $this->auth    = $this->authInstance();
+        $this->session = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
+        $this->url     = new UrlHandler($this);
+        $this->plugins = null;//new Plugins($this);
+        $this->rest    = new RestServer($this);
+        $this->meta    = new Meta($this);
+        $this->log     = new Log($this);
+    }
 
-        $this->con = dbLayer::init($driver, $host, $db, $user, $password, $persist);
-
-        # define weak_locks for mysql
-        if ($this->con instanceof mysqliConnection) {
-            mysqliConnection::$weak_locks = true;
-        } elseif ($this->con instanceof mysqlimb4Connection) {
-            mysqlimb4Connection::$weak_locks = true;
-        }
-
-        # define searchpath for postgresql
-        if ($this->con instanceof pgsqlConnection) {
-            $searchpath = explode('.', $prefix, 2);
-            if (count($searchpath) > 1) {
-                $prefix = $searchpath[1];
-                $sql    = 'SET search_path TO ' . $searchpath[0] . ',public;';
-                $this->con->execute($sql);
-            }
-        }
-
-        $this->prefix = $prefix;
-
-        $ttl = DC_SESSION_TTL;
+    /// @name Core init methods
+    //@{
+    private function getTTL()
+    {
+        /* Session time */
+        $ttl = DOTCLEAR_SESSION_TTL;
         if (!is_null($ttl)) {   // @phpstan-ignore-line
             if (substr(trim($ttl), 0, 1) != '-') {
-                // Clearbricks requires negative session TTL
+                // We requires negative session TTL
                 $ttl = '-' . trim($ttl);
             }
         }
 
-        $this->error   = new dcError();
-        $this->auth    = $this->authInstance();
-        $this->session = new sessionDB($this->con, $this->prefix . 'session', DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
-        $this->url     = new dcUrlHandlers();
+        return $ttl;
+    }
 
-        $this->plugins = new dcPlugins($this);
+    private function conInstance()
+    {
+        $prefix        = DOTCLEAR_DATABASE_PREFIX;
+        $driver        = DOTCLEAR_DATABASE_DRIVER;
+        $default_class = 'Dotclear\\Database\\Connection';
 
-        $this->rest = new dcRestServer($this);
+        # You can set DC_Con_CLASS to whatever you want.
+        # Your new class *should* inherits Dotclear\Database\Connection class.
+        $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
 
-        $this->meta = new dcMeta($this);
+        if (!class_exists($class)) {
+            throw new Exception('Database connection class ' . $class . ' does not exist.');
+        }
 
-        $this->log = new dcLog($this);
+        if ($class != $default_class && !is_subclass_of($class, $default_class)) {
+            throw new Exception('Database connection class ' . $class . ' does not inherit ' . $default_class);
+        }
+
+        /* PHP 7.0 mysql driver is obsolete, map to mysqli */
+        if ($driver === 'mysql') {
+            $driver = 'mysqli';
+        }
+
+        /* Set full namespace of distributed database driver */
+        if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
+            $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
+        }
+
+        /* Check if database connection class exists */
+        if (!class_exists($class)) {
+            trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
+            exit(1);
+        }
+
+        /* create connection instance */
+        $con = new $class(
+            DOTCLEAR_DATABASE_HOST,
+            DOTCLEAR_DATABASE_NAME,
+            DOTCLEAR_DATABASE_USER,
+            DOTCLEAR_DATABASE_PASSWORD,
+            DOTCLEAR_DATABASE_PERSIST
+        );
+
+        /* define weak_locks for mysql */
+        if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
+            $con::$weak_locks = true;
+        }
+
+        /* define searchpath for postgresql */
+        if ($driver == 'pgsql') {
+            $searchpath = explode('.', $prefix, 2);
+            if (count($searchpath) > 1) {
+                $prefix = $searchpath[1];
+                $sql    = 'SET search_path TO ' . $searchpath[0] . ',public;';
+                $con->execute($sql);
+            }
+        }
+
+        /* set table prefix in core */
+        $this->prefix = $prefix;
+
+        return $con;
     }
 
     private function authInstance()
     {
         # You can set DC_AUTH_CLASS to whatever you want.
-        # Your new class *should* inherits dcAuth.
-        if (!defined('DC_AUTH_CLASS')) {
-            $c = 'dcAuth';
+        # Your new class *should* inherits Dotclear\Core\Auth class.
+        if (!defined('DOTCLEAR_AUTH_CLASS')) {
+            $class = __NAMESPACE__ . '\\Auth';
         } else {
-            $c = DC_AUTH_CLASS;
+            $class = DOTCLEAR_AUTH_CLASS;
         }
 
-        if (!class_exists($c)) {
-            throw new Exception('Authentication class ' . $c . ' does not exist.');
+        if (!class_exists($class)) {
+            throw new Exception('Authentication class ' . $class . ' does not exist.');
         }
 
-        if ($c != 'dcAuth' && !is_subclass_of($c, 'dcAuth')) {
-            throw new Exception('Authentication class ' . $c . ' does not inherit dcAuth.');
+        if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
+            throw new Exception('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }
 
-        return new $c($this);
+        return new $class($this);
     }
+    //@}
 
     /// @name Blog init methods
     //@{
@@ -132,7 +179,7 @@ class dcCore
      */
     public function setBlog($id)
     {
-        $this->blog = new dcBlog($this, $id);
+        $this->blog = new Blog($this, $id);
     }
 
     /**
@@ -221,140 +268,7 @@ class dcCore
             return;
         }
 
-        return form::hidden(['xd_check'], $this->getNonce());
-    }
-    //@}
-
-    /// @name Text Formatters methods
-    //@{
-    /**
-     * Adds a new text formater which will call the function <var>$func</var> to
-     * transform text. The function must be a valid callback and takes one
-     * argument: the string to transform. It returns the transformed string.
-     *
-     * @param      string    $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
-     * @param      string    $name       The formater name
-     * @param      callable  $func       The function to use, must be a valid and callable callback
-     */
-    public function addEditorFormater($editor_id, $name, $func)
-    {
-        if (is_callable($func)) {
-            $this->formaters[$editor_id][$name] = $func;
-        }
-    }
-
-    /// @name Text Formatters methods
-    //@{
-    /**
-    Adds a new text formater which will call the function <var>$func</var> to
-    transform text. The function must be a valid callback and takes one
-    argument: the string to transform. It returns the transformed string.
-
-    @param    name        <b>string</b>        Formater name
-    @param    func        <b>callback</b>    Function to use, must be a valid and callable callback
-     */
-
-    /**
-     * Adds a new dcLegacyEditor text formater which will call the function
-     * <var>$func</var> to transform text. The function must be a valid callback
-     * and takes one argument: the string to transform. It returns the transformed string.
-     *
-     * @param      string    $name       The formater name
-     * @param      callable  $func       The function to use, must be a valid and callable callback
-     */
-    public function addFormater($name, $func)
-    {
-        $this->addEditorFormater('dcLegacyEditor', $name, $func);
-    }
-
-    /**
-     * Gets the editors list.
-     *
-     * @return     array  The editors.
-     */
-    public function getEditors()
-    {
-        $editors = [];
-
-        foreach (array_keys($this->formaters) as $editor_id) {
-            $editors[$editor_id] = $this->plugins->moduleInfo($editor_id, 'name');
-        }
-
-        return $editors;
-    }
-
-    /**
-    Returns formaters list by editor
-
-    @param    editor_id    <b>string</b>    Editor id
-    @return    <b>array</b> An array of formaters names in values.
-
-    /**
-     */
-    /**
-     * Gets the formaters.
-     *
-     * if @param editor_id is empty:
-     * return all formaters sorted by actives editors
-     *
-     * if @param editor_id is not empty
-     * return formaters for an editor if editor is active
-     * return empty() array if editor is not active.
-     * It can happens when a user choose an editor and admin deactivate that editor later
-     *
-     * @param      string  $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
-     *
-     * @return     array   The formaters.
-     */
-    public function getFormaters($editor_id = '')
-    {
-        $formaters_list = [];
-
-        if (!empty($editor_id)) {
-            if (isset($this->formaters[$editor_id])) {
-                $formaters_list = array_keys($this->formaters[$editor_id]);
-            }
-        } else {
-            foreach ($this->formaters as $editor => $formaters) {
-                $formaters_list[$editor] = array_keys($formaters);
-            }
-        }
-
-        return $formaters_list;
-    }
-
-    /**
-     * If <var>$name</var> is a valid formater, it returns <var>$str</var>
-     * transformed using that formater.
-     *
-     * @param      string  $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
-     * @param      string  $name       The formater name
-     * @param      string  $str        The string to transform
-     *
-     * @return     string
-     */
-    public function callEditorFormater($editor_id, $name, $str)
-    {
-        if (isset($this->formaters[$editor_id]) && isset($this->formaters[$editor_id][$name])) {
-            return call_user_func($this->formaters[$editor_id][$name], $str);
-        }
-
-        return $str;
-    }
-    //@}
-
-    /**
-     * If <var>$name</var> is a valid dcLegacyEditor formater, it returns
-     * <var>$str</var> transformed using that formater.
-     *
-     * @param      string  $name   The name
-     * @param      string  $str    The string
-     *
-     * @return     string
-     */
-    public function callFormater($name, $str)
-    {
-        return $this->callEditorFormater('dcLegacyEditor', $name, $str);
+        return Form::hidden(['xd_check'], $this->getNonce());
     }
     //@}
 
@@ -431,77 +345,6 @@ class dcCore
 
             return $res;
         }
-    }
-    //@}
-
-    /// @name Post types URLs management
-    //@{
-
-    /**
-     * Gets the post admin url.
-     *
-     * @param      string  $type     The type
-     * @param      mixed   $post_id  The post identifier
-     * @param      bool    $escaped  Escape the URL
-     *
-     * @return     string    The post admin url.
-     */
-    public function getPostAdminURL($type, $post_id, $escaped = true)
-    {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        $url = sprintf($this->post_types[$type]['admin_url'], $post_id);
-
-        return $escaped ? html::escapeURL($url) : $url;
-    }
-
-    /**
-     * Gets the post public url.
-     *
-     * @param      string  $type      The type
-     * @param      string  $post_url  The post url
-     * @param      bool    $escaped   Escape the URL
-     *
-     * @return     string    The post public url.
-     */
-    public function getPostPublicURL($type, $post_url, $escaped = true)
-    {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        $url = sprintf($this->post_types[$type]['public_url'], $post_url);
-
-        return $escaped ? html::escapeURL($url) : $url;
-    }
-
-    /**
-     * Sets the post type.
-     *
-     * @param      string  $type        The type
-     * @param      string  $admin_url   The admin url
-     * @param      string  $public_url  The public url
-     * @param      string  $label       The label
-     */
-    public function setPostType($type, $admin_url, $public_url, $label = '')
-    {
-        $this->post_types[$type] = [
-            'admin_url'  => $admin_url,
-            'public_url' => $public_url,
-            'label'      => ($label != '' ? $label : $type)
-        ];
-    }
-
-    /**
-     * Gets the post types.
-     *
-     * @return     array  The post types.
-     */
-    public function getPostTypes()
-    {
-        return $this->post_types;
     }
     //@}
 
@@ -666,7 +509,7 @@ class dcCore
             $strReq .= $this->con->limit($params['limit']);
         }
         $rs = $this->con->select($strReq);
-        $rs->extend('rsExtUser');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
 
         return $rs;
     }
@@ -1188,7 +1031,7 @@ class dcCore
         }
 
         if ($cur->blog_desc !== null) {
-            $cur->blog_desc = html::clean($cur->blog_desc);
+            $cur->blog_desc = Html::clean($cur->blog_desc);
         }
     }
 
@@ -1253,499 +1096,4 @@ class dcCore
     }
     //@}
 
-    /// @name HTML Filter methods
-    //@{
-    /**
-     * Calls HTML filter to drop bad tags and produce valid XHTML output (if
-     * tidy extension is present). If <b>enable_html_filter</b> blog setting is
-     * false, returns not filtered string.
-     *
-     * @param      string  $str    The string
-     *
-     * @return     string
-     */
-    public function HTMLfilter($str)
-    {
-        if ($this->blog instanceof dcBlog && !$this->blog->settings->system->enable_html_filter) {
-            return $str;
-        }
-
-        $options = new ArrayObject([
-            'keep_aria' => false,
-            'keep_data' => false,
-            'keep_js'   => false
-        ]);
-        $this->callBehavior('HTMLfilter', $options);
-
-        $filter = new htmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
-        $str    = trim($filter->apply($str));
-
-        return $str;
-    }
-    //@}
-
-    /// @name wiki2xhtml methods
-    //@{
-
-    /**
-     * Initializes the wiki2xhtml methods.
-     */
-    private function initWiki()
-    {
-        $this->wiki2xhtml = new wiki2xhtml;
-    }
-
-    /**
-     * Returns a transformed string with wiki2xhtml.
-     *
-     * @param      string  $str    The string
-     *
-     * @return     string
-     */
-    public function wikiTransform($str)
-    {
-        if (!($this->wiki2xhtml instanceof wiki2xhtml)) {
-            $this->initWiki();
-        }
-
-        return $this->wiki2xhtml->transform($str);
-    }
-
-    /**
-     * Inits <var>wiki2xhtml</var> property for blog post.
-     */
-    public function initWikiPost()
-    {
-        $this->initWiki();
-
-        $this->wiki2xhtml->setOpts([
-            'active_title'        => 1,
-            'active_setext_title' => 0,
-            'active_hr'           => 1,
-            'active_lists'        => 1,
-            'active_defl'         => 1,
-            'active_quote'        => 1,
-            'active_pre'          => 1,
-            'active_empty'        => 1,
-            'active_auto_urls'    => 0,
-            'active_auto_br'      => 0,
-            'active_antispam'     => 1,
-            'active_urls'         => 1,
-            'active_auto_img'     => 0,
-            'active_img'          => 1,
-            'active_anchor'       => 1,
-            'active_em'           => 1,
-            'active_strong'       => 1,
-            'active_br'           => 1,
-            'active_q'            => 1,
-            'active_code'         => 1,
-            'active_acronym'      => 1,
-            'active_ins'          => 1,
-            'active_del'          => 1,
-            'active_footnotes'    => 1,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 1,
-            'active_mark'         => 1,
-            'active_aside'        => 1,
-            'active_sup'          => 1,
-            'active_sub'          => 1,
-            'active_i'            => 1,
-            'active_span'         => 1,
-            'parse_pre'           => 1,
-            'active_fr_syntax'    => 0,
-            'first_title_level'   => 3,
-            'note_prefix'         => 'wiki-footnote',
-            'note_str'            => '<div class="footnotes"><h4>Notes</h4>%s</div>',
-            'img_style_center'    => 'display:table; margin:0 auto;'
-        ]);
-
-        $this->wiki2xhtml->registerFunction('url:post', [$this, 'wikiPostLink']);
-
-        # --BEHAVIOR-- coreWikiPostInit
-        $this->callBehavior('coreInitWikiPost', $this->wiki2xhtml);
-    }
-
-    /**
-     * Inits <var>wiki2xhtml</var> property for simple blog comment (basic syntax).
-     */
-    public function initWikiSimpleComment()
-    {
-        $this->initWiki();
-
-        $this->wiki2xhtml->setOpts([
-            'active_title'        => 0,
-            'active_setext_title' => 0,
-            'active_hr'           => 0,
-            'active_lists'        => 0,
-            'active_defl'         => 0,
-            'active_quote'        => 0,
-            'active_pre'          => 0,
-            'active_empty'        => 0,
-            'active_auto_urls'    => 1,
-            'active_auto_br'      => 1,
-            'active_antispam'     => 1,
-            'active_urls'         => 0,
-            'active_auto_img'     => 0,
-            'active_img'          => 0,
-            'active_anchor'       => 0,
-            'active_em'           => 0,
-            'active_strong'       => 0,
-            'active_br'           => 0,
-            'active_q'            => 0,
-            'active_code'         => 0,
-            'active_acronym'      => 0,
-            'active_ins'          => 0,
-            'active_del'          => 0,
-            'active_inline_html'  => 0,
-            'active_footnotes'    => 0,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 0,
-            'active_mark'         => 0,
-            'active_aside'        => 0,
-            'active_sup'          => 0,
-            'active_sub'          => 0,
-            'active_i'            => 0,
-            'active_span'         => 0,
-            'parse_pre'           => 0,
-            'active_fr_syntax'    => 0
-        ]);
-
-        # --BEHAVIOR-- coreInitWikiSimpleComment
-        $this->callBehavior('coreInitWikiSimpleComment', $this->wiki2xhtml);
-    }
-
-    /**
-     * Inits <var>wiki2xhtml</var> property for blog comment.
-     */
-    public function initWikiComment()
-    {
-        $this->initWiki();
-
-        $this->wiki2xhtml->setOpts([
-            'active_title'        => 0,
-            'active_setext_title' => 0,
-            'active_hr'           => 0,
-            'active_lists'        => 1,
-            'active_defl'         => 0,
-            'active_quote'        => 1,
-            'active_pre'          => 1,
-            'active_empty'        => 0,
-            'active_auto_br'      => 1,
-            'active_auto_urls'    => 1,
-            'active_urls'         => 1,
-            'active_auto_img'     => 0,
-            'active_img'          => 0,
-            'active_anchor'       => 0,
-            'active_em'           => 1,
-            'active_strong'       => 1,
-            'active_br'           => 1,
-            'active_q'            => 1,
-            'active_code'         => 1,
-            'active_acronym'      => 1,
-            'active_ins'          => 1,
-            'active_del'          => 1,
-            'active_footnotes'    => 0,
-            'active_inline_html'  => 0,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 0,
-            'active_mark'         => 1,
-            'active_aside'        => 0,
-            'active_sup'          => 1,
-            'active_sub'          => 1,
-            'active_i'            => 1,
-            'active_span'         => 0,
-            'parse_pre'           => 0,
-            'active_fr_syntax'    => 0
-        ]);
-
-        # --BEHAVIOR-- coreInitWikiComment
-        $this->callBehavior('coreInitWikiComment', $this->wiki2xhtml);
-    }
-
-    /**
-     * Get info about a post:id wiki macro
-     *
-     * @param      string  $url      The post url
-     * @param      string  $content  The content
-     *
-     * @return     array
-     */
-    public function wikiPostLink($url, $content)
-    {
-        if (!($this->blog instanceof dcBlog)) {
-            return [];
-        }
-
-        $post_id = abs((integer) substr($url, 5));
-        if (!$post_id) {
-            return [];
-        }
-
-        $post = $this->blog->getPosts(['post_id' => $post_id]);
-        if ($post->isEmpty()) {
-            return [];
-        }
-
-        $res        = ['url' => $post->getURL()];
-        $post_title = $post->post_title;
-
-        if ($content != $url) {
-            $res['title'] = html::escapeHTML($post->post_title);
-        }
-
-        if ($content == '' || $content == $url) {
-            $res['content'] = html::escapeHTML($post->post_title);
-        }
-
-        if ($post->post_lang) {
-            $res['lang'] = $post->post_lang;
-        }
-
-        return $res;
-    }
-    //@}
-
-    /// @name Maintenance methods
-    //@{
-    /**
-     * Creates default settings for active blog. Optionnal parameter
-     * <var>defaults</var> replaces default params while needed.
-     *
-     * @param      array  $defaults  The defaults settings
-     */
-    public function blogDefaults($defaults = null)
-    {
-        if (!is_array($defaults)) {
-            $defaults = [
-                ['allow_comments', 'boolean', true,
-                    'Allow comments on blog'],
-                ['allow_trackbacks', 'boolean', true,
-                    'Allow trackbacks on blog'],
-                ['blog_timezone', 'string', 'Europe/London',
-                    'Blog timezone'],
-                ['comments_nofollow', 'boolean', true,
-                    'Add rel="nofollow" to comments URLs'],
-                ['comments_pub', 'boolean', true,
-                    'Publish comments immediately'],
-                ['comments_ttl', 'integer', 0,
-                    'Number of days to keep comments open (0 means no ttl)'],
-                ['copyright_notice', 'string', '', 'Copyright notice (simple text)'],
-                ['date_format', 'string', '%A, %B %e %Y',
-                    'Date format. See PHP strftime function for patterns'],
-                ['editor', 'string', '',
-                    'Person responsible of the content'],
-                ['enable_html_filter', 'boolean', 0,
-                    'Enable HTML filter'],
-                ['enable_xmlrpc', 'boolean', 0,
-                    'Enable XML/RPC interface'],
-                ['lang', 'string', 'en',
-                    'Default blog language'],
-                ['media_exclusion', 'string', '/\.(phps?|pht(ml)?|phl|.?html?|xml|js|htaccess)[0-9]*$/i',
-                    'File name exclusion pattern in media manager. (PCRE value)'],
-                ['media_img_m_size', 'integer', 448,
-                    'Image medium size in media manager'],
-                ['media_img_s_size', 'integer', 240,
-                    'Image small size in media manager'],
-                ['media_img_t_size', 'integer', 100,
-                    'Image thumbnail size in media manager'],
-                ['media_img_title_pattern', 'string', 'Title ;; Date(%b %Y) ;; separator(, )',
-                    'Pattern to set image title when you insert it in a post'],
-                ['media_video_width', 'integer', 400,
-                    'Video width in media manager'],
-                ['media_video_height', 'integer', 300,
-                    'Video height in media manager'],
-                ['nb_post_for_home', 'integer', 20,
-                    'Number of entries on first home page'],
-                ['nb_post_per_page', 'integer', 20,
-                    'Number of entries on home pages and category pages'],
-                ['nb_post_per_feed', 'integer', 20,
-                    'Number of entries on feeds'],
-                ['nb_comment_per_feed', 'integer', 20,
-                    'Number of comments on feeds'],
-                ['post_url_format', 'string', '{y}/{m}/{d}/{t}',
-                    'Post URL format. {y}: year, {m}: month, {d}: day, {id}: post id, {t}: entry title'],
-                ['public_path', 'string', 'public',
-                    'Path to public directory, begins with a / for a full system path'],
-                ['public_url', 'string', '/public',
-                    'URL to public directory'],
-                ['robots_policy', 'string', 'INDEX,FOLLOW',
-                    'Search engines robots policy'],
-                ['short_feed_items', 'boolean', false,
-                    'Display short feed items'],
-                ['theme', 'string', 'berlin',
-                    'Blog theme'],
-                ['themes_path', 'string', 'themes',
-                    'Themes root path'],
-                ['themes_url', 'string', '/themes',
-                    'Themes root URL'],
-                ['time_format', 'string', '%H:%M',
-                    'Time format. See PHP strftime function for patterns'],
-                ['tpl_allow_php', 'boolean', false,
-                    'Allow PHP code in templates'],
-                ['tpl_use_cache', 'boolean', true,
-                    'Use template caching'],
-                ['trackbacks_pub', 'boolean', true,
-                    'Publish trackbacks immediately'],
-                ['trackbacks_ttl', 'integer', 0,
-                    'Number of days to keep trackbacks open (0 means no ttl)'],
-                ['url_scan', 'string', 'query_string',
-                    'URL handle mode (path_info or query_string)'],
-                ['use_smilies', 'boolean', false,
-                    'Show smilies on entries and comments'],
-                ['no_search', 'boolean', false,
-                    'Disable search'],
-                ['inc_subcats', 'boolean', false,
-                    'Include sub-categories in category page and category posts feed'],
-                ['wiki_comments', 'boolean', false,
-                    'Allow commenters to use a subset of wiki syntax'],
-                ['import_feed_url_control', 'boolean', true,
-                    'Control feed URL before import'],
-                ['import_feed_no_private_ip', 'boolean', true,
-                    'Prevent import feed from private IP'],
-                ['import_feed_ip_regexp', 'string', '',
-                    'Authorize import feed only from this IP regexp'],
-                ['import_feed_port_regexp', 'string', '/^(80|443)$/',
-                    'Authorize import feed only from this port regexp'],
-                ['jquery_needed', 'boolean', true,
-                    'Load jQuery library']
-            ];
-        }
-
-        $settings = new dcSettings($this, null);
-        $settings->addNamespace('system');
-
-        foreach ($defaults as $v) {
-            $settings->system->put($v[0], $v[2], $v[1], $v[3], false, true);
-        }
-    }
-
-    /**
-     * Recreates entries search engine index.
-     *
-     * @param      mixed   $start  The start entry index
-     * @param      mixed   $limit  The limit of entry to index
-     *
-     * @return     mixed   sum of <var>$start</var> and <var>$limit</var>
-     */
-    public function indexAllPosts($start = null, $limit = null)
-    {
-        $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . $this->prefix . 'post';
-        $rs    = $this->con->select($strReq);
-        $count = $rs->f(0);
-
-        $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
-        'FROM ' . $this->prefix . 'post ';
-
-        if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
-        }
-
-        $rs = $this->con->select($strReq, true);
-
-        $cur = $this->con->openCursor($this->prefix . 'post');
-
-        while ($rs->fetch()) {
-            $words = $rs->post_title . ' ' . $rs->post_excerpt_xhtml . ' ' .
-            $rs->post_content_xhtml;
-
-            $cur->post_words = implode(' ', text::splitWords($words));
-            $cur->update('WHERE post_id = ' . (integer) $rs->post_id);
-            $cur->clean();
-        }
-
-        if ($start + $limit > $count) {
-            return;
-        }
-
-        return $start + $limit;
-    }
-
-    /**
-     * Recreates comments search engine index.
-     *
-     * @param      mixed   $start  The start comment index
-     * @param      mixed   $limit  The limit of comment to index
-     *
-     * @return     mixed   sum of <var>$start</var> and <var>$limit</var>
-     */
-    public function indexAllComments($start = null, $limit = null)
-    {
-        $strReq = 'SELECT COUNT(comment_id) ' .
-        'FROM ' . $this->prefix . 'comment';
-        $rs    = $this->con->select($strReq);
-        $count = $rs->f(0);
-
-        $strReq = 'SELECT comment_id, comment_content ' .
-        'FROM ' . $this->prefix . 'comment ';
-
-        if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
-        }
-
-        $rs = $this->con->select($strReq);
-
-        $cur = $this->con->openCursor($this->prefix . 'comment');
-
-        while ($rs->fetch()) {
-            $cur->comment_words = implode(' ', text::splitWords($rs->comment_content));
-            $cur->update('WHERE comment_id = ' . (integer) $rs->comment_id);
-            $cur->clean();
-        }
-
-        if ($start + $limit > $count) {
-            return;
-        }
-
-        return $start + $limit;
-    }
-
-    /**
-     * Reinits nb_comment and nb_trackback in post table.
-     */
-    public function countAllComments()
-    {
-        $updCommentReq = 'UPDATE ' . $this->prefix . 'post P ' .
-        'SET nb_comment = (' .
-        'SELECT COUNT(C.comment_id) from ' . $this->prefix . 'comment C ' .
-            'WHERE C.post_id = P.post_id AND C.comment_trackback <> 1 ' .
-            'AND C.comment_status = 1 ' .
-            ')';
-        $updTrackbackReq = 'UPDATE ' . $this->prefix . 'post P ' .
-        'SET nb_trackback = (' .
-        'SELECT COUNT(C.comment_id) from ' . $this->prefix . 'comment C ' .
-            'WHERE C.post_id = P.post_id AND C.comment_trackback = 1 ' .
-            'AND C.comment_status = 1 ' .
-            ')';
-        $this->con->execute($updCommentReq);
-        $this->con->execute($updTrackbackReq);
-    }
-
-    /**
-     * Empty templates cache directory
-     */
-    public function emptyTemplatesCache()
-    {
-        if (is_dir(DC_TPL_CACHE . '/cbtpl')) {
-            files::deltree(DC_TPL_CACHE . '/cbtpl');
-        }
-    }
-
-    /**
-     * Return elapsed time since script has been started
-     *
-     * @param      mixed   $mtime  timestamp (microtime format) to evaluate
-     * delta from current time is taken if null
-     *
-     * @return     mixed   The elapsed time.
-     */
-    public function getElapsedTime($mtime = null)
-    {
-        if ($mtime !== null) {
-            return $mtime - $this->stime;
-        }
-
-        return microtime(true) - $this->stime;
-    }
-    //@}
 }

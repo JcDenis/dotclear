@@ -1,9 +1,6 @@
 <?php
 /**
- * @brief Authentication and user credentials management
- *
- * dcAuth is a class used to handle everything related to user authentication
- * and credentials. Object is provided by dcCore $auth property.
+ * @brief Dotclear core auth class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,11 +8,22 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Core\Sql\SqlStatement;
+use Dotclear\Core\Sql\SelectStatement;
+use Dotclear\Core\Sql\UpdateStatement;
+use Dotclear\Utils\Crypt;
+use Dotclear\Utils\Http;
+use Dotclear\Core\Utils;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcAuth
+class Auth
 {
     /** @var dcCore dcCore instance */
     protected $core;
@@ -55,11 +63,11 @@ class dcAuth
     public $user_prefs;
 
     /**
-     * Class constructor. Takes dcCore object as single argument.
+     * Class constructor. Takes Core object as single argument.
      *
-     * @param dcCore    $core        dcCore object
+     * @param Core    $core        Core object
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
         $this->core       = &$core;
         $this->con        = &$core->con;
@@ -96,7 +104,7 @@ class dcAuth
     public function checkUser($user_id, $pwd = null, $user_key = null, $check_blog = true)
     {
         # Check user and password
-        $sql = new dcSelectStatement($this->core, 'coreAuthCheckUser');
+        $sql = new SelectStatement($this->core, 'coreAuthCheckUser');
         $sql
             ->columns([
                 'user_id',
@@ -133,7 +141,7 @@ class dcAuth
             return false;
         }
 
-        $rs->extend('rsExtUser');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
 
         if ($pwd != '') {
             $rehash = false;
@@ -148,7 +156,7 @@ class dcAuth
                 $ret = password_get_info($rs->user_pwd);
                 if (is_array($ret) && isset($ret['algo']) && $ret['algo'] == 0) {
                     // hash not done with password_hash() function, check by old fashion way
-                    if (crypt::hmac(DC_MASTER_KEY, $pwd, DC_CRYPT_ALGO) == $rs->user_pwd) {
+                    if (Crypt::hmac(DOTCLEAR_MASTER_KEY, $pwd, DOTCLEAR_CRYPT_ALGO) == $rs->user_pwd) {
                         // Password Ok, need to store it in new fashion way
                         $rs->user_pwd = $this->crypt($pwd);
                         $rehash       = true;
@@ -170,14 +178,13 @@ class dcAuth
                 $cur           = $this->con->openCursor($this->user_table);
                 $cur->user_pwd = (string) $rs->user_pwd;
 
-                $sql = new dcUpdateStatement($this->core, 'coreAuthCheckUser');
+                $sql = new UpdateStatement($this->core, 'coreAuthCheckUser');
                 $sql->where('user_id = ' . $sql->quote($rs->user_id));
 
                 $sql->update($cur);
             }
         } elseif ($user_key != '') {
-            // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(http::browserUID(DC_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
+            if (Http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)) != $user_key) {
                 return false;
             }
         }
@@ -199,7 +206,7 @@ class dcAuth
         $this->user_info['user_creadt']       = $rs->user_creadt;
         $this->user_info['user_upddt']        = $rs->user_upddt;
 
-        $this->user_info['user_cn'] = dcUtils::getUserCN(
+        $this->user_info['user_cn'] = Utils::getUserCN(
             $rs->user_id,
             $rs->user_name,
             $rs->user_firstname,
@@ -208,7 +215,7 @@ class dcAuth
 
         $this->user_options = array_merge($this->core->userDefaults(), $rs->options());
 
-        $this->user_prefs = new dcPrefs($this->core, $this->user_id);
+        $this->user_prefs = new Prefs($this->core, $this->user_id);
 
         # Get permissions on blogs
         if ($check_blog && ($this->findUserBlog() === false)) {
@@ -239,7 +246,7 @@ class dcAuth
      */
     public function cryptLegacy($pwd)
     {
-        return crypt::hmac(DC_MASTER_KEY, $pwd, DC_CRYPT_ALGO);
+        return Crypt::hmac(DOTCLEAR_MASTER_KEY, $pwd, DOTCLEAR_CRYPT_ALGO);
     }
 
     /**
@@ -265,7 +272,7 @@ class dcAuth
      */
     public function sessionExists()
     {
-        return isset($_COOKIE[DC_SESSION_NAME]);
+        return isset($_COOKIE[DOTCLEAR_SESSION_NAME]);
     }
 
     /**
@@ -286,7 +293,7 @@ class dcAuth
 
         # Check here for user and IP address
         $this->checkUser($_SESSION['sess_user_id']);
-        $uid = $uid ?: http::browserUID(DC_MASTER_KEY);
+        $uid = $uid ?: Http::browserUID(DOTCLEAR_MASTER_KEY);
 
         $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
 
@@ -419,7 +426,7 @@ class dcAuth
         }
 
         if ($this->user_admin) {
-            $sql = new dcSelectStatement($this->core, 'coreAuthGetPermissions');
+            $sql = new SelectStatement($this->core, 'coreAuthGetPermissions');
             $sql
                 ->column('blog_id')
                 ->from($this->blog_table)
@@ -432,7 +439,7 @@ class dcAuth
             return $this->blogs[$blog_id];
         }
 
-        $sql = new dcSelectStatement($this->core, 'coreAuthGetPermissions');
+        $sql = new SelectStatement($this->core, 'coreAuthGetPermissions');
         $sql
             ->column('permissions')
             ->from($this->perm_table)
@@ -478,7 +485,7 @@ class dcAuth
             return $blog_id;
         }
 
-        $sql = new dcSelectStatement($this->core, 'coreAuthFindUserBlog');
+        $sql = new SelectStatement($this->core, 'coreAuthFindUserBlog');
 
         if ($this->user_admin) {
             /* @phpstan-ignore-next-line */
@@ -575,8 +582,8 @@ class dcAuth
      */
     public function parsePermissions($level)
     {
-        $level = preg_replace('/^\|/', '', (string) $level);
-        $level = preg_replace('/\|$/', '', (string) $level);
+        $level = preg_replace('/^\|/', '', $level);
+        $level = preg_replace('/\|$/', '', $level);
 
         $res = [];
         foreach (explode('|', $level) as $v) {
@@ -621,7 +628,7 @@ class dcAuth
      */
     public function setRecoverKey($user_id, $user_email)
     {
-        $sql = new dcSelectStatement($this->core, 'coreAuthSetRecoverKey');
+        $sql = new SelectStatement($this->core, 'coreAuthSetRecoverKey');
         $sql
             ->column('user_id')
             ->from($this->user_table)
@@ -639,7 +646,7 @@ class dcAuth
         $cur                   = $this->con->openCursor($this->user_table);
         $cur->user_recover_key = $key;
 
-        $sql = new dcUpdateStatement($this->core, 'coreAuthSetRecoverKey');
+        $sql = new UpdateStatement($this->core, 'coreAuthSetRecoverKey');
         $sql->where('user_id = ' . $sql->quote($user_id));
 
         $sql->update($cur);
@@ -660,7 +667,7 @@ class dcAuth
      */
     public function recoverUserPassword($recover_key)
     {
-        $sql = new dcSelectStatement($this->core, 'coreAuthRecoverUserPassword');
+        $sql = new SelectStatement($this->core, 'coreAuthRecoverUserPassword');
         $sql
             ->columns(['user_id', 'user_email'])
             ->from($this->user_table)
@@ -672,14 +679,14 @@ class dcAuth
             throw new Exception(__('That key does not exist in the database.'));
         }
 
-        $new_pass = crypt::createPassword();
+        $new_pass = Crypt::createPassword();
 
         $cur                   = $this->con->openCursor($this->user_table);
         $cur->user_pwd         = $this->crypt($new_pass);
         $cur->user_recover_key = null;
         $cur->user_change_pwd  = 1; // User will have to change this temporary password at next login
 
-        $sql = new dcUpdateStatement($this->core, 'coreAuthRecoverUserPassword');
+        $sql = new UpdateStatement($this->core, 'coreAuthRecoverUserPassword');
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
 
         $sql->update($cur);

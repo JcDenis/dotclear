@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief Dotclear helper methods
+ * @brief Dotclear core utils class
  *
  * @package Dotclear
  * @subpackage Core
@@ -8,12 +8,20 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Html;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcUtils
+class Utils
 {
+    public static $core;
+
     /**
      * Static function that returns user's common name given to his
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
@@ -26,7 +34,7 @@ class dcUtils
      *
      * @return     string  The user cn.
      */
-    public static function getUserCN($user_id, $user_name, $user_firstname, $user_displayname)
+    public static function getUserCN(string $user_id, string $user_name, string $user_firstname, string $user_displayname): string
     {
         if (!empty($user_displayname)) {
             return $user_displayname;
@@ -52,16 +60,16 @@ class dcUtils
      *
      * @return     array
      */
-    public static function cleanIds($ids)
+    public static function cleanIds($ids): array
     {
         $clean_ids = [];
 
-        if (!is_array($ids) && !($ids instanceof ArrayObject)) {
+        if (!is_array($ids) && !($ids instanceof \ArrayObject)) {
             $ids = [$ids];
         }
 
         foreach ($ids as $id) {
-            if (is_array($id) || ($id instanceof ArrayObject)) {
+            if (is_array($id) || ($id instanceof \ArrayObject)) {
                 $clean_ids = array_merge($clean_ids, self::cleanIds($id));
             } else {
                 $id = abs((int) $id);
@@ -85,7 +93,7 @@ class dcUtils
      *
      * @return boolean    True if comparison success
      */
-    public static function versionsCompare($current_version, $required_version, $operator = '>=', $strict = true)
+    public static function versionsCompare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
     {
         if ($strict) {
             $current_version  = preg_replace('!-r(\d+)$!', '-p$1', $current_version);
@@ -105,21 +113,21 @@ class dcUtils
             'v=' . (defined('DC_DEV') && DC_DEV === true ? md5(uniqid()) : ($v ?: DC_VERSION));
     }
 
-    public static function cssLoad($src, $media = 'screen', $v = null)
+    public static function cssLoad(string $src, string $media = 'screen', string $v = null): string
     {
-        $escaped_src = html::escapeHTML($src);
+        $escaped_src = Html::escapeHTML($src);
         if ($v !== null) {
-            $escaped_src = dcUtils::appendVersion($escaped_src, $v);
+            $escaped_src = Utils::appendVersion($escaped_src, $v);
         }
 
         return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
     }
 
-    public static function jsLoad($src, $v = null)
+    public static function jsLoad(string $src, string $v = null): string
     {
-        $escaped_src = html::escapeHTML($src);
+        $escaped_src = Html::escapeHTML($src);
         if ($v !== null) {
-            $escaped_src = dcUtils::appendVersion($escaped_src, $v);
+            $escaped_src = Utils::appendVersion($escaped_src, $v);
         }
 
         return '<script src="' . $escaped_src . '"></script>' . "\n";
@@ -128,17 +136,17 @@ class dcUtils
     /**
      * return a list of javascript variables définitions code
      *
-     * @deprecated 2.15 use dcUtils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
+     * @deprecated 2.15 use Utils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
      *
      * @param      array  $vars   The variables
      *
      * @return     string  javascript code (inside <script… ></script>)
      */
-    public static function jsVars($vars)
+    public static function jsVars(array $vars): string
     {
         $ret = '<script>' . "\n";
         foreach ($vars as $var => $value) {
-            $ret .= 'var ' . $var . ' = ' . (is_string($value) ? '"' . html::escapeJS($value) . '"' : $value) . ';' . "\n";
+            $ret .= 'var ' . $var . ' = ' . (is_string($value) ? '"' . Html::escapeJS($value) . '"' : $value) . ';' . "\n";
         }
         $ret .= "</script>\n";
 
@@ -148,22 +156,22 @@ class dcUtils
     /**
      * return a javascript variable definition line code
      *
-     * @deprecated 2.15 use dcUtils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
+     * @deprecated 2.15 use Utils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
      *
      * @param      string  $n      variable name
      * @param      mixed   $v      value
      *
      * @return     string  javascript code
      */
-    public static function jsVar($n, $v)
+    public static function jsVar(string $n, mixed $v): string
     {
-        return dcUtils::jsVars([$n => $v]);
+        return Utils::jsVars([$n => $v]);
     }
 
-    public static function jsJson($id, $vars)
+    public static function jsJson(string $id, mixed $vars): string
     {
-        // Use echo dcUtils::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
-        $ret = '<script type="application/json" id="' . html::escapeHTML($id) . '-data">' . "\n" .
+        // Use echo Utils::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
+        $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
 
         return $ret;
@@ -176,13 +184,13 @@ class dcUtils
      * @param string $ns admin/public/lang
      * @param string $lang language to be used if $ns = 'lang'
      */
-    public static function lexicalSort(&$arr, $ns = '', $lang = 'en_US')
+    public static function lexicalSort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            dcUtils::setLexicalLang($ns, $lang);
+            Utils::setLexicalLang($ns, $lang);
         }
 
-        return usort($arr, ['dcUtils', 'lexicalSortHelper']);
+        return usort($arr, ['Utils', 'lexicalSortHelper']);
     }
 
     /**
@@ -192,13 +200,13 @@ class dcUtils
      * @param string $ns admin/public/lang
      * @param string $lang language to be used if $ns = 'lang'
      */
-    public static function lexicalArraySort(&$arr, $ns = '', $lang = 'en_US')
+    public static function lexicalArraySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            dcUtils::setLexicalLang($ns, $lang);
+            Utils::setLexicalLang($ns, $lang);
         }
 
-        return uasort($arr, ['dcUtils', 'lexicalSortHelper']);
+        return uasort($arr, ['Utils', 'lexicalSortHelper']);
     }
 
     /**
@@ -208,30 +216,28 @@ class dcUtils
      * @param string $ns admin/public/lang
      * @param string $lang language to be used if $ns = 'lang'
      */
-    public static function lexicalKeySort(&$arr, $ns = '', $lang = 'en_US')
+    public static function lexicalKeySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            dcUtils::setLexicalLang($ns, $lang);
+            Utils::setLexicalLang($ns, $lang);
         }
 
-        return uksort($arr, ['dcUtils', 'lexicalSortHelper']);
+        return uksort($arr, ['Utils', 'lexicalSortHelper']);
     }
 
-    public static function setLexicalLang($ns = '', $lang = 'en_US')
+    public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
     {
-        global $core;
-
         // Switch to appropriate locale depending on $ns
         switch ($ns) {
             case 'admin':
                 // Set locale with user prefs
-                $user_language = $core->auth->getInfo('user_lang');
+                $user_language = self::$core->auth->getInfo('user_lang');
                 setlocale(LC_COLLATE, $user_language);
 
                 break;
             case 'public':
                 // Set locale with blog params
-                $blog_language = $core->blog->settings->system->lang;
+                $blog_language = self::$core->blog->settings->system->lang;
                 setlocale(LC_COLLATE, $blog_language);
 
                 break;
@@ -243,9 +249,9 @@ class dcUtils
         }
     }
 
-    private static function lexicalSortHelper($a, $b)
+    private static function lexicalSortHelper(string $a, string $b): int
     {
-        return strcoll(strtolower(dcUtils::removeDiacritics($a)), strtolower(dcUtils::removeDiacritics($b)));
+        return strcoll(strtolower(Utils::removeDiacritics($a)), strtolower(Utils::removeDiacritics($b)));
     }
 
     // removeDiacritics function (see https://github.com/infralabs/DiacriticsRemovePHP)
@@ -613,13 +619,13 @@ class dcUtils
         ],
     ];
 
-    public static function removeDiacritics($str)
+    public static function removeDiacritics(string $str): string
     {
         $flags = 'um';
-        for ($i = 0; $i < sizeof(dcUtils::$defaultDiacriticsRemovalMap); $i++) {
+        for ($i = 0; $i < sizeof(Utils::$defaultDiacriticsRemovalMap); $i++) {
             $str = preg_replace(
-                dcUtils::$defaultDiacriticsRemovalMap[$i]['letters'] . $flags,
-                dcUtils::$defaultDiacriticsRemovalMap[$i]['base'],
+                Utils::$defaultDiacriticsRemovalMap[$i]['letters'] . $flags,
+                Utils::$defaultDiacriticsRemovalMap[$i]['base'],
                 $str
             );
         }

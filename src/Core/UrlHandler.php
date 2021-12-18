@@ -1,24 +1,43 @@
 <?php
 /**
+ * @brief Dotclear core url handler (public) class
+ *
  * @package Dotclear
- * @subpackage Public
+ * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Html;
+use Dotclear\Utils\Http;
+use Dotclear\Utils\Text;
+use Dotclear\Utils\UrlHandler as BaseUrlHandler;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcUrlHandlers extends urlHandler
+class UrlHandler extends BaseUrlHandler
 {
+
+    /** @var Core Core instance */
+    protected $core;
+
     public $args;
+
+    public function __construct(Core $core, string $mode = 'path_info')
+    {
+        $this->core = $core;
+        $this->mode = $mode;
+    }
 
     protected function getHomeType()
     {
-        $core = &$GLOBALS['core'];
-
-        return $core->blog->settings->system->static_home ? 'static' : 'default';
+        return $this->core->blog->settings->system->static_home ? 'static' : 'default';
     }
 
     public function isHome($type)
@@ -28,8 +47,7 @@ class dcUrlHandlers extends urlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $core = &$GLOBALS['core'];
-        $url  = $core->callBehavior('publicGetURLFor', $type, $value);
+        $url  = $this->core->callBehavior('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -45,9 +63,8 @@ class dcUrlHandlers extends urlHandler
 
     public function register($type, $url, $representation, $handler)
     {
-        $core = &$GLOBALS['core'];
-        $t    = new ArrayObject([$type, $url, $representation, $handler]);
-        $core->callBehavior('publicRegisterURL', $t);
+        $t    = new \ArrayObject([$type, $url, $representation, $handler]);
+        $this->core->callBehavior('publicRegisterURL', $t);
         parent::register($t[0], $t[1], $t[2], $t[3]);
     }
 
@@ -109,7 +126,7 @@ class dcUrlHandlers extends urlHandler
             throw new Exception('Unable to find template ');
         }
 
-        $result = new ArrayObject;
+        $result = new \ArrayObject;
 
         $_ctx->current_tpl  = $tpl;
         $_ctx->content_type = $content_type;
@@ -125,7 +142,7 @@ class dcUrlHandlers extends urlHandler
         header('Content-Type: ' . $_ctx->content_type . '; charset=UTF-8');
 
         // Additional headers
-        $headers = new ArrayObject;
+        $headers = new \ArrayObject;
         if ($core->blog->settings->system->prevents_clickjacking) {
             if ($_ctx->exists('xframeoption')) {
                 $url    = parse_url($_ctx->xframeoption);
@@ -275,7 +292,7 @@ class dcUrlHandlers extends urlHandler
 
             $GLOBALS['_search'] = !empty($_GET['q']) ? html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
-                $params = new ArrayObject(['search' => $GLOBALS['_search']]);
+                $params = new \ArrayObject(['search' => $GLOBALS['_search']]);
                 $core->callBehavior('publicBeforeSearchCount', $params);
                 $GLOBALS['_search_count'] = $core->blog->getPosts($params, true)->f(0);
             }
@@ -290,7 +307,7 @@ class dcUrlHandlers extends urlHandler
         $core = &$GLOBALS['core'];
 
         $n      = self::getPageNumber($args);
-        $params = new ArrayObject([
+        $params = new \ArrayObject([
             'lang' => $args]);
 
         $core->callBehavior('publicLangBeforeGetLangs', $params, $args);
@@ -320,7 +337,7 @@ class dcUrlHandlers extends urlHandler
             # No category was specified.
             self::p404();
         } else {
-            $params = new ArrayObject([
+            $params = new \ArrayObject([
                 'cat_url'       => $args,
                 'post_type'     => 'post',
                 'without_empty' => false]);
@@ -350,7 +367,7 @@ class dcUrlHandlers extends urlHandler
         if ($args == '') {
             self::serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
-            $params = new ArrayObject([
+            $params = new \ArrayObject([
                 'year'  => $m[1],
                 'month' => $m[2],
                 'type'  => 'month']);
@@ -382,14 +399,14 @@ class dcUrlHandlers extends urlHandler
 
             $core->blog->withoutPassword(false);
 
-            $params = new ArrayObject([
+            $params = new \ArrayObject([
                 'post_url' => $args]);
 
             $core->callBehavior('publicPostBeforeGetPosts', $params, $args);
 
             $_ctx->posts = $core->blog->getPosts($params);
 
-            $_ctx->comment_preview               = new ArrayObject();
+            $_ctx->comment_preview               = new \ArrayObject();
             $_ctx->comment_preview['content']    = '';
             $_ctx->comment_preview['rawcontent'] = '';
             $_ctx->comment_preview['name']       = '';
@@ -573,7 +590,7 @@ class dcUrlHandlers extends urlHandler
         $core = &$GLOBALS['core'];
 
         if (preg_match('!^([a-z]{2}(-[a-z]{2})?)/(.*)$!', $args, $m)) {
-            $params = new ArrayObject(['lang' => $m[1]]);
+            $params = new \ArrayObject(['lang' => $m[1]]);
 
             $args = $m[3];
 
@@ -615,7 +632,7 @@ class dcUrlHandlers extends urlHandler
         }
 
         if ($cat_url) {
-            $params = new ArrayObject([
+            $params = new \ArrayObject([
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
@@ -632,7 +649,7 @@ class dcUrlHandlers extends urlHandler
 
             $subtitle = ' - ' . $_ctx->categories->cat_title;
         } elseif ($post_id) {
-            $params = new ArrayObject([
+            $params = new \ArrayObject([
                 'post_id'   => $post_id,
                 'post_type' => '']);
 

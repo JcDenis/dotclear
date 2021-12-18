@@ -1,10 +1,6 @@
 <?php
 /**
- * @brief Blog settings handler
- *
- * dcSettings provides blog settings management. This class instance exists as
- * dcBlog $settings property. You should create a new settings instance when
- * updating another blog settings.
+ * @brief Dotclear core settings class
  *
  * @package Dotclear
  * @subpackage Core
@@ -12,11 +8,15 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcSettings
+class Settings
 {
     protected $core;    ///< <b>core</b> Dotclear core object
     protected $con;     ///< <b>connection</b> Database connection object
@@ -36,7 +36,7 @@ class dcSettings
      * @param      dcCore   $core     The core
      * @param      mixed    $blog_id  The blog identifier
      */
-    public function __construct(dcCore $core, $blog_id)
+    public function __construct(Core $core, $blog_id)
     {
         $this->core    = &$core;
         $this->con     = &$core->con;
@@ -77,7 +77,7 @@ class dcSettings
                 // at very first time
                 $rs->movePrev();
             }
-            $this->namespaces[$ns] = new dcNamespace($this->core, $this->blog_id, $ns, $rs);
+            $this->namespaces[$ns] = new Nspace($this->core, $this->blog_id, $ns, $rs);
         } while (!$rs->isStart());
     }
 
@@ -86,12 +86,12 @@ class dcSettings
      *
      * @param      string  $ns     Namespace name
      *
-     * @return     dcNamespace
+     * @return     Nspace
      */
     public function addNamespace($ns)
     {
         if (!$this->exists($ns)) {
-            $this->namespaces[$ns] = new dcNamespace($this->core, $this->blog_id, $ns);
+            $this->namespaces[$ns] = new Nspace($this->core, $this->blog_id, $ns);
         }
 
         return $this->namespaces[$ns];
@@ -159,7 +159,7 @@ class dcSettings
      *
      * @param      string  $ns     Namespace name
      *
-     * @return     dcNamespace
+     * @return     Nspace
      */
     public function get($ns)
     {
@@ -173,7 +173,7 @@ class dcSettings
      *
      * @param      string  $n      namespace name
      *
-     * @return     dcNamespace
+     * @return     Nspace
      */
     public function __get($n)
     {

@@ -1,20 +1,29 @@
 <?php
 /**
+ * @brief Dotclear core blog class
+ *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @brief Dotclear blog class.
- *
- * Dotclear blog class instance is provided by dcCore $blog property.
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Html;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\Path;
+use Dotclear\Utils\Http;
+use Dotclear\Utils\Text;
+use Dotclear\Database\StaticRecord;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcBlog
+class Blog
 {
     /** @var dcCore dcCore instance */
     protected $core;
@@ -60,10 +69,10 @@ class dcBlog
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      * @param      string  $id     The blog identifier
      */
-    public function __construct(dcCore $core, $id)
+    public function __construct(Core $core, $id)
     {
         $this->con    = &$core->con;
         $this->prefix = $core->prefix;
@@ -75,15 +84,15 @@ class dcBlog
             $this->name   = $b->blog_name;
             $this->desc   = $b->blog_desc;
             $this->url    = $b->blog_url;
-            $this->host   = http::getHostFromURL($this->url);
+            $this->host   = Http::getHostFromURL($this->url);
             $this->creadt = strtotime($b->blog_creadt);
             $this->upddt  = strtotime($b->blog_upddt);
             $this->status = $b->blog_status;
 
-            $this->settings = new dcSettings($this->core, $this->id);
+            $this->settings = new Settings($this->core, $this->id);
 
-            $this->themes_path = path::fullFromRoot($this->settings->system->themes_path, DC_ROOT);
-            $this->public_path = path::fullFromRoot($this->settings->system->public_path, DC_ROOT);
+            $this->themes_path = Path::fullFromRoot($this->settings->system->themes_path, DOTCLEAR_ROOT_DIR);
+            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, DOTCLEAR_ROOT_DIR);
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
@@ -126,12 +135,12 @@ class dcBlog
         $version = $this->settings->system->jquery_version;
         if ($version == '') {
             // Version not set, use default one
-            $version = DC_DEFAULT_JQUERY; // defined in inc/prepend.php
+            $version = DOTCLEAR_DEFAULT_JQUERY; // defined in inc/prepend.php
         } else {
             if (!$this->settings->system->jquery_allow_old_version) {
                 // Use the blog defined version only if more recent than default
-                if (version_compare($version, DC_DEFAULT_JQUERY, '<')) {
-                    $version = DC_DEFAULT_JQUERY; // defined in inc/prepend.php
+                if (version_compare($version, DOTCLEAR_DEFAULT_JQUERY, '<')) {
+                    $version = DOTCLEAR_DEFAULT_JQUERY; // defined in inc/prepend.php
                 }
             }
         }
@@ -151,7 +160,7 @@ class dcBlog
     {
         $ret = $this->getQmarkURL() . 'pf=' . $pf;
         if ($strip_host) {
-            $ret = html::stripHostURL($ret);
+            $ret = Html::stripHostURL($ret);
         }
 
         return $ret;
@@ -169,7 +178,7 @@ class dcBlog
     {
         $ret = $this->getQmarkURL() . 'vf=' . $vf;
         if ($strip_host) {
-            $ret = html::stripHostURL($ret);
+            $ret = Html::stripHostURL($ret);
         }
 
         return $ret;
@@ -445,7 +454,7 @@ class dcBlog
             }
         }
 
-        return staticRecord::newFromArray($data);
+        return StaticRecord::newFromArray($data);
     }
 
     /**
@@ -582,7 +591,7 @@ class dcBlog
         }
 
         if ($cur->cat_url == '') {
-            $url[] = text::tidyURL($cur->cat_title, false);
+            $url[] = Text::tidyURL($cur->cat_title, false);
         } else {
             $url[] = $cur->cat_url;
         }
@@ -633,7 +642,7 @@ class dcBlog
                 }
             }
 
-            $url[]        = text::tidyURL($cur->cat_title, false);
+            $url[]        = Text::tidyURL($cur->cat_title, false);
             $cur->cat_url = implode('/', $url);
         }
 
@@ -809,14 +818,14 @@ class dcBlog
 
         # If we don't have any cat_url, let's do one
         if ($cur->cat_url == '') {
-            $cur->cat_url = text::tidyURL($cur->cat_title, false);
+            $cur->cat_url = Text::tidyURL($cur->cat_title, false);
         }
 
         # Still empty ?
         if ($cur->cat_url == '') {
             throw new Exception(__('You must provide a category URL'));
         }
-        $cur->cat_url = text::tidyURL($cur->cat_url, true);
+        $cur->cat_url = Text::tidyURL($cur->cat_url, true);
 
         # Check if title or url are unique
         $cur->cat_url = $this->checkCategory($cur->cat_title, $cur->cat_url, $id);
@@ -1009,7 +1018,7 @@ class dcBlog
         }
 
         if (!empty($params['search'])) {
-            $words = text::splitWords($params['search']);
+            $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
                 # --BEHAVIOR-- corePostSearch
@@ -1656,7 +1665,7 @@ class dcBlog
 
         $rs = $this->con->select($strReq);
 
-        $now       = dt::toUTC(time());
+        $now       = Dt::toUTC(time());
         $to_change = new ArrayObject();
 
         if ($rs->isEmpty()) {
@@ -1665,7 +1674,7 @@ class dcBlog
 
         while ($rs->fetch()) {
             # Now timestamp with post timezone
-            $now_tz = $now + dt::getTimeOffset($rs->post_tz, $now);
+            $now_tz = $now + Dt::getTimeOffset($rs->post_tz, $now);
 
             # Post timestamp
             $post_ts = strtotime($rs->post_dt);
@@ -1841,7 +1850,7 @@ class dcBlog
         }
 
         if ($cur->post_dt == '') {
-            $offset       = dt::getTimeOffset($this->core->auth->getInfo('user_tz'));
+            $offset       = Dt::getTimeOffset($this->core->auth->getInfo('user_tz'));
             $now          = time() + $offset;
             $cur->post_dt = date('Y-m-d H:i:00', $now);
         }
@@ -1859,7 +1868,7 @@ class dcBlog
             $cur->post_excerpt_xhtml . ' ' .
             $cur->post_content_xhtml;
 
-            $cur->post_words = implode(' ', text::splitWords($words));
+            $cur->post_words = implode(' ', Text::splitWords($words));
         }
 
         if ($cur->isField('post_firstpub')) {
@@ -1977,7 +1986,7 @@ class dcBlog
             '{y}'  => date('Y', strtotime($post_dt)),
             '{m}'  => date('m', strtotime($post_dt)),
             '{d}'  => date('d', strtotime($post_dt)),
-            '{t}'  => text::tidyURL($post_title),
+            '{t}'  => Text::tidyURL($post_title),
             '{id}' => (int) $post_id,
         ];
 
@@ -1990,7 +1999,7 @@ class dcBlog
                 $this->settings->system->post_url_format
             );
         } else {
-            $url = text::tidyURL($url);
+            $url = Text::tidyURL($url);
         }
 
         # Let's check if URL is taken...
@@ -2178,7 +2187,7 @@ class dcBlog
         }
 
         if (!empty($params['search'])) {
-            $words = text::splitWords($params['search']);
+            $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
                 # --BEHAVIOR coreCommentSearch
@@ -2244,14 +2253,14 @@ class dcBlog
             $cur->comment_id    = (int) $rs->f(0) + 1;
             $cur->comment_upddt = date('Y-m-d H:i:s');
 
-            $offset          = dt::getTimeOffset($this->settings->system->blog_timezone);
+            $offset          = Dt::getTimeOffset($this->settings->system->blog_timezone);
             $cur->comment_dt = date('Y-m-d H:i:s', time() + $offset);
             $cur->comment_tz = $this->settings->system->blog_timezone;
 
             $this->getCommentCursor($cur);
 
             if ($cur->comment_ip === null) {
-                $cur->comment_ip = http::realIP();
+                $cur->comment_ip = Http::realIP();
             }
 
             # --BEHAVIOR-- coreBeforeCommentCreate
@@ -2471,7 +2480,7 @@ class dcBlog
             throw new Exception(__('You must provide an author name'));
         }
 
-        if ($cur->comment_email != '' && !text::isEmail($cur->comment_email)) {
+        if ($cur->comment_email != '' && !Text::isEmail($cur->comment_email)) {
             throw new Exception(__('Email address is not valid.'));
         }
 
@@ -2489,7 +2498,7 @@ class dcBlog
 
         # Words list
         if ($cur->comment_content !== null) {
-            $cur->comment_words = implode(' ', text::splitWords($cur->comment_content));
+            $cur->comment_words = implode(' ', Text::splitWords($cur->comment_content));
         }
     }
     //@}

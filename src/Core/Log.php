@@ -1,16 +1,28 @@
 <?php
 /**
+ * @brief Dotclear core log class
+ *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\Http;
+use Dotclear\Utils\Sql\SelectStatement;
+use Dotclear\Utils\Sql\JoinStatement;
+use Dotclear\Utils\Sql\TruncateStatement;
+use Dotclear\Utils\Sql\DeleteStatement;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcLog
+class Log
 {
     protected $core;
     protected $con;
@@ -20,9 +32,9 @@ class dcLog
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
         $this->core       = &$core;
         $this->con        = &$core->con;
@@ -48,7 +60,7 @@ class dcLog
      */
     public function getLogs($params = [], $count_only = false)
     {
-        $sql = new dcSelectStatement($this->core, 'dcLogGetLogs');
+        $sql = new SelectStatement($this->core, 'dcLogGetLogs');
 
         if ($count_only) {
             $sql->column('COUNT(log_id)');
@@ -72,7 +84,7 @@ class dcLog
 
         if (!$count_only) {
             $sql->join(
-                (new dcJoinStatement($this->core, 'dcLogGetLogs'))
+                (new JoinStatement($this->core, 'dcLogGetLogs'))
                 ->type('LEFT')
                 ->from($this->user_table . ' U')
                 ->on('U.user_id = L.user_id')
@@ -130,7 +142,7 @@ class dcLog
 
         try {
             # Get ID
-            $sql = new dcSelectStatement($this->core, 'dcLogAddLog');
+            $sql = new SelectStatement($this->core, 'dcLogAddLog');
             $sql
                 ->column('MAX(log_id)')
                 ->from($this->log_table);
@@ -169,11 +181,11 @@ class dcLog
     public function delLogs($id, $all = false)
     {
         if ($all) {
-            $sql = new dcTruncateStatement($this->core, 'dcLogDelLogs');
+            $sql = new TruncateStatement($this->core, 'dcLogDelLogs');
             $sql
                 ->from($this->log_table);
         } else {
-            $sql = new dcDeleteStatement($this->core, 'dcLogDelLogs');
+            $sql = new DeleteStatement($this->core, 'dcLogDelLogs');
             $sql
                 ->from($this->log_table)
                 ->where('log_id ' . $sql->in($id));
@@ -213,34 +225,5 @@ class dcLog
         }
 
         $log_id = is_int($log_id) ? $log_id : $cur->log_id;
-    }
-}
-
-/**
- * Extent log record class.
- */
-class rsExtLog
-{
-    /**
-     * Gets the user cn.
-     *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     string  The user cn.
-     */
-    public static function getUserCN($rs)
-    {
-        $user = dcUtils::getUserCN(
-            $rs->user_id,
-            $rs->user_name,
-            $rs->user_firstname,
-            $rs->user_displayname
-        );
-
-        if ($user === 'unknown') {
-            $user = __('unknown');
-        }
-
-        return $user;
     }
 }

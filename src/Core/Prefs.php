@@ -1,10 +1,6 @@
 <?php
 /**
- * @brief User prefs handler
- *
- * dcPrefs provides user preferences management. This class instance exists as
- * dcAuth $prefs property. You should create a new prefs instance when
- * updating another user prefs.
+ * @brief Dotclear core prefs class
  *
  * @package Dotclear
  * @subpackage Core
@@ -12,11 +8,15 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcPrefs
+class Prefs
 {
     protected $core;    ///< <b>core</b> Dotclear core object
     protected $con;     ///< <b>connection</b> Database connection object
@@ -33,11 +33,11 @@ class dcPrefs
      * Object constructor. Retrieves user prefs and puts them in $workspaces
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param      dcCore      $core      The core
+     * @param      Core      $core      The core
      * @param      string      $user_id   The user identifier
      * @param      string|null $workspace The workspace to load
      */
-    public function __construct(dcCore $core, $user_id, $workspace = null)
+    public function __construct(Core $core, $user_id, $workspace = null)
     {
         $this->core    = &$core;
         $this->con     = &$core->con;
@@ -85,7 +85,7 @@ class dcPrefs
                 // at very first time
                 $rs->movePrev();
             }
-            $this->workspaces[$ws] = new dcWorkspace($this->core, $this->user_id, $ws, $rs);
+            $this->workspaces[$ws] = new Workspace($this->core, $this->user_id, $ws, $rs);
         } while (!$rs->isStart());
     }
 
@@ -99,7 +99,7 @@ class dcPrefs
     public function addWorkspace($ws)
     {
         if (!$this->exists($ws)) {
-            $this->workspaces[$ws] = new dcWorkspace($this->core, $this->user_id, $ws);
+            $this->workspaces[$ws] = new Workspace($this->core, $this->user_id, $ws);
         }
 
         return $this->workspaces[$ws];

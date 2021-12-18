@@ -1,9 +1,6 @@
 <?php
 /**
- * @brief Dotclear REST server extension
- *
- * This class extends restServer to handle dcCore instance in each rest method call.
- * Instance of this class is provided by dcCore $rest.
+ * @brief Dotclear core rest server class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,39 +8,115 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Utils\XmlTag;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcRestServer extends restServer
+class RestServer
 {
     public $core; ///< dcCore instance
 
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
-        parent::__construct();
-
+        $this->rsp = new XmlTag('rsp');
         $this->core = &$core;
     }
 
     /**
-     * Rest method call.
+     * Add Function
      *
-     * @param      string  $name   The method name
-     * @param      array   $get    The GET parameters copy
-     * @param      array   $post   The POST parameters copy
+     * This adds a new function to the server. <var>$callback</var> should be
+     * a valid PHP callback. Callback function takes two arguments: GET and
+     * POST values.
      *
-     * @return     mixed    Rest method result
+     * @param string    $name        Function name
+     * @param callable  $callback        Callback function
+     */
+    public function addFunction($name, $callback)
+    {
+        if (is_callable($callback)) {
+            $this->functions[$name] = $callback;
+        }
+    }
+
+    /**
+     * Call Function
+     *
+     * This method calls callback named <var>$name</var>.
+     *
+     * @param string    $name        Function name
+     * @param array        $get            GET values
+     * @param array        $post        POST values
+     * @return mixed
      */
     protected function callFunction($name, $get, $post)
     {
         if (isset($this->functions[$name])) {
             return call_user_func($this->functions[$name], $this->core, $get, $post);
         }
+    }
+
+    /**
+     * Main server
+     *
+     * This method creates the main server.
+     *
+     * @param string    $encoding        Server charset
+     */
+    public function serve($encoding = 'UTF-8')
+    {
+        $get  = $_GET ?: [];
+        $post = $_POST ?: [];
+
+        if (!isset($_REQUEST['f'])) {
+            $this->rsp->status = 'failed';
+            $this->rsp->message('No function given');
+            $this->getXML($encoding);
+
+            return false;
+        }
+
+        if (!isset($this->functions[$_REQUEST['f']])) {
+            $this->rsp->status = 'failed';
+            $this->rsp->message('Function does not exist');
+            $this->getXML($encoding);
+
+            return false;
+        }
+
+        try {
+            $res = $this->callFunction($_REQUEST['f'], $get, $post);
+        } catch (Exception $e) {
+            $this->rsp->status = 'failed';
+            $this->rsp->message($e->getMessage());
+            $this->getXML($encoding);
+
+            return false;
+        }
+
+        $this->rsp->status = 'ok';
+
+        $this->rsp->insertNode($res);
+
+        $this->getXML($encoding);
+
+        return true;
+    }
+
+    private function getXML($encoding = 'UTF-8')
+    {
+        header('Content-Type: text/xml; charset=' . $encoding);
+        echo $this->rsp->toXML(1, $encoding);
     }
 }
