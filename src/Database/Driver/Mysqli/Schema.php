@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Connection with mysqlimb4 driver
+ * @class Schema with mysqli driver
  *
  * @package Dotclear
  * @subpackage Database
@@ -9,6 +9,8 @@
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
+
+namespace Dotclear\Database\Driver\Mysqli;
 
 use Dotclear\Database\Schema as BaseSchema;
 use Dotclear\Database\InterfaceSchema;

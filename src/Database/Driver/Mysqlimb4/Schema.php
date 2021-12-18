@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqlimb4;
 
-use Dotclear\Database\Driver\Mysqli\Schema as Mysqli;
+use Dotclear\Database\Driver\Mysqli\Schema as BaseSchema;
 
-class Schema extends Mysqli
+class Schema extends BaseSchema
 {
     public function db_create_table(string $name, array $fields): void
     {

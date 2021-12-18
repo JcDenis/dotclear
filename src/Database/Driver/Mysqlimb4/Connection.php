@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Mysqlmb4;
 
 use Dotclear\Database\Exception;
-use Dotclear\Database\Driver\Mysqli as BaseMysqli;
+use Dotclear\Database\Driver\Mysqli as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
 
-class Connection extends BaseMysqli implements InterfaceConnection
+class Connection extends BaseConnection implements InterfaceConnection
 {
     public static $weak_locks = true; ///< boolean: Enables weak locks if true
 
