@@ -1,64 +1,82 @@
 <?php
 /**
+ * @brief Dotclear admin url handler class
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Utils\Form;
+use Dotclear\Utils\Http;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 /**
 @brief URL Handler for admin urls
  */
-class dcAdminURL
+class UrlHandler
 {
-    /** @var dcCore dcCore instance */
+    /** @var Core Core instance */
     protected $core;
+    protected $root_url;
     protected $urls;
 
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core, $root_url = '')
     {
         $this->core = $core;
-        $this->urls = new ArrayObject();
+        $this->root_url = $root_url;
+        $this->urls = new \ArrayObject();
+    }
+
+    public function called()
+    {
+        return $_REQUEST['handler'] ?? (empty($this->urls) ? '' : key($this->urls->getArrayCopy()));
     }
 
     /**
-     * Registers a new url
+     * Registers a new url class
      *
-     * @param  string $name   the url name
-     * @param  string $url    url value
-     * @param  array  $params query string params (optional)
+     * @param  string $name     the url name
+     * @param  string $class    class value
+     * @param  array  $params   query string params (optional)
      */
-    public function register($name, $url, $params = [])
+    public function register(string $name, string $class, array $params = []): void
     {
-        $this->urls[$name] = ['url' => $url, 'qs' => $params];
+        $this->urls[$name] = ['class' => $class, 'qs' => $params];
     }
 
     /**
      * Registers a new url as a copy of an existing one
      *
      * @param  string $name   url name
-     * @param  string $orig   url to copy information from
+     * @param  string $orig   class to copy information from
      * @param  array  $params extra parameters to add
-     * @param  string $newurl new url if different from the original
+     * @param  string $newclass new class if different from the original
      */
-    public function registercopy($name, $orig, $params = [], $newurl = '')
+    public function registercopy(string $name, string $orig, array $params = [], string $newclass = ''): void
     {
         if (!isset($this->urls[$orig])) {
-            throw new exception('Unknown URL handler for ' . $orig);
+            throw new Exception('Unknown URL handler for ' . $orig);
         }
         $url       = $this->urls[$orig];
         $url['qs'] = array_merge($url['qs'], $params);
-        if ($newurl != '') {
-            $url['url'] = $newurl;
+        if ($newclass != '') {
+            $url['class'] = $newclass;
         }
         $this->urls[$name] = $url;
     }
@@ -73,23 +91,22 @@ class dcAdminURL
      *
      * @return string            the forged url
      */
-    public function get($name, $params = [], $separator = '&amp;', $parametric = false)
+    public function get(string $name, array $params = [], string $separator = '&amp;', bool $parametric = false): string
     {
         if (!isset($this->urls[$name])) {
-            throw new exception('Unknown URL handler for ' . $name);
+            throw new Exception('Unknown URL handler for ' . $name);
         }
+
         $url = $this->urls[$name];
-        $p   = array_merge($url['qs'], $params);
-        $u   = $url['url'];
-        if (!empty($p)) {
-            $u .= '?' . http_build_query($p, '', $separator);
-        }
+        $p   = array_merge($url['qs'], $params, ['handler' => $name]);
+        $u   = http_build_query($p, '', $separator);
+
         if ($parametric) {
             // Dirty hack to get back %[n$]s instead of %25[{0..9}%24]s in URLs used with (s)printf(), as http_build_query urlencode() its result.
             $u = preg_replace('/\%25(([0-9])+?\%24)*?s/', '%$2s', $u);
         }
 
-        return $u;
+        return $this->root_url . '?' . $u;
     }
 
     /**
@@ -102,9 +119,9 @@ class dcAdminURL
     public function redirect($name, $params = [], $suffix = '')
     {
         if (!isset($this->urls[$name])) {
-            throw new exception('Unknown URL handler for ' . $name);
+            throw new Exception('Unknown URL handler for ' . $name);
         }
-        http::redirect($this->get($name, $params, '&') . $suffix);
+        Http::redirect($this->get($name, $params, '&') . $suffix);
     }
 
     /**
@@ -117,10 +134,10 @@ class dcAdminURL
     public function getBase($name)
     {
         if (!isset($this->urls[$name])) {
-            throw new exception('Unknown URL handler for ' . $name);
+            throw new Exception('Unknown URL handler for ' . $name);
         }
 
-        return $this->urls[$name]['url'];
+        return $this->urls[$name]['class'];
     }
 
     /**
@@ -134,13 +151,13 @@ class dcAdminURL
     public function getHiddenFormFields($name, $params = [])
     {
         if (!isset($this->urls[$name])) {
-            throw new exception('Unknown URL handler for ' . $name);
+            throw new Exception('Unknown URL handler for ' . $name);
         }
         $url = $this->urls[$name];
-        $p   = array_merge($url['qs'], $params);
+        $p   = array_merge($url['qs'], $params, ['handler' => $name]);
         $str = '';
         foreach ((array) $p as $k => $v) {
-            $str .= form::hidden([$k], $v);
+            $str .= Form::hidden([$k], $v);
         }
 
         return $str;
@@ -164,7 +181,7 @@ class dcAdminURL
     /**
      * Returns $urls property content.
      *
-     * @return  ArrayObject
+     * @return  \ArrayObject
      */
     public function dumpUrls()
     {
