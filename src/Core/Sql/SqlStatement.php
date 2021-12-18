@@ -1,20 +1,18 @@
 <?php
-/**
- * @brief SQL query statement builder
- *
- * dcSqlStatement is a class used to build SQL queries
- *
- * @package Dotclear
- * @subpackage Core
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
+declare(strict_types=1);
+
+namespace Dotclear\Core\Sql;
+
+use Dotclear\Core\Core;
+
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
 
 /**
  * SQL Statement : small utility to build SQL queries
  */
-class dcSqlStatement
+class SqlStatement
 {
     protected $core;
     protected $con;
@@ -30,10 +28,10 @@ class dcSqlStatement
     /**
      * Class constructor
      *
-     * @param dcCore    $core   dcCore instance
+     * @param Core    $core   Core instance
      * @param mixed     $ctx    optional context
      */
-    public function __construct(dcCore &$core, $ctx = null)
+    public function __construct(Core &$core, $ctx = null)
     {
         $this->core = &$core;
         $this->con  = &$core->con;
@@ -133,7 +131,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function ctx($c): dcSqlStatement
+    public function ctx($c): SqlStatement
     {
         $this->ctx = $c;
 
@@ -148,7 +146,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function columns($c, bool $reset = false): dcSqlStatement
+    public function columns($c, bool $reset = false): SqlStatement
     {
         if ($reset) {
             $this->columns = [];
@@ -170,7 +168,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function fields($c, bool $reset = false): dcSqlStatement
+    public function fields($c, bool $reset = false): SqlStatement
     {
         return $this->columns($c, $reset);
     }
@@ -183,7 +181,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function column($c, bool $reset = false): dcSqlStatement
+    public function column($c, bool $reset = false): SqlStatement
     {
         return $this->columns($c, $reset);
     }
@@ -196,7 +194,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function field($c, bool $reset = false): dcSqlStatement
+    public function field($c, bool $reset = false): SqlStatement
     {
         return $this->column($c, $reset);
     }
@@ -209,7 +207,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function from($c, bool $reset = false): dcSqlStatement
+    public function from($c, bool $reset = false): SqlStatement
     {
         $filter = function ($v) {
             return trim(ltrim($v, ','));
@@ -237,7 +235,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function where($c, bool $reset = false): dcSqlStatement
+    public function where($c, bool $reset = false): SqlStatement
     {
         $filter = function ($v) {
             return preg_replace('/^\s*(AND|OR)\s*/i', '', $v);
@@ -264,7 +262,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function on($c, bool $reset = false): dcSqlStatement
+    public function on($c, bool $reset = false): SqlStatement
     {
         return $this->where($c, $reset);
     }
@@ -277,7 +275,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function cond($c, bool $reset = false): dcSqlStatement
+    public function cond($c, bool $reset = false): SqlStatement
     {
         if ($reset) {
             $this->cond = [];
@@ -299,7 +297,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function and($c, bool $reset = false): dcSqlStatement
+    public function and($c, bool $reset = false): SqlStatement
     {
         return $this->cond(array_map(function ($v) {return 'AND ' . $v;}, is_array($c) ? $c : [$c]), $reset);
     }
@@ -326,7 +324,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function or($c, bool $reset = false): dcSqlStatement
+    public function or($c, bool $reset = false): SqlStatement
     {
         return $this->cond(array_map(function ($v) {return 'OR ' . $v;}, is_array($c) ? $c : [$c]), $reset);
     }
@@ -353,7 +351,7 @@ class dcSqlStatement
      *
      * @return self instance, enabling to chain calls
      */
-    public function sql($c, bool $reset = false): dcSqlStatement
+    public function sql($c, bool $reset = false): SqlStatement
     {
         if ($reset) {
             $this->sql = [];
@@ -563,879 +561,5 @@ class dcSqlStatement
         };
 
         return ($filter($local) === $filter($external));
-    }
-}
-
-/**
- * Select Statement : small utility to build select queries
- */
-class dcSelectStatement extends dcSqlStatement
-{
-    protected $join;
-    protected $having;
-    protected $order;
-    protected $group;
-    protected $limit;
-    protected $offset;
-    protected $distinct;
-
-    /**
-     * Class constructor
-     *
-     * @param dcCore    $core   dcCore instance
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct(dcCore &$core, $ctx = null)
-    {
-        $this->join = $this->having = $this->order = $this->group = [];
-
-        $this->limit    = null;
-        $this->offset   = null;
-        $this->distinct = false;
-
-        parent::__construct($core, $ctx);
-    }
-
-    /**
-     * Adds JOIN clause(s) (applied on first from item only)
-     *
-     * @param mixed     $c      the join clause(s)
-     * @param boolean   $reset  reset previous join(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function join($c, bool $reset = false): dcSelectStatement
-    {
-        if ($reset) {
-            $this->join = [];
-        }
-        if (is_array($c)) {
-            $this->join = array_merge($this->join, $c);
-        } else {
-            array_push($this->join, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds HAVING clause(s)
-     *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous having(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function having($c, bool $reset = false): dcSelectStatement
-    {
-        if ($reset) {
-            $this->having = [];
-        }
-        if (is_array($c)) {
-            $this->having = array_merge($this->having, $c);
-        } else {
-            array_push($this->having, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds ORDER BY clause(s)
-     *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous order(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function order($c, bool $reset = false): dcSelectStatement
-    {
-        if ($reset) {
-            $this->order = [];
-        }
-        if (is_array($c)) {
-            $this->order = array_merge($this->order, $c);
-        } else {
-            array_push($this->order, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds GROUP BY clause(s)
-     *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous group(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function group($c, bool $reset = false): dcSelectStatement
-    {
-        if ($reset) {
-            $this->group = [];
-        }
-        if (is_array($c)) {
-            $this->group = array_merge($this->group, $c);
-        } else {
-            array_push($this->group, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Defines the LIMIT for select
-     *
-     * @param mixed $limit
-     * @return self instance, enabling to chain calls
-     */
-    public function limit($limit): dcSelectStatement
-    {
-        $offset = null;
-        if (is_array($limit)) {
-            // Keep only values
-            $limit = array_values($limit);
-            // If 2 values, [0] -> offset, [1] -> limit
-            // If 1 value, [0] -> limit
-            if (isset($limit[1])) {
-                $offset = $limit[0];
-                $limit  = $limit[1];
-            } else {
-                $limit = $limit[0];
-            }
-        }
-        $this->limit = $limit;
-        if ($offset !== null) {
-            $this->offset = $offset;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Defines the OFFSET for select
-     *
-     * @param integer $offset
-     * @return self instance, enabling to chain calls
-     */
-    public function offset(int $offset): dcSelectStatement
-    {
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    /**
-     * Defines the DISTINCT flag for select
-     *
-     * @param boolean $distinct
-     * @return self instance, enabling to chain calls
-     */
-    public function distinct(bool $distinct = true): dcSelectStatement
-    {
-        $this->distinct = $distinct;
-
-        return $this;
-    }
-
-    /**
-     * Returns the select statement
-     *
-     * @return string the statement
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeSelectStatement
-        $this->core->callBehavior('coreBeforeSelectStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL SELECT requires a FROM source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'SELECT ' . ($this->distinct ? 'DISTINCT ' : '');
-
-        // Specific column(s) or all (*)
-        if (count($this->columns)) {
-            $query .= join(', ', $this->columns) . ' ';
-        } else {
-            $query .= '* ';
-        }
-
-        // Table(s) and Join(s)
-        $query .= 'FROM ' . $this->from[0] . ' ';
-        $query .= join(' ', $this->join) . ' ';
-        if (count($this->from) > 1) {
-            $query .= ', ' . join(', ', array_slice($this->from, 1)) . ' '; // All other from(s)
-        }
-
-        // Where clause(s)
-        if (count($this->where)) {
-            $query .= 'WHERE ' . join(' AND ', $this->where) . ' ';
-        }
-
-        // Direct where clause(s)
-        if (count($this->cond)) {
-            if (!count($this->where)) {
-                $query .= 'WHERE 1 '; // Hack to cope with the operator included in top of each condition
-            }
-            $query .= join(' ', $this->cond) . ' ';
-        }
-
-        // Generic clause(s)
-        if (count($this->sql)) {
-            $query .= join(' ', $this->sql) . ' ';
-        }
-
-        // Group by clause (columns or aliases)
-        if (count($this->group)) {
-            $query .= 'GROUP BY ' . join(', ', $this->group) . ' ';
-        }
-
-        // Having clause(s)
-        if (count($this->having)) {
-            $query .= 'HAVING ' . join(' AND ', $this->having) . ' ';
-        }
-
-        // Order by clause (columns or aliases and optionnaly order ASC/DESC)
-        if (count($this->order)) {
-            $query .= 'ORDER BY ' . join(', ', $this->order) . ' ';
-        }
-
-        // Limit clause
-        if ($this->limit !== null) {
-            $query .= 'LIMIT ' . $this->limit . ' ';
-        }
-
-        // Offset clause
-        if ($this->offset !== null) {
-            $query .= 'OFFSET ' . $this->offset . ' ';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertSelectStatement
-        $this->core->callBehavior('coreAfterSelectStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Run the SQL select query and return result
-     *
-     * @return     mixed  record or staticRecord (for sqlite)
-     */
-    public function select()
-    {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->select($sql);
-        }
-
-        return null;
-    }
-
-    /**
-     * select() alias
-     *
-     * @return     bool
-     */
-    public function run(): bool
-    {
-        return $this->select();
-    }
-}
-
-/**
- * Join (sub)Statement : small utility to build join query fragments
- */
-class dcJoinStatement extends dcSqlStatement
-{
-    protected $type;
-
-    /**
-     * Class constructor
-     *
-     * @param dcCore    $core   dcCore instance
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct(dcCore &$core, $ctx = null)
-    {
-        $this->type = null;
-
-        parent::__construct($core, $ctx);
-    }
-
-    /**
-     * Defines the type for join
-     *
-     * @param string $type
-     * @return self instance, enabling to chain calls
-     */
-    public function type(string $type = ''): dcJoinStatement
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Returns the join fragment
-     *
-     * @return string the fragment
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeDeleteStatement
-        $this->core->callBehavior('coreBeforeJoinStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL JOIN requires a source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'JOIN ';
-
-        if ($this->type) {
-            // LEFT, RIGHT, …
-            $query = $this->type . ' ' . $query;
-        }
-
-        // Table
-        $query .= ' ' . $this->from[0] . ' ';
-
-        // Where clause(s)
-        if (count($this->where)) {
-            $query .= 'ON ' . join(' AND ', $this->where) . ' ';
-        }
-
-        // Direct where clause(s)
-        if (count($this->cond)) {
-            $query .= join(' ', $this->cond) . ' ';
-        }
-
-        // Generic clause(s)
-        if (count($this->sql)) {
-            $query .= join(' ', $this->sql) . ' ';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertSelectStatement
-        $this->core->callBehavior('coreAfterJoinStatement', $this, $query);
-
-        return $query;
-    }
-}
-
-/**
- * Delete Statement : small utility to build delete queries
- */
-class dcDeleteStatement extends dcSqlStatement
-{
-    /**
-     * Returns the delete statement
-     *
-     * @return string the statement
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeDeleteStatement
-        $this->core->callBehavior('coreBeforeDeleteStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL DELETE requires a FROM source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'DELETE ';
-
-        // Table
-        $query .= 'FROM ' . $this->from[0] . ' ';
-
-        // Where clause(s)
-        if (count($this->where)) {
-            $query .= 'WHERE ' . join(' AND ', $this->where) . ' ';
-        }
-
-        // Direct where clause(s)
-        if (count($this->cond)) {
-            if (!count($this->where)) {
-                $query .= 'WHERE 1 '; // Hack to cope with the operator included in top of each condition
-            }
-            $query .= join(' ', $this->cond) . ' ';
-        }
-
-        // Generic clause(s)
-        if (count($this->sql)) {
-            $query .= join(' ', $this->sql) . ' ';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertDeleteStatement
-        $this->core->callBehavior('coreAfterDeleteStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Run the SQL select query and return result
-     *
-     * @return     bool
-     */
-    public function delete(): bool
-    {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
-        }
-
-        return false;
-    }
-
-    /**
-     * delete() alias
-     *
-     * @return     bool
-     */
-    public function run(): bool
-    {
-        return $this->delete();
-    }
-}
-
-/**
- * Update Statement : small utility to build update queries
- */
-class dcUpdateStatement extends dcSqlStatement
-{
-    protected $set;
-
-    /**
-     * Class constructor
-     *
-     * @param dcCore    $core   dcCore instance
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct(dcCore &$core, $ctx = null)
-    {
-        $this->set = [];
-
-        parent::__construct($core, $ctx);
-    }
-
-    /**
-     * from() alias
-     *
-     * @param mixed     $c      the reference clause(s)
-     * @param boolean   $reset  reset previous reference first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function reference($c, bool $reset = false): dcUpdateStatement
-    {
-        $this->from($c, $reset);
-
-        return $this;
-    }
-
-    /**
-     * from() alias
-     *
-     * @param mixed     $c      the reference clause(s)
-     * @param boolean   $reset  reset previous reference first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function ref($c, bool $reset = false): dcUpdateStatement
-    {
-        return $this->reference($c, $reset);
-    }
-
-    /**
-     * Adds update value(s)
-     *
-     * @param mixed     $c      the udpate values(s)
-     * @param boolean   $reset  reset previous update value(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function set($c, bool $reset = false): dcUpdateStatement
-    {
-        if ($reset) {
-            $this->set = [];
-        }
-        if (is_array($c)) {
-            $this->set = array_merge($this->set, $c);
-        } else {
-            array_push($this->set, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * set() alias
-     *
-     * @param      mixed    $c      the update value(s)
-     * @param      boolean  $reset  reset previous update value(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function sets($c, bool $reset = false): dcUpdateStatement
-    {
-        return $this->set($c, $reset);
-    }
-
-    /**
-     * Returns the WHERE part of update statement
-     *
-     * Useful to construct the where clause used with cursor->update() method
-     *
-     * @return string The where part of update statement
-     */
-    public function whereStatement(): string
-    {
-        # --BEHAVIOR-- coreBeforeUpdateWhereStatement
-        $this->core->callBehavior('coreBeforeUpdateWhereStatement', $this);
-
-        $query = '';
-
-        // Where clause(s)
-        if (count($this->where)) {
-            $query .= 'WHERE ' . join(' AND ', $this->where) . ' ';
-        }
-
-        // Direct where clause(s)
-        if (count($this->cond)) {
-            if (!count($this->where)) {
-                $query .= 'WHERE 1 '; // Hack to cope with the operator included in top of each condition
-            }
-            $query .= join(' ', $this->cond) . ' ';
-        }
-
-        // Generic clause(s)
-        if (count($this->sql)) {
-            $query .= join(' ', $this->sql) . ' ';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertUpdateWhereStatement
-        $this->core->callBehavior('coreAfterUpdateWhereStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Returns the update statement
-     *
-     * @return string the statement
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeUpdateStatement
-        $this->core->callBehavior('coreBeforeUpdateStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL UPDATE requires an INTO source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'UPDATE ';
-
-        // Reference
-        $query .= $this->from[0] . ' ';
-
-        // Value(s)
-        if (count($this->set)) {
-            $query .= 'SET ' . join(', ', $this->set) . ' ';
-        }
-
-        // Where clause(s)
-        if (count($this->where)) {
-            $query .= 'WHERE ' . join(' AND ', $this->where) . ' ';
-        }
-
-        // Direct where clause(s)
-        if (count($this->cond)) {
-            if (!count($this->where)) {
-                $query .= 'WHERE 1 '; // Hack to cope with the operator included in top of each condition
-            }
-            $query .= join(' ', $this->cond) . ' ';
-        }
-
-        // Generic clause(s)
-        if (count($this->sql)) {
-            $query .= join(' ', $this->sql) . ' ';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertUpdateStatement
-        $this->core->callBehavior('coreAfterUpdateStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Run the SQL update query
-     *
-     * @param      cursor|null  $cur    The cursor
-     *
-     * @return     bool
-     */
-    public function update(?cursor $cur = null): bool
-    {
-        if ($cur) {
-            return $cur->update($this->whereStatement());
-        }
-
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
-        }
-
-        return false;
-    }
-
-    /**
-     * update() alias
-     *
-     * @param      cursor|null  $cur    The cursor
-     *
-     * @return     bool
-     */
-    public function run(?cursor $cur = null): bool
-    {
-        return $this->update($cur);
-    }
-}
-
-/**
- * Insert Statement : small utility to build insert queries
- */
-class dcInsertStatement extends dcSqlStatement
-{
-    protected $lines;
-
-    /**
-     * Class constructor
-     *
-     * @param dcCore    $core   dcCore instance
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct(dcCore &$core, $ctx = null)
-    {
-        $this->lines = [];
-
-        parent::__construct($core, $ctx);
-    }
-
-    /**
-     * from() alias
-     *
-     * @param mixed     $c      the into clause(s)
-     * @param boolean   $reset  reset previous into first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function into($c, bool $reset = false): dcInsertStatement
-    {
-        $this->from($c, $reset);
-
-        return $this;
-    }
-
-    /**
-     * Adds update value(s)
-     *
-     * @param mixed     $c      the insert values(s)
-     * @param boolean   $reset  reset previous insert value(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function lines($c, bool $reset = false): dcInsertStatement
-    {
-        if ($reset) {
-            $this->lines = [];
-        }
-        if (is_array($c)) {
-            $this->lines = array_merge($this->lines, $c);
-        } else {
-            array_push($this->lines, $c);
-        }
-
-        return $this;
-    }
-
-    /**
-     * line() alias
-     *
-     * @param      mixed    $c      the insert value(s)
-     * @param      boolean  $reset  reset previous insert value(s) first
-     *
-     * @return self instance, enabling to chain calls
-     */
-    public function line($c, bool $reset = false): dcInsertStatement
-    {
-        return $this->lines($c, $reset);
-    }
-
-    /**
-     * Returns the insert statement
-     *
-     * @return string the statement
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeInsertStatement
-        $this->core->callBehavior('coreBeforeInsertStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL INSERT requires an INTO source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'INSERT ';
-
-        // Reference
-        $query .= 'INTO ' . $this->from[0] . ' ';
-
-        // Column(s)
-        if (count($this->columns)) {
-            $query .= '(' . join(', ', $this->columns) . ') ';
-        }
-
-        // Value(s)
-        $query .= 'VALUES ';
-        if (count($this->lines)) {
-            $raws = [];
-            foreach ($this->lines as $line) {
-                $raws[] = '(' . join(', ', $line) . ')';
-            }
-            $query .= join(', ', $raws);
-        } else {
-            // Use SQL default values
-            // (useful only if SQL strict mode is off or if every columns has a defined default value)
-            $query .= '()';
-        }
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertInsertStatement
-        $this->core->callBehavior('coreAfterInsertStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Run the SQL select query and return result
-     *
-     * @return     bool  true
-     */
-    public function insert(): bool
-    {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
-        }
-
-        return false;
-    }
-
-    /**
-     * insert() alias
-     *
-     * @return     bool
-     */
-    public function run(): bool
-    {
-        return $this->insert();
-    }
-}
-
-/**
- * Truncate Statement : small utility to build truncate queries
- */
-class dcTruncateStatement extends dcSqlStatement
-{
-    /**
-     * Class constructor
-     *
-     * @param dcCore    $core   dcCore instance
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct(dcCore &$core, $ctx = null)
-    {
-        parent::__construct($core, $ctx);
-    }
-
-    /**
-     * Returns the truncate statement
-     *
-     * @return string the statement
-     */
-    public function statement(): string
-    {
-        # --BEHAVIOR-- coreBeforeInsertStatement
-        $this->core->callBehavior('coreBeforeTruncateStatement', $this);
-
-        // Check if source given
-        if (!count($this->from)) {
-            trigger_error(__('SQL TRUNCATE TABLE requires a table source'), E_USER_ERROR);
-
-            return '';
-        }
-
-        // Query
-        $query = 'TRUNCATE ';
-
-        // Reference
-        $query .= 'TABLE ' . $this->from[0] . ' ';
-
-        $query = trim($query);
-
-        # --BEHAVIOR-- coreAfertInsertStatement
-        $this->core->callBehavior('coreAfterTruncateStatement', $this, $query);
-
-        return $query;
-    }
-
-    /**
-     * Run the SQL select query and return result
-     *
-     * @return     bool
-     */
-    public function truncate(): bool
-    {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
-        }
-
-        return false;
-    }
-
-    /**
-     * truncate() alias
-     *
-     * @return     bool
-     */
-    public function run(): bool
-    {
-        return $this->truncate();
     }
 }
