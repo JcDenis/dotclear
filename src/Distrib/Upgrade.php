@@ -1,18 +1,32 @@
 <?php
 /**
- * @brief Dotclear upgrade procedure
+ * @brief Dotclear distribution upgrade class
+ *
+ * @todo no files remove < dcns as entire structure change
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Distrib
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
+declare(strict_types=1);
+
+namespace Dotclear\Distrib;
+
+use Dotclear\Core\Exception as Exception;
+
+use Dotclear\Utils\Files;
+use Dotclear\Utils\Path;
+
+use Dotclear\Database\Structure;
+use Dotclear\Database\Schema;
+
+if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
+    define('DOTCLEAR_OLD_ROOT_DIR', DOTCLEAR_ROOT_DIR . '/../');
 }
 
-class dcUpgrade
+class Upgrade
 {
     public static function dotclearUpgrade($core)
     {
@@ -22,17 +36,17 @@ class dcUpgrade
             return false;
         }
 
-        if (version_compare($version, DC_VERSION, '<') == 1 || strpos(DC_VERSION, 'dev')) {
+        if (version_compare($version, DOTCLEAR_VERSION, '<') == 1 || strpos(DOTCLEAR_VERSION, 'dev')) {
             try {
                 if ($core->con->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
                 }
 
                 # Database upgrade
-                $_s = new dbStruct($core->con, $core->prefix);
+                $_s = new Structure($core->con, $core->prefix);
                 require dirname(__FILE__) . '/db-schema.php';
 
-                $si      = new dbStruct($core->con, $core->prefix);
+                $si      = new Structure($core->con, $core->prefix);
                 $changes = $si->synchronize($_s);
 
                 /* Some other upgrades
@@ -92,7 +106,7 @@ class dcUpgrade
         }
 
         if (version_compare($version, '2.1-alpha2-r2383', '<')) {
-            $schema = dbSchema::init($core->con);
+            $schema = Schema::init($core->con);
             $schema->dropUnique($core->prefix . 'category', $core->prefix . 'uk_cat_title');
 
             # Reindex categories
@@ -141,13 +155,13 @@ class dcUpgrade
                 'ie7-xml-extras.js',
             ];
             foreach ($ie7files as $f) {
-                @unlink(DC_ROOT . '/admin/js/ie7/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/admin/js/ie7/' . $f);
             }
         }
 
         if (version_compare($version, '2.2-alpha1-r3043', '<')) {
             # metadata has been integrated to the core.
-            $core->plugins->loadModules(DC_PLUGINS_ROOT);
+            $core->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
             if ($core->plugins->moduleExists('metadata')) {
                 $core->plugins->deleteModule('metadata');
             }
@@ -228,11 +242,11 @@ class dcUpgrade
                 'inc/clearbricks/dblayer/class.pgsql.php',
                 'inc/clearbricks/dblayer/class.sqlite.php',
                 'inc/clearbricks/dblayer/dblayer.php',
-                'inc/clearbricks/dbschema/class.dbschema.php',
-                'inc/clearbricks/dbschema/class.dbstruct.php',
-                'inc/clearbricks/dbschema/class.mysql.dbschema.php',
-                'inc/clearbricks/dbschema/class.pgsql.dbschema.php',
-                'inc/clearbricks/dbschema/class.sqlite.dbschema.php',
+                'inc/clearbricks/Schema/class.Schema.php',
+                'inc/clearbricks/Schema/class.Structure.php',
+                'inc/clearbricks/Schema/class.mysql.Schema.php',
+                'inc/clearbricks/Schema/class.pgsql.Schema.php',
+                'inc/clearbricks/Schema/class.sqlite.Schema.php',
                 'inc/clearbricks/diff/lib.diff.php',
                 'inc/clearbricks/diff/lib.unified.diff.php',
                 'inc/clearbricks/filemanager/class.filemanager.php',
@@ -275,7 +289,7 @@ class dcUpgrade
             $remfolders = [
                 'inc/clearbricks/common',
                 'inc/clearbricks/dblayer',
-                'inc/clearbricks/dbschema',
+                'inc/clearbricks/Schema',
                 'inc/clearbricks/diff',
                 'inc/clearbricks/filemanager',
                 'inc/clearbricks/html.filter',
@@ -298,22 +312,22 @@ class dcUpgrade
             ];
 
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
         if (version_compare($version, '2.3.1', '<')) {
             # Remove unecessary file
-            @unlink(DC_ROOT . '/' . 'inc/libs/clearbricks/.hgignore');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'inc/libs/clearbricks/.hgignore');
         }
 
         if (version_compare($version, '2.5', '<=')) {
             # Try to disable daInstaller plugin if it has been installed outside the default plugins directory
-            $path    = explode(PATH_SEPARATOR, DC_PLUGINS_ROOT);
-            $default = path::real(dirname(__FILE__) . '/../../plugins/');
+            $path    = explode(PATH_SEPARATOR, DOTCLEAR_PLUGINS_DIR);
+            $default = Path::real(DOTCLEAR_OLD_ROOT_DIR . '/plugins/');
             foreach ($path as $root) {
                 if (!is_dir($root) || !is_readable($root)) {
                     continue;
@@ -324,7 +338,7 @@ class dcUpgrade
                 if (($p = @dir($root)) === false) {
                     continue;
                 }
-                if (path::real($root) == $default) {
+                if (Path::real($root) == $default) {
                     continue;
                 }
                 if (($d = @dir($root . 'daInstaller')) === false) {
@@ -339,19 +353,19 @@ class dcUpgrade
 
         if (version_compare($version, '2.5.1', '<=')) {
             // Flash enhanced upload no longer needed
-            @unlink(DC_ROOT . '/' . 'inc/swf/swfupload.swf');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'inc/swf/swfupload.swf');
         }
 
         if (version_compare($version, '2.6', '<=')) {
             // README has been replaced by README.md and CONTRIBUTING.md
-            @unlink(DC_ROOT . '/' . 'README');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'README');
 
             // trackbacks are now merged into posts
-            @unlink(DC_ROOT . '/' . 'admin/trackbacks.php');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'admin/trackbacks.php');
 
             # daInstaller has been integrated to the core.
             # Try to remove it
-            $path = explode(PATH_SEPARATOR, DC_PLUGINS_ROOT);
+            $path = explode(PATH_SEPARATOR, DOTCLEAR_PLUGINS_DIR);
             foreach ($path as $root) {
                 if (!is_dir($root) || !is_readable($root)) {
                     continue;
@@ -365,7 +379,7 @@ class dcUpgrade
                 if (($d = @dir($root . 'daInstaller')) === false) {
                     continue;
                 }
-                files::deltree($root . '/daInstaller');
+                Files::deltree($root . '/daInstaller');
             }
 
             # Some settings change, prepare db queries
@@ -482,11 +496,11 @@ class dcUpgrade
         }
 
         if (version_compare($version, '2.10', '<')) {
-            @unlink(DC_ROOT . '/' . 'admin/js/jsUpload/vendor/jquery.ui.widget.js');
-            @rmdir(DC_ROOT . '/' . 'admin/js/jsUpload/vendor');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'admin/js/jsUpload/vendor/jquery.ui.widget.js');
+            @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . 'admin/js/jsUpload/vendor');
 
             # Create new var directory and its .htaccess file
-            @files::makeDir(DC_VAR);
+            @Files::makeDir(DC_VAR);
             $f = DC_VAR . '/.htaccess';
             if (!file_exists($f)) {
                 @file_put_contents($f, 'Require all denied' . "\n" . 'Deny from all' . "\n");
@@ -529,7 +543,7 @@ class dcUpgrade
 
         if (version_compare($version, '2.11', '<')) {
             // Remove the CSP report file from it's old place
-            @unlink(DC_ROOT . '/admin/csp_report.txt');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/admin/csp_report.txt');
 
             # Some new settings should be initialized, prepare db queries
             $strReq = 'INSERT INTO ' . $core->prefix . 'setting' .
@@ -616,10 +630,10 @@ class dcUpgrade
             ];
 
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
@@ -649,7 +663,7 @@ class dcUpgrade
 
         if (version_compare($version, '2.14', '<')) {
             // File not more needed
-            @unlink(DC_ROOT . '/' . 'admin/js/jquery/jquery.bgFade.js');
+            @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'admin/js/jquery/jquery.bgFade.js');
         }
 
         if (version_compare($version, '2.14.3', '<')) {
@@ -681,7 +695,7 @@ class dcUpgrade
                 'plugins/dcCKEditor/tpl/index.tpl',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
@@ -736,10 +750,10 @@ class dcUpgrade
                 'admin/style/farbtastic',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
@@ -773,10 +787,10 @@ class dcUpgrade
                 'inc/js/jquery/3.3.1',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
@@ -799,21 +813,21 @@ class dcUpgrade
                 'inc/js/jquery/3.4.1',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             # Help specific (files was moved)
-            $remtree  = scandir(DC_ROOT . '/locales');
+            $remtree  = scandir(DOTCLEAR_OLD_ROOT_DIR . '/locales');
             $remfiles = [
                 'help/blowupConfig.html',
                 'help/themeEditor.html',
             ];
             foreach ($remtree as $dir) {
-                if (is_dir(DC_ROOT . '/' . 'locales' . '/' . $dir) && $dir !== '.' && $dir !== '.') {
+                if (is_dir(DOTCLEAR_OLD_ROOT_DIR . '/' . 'locales' . '/' . $dir) && $dir !== '.' && $dir !== '.') {
                     foreach ($remfiles as $f) {
-                        @unlink(DC_ROOT . '/' . 'locales' . '/' . $dir . '/' . $f);
+                        @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . 'locales' . '/' . $dir . '/' . $f);
                     }
                 }
             }
@@ -839,10 +853,10 @@ class dcUpgrade
                 'themes/berlin/scripts',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
             foreach ($remfolders as $f) {
-                @rmdir(DC_ROOT . '/' . $f);
+                @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
 
             # Global settings
@@ -866,11 +880,11 @@ class dcUpgrade
                 'admin/images/date-picker.png',
             ];
             foreach ($remfiles as $f) {
-                @unlink(DC_ROOT . '/' . $f);
+                @unlink(DOTCLEAR_OLD_ROOT_DIR . '/' . $f);
             }
         }
 
-        $core->setVersion('core', DC_VERSION);
+        $core->setVersion('core', DOTCLEAR_VERSION);
         $core->blogDefaults();
 
         return $cleanup_sessions;

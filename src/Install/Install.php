@@ -12,10 +12,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use Dotclear\Core\Exception as Exception;
 use Dotclear\Core\Core;
+use Dotclear\Core\Settings;
+
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Text;
+
 use Dotclear\Database\Schema;
+use Dotclear\Database\Structure;
+
+use Dotclear\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;
@@ -30,6 +38,7 @@ class Install
     {
         $this->core = $core;
 
+        $redirect    = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $can_install = true;
         $err         = '';
 
@@ -86,7 +95,7 @@ exit('install: index.php : structure only');
                 if (!preg_match('/^[A-Za-z0-9@._-]{2,}$/', $u_login)) {
                     throw new Exception(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
                 }
-                if ($u_email && !text::isEmail($u_email)) {
+                if ($u_email && !Text::isEmail($u_email)) {
                     throw new Exception(__('Invalid email address'));
                 }
 
@@ -120,10 +129,10 @@ exit('install: index.php : structure only');
                 }
 
                 # Create schema
-                $_s = new dbStruct($core->con, $core->prefix);
-                require dirname(__FILE__) . '/../../inc/dbschema/db-schema.php';
+                $_s = new Structure($core->con, $core->prefix);
+                Distrib::getDatabaseStructure($_s);
 
-                $si      = new dbStruct($core->con, $core->prefix);
+                $si      = new Structure($core->con, $core->prefix);
                 $changes = $si->synchronize($_s);
 
                 # Create user
@@ -143,20 +152,21 @@ exit('install: index.php : structure only');
 
                 $core->auth->checkUser($u_login);
 
+                /* todo: change patterns */
                 $admin_url = preg_replace('%install/index.php$%', '', $_SERVER['REQUEST_URI']);
                 $root_url  = preg_replace('%/admin/install/index.php$%', '', $_SERVER['REQUEST_URI']);
 
                 # Create blog
                 $cur            = $core->con->openCursor($core->prefix . 'blog');
                 $cur->blog_id   = 'default';
-                $cur->blog_url  = http::getHost() . $root_url . '/index.php?';
+                $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
                 $cur->blog_name = __('My first blog');
                 $core->addBlog($cur);
 
                 # Create global blog settings
                 $core->blogDefaults();
 
-                $blog_settings = new dcSettings($core, 'default');
+                $blog_settings = new Settings($core, 'default');
                 $blog_settings->addNamespace('system');
                 $blog_settings->system->put('blog_timezone', $default_tz);
                 $blog_settings->system->put('lang', $dlang);
@@ -236,7 +246,7 @@ exit('install: index.php : structure only');
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
                 $core->blog->addComment($cur);
-
+//
                 #  Plugins initialization
                 define('DC_CONTEXT_ADMIN', true);
                 $core->plugins->loadModules(DC_PLUGINS_ROOT);

@@ -22,6 +22,7 @@ use Dotclear\Utils\Form;
 use Dotclear\Utils\Html;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Schema;
+use Dotclear\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;
@@ -100,20 +101,13 @@ class Wizard
                 if (!Text::isEmail($ADMINMAILFROM)) {
                     throw new Exception(__('Master email is not valid.'));
                 }
-
-                # Does config.php.in exist?
-                $config_in = implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'config.php.in']);
-                if (!is_file($config_in)) {
-                    throw new Exception(sprintf(__('File %s does not exist.'), $config_in));
-                }
-
                 # Can we write config.php
                 if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
                     throw new Exception(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
                 }
 
                 # Creates config.php file
-                $full_conf = file_get_contents($config_in);
+                $full_conf = Distrib::getConfigFile();
 
                 self::writeConfigValue('DOTCLEAR_DATABASE_DRIVER', $DBDRIVER, $full_conf);
                 self::writeConfigValue('DOTCLEAR_DATABASE_HOST', $DBHOST, $full_conf);
