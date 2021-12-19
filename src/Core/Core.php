@@ -90,7 +90,7 @@ class Core
         $driver        = DOTCLEAR_DATABASE_DRIVER;
         $default_class = 'Dotclear\\Database\\Connection';
 
-        # You can set DC_Con_CLASS to whatever you want.
+        # You can set DOTCLEAR_CON_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Database\Connection class.
         $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
 
@@ -118,7 +118,7 @@ class Core
             exit(1);
         }
 
-        /* create connection instance */
+        /* Create connection instance */
         $con = new $class(
             DOTCLEAR_DATABASE_HOST,
             DOTCLEAR_DATABASE_NAME,
@@ -127,12 +127,12 @@ class Core
             DOTCLEAR_DATABASE_PERSIST
         );
 
-        /* define weak_locks for mysql */
+        /* Define weak_locks for mysql */
         if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
             $con::$weak_locks = true;
         }
 
-        /* define searchpath for postgresql */
+        /* Define searchpath for postgresql */
         if ($driver == 'pgsql') {
             $searchpath = explode('.', $prefix, 2);
             if (count($searchpath) > 1) {
@@ -142,7 +142,7 @@ class Core
             }
         }
 
-        /* set table prefix in core */
+        /* Set table prefix in core */
         $this->prefix = $prefix;
 
         return $con;
@@ -152,16 +152,14 @@ class Core
     {
         # You can set DC_AUTH_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Core\Auth class.
-        if (!defined('DOTCLEAR_AUTH_CLASS')) {
-            $class = __NAMESPACE__ . '\\Auth';
-        } else {
-            $class = DOTCLEAR_AUTH_CLASS;
-        }
+        $class = defined('DOTCLEAR_AUTH_CLASS') ? DOTCLEAR_AUTH_CLASS : __NAMESPACE__ . '\\Auth';
 
+        /* Check if auth class exists */
         if (!class_exists($class)) {
             throw new Exception('Authentication class ' . $class . ' does not exist.');
         }
 
+        /* Check if auth class inherit Dotclear auth class */
         if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
             throw new Exception('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }

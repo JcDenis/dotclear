@@ -53,7 +53,7 @@ class Prepend extends BasePrepend
             $this->loadPage();
         }
 
-        echo 'admin: j en suis la ';
+exit('admin: j en suis la ');
     }
 
     private function loadSession(): bool

@@ -15,6 +15,8 @@ namespace Dotclear\Core;
 use Dotclear\Process;
 use Dotclear\Exception as Exception;
 
+use Dotclear\Distrib\Distrib;
+
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Html;
@@ -68,7 +70,7 @@ class Prepend extends Core
         /* No configuration ? start installalation process */
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             /* Set Dotclear configuration constants to default values */
-            require_once static::root('core_define.php');
+            Distrib::getCoreConstants();
 
             new Process('install');
 
@@ -85,7 +87,7 @@ class Prepend extends Core
         require_once DOTCLEAR_CONFIG_PATH;
 
         /* Set Dotclear configuration constants */
-        require_once static::root('core_define.php');
+        Distrib::getCoreConstants();
 
         /* Set  some Http stuff */
         Http::$https_scheme_on_443 = DOTCLEAR_FORCE_SCHEME_443;
