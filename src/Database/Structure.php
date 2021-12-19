@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Exception\DatabaseException;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Structure
 {
     protected $con;
@@ -110,7 +116,7 @@ class Structure
         $this->reverse();
 
         if (!($s instanceof self)) {
-            throw new Exception('Invalid database schema');
+            throw new DatabaseException('Invalid database schema');
         }
 
         $tables = $s->getTables();

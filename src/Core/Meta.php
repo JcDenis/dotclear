@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Text;
 use Dotclear\Database\StaticRecord;
 
@@ -147,14 +149,14 @@ class Meta
      *
      * @param      mixed     $post_id  The post identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function checkPermissionsOnPost($post_id)
     {
         $post_id = (int) $post_id;
 
         if (!$this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
-            throw new Exception(__('You are not allowed to change this entry status'));
+            throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         #�If user can only publish, we need to check the post's owner
@@ -167,7 +169,7 @@ class Meta
             $rs = $this->con->select($strReq);
 
             if ($rs->isEmpty()) {
-                throw new Exception(__('You are not allowed to change this entry status'));
+                throw new CoreException(__('You are not allowed to change this entry status'));
             }
         }
     }

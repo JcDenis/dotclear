@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -39,14 +42,14 @@ class Workspace
      * @param      string     $name     The name
      * @param      mixed      $rs       The recordset
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function __construct(Core &$core, $user_id, $name, $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;
         } else {
-            throw new Exception(sprintf(__('Invalid dcWorkspace: %s'), $name));
+            throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
         $this->con     = &$core->con;
@@ -235,12 +238,12 @@ class Workspace
      * @param      bool       $value_change  Change pref value or not
      * @param      bool       $global        Pref is global
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function put($id, $value, $type = null, $label = null, $value_change = true, $global = false)
     {
         if (!preg_match(self::WS_ID_SCHEMA, $id)) {
-            throw new Exception(sprintf(__('%s is not a valid pref id'), $id));
+            throw new CoreException(sprintf(__('%s is not a valid pref id'), $id));
         }
 
         # We don't want to change pref value
@@ -327,14 +330,14 @@ class Workspace
      * @param      string     $oldId  The old identifier
      * @param      string     $newId  The new identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     bool       false is error, true if renamed
      */
     public function rename($oldId, $newId)
     {
         if (!$this->ws) {
-            throw new Exception(__('No workspace specified'));
+            throw new CoreException(__('No workspace specified'));
         }
 
         if (!array_key_exists($oldId, $this->prefs) || array_key_exists($newId, $this->prefs)) {
@@ -342,7 +345,7 @@ class Workspace
         }
 
         if (!preg_match(self::WS_ID_SCHEMA, $newId)) {
-            throw new Exception(sprintf(__('%s is not a valid pref id'), $newId));
+            throw new CoreException(sprintf(__('%s is not a valid pref id'), $newId));
         }
 
         // Rename the pref in the prefs array
@@ -365,12 +368,12 @@ class Workspace
      * @param      string     $id            The pref identifier
      * @param      bool       $force_global  Force global pref drop
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException  (description)
      */
     public function drop($id, $force_global = false)
     {
         if (!$this->ws) {
-            throw new Exception(__('No workspace specified'));
+            throw new CoreException(__('No workspace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' ';
@@ -408,7 +411,7 @@ class Workspace
     public function dropEvery($id, $global = false)
     {
         if (!$this->ws) {
-            throw new Exception(__('No workspace specified'));
+            throw new CoreException(__('No workspace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' WHERE ';
@@ -425,12 +428,12 @@ class Workspace
      *
      * @param      bool       $force_global  Remove global prefs too
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function dropAll($force_global = false)
     {
         if (!$this->ws) {
-            throw new Exception(__('No workspace specified'));
+            throw new CoreException(__('No workspace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' ';

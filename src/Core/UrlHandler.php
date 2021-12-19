@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Html;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Text;
@@ -70,7 +73,7 @@ class UrlHandler extends BaseUrlHandler
 
     public static function p404()
     {
-        throw new Exception('Page not found', 404);
+        throw new CoreException('Page not found', 404);
     }
 
     public static function default404($args, $type, $e)
@@ -123,7 +126,7 @@ class UrlHandler extends BaseUrlHandler
         $tpl_file = $core->tpl->getFilePath($tpl);
 
         if (!$tpl_file) {
-            throw new Exception('Unable to find template ');
+            throw new CoreException('Unable to find template ');
         }
 
         $result = new \ArrayObject;
@@ -514,7 +517,7 @@ class UrlHandler extends BaseUrlHandler
 
                         try {
                             if (!text::isEmail($cur->comment_email)) {
-                                throw new Exception(__('You must provide a valid email address.'));
+                                throw new CoreException(__('You must provide a valid email address.'));
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate

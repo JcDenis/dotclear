@@ -12,7 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
+use Dotclear\Exception;
+use Dotclear\Exception\DistribException
+
 use Dotclear\Core\Prepend as BasePrepend;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Prepend extends BasePrepend
 {
@@ -21,10 +28,7 @@ class Prepend extends BasePrepend
     public function __construct()
     {
         if (PHP_SAPI != 'cli') {
-            throw new Exception('Not in CLI mode');
-        }
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            throw new Exception('Not in Process context');
+            throw new DistribException('Not in CLI mode');
         }
 
         if (isset($_SERVER['argv'][1])) {
@@ -36,7 +40,7 @@ class Prepend extends BasePrepend
         }
 
         if (!is_file($dc_conf)) {
-            throw new Exception(sprintf('%s is not a file', $dc_conf));
+            throw new DistribException(sprintf('%s is not a file', $dc_conf));
         }
 
         $_SERVER['DC_RC_PATH'] = $dc_conf;

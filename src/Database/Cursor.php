@@ -1,4 +1,7 @@
-<?php
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}<?php
 /**
  * @class Cursor
  *
@@ -11,6 +14,12 @@
 declare(strict_types=1);
 
 namespace Dotclear\Database;
+
+use Dotclear\Exception\DatabaseException;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Cursor
 {
@@ -216,7 +225,7 @@ class Cursor
     public function insert(): bool
     {
         if (!$this->__table) {
-            throw new Exception('No table name.');
+            throw new DatabaseException('No table name.');
         }
 
         $insReq = $this->getInsert();
@@ -236,7 +245,7 @@ class Cursor
     public function update(string $where): bool
     {
         if (!$this->__table) {
-            throw new Exception('No table name.');
+            throw new DatabaseException('No table name.');
         }
 
         $updReq = $this->getUpdate($where);

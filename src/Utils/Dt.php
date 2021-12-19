@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils;
 
+use Dotclear\Exception\UtilsException;
+
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
+
 class Dt
 {
     private static $timezones = null;
@@ -21,7 +27,7 @@ class Dt
      *
      * @param      string      $src  The strftime() format
      *
-     * @throws     Exception  Thrown if a invalid format is used
+     * @throws     UtilsException  Thrown if a invalid format is used
      *
      * @return     string       The date() format
      */
@@ -75,7 +81,7 @@ class Dt
             }
         }
         if (!empty($invalids)) {
-            throw new Exception('Found these invalid chars: ' . implode(',', $invalids) . ' in ' . $src);
+            throw new UtilsException('Found these invalid chars: ' . implode(',', $invalids) . ' in ' . $src);
         }
 
         return str_replace(array_keys($converts), array_values($converts), $src);

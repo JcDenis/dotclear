@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils;
 
+use Dotclear\Exception\UtilsException;
+
 class Files
 {
     public static $dir_mode = null; ///< Default directories mode
@@ -116,7 +118,7 @@ class Files
         $dh  = @opendir($d);
 
         if ($dh === false) {
-            throw new Exception(__('Unable to open directory.'));
+            throw new UtilsException(__('Unable to open directory.'));
         }
 
         while (($f = readdir($dh)) !== false) {
@@ -301,7 +303,7 @@ class Files
             }
         } else {
             if (@mkdir($f) === false) {
-                throw new Exception(__('Unable to create directory.'));
+                throw new UtilsException(__('Unable to create directory.'));
             }
             self::inheritChmod($f);
         }
@@ -338,13 +340,13 @@ class Files
     public static function putContent(string $f, string $f_content): bool
     {
         if (file_exists($f) && !is_writable($f)) {
-            throw new Exception(__('File is not writable.'));
+            throw new UtilsException(__('File is not writable.'));
         }
 
         $fp = @fopen($f, 'w');
 
         if ($fp === false) {
-            throw new Exception(__('Unable to open file.'));
+            throw new UtilsException(__('Unable to open file.'));
         }
 
         fwrite($fp, $f_content, strlen($f_content));
@@ -405,7 +407,7 @@ class Files
     /**
      * Upload status
      *
-     * Returns true if upload status is ok, throws an exception instead.
+     * Returns true if upload status is ok, throws an UtilsException instead.
      *
      * @param array        $file        File array as found in $_FILES
      * @return boolean
@@ -413,7 +415,7 @@ class Files
     public static function uploadStatus(array $file): bool
     {
         if (!isset($file['error'])) {
-            throw new Exception(__('Not an uploaded file.'));
+            throw new UtilsException(__('Not an uploaded file.'));
         }
 
         switch ($file['error']) {
@@ -421,17 +423,17 @@ class Files
                 return true;
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new Exception(__('The uploaded file exceeds the maximum file size allowed.'));
+                throw new UtilsException(__('The uploaded file exceeds the maximum file size allowed.'));
             case UPLOAD_ERR_PARTIAL:
-                throw new Exception(__('The uploaded file was only partially uploaded.'));
+                throw new UtilsException(__('The uploaded file was only partially uploaded.'));
             case UPLOAD_ERR_NO_FILE:
-                throw new Exception(__('No file was uploaded.'));
+                throw new UtilsException(__('No file was uploaded.'));
             case UPLOAD_ERR_NO_TMP_DIR:
-                throw new Exception(__('Missing a temporary folder.'));
+                throw new UtilsException(__('Missing a temporary folder.'));
             case UPLOAD_ERR_CANT_WRITE:
-                throw new Exception(__('Failed to write file to disk.'));
+                throw new UtilsException(__('Failed to write file to disk.'));
             case UPLOAD_ERR_EXTENSION:
-                throw new Exception(__('A PHP extension stopped the file upload.'));
+                throw new UtilsException(__('A PHP extension stopped the file upload.'));
             default:
                 return true;
         }
@@ -459,14 +461,14 @@ class Files
         $dirName      = preg_replace('|/$|', '', $dirName);
 
         if (!is_dir($dirName)) {
-            throw new Exception(sprintf(__('%s is not a directory.'), $dirName));
+            throw new UtilsException(sprintf(__('%s is not a directory.'), $dirName));
         }
 
         $contents['dirs'][] = $dirName;
 
         $d = @dir($dirName);
         if ($d === false) {
-            throw new Exception(__('Unable to open directory.'));
+            throw new UtilsException(__('Unable to open directory.'));
         }
 
         while ($entry = $d->read()) {

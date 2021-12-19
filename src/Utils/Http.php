@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils;
 
+use Dotclear\Exception\UtilsException;
+
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
+
 class Http
 {
     public static $https_scheme_on_443 = false; ///< boolean: Force HTTPS scheme on server port 443 in {@link getHost()}
@@ -31,7 +37,7 @@ class Http
             //admin have choose to allow a reverse proxy,
             //and HTTP_X_FORWARDED_FOR header means it's beeing using
             if (!isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-                throw new Exception('Reverse proxy parametter is setted, header HTTP_X_FORWARDED_FOR is found but not the X-Forwarded-Proto. Please check your reverse proxy server settings');
+                throw new UtilsException('Reverse proxy parametter is setted, header HTTP_X_FORWARDED_FOR is found but not the X-Forwarded-Proto. Please check your reverse proxy server settings');
             }
 
             $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];

@@ -12,9 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Pgsql;
 
-use Dotclear\Databse\Exception;
+use Dotclear\Exception\DatabaseException;
+
 use Dotclear\Database\Connection as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Connection extends BaseConnection implements InterfaceConnection
 {
@@ -55,13 +60,13 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_connect($host, $user, $password, $database)
     {
         if (!function_exists('pg_connect')) {
-            throw new Exception('PHP PostgreSQL functions are not available');
+            throw new DatabaseException('PHP PostgreSQL functions are not available');
         }
 
         $str = $this->get_connection_string($host, $user, $password, $database);
 
         if (($link = @pg_connect($str)) === false) {
-            throw new Exception('Unable to connect to database');
+            throw new DatabaseException('Unable to connect to database');
         }
 
         $this->db_post_connect($link, $database);
@@ -72,13 +77,13 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_pconnect($host, $user, $password, $database)
     {
         if (!function_exists('pg_pconnect')) {
-            throw new Exception('PHP PostgreSQL functions are not available');
+            throw new DatabaseException('PHP PostgreSQL functions are not available');
         }
 
         $str = $this->get_connection_string($host, $user, $password, $database);
 
         if (($link = @pg_pconnect($str)) === false) {
-            throw new Exception('Unable to connect to database');
+            throw new DatabaseException('Unable to connect to database');
         }
 
         $this->db_post_connect($link, $database);
@@ -120,7 +125,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         if (is_resource($handle)) {
             $res = @pg_query($handle, $query);
             if ($res === false) {
-                $e = new Exception($this->db_last_error($handle));
+                $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
             }

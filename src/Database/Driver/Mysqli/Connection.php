@@ -12,9 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqli;
 
-use Dotclear\Database\Exception;
+use Dotclear\Exception\DatabaseException;
+
 use Dotclear\Database\Connection as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Connection extends BaseConnection implements InterfaceConnection
 {
@@ -26,7 +31,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_connect($host, $user, $password, $database)
     {
         if (!function_exists('mysqli_connect')) {
-            throw new Exception('PHP MySQLi functions are not available');
+            throw new DatabaseException('PHP MySQLi functions are not available');
         }
 
         $port   = abs((int) ini_get('mysqli.default_port'));
@@ -46,7 +51,7 @@ class Connection extends BaseConnection implements InterfaceConnection
             }
         }
         if (($link = @mysqli_connect($host, $user, $password, $database, $port, $socket)) === false) {
-            throw new Exception('Unable to connect to database');
+            throw new DatabaseException('Unable to connect to database');
         }
 
         $this->db_post_connect($link, $database);
@@ -99,7 +104,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         if ($handle instanceof \MySQLi) {
             $res = @mysqli_query($handle, $query);
             if ($res === false) {
-                $e = new Exception($this->db_last_error($handle));
+                $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
             }
@@ -212,7 +217,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     {
         try {
             $this->execute('LOCK TABLES ' . $this->escapeSystem($table) . ' WRITE');
-        } catch (Exception $e) {
+        } catch (DatabaseException $e) {
             # As lock is a privilege in MySQL, we can avoid errors with weak_locks static var
             if (!self::$weak_locks) {
                 throw $e;
@@ -224,7 +229,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     {
         try {
             $this->execute('UNLOCK TABLES');
-        } catch (Exception $e) {
+        } catch (DatabaseException $e) {
             if (!self::$weak_locks) {
                 throw $e;
             }

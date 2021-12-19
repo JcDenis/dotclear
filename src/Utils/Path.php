@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils;
 
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
+
 class Path
 {
     /**

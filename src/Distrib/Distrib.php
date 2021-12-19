@@ -18,6 +18,10 @@ use Dotclear\Core\Exception as Exception;
 
 use Dotclear\Database\Structure;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Distrib
 {
     public static function getConfigFile()
@@ -32,10 +36,6 @@ class Distrib
 
     public static function getCoreConstants()
     {
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            exit;
-        }
-
         //*== DOTCLEAR_DEBUG ==
         if (!defined('DOTCLEAR_DEBUG')) {
             define('DOTCLEAR_DEBUG', true);

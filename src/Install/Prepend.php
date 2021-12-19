@@ -17,6 +17,10 @@ use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Prepend extends BasePrepend
 {
     protected $process = 'Install';

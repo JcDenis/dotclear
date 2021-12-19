@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException
+
 use Dotclear\Core\Core;
 
 use Dotclear\Utils\Html;
@@ -182,7 +185,7 @@ class Auth
         try {
             $tmp_data = explode('/', $_POST['login_data']);
             if (count($tmp_data) != 3) {
-                throw new Exception();
+                throw new AdminException();
             }
             $data = [
                 'user_id'       => base64_decode($tmp_data[0]),
@@ -190,7 +193,7 @@ class Auth
                 'user_remember' => $tmp_data[2] == '1',
             ];
             if ($data['user_id'] === false) {   // @phpstan-ignore-line
-                throw new Exception();
+                throw new AdminException();
             }
 
             # Check login informations
@@ -210,15 +213,15 @@ class Auth
             if (!$this->core->auth->allowPassChange() || !$check_user) {
                 $this->change_pwd = false;
 
-                throw new Exception();
+                throw new AdminException();
             }
 
             if ($_POST['new_pwd'] != $_POST['new_pwd_c']) {
-                throw new Exception(__("Passwords don't match"));
+                throw new AdminException(__("Passwords don't match"));
             }
 
             if ($this->core->auth->checkUser($this->user_id, $_POST['new_pwd']) === true) {
-                throw new Exception(__("You didn't change your password."));
+                throw new AdminException(__("You didn't change your password."));
             }
 
             $cur                  = $this->core->con->openCursor($this->core->prefix . 'user');

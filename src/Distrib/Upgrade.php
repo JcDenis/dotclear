@@ -14,13 +14,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use Dotclear\Core\Exception as Exception;
+use Dotclear\Exception;
+use Dotclear\Exception\DistribException;
 
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Path;
 
 use Dotclear\Database\Structure;
 use Dotclear\Database\Schema;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
     define('DOTCLEAR_OLD_ROOT_DIR', DOTCLEAR_ROOT_DIR . '/../');
@@ -66,7 +71,7 @@ class Upgrade
 
                 return $changes;
             } catch (Exception $e) {
-                throw new Exception(__('Something went wrong with auto upgrade:') .
+                throw new DistribException(__('Something went wrong with auto upgrade:') .
                     ' ' . $e->getMessage());
             }
         }

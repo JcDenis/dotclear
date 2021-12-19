@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -39,14 +42,14 @@ class Nspace
      * @param      string     $name     The namespace ID
      * @param      mixed      $rs
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException  (description)
      */
     public function __construct(Core &$core, $blog_id, $name, $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
         } else {
-            throw new Exception(sprintf(__('Invalid setting Namespace: %s'), $name));
+            throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
         $this->con     = &$core->con;
@@ -227,12 +230,12 @@ class Nspace
      * @param      bool       $value_change  Change setting value or not
      * @param      bool       $global        Setting is global
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function put($id, $value, $type = null, $label = null, $value_change = true, $global = false)
     {
         if (!preg_match(self::NS_ID_SCHEMA, $id)) {
-            throw new Exception(sprintf(__('%s is not a valid setting id'), $id));
+            throw new CoreException(sprintf(__('%s is not a valid setting id'), $id));
         }
 
         # We don't want to change setting value
@@ -319,14 +322,14 @@ class Nspace
      * @param      string     $oldId  The old setting identifier
      * @param      string     $newId  The new setting identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     bool
      */
     public function rename($oldId, $newId)
     {
         if (!$this->ns) {
-            throw new Exception(__('No namespace specified'));
+            throw new CoreException(__('No namespace specified'));
         }
 
         if (!array_key_exists($oldId, $this->settings) || array_key_exists($newId, $this->settings)) {
@@ -334,7 +337,7 @@ class Nspace
         }
 
         if (!preg_match(self::NS_ID_SCHEMA, $newId)) {
-            throw new Exception(sprintf(__('%s is not a valid setting id'), $newId));
+            throw new CoreException(sprintf(__('%s is not a valid setting id'), $newId));
         }
 
         // Rename the setting in the settings array
@@ -356,12 +359,12 @@ class Nspace
      *
      * @param      string     $id     The setting identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function drop($id)
     {
         if (!$this->ns) {
-            throw new Exception(__('No namespace specified'));
+            throw new CoreException(__('No namespace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' ';
@@ -384,12 +387,12 @@ class Nspace
      * @param      string     $id      Setting ID
      * @param      boolean    $global  Remove global setting too
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function dropEvery($id, $global = false)
     {
         if (!$this->ns) {
-            throw new Exception(__('No namespace specified'));
+            throw new CoreException(__('No namespace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' WHERE ';
@@ -406,12 +409,12 @@ class Nspace
      *
      * @param      bool       $force_global  Force global pref drop
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function dropAll($force_global = false)
     {
         if (!$this->ns) {
-            throw new Exception(__('No namespace specified'));
+            throw new CoreException(__('No namespace specified'));
         }
 
         $strReq = 'DELETE FROM ' . $this->table . ' ';

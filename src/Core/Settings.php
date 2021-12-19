@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -103,7 +106,7 @@ class Settings
      * @param      string     $oldNs  The old ns
      * @param      string     $newNs  The new ns
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     bool      return true if no error, else false
      */
@@ -114,7 +117,7 @@ class Settings
         }
 
         if (!preg_match(self::NS_NAME_SCHEMA, $newNs)) {
-            throw new Exception(sprintf(__('Invalid setting namespace: %s'), $newNs));
+            throw new CoreException(sprintf(__('Invalid setting namespace: %s'), $newNs));
         }
 
         // Rename the namespace in the namespace array

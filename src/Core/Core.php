@@ -12,8 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Form;
 use Dotclear\Utils\Html;
+
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
 
 class Core
 {
@@ -95,11 +101,11 @@ class Core
         $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
 
         if (!class_exists($class)) {
-            throw new Exception('Database connection class ' . $class . ' does not exist.');
+            throw new CoreException('Database connection class ' . $class . ' does not exist.');
         }
 
         if ($class != $default_class && !is_subclass_of($class, $default_class)) {
-            throw new Exception('Database connection class ' . $class . ' does not inherit ' . $default_class);
+            throw new CoreException('Database connection class ' . $class . ' does not inherit ' . $default_class);
         }
 
         /* PHP 7.0 mysql driver is obsolete, map to mysqli */
@@ -156,12 +162,12 @@ class Core
 
         /* Check if auth class exists */
         if (!class_exists($class)) {
-            throw new Exception('Authentication class ' . $class . ' does not exist.');
+            throw new CoreException('Authentication class ' . $class . ' does not exist.');
         }
 
         /* Check if auth class inherit Dotclear auth class */
         if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
-            throw new Exception('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
+            throw new CoreException('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }
 
         return new $class($this);
@@ -507,6 +513,7 @@ class Core
             $strReq .= $this->con->limit($params['limit']);
         }
         $rs = $this->con->select($strReq);
+        $rs->core = $this;
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
 
         return $rs;
@@ -517,22 +524,22 @@ class Core
      *
      * @param      cursor     $cur    The user cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     string
      */
     public function addUser($cur)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         if ($cur->user_id == '') {
-            throw new Exception(__('No user ID given'));
+            throw new CoreException(__('No user ID given'));
         }
 
         if ($cur->user_pwd == '') {
-            throw new Exception(__('No password given'));
+            throw new CoreException(__('No password given'));
         }
 
         $this->getUserCursor($cur);
@@ -554,7 +561,7 @@ class Core
      * @param      string     $id     The user identifier
      * @param      cursor     $cur    The cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     string
      */
@@ -563,7 +570,7 @@ class Core
         $this->getUserCursor($cur);
 
         if (($cur->user_id !== null || $id != $this->auth->userID()) && !$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         $cur->update("WHERE user_id = '" . $this->con->escape($id) . "' ");
@@ -594,12 +601,12 @@ class Core
      *
      * @param      string     $id     The user identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function delUser($id)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         if ($id == $this->auth->userID()) {
@@ -683,12 +690,12 @@ class Core
      * @param      string     $id     The user identifier
      * @param      array      $perms  The permissions
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function setUserPermissions($id, $perms)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'permissions ' .
@@ -709,12 +716,12 @@ class Core
      * @param      array      $perms         The permissions
      * @param      bool       $delete_first  Delete permissions first
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException  (description)
      */
     public function setUserBlogPermissions($id, $blog_id, $perms, $delete_first = true)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         $no_perm = empty($perms);
@@ -760,13 +767,13 @@ class Core
      *
      * @param      cursor     $cur    The user cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getUserCursor($cur)
     {
         if ($cur->isField('user_id')
             && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cur->user_id)) {
-            throw new Exception(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
+            throw new CoreException(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
         if ($cur->user_url !== null && $cur->user_url != '') {
@@ -777,13 +784,13 @@ class Core
 
         if ($cur->isField('user_pwd')) {
             if (strlen($cur->user_pwd) < 6) {
-                throw new Exception(__('Password must contain at least 6 characters.'));
+                throw new CoreException(__('Password must contain at least 6 characters.'));
             }
             $cur->user_pwd = $this->auth->crypt($cur->user_pwd);
         }
 
         if ($cur->user_lang !== null && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->user_lang)) {
-            throw new Exception(__('Invalid user language code'));
+            throw new CoreException(__('Invalid user language code'));
         }
 
         if ($cur->user_upddt === null) {
@@ -974,12 +981,12 @@ class Core
      *
      * @param      cursor     $cur    The blog cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function addBlog($cur)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         $this->getBlogCursor($cur);
@@ -1011,21 +1018,21 @@ class Core
      *
      * @param      cursor  $cur    The cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getBlogCursor($cur)
     {
         if (($cur->blog_id !== null
             && !preg_match('/^[A-Za-z0-9._-]{2,}$/', $cur->blog_id)) || (!$cur->blog_id)) {
-            throw new Exception(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
+            throw new CoreException(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
         if (($cur->blog_name !== null && $cur->blog_name == '') || (!$cur->blog_name)) {
-            throw new Exception(__('No blog name'));
+            throw new CoreException(__('No blog name'));
         }
 
         if (($cur->blog_url !== null && $cur->blog_url == '') || (!$cur->blog_url)) {
-            throw new Exception(__('No blog URL'));
+            throw new CoreException(__('No blog URL'));
         }
 
         if ($cur->blog_desc !== null) {
@@ -1040,12 +1047,12 @@ class Core
      *
      * @param      string     $id     The blog identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function delBlog($id)
     {
         if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
+            throw new CoreException(__('You are not an administrator'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'blog ' .

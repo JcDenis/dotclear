@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+
 use Dotclear\Utils\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS')) {

@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Record implements \Iterator, \Countable
 {
     protected $__link;             ///< resource: Database resource link

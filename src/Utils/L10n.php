@@ -14,6 +14,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils {
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 /** @endcond */
 class L10n
 {

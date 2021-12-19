@@ -12,10 +12,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Sqlite;
 
-use Dotclear\Database\Exception;
+use Dotclear\Exception\DatabaseException;
+
 use Dotclear\Database\Connection as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
 use Dotclear\Database\StaticRecord;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Connection extends BaseConnection implements InterfaceConnection
 {
@@ -27,7 +32,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_connect($host, $user, $password, $database)
     {
         if (!class_exists('\PDO') || !in_array('sqlite', \PDO::getAvailableDrivers())) {
-            throw new Exception('PDO SQLite class is not available');
+            throw new DatabaseException('PDO SQLite class is not available');
         }
 
         $link = new \PDO('sqlite:' . $database);
@@ -39,7 +44,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_pconnect($host, $user, $password, $database)
     {
         if (!class_exists('\PDO') || !in_array('sqlite', \PDO::getAvailableDrivers())) {
-            throw new Exception('PDO SQLite class is not available');
+            throw new DatabaseException('PDO SQLite class is not available');
         }
 
         $link = new \PDO('sqlite:' . $database, null, null, [\PDO::ATTR_PERSISTENT => true]);
@@ -121,7 +126,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         if ($handle instanceof \PDO) {
             $res = $handle->query($query);
             if ($res === false) {
-                $e = new Exception($this->db_last_error($handle));
+                $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
             }

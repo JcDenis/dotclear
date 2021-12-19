@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -111,7 +114,7 @@ class Prefs
      * @param      string     $oldWs  The old workspace name
      * @param      string     $newWs  The new workspace name
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException  (description)
      *
      * @return     bool
      */
@@ -122,7 +125,7 @@ class Prefs
         }
 
         if (!preg_match(self::WS_NAME_SCHEMA, $newWs)) {
-            throw new Exception(sprintf(__('Invalid dcWorkspace: %s'), $newWs));
+            throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $newWs));
         }
 
         // Rename the workspace in the workspace array

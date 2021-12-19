@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Exception\DatabaseException;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Table
 {
     protected $name;
@@ -137,7 +143,7 @@ class Table
             if ($to_null) {
                 $type = null;
             } else {
-                throw new Exception('Invalid data type ' . $type . ' in schema');
+                throw new DatabaseException('Invalid data type ' . $type . ' in schema');
             }
         }
 
@@ -161,7 +167,7 @@ class Table
     public function primary(string $name, $col)
     {
         if ($this->has_primary) {
-            throw new Exception(sprintf('Table %s already has a primary key', $this->name));
+            throw new DatabaseException(sprintf('Table %s already has a primary key', $this->name));
         }
 
         $cols = func_get_args();
@@ -234,7 +240,7 @@ class Table
     {
         foreach ($cols as $v) {
             if (!preg_match('/^\(.*?\)$/', $v) && !isset($this->fields[$v])) {
-                throw new Exception(sprintf('Field %s does not exist in table %s', $v, $this->name));
+                throw new DatabaseException(sprintf('Field %s does not exist in table %s', $v, $this->name));
             }
         }
     }

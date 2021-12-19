@@ -12,9 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
-use Dotclear\Core\Exception as Exception;
+use Dotclear\Exception\InstallException;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\Settings;
+
+use Dotclear\Admin\Favorites;
 
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
@@ -90,23 +93,23 @@ exit('install: index.php : structure only');
             try {
                 # Check user information
                 if (empty($u_login)) {
-                    throw new Exception(__('No user ID given'));
+                    throw new InstallException(__('No user ID given'));
                 }
                 if (!preg_match('/^[A-Za-z0-9@._-]{2,}$/', $u_login)) {
-                    throw new Exception(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
+                    throw new InstallException(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
                 }
                 if ($u_email && !Text::isEmail($u_email)) {
-                    throw new Exception(__('Invalid email address'));
+                    throw new InstallException(__('Invalid email address'));
                 }
 
                 if (empty($u_pwd)) {
-                    throw new Exception(__('No password given'));
+                    throw new InstallException(__('No password given'));
                 }
                 if ($u_pwd != $u_pwd2) {
-                    throw new Exception(__("Passwords don't match"));
+                    throw new InstallException(__("Passwords don't match"));
                 }
                 if (strlen($u_pwd) < 6) {
-                    throw new Exception(__('Password must contain at least 6 characters.'));
+                    throw new InstallException(__('Password must contain at least 6 characters.'));
                 }
 
                 # Try to guess timezone
@@ -217,7 +220,7 @@ exit('install: index.php : structure only');
                 # Add Dotclear version
                 $cur          = $core->con->openCursor($core->prefix . 'version');
                 $cur->module  = 'core';
-                $cur->version = (string) DC_VERSION;
+                $cur->version = (string) DOTCLEAR_VERSION;
                 $cur->insert();
 
                 # Create first post
@@ -246,12 +249,12 @@ exit('install: index.php : structure only');
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
                 $core->blog->addComment($cur);
-//
+/*
                 #  Plugins initialization
-                define('DC_CONTEXT_ADMIN', true);
-                $core->plugins->loadModules(DC_PLUGINS_ROOT);
+                //define('DC_CONTEXT_ADMIN', true);
+                $core->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
                 $plugins_install = $core->plugins->installModules();
-
+*/
                 # Add dashboard module options
                 $core->auth->user_prefs->addWorkspace('dashboard');
                 $core->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
@@ -268,12 +271,12 @@ exit('install: index.php : structure only');
                 $core->auth->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 # Add default favorites
-                $core->favs = new dcFavorites($core);
+                $core->favs = new Favorites($core);
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
                 $core->favs->setFavoriteIDs($init_favs, true);
 
                 $step = 1;
-            } catch (Exception $e) {
+            } catch (InstallException $e) {
                 $err = $e->getMessage();
             }
         }

@@ -15,6 +15,10 @@ namespace Dotclear\Database\Driver\Mysqli;
 use Dotclear\Database\Schema as BaseSchema;
 use Dotclear\Database\InterfaceSchema;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Schema extends BaseSchema implements InterfaceSchema
 {
     public function dbt2udt(string $type, ?int &$len, &$default): string

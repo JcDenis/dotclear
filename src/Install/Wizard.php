@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use Dotclear\Exception\InstallException;
+use Dotclear\Exception\DatabaseException;
+
 use Dotclear\Core\Core;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
@@ -72,7 +75,7 @@ class Wizard
 
                         # Can we write sqlite_db_directory ?
                         if (!is_writable($sqlite_db_directory)) {
-                            throw new Exception(sprintf(__('Cannot write "%s" directory.'), Path::real($sqlite_db_directory, false)));
+                            throw new InstallException(sprintf(__('Cannot write "%s" directory.'), Path::real($sqlite_db_directory, false)));
                         }
                         $DBNAME = $sqlite_db_directory . $DBNAME;
                     }
@@ -81,29 +84,29 @@ class Wizard
                 # Tries to connect to database (only using distributed database drivers)
                 try {
                     $con = Connection::init($DBDRIVER, $DBHOST, $DBNAME, $DBUSER, $DBPASSWORD);
-                } catch (\Exception $e) {
-                    throw new Exception('<p>' . __($e->getMessage()) . '</p>');
+                } catch (DatabaseException $e) {
+                    throw new InstallException('<p>' . __($e->getMessage()) . '</p>');
                 }
 
                 # Checks system capabilites
                 if (!$core::systemCheck($con, $_e)) {
                     $can_install = false;
 
-                    throw new Exception('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>');
+                    throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>');
                 }
 
                 # Check if dotclear is already installed
                 $schema = Schema::init($con);
                 if (in_array($DBPREFIX . 'version', $schema->getTables())) {
-                    throw new Exception(__('Dotclear is already installed.'));
+                    throw new InstallException(__('Dotclear is already installed.'));
                 }
                 # Check master email
                 if (!Text::isEmail($ADMINMAILFROM)) {
-                    throw new Exception(__('Master email is not valid.'));
+                    throw new InstallException(__('Master email is not valid.'));
                 }
                 # Can we write config.php
                 if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
-                    throw new Exception(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
                 }
 
                 # Creates config.php file
@@ -124,7 +127,7 @@ class Wizard
 
                 $fp = @fopen(DOTCLEAR_CONFIG_PATH, 'wb');
                 if ($fp === false) {
-                    throw new Exception(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
                 }
                 fwrite($fp, $full_conf);
                 fclose($fp);
@@ -133,7 +136,7 @@ class Wizard
                 $con->close();
 
                 Http::redirect($redirect .'?installwizard=1');
-            } catch (Exception $e) {
+            } catch (InstallException $e) {
                 $err = $e->getMessage();
             }
         }

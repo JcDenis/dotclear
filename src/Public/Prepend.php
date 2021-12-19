@@ -14,6 +14,10 @@ namespace Dotclear\Public;
 
 use Dotclear\Core\Prepend as BasePrepend;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Prepend extends BasePrepend
 {
     protected $process = 'Public';

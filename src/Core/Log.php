@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Sql\SelectStatement;
 use Dotclear\Utils\Sql\JoinStatement;
@@ -124,6 +127,7 @@ class Log
         }
 
         $rs = $sql->select();
+        $rs->core = $this->core;
         $rs->extend('rsExtLog');
 
         return $rs;
@@ -200,12 +204,12 @@ class Log
      * @param      cursor     $cur     The current
      * @param      mixed      $log_id  The log identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getLogCursor($cur, $log_id = null)
     {
         if ($cur->log_msg === '') {
-            throw new Exception(__('No log message'));
+            throw new CoreException(__('No log message'));
         }
 
         if ($cur->log_table === null) {

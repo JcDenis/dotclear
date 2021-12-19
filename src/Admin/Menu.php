@@ -1,16 +1,24 @@
 <?php
 /**
+ * @brief Dotclear admin menu class
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Utils\Utils;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcMenu
+class Menu
 {
     private $id;
     protected $itemSpace;
@@ -109,7 +117,7 @@ class dcMenu
 
         // 2. Display unpinned itmes (sorted)
         $i = 0;
-        dcUtils::lexicalKeySort($this->items);
+        Utils::lexicalKeySort($this->items);
         foreach ($this->items as $title => $item) {
             if ($i + 1 < count($this->items) && $this->itemSpace != '') {
                 $res .= preg_replace('|</li>$|', $this->itemSpace . '</li>', $item);
@@ -146,8 +154,8 @@ class dcMenu
             $link  = $url;
             $ahtml = '';
         }
-
-        $img = dc_admin_icon_url($img);
+//
+        $img = '';//dc_admin_icon_url($img);
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .

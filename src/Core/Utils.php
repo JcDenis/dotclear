@@ -20,8 +20,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
-    public static $core;
-
     /**
      * Static function that returns user's common name given to his
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
@@ -225,7 +223,7 @@ class Utils
         return uksort($arr, ['Utils', 'lexicalSortHelper']);
     }
 
-    public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
+    public static function setLexicalLang(Core $core, string $ns = '', string $lang = 'en_US'): void
     {
         // Switch to appropriate locale depending on $ns
         switch ($ns) {

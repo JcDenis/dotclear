@@ -15,6 +15,10 @@ namespace Dotclear\Database\Driver\Pgsql;
 use Dotclear\Database\Schema as BaseSchema;
 use Dotclear\Database\InterfaceSchema;
 
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
+
 class Schema extends BaseSchema implements InterfaceSchema
 {
     protected $ref_actions_map = [

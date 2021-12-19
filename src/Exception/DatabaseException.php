@@ -3,15 +3,15 @@
  * @class Database Exception
  *
  * @package Dotclear
- * @subpackage Database
+ * @subpackage Exception
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Database;
+namespace Dotclear\Exception;
 
-use Dotclear\Exception as BaseException;
+use Dotclear\Exception;
 
-class Exception extends BaseException { }
+class DatabaseException extends Exception { }

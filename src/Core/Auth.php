@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Core\Sql\SqlStatement;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
@@ -384,7 +387,7 @@ class Auth
     public function sudo($f, ...$args)
     {
         if (!is_callable($f)) {
-            throw new Exception($f . ' function doest not exist');
+            throw new CoreException($f . ' function doest not exist');
         }
 
         if ($this->user_admin) {
@@ -638,7 +641,7 @@ class Auth
         $rs = $sql->select();
 
         if ($rs->isEmpty()) {
-            throw new Exception(__('That user does not exist in the database.'));
+            throw new CoreException(__('That user does not exist in the database.'));
         }
 
         $key = md5(uniqid('', true));
@@ -676,7 +679,7 @@ class Auth
         $rs = $sql->select();
 
         if ($rs->isEmpty()) {
-            throw new Exception(__('That key does not exist in the database.'));
+            throw new CoreException(__('That key does not exist in the database.'));
         }
 
         $new_pass = Crypt::createPassword();

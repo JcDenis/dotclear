@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Process;
-use Dotclear\Exception as Exception;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
 
 use Dotclear\Distrib\Distrib;
 
@@ -25,6 +27,10 @@ use Dotclear\Utils\Files;
 use Dotclear\Utils\L10n;
 
 use Dotclear\Database\Schema;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Prepend extends Core
 {
@@ -144,7 +150,6 @@ class Prepend extends Core
 
         try {
             parent::__construct();
-            Utils::$core = $this;
         } catch (Exception $e) {
             static::errorL10n();
             if (!in_array($this->process, ['Admin', 'Install'])) {
@@ -302,11 +307,11 @@ class Prepend extends Core
         }
 
         if (!class_exists($class)) {
-            throw new Exception('Authentication class ' . $class . ' does not exist.');
+            throw new CoreException('Authentication class ' . $class . ' does not exist.');
         }
 
         if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
-            throw new Exception('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
+            throw new CoreException('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }
 
         return new $class($this);

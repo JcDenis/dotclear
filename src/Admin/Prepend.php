@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use Dotclear\Exception\AdminException;
+
 use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
@@ -20,6 +22,10 @@ use Dotclear\Utils\L10n;
 use Dotclear\Utils\Path;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Http;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
+    return;
+}
 
 class Prepend extends BasePrepend
 {
@@ -63,18 +69,18 @@ exit('admin: j en suis la ');
             $_COOKIE[DOTCLEAR_SESSION_NAME] = DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->auth->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
-                throw new Exception('Invalid session data.');
+                throw new AdminException('Invalid session data.');
             }
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->checkNonce($_POST['xd_check'])) {
-                    throw new Exception('Precondition Failed.');
+                    throw new AdminException('Precondition Failed.');
                 }
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                throw new Exception('Permission denied.');
+                throw new AdminException('Permission denied.');
             }
 
             # Loading locales
@@ -82,7 +88,7 @@ exit('admin: j en suis la ');
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog->id) {
-                throw new Exception('Permission denied.');
+                throw new AdminException('Permission denied.');
             }
         } elseif ($this->auth->sessionExists()) {
             # If we have a session we launch it now
@@ -96,7 +102,7 @@ exit('admin: j en suis la ');
                     $this->adminurl->redirect('admin.auth');
                     exit;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) { //DatabaseException?
                 static::error(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 
@@ -172,9 +178,9 @@ exit('admin: j en suis la ');
                 new $class($this);
                 exit;
             } else {
-                throw new Exception(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $page));
+                throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $page));
             }
-        } catch (Exception $e) {
+        } catch (AdminException $e) {
             static::error(
                 __('Unknow URL'),
                 $e->getMessage(),

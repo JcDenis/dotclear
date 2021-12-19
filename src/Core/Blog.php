@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Html;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Path;
@@ -570,14 +573,14 @@ class Blog
      * @param      cursor        $cur     The category cursor
      * @param      int           $parent  The parent category ID
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     int  New category ID
      */
     public function addCategory($cur, $parent = 0)
     {
         if (!$this->core->auth->check('categories', $this->id)) {
-            throw new Exception(__('You are not allowed to add categories'));
+            throw new CoreException(__('You are not allowed to add categories'));
         }
 
         $url = [];
@@ -625,12 +628,12 @@ class Blog
      * @param      integer     $id     The category ID
      * @param      cursor      $cur    The category cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updCategory($id, $cur)
     {
         if (!$this->core->auth->check('categories', $this->id)) {
-            throw new Exception(__('You are not allowed to update categories'));
+            throw new CoreException(__('You are not allowed to update categories'));
         }
 
         if ($cur->cat_url == '') {
@@ -705,12 +708,12 @@ class Blog
      *
      * @param      integer     $id     The category ID
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function delCategory($id)
     {
         if (!$this->core->auth->check('categories', $this->id)) {
-            throw new Exception(__('You are not allowed to delete categories'));
+            throw new CoreException(__('You are not allowed to delete categories'));
         }
 
         $strReq = 'SELECT COUNT(post_id) AS nb_post ' .
@@ -721,7 +724,7 @@ class Blog
         $rs = $this->con->select($strReq);
 
         if ($rs->nb_post > 0) {
-            throw new Exception(__('This category is not empty.'));
+            throw new CoreException(__('This category is not empty.'));
         }
 
         $this->categories()->deleteNode($id, true);
@@ -734,7 +737,7 @@ class Blog
     public function resetCategoriesOrder()
     {
         if (!$this->core->auth->check('categories', $this->id)) {
-            throw new Exception(__('You are not allowed to reset categories order'));
+            throw new CoreException(__('You are not allowed to reset categories order'));
         }
 
         $this->categories()->resetOrder();
@@ -796,7 +799,7 @@ class Blog
 
         # URL is empty?
         if ($url == '') {
-            throw new Exception(__('Empty category URL'));
+            throw new CoreException(__('Empty category URL'));
         }
 
         return $url;
@@ -808,12 +811,12 @@ class Blog
      * @param      cursor     $cur    The category cursor
      * @param      mixed      $id     The category ID
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getCategoryCursor($cur, $id = null)
     {
         if ($cur->cat_title == '') {
-            throw new Exception(__('You must provide a category title'));
+            throw new CoreException(__('You must provide a category title'));
         }
 
         # If we don't have any cat_url, let's do one
@@ -823,7 +826,7 @@ class Blog
 
         # Still empty ?
         if ($cur->cat_url == '') {
-            throw new Exception(__('You must provide a category URL'));
+            throw new CoreException(__('You must provide a category URL'));
         }
         $cur->cat_url = Text::tidyURL($cur->cat_url, true);
 
@@ -1316,6 +1319,7 @@ class Blog
             $limit;
 
         $rs = $this->con->select($strReq);
+        $rs->core = $this->core;
         $rs->extend('rsExtDates');
 
         return $rs;
@@ -1326,14 +1330,14 @@ class Blog
      *
      * @param      cursor     $cur    The post cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     integer
      */
     public function addPost($cur)
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to create an entry'));
+            throw new CoreException(__('You are not allowed to create an entry'));
         }
 
         $this->con->writeLock($this->prefix . 'post');
@@ -1389,18 +1393,18 @@ class Blog
      * @param      integer     $id     The post identifier
      * @param      cursor      $cur    The post cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updPost($id, $cur)
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to update entries'));
+            throw new CoreException(__('You are not allowed to update entries'));
         }
 
         $id = (int) $id;
 
         if (empty($id)) {
-            throw new Exception(__('No such entry ID'));
+            throw new CoreException(__('No such entry ID'));
         }
 
         # Post excerpt and content
@@ -1428,7 +1432,7 @@ class Blog
             $rs = $this->con->select($strReq);
 
             if ($rs->isEmpty()) {
-                throw new Exception(__('You are not allowed to edit this entry'));
+                throw new CoreException(__('You are not allowed to edit this entry'));
             }
         }
 
@@ -1462,12 +1466,12 @@ class Blog
      * @param      mixed       $ids     The identifiers
      * @param      integer     $status  The status
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updPostsStatus($ids, $status)
     {
         if (!$this->core->auth->check('publish,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to change this entry status'));
+            throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         $posts_ids = dcUtils::cleanIds($ids);
@@ -1509,12 +1513,12 @@ class Blog
      * @param      mixed      $ids       The identifiers
      * @param      mixed      $selected  The selected flag
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updPostsSelected($ids, $selected)
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to change this entry category'));
+            throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
         $posts_ids = dcUtils::cleanIds($ids);
@@ -1554,12 +1558,12 @@ class Blog
      * @param      mixed      $ids     The identifiers
      * @param      mixed      $cat_id  The cat identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updPostsCategory($ids, $cat_id)
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to change this entry category'));
+            throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
         $posts_ids = dcUtils::cleanIds($ids);
@@ -1588,12 +1592,12 @@ class Blog
      * @param      mixed    $old_cat_id  The old cat identifier
      * @param      mixed    $new_cat_id  The new cat identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function changePostsCategory($old_cat_id, $new_cat_id)
     {
         if (!$this->core->auth->check('contentadmin,categories', $this->id)) {
-            throw new Exception(__('You are not allowed to change entries category'));
+            throw new CoreException(__('You are not allowed to change entries category'));
         }
 
         $old_cat_id = (int) $old_cat_id;
@@ -1626,18 +1630,18 @@ class Blog
      *
      * @param      mixed     $ids    The posts identifiers
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function delPosts($ids)
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to delete entries'));
+            throw new CoreException(__('You are not allowed to delete entries'));
         }
 
         $posts_ids = dcUtils::cleanIds($ids);
 
         if (empty($posts_ids)) {
-            throw new Exception(__('No such entry ID'));
+            throw new CoreException(__('No such entry ID'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'post ' .
@@ -1833,16 +1837,16 @@ class Blog
      * @param      cursor      $cur      The post cursor
      * @param      integer     $post_id  The post identifier
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getPostCursor($cur, $post_id = null)
     {
         if ($cur->post_title == '') {
-            throw new Exception(__('No entry title'));
+            throw new CoreException(__('No entry title'));
         }
 
         if ($cur->post_content == '') {
-            throw new Exception(__('No entry content'));
+            throw new CoreException(__('No entry content'));
         }
 
         if ($cur->post_password === '') {
@@ -1858,7 +1862,7 @@ class Blog
         $post_id = is_int($post_id) ? $post_id : $cur->post_id;
 
         if ($cur->post_content_xhtml == '') {
-            throw new Exception(__('No entry content'));
+            throw new CoreException(__('No entry content'));
         }
 
         # Words list
@@ -2047,7 +2051,7 @@ class Blog
 
         # URL is empty?
         if ($url == '') {
-            throw new Exception(__('Empty entry URL'));
+            throw new CoreException(__('Empty entry URL'));
         }
 
         return $url;
@@ -2291,30 +2295,30 @@ class Blog
      * @param      integer     $id     The comment identifier
      * @param      cursor      $cur    The comment cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updComment($id, $cur)
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to update comments'));
+            throw new CoreException(__('You are not allowed to update comments'));
         }
 
         $id = (int) $id;
 
         if (empty($id)) {
-            throw new Exception(__('No such comment ID'));
+            throw new CoreException(__('No such comment ID'));
         }
 
         $rs = $this->getComments(['comment_id' => $id]);
 
         if ($rs->isEmpty()) {
-            throw new Exception(__('No such comment ID'));
+            throw new CoreException(__('No such comment ID'));
         }
 
         #If user is only usage, we need to check the post's owner
         if (!$this->core->auth->check('contentadmin', $this->id)) {
             if ($rs->user_id != $this->core->auth->userID()) {
-                throw new Exception(__('You are not allowed to update this comment'));
+                throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
 
@@ -2355,12 +2359,12 @@ class Blog
      * @param      mixed      $ids     The identifiers
      * @param      mixed      $status  The status
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updCommentsStatus($ids, $status)
     {
         if (!$this->core->auth->check('publish,contentadmin', $this->id)) {
-            throw new Exception(__("You are not allowed to change this comment's status"));
+            throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
         $co_ids = dcUtils::cleanIds($ids);
@@ -2396,18 +2400,18 @@ class Blog
      *
      * @param      mixed     $ids    The comments identifiers
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function delComments($ids)
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to delete comments'));
+            throw new CoreException(__('You are not allowed to delete comments'));
         }
 
         $co_ids = dcUtils::cleanIds($ids);
 
         if (empty($co_ids)) {
-            throw new Exception(__('No such comment ID'));
+            throw new CoreException(__('No such comment ID'));
         }
 
         # Retrieve posts affected by comments edition
@@ -2441,12 +2445,12 @@ class Blog
     /**
      * Delete Junk comments
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException  (description)
      */
     public function delJunkComments()
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
-            throw new Exception(__('You are not allowed to delete comments'));
+            throw new CoreException(__('You are not allowed to delete comments'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'comment ' .
@@ -2468,20 +2472,20 @@ class Blog
      *
      * @param      cursor     $cur    The comment cursor
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     private function getCommentCursor($cur)
     {
         if ($cur->comment_content !== null && $cur->comment_content == '') {
-            throw new Exception(__('You must provide a comment'));
+            throw new CoreException(__('You must provide a comment'));
         }
 
         if ($cur->comment_author !== null && $cur->comment_author == '') {
-            throw new Exception(__('You must provide an author name'));
+            throw new CoreException(__('You must provide an author name'));
         }
 
         if ($cur->comment_email != '' && !Text::isEmail($cur->comment_email)) {
-            throw new Exception(__('Email address is not valid.'));
+            throw new CoreException(__('Email address is not valid.'));
         }
 
         if ($cur->comment_site !== null && $cur->comment_site != '') {

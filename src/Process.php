@@ -34,13 +34,13 @@ class Process
 
         /* Dotclear autoloader (once) */
         if (!static::$autoloader) {
-            require_once dirname(__FILE__) . '/Utils/Autoloader.php';
+            require_once implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'Utils', 'Autoloader.php']);
             static::$autoloader = new Utils\Autoloader();
             static::$autoloader->addNamespace(__NAMESPACE__, DOTCLEAR_ROOT_DIR);
         }
 
-        /* Find process (Admin|Public|Instal|...) */
-        $class = __NAMESPACE__ . '\\' . ucfirst($process) . '\\Prepend';
+        /* Find process (Admin|Public|Install|...) */
+        $class = implode('\\', [__NAMESPACE__, ucfirst($process), 'Prepend']);
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             exit('No process');
         }

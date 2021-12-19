@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use Dotclear\Exception\AdminException;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Utils\Form;
@@ -71,7 +73,7 @@ class UrlHandler
     public function registercopy(string $name, string $orig, array $params = [], string $newclass = ''): void
     {
         if (!isset($this->urls[$orig])) {
-            throw new Exception('Unknown URL handler for ' . $orig);
+            throw new AdminException('Unknown URL handler for ' . $orig);
         }
         $url       = $this->urls[$orig];
         $url['qs'] = array_merge($url['qs'], $params);
@@ -94,7 +96,7 @@ class UrlHandler
     public function get(string $name, array $params = [], string $separator = '&amp;', bool $parametric = false): string
     {
         if (!isset($this->urls[$name])) {
-            throw new Exception('Unknown URL handler for ' . $name);
+            throw new AdminException('Unknown URL handler for ' . $name);
         }
 
         $url = $this->urls[$name];
@@ -119,7 +121,7 @@ class UrlHandler
     public function redirect($name, $params = [], $suffix = '')
     {
         if (!isset($this->urls[$name])) {
-            throw new Exception('Unknown URL handler for ' . $name);
+            throw new AdminException('Unknown URL handler for ' . $name);
         }
         Http::redirect($this->get($name, $params, '&') . $suffix);
     }
@@ -134,7 +136,7 @@ class UrlHandler
     public function getBase($name)
     {
         if (!isset($this->urls[$name])) {
-            throw new Exception('Unknown URL handler for ' . $name);
+            throw new AdminException('Unknown URL handler for ' . $name);
         }
 
         return $this->urls[$name]['class'];
@@ -151,7 +153,7 @@ class UrlHandler
     public function getHiddenFormFields($name, $params = [])
     {
         if (!isset($this->urls[$name])) {
-            throw new Exception('Unknown URL handler for ' . $name);
+            throw new AdminException('Unknown URL handler for ' . $name);
         }
         $url = $this->urls[$name];
         $p   = array_merge($url['qs'], $params, ['handler' => $name]);
