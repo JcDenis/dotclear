@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Utils\Html;
+use Dotclear\Utils\Http;
+use Dotclear\Utils\Files;
+use Dotclear\Utils\Path;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -629,5 +632,84 @@ class Utils
         }
 
         return $str;
+    }
+
+    public static function fileServer(array $dirs, string $query, ?array $types = null)
+    {
+        /* set default types */
+        if ($types === null) {
+            $types = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot'];
+        }
+
+        /* check query form */
+        $query = preg_replace('/[^A-Za-z]/', '', $query);
+        if (empty($query)) {
+            header('Content-Type: text/plain');
+            Http::head(404, 'Not Found');
+            exit;
+        }
+
+        /* check query parameter */
+        if (empty($_GET[$query])) {
+            header('Content-Type: text/plain');
+            Http::head(404, 'Not Found');
+            exit;
+        }
+
+        /* $_GET['v'] : version in url to bypass cache in case of dotclear upgrade or in dev mode */
+        if (isset($_GET['v'])) {
+            unset($_GET['v']);
+        }
+
+        /* $_GET['t'] : parameter given by CKEditor, but don't care of value */
+        if (isset($_GET['t'])) {
+            unset($_GET['t']);
+        }
+
+        /* Only $_GET[$query] is allowed in URL */
+        if (count($_GET) > 1) {
+            header('Content-Type: text/plain');
+            Http::head(403, 'Forbidden');
+            exit;
+        }
+
+        /* clean query parameter */
+        $path = Path::clean($_GET[$query]);
+
+        /* search dirs */
+        $file = false;
+        foreach ($dirs as $dir) {
+            $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $path]));
+
+            if ($file !== false) {
+                break;
+            }
+        }
+        unset($dirs);
+
+        /* check file */
+        if ($file === false || !is_file($file) || !is_readable($file)) {
+            header('Content-Type: text/plain');
+            Http::head(404, 'Not Found');
+            exit;
+        }
+
+        /* check file extension */
+        if (!in_array(Files::getExtension($file), $types)) {
+            header('Content-Type: text/plain');
+            http::head(404, 'Not Found');
+            exit;
+        }
+
+        /* set http cache (one week) */
+        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
+        Http::cache(array_merge([$file], get_included_files()));
+
+        /* send file to output */
+        header('Content-Type: ' . Files::getMimeType($file));
+        // Content-length is not mandatory and must be the exact size of content transfered AFTER possible compression (gzip, deflate, …)
+        //header('Content-Length: '.filesize($file));
+        readfile($file);
+        exit;
     }
 }

@@ -284,7 +284,7 @@ p.static-msg {
 
 div.error,
 p.error {
-  background: #e5bfbf url(install/process_warning.png) no-repeat 5px 5px;
+  background: #e5bfbf url(?df=style/install/process_warning.png) no-repeat 5px 5px;
   color: #600;
 }
 
@@ -292,7 +292,7 @@ div.message,
 p.message,
 div.static-msg,
 p.static-msg {
-  background: #666 url(install/note.png) no-repeat 5px 5px;
+  background: #666 url(?df=style/install/note.png) no-repeat 5px 5px;
   color: #fff;
 }
 
@@ -405,7 +405,7 @@ h2 {
 }
 
 body.install h1 {
-  background: url(install/w-logo.png) no-repeat top center;
+  background: url(?df=style/install/w-logo.png) no-repeat top center;
   font-size: 1.8em;
   font-weight: normal;
   text-align: center;
@@ -432,11 +432,11 @@ body.install .msg {
 }
 
 body.install .warning {
-  background: #ffc url(install/important.png) no-repeat 10px 10px;
+  background: #ffc url(?df=style/install/important.png) no-repeat 10px 10px;
 }
 
 body.install .notice {
-  background: #eef url(install/note.png) no-repeat 10px 10px;
+  background: #eef url(?df=style/install/note.png) no-repeat 10px 10px;
 }
 
 /* password strength indicator */

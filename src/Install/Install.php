@@ -301,7 +301,7 @@ exit('install: index.php : structure only');
           <meta name="GOOGLEBOT" content="NOSNIPPET" />
           <title><?php echo __('Dotclear Install'); ?></title>
 
-            <link rel="stylesheet" href="../style/install.css" type="text/css" media="screen" />
+            <link rel="stylesheet" href="?df=/style/install.css" type="text/css" media="screen" />
 
           <?php
           echo

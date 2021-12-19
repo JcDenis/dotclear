@@ -134,8 +134,10 @@ class Wizard
                 chmod(DOTCLEAR_CONFIG_PATH, 0666);
 
                 $con->close();
-
-                Http::redirect($redirect .'?installwizard=1');
+                if (empty($_GET[''])) {
+                    $redirect .=  (strpos($redirect, '?') === false ? '?' : '&') . 'installwizard=1';
+                }
+                Http::redirect($redirect);
             } catch (InstallException $e) {
                 $err = $e->getMessage();
             }
@@ -157,7 +159,7 @@ class Wizard
           <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
           <meta name="GOOGLEBOT" content="NOSNIPPET" />
           <title><?php echo __('Dotclear installation wizard'); ?></title>
-            <link rel="stylesheet" href="../style/install.css" type="text/css" media="screen" />
+            <link rel="stylesheet" href="?df=style/install.css" type="text/css" media="screen" />
         </head>
 
         <body id="dotclear-admin" class="install">

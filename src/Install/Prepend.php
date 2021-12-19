@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Install;
 
 use Dotclear\Core\Prepend as BasePrepend;
+use Dotclear\Core\Utils;
 
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
@@ -27,6 +28,11 @@ class Prepend extends BasePrepend
 
     public function __construct()
     {
+        /* Serve a file (css, png, ...) */
+        if (!empty($_GET['df'])) {
+            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            exit;
+        }
         /* No configuration ? start installalation process */
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             new Wizard($this);
