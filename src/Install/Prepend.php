@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Install;
 
 use Dotclear\Core\Prepend as BasePrepend;
+
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
 

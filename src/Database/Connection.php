@@ -22,6 +22,36 @@ class Connection
     protected $__database;
 
     /**
+     * Start connection
+     *
+     * Static function to use to init database layer. Returns a object extending
+     * dbLayer.
+     *
+     * @param string    $driver        Driver name
+     * @param string    $host        Database hostname
+     * @param string    $database        Database name
+     * @param string    $user        User ID
+     * @param string    $password        Password
+     * @param boolean   $persistent    Persistent connection
+     * @return object
+     */
+    public static function init($driver, $host, $database, $user = '', $password = '', $persistent = false)
+    {
+        // PHP 7.0 mysql driver is obsolete, map to mysqli
+        if ($driver === 'mysql') {
+            $driver = 'mysqli';
+        }
+
+        $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
+        if (!class_exists($class)) {
+            trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
+            exit(1);
+        }
+
+        return new $class($host, $database, $user, $password, $persistent);
+    }
+
+    /**
      * @param string    $host        Database hostname
      * @param string    $database        Database name
      * @param string    $user        User ID

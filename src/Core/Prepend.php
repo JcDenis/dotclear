@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Process;
+use Dotclear\Exception as Exception;
 
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Http;
@@ -46,18 +47,22 @@ class Prepend extends Core
         Dt::setTZ('UTC');
 
         /* CLI_MODE, boolean constant that tell if we are in CLI mode */
-        define('CLI_MODE', PHP_SAPI == 'cli');
+        if (!defined('CLI_MODE')) {
+            define('CLI_MODE', PHP_SAPI == 'cli');
+        }
 
         /* Disallow every special wrapper */
         Http::unregisterWrapper();
 
         /* Find configuration file */
-        if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
-            define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
-        } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
-            define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
-        } else {
-            define('DOTCLEAR_CONFIG_PATH', static::root('config.php'));
+        if (!defined('DOTCLEAR_CONFIG_PATH')) {
+            if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
+            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
+            } else {
+                define('DOTCLEAR_CONFIG_PATH', static::root('config.php'));
+            }
         }
 
         /* No configuration ? start installalation process */
@@ -67,7 +72,13 @@ class Prepend extends Core
 
             new Process('install');
 
-            return;
+            exit;
+        }
+        /* Should not happened but if we're lost, move to the right way */
+        if (!empty($_GET['installwizard']) && $this->process != 'Install') {
+            new Process('install');
+
+            exit;
         }
 
         /* Set plateform (user) configuration constants */
@@ -99,7 +110,7 @@ class Prepend extends Core
             @Files::makeDir(DOTCLEAR_CACHE_DIR);
             if (!is_dir(DOTCLEAR_CACHE_DIR)) {
                 /* Admin must create it */
-                if ($this->process != 'Admin') {
+                if (!in_array($this->process, ['Admin', 'Install'])) {
                     static::error('Server error', 'Site temporarily unavailable');
                 } else {
                     static::error('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
@@ -114,7 +125,7 @@ class Prepend extends Core
             @Files::makeDir(DOTCLEAR_VAR_DIR);
             if (!is_dir(DOTCLEAR_VAR_DIR)) {
                 // Admin must create it
-                if ($this->process != 'Admin') {
+                if (!in_array($this->process, ['Admin', 'Install'])) {
                     static::error('Server error', 'Site temporarily unavailable');
                 } else {
                     static::error('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
@@ -134,7 +145,7 @@ class Prepend extends Core
             Utils::$core = $this;
         } catch (Exception $e) {
             static::errorL10n();
-            if ($this->process != 'Admin') {
+            if (!in_array($this->process, ['Admin', 'Install'])) {
                 static::error(
                     __('Site temporarily unavailable'),
                     __('<p>We apologize for this temporary unavailability.<br />' .
@@ -168,7 +179,7 @@ class Prepend extends Core
         }
 
         /* Register Core behaviors */
-        //
+//
 
         /* Clean up Http globals */
         Http::trimRequest();
@@ -211,16 +222,6 @@ class Prepend extends Core
 
         /* Register shutdown function */
         register_shutdown_function([$this, 'shutdown']);
-
-        /* Check if dotclear is already installed */
-        $schema = Schema::init($this->con);
-        if (!in_array($this->prefix . 'post', $schema->getTables())) {
-            new Process('install');
-
-            return false;
-        }
-
-        return true;
     }
 
     public function shutdown()

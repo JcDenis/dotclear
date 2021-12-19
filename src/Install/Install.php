@@ -17,7 +17,7 @@ use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Database\Schema;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'install') {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;
 }
 
