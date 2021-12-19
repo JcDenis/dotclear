@@ -168,9 +168,9 @@ class Autoloader
      *
      * @param string $class The fully-qualified class name.
      *
-     * @return mixed The mapped file name on success, or boolean false on failure.
+     * @return string|null The mapped file name on success, or null on failure.
      */
-    public function loadClass(string $class)
+    public function loadClass(string $class): ?string
     {
         $prefix = $class;
 
@@ -186,7 +186,7 @@ class Autoloader
             $prefix = rtrim($prefix, self::NS_SEP);
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -195,13 +195,13 @@ class Autoloader
      * @param string $prefix The namespace prefix.
      * @param string $relative_class The relative class name.
      *
-     * @return mixed Boolean false if no mapped file can be loaded, or the
+     * @return string|null Null if no mapped file can be loaded, or the
      * name of the mapped file that was loaded.
      */
-    protected function loadMappedFile(string $prefix, string $relative_class): mixed
+    protected function loadMappedFile(string $prefix, string $relative_class): ?string
     {
         if (isset($this->prefixes[$prefix]) === false) {
-            return false;
+            return null;
         }
 
         foreach ($this->prefixes[$prefix] as $base_dir) {
@@ -214,7 +214,7 @@ class Autoloader
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
