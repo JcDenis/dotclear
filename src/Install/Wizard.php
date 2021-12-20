@@ -40,7 +40,11 @@ class Wizard
     {
         $this->core = $core;
 
-        $redirect = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $root_url = preg_replace(
+            ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'],
+            '',
+            filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+        );
 
         # Loading locales for detected language
         $dlang = Http::getAcceptLanguage();
@@ -119,7 +123,7 @@ class Wizard
                 self::writeConfigValue('DOTCLEAR_DATABASE_NAME', $DBNAME, $full_conf);
                 self::writeConfigValue('DOTCLEAR_DATABASE_PREFIX', $DBPREFIX, $full_conf);
 
-                $admin_url = preg_replace('%/[^/]$%', 'admin.php', $_SERVER['REQUEST_URI']);
+                $admin_url = $root_url . '/admin/index.php';
                 self::writeConfigValue('DOTCLEAR_ADMIN_URL', Http::getHost() . $admin_url, $full_conf);
                 $admin_email = !empty($ADMINMAILFROM) ? $ADMINMAILFROM : 'dotclear@' . $_SERVER['HTTP_HOST'];
                 self::writeConfigValue('DOTCLEAR_ADMIN_MAILFROM', $admin_email, $full_conf);
@@ -134,10 +138,8 @@ class Wizard
                 chmod(DOTCLEAR_CONFIG_PATH, 0666);
 
                 $con->close();
-                if (empty($_GET[''])) {
-                    $redirect .=  (strpos($redirect, '?') === false ? '?' : '&') . 'installwizard=1';
-                }
-                Http::redirect($redirect);
+
+                Http::redirect($root_url . '/admin/install.php?wiz=1');
             } catch (InstallException $e) {
                 $err = $e->getMessage();
             }
@@ -188,7 +190,7 @@ class Wizard
 
         '<p>' . __('Please provide the following information needed to create your configuration file.') . '</p>' .
 
-        '<form action="' . $redirect . '" method="post">' .
+        '<form action="' . $root_url . '/admin/install.php" method="post">' .
         '<p><label class="required" for="DBDRIVER"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Database type:') . '</label> ' .
         Form::combo('DBDRIVER', [
             __('MySQLi')              => 'mysqli',

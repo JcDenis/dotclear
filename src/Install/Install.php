@@ -16,12 +16,15 @@ use Dotclear\Exception\InstallException;
 
 use Dotclear\Core\Core;
 use Dotclear\Core\Settings;
+use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Favorites;
 
 use Dotclear\Utils\Http;
+use Dotclear\Utils\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
+use Dotclear\Utils\Form;
 
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
@@ -45,7 +48,7 @@ class Install
         $can_install = true;
         $err         = '';
 
-        # Loading locales for detected language
+        /* Loading locales for detected language */
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
@@ -59,28 +62,26 @@ class Install
             $err         = '<p>' . __('Please set a master key (DOTCLEAR_MASTER_KEY) in configuration file.') . '</p>';
         }
 
-        # Check if dotclear is already installed
+        /* Check if dotclear is already installed */
         $schema = Schema::init($core->con);
         if (in_array($core->prefix . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';
         }
 
-        # Check system capabilites
+        /* Check system capabilites */
         if (!$core::systemCheck($core->con, $_e)) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }
 
-        # Get information and perform install
+        /* Get information and perform install */
         $u_email = $u_firstname = $u_name = $u_login = $u_pwd = '';
 
         $root_url  = '';
         $admin_url = '';
 
         $mail_sent = false;
-
-exit('install: index.php : structure only');
 
         if ($can_install && !empty($_POST)) {
             $u_email     = !empty($_POST['u_email']) ? $_POST['u_email'] : null;
@@ -91,7 +92,7 @@ exit('install: index.php : structure only');
             $u_pwd2      = !empty($_POST['u_pwd2']) ? $_POST['u_pwd2'] : null;
 
             try {
-                # Check user information
+                /* Check user information */
                 if (empty($u_login)) {
                     throw new InstallException(__('No user ID given'));
                 }
@@ -112,7 +113,7 @@ exit('install: index.php : structure only');
                     throw new InstallException(__('Password must contain at least 6 characters.'));
                 }
 
-                # Try to guess timezone
+                /* Try to guess timezone */
                 $default_tz = 'Europe/London';
                 if (!empty($_POST['u_date']) && function_exists('timezone_open')) {
                     if (preg_match('/\((.+)\)$/', $_POST['u_date'], $_tz)) {
@@ -131,7 +132,7 @@ exit('install: index.php : structure only');
                     }
                 }
 
-                # Create schema
+                /* Create schema */
                 $_s = new Structure($core->con, $core->prefix);
                 Distrib::getDatabaseStructure($_s);
 
@@ -155,18 +156,19 @@ exit('install: index.php : structure only');
 
                 $core->auth->checkUser($u_login);
 
-                /* todo: change patterns */
-                $admin_url = preg_replace('%install/index.php$%', '', $_SERVER['REQUEST_URI']);
-                $root_url  = preg_replace('%/admin/install/index.php$%', '', $_SERVER['REQUEST_URI']);
+                /* Set URL (from default structure) */
+                $preg_search = ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'];
+                $root_url    = preg_replace($preg_search, '', $_SERVER['REQUEST_URI']);
+                $admin_url   = $root_url . '/admin/index.php';
 
-                # Create blog
+                /* Create blog */
                 $cur            = $core->con->openCursor($core->prefix . 'blog');
                 $cur->blog_id   = 'default';
                 $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
                 $cur->blog_name = __('My first blog');
                 $core->addBlog($cur);
 
-                # Create global blog settings
+                /* Create global blog settings */
                 $core->blogDefaults();
 
                 $blog_settings = new Settings($core, 'default');
@@ -174,9 +176,9 @@ exit('install: index.php : structure only');
                 $blog_settings->system->put('blog_timezone', $default_tz);
                 $blog_settings->system->put('lang', $dlang);
                 $blog_settings->system->put('public_url', $root_url . '/public');
-                $blog_settings->system->put('themes_url', $root_url . '/themes');
+                $blog_settings->system->put('themes_url', $root_url . '/themes'); // themes system changes later
 
-                # date and time formats
+                /* date and time formats */
                 $formatDate   = __('%A, %B %e %Y');
                 $date_formats = ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%Y/%m/%d', '%d.%m.%Y', '%b %e %Y', '%e %b %Y', '%Y %b %e',
                     '%a, %Y-%m-%d', '%a, %m/%d/%Y', '%a, %d/%m/%Y', '%a, %Y/%m/%d', '%B %e, %Y', '%e %B, %Y', '%Y, %B %e', '%e. %B %Y',
@@ -194,11 +196,11 @@ exit('install: index.php : structure only');
                 $blog_settings->system->put('date_formats', $date_formats, 'array', 'Date formats examples', true, true);
                 $blog_settings->system->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
-                # Add repository URL for themes and plugins
-                $blog_settings->system->put('store_plugin_url', 'https://update.dotaddict.org/dc2/plugins.xml', 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->system->put('store_theme_url', 'https://update.dotaddict.org/dc2/themes.xml', 'string', 'Themes XML feed location', true, true);
+                /* Add repository URL for themes and plugins */
+                $blog_settings->system->put('store_plugin_url', Distrib::getStoreURL(), 'string', 'Plugins XML feed location', true, true);
+                $blog_settings->system->put('store_theme_url', Distrib::getStoreURL(true), 'string', 'Themes XML feed location', true, true);
 
-                # CSP directive (admin part)
+                /* CSP directive (admin part) */
 
                 /* SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                 so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
@@ -217,13 +219,13 @@ exit('install: index.php : structure only');
                 $blog_settings->system->put('csp_admin_img',
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:", 'string', 'CSP img-src directive', true, true);
 
-                # Add Dotclear version
+                /* Add Dotclear version */
                 $cur          = $core->con->openCursor($core->prefix . 'version');
                 $cur->module  = 'core';
                 $cur->version = (string) DOTCLEAR_VERSION;
                 $cur->insert();
 
-                # Create first post
+                /* Create first post */
                 $core->setBlog('default');
 
                 $cur               = $core->con->openCursor($core->prefix . 'post');
@@ -239,7 +241,7 @@ exit('install: index.php : structure only');
                 $cur->post_open_tb       = 0;
                 $post_id                 = $core->blog->addPost($cur);
 
-                # Add a comment to it
+                /* Add a comment to it */
                 $cur                  = $core->con->openCursor($core->prefix . 'comment');
                 $cur->post_id         = $post_id;
                 $cur->comment_tz      = $default_tz;
@@ -255,22 +257,22 @@ exit('install: index.php : structure only');
                 $core->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
                 $plugins_install = $core->plugins->installModules();
 */
-                # Add dashboard module options
+                /* Add dashboard module options */
                 $core->auth->user_prefs->addWorkspace('dashboard');
                 $core->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
                 $core->auth->user_prefs->dashboard->put('dcnews', true, 'boolean', '', null, true);
                 $core->auth->user_prefs->dashboard->put('quickentry', true, 'boolean', '', null, true);
                 $core->auth->user_prefs->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
 
-                # Add accessibility options
+                /* Add accessibility options */
                 $core->auth->user_prefs->addWorkspace('accessibility');
                 $core->auth->user_prefs->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
 
-                # Add user interface options
+                /* Add user interface options */
                 $core->auth->user_prefs->addWorkspace('interface');
                 $core->auth->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
-                # Add default favorites
+                /* Add default favorites */
                 $core->favs = new Favorites($core);
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
                 $core->favs->setFavoriteIDs($init_favs, true);
@@ -305,16 +307,16 @@ exit('install: index.php : structure only');
 
           <?php
           echo
-            dcPage::jsLoad('../js/prepend.js') .
-            dcPage::jsJson('pwstrength', [
+            Utils::jsLoad('?df=/js/prepend.js') .
+            Utils::jsJson('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong'))
             ]) .
-            dcPage::jsLoad('../js/pwstrength.js') .
-            dcPage::jsLoad('../js/jquery/jquery.js') .
-            dcPage::jsJson('install_show', __('show')) .
-            dcPage::jsLoad('../js/_install.js'); ?>
+            Utils::jsLoad('?df=/js/pwstrength.js') .
+            Utils::jsLoad('?df=/js/jquery/jquery.js') .
+            Utils::jsJson('install_show', __('show')) .
+            Utils::jsLoad('?df=/js/_install.js'); ?>
         </head>
 
         <body id="dotclear-admin" class="install">
@@ -324,8 +326,8 @@ exit('install: index.php : structure only');
         '<h1>' . __('Dotclear installation') . '</h1>' .
             '<div id="main">';
 
-        if (!is_writable(DC_TPL_CACHE)) {
-            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), DC_TPL_CACHE) . '</p></div>';
+        if (!is_writable(DOTCLEAR_CACHE_DIR)) {
+            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), DOTCLEAR_CACHE_DIR) . '</p></div>';
         }
 
         if ($can_install && !empty($err)) {
@@ -342,24 +344,24 @@ exit('install: index.php : structure only');
 
             '<p>' . __('Please provide the following information needed to create the first user.') . '</p>' .
 
-            '<form action="index.php" method="post">' .
+            '<form action="install.php" method="post">' .
             '<fieldset><legend>' . __('User information') . '</legend>' .
             '<p><label for="u_firstname">' . __('First Name:') . '</label> ' .
-            form::field('u_firstname', 30, 255, [
-                'default'      => html::escapeHTML($u_firstname),
+            Form::field('u_firstname', 30, 255, [
+                'default'      => Html::escapeHTML($u_firstname),
                 'autocomplete' => 'given-name'
             ]) .
             '</p>' .
             '<p><label for="u_name">' . __('Last Name:') . '</label> ' .
-            form::field('u_name', 30, 255, [
-                'default'      => html::escapeHTML($u_name),
+            Form::field('u_name', 30, 255, [
+                'default'      => Html::escapeHTML($u_name),
                 'autocomplete' => 'family-name'
             ]) .
             '</p>' .
             '<p><label for="u_email">' . __('Email:') . '</label> ' .
-            form::email('u_email', [
+            Form::email('u_email', [
                 'size'         => 30,
-                'default'      => html::escapeHTML($u_email),
+                'default'      => Html::escapeHTML($u_email),
                 'autocomplete' => 'email'
             ]) .
             '</p>' .
@@ -367,22 +369,22 @@ exit('install: index.php : structure only');
 
             '<fieldset><legend>' . __('Username and password') . '</legend>' .
             '<p><label for="u_login" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Username:') . ' ' .
-            form::field('u_login', 30, 32, [
-                'default'      => html::escapeHTML($u_login),
+            Form::field('u_login', 30, 32, [
+                'default'      => Html::escapeHTML($u_login),
                 'extra_html'   => 'required placeholder="' . __('Username') . '"',
                 'autocomplete' => 'username'
             ]) .
             '</label></p>' .
             '<p>' .
             '<label for="u_pwd" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('New password:') . '</label>' .
-            form::password('u_pwd', 30, 255, [
+            Form::password('u_pwd', 30, 255, [
                 'class'        => 'pw-strength',
                 'extra_html'   => 'data-indicator="pwindicator" required placeholder="' . __('Password') . '"',
                 'autocomplete' => 'new-password'
             ]) .
             '</p>' .
             '<p><label for="u_pwd2" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Confirm password:') . ' ' .
-            form::password('u_pwd2', 30, 255, [
+            Form::password('u_pwd2', 30, 255, [
                 'extra_html'   => 'required placeholder="' . __('Password') . '"',
                 'autocomplete' => 'new-password'
             ]) .
@@ -418,20 +420,20 @@ exit('install: index.php : structure only');
 
             '<h3>' . __('Your account') . '</h3>' .
             '<ul>' .
-            '<li>' . __('Username:') . ' <strong>' . html::escapeHTML($u_login) . '</strong></li>' .
-            '<li>' . __('Password:') . ' <strong id="password">' . html::escapeHTML($u_pwd) . '</strong></li>' .
+            '<li>' . __('Username:') . ' <strong>' . Html::escapeHTML($u_login) . '</strong></li>' .
+            '<li>' . __('Password:') . ' <strong id="password">' . Html::escapeHTML($u_pwd) . '</strong></li>' .
             '</ul>' .
 
             '<h3>' . __('Your blog') . '</h3>' .
             '<ul>' .
-            '<li>' . __('Blog address:') . ' <strong>' . html::escapeHTML(http::getHost() . $root_url) . '/index.php?</strong></li>' .
-            '<li>' . __('Administration interface:') . ' <strong>' . html::escapeHTML(http::getHost() . $admin_url) . '</strong></li>' .
+            '<li>' . __('Blog address:') . ' <strong>' . Html::escapeHTML(Http::getHost() . $root_url) . '/index.php?</strong></li>' .
+            '<li>' . __('Administration interface:') . ' <strong>' . Html::escapeHTML(Http::getHost() . $admin_url) . '</strong></li>' .
             '</ul>' .
 
             '<form action="../auth.php" method="post">' .
             '<p><input type="submit" value="' . __('Manage your blog now') . '" />' .
-            form::hidden(['user_id'], html::escapeHTML($u_login)) .
-            form::hidden(['user_pwd'], html::escapeHTML($u_pwd)) .
+            Form::hidden(['user_id'], Html::escapeHTML($u_login)) .
+            Form::hidden(['user_pwd'], Html::escapeHTML($u_pwd)) .
                 '</p>' .
                 '</form>';
         } elseif (!$can_install) {

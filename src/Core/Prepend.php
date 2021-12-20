@@ -75,16 +75,18 @@ class Prepend extends Core
 
         /* No configuration ? start installalation process */
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
-            /* Set Dotclear configuration constants to default values */
-            Distrib::getCoreConstants();
+            /* Set Dotclear configuration constants for installation process */
+            if ($this->process == 'Install') {
+                Distrib::getCoreConstants();
 
-            new Process('install');
-
-            exit;
-        }
-        /* Should not happened but if we're lost, move to the right way */
-        if (!empty($_GET['installwizard']) && $this->process != 'Install') {
-            new Process('install');
+                return;
+            }
+            /* Redirect to installation process */
+            Http::redirect(preg_replace(
+                ['%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+                '',
+                filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+            ) . '/admin/install.php');
 
             exit;
         }
