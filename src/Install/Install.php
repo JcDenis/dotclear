@@ -74,7 +74,8 @@ class Install
         }
 
         /* Check system capabilites */
-        if (!$core::systemCheck($core->con, $_e)) {
+        $_e = [];
+        if (!Distrib::checkRequirements($core->con, $_e)) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }

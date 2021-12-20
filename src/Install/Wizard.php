@@ -23,8 +23,10 @@ use Dotclear\Utils\Files;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\Form;
 use Dotclear\Utils\Html;
+
 use Dotclear\Database\Connection;
 use Dotclear\Database\Schema;
+
 use Dotclear\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
@@ -93,7 +95,8 @@ class Wizard
                 }
 
                 # Checks system capabilites
-                if (!$core::systemCheck($con, $_e)) {
+                $_e = [];
+                if (!Distrib::checkRequirements($con, $_e)) {
                     $can_install = false;
 
                     throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>');
