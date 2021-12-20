@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception\CoreException;
+
 use Dotclear\Utils\Html;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Files;
@@ -23,6 +25,23 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
+    /** @var Core Core instance */
+    protected static $core;
+
+    public static function setCore(Core $core): void
+    {
+        self::$core = $core;
+    }
+
+    protected static function getCore(): Core
+    {
+        if (is_a(self::$core, 'Core')) {
+            throw new CoreException('No Core instance');
+        }
+
+        return self::$core;
+    }
+
     /**
      * Static function that returns user's common name given to his
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
@@ -226,19 +245,25 @@ class Utils
         return uksort($arr, ['Utils', 'lexicalSortHelper']);
     }
 
-    public static function setLexicalLang(Core $core, string $ns = '', string $lang = 'en_US'): void
+    public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
     {
+        try {
+            $core = self::getCore();
+        } catch (CoreException $e) {
+            $ns = 'lang';
+        }
+
         // Switch to appropriate locale depending on $ns
         switch ($ns) {
             case 'admin':
                 // Set locale with user prefs
-                $user_language = self::$core->auth->getInfo('user_lang');
+                $user_language = $core->auth->getInfo('user_lang');
                 setlocale(LC_COLLATE, $user_language);
 
                 break;
             case 'public':
                 // Set locale with blog params
-                $blog_language = self::$core->blog->settings->system->lang;
+                $blog_language = $core->blog->settings->system->lang;
                 setlocale(LC_COLLATE, $blog_language);
 
                 break;

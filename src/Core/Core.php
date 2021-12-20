@@ -87,6 +87,7 @@ class Core
     public function __construct()
     {
         static::startStatistics();
+        Utils::setCore($this);
 
         $this->con     = $this->conInstance();
         $this->error   = new Error();
