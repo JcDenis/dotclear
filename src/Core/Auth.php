@@ -104,7 +104,7 @@ class Auth
      *
      * @return boolean
      */
-    public function checkUser($user_id, $pwd = null, $user_key = null, $check_blog = true)
+    public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
         # Check user and password
         $sql = new SelectStatement($this->core, 'coreAuthCheckUser');
