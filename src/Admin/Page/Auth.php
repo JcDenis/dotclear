@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
-use Dotclear\Exception\AdminException
+use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 
@@ -321,15 +321,15 @@ class Auth
   <meta name="GOOGLEBOT" content="NOSNIPPET" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?php echo Html::escapeHTML(DOTCLEAR_VENDOR_NAME); ?></title>
-  <link rel="icon" type="image/png" href="images/favicon96-logout.png" />
-  <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+  <link rel="icon" type="image/png" href="?df=images/favicon96-logout.png" />
+  <link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />
 
 
 <?php
 //        echo dcPage::jsCommon();
 ?>
 
-    <link rel="stylesheet" href="style/default.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="?df=style/default.css" type="text/css" media="screen" />
 
 <?php
 /*        # --BEHAVIOR-- loginPageHTMLHead

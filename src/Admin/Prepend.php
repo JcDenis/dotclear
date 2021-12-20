@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Prepend as BasePrepend;
@@ -36,6 +37,12 @@ class Prepend extends BasePrepend
 
     public function __construct()
     {
+        /* Serve a file (css, png, ...) */
+        if (!empty($_GET['df'])) {
+            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            exit;
+        }
+
         parent::__construct();
 
         // HTTP/1.1
@@ -96,13 +103,13 @@ exit('admin: j en suis la ');
                 if (!$this->auth->checkSession()) {
                     # Avoid loop caused by old cookie
                     $p    = $this->session->getCookieParameters(false, -600);
-                    $p[3] = '/';
+                    $p[3] = '/';var_dump($p);
                     call_user_func_array('setcookie', $p);
 
                     $this->adminurl->redirect('admin.auth');
                     exit;
                 }
-            } catch (\Exception $e) { //DatabaseException?
+            } catch (Exception $e) { //DatabaseException?
                 static::error(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 

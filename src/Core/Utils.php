@@ -638,7 +638,7 @@ class Utils
     {
         /* set default types */
         if ($types === null) {
-            $types = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot'];
+            $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot'];
         }
 
         /* check query form */
