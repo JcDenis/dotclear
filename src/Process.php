@@ -28,6 +28,18 @@ class Process
      */
     public function __construct(string $process = 'public')
     {
+        /* Timer and memory usage for stats and dev */
+        if (!defined('DOTCLEAR_START_TIME')) {
+            define('DOTCLEAR_START_TIME',
+                microtime(true)
+            );
+        }
+        if (!defined('DOTCLEAR_START_MEMORY')) {
+            define('DOTCLEAR_START_MEMORY',
+                memory_get_usage(false)
+            );
+        }
+
         /* Define Dotclear root directory */
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
