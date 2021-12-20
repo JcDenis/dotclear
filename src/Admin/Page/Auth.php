@@ -21,6 +21,9 @@ use Dotclear\Utils\Html;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Form;
+use Dotclear\Utils\Mail;
+
+use Dotclear\Distrib\Upgrade;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'admin') {
     return;
@@ -31,20 +34,43 @@ class Auth
     /** @var Core Core instance */
     public $core;
 
+    /** @var string default lang */
     protected $default_lang;
+
+    /** @var string this page url */
     protected $page_url;
+
+    /** @var boolean can change password */
     protected $change_pwd;
+
+    /** @var string login data */
     protected $login_data;
+
+    /** @var boolean password recover */
     protected $recover;
-    protected $recover_key;
-    protected $recover_res;
+
+    /** @var boolean safe mode */
     protected $safe_mode;
+
+    /** @var string recovery key */
     protected $akey;
+
+    /** @var string|null user id */
     protected $user_id;
+
+    /** @var string|null user password */
     protected $user_pwd;
+
+    /** @var srting|null user key */
     protected $user_key;
+
+    /** @var string|null user email */
     protected $user_email;
+
+    /** @var string|null error message */
     protected $err;
+
+    /** @var string|null success message */
     protected $msg;
 
     public function __construct(Core $core)
@@ -78,7 +104,7 @@ class Auth
         $this->err          =
         $this->msg          = null;
 
-//        $this->upgrade();
+        $this->upgrade();
 
         # If we have POST login informations, go throug auth process
         if (!empty($_POST['user_id']) && !empty($_POST['user_pwd'])) {
@@ -120,14 +146,12 @@ class Auth
         $this->display();
     }
 
-    protected function upgrade()
+    protected function upgrade(): void
     {
         # Auto upgrade
         if (empty($_GET) && empty($_POST)) {
-            require dirname(__FILE__) . '/../inc/dbschema/upgrade.php';
-//
             try {
-                if (($changes = dcUpgrade::dotclearUpgrade($this->core)) !== false) {
+                if (($changes = Upgrade::dotclearUpgrade($this->core)) !== false) {
                     $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
             } catch (Exception $e) {
@@ -136,44 +160,44 @@ class Auth
         }
     }
 
-    protected function recoverPassword()
+    protected function recoverPassword(): void
     {
         $this->user_id    = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
         $this->user_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
 
         try {
-            $this->recover_key = $this->core->auth->setRecoverKey($this->user_id, $this->user_email);
-//
-            $subject = mail::B64Header('Dotclear ' . __('Password reset'));
+            $recover_key = $this->core->auth->setRecoverKey($this->user_id, $this->user_email);
+
+            $subject = Mail::B64Header('Dotclear ' . __('Password reset'));
             $message = __('Someone has requested to reset the password for the following site and username.') . "\n\n" .
             $this->page_url . "\n" . __('Username:') . ' ' . $this->user_id . "\n\n" .
             __('To reset your password visit the following address, otherwise just ignore this email and nothing will happen.') . "\n" .
-                $this->page_url . '?akey=' . $this->recover_key;
+                $this->page_url . '?akey=' . $recover_key;
 
             $headers[] = 'From: ' . (defined('DOTCLEAR_ADMIN_MAILFROM') && DOTCLEAR_ADMIN_MAILFROM ? DOTCLEAR_ADMIN_MAILFROM : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
-            mail::sendMail($this->user_email, $subject, $message, $headers);
+            Mail::sendMail($this->user_email, $subject, $message, $headers);
             $this->msg = sprintf(__('The e-mail was sent successfully to %s.'), $this->user_email);
         } catch (Exception $e) {
             $this->err = $e->getMessage();
         }
     }
 
-    protected function sendNewPassword()
+    protected function sendNewPassword(): void
     {
         try {
-            $this->recover_res = $this->core->auth->recoverUserPassword($this->akey);
+            $recover_res = $this->core->auth->recoverUserPassword($this->akey);
 
             $subject = mb_encode_mimeheader('Dotclear ' . __('Your new password'), 'UTF-8', 'B');
-            $message = __('Username:') . ' ' . $this->recover_res['user_id'] . "\n" .
-            __('Password:') . ' ' . $this->recover_res['new_pass'] . "\n\n" .
+            $message = __('Username:') . ' ' . $recover_res['user_id'] . "\n" .
+            __('Password:') . ' ' . $recover_res['new_pass'] . "\n\n" .
             preg_replace('/\?(.*)$/', '', $this->page_url);
 
             $headers[] = 'From: ' . (defined('DOTCLEAR_ADMIN_MAILFROM') && DOTCLEAR_ADMIN_MAILFROM ? DOTCLEAR_ADMIN_MAILFROM : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
-//
-            mail::sendMail($this->recover_res['user_email'], $subject, $message, $headers);
+
+            Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
             $this->msg = __('Your new password is in your mailbox.');
         } catch (Exception $e) {
             $this->err = $e->getMessage();
@@ -270,7 +294,7 @@ class Auth
                 $this->change_pwd = true;
             }
         } elseif ($check_perms && !empty($_POST['safe_mode']) && !$this->core->auth->isSuperAdmin()) {
-            $err = __('Safe Mode can only be used for super administrators.');
+            $this->err = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
             $this->core->session->start();
             $_SESSION['sess_user_id']     = $this->user_id;
@@ -366,7 +390,7 @@ class Auth
             echo
             '<div class="fieldset" role="main"><h2>' . __('Request a new password') . '</h2>' .
             '<p><label for="user_id">' . __('Username:') . '</label> ' .
-            form::field(
+            Form::field(
                 'user_id',
                 20,
                 32,
@@ -378,7 +402,7 @@ class Auth
             '</p>' .
 
             '<p><label for="user_email">' . __('Email:') . '</label> ' .
-            form::email(
+            Form::email(
                 'user_email',
                 [
                     'default'      => Html::escapeHTML($this->user_email),
@@ -388,7 +412,7 @@ class Auth
             '</p>' .
 
             '<p><input type="submit" value="' . __('recover') . '" />' .
-            form::hidden('recover', 1) . '</p>' .
+            Form::hidden('recover', 1) . '</p>' .
             '</div>' .
 
             '<details open id="issue">' . "\n" .
@@ -399,7 +423,7 @@ class Auth
             echo
             '<div class="fieldset"><h2>' . __('Change your password') . '</h2>' .
             '<p><label for="new_pwd">' . __('New password:') . '</label> ' .
-            form::password(
+            Form::password(
                 'new_pwd',
                 20,
                 255,
@@ -410,7 +434,7 @@ class Auth
             ) . '</p>' .
 
             '<p><label for="new_pwd_c">' . __('Confirm password:') . '</label> ' .
-            form::password(
+            Form::password(
                 'new_pwd_c',
                 20,
                 255,
@@ -419,7 +443,7 @@ class Auth
                 ]
             ) . '</p>' .
             '<p><input type="submit" value="' . __('change') . '" />' .
-            form::hidden('login_data', $this->login_data) . '</p>' .
+            Form::hidden('login_data', $this->login_data) . '</p>' .
             '</div>';
         } else {
             if (is_callable([$this->core->auth, 'authForm'])) {
@@ -439,7 +463,7 @@ class Auth
 
                 echo
                 '<p><label for="user_id">' . __('Username:') . '</label> ' .
-                form::field(
+                Form::field(
                     'user_id',
                     20,
                     32,
@@ -450,7 +474,7 @@ class Auth
                 ) . '</p>' .
 
                 '<p><label for="user_pwd">' . __('Password:') . '</label> ' .
-                form::password(
+                Form::password(
                     'user_pwd',
                     20,
                     255,
@@ -460,18 +484,18 @@ class Auth
                 ) . '</p>' .
 
                 '<p>' .
-                form::checkbox('user_remember', 1) .
+                Form::checkbox('user_remember', 1) .
                 '<label for="user_remember" class="classic">' .
                 __('Remember my ID on this device') . '</label></p>' .
 
                 '<p><input type="submit" value="' . __('log in') . '" class="login" /></p>';
 
                 if (!empty($_REQUEST['blog'])) {
-                    echo form::hidden('blog', Html::escapeHTML($_REQUEST['blog']));
+                    echo Form::hidden('blog', Html::escapeHTML($_REQUEST['blog']));
                 }
                 if ($this->safe_mode) {
                     echo
-                    form::hidden('safe_mode', 1) .
+                    Form::hidden('safe_mode', 1) .
                         '</div>';
                 } else {
                     echo '</div>';
