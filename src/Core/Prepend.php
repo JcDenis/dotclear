@@ -187,9 +187,6 @@ class Prepend extends Core
             }
         }
 
-        /* Register Core behaviors */
-//
-
         /* Clean up Http globals */
         Http::trimRequest();
 
@@ -233,7 +230,7 @@ class Prepend extends Core
         register_shutdown_function([$this, 'shutdown']);
     }
 
-    public function shutdown()
+    public function shutdown(): void
     {
         global $__shutdown;
         if (is_array($__shutdown)) {
@@ -276,7 +273,7 @@ class Prepend extends Core
         exit;
     }
 
-    protected static function errorL10n()
+    protected static function errorL10n(): void
     {
         # Loading locales for detected language
         $dlang = Http::getAcceptLanguages();
@@ -296,26 +293,5 @@ class Prepend extends Core
         }
 
         return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
-    }
-
-    private function authInstance()
-    {
-        # You can set DC_AUTH_CLASS to whatever you want.
-        # Your new class *should* inherits Dotclear\Core\Auth class.
-        if (!defined('DOTCLEAR_AUTH_CLASS')) {
-            $class = __NAMESPACE__ . '\\Auth';
-        } else {
-            $class = DOTCLEAR_AUTH_CLASS;
-        }
-
-        if (!class_exists($class)) {
-            throw new CoreException('Authentication class ' . $class . ' does not exist.');
-        }
-
-        if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
-            throw new CoreException('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
-        }
-
-        return new $class($this);
     }
 }

@@ -425,7 +425,7 @@ class Core
      * @param      string    $behavior  The behavior
      * @param      callable  $func      The function
      */
-    public function addBehavior($behavior, $func)
+    public function addBehavior(string $behavior, $func): void
     {
         if (is_callable($func)) {
             $this->behaviors[$behavior][] = $func;
@@ -439,7 +439,7 @@ class Core
      *
      * @return     bool    True if behavior exists, False otherwise.
      */
-    public function hasBehavior($behavior)
+    public function hasBehavior(string $behavior): bool
     {
         return isset($this->behaviors[$behavior]);
     }
@@ -449,12 +449,12 @@ class Core
      *
      * @param      string  $behavior  The behavior
      *
-     * @return     mixed   The behaviors.
+     * @return     array   The behaviors.
      */
-    public function getBehaviors($behavior = '')
+    public function getBehaviors(string $behavior = ''): array
     {
         if (empty($this->behaviors)) {
-            return;
+            return [];
         }
 
         if ($behavior == '') {
@@ -478,7 +478,7 @@ class Core
      *
      * @return     mixed   Behavior concatened result
      */
-    public function callBehavior($behavior, ...$args)
+    public function callBehavior(string $behavior, ...$args)
     {
         if (isset($this->behaviors[$behavior])) {
             $res = '';
@@ -497,13 +497,13 @@ class Core
      * Dotclear\Core\Core::addTopBehavior('MyBehavior', 'MyFunction');
      * also work from Dotclear\Core\Prepend and other child class
      *
-     * @param string $name  [description]
-     * @param string\array $func [description]
+     * @param      string    $behavior  The behavior
+     * @param      callable  $func      The function
      */
-    public static function addTopBehavior(string $name, $func): void
+    public static function addTopBehavior(string $behavior, $func): void
     {
         $top = static::$top_behaviors;
-        $top[$name][] = $func;
+        $top[$behavior][] = $func;
         static::$top_behaviors = $top;
     }
 
