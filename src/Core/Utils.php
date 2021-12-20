@@ -28,14 +28,14 @@ class Utils
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
      * <var>user_displayname</var>.
      *
-     * @param      string  $user_id           The user identifier
-     * @param      string  $user_name         The user name
-     * @param      string  $user_firstname    The user firstname
-     * @param      string  $user_displayname  The user displayname
+     * @param      string       $user_id           The user identifier
+     * @param      string|null  $user_name         The user name
+     * @param      string|null  $user_firstname    The user firstname
+     * @param      string|null  $user_displayname  The user displayname
      *
      * @return     string  The user cn.
      */
-    public static function getUserCN(string $user_id, string $user_name, string $user_firstname, string $user_displayname): string
+    public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
     {
         if (!empty($user_displayname)) {
             return $user_displayname;
