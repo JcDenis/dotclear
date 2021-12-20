@@ -1,7 +1,4 @@
-
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}<?php
+<?php
 /**
  * @class Cursor
  *
