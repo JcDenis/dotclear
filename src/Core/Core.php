@@ -73,6 +73,9 @@ class Core
     /** @var array              behaviors container */
     private $behaviors  = [];
 
+    /** @var array              top behaviors */
+    protected static $top_behaviors = [];
+
     /** @var array              posts types container */
     private $post_types = [];
 
@@ -94,6 +97,8 @@ class Core
         $this->rest    = new RestServer($this);
         $this->meta    = new Meta($this);
         $this->log     = new Log($this);
+
+        $this->registerTopBehaviors();
     }
 
     /// @name Core init methods
@@ -483,6 +488,35 @@ class Core
             }
 
             return $res;
+        }
+    }
+
+    /**
+     * Add Top Behavior statically before Core instance
+     *
+     * Dotclear\Core\Core::addTopBehavior('MyBehavior', 'MyFunction');
+     * also work from Dotclear\Core\Prepend and other child class
+     *
+     * @param string $name  [description]
+     * @param string\array $func [description]
+     */
+    public static function addTopBehavior(string $name, $func): void
+    {
+        $top = static::$top_behaviors;
+        $top[$name][] = $func;
+        static::$top_behaviors = $top;
+    }
+
+    /**
+     * Register Top Behaviors into Core behaviors
+     */
+    protected function registerTopBehaviors(): void
+    {
+        if (is_array(static::$top_behaviors) && !empty(static::$top_behaviors)) {
+            foreach (static::$top_behaviors as $b) {
+                $this->addBehavior($b[0], $b[1]);
+            }
+            unset($b);
         }
     }
     //@}
