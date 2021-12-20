@@ -24,7 +24,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Distrib
 {
-    public static function getConfigFile()
+    public static function getConfigFile(): string
     {
         $file = implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'config.php.distrib']);
         if (!is_file($file)) {
@@ -34,7 +34,7 @@ class Distrib
         return file_get_contents($file);
     }
 
-    public static function getCoreConstants()
+    public static function getCoreConstants(): void
     {
         //*== DOTCLEAR_DEBUG ==
         if (!defined('DOTCLEAR_DEBUG')) {
@@ -49,14 +49,6 @@ class Distrib
         if (!defined('DOTCLEAR_DEBUG')) {
             define('DOTCLEAR_DEBUG', false);
         }
-
-        define('DOTCLEAR_START_TIME',
-            microtime(true)
-        );
-
-        define('DOTCLEAR_START_MEMORY',
-            memory_get_usage(false)
-        );
 
         define('DOTCLEAR_VERSION',
             '2.21-dev'
@@ -204,7 +196,14 @@ class Distrib
         }
     }
 
-    public static function getDatabaseStructure(Structure $_s)
+    public static function getStoreURL(bool $themes = false): string
+    {
+        return $themes ?
+            'https://update.dotaddict.org/dc2/themes.xml' :
+            'https://update.dotaddict.org/dc2/plugins.xml';
+    }
+
+    public static function getDatabaseStructure(Structure $_s): void
     {
         /* Tables
         -------------------------------------------------------- */
