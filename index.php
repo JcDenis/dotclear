@@ -2,8 +2,11 @@
 /**
  * @brief Dotclear process example
  *
- * This file is the public (frontend) acces point
+ * This file is the public (frontend) access point
  * of the default blog.
+ *
+ * If you move your public access point,
+ * you must edit Blog URL in your blog settings.
  *
  * @package Dotclear
  * @subpackage Process
