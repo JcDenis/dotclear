@@ -34,14 +34,14 @@ class Session
      *
      * This method creates an instance of sessionDB class.
      *
-     * @param AbstractConnection    $con            Layer inherited database instance
-     * @param string        $table            Table name
+     * @param Connection    $con            Layer inherited database instance
+     * @param string        $table          Table name
      * @param string        $cookie_name    Session cookie name
-     * @param string|null        $cookie_path    Session cookie path
-     * @param string|null        $cookie_domain    Session cookie domaine
-     * @param boolean    $cookie_secure    Session cookie is available only through SSL if true
-     * @param string     $ttl             TTL (default -120 minutes)
-     * @param boolean    $transient        Transient session : no db optimize on session destruction if true
+     * @param string|null   $cookie_path    Session cookie path
+     * @param string|null   $cookie_domain  Session cookie domaine
+     * @param boolean       $cookie_secure  Session cookie is available only through SSL if true
+     * @param string|null   $ttl            TTL (default -120 minutes)
+     * @param boolean       $transient      Transient session : no db optimize on session destruction if true
      */
     public function __construct(
         Connection $con,
@@ -50,7 +50,7 @@ class Session
         ?string $cookie_path = null,
         ?string $cookie_domain = null,
         bool $cookie_secure = false,
-        string $ttl = null,
+        ?string $ttl = null,
         bool $transient = false
     ) {
         $this->con           = &$con;
