@@ -44,7 +44,11 @@ class Install
     {
         $this->core = $core;
 
+        /* Set URL (from default structure) */
         $redirect    = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $preg_search = ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'];
+        $root_url    = preg_replace($preg_search, '', $_SERVER['REQUEST_URI']);
+        $admin_url   = $root_url . '/admin/index.php';
         $can_install = true;
         $err         = '';
 
@@ -77,9 +81,6 @@ class Install
 
         /* Get information and perform install */
         $u_email = $u_firstname = $u_name = $u_login = $u_pwd = '';
-
-        $root_url  = '';
-        $admin_url = '';
 
         $mail_sent = false;
 
@@ -155,11 +156,6 @@ class Install
                 $cur->insert();
 
                 $core->auth->checkUser($u_login);
-
-                /* Set URL (from default structure) */
-                $preg_search = ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'];
-                $root_url    = preg_replace($preg_search, '', $_SERVER['REQUEST_URI']);
-                $admin_url   = $root_url . '/admin/index.php';
 
                 /* Create blog */
                 $cur            = $core->con->openCursor($core->prefix . 'blog');
@@ -368,13 +364,13 @@ class Install
             '</fieldset>' .
 
             '<fieldset><legend>' . __('Username and password') . '</legend>' .
-            '<p><label for="u_login" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Username:') . ' ' .
+            '<p><label for="u_login" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Username:') . '</label> ' .
             Form::field('u_login', 30, 32, [
                 'default'      => Html::escapeHTML($u_login),
                 'extra_html'   => 'required placeholder="' . __('Username') . '"',
-                'autocomplete' => 'username'
+                'autocomplete' => 'user-name'
             ]) .
-            '</label></p>' .
+            '</p>' .
             '<p>' .
             '<label for="u_pwd" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('New password:') . '</label>' .
             Form::password('u_pwd', 30, 255, [
@@ -383,12 +379,12 @@ class Install
                 'autocomplete' => 'new-password'
             ]) .
             '</p>' .
-            '<p><label for="u_pwd2" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Confirm password:') . ' ' .
+            '<p><label for="u_pwd2" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Confirm password:') . '</label> ' .
             Form::password('u_pwd2', 30, 255, [
                 'extra_html'   => 'required placeholder="' . __('Password') . '"',
                 'autocomplete' => 'new-password'
             ]) .
-            '</label></p>' .
+            '</p>' .
             '</fieldset>' .
 
             '<p><input type="submit" value="' . __('Save') . '" /></p>' .
@@ -430,7 +426,7 @@ class Install
             '<li>' . __('Administration interface:') . ' <strong>' . Html::escapeHTML(Http::getHost() . $admin_url) . '</strong></li>' .
             '</ul>' .
 
-            '<form action="../auth.php" method="post">' .
+            '<form action="'. $admin_url . '" method="post">' .
             '<p><input type="submit" value="' . __('Manage your blog now') . '" />' .
             Form::hidden(['user_id'], Html::escapeHTML($u_login)) .
             Form::hidden(['user_pwd'], Html::escapeHTML($u_pwd)) .
