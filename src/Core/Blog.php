@@ -20,6 +20,8 @@ use Dotclear\Utils\Dt;
 use Dotclear\Utils\Path;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Text;
+
+use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -28,10 +30,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
-    /** @var dcCore dcCore instance */
+    /** @var Core Core instance */
     protected $core;
-    /** @var object Database connection object */
+
+    /** @var Connection Database connection object */
     public $con;
+
     /** @var string Database table prefix */
     public $prefix;
 
@@ -54,10 +58,12 @@ class Blog
     /** @var string Blog status */
     public $status;
 
-    /** @var dcSettings dcSettings object */
+    /** @var Settings Settings object */
     public $settings;
+
     /** @var string Blog theme path */
     public $themes_path;
+
     /** @var string Blog public path */
     public $public_path;
 
@@ -276,7 +282,7 @@ class Blog
      */
     public function triggerComments($ids, $del = false, $affected_posts = null)
     {
-        $comments_ids = dcUtils::cleanIds($ids);
+        $comments_ids = Utils::cleanIds($ids);
 
         # Get posts affected by comments edition
         if (empty($affected_posts)) {
@@ -880,7 +886,7 @@ class Blog
     public function getPosts($params = [], $count_only = false)
     {
         # --BEHAVIOR-- coreBlogBeforeGetPosts
-        $params = new ArrayObject($params);
+        $params = new \ArrayObject($params);
         $this->core->callBehavior('coreBlogBeforeGetPosts', $params);
 
         if ($count_only) {
@@ -1083,7 +1089,7 @@ class Blog
         $this->core->callBehavior('coreBlogGetPosts', $rs);
 
         # --BEHAVIOR-- coreBlogAfterGetPosts
-        $alt = new arrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
+        $alt = new \ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
         $this->core->callBehavior('coreBlogAfterGetPosts', $rs, $alt);
         if ($alt['rs'] instanceof record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
@@ -1474,7 +1480,7 @@ class Blog
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
-        $posts_ids = dcUtils::cleanIds($ids);
+        $posts_ids = Utils::cleanIds($ids);
         $status    = (int) $status;
 
         $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
@@ -1521,7 +1527,7 @@ class Blog
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = dcUtils::cleanIds($ids);
+        $posts_ids = Utils::cleanIds($ids);
         $selected  = (bool) $selected;
 
         $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
@@ -1566,7 +1572,7 @@ class Blog
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = dcUtils::cleanIds($ids);
+        $posts_ids = Utils::cleanIds($ids);
         $cat_id    = (int) $cat_id;
 
         $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
@@ -1638,7 +1644,7 @@ class Blog
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
-        $posts_ids = dcUtils::cleanIds($ids);
+        $posts_ids = Utils::cleanIds($ids);
 
         if (empty($posts_ids)) {
             throw new CoreException(__('No such entry ID'));
@@ -1670,7 +1676,7 @@ class Blog
         $rs = $this->con->select($strReq);
 
         $now       = Dt::toUTC(time());
-        $to_change = new ArrayObject();
+        $to_change = new \ArrayObject();
 
         if ($rs->isEmpty()) {
             return;
@@ -1714,7 +1720,7 @@ class Blog
     public function firstPublicationEntries($ids)
     {
         $posts = $this->getPosts([
-            'post_id'       => dcUtils::cleanIds($ids),
+            'post_id'       => Utils::cleanIds($ids),
             'post_status'   => 1,
             'post_firstpub' => 0,
         ]);
@@ -1975,22 +1981,22 @@ class Blog
      * Returns URL for a post according to blog setting <var>post_url_format</var>.
      * It will try to guess URL and append some figures if needed.
      *
-     * @param      string   $url         The url
-     * @param      string   $post_dt     The post dt
-     * @param      string   $post_title  The post title
-     * @param      integer  $post_id     The post identifier
+     * @param      string|null   $url         The url
+     * @param      string|null   $post_dt     The post dt
+     * @param      string|null   $post_title  The post title
+     * @param      integer|null  $post_id     The post identifier
      *
      * @return     string  The post url.
      */
-    public function getPostURL($url, $post_dt, $post_title, $post_id)
+    public function getPostURL(?string $url, ?string $post_dt, ?string $post_title, ?int $post_id): string
     {
-        $url = trim($url);
+        $url = trim((string) $url);
 
         $url_patterns = [
-            '{y}'  => date('Y', strtotime($post_dt)),
-            '{m}'  => date('m', strtotime($post_dt)),
-            '{d}'  => date('d', strtotime($post_dt)),
-            '{t}'  => Text::tidyURL($post_title),
+            '{y}'  => date('Y', strtotime((string) $post_dt)),
+            '{m}'  => date('m', strtotime((string) $post_dt)),
+            '{d}'  => date('d', strtotime((string) $post_dt)),
+            '{t}'  => Text::tidyURL((string) $post_title),
             '{id}' => (int) $post_id,
         ];
 
@@ -2367,7 +2373,7 @@ class Blog
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
-        $co_ids = dcUtils::cleanIds($ids);
+        $co_ids = Utils::cleanIds($ids);
         $status = (int) $status;
 
         $strReq = 'UPDATE ' . $this->prefix . 'comment ' .
@@ -2408,7 +2414,7 @@ class Blog
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
-        $co_ids = dcUtils::cleanIds($ids);
+        $co_ids = Utils::cleanIds($ids);
 
         if (empty($co_ids)) {
             throw new CoreException(__('No such comment ID'));
