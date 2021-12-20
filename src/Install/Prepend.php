@@ -33,11 +33,16 @@ class Prepend extends BasePrepend
             Utils::fileServer([static::root('Admin', 'files')], 'df');
             exit;
         }
+
+        /* Load parent (or part of) to get some constants */
+        if (!defined('DOTCLEAR_CONFIG_PATH')) {
+            parent::__construct();
+        }
+
         /* No configuration ? start installalation process */
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             new Wizard($this);
         } else {
-            parent::__construct();
             new Install($this);
         }
 exit('install : inc/admin/install/xxx.php : structure only');
