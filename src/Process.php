@@ -4,6 +4,7 @@
  *
  * Dotclear process launcher
  * ex: Call new Dotclear\Process('admin'); to load admin pages
+ * could be called also by Dotclear\Process::admin();
  *
  * @package Dotclear
  * @subpackage Process
@@ -49,5 +50,10 @@ class Process
         ob_start();
         new $class();
         ob_end_flush();
+    }
+
+    public static function __callStatic(string $process, array $_): void
+    {
+        new Process($process);
     }
 }
