@@ -45,7 +45,6 @@ class Prepend extends BasePrepend
         } else {
             new Install($this);
         }
-exit('install : inc/admin/install/xxx.php : structure only');
     }
 
     public static function systemCheck($con, &$err)
