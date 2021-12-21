@@ -1,27 +1,43 @@
 <?php
 /**
+ * @brief Dotclear admin url handler class
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\Utils;
+
+use Dotclear\Utils\Http;
+use Dotclear\Utils\Html;
+use Dotclear\Utils\Form;
+use Dotclear\Utils\Path;
+use Dotclear\Utils\Files;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-define('DC_AUTH_PAGE', 'auth.php');
-
-class dcPage
+class Page
 {
+    /** @var Core   Core instance */
+    protected $core;
+
     private static $loaded_js     = [];
     private static $loaded_css    = [];
     private static $preloaded     = [];
     private static $xframe_loaded = false;
 
-    private static function getCore()
+    public function __construct(Core $core)
     {
-        return $GLOBALS['core'];
+        $this->core = $core;
     }
 
     /**
@@ -30,24 +46,22 @@ class dcPage
      * @param      string  $permissions  The permissions
      * @param      bool    $home         The home
      */
-    public static function check($permissions, $home = false)
+    public function check(string $permissions, bool $home = false): void
     {
-        $core = self::getCore();
-
-        if ($core->blog && $core->auth->check($permissions, $core->blog->id)) {
+        if ($this->core->blog && $this->core->auth->check($permissions, $this->core->blog->id)) {
             return;
         }
 
         // Check if dashboard is not the current page et if it is granted for the user
-        if (!$home && $core->blog && $core->auth->check('usage,contentadmin', $core->blog->id)) {
+        if (!$home && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
             // Go back to the dashboard
-            http::redirect(DC_ADMIN_URL);
+            Http::redirect(DOTCLEAR_ADMIN_URL);
         }
 
         if (session_id()) {
-            $core->session->destroy();
+            $this->core->session->destroy();
         }
-        http::redirect(DC_AUTH_PAGE);
+        $this->core->adminurl->redirect('admin.auth');
     }
 
     /**
@@ -55,21 +69,19 @@ class dcPage
      *
      * @param      bool  $home   The home
      */
-    public static function checkSuper($home = false)
+    public function checkSuper(bool $home = false): void
     {
-        $core = self::getCore();
-
-        if (!$core->auth->isSuperAdmin()) {
+        if (!$this->core->auth->isSuperAdmin()) {
             // Check if dashboard is not the current page et if it is granted for the user
-            if (!$home && $core->blog && $core->auth->check('usage,contentadmin', $core->blog->id)) {
+            if (!$home && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
                 // Go back to the dashboard
-                http::redirect(DC_ADMIN_URL);
+                Http::redirect(DOTCLEAR_ADMIN_URL);
             }
 
             if (session_id()) {
-                $core->session->destroy();
+                $this->core->session->destroy();
             }
-            http::redirect(DC_AUTH_PAGE);
+            $this->core->adminurl->redirect('admin.auth');
         }
     }
 
@@ -81,36 +93,35 @@ class dcPage
      * @param      string  $breadcrumb  The breadcrumb
      * @param      array   $options     The options
      */
-    public static function open($title = '', $head = '', $breadcrumb = '', $options = [])
+    public function open(string $title = '', string $head = '', string $breadcrumb = '', array $options = []): void
     {
-        $core = self::getCore();
         $js   = [];
 
         # List of user's blogs
-        if ($core->auth->getBlogCount() == 1 || $core->auth->getBlogCount() > 20) {
-            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . html::escapeHTML($core->blog->url) . '">' .
-            html::escapeHTML($core->blog->name) . '</strong>';
+        if ($this->core->auth->getBlogCount() == 1 || $this->core->auth->getBlogCount() > 20) {
+            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML($this->core->blog->url) . '">' .
+            Html::escapeHTML($this->core->blog->name) . '</strong>';
 
-            if ($core->auth->getBlogCount() > 20) {
-                $blog_box .= ' - <a href="' . $core->adminurl->get('admin.blogs') . '">' . __('Change blog') . '</a>';
+            if ($this->core->auth->getBlogCount() > 20) {
+                $blog_box .= ' - <a href="' . $this->core->adminurl->get('admin.blogs') . '">' . __('Change blog') . '</a>';
             }
             $blog_box .= '</p>';
         } else {
-            $rs_blogs = $core->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
+            $rs_blogs = $this->core->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
-                $blogs[html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
+                $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            $core->formNonce() . form::combo('switchblog', $blogs, $core->blog->id) .
-            form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
+            $core->formNonce() . Form::combo('switchblog', $blogs, $this->core->blog->id) .
+            Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
 
         $safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
 
         # Display
-        $headers = new ArrayObject([]);
+        $headers = new \ArrayObject([]);
 
         # Content-Type
         $headers['content-type'] = 'Content-Type: text/html; charset=UTF-8';
@@ -129,42 +140,42 @@ class dcPage
         $headers['floc'] = 'Permissions-Policy: interest-cohort=()';
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!$safe_mode && $core->blog->settings->system->csp_admin_on) {
+        if (!$safe_mode && $this->core->blog->settings->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
-            $csp = new ArrayObject([]);
+            $csp = new \ArrayObject([]);
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = $core->con->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
-            $csp_suffix = $core->con->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_prefix = $this->core->con->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_suffix = $this->core->con->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = $core->blog->settings->system->csp_admin_default ?:
+            $csp['default-src'] = $this->core->blog->settings->system->csp_admin_default ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = $core->blog->settings->system->csp_admin_script ?:
+            $csp['script-src'] = $this->core->blog->settings->system->csp_admin_script ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = $core->blog->settings->system->csp_admin_style ?:
+            $csp['style-src'] = $this->core->blog->settings->system->csp_admin_style ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = $core->blog->settings->system->csp_admin_img ?:
+            $csp['img-src'] = $this->core->blog->settings->system->csp_admin_img ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             # Cope with blog post preview (via public URL in iframe)
-            if (!is_null($core->blog->host)) {
-                $csp['default-src'] .= ' ' . parse_url($core->blog->host, PHP_URL_HOST);
-                $csp['script-src']  .= ' ' . parse_url($core->blog->host, PHP_URL_HOST);
-                $csp['style-src']   .= ' ' . parse_url($core->blog->host, PHP_URL_HOST);
+            if (!is_null($this->core->blog->host)) {
+                $csp['default-src'] .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
+                $csp['script-src']  .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
+                $csp['style-src']   .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
             }
             # Cope with media display in media manager (via public URL)
-            if (!is_null($core->media)) {
-                $csp['img-src'] .= ' ' . parse_url($core->media->root_url, PHP_URL_HOST);
-            } elseif (!is_null($core->blog->host)) {
+            if (!is_null($this->core->media)) {
+                $csp['img-src'] .= ' ' . parse_url($this->core->media->root_url, PHP_URL_HOST);
+            } elseif (!is_null($this->core->blog->host)) {
                 // Let's try with the blog URL
-                $csp['img-src'] .= ' ' . parse_url($core->blog->host, PHP_URL_HOST);
+                $csp['img-src'] .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
             }
             # Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
             # --BEHAVIOR-- adminPageHTTPHeaderCSP
-            $core->callBehavior('adminPageHTTPHeaderCSP', $csp);
+            $this->core->callBehavior('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -174,71 +185,71 @@ class dcPage
                 }
             }
             if (count($directives)) {
-                $directives[]   = 'report-uri ' . DC_ADMIN_URL . 'csp_report.php';
-                $report_only    = ($core->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
+                $directives[]   = 'report-uri ' . DOTCLEAR_ADMIN_URL . '?handler=CspReport';
+                $report_only    = ($this->core->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
 
         # --BEHAVIOR-- adminPageHTTPHeaders
-        $core->callBehavior('adminPageHTTPHeaders', $headers);
+        $this->core->callBehavior('adminPageHTTPHeaders', $headers);
         foreach ($headers as $key => $value) {
             header($value);
         }
 
-        $data_theme = $core->auth->user_prefs->interface->theme;
+        $data_theme = $this->core->auth->user_prefs->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . $core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . $this->core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $title . ' - ' . html::escapeHTML($core->blog->name) . ' - ' . html::escapeHTML(DC_VENDOR_NAME) . ' - ' . DC_VERSION . '</title>' . "\n";
+        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (l10n::getTextDirection($GLOBALS['_lang']) == 'rtl') {
+        if (l10n::getTextDirection($this->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        $core->auth->user_prefs->addWorkspace('interface');
-        if (!$core->auth->user_prefs->interface->hide_std_favicon) {
+        $this->core->auth->user_prefs->addWorkspace('interface');
+        if (!$this->core->auth->user_prefs->interface->hide_std_favicon) {
             echo
-                '<link rel="icon" type="image/png" href="images/favicon96-login.png" />' . "\n" .
-                '<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />' . "\n";
+                '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
+                '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if ($core->auth->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = $core->auth->user_prefs->interface->htmlfontsize;
+        if ($this->core->auth->user_prefs->interface->htmlfontsize) {
+            $js['htmlFontSize'] = $this->core->auth->user_prefs->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) $core->auth->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) $core->auth->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) $this->core->auth->user_prefs->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) $this->core->auth->user_prefs->interface->showajaxloader;
 
-        $core->auth->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) $core->auth->user_prefs->accessibility->nodragdrop;
+        $this->core->auth->user_prefs->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = !!DC_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !!DOTCLEAR_DEBUG;  // @phpstan-ignore-line
 
-        $js['showIp'] = $core->blog && $core->blog->id ? $core->auth->check('contentadmin', $core->blog->id) : false;
+        $js['showIp'] = $this->core->blog && $this->core->blog->id ? $this->core->auth->check('contentadmin', $this->core->blog->id) : false;
 
         // Set some JSON data
-        echo dcUtils::jsJson('dotclear_init', $js);
+        echo Utils::jsJson('dotclear_init', $js);
 
         echo
-        self::jsCommon() .
-        self::jsToggles() .
+        $this->jsCommon() .
+        $this->jsToggles() .
             $head;
 
         # --BEHAVIOR-- adminPageHTMLHead
-        $core->callBehavior('adminPageHTMLHead');
+        $this->core->callBehavior('adminPageHTMLHead');
 
         echo
         "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
         ($safe_mode ? ' safe-mode' : '') .
-        (DC_DEBUG ? // @phpstan-ignore-line
+        (DOTCLEAR_DEBUG ? // @phpstan-ignore-line
             ' debug-mode' :
             '') .
         '">' . "\n" .
@@ -249,28 +260,28 @@ class dcPage
         '<li><a href="#help">' . __('Go to help') . '</a></li>' .
         '</ul>' . "\n" .
         '<header id="header" role="banner">' .
-        '<h1><a href="' . $core->adminurl->get('admin.home') . '"><span class="hidden">' . DC_VENDOR_NAME . '</span></a></h1>' . "\n";
+        '<h1><a href="' . $this->core->adminurl->get('admin.home') . '"><span class="hidden">' . DOTCLEAR_VENDOR_NAME . '</span></a></h1>' . "\n";
 
         echo
-        '<form action="' . $core->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
+        '<form action="' . $this->core->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
         $blog_box .
-        '<p><a href="' . $core->blog->url . '" class="outgoing" title="' . __('Go to site') .
-        '">' . __('Go to site') . '<img src="images/outgoing-link.svg" alt="" /></a>' .
+        '<p><a href="' . $this->core->blog->url . '" class="outgoing" title="' . __('Go to site') .
+        '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
         '<ul id="top-info-user">' .
-        '<li><a class="' . (preg_match('/' . preg_quote($core->adminurl->get('admin.home')) . '$/', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . $core->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
-        '<li><a class="smallscreen' . (preg_match('/' . preg_quote($core->adminurl->get('admin.user.preferences')) . '(\?.*)?$/', $_SERVER['REQUEST_URI']) ? ' active' : '') .
-        '" href="' . $core->adminurl->get('admin.user.preferences') . '">' . __('My preferences') . '</a></li>' .
-        '<li><a href="' . $core->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), $core->auth->userID()) .
-            '</span><img src="images/logout.png" alt="" /></a></li>' .
+        '<li><a class="' . (preg_match('/' . preg_quote($this->core->adminurl->get('admin.home')) . '$/', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . $this->core->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
+        '<li><a class="smallscreen' . (preg_match('/' . preg_quote($this->core->adminurl->get('admin.user.preferences')) . '(\?.*)?$/', $_SERVER['REQUEST_URI']) ? ' active' : '') .
+        '" href="' . $this->core->adminurl->get('admin.user.preferences') . '">' . __('My preferences') . '</a></li>' .
+        '<li><a href="' . $this->core->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), $this->core->auth->userID()) .
+            '</span><img src="?df=images/logout.png" alt="" /></a></li>' .
             '</ul>' .
             '</header>'; // end header
 
         echo
         '<div id="wrapper" class="clearfix">' . "\n" .
         '<div class="hidden-if-no-js collapser-box"><button type="button" id="collapser" class="void-btn">' .
-        '<img class="collapse-mm visually-hidden" src="images/collapser-hide.png" alt="' . __('Hide main menu') . '" />' .
-        '<img class="expand-mm visually-hidden" src="images/collapser-show.png" alt="' . __('Show main menu') . '" />' .
+        '<img class="collapse-mm visually-hidden" src="?df=images/collapser-hide.png" alt="' . __('Hide main menu') . '" />' .
+        '<img class="expand-mm visually-hidden" src="?df=images/collapser-show.png" alt="' . __('Show main menu') . '" />' .
             '</button></div>' .
             '<main id="main" role="main">' . "\n" .
             '<div id="content" class="clearfix">' . "\n";
@@ -287,30 +298,30 @@ class dcPage
         echo $breadcrumb;
 
         // Display notices and errors
-        echo dcAdminNotices::getNotices();
+        echo Notices::getNotices();
     }
 
-    public static function notices()
+    public static function notices(): string
     {
-        return dcAdminNotices::getNotices();
+        return Notices::getNotices();
     }
 
-    public static function addNotice($type, $message, $options = [])
+    public static function addNotice(string $type, string $message, array $options = []): void
     {
-        dcAdminNotices::addNotice($type, $message, $options);
+        Notices::addNotice($type, $message, $options);
     }
 
-    public static function addSuccessNotice($message, $options = [])
+    public static function addSuccessNotice(string $message, array $options = []): void
     {
         self::addNotice('success', $message, $options);
     }
 
-    public static function addWarningNotice($message, $options = [])
+    public static function addWarningNotice(string $message, array $options = []): void
     {
         self::addNotice('warning', $message, $options);
     }
 
-    public static function addErrorNotice($message, $options = [])
+    public static function addErrorNotice(string $message, array $options = []): void
     {
         self::addNotice('error', $message, $options);
     }
@@ -318,19 +329,15 @@ class dcPage
     /**
      * The end
      */
-    public static function close()
+    public function close(): void
     {
-        $core = self::getCore();
-
-        if (!$GLOBALS['__resources']['ctxhelp']) {
-            if (!$core->auth->user_prefs->interface->hidehelpbutton) {
+        if (!$this->core->_resources['ctxhelp']) {
+            if (!$this->core->auth->user_prefs->interface->hidehelpbutton) {
                 echo
-                '<p id="help-button"><a href="' . $core->adminurl->get('admin.help') . '" class="outgoing" title="' .
+                '<p id="help-button"><a href="' . $this->core->adminurl->get('admin.help') . '" class="outgoing" title="' .
                 __('Global help') . '">' . __('Global help') . '</a></p>';
             }
         }
-
-        $menu = &$GLOBALS['_menu'];
 
         echo
         "</div>\n" .  // End of #content
@@ -338,23 +345,23 @@ class dcPage
 
         '<nav id="main-menu" role="navigation">' . "\n" .
 
-        '<form id="search-menu" action="' . $core->adminurl->get('admin.search') . '" method="get" role="search">' .
-        '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . form::field('qx', 30, 255, '') .
+        '<form id="search-menu" action="' . $this->core->adminurl->get('admin.search') . '" method="get" role="search">' .
+        '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . Form::field('qx', 30, 255, '') .
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach ($menu as $k => $v) {
-            echo $menu[$k]->draw();
+        foreach ($this->core->_menu as $k => $v) {
+            echo $this->core->_menu[$k]->draw();
         }
 
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DC_VERSION);
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
 
         # --BEHAVIOR-- adminPageFooter
-        $textAlt = $core->callBehavior('adminPageFooter', $core, $text);
+        $textAlt = $this->core->callBehavior('adminPageFooter', $this->core, $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }
-        $text = html::escapeHTML($text);
+        $text = Html::escapeHTML($text);
 
         echo
         '</nav>' . "\n" . // End of #main-menu
@@ -371,12 +378,12 @@ class dcPage
         echo
             '<footer id="footer" role="contentinfo">' .
             '<a href="https://dotclear.org/" title="' . $text . '">' .
-            '<img src="style/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
+            '<img src="?df=style/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
             '<!-- ' . "\n" .
             $figure .
             ' -->' . "\n";
 
-        if (defined('DC_DEV') && DC_DEV === true) {
+        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true) {
             echo self::debugInfo();
         }
 
@@ -391,9 +398,8 @@ class dcPage
      * @param      string  $head        The head
      * @param      string  $breadcrumb  The breadcrumb
      */
-    public static function openPopup($title = '', $head = '', $breadcrumb = '')
+    public function openPopup(string $title = '', string $head = '', string $breadcrumb = ''): void
     {
-        $core = self::getCore();
         $js   = [];
 
         $safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
@@ -407,57 +413,57 @@ class dcPage
         # Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = $core->auth->user_prefs->interface->theme;
+        $data_theme = $this->core->auth->user_prefs->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . $core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . $this->core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $title . ' - ' . html::escapeHTML($core->blog->name) . ' - ' . html::escapeHTML(DC_VENDOR_NAME) . ' - ' . DC_VERSION . '</title>' . "\n" .
+        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (l10n::getTextDirection($GLOBALS['_lang']) == 'rtl') {
+        if (l10n::getTextDirection($this->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        $core->auth->user_prefs->addWorkspace('interface');
-        if ($core->auth->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = $core->auth->user_prefs->interface->htmlfontsize;
+        $this->core->auth->user_prefs->addWorkspace('interface');
+        if ($this->core->auth->user_prefs->interface->htmlfontsize) {
+            $js['htmlFontSize'] = $this->core->auth->user_prefs->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) $core->auth->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) $core->auth->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) $this->core->auth->user_prefs->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) $this->core->auth->user_prefs->interface->showajaxloader;
 
-        $core->auth->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) $core->auth->user_prefs->accessibility->nodragdrop;
+        $this->core->auth->user_prefs->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = !!DC_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !!DOTCLEAR_DEBUG;  // @phpstan-ignore-line
 
         // Set JSON data
-        echo dcUtils::jsJson('dotclear_init', $js);
+        echo Utils::jsJson('dotclear_init', $js);
 
         echo
-        self::jsCommon() .
-        self::jsToggles() .
+        $this->jsCommon() .
+        $this->jsToggles() .
             $head;
 
         # --BEHAVIOR-- adminPageHTMLHead
-        $core->callBehavior('adminPageHTMLHead');
+        $this->core->callBehavior('adminPageHTMLHead');
 
         echo
             "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
             ($safe_mode ? ' safe-mode' : '') .
-            (DC_DEBUG ? // @phpstan-ignore-line
+            (DOTCLEAR_DEBUG ? // @phpstan-ignore-line
                 ' debug-mode' :
                 '') .
             '">' . "\n" .
 
-            '<h1>' . DC_VENDOR_NAME . '</h1>' . "\n";
+            '<h1>' . DOTCLEAR_VENDOR_NAME . '</h1>' . "\n";
 
         echo
             '<div id="wrapper">' . "\n" .
@@ -468,13 +474,13 @@ class dcPage
         echo $breadcrumb;
 
         // Display notices and errors
-        echo dcAdminNotices::getNotices();
+        echo Notices::getNotices();
     }
 
     /**
      * The end of a popup.
      */
-    public static function closePopup()
+    public function closePopup()
     {
         echo
         "</div>\n" .  // End of #content
@@ -490,21 +496,19 @@ class dcPage
     /**
      * Get breadcrumb
      *
-     * @param      mixed   $elements  The elements
+     * @param      array|null   $elements  The elements
      * @param      array   $options   The options
      *
      * @return     string
      */
-    public static function breadcrumb($elements = null, $options = [])
+    public function breadcrumb(?array $elements = null, array $options = []): string
     {
-        $core = self::getCore();
-
         $with_home_link = $options['home_link'] ?? true;
         $hl             = $options['hl']        ?? true;
         $hl_pos         = $options['hl_pos']    ?? -1;
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
-            '<a class="go_home" href="' . $core->adminurl->get('admin.home') . '"><img src="style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
+            '<a class="go_home" href="' . $this->core->adminurl->get('admin.home') . '"><img src="style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
             '<img src="style/dashboard-alt.png" alt="" />');
         $index = 0;
         if ($hl_pos < 0) {
@@ -523,17 +527,17 @@ class dcPage
         return $res;
     }
 
-    public static function message($msg, $timestamp = true, $div = false, $echo = true, $class = 'message')
+    public static function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
     {
-        return dcAdminNotices::message($msg, $timestamp, $div, $echo, $class);
+        return Notices::message($msg, $timestamp, $div, $echo, $class);
     }
 
-    public static function success($msg, $timestamp = true, $div = false, $echo = true)
+    public static function success(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
         return self::message($msg, $timestamp, $div, $echo, 'success');
     }
 
-    public static function warning($msg, $timestamp = true, $div = false, $echo = true)
+    public static function warning(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
         return self::message($msg, $timestamp, $div, $echo, 'warning-msg');
     }
@@ -543,12 +547,12 @@ class dcPage
      *
      * @return     string
      */
-    private static function debugInfo()
+    private static function debugInfo(): string
     {
         $global_vars = implode(', ', array_keys($GLOBALS));
 
         $res = '<div id="debug"><div>' .
-        '<p>memory usage: ' . memory_get_usage() . ' (' . files::size(memory_get_usage()) . ')</p>';
+        '<p>memory usage: ' . memory_get_usage() . ' (' . Files::size(memory_get_usage()) . ')</p>';
 
         if (function_exists('xdebug_get_profiler_filename')) {
             $res .= '<p>Elapsed time: ' . xdebug_time_index() . ' seconds</p>';
@@ -557,10 +561,10 @@ class dcPage
             if ($prof_file) {
                 $res .= '<p>Profiler file : ' . xdebug_get_profiler_filename() . '</p>';
             } else {
-                $prof_url = http::getSelfURI();
+                $prof_url = Http::getSelfURI();
                 $prof_url .= (strpos($prof_url, '?') === false) ? '?' : '&';
                 $prof_url .= 'XDEBUG_PROFILE';
-                $res      .= '<p><a href="' . html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
+                $res      .= '<p><a href="' . Html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
             }
 
             /* xdebug configuration:
@@ -583,9 +587,12 @@ class dcPage
         return $res;
     }
 
-    public static function help($page, $index = '')
+    /**
+     * @deprecated 2.15
+     */
+    public static function help($page, $index = ''): void
     {
-        # Deprecated but we keep this for plugins.
+        return;
     }
 
     /**
@@ -593,25 +600,22 @@ class dcPage
      *
      * @param      mixed  ...$params  The parameters
      */
-    public static function helpBlock(...$params)
+    public function helpBlock(...$params)
     {
-        $core = self::getCore();
-
-        if ($core->auth->user_prefs->interface->hidehelpbutton) {
+        if ($this->core->auth->user_prefs->interface->hidehelpbutton) {
             return;
         }
 
-        $args = new ArrayObject($params);
+        $args = new \ArrayObject($params);
 
         # --BEHAVIOR-- adminPageHelpBlock
-        $core->callBehavior('adminPageHelpBlock', $args);
+        $this->core->callBehavior('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
         };
 
-        global $__resources;
-        if (empty($__resources['help'])) {
+        if (empty($this->core->_resources['help'])) {
             return;
         }
 
@@ -623,10 +627,10 @@ class dcPage
                 continue;
             }
 
-            if (!isset($__resources['help'][$v])) {
+            if (!isset($this->core->_resources['help'][$v])) {
                 continue;
             }
-            $f = $__resources['help'][$v];
+            $f = $this->core->_resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }
@@ -644,7 +648,7 @@ class dcPage
         }
 
         // Set contextual help global flag
-        $GLOBALS['__resources']['ctxhelp'] = true;
+        $this->core->_resources['ctxhelp'] = true;
 
         echo
         '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
@@ -652,7 +656,7 @@ class dcPage
         '</div>' .
         '<div id="helplink"><hr />' .
         '<p>' .
-        sprintf(__('See also %s'), sprintf('<a href="' . $core->adminurl->get('admin.help') . '">%s</a>', __('the global help'))) .
+        sprintf(__('See also %s'), sprintf('<a href="' . $this->core->adminurl->get('admin.help') . '">%s</a>', __('the global help'))) .
             '.</p>' .
             '</div></div>';
     }
@@ -666,54 +670,66 @@ class dcPage
      *
      * @return     mixed
      */
-    public static function preload($src, $v = '', $type = 'style')
+    public static function preload(string $src, string $v = '', string $type = 'style'): string
     {
-        $escaped_src = html::escapeHTML($src);
+        $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$preloaded[$escaped_src])) {
             self::$preloaded[$escaped_src] = true;
             $escaped_src                   = self::appendVersion($escaped_src, $v);
 
-            return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
+            return '<link rel="preload" href="?df=' . $escaped_src . '" as="' . $type . '" />' . "\n";
         }
+
+        return '';
     }
 
     /**
      * Get HTML code to load CSS stylesheet
      *
+     * This include ?df= loader, plugins should use
+     * Utils::cssLoad() for their own files
+     *
      * @param      string  $src    The source
      * @param      string  $media  The media
      * @param      string  $v      The version
      *
-     * @return     mixed
+     * @return     string
      */
-    public static function cssLoad($src, $media = 'screen', $v = '')
+    public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
     {
-        $escaped_src = html::escapeHTML($src);
+        $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$loaded_css[$escaped_src])) {
             self::$loaded_css[$escaped_src] = true;
             $escaped_src                    = self::appendVersion($escaped_src, $v);
 
-            return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
+            return '<link rel="stylesheet" href="?df=' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
         }
+
+        return '';
     }
 
     /**
      * Get HTML code to load JS script
      *
+     * This include ?df= loader, plugins should use
+     * Utils::jsLoad() for their own files
+     *
      * @param      string  $src    The source
      * @param      string  $v      The version
      *
-     * @return     mixed
+     * @return     string
      */
-    public static function jsLoad($src, $v = '')
+    public static function jsLoad(string $src, string $v = ''): string
     {
-        $escaped_src = html::escapeHTML($src);
+        $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$loaded_js[$escaped_src])) {
             self::$loaded_js[$escaped_src] = true;
             $escaped_src                   = self::appendVersion($escaped_src, $v);
 
-            return '<script src="' . $escaped_src . '"></script>' . "\n";
+            return '<script src="?df=' . $escaped_src . '"></script>' . "\n";
         }
+
+        return '';
     }
 
     /**
@@ -728,42 +744,23 @@ class dcPage
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (defined('DC_DEV') && DC_DEV === true ? md5(uniqid()) : ($v ?: DC_VERSION));
+            'v=' . (defined('DC_DEV') && DOTCLEAR_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
     }
 
     /**
-     * return a javascript variable definition line code
-     *
      * @deprecated 2.15 use dcPage::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     *
-     * @param      string  $n      variable name
-     * @param      mixed   $v      value
-     *
-     * @return     string  javascript code
      */
-    public static function jsVar($n, $v)
+    public static function jsVar($n, $v): string
     {
-        return $n . " = '" . html::escapeJS($v) . "';\n";
+        return '';
     }
 
     /**
-     * return a list of javascript variables définitions code
-     *
      * @deprecated 2.15 use dcPage::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     *
-     * @param      array  $vars   The variables
-     *
-     * @return     string  javascript code (inside <script… ></script>)
      */
-    public static function jsVars($vars)
+    public static function jsVars($vars): string
     {
-        $ret = '<script>' . "\n";
-        foreach ($vars as $var => $value) {
-            $ret .= $var . ' = ' . (is_string($value) ? "'" . html::escapeJS($value) . "'" : $value) . ';' . "\n";
-        }
-        $ret .= "</script>\n";
-
-        return $ret;
+        return '';
     }
 
     /**
@@ -774,9 +771,9 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsJson($id, $vars)
+    public static function jsJson(string $id, $vars): string
     {
-        return dcUtils::jsJson($id, $vars);
+        return Utils::jsJson($id, $vars);
     }
 
     /**
@@ -784,13 +781,11 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsToggles()
+    public function jsToggles(): string
     {
-        $core = self::getCore();
-
         $js = [];
-        if ($core->auth->user_prefs->toggles) {
-            $unfolded_sections = explode(',', $core->auth->user_prefs->toggles->unfolded_sections);
+        if ($this->core->auth->user_prefs->toggles) {
+            $unfolded_sections = explode(',', $this->core->auth->user_prefs->toggles->unfolded_sections);
             foreach ($unfolded_sections as $k => &$v) {
                 if ($v !== '') {
                     $js[$unfolded_sections[$k]] = true;
@@ -808,15 +803,14 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsCommon()
+    public function jsCommon(): string
     {
-        $core = self::getCore();
-        if ($core->auth->user_prefs) {
-            $core->auth->user_prefs->addWorkspace('interface');
+        if ($this->core->auth->user_prefs) {
+            $this->core->auth->user_prefs->addWorkspace('interface');
         }
 
         $js = [
-            'nonce' => $core->getNonce(),
+            'nonce' => $this->core->getNonce(),
 
             'img_plus_src' => 'images/expand.png',
             'img_plus_txt' => '▶',
@@ -839,8 +833,8 @@ class dcPage
 
             'adblocker_check' => (
                 (
-                    !defined('DC_ADBLOCKER_CHECK') || DC_ADBLOCKER_CHECK === true
-                ) && $core->auth->user_prefs !== null && $core->auth->user_prefs->interface->nocheckadblocker !== true
+                    !defined('DOTCLEAR_ADBLOCKER_CHECK') || DOTCLEAR_ADBLOCKER_CHECK === true
+                ) && $this->core->auth->user_prefs !== null && $this->core->auth->user_prefs->interface->nocheckadblocker !== true
             ),
         ];
 
@@ -913,9 +907,9 @@ class dcPage
         self::jsLoad('js/prepend.js') .
         self::jsLoad('js/jquery/jquery.js') .
         (
-            DC_DEBUG ? // @phpstan-ignore-line
+            DOTCLEAR_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
-                'mute' => (empty($core->blog) || $core->blog->settings->system->jquery_migrate_mute),
+                'mute' => (empty($this->core->blog) || $this->core->blog->settings->system->jquery_migrate_mute),
             ]) .
             self::jsLoad('js/jquery-mute.js') .
             self::jsLoad('js/jquery/jquery-migrate.js') :
@@ -933,10 +927,8 @@ class dcPage
 
     /**
      * @deprecated since version 2.11
-     *
-     * @return     string  ( description_of_the_return_value )
      */
-    public static function jsLoadIE7()
+    public static function jsLoadIE7(): string
     {
         return '';
     }
@@ -944,11 +936,11 @@ class dcPage
     /**
      * Get HTML code to load ConfirmClose JS
      *
-     * @param      mixed  ...$args  The arguments
+     * @param      string  ...$args  The arguments
      *
      * @return     string
      */
-    public static function jsConfirmClose(...$args)
+    public static function jsConfirmClose(string ...$args): string
     {
         $js = [
             'prompt' => __('You have unsaved changes.'),
@@ -967,7 +959,7 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsPageTabs($default = null)
+    public static function jsPageTabs($default = null): string
     {
         $js = [
             'default' => $default,
@@ -984,7 +976,7 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsModal()
+    public static function jsModal(): string
     {
         return
         self::jsLoad('js/jquery/jquery.magnific-popup.js');
@@ -992,51 +984,46 @@ class dcPage
 
     /**
      * @deprecated since version 2.16
-     *
-     * @return     string
      */
-    public static function jsColorPicker()
+    public static function jsColorPicker(): string
     {
         return '';
     }
 
     /**
-     * Get HTML code for date picker JS utility
-     *
      * @deprecated since 2.21
-     *
-     * @return     string
      */
-    public static function jsDatePicker()
+    public static function jsDatePicker(): string
     {
         return '';
     }
 
-    public static function jsToolBar()
+    /**
+     * @deprecated since 2.16
+     */
+    public static function jsToolBar(): void
     {
-        # Deprecated but we keep this for plugins.
+        return;
     }
 
     /**
      * Get HTML to load Upload JS utility
      *
-     * @param      array   $params    The parameters
-     * @param      mixed   $base_url  The base url
+     * @param      array        $params    The parameters
+     * @param      string|null  $base_url  The base url
      *
      * @return     string
      */
-    public static function jsUpload($params = [], $base_url = null)
+    public function jsUpload(array $params = [], ?string $base_url = null): string
     {
-        $core = self::getCore();
-
         if (!$base_url) {
-            $base_url = path::clean(dirname(preg_replace('/(\?.*$)?/', '', $_SERVER['REQUEST_URI']))) . '/';
+            $base_url = Path::clean(dirname(preg_replace('/(\?.*$)?/', '', $_SERVER['REQUEST_URI']))) . '/';
         }
 
         $params = array_merge($params, [
             'sess_id=' . session_id(),
             'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . $core->getNonce(),
+            'xd_check=' . $this->core->getNonce(),
         ]);
 
         $js_msg = [
@@ -1098,9 +1085,8 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsFilterControl($show = true)
+    public function jsFilterControl(bool $show = true): string
     {
-        $core = self::getCore();
         $js   = [
             'show_filters'      => (bool) $show,
             'filter_posts_list' => __('Show filters and display options'),
@@ -1109,7 +1095,7 @@ class dcPage
 
         return
         self::jsJson('filter_controls', $js) .
-        self::jsJson('filter_options', ['auto_filter' => $core->auth->user_prefs->interface->auto_filter]) .
+        self::jsJson('filter_options', ['auto_filter' => $this->core->auth->user_prefs->interface->auto_filter]) .
         self::jsLoad('js/filter-controls.js');
     }
 
@@ -1122,7 +1108,7 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsLoadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike'])
+    public static function jsLoadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
     {
         $ret = self::cssLoad('js/codemirror/lib/codemirror.css') .
         self::jsLoad('js/codemirror/lib/codemirror.js');
@@ -1153,7 +1139,7 @@ class dcPage
      *
      * @return     string
      */
-    public static function jsRunCodeMirror($name, $id = null, $mode = null, $theme = '')
+    public static function jsRunCodeMirror($name, $id = null, $mode = null, $theme = ''): string
     {
         if (is_array($name)) {
             $js = $name;
@@ -1177,10 +1163,10 @@ class dcPage
      *
      * @return     array  The code mirror themes.
      */
-    public static function getCodeMirrorThemes()
+    public function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = dirname(__FILE__) . '/../../admin' . '/js/codemirror/theme/';
+        $themes_root = $this->core::root('Admin', 'files', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (($d = @dir($themes_root)) !== false) {
                 while (($entry = $d->read()) !== false) {
@@ -1202,11 +1188,9 @@ class dcPage
      *
      * @return     string  The URL.
      */
-    public static function getPF($file)
+    public static function getPF(string $file): string
     {
-        $core = self::getCore();
-
-        return $core->adminurl->get('load.plugin.file', ['pf' => $file]);
+        return DOTCLEAR_ADMIN_URL . '?pf=' . urlencode($file);
     }
 
     /**
@@ -1216,20 +1200,18 @@ class dcPage
      *
      * @return     string  The URL.
      */
-    public static function getVF($file)
+    public static function getVF(string $file): string
     {
-        $core = self::getCore();
-
-        return $core->adminurl->get('load.var.file', ['vf' => $file]);
+        return DOTCLEAR_ADMIN_URL . '?vf=' . urlencode($file);
     }
 
     /**
      * Sets the x frame options.
      *
-     * @param      array|ArrayObject    $headers  The headers
+     * @param      array|\ArrayObject    $headers  The headers
      * @param      mixed                $origin   The origin
      */
-    public static function setXFrameOptions($headers, $origin = null)
+    public static function setXFrameOptions($headers, ?string $origin = null): void
     {
         if (self::$xframe_loaded) {
             return;
