@@ -44,11 +44,14 @@ class Prepend extends BasePrepend
     /** @var Favorites  Favorites instance */
     public $favs;
 
+    /** @var \ArrayObject sidebar menu */
+    public $_menu;
+
     /** @var string     user lang */
     public $_lang = 'en';
 
     /** @var array      help resources container */
-    public $resources = [];
+    public $_resources = [];
 
     public function __construct()
     {
@@ -85,26 +88,28 @@ class Prepend extends BasePrepend
         $this->adminLoadURL();
         $this->adminLoadSession();
 
-        if ((!$this->auth->userID() || $this->blog === null) && $this->adminurl->called() != 'admin.auth') {
-            $this->adminurl->redirect('admin.auth');
-            exit;
+        if (!$this->auth->userID() || $this->blog === null) {
+            if ($this->adminurl->called() != 'admin.auth') {
+                $this->adminurl->redirect('admin.auth');
+                exit;
+            }
+        } else {
+            $this->adminLoadRessources();
+            $this->adminLoadMenu();
+
+            if (empty($this->blog->settings->system->jquery_migrate_mute)) {
+                $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+            }
+            if (empty($this->blog->settings->system->jquery_allow_old_version)) {
+                $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+            }
+
+            # Ensure theme's settings namespace exists
+            $this->blog->settings->addNamespace('themes');
+
+            # Admin behaviors
+            //$this->addBehavior('adminPopupPosts', ['dcAdminBlogPref', 'adminPopupPosts']);
         }
-
-        $this->adminLoadRessources();
-        $this->adminLoadMenu();
-
-        if (empty($this->blog->settings->system->jquery_migrate_mute)) {
-            $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
-        }
-        if (empty($this->blog->settings->system->jquery_allow_old_version)) {
-            $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
-        }
-
-        # Ensure theme's settings namespace exists
-        $this->blog->settings->addNamespace('themes');
-
-        # Admin behaviors
-        //$this->addBehavior('adminPopupPosts', ['dcAdminBlogPref', 'adminPopupPosts']);
 
         $this->adminLoadPage();
     }
@@ -139,7 +144,6 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.user', 'user.php');
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
         $this->adminurl->register('admin.users', 'users.php');
-        $this->adminurl->register('admin.auth', 'auth.php');
         $this->adminurl->register('admin.help', 'help.php');
         $this->adminurl->register('admin.update', 'update.php');
 
@@ -251,7 +255,7 @@ class Prepend extends BasePrepend
         return true;
     }
 
-    private function adminLoadLocales()
+    private function adminLoadLocales(): void
     {
         $this->adminGetLang();
 
@@ -267,13 +271,13 @@ class Prepend extends BasePrepend
         Utils::setlexicalLang('admin', $this->_lang);
     }
 
-    private function adminLoadRessources()
+    private function adminLoadRessources(): void
     {
         $this->adminGetLang();
 
         /* for now keep old ressources files "as is" */
         $_lang        = $this->_lang;
-        $__resources = $this->resources;
+        $__resources = $this->_resources;
 
         require static::path(DOTCLEAR_L10N_DIR, 'en', 'resources.php');
         if (($f = L10n::getFilePath(DOTCLEAR_L10N_DIR, 'resources.php', $_lang))) {
@@ -293,18 +297,18 @@ class Prepend extends BasePrepend
         // Contextual help flag
         $__resources['ctxhelp'] = false;
 
-        $this->resources = $__resources;
+        $this->_resources = $__resources;
     }
 
-    private function adminGetLang(): string
+    private function adminGetLang(): void
     {
-        $_lang = $this->auth->getInfo('user_lang');
+        $_lang = $this->auth->getInfo('user_lang') ?? 'en';
         $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
         $this->_lang = $_lang;
     }
 
-    private function adminLoadMenu()
+    private function adminLoadMenu(): void
     {
         $this->auth->user_prefs->addWorkspace('interface');
         Menu::$iconset = @$this->auth->user_prefs->interface->iconset;
@@ -364,9 +368,10 @@ class Prepend extends BasePrepend
         $this->addMenuItem($_menu, 'System', __('Blogs'), 'admin.blogs', 'images/menu/blogs.png',
             $this->auth->isSuperAdmin() || $this->auth->check('usage,contentadmin', $this->blog->id) && $this->auth->getBlogCount() > 1);
 
+        $this->_menu = $_menu;
     }
 
-    private function addMenuItem($_menu, $section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false)
+    private function addMenuItem($_menu, $section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
         $url     = $this->adminurl->get($adminurl);
         $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
@@ -381,6 +386,7 @@ class Prepend extends BasePrepend
         if ($page === null) {
             $page = $_REQUEST['handler'] ?? 'admin.home';
         }
+
         try {
             $class = $this->adminurl->getBase($page);
 
