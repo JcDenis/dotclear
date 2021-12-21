@@ -148,7 +148,11 @@ class Auth extends Page
     protected function upgrade(): void
     {
         # Auto upgrade
-        if (empty($_GET) && empty($_POST)) {
+        $get = $_GET;
+        if (isset($get['handler'])) {
+            unset($get['handler']);
+        }
+        if (empty($get) && empty($_POST)) {
             try {
                 if (($changes = Upgrade::dotclearUpgrade($this->core)) !== false) {
                     $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';

@@ -55,7 +55,7 @@ class Upgrade
 
                 # Database upgrade
                 $_s = new Structure($core->con, $core->prefix);
-                require dirname(__FILE__) . '/db-schema.php';
+                Distrib::getDatabaseStructure($_s);
 
                 $si      = new Structure($core->con, $core->prefix);
                 $changes = $si->synchronize($_s);
