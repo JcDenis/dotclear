@@ -210,7 +210,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return usort($arr, ['Utils', 'lexicalSortHelper']);
+        return usort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
     }
 
     /**
@@ -226,7 +226,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return uasort($arr, ['Utils', 'lexicalSortHelper']);
+        return uasort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
     }
 
     /**
@@ -242,7 +242,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return uksort($arr, ['Utils', 'lexicalSortHelper']);
+        return uksort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
     }
 
     public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
