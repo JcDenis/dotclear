@@ -17,6 +17,8 @@ use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 
+use Dotclear\Admin\Page;
+
 use Dotclear\Utils\Html;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\L10n;
@@ -25,15 +27,12 @@ use Dotclear\Utils\Mail;
 
 use Dotclear\Distrib\Upgrade;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'admin') {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Auth
+class Auth extends Page
 {
-    /** @var Core Core instance */
-    public $core;
-
     /** @var string default lang */
     protected $default_lang;
 
@@ -75,7 +74,7 @@ class Auth
 
     public function __construct(Core $core)
     {
-        $this->core = $core;
+        parent::__construct($core);
 
         # If we have a session cookie, go to index.php
         if (isset($_SESSION['sess_user_id'])) {

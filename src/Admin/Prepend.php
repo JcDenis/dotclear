@@ -389,8 +389,7 @@ class Prepend extends BasePrepend
 
         try {
             $class = $this->adminurl->getBase($page);
-
-            if (class_exists($class)) {
+            if (class_exists($class) && is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
                 new $class($this);
                 exit;
             } else {
