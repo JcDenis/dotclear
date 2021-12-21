@@ -26,6 +26,7 @@ class Notices
     /** @var Core Core instance */
     public static $core;
 
+    /** @var array notices types */
     private static $N_TYPES = [
         // id → CSS class
         'success' => 'success',
@@ -34,6 +35,7 @@ class Notices
         'message' => 'message',
         'static'  => 'static-msg'];
 
+    /** @var boolean is displayed error */
     private static $error_displayed = false;
 
     /**
@@ -41,7 +43,7 @@ class Notices
      *
      * @return     string  The notices.
      */
-    public static function getNotices()
+    public static function getNotices(): string
     {
         $res = '';
 
@@ -119,7 +121,7 @@ class Notices
      * @param      string  $message  The message
      * @param      array   $options  The options
      */
-    public static function addNotice($type, $message, $options = [])
+    public static function addNotice(string $type, string $message, array $options = []): void
     {
         $cur = self::$core->con->openCursor(self::$core->prefix . self::$core->notices->getTable());
 
@@ -144,7 +146,7 @@ class Notices
      * @param      string  $message  The message
      * @param      array   $options  The options
      */
-    public static function addSuccessNotice($message, $options = [])
+    public static function addSuccessNotice(string $message, array $options = []): void
     {
         self::addNotice('success', $message, $options);
     }
@@ -155,7 +157,7 @@ class Notices
      * @param      string  $message  The message
      * @param      array   $options  The options
      */
-    public static function addWarningNotice($message, $options = [])
+    public static function addWarningNotice(string $message, array $options = []): void
     {
         self::addNotice('warning', $message, $options);
     }
@@ -166,7 +168,7 @@ class Notices
      * @param      string  $message  The message
      * @param      array   $options  The options
      */
-    public static function addErrorNotice($message, $options = [])
+    public static function addErrorNotice(string $message, array $options = []): void
     {
         self::addNotice('error', $message, $options);
     }
@@ -178,7 +180,7 @@ class Notices
      *
      * @return     string  The notification.
      */
-    private static function getNotification($n)
+    private static function getNotification(array $n): string
     {
         $tag = (isset($n['format']) && $n['format'] === 'html') ? 'div' : 'p';
         $ts  = '';
@@ -207,7 +209,7 @@ class Notices
      *
      * @return     string
      */
-    public static function message($msg, $timestamp = true, $div = false, $echo = true, $class = 'message')
+    public static function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
     {
         $res = '';
         if ($msg != '') {
@@ -240,7 +242,7 @@ class Notices
      *
      * @return     string
      */
-    public static function success($msg, $timestamp = true, $div = false, $echo = true)
+    public static function success(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
         return self::message($msg, $timestamp, $div, $echo, 'success');
     }
@@ -255,7 +257,7 @@ class Notices
      *
      * @return     string
      */
-    public static function warning($msg, $timestamp = true, $div = false, $echo = true)
+    public static function warning(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
         return self::message($msg, $timestamp, $div, $echo, 'warning-msg');
     }
