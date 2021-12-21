@@ -18,9 +18,9 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Core\Sql\SqlStatement;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
+
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Http;
-use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -62,7 +62,7 @@ class Auth
     /** @var array Permission types */
     protected $perm_types;
 
-    /** @var dcPrefs dcPrefs object */
+    /** @var Prefs Prefs object */
     public $user_prefs;
 
     /**

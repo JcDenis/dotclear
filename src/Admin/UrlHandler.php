@@ -23,9 +23,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-/**
-@brief URL Handler for admin urls
- */
 class UrlHandler
 {
     /** @var Core Core instance */
