@@ -44,13 +44,28 @@ class Prepend extends BasePrepend
 
     public function __construct()
     {
-        /* Serve a file (css, png, ...) */
+        /* Serve admin file (css, png, ...) */
         if (!empty($_GET['df'])) {
             Utils::fileServer([static::root('Admin', 'files')], 'df');
             exit;
         }
 
         parent::__construct();
+
+        /* Serve var file */
+        if (!empty($_GET['vf'])) {
+            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
+            exit;
+        }
+
+        /* Serve plugin file */
+        if (!empty($_GET['pf'])) {
+            $paths = array_reverse(explode(PATH_SEPARATOR, DOTCLEAR_PLUGINS_DIR));
+            $paths[] = static::root('Core', 'files', 'js');
+            $paths[] = static::root('Core', 'files', 'css');
+            Utils::fileServer($paths, 'pf');
+            exit;
+        }
 
         // HTTP/1.1
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -107,7 +122,6 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.comments', 'comments.php');
         $this->adminurl->register('admin.comment', 'comment.php');
         $this->adminurl->register('admin.help', 'help.php');
-        $this->adminurl->register('admin.home', 'index.php');
         $this->adminurl->register('admin.langs', 'langs.php');
         $this->adminurl->register('admin.media', 'media.php');
         $this->adminurl->register('admin.media.item', 'media_item.php');
