@@ -86,8 +86,16 @@ class Prepend extends BasePrepend
         header('Pragma: no-cache');
 
         $this->adminLoadURL();
+
+        /* csp report do not need extra stuff */
+        if ($this->adminurl->called() == 'admin.cspreport') {
+            $this->adminLoadPage();
+            exit;
+        }
+
         $this->adminLoadSession();
 
+        /* no user session, go auth */
         if (!$this->auth->userID() || $this->blog === null) {
             if ($this->adminurl->called() != 'admin.auth') {
                 $this->adminurl->redirect('admin.auth');
@@ -146,6 +154,7 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.users', 'users.php');
         $this->adminurl->register('admin.help', 'help.php');
         $this->adminurl->register('admin.update', 'update.php');
+        $this->adminurl->register('admin.cspreport', 'Dotclear\Admin\Page\CspReport');
 
         $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
         $this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
