@@ -185,7 +185,7 @@ class Page
                 }
             }
             if (count($directives)) {
-                $directives[]   = 'report-uri ' . DOTCLEAR_ADMIN_URL . '?handler=cspreport';
+                $directives[]   = 'report-uri ' . DOTCLEAR_ADMIN_URL . '?handler=admin.cspreport';
                 $report_only    = ($this->core->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
