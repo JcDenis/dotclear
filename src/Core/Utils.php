@@ -659,7 +659,7 @@ class Utils
         return $str;
     }
 
-    public static function fileServer(array $dirs, string $query, ?array $types = null)
+    public static function fileServer(array $dirs, string $query, ?array $types = null, bool $allow_sub_dir = false)
     {
         /* set default types */
         if ($types === null) {
@@ -693,6 +693,13 @@ class Utils
 
         /* Only $_GET[$query] is allowed in URL */
         if (count($_GET) > 1) {
+            header('Content-Type: text/plain');
+            Http::head(403, 'Forbidden');
+            exit;
+        }
+
+        /* disable directory change ".." */
+        if (!$allow_sub_dir && strpos('..', $_GET[$query]) !== false) {
             header('Content-Type: text/plain');
             Http::head(403, 'Forbidden');
             exit;
