@@ -1,19 +1,28 @@
 <?php
 /**
+ * @brief Dotclear backend notices handling facilities
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Database\Record;
+use Dotclear\Database\Cursor;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-/**
- * dcNotices -- Backend notices handling facilities
- */
-class dcNotices
+class Notices
 {
     /** @var dcCore dotclear core instance */
     protected $core;
@@ -29,7 +38,7 @@ class dcNotices
      *
      * @return mixed Value.
      */
-    public function __construct($core)
+    public function __construct(Core $core)
     {
         $this->core   = &$core;
         $this->prefix = $core->prefix;
@@ -42,7 +51,7 @@ class dcNotices
 
     /* Get notices */
 
-    public function getNotices($params = [], $count_only = false)
+    public function getNotices(array $params = [], bool $count_only = false): Record
     {
         // Return a recordset of notices
         if ($count_only) {
@@ -99,7 +108,7 @@ class dcNotices
         return $rs;
     }
 
-    public function addNotice($cur)
+    public function addNotice(Cursor $cur): int
     {
         $this->core->con->writeLock($this->prefix . $this->table);
 
@@ -132,7 +141,7 @@ class dcNotices
         return $cur->notice_id;
     }
 
-    public function delNotices($id, $all = false)
+    public function delNotices($id, bool $all = false): void
     {
         $strReq = $all ?
         'DELETE FROM ' . $this->prefix . $this->table . " WHERE ses_id = '" . (string) session_id() . "'" :
@@ -141,10 +150,10 @@ class dcNotices
         $this->core->con->execute($strReq);
     }
 
-    private function getNoticeCursor($cur, $notice_id = null)
+    private function getNoticeCursor(Cursor $cur, $notice_id = null): void
     {
         if ($cur->notice_msg === '') {
-            throw new Exception(__('No notice message'));
+            throw new CoreException(__('No notice message'));
         }
 
         if ($cur->notice_ts === '' || $cur->notice_ts === null) {
