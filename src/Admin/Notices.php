@@ -1,21 +1,29 @@
+
 <?php
 /**
+ * @brief Dotclear backend notices handling facilities
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Utils\Dt;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-/**
- * dcNotices -- Backend notices handling facilities
- */
-class dcAdminNotices
+class Notices
 {
-    /** @var dcCore dcCore instance */
+    /** @var Core Core instance */
     public static $core;
 
     private static $N_TYPES = [
@@ -176,8 +184,8 @@ class dcAdminNotices
         $ts  = '';
         if (!isset($n['with_ts']) || ($n['with_ts'] == true)) {
             $ts = '<span class="notice-ts">' .
-                '<time datetime="' . dt::iso8601(strtotime($n['ts']), self::$core->auth->getInfo('user_tz')) . '">' .
-                dt::dt2str(__('%H:%M:%S'), $n['ts'], self::$core->auth->getInfo('user_tz')) .
+                '<time datetime="' . Dt::iso8601(strtotime($n['ts']), self::$core->auth->getInfo('user_tz')) . '">' .
+                Dt::dt2str(__('%H:%M:%S'), $n['ts'], self::$core->auth->getInfo('user_tz')) .
                 '</time>' .
                 '</span> ';
         }
@@ -206,8 +214,8 @@ class dcAdminNotices
             $ts = '';
             if ($timestamp) {
                 $ts = '<span class="notice-ts">' .
-                    '<time datetime="' . dt::iso8601(time(), self::$core->auth->getInfo('user_tz')) . '">' .
-                    dt::str(__('%H:%M:%S'), null, self::$core->auth->getInfo('user_tz')) .
+                    '<time datetime="' . Dt::iso8601(time(), self::$core->auth->getInfo('user_tz')) . '">' .
+                    Dt::str(__('%H:%M:%S'), null, self::$core->auth->getInfo('user_tz')) .
                     '</time>' .
                     '</span> ';
             }
@@ -252,7 +260,3 @@ class dcAdminNotices
         return self::message($msg, $timestamp, $div, $echo, 'warning-msg');
     }
 }
-/*
- * Store current dcCore instance
- */
-dcAdminNotices::$core = $GLOBALS['core'];
