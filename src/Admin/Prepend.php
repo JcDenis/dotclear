@@ -18,6 +18,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
+Use Dotclear\Core\Notices;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Path;
@@ -34,6 +35,12 @@ class Prepend extends BasePrepend
 
     /** @var UrlHandler UrlHandler instance */
     public $adminurl;
+
+    /** @var Notices    Notices instance */
+    public $notices;
+
+    /** @var Favorites  Favorites instance */
+    public $favs;
 
     public function __construct()
     {
@@ -52,24 +59,74 @@ class Prepend extends BasePrepend
         // HTTP/1.0
         header('Pragma: no-cache');
 
-        $this->adminurl = new UrlHandler($this, defined('DC_ADMIN_URL') ? DC_ADMIN_URL : '');
-
-        $this->adminurl->register('admin.home', 'Dotclear\Admin\Page\Home');
-        $this->adminurl->register('admin.auth', 'Dotclear\Admin\Page\Auth');
-
-        $this->loadSession();
+        $this->adminLoadURL();
+        $this->adminLoadSession();
 
         if ((!$this->auth->userID() || $this->blog === null) && $this->adminurl->called() != 'admin.auth') {
             $this->adminurl->redirect('admin.auth');
             exit;
-        } else {
-            $this->loadPage();
         }
 
-exit('admin: j en suis la ');
+        //__ressources
+
+        $this->adminLoadMenu();
+
+        if (empty($this->blog->settings->system->jquery_migrate_mute)) {
+            $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+        }
+        if (empty($this->blog->settings->system->jquery_allow_old_version)) {
+            $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+        }
+
+        # Ensure theme's settings namespace exists
+        $this->blog->settings->addNamespace('themes');
+
+        # Admin behaviors
+        //$this->addBehavior('adminPopupPosts', ['dcAdminBlogPref', 'adminPopupPosts']);
+
+        $this->adminLoadPage();
     }
 
-    private function loadSession(): bool
+    private function adminLoadURL(): void
+    {
+        $this->adminurl = new UrlHandler($this, defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '');
+
+        $this->adminurl->register('admin.home', 'Dotclear\Admin\Page\Home');
+        $this->adminurl->register('admin.auth', 'Dotclear\Admin\Page\Auth');
+        $this->adminurl->register('admin.posts', 'posts.php');
+        $this->adminurl->register('admin.popup_posts', 'popup_posts.php');
+        $this->adminurl->register('admin.post', 'post.php');
+        $this->adminurl->register('admin.post.media', 'post_media.php');
+        $this->adminurl->register('admin.blog.theme', 'blog_theme.php');
+        $this->adminurl->register('admin.blog.pref', 'blog_pref.php');
+        $this->adminurl->register('admin.blog.del', 'blog_del.php');
+        $this->adminurl->register('admin.blog', 'blog.php');
+        $this->adminurl->register('admin.blogs', 'blogs.php');
+        $this->adminurl->register('admin.categories', 'categories.php');
+        $this->adminurl->register('admin.category', 'category.php');
+        $this->adminurl->register('admin.comments', 'comments.php');
+        $this->adminurl->register('admin.comment', 'comment.php');
+        $this->adminurl->register('admin.help', 'help.php');
+        $this->adminurl->register('admin.home', 'index.php');
+        $this->adminurl->register('admin.langs', 'langs.php');
+        $this->adminurl->register('admin.media', 'media.php');
+        $this->adminurl->register('admin.media.item', 'media_item.php');
+        $this->adminurl->register('admin.plugins', 'plugins.php');
+        $this->adminurl->register('admin.plugin', 'plugin.php');
+        $this->adminurl->register('admin.search', 'search.php');
+        $this->adminurl->register('admin.user.preferences', 'preferences.php');
+        $this->adminurl->register('admin.user', 'user.php');
+        $this->adminurl->register('admin.user.actions', 'users_actions.php');
+        $this->adminurl->register('admin.users', 'users.php');
+        $this->adminurl->register('admin.auth', 'auth.php');
+        $this->adminurl->register('admin.help', 'help.php');
+        $this->adminurl->register('admin.update', 'update.php');
+
+        $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
+        $this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
+    }
+
+    private function adminLoadSession(): bool
     {
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
@@ -91,7 +148,7 @@ exit('admin: j en suis la ');
             }
 
             # Loading locales
-            $this->loadLocales();
+            $this->adminLoadLocales();
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog->id) {
@@ -159,7 +216,7 @@ exit('admin: j en suis la ');
             }
 
             # Loading locales
-            $this->loadLocales();
+            $this->adminLoadLocales();
 
             if (isset($_SESSION['sess_blog_id'])) {
                 $this->setBlog($_SESSION['sess_blog_id']);
@@ -173,7 +230,94 @@ exit('admin: j en suis la ');
         return true;
     }
 
-    private function loadPage(?string $page = null): void
+    private function adminLoadLocales()
+    {
+        $_lang = $this->auth->getInfo('user_lang');
+        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
+
+        l10n::lang($_lang);
+        if (l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
+            l10n::set(static::root(DOTCLEAR_L10N_DIR, 'en', 'date'));
+        }
+        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'main'));
+        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'public'));
+        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
+
+        // Set lexical lang
+        Utils::setlexicalLang('admin', $_lang);
+    }
+
+    private function adminLoadMenu()
+    {
+        $this->auth->user_prefs->addWorkspace('interface');
+        Menu::$iconset = @$this->auth->user_prefs->interface->iconset;
+
+        $this->auth->user_prefs->addWorkspace('interface');
+        $user_ui_nofavmenu = $this->auth->user_prefs->interface->nofavmenu;
+
+        $this->notices = new Notices($this);
+        $this->favs    = new Favorites($this);
+
+        # Menus creation
+        $_menu              = new \ArrayObject();
+        $_menu['Dashboard'] = new Menu('dashboard-menu', '');
+        if (!$user_ui_nofavmenu) {
+            $this->favs->appendMenuTitle($_menu);
+        }
+        $_menu['Blog']    = new Menu('blog-menu', 'Blog');
+        $_menu['System']  = new Menu('system-menu', 'System');
+        $_menu['Plugins'] = new Menu('plugins-menu', 'Plugins');
+        //$this->plugins->loadModules(DC_PLUGINS_ROOT, 'admin', $_lang);
+        $this->favs->setup();
+
+        if (!$user_ui_nofavmenu) {
+            $this->favs->appendMenu($_menu);
+        }
+
+        # Set menu titles
+        $_menu['System']->title  = __('System settings');
+        $_menu['Blog']->title    = __('Blog');
+        $_menu['Plugins']->title = __('Plugins');
+
+        $this->addMenuItem($_menu, 'Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png',
+            $this->auth->check('admin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
+            $this->auth->check('admin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Media manager'), 'admin.media', 'images/menu/media.png',
+            $this->auth->check('media,media_admin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Categories'), 'admin.categories', 'images/menu/categories.png',
+            $this->auth->check('categories', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Search'), 'admin.search', 'images/menu/search.png',
+            $this->auth->check('usage,contentadmin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Comments'), 'admin.comments', 'images/menu/comments.png',
+            $this->auth->check('usage,contentadmin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('Posts'), 'admin.posts', 'images/menu/entries.png',
+            $this->auth->check('usage,contentadmin', $this->blog->id));
+        $this->addMenuItem($_menu, 'Blog', __('New post'), 'admin.post', 'images/menu/edit.png',
+            $this->auth->check('usage,contentadmin', $this->blog->id), true, true);
+
+        $this->addMenuItem($_menu, 'System', __('Update'), 'admin.update', 'images/menu/update.png',
+            $this->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR));
+        $this->addMenuItem($_menu, 'System', __('Languages'), 'admin.langs', 'images/menu/langs.png',
+            $this->auth->isSuperAdmin());
+        $this->addMenuItem($_menu, 'System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png',
+            $this->auth->isSuperAdmin());
+        $this->addMenuItem($_menu, 'System', __('Users'), 'admin.users', 'images/menu/users.png',
+            $this->auth->isSuperAdmin());
+        $this->addMenuItem($_menu, 'System', __('Blogs'), 'admin.blogs', 'images/menu/blogs.png',
+            $this->auth->isSuperAdmin() || $this->auth->check('usage,contentadmin', $this->blog->id) && $this->auth->getBlogCount() > 1);
+
+    }
+
+    private function addMenuItem($_menu, $section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false)
+    {
+        $url     = $this->adminurl->get($adminurl);
+        $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
+        $_menu[$section]->prependItem($desc, $url, $icon,
+            preg_match($pattern, $_SERVER['REQUEST_URI']), $perm, null, null, $pinned);
+    }
+
+    private function adminLoadPage(?string $page = null): void
     {
         if ($page === null) {
             $page = $_REQUEST['handler'] ?? 'admin.home';
@@ -194,52 +338,5 @@ exit('admin: j en suis la ');
                 20
             );
         }
-    }
-
-    protected function loadLocales()
-    {
-        $_lang = $this->auth->getInfo('user_lang');
-        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
-
-        l10n::lang($_lang);
-        if (l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
-            l10n::set(static::root(DOTCLEAR_L10N_DIR, 'en', 'date'));
-        }
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'main'));
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'public'));
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
-
-        // Set lexical lang
-        Utils::setlexicalLang('admin', $_lang);
-    }
-
-    protected function dc_admin_icon_url($img)
-    {
-        $this->auth->user_prefs->addWorkspace('interface');
-        $user_ui_iconset = @$this->auth->user_prefs->interface->iconset;
-        if (($user_ui_iconset) && ($img)) {
-            $icon = false;
-            if ((preg_match('/^images\/menu\/(.+)$/', $img, $m)) || (preg_match('/^index\.php\?pf=(.+)$/', $img, $m))) {
-                if ($m[1]) {
-                    $icon = Path::real(dirname(__FILE__) . '/../../admin/images/iconset/' . $user_ui_iconset . '/' . $m[1], false);
-                    if ($icon !== false) {
-                        $allow_types = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
-                        if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return DC_ADMIN_URL . 'images/iconset/' . $user_ui_iconset . '/' . $m[1];
-                        }
-                    }
-                }
-            }
-        }
-
-        return $img;
-    }
-
-    public function addMenuItem($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false)
-    {
-        $url     = $this->adminurl->get($adminurl);
-        $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
-        $_menu[$section]->prependItem($desc, $url, $icon,
-            preg_match($pattern, $_SERVER['REQUEST_URI']), $perm, null, null, $pinned);
     }
 }
