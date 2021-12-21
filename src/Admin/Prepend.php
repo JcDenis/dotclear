@@ -20,6 +20,8 @@ use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
 Use Dotclear\Core\Notices;
 
+Use Dotclear\Admin\Notices as AdminNotices;
+
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Path;
 use Dotclear\Utils\Files;
@@ -42,8 +44,11 @@ class Prepend extends BasePrepend
     /** @var Favorites  Favorites instance */
     public $favs;
 
-    /** @var array      help ressources container */
-    public $ressources = [];
+    /** @var string     user lang */
+    public $_lang = 'en';
+
+    /** @var array      help resources container */
+    public $resources = [];
 
     public function __construct()
     {
@@ -248,26 +253,27 @@ class Prepend extends BasePrepend
 
     private function adminLoadLocales()
     {
-        $_lang = $this->adminGetLang();
+        $this->adminGetLang();
 
-        l10n::lang($_lang);
-        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
+        l10n::lang($this->_lang);
+        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
             l10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
         }
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'main'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'public'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
 
         // Set lexical lang
-        Utils::setlexicalLang('admin', $_lang);
+        Utils::setlexicalLang('admin', $this->_lang);
     }
 
     private function adminLoadRessources()
     {
-        $_lang = $this->adminGetLang();
+        $this->adminGetLang();
 
         /* for now keep old ressources files "as is" */
-        $__ressources = $this->ressources;
+        $_lang        = $this->_lang;
+        $__resources = $this->resources;
 
         require static::path(DOTCLEAR_L10N_DIR, 'en', 'resources.php');
         if (($f = L10n::getFilePath(DOTCLEAR_L10N_DIR, 'resources.php', $_lang))) {
@@ -287,7 +293,7 @@ class Prepend extends BasePrepend
         // Contextual help flag
         $__resources['ctxhelp'] = false;
 
-        $this->ressources = $__ressources;
+        $this->resources = $__resources;
     }
 
     private function adminGetLang(): string
@@ -295,7 +301,7 @@ class Prepend extends BasePrepend
         $_lang = $this->auth->getInfo('user_lang');
         $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
-        return $_lang;
+        $this->_lang = $_lang;
     }
 
     private function adminLoadMenu()
@@ -370,6 +376,8 @@ class Prepend extends BasePrepend
 
     private function adminLoadPage(?string $page = null): void
     {
+        AdminNotices::$core = $this;
+
         if ($page === null) {
             $page = $_REQUEST['handler'] ?? 'admin.home';
         }
