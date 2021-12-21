@@ -153,7 +153,7 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.user', 'user.php');
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
         $this->adminurl->register('admin.users', 'users.php');
-        $this->adminurl->register('admin.update', 'update.php');
+        $this->adminurl->register('admin.update', $d . 'Update');
         $this->adminurl->register('admin.cspreport', $d . 'CspReport');
 
         $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);

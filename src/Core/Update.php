@@ -1,16 +1,33 @@
 <?php
 /**
+ * @brief Dotclear\Core\Update
+ *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Utils\Files;
+use Dotclear\Utils\Http;
+
+use Dotclear\File\Zip\Zip;
+use Dotclear\File\Zip\Unzip;
+
+use Dotclear\Network\Http\Http as netHttp;
+
 if (!defined('DC_RC_PATH')) {
     return;
 }
 
-class dcUpdate
+class Update
 {
     public const ERR_FILES_CHANGED    = 101;
     public const ERR_FILES_UNREADABLE = 102;
@@ -94,7 +111,7 @@ class dcUpdate
 
         if (!is_dir($cache_dir)) {
             try {
-                files::makeDir($cache_dir);
+                Files::makeDir($cache_dir);
             } catch (Exception $e) {
                 return;
             }
@@ -108,7 +125,7 @@ class dcUpdate
             $http_get = function ($http_url) use (&$status, $path) {
                 $client = netHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(DC_QUERY_TIMEOUT);
+                    $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status = (int) $client->getStatus();
@@ -128,7 +145,7 @@ class dcUpdate
                 }
             }
             if (!$status || $status >= 400) {
-                throw new Exception();
+                throw new CoreException();
             }
             $this->readVersion($client->getContent());
         } catch (Exception $e) {
@@ -195,13 +212,13 @@ class dcUpdate
     public function checkIntegrity($digests_file, $root)
     {
         if (!$digests_file) {
-            throw new Exception(__('Digests file not found.'));
+            throw new CoreException(__('Digests file not found.'));
         }
 
         $changes = $this->md5sum($root, $digests_file);
 
         if (!empty($changes)) {
-            $e            = new Exception('Some files have changed.', self::ERR_FILES_CHANGED);
+            $e            = new CoreException('Some files have changed.', self::ERR_FILES_CHANGED);
             $e->bad_files = $changes;   // @phpstan-ignore-line
 
             throw $e;
@@ -218,11 +235,11 @@ class dcUpdate
         $url = $this->getFileURL();
 
         if (!$url) {
-            throw new Exception(__('No file to download'));
+            throw new CoreException(__('No file to download'));
         }
 
         if (!is_writable(dirname($dest))) {
-            throw new Exception(__('Root directory is not writable.'));
+            throw new CoreException(__('Root directory is not writable.'));
         }
 
         try {
@@ -232,7 +249,7 @@ class dcUpdate
             $http_get = function ($http_url) use (&$status, $dest, $path) {
                 $client = netHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(DC_QUERY_TIMEOUT);
+                    $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->useGzip(false);
                     $client->setPersistReferers(false);
@@ -257,10 +274,10 @@ class dcUpdate
             if ($status != 200) {
                 @unlink($dest);
 
-                throw new Exception();
+                throw new CoreException();
             }
         } catch (Exception $e) {
-            throw new Exception(__('An error occurred while downloading archive.'));
+            throw new CoreException(__('An error occurred while downloading archive.'));
         }
     }
 
@@ -280,18 +297,18 @@ class dcUpdate
     public function backup($zip_file, $zip_digests, $root, $root_digests, $dest)
     {
         if (!is_readable($zip_file)) {
-            throw new Exception(__('Archive not found.'));
+            throw new CoreException(__('Archive not found.'));
         }
 
         if (!is_readable($root_digests)) {
             @unlink($zip_file);
 
-            throw new Exception(__('Unable to read current digests file.'));
+            throw new CoreException(__('Unable to read current digests file.'));
         }
 
         # Stop everything if a backup already exists and can not be overrided
         if (!is_writable(dirname($dest)) && !file_exists($dest)) {
-            throw new Exception(__('Root directory is not writable.'));
+            throw new CoreException(__('Root directory is not writable.'));
         }
 
         if (file_exists($dest) && !is_writable($dest)) {
@@ -303,13 +320,13 @@ class dcUpdate
             return false;
         }
 
-        $zip   = new fileUnzip($zip_file);
-        $b_zip = new fileZip($b_fp);
+        $zip   = new Unzip($zip_file);
+        $b_zip = new Zip($b_fp);
 
         if (!$zip->hasFile($zip_digests)) {
             @unlink($zip_file);
 
-            throw new Exception(__('Downloaded file does not seem to be a valid archive.'));
+            throw new CoreException(__('Downloaded file does not seem to be a valid archive.'));
         }
 
         $opts        = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -339,7 +356,7 @@ class dcUpdate
 
         # If only one file is not readable, stop everything now
         if (!empty($not_readable)) {
-            $e            = new Exception('Some files are not readable.', self::ERR_FILES_UNREADABLE);
+            $e            = new CoreException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
             $e->bad_files = $not_readable;  // @phpstan-ignore-line
 
             throw $e;
@@ -358,21 +375,21 @@ class dcUpdate
     public function performUpgrade($zip_file, $zip_digests, $zip_root, $root, $root_digests)
     {
         if (!is_readable($zip_file)) {
-            throw new Exception(__('Archive not found.'));
+            throw new CoreException(__('Archive not found.'));
         }
 
         if (!is_readable($root_digests)) {
             @unlink($zip_file);
 
-            throw new Exception(__('Unable to read current digests file.'));
+            throw new CoreException(__('Unable to read current digests file.'));
         }
 
-        $zip = new fileUnzip($zip_file);
+        $zip = new Unzip($zip_file);
 
         if (!$zip->hasFile($zip_digests)) {
             @unlink($zip_file);
 
-            throw new Exception(__('Downloaded file does not seem to be a valid archive.'));
+            throw new CoreException(__('Downloaded file does not seem to be a valid archive.'));
         }
 
         $opts        = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -395,7 +412,7 @@ class dcUpdate
             if (!$zip->hasFile($zip_root . '/' . $file)) {
                 @unlink($zip_file);
 
-                throw new Exception(__('Incomplete archive.'));
+                throw new CoreException(__('Incomplete archive.'));
             }
 
             $dest = $dest_dir = $root . '/' . $file;
@@ -412,7 +429,7 @@ class dcUpdate
 
         # If only one file is not writable, stop everything now
         if (!empty($not_writable)) {
-            $e            = new Exception('Some files are not writable', self::ERR_FILES_UNWRITALBE);
+            $e            = new CoreException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
             $e->bad_files = $not_writable;  // @phpstan-ignore-line
 
             throw $e;
@@ -448,7 +465,7 @@ class dcUpdate
     protected function readVersion($str)
     {
         try {
-            $xml = new SimpleXMLElement($str, LIBXML_NOERROR);
+            $xml = new \SimpleXMLElement($str, LIBXML_NOERROR);
             $r   = $xml->xpath("/versions/subject[@name='" . $this->subject . "']/release[@name='" . $this->version . "']");
 
             if (!empty($r) && is_array($r)) {
@@ -467,7 +484,7 @@ class dcUpdate
     protected function md5sum($root, $digests_file)
     {
         if (!is_readable($digests_file)) {
-            throw new Exception(__('Unable to read digests file.'));
+            throw new CoreException(__('Unable to read digests file.'));
         }
 
         $opts     = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -491,7 +508,7 @@ class dcUpdate
 
         # No checksum found in digests file
         if (empty($md5)) {
-            throw new Exception(__('Invalid digests file.'));
+            throw new CoreException(__('Invalid digests file.'));
         }
 
         return $changes;

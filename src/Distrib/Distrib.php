@@ -56,7 +56,7 @@ class Distrib
         );
 
         define('DOTCLEAR_DIGESTS_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'digests'])
+            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'digests'])
         );
 
         define('DOTCLEAR_L10N_DIR',
