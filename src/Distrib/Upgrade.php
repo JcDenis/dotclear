@@ -38,7 +38,7 @@ class Upgrade
     /** @var Core Core static instance */
     protected static $core;
 
-    public static function dotclearUpgrade(Core $core)
+    public static function dotclearUpgrade(Core $core): bool
     {
         self::$core = $core;
         $version = $core->getVersion('core');
@@ -75,7 +75,7 @@ class Upgrade
                 } catch (Exception $e) {
                 }
 
-                return $changes;
+                return (bool) $changes;
             } catch (Exception $e) {
                 throw new DistribException(__('Something went wrong with auto upgrade:') .
                     ' ' . $e->getMessage());
@@ -86,7 +86,7 @@ class Upgrade
         return false;
     }
 
-    public static function growUp($core, $version)
+    public static function growUp(Core $core, ?string $version): bool
     {
         if ($version === null) {
             return false;
@@ -907,7 +907,7 @@ class Upgrade
      * @param      string  $ns        namespace name
      * @param      string  $setting   The setting ID
      */
-    protected static function settings2array($ns, $setting)
+    protected static function settings2array(string $ns, string $setting): void
     {
         $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . self::$core->prefix . 'setting ' .
             "WHERE setting_id = '%s' " .
@@ -940,7 +940,7 @@ class Upgrade
      * @param      string  $ws     workspace name
      * @param      string  $pref   The preference ID
      */
-    protected static function prefs2array($ws, $pref)
+    protected static function prefs2array(string $ws, string $pref): void
     {
         $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . self::$core->prefix . 'pref ' .
             "WHERE pref_id = '%s' " .

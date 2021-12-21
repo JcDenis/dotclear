@@ -108,9 +108,10 @@ class Structure
     /**
      * Synchronize this schema taken from database with $schema.
      *
-     * @param      dbStruct $s Structure to synchronize with
+     * @param   Structure   $s  Structure to synchronize with
+     * @return  int             Number of changes
      */
-    public function synchronize($s)
+    public function synchronize(Structure $s): int
     {
         $this->tables = [];
         $this->reverse();
@@ -246,7 +247,7 @@ class Structure
         }
 
         if (!$got_work) {
-            return;
+            return 0;
         }
 
         # Create tables
