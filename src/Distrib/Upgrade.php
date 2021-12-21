@@ -17,6 +17,8 @@ namespace Dotclear\Distrib;
 use Dotclear\Exception;
 use Dotclear\Exception\DistribException;
 
+use Dotclear\Core\Core;
+
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Path;
 
@@ -33,8 +35,12 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
 
 class Upgrade
 {
-    public static function dotclearUpgrade($core)
+    /** @var Core Core static instance */
+    protected static $core;
+
+    public static function dotclearUpgrade(Core $core)
     {
+        self::$core = $core;
         $version = $core->getVersion('core');
 
         if ($version === null) {
@@ -901,15 +907,13 @@ class Upgrade
      * @param      string  $ns        namespace name
      * @param      string  $setting   The setting ID
      */
-    public static function settings2array($ns, $setting)
+    protected static function settings2array($ns, $setting)
     {
-        global $core;
-
-        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . $core->prefix . 'setting ' .
+        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . self::$core->prefix . 'setting ' .
             "WHERE setting_id = '%s' " .
             "AND setting_ns = '%s' " .
             "AND setting_type = 'string'";
-        $rs = $core->con->select(sprintf($strReqSelect, $setting, $ns));
+        $rs = self::$core->con->select(sprintf($strReqSelect, $setting, $ns));
         while ($rs->fetch()) {
             $value = @unserialize($rs->setting_value);
             if (!$value) {
@@ -917,16 +921,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . $core->prefix . 'setting ' .
-            "SET setting_type='array', setting_value = '" . $core->con->escape($value) . "' " .
-            "WHERE setting_id='" . $core->con->escape($rs->setting_id) . "' " .
-            "AND setting_ns='" . $core->con->escape($rs->setting_ns) . "' ";
+            $rs2   = 'UPDATE ' . self::$core->prefix . 'setting ' .
+            "SET setting_type='array', setting_value = '" . self::$core->con->escape($value) . "' " .
+            "WHERE setting_id='" . self::$core->con->escape($rs->setting_id) . "' " .
+            "AND setting_ns='" . self::$core->con->escape($rs->setting_ns) . "' ";
             if ($rs->blog_id == '') {
                 $rs2 .= 'AND blog_id IS null';
             } else {
-                $rs2 .= "AND blog_id = '" . $core->con->escape($rs->blog_id) . "'";
+                $rs2 .= "AND blog_id = '" . self::$core->con->escape($rs->blog_id) . "'";
             }
-            $core->con->execute($rs2);
+            self::$core->con->execute($rs2);
         }
     }
 
@@ -936,15 +940,13 @@ class Upgrade
      * @param      string  $ws     workspace name
      * @param      string  $pref   The preference ID
      */
-    public static function prefs2array($ws, $pref)
+    protected static function prefs2array($ws, $pref)
     {
-        global $core;
-
-        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . $core->prefix . 'pref ' .
+        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . self::$core->prefix . 'pref ' .
             "WHERE pref_id = '%s' " .
             "AND pref_ws = '%s' " .
             "AND pref_type = 'string'";
-        $rs = $core->con->select(sprintf($strReqSelect, $pref, $ws));
+        $rs = self::$core->con->select(sprintf($strReqSelect, $pref, $ws));
         while ($rs->fetch()) {
             $value = @unserialize($rs->pref_value);
             if (!$value) {
@@ -952,16 +954,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . $core->prefix . 'pref ' .
-            "SET pref_type='array', pref_value = '" . $core->con->escape($value) . "' " .
-            "WHERE pref_id='" . $core->con->escape($rs->pref_id) . "' " .
-            "AND pref_ws='" . $core->con->escape($rs->pref_ws) . "' ";
+            $rs2   = 'UPDATE ' . self::$core->prefix . 'pref ' .
+            "SET pref_type='array', pref_value = '" . self::$core->con->escape($value) . "' " .
+            "WHERE pref_id='" . self::$core->con->escape($rs->pref_id) . "' " .
+            "AND pref_ws='" . self::$core->con->escape($rs->pref_ws) . "' ";
             if ($rs->user_id == '') {
                 $rs2 .= 'AND user_id IS null';
             } else {
-                $rs2 .= "AND user_id = '" . $core->con->escape($rs->user_id) . "'";
+                $rs2 .= "AND user_id = '" . self::$core->con->escape($rs->user_id) . "'";
             }
-            $core->con->execute($rs2);
+            self::$core->con->execute($rs2);
         }
     }
 }
