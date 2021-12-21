@@ -1,4 +1,3 @@
-
 <?php
 /**
  * @brief Dotclear backend notices handling facilities
