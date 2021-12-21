@@ -269,8 +269,8 @@ class Page
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
         '<ul id="top-info-user">' .
-        '<li><a class="' . (preg_match('/' . preg_quote($this->core->adminurl->get('admin.home')) . '$/', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . $this->core->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
-        '<li><a class="smallscreen' . (preg_match('/' . preg_quote($this->core->adminurl->get('admin.user.preferences')) . '(\?.*)?$/', $_SERVER['REQUEST_URI']) ? ' active' : '') .
+        '<li><a class="' . (preg_match('"' . preg_quote($this->core->adminurl->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . $this->core->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
+        '<li><a class="smallscreen' . (preg_match('"' . preg_quote($this->core->adminurl->get('admin.user.preferences')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
         '" href="' . $this->core->adminurl->get('admin.user.preferences') . '">' . __('My preferences') . '</a></li>' .
         '<li><a href="' . $this->core->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), $this->core->auth->userID()) .
             '</span><img src="?df=images/logout.png" alt="" /></a></li>' .
