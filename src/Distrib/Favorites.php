@@ -124,7 +124,7 @@ class Favorites
      */
     public static function postsDashboard($core, $v)
     {
-        $post_count  = $core->blog->getPosts([], true)->f(0);
+        $post_count  = (int) $core->blog->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -151,7 +151,7 @@ class Favorites
      */
     public static function commentsDashboard($core, $v)
     {
-        $comment_count = $core->blog->getComments([], true)->f(0);
+        $comment_count = (int) $core->blog->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }
