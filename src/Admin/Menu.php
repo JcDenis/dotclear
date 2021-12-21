@@ -167,7 +167,7 @@ class Menu
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
     }
 
-    public function IconURL(string $img): string
+    public static function IconURL(string $img): string
     {
         if (!empty(self::$iconset) && !empty($img)) {
             $icon = false;
