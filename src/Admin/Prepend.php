@@ -42,6 +42,9 @@ class Prepend extends BasePrepend
     /** @var Favorites  Favorites instance */
     public $favs;
 
+    /** @var array      help ressources container */
+    public $ressources = [];
+
     public function __construct()
     {
         /* Serve admin file (css, png, ...) */
@@ -82,8 +85,7 @@ class Prepend extends BasePrepend
             exit;
         }
 
-        //__ressources
-
+        $this->adminLoadRessources();
         $this->adminLoadMenu();
 
         if (empty($this->blog->settings->system->jquery_migrate_mute)) {
@@ -246,19 +248,54 @@ class Prepend extends BasePrepend
 
     private function adminLoadLocales()
     {
-        $_lang = $this->auth->getInfo('user_lang');
-        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
+        $_lang = $this->adminGetLang();
 
         l10n::lang($_lang);
-        if (l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
-            l10n::set(static::root(DOTCLEAR_L10N_DIR, 'en', 'date'));
+        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
+            l10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
         }
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'main'));
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'public'));
-        l10n::set(static::root(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'main'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'public'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
 
         // Set lexical lang
         Utils::setlexicalLang('admin', $_lang);
+    }
+
+    private function adminLoadRessources()
+    {
+        $_lang = $this->adminGetLang();
+
+        /* for now keep old ressources files "as is" */
+        $__ressources = $this->ressources;
+
+        require static::path(DOTCLEAR_L10N_DIR, 'en', 'resources.php');
+        if (($f = L10n::getFilePath(DOTCLEAR_L10N_DIR, 'resources.php', $_lang))) {
+            require $f;
+        }
+        unset($f);
+
+        if (($hfiles = @scandir(static::path(DOTCLEAR_L10N_DIR, $_lang, 'help'))) !== false) {
+            foreach ($hfiles as $hfile) {
+                if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
+                    $__resources['help'][$m[1]] = static::path(DOTCLEAR_L10N_DIR, $_lang, 'help', $hfile);
+                }
+            }
+        }
+        unset($hfiles);
+
+        // Contextual help flag
+        $__resources['ctxhelp'] = false;
+
+        $this->ressources = $__ressources;
+    }
+
+    private function adminGetLang(): string
+    {
+        $_lang = $this->auth->getInfo('user_lang');
+        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
+
+        return $_lang;
     }
 
     private function adminLoadMenu()

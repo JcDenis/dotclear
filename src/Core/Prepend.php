@@ -278,7 +278,7 @@ class Prepend extends Core
         # Loading locales for detected language
         $dlang = Http::getAcceptLanguages();
         foreach ($dlang as $l) {
-            if ($l == 'en' || l10n::set(static::root(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
+            if ($l == 'en' || l10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
                 L10n::lang($l);
 
                 break;
@@ -293,5 +293,10 @@ class Prepend extends Core
         }
 
         return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
+    }
+
+    public static function path(string ...$args): string
+    {
+        return implode(DIRECTORY_SEPARATOR, $args);
     }
 }
