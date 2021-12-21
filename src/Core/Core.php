@@ -52,6 +52,9 @@ class Core
     /** @var Wiki2xhtml         Wiki2xhtml instance */
     public $wiki2xhtml;
 
+    /** ... */
+    public $media;
+
     /** @var RestServer         RestServer instance */
     public $rest;
 
