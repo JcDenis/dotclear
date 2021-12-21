@@ -15,6 +15,7 @@ namespace Dotclear\Admin;
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
+use Dotclear\Utils\L10n;
 use Dotclear\Utils\Http;
 use Dotclear\Utils\Html;
 use Dotclear\Utils\Form;
@@ -211,7 +212,7 @@ class Page
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (l10n::getTextDirection($this->_lang) == 'rtl') {
+        if (L10n::getTextDirection($this->core->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
@@ -427,7 +428,7 @@ class Page
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (l10n::getTextDirection($this->_lang) == 'rtl') {
+        if (L10n::getTextDirection($this->core->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
