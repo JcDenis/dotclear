@@ -14,7 +14,7 @@ namespace Dotclear\Distrib;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Admin\Favorites as BaseFavorties;
+use Dotclear\Admin\Favorites as BaseFavorites;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

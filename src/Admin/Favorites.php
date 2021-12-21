@@ -25,13 +25,13 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Favorites
 {
-    /** @var dcCore dotclear core instance */
+    /** @var Core dotclear core instance */
     protected $core;
 
     /** @var \ArrayObject list of favorite definitions  */
     protected $fav_defs;
 
-    /** @var dcWorkspace current favorite landing workspace */
+    /** @var Workspace current favorite landing workspace */
     protected $ws;
 
     /** @var array list of user-defined favorite ids */
