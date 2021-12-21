@@ -25,15 +25,16 @@ class Menu
     protected $pinned;
     protected $items;
     public $title;
+    public static $iconset;
 
     /**
      * Constructs a new instance.
      *
-     * @param      string  $id         The identifier
-     * @param      string  $title      The title
-     * @param      string  $itemSpace  The item space
+     * @param   string  $id         The identifier
+     * @param   string  $title      The title
+     * @param   string  $itemSpace  The item space
      */
-    public function __construct($id, $title, $itemSpace = '')
+    public function __construct(string $id, string $title, string $itemSpace = '')
     {
         $this->id        = $id;
         $this->title     = $title;
@@ -154,8 +155,8 @@ class Menu
             $link  = $url;
             $ahtml = '';
         }
-//
-        $img = '';//dc_admin_icon_url($img);
+
+        $img = self::IconURL($img);
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
@@ -164,5 +165,25 @@ class Menu
             '>' .
 
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
+    }
+
+    public function IconURL(string $img): string
+    {
+        if (!empty(self::$iconset) && !empty($img)) {
+            $icon = false;
+            if ((preg_match('/^images\/menu\/(.+)$/', $img, $m)) || (preg_match('/^index\.php\?pf=(.+)$/', $img, $m))) {
+                if ($m[1]) {
+                    $icon = Path::real(dirname(__FILE__) . '/../files/images/iconset/' . self::$iconset . '/' . $m[1], false);
+                    if ($icon !== false) {
+                        $allow_types = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
+                        if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
+                            return DOTCLEAR_ADMIN_URL . 'images/iconset/' . self::$iconset . '/' . $m[1];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $img;
     }
 }
