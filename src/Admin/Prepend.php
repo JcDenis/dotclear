@@ -124,10 +124,11 @@ class Prepend extends BasePrepend
 
     private function adminLoadURL(): void
     {
+        $d = 'Dotclear\\Admin\\Page\\';
         $this->adminurl = new UrlHandler($this, defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '');
 
-        $this->adminurl->register('admin.home', 'Dotclear\Admin\Page\Home');
-        $this->adminurl->register('admin.auth', 'Dotclear\Admin\Page\Auth');
+        $this->adminurl->register('admin.home', $d . 'Home');
+        $this->adminurl->register('admin.auth', $d . 'Auth');
         $this->adminurl->register('admin.posts', 'posts.php');
         $this->adminurl->register('admin.popup_posts', 'popup_posts.php');
         $this->adminurl->register('admin.post', 'post.php');
@@ -141,7 +142,7 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.category', 'category.php');
         $this->adminurl->register('admin.comments', 'comments.php');
         $this->adminurl->register('admin.comment', 'comment.php');
-        $this->adminurl->register('admin.help', 'help.php');
+        $this->adminurl->register('admin.help', $d . 'Help');
         $this->adminurl->register('admin.langs', 'langs.php');
         $this->adminurl->register('admin.media', 'media.php');
         $this->adminurl->register('admin.media.item', 'media_item.php');
@@ -152,9 +153,8 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.user', 'user.php');
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
         $this->adminurl->register('admin.users', 'users.php');
-        $this->adminurl->register('admin.help', 'help.php');
         $this->adminurl->register('admin.update', 'update.php');
-        $this->adminurl->register('admin.cspreport', 'Dotclear\Admin\Page\CspReport');
+        $this->adminurl->register('admin.cspreport', $d . 'CspReport');
 
         $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
         $this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
