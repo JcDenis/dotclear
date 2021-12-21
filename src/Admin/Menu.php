@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Utils\Utils;
+use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -177,13 +177,13 @@ class Menu
                     if ($icon !== false) {
                         $allow_types = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return DOTCLEAR_ADMIN_URL . 'images/iconset/' . self::$iconset . '/' . $m[1];
+                            return 'images/iconset/' . self::$iconset . '/' . $m[1];
                         }
                     }
                 }
             }
         }
 
-        return $img;
+        return '?df=' . $img;
     }
 }

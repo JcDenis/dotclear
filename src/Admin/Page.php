@@ -509,7 +509,7 @@ class Page
         $hl_pos         = $options['hl_pos']    ?? -1;
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
-            '<a class="go_home" href="' . $this->core->adminurl->get('admin.home') . '"><img src="style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
+            '<a class="go_home" href="' . $this->core->adminurl->get('admin.home') . '"><img src="?df=style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
             '<img src="style/dashboard-alt.png" alt="" />');
         $index = 0;
         if ($hl_pos < 0) {
@@ -676,9 +676,9 @@ class Page
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$preloaded[$escaped_src])) {
             self::$preloaded[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion($escaped_src, $v);
+            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
 
-            return '<link rel="preload" href="?df=' . $escaped_src . '" as="' . $type . '" />' . "\n";
+            return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
         }
 
         return '';
@@ -701,9 +701,9 @@ class Page
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$loaded_css[$escaped_src])) {
             self::$loaded_css[$escaped_src] = true;
-            $escaped_src                    = self::appendVersion($escaped_src, $v);
+            $escaped_src                    = self::appendVersion('?df=' . $escaped_src, $v);
 
-            return '<link rel="stylesheet" href="?df=' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
+            return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
         }
 
         return '';
@@ -725,9 +725,9 @@ class Page
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$loaded_js[$escaped_src])) {
             self::$loaded_js[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion($escaped_src, $v);
+            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
 
-            return '<script src="?df=' . $escaped_src . '"></script>' . "\n";
+            return '<script src="' . $escaped_src . '"></script>' . "\n";
         }
 
         return '';
@@ -813,22 +813,22 @@ class Page
         $js = [
             'nonce' => $this->core->getNonce(),
 
-            'img_plus_src' => 'images/expand.png',
+            'img_plus_src' => '?df=images/expand.png',
             'img_plus_txt' => '▶',
             'img_plus_alt' => __('uncover'),
 
-            'img_minus_src' => 'images/hide.png',
+            'img_minus_src' => '?df=images/hide.png',
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
 
-            'img_menu_on'  => 'images/menu_on.png',
-            'img_menu_off' => 'images/menu_off.png',
+            'img_menu_on'  => '?df=images/menu_on.png',
+            'img_menu_off' => '?df=images/menu_off.png',
 
-            'img_plus_theme_src' => 'images/plus-theme.png',
+            'img_plus_theme_src' => '?df=images/plus-theme.png',
             'img_plus_theme_txt' => '▶',
             'img_plus_theme_alt' => __('uncover'),
 
-            'img_minus_theme_src' => 'images/minus-theme.png',
+            'img_minus_theme_src' => '?df=images/minus-theme.png',
             'img_minus_theme_txt' => '▼',
             'img_minus_theme_alt' => __('hide'),
 

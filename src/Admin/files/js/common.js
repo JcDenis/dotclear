@@ -486,7 +486,7 @@ dotclear.outgoingLinks = (target) => {
     .each(function () {
       $(this).prop('title', `${$(this).prop('title')} (${dotclear.msg.new_window})`);
       if (!$(this).hasClass('outgoing')) {
-        $(this).append('&nbsp;<img class="outgoing-js" src="images/outgoing-link.svg" alt=""/>');
+        $(this).append('&nbsp;<img class="outgoing-js" src="?df=images/outgoing-link.svg" alt=""/>');
       }
     })
     .on('click', function (e) {
