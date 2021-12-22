@@ -180,10 +180,12 @@ class L10n
         } elseif (($tmp = self::getPoFile($po_file)) !== false) {
             $GLOBALS['__l10n_files'][] = $po_file;
             $GLOBALS['__l10n']         = $tmp + $GLOBALS['__l10n']; // "+" erase numeric keys unlike array_merge
+/*
+        // lang.php file are trully deprecated
         } elseif (($tmp = self::getLangFile($lang_file)) !== false) {
             $GLOBALS['__l10n_files'][] = $lang_file;
             $GLOBALS['__l10n']         = $tmp + $GLOBALS['__l10n']; // "+" erase numeric keys unlike array_merge
-        } else {
+*/        } else {
             return false;
         }
 
