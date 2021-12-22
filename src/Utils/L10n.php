@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils {
 
+use Dotclear\Exception\DeprecatedException;
+
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
@@ -213,6 +215,8 @@ class L10n
     /** @deprecated */
     public static function getLangFile(string $file)
     {
+        DeprecatedException::throw();
+
         if (!file_exists($file)) {
             return false;
         }
@@ -767,6 +771,8 @@ class L10n
      */
     public static function getTextDirection(string $lang): string
     {
+        DeprecatedException::throw();
+
         return self::getLanguageTextDirection($lang);
     }
 

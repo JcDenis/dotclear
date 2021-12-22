@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Exception\CoreException;
+use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
@@ -164,6 +165,8 @@ class Utils
      */
     public static function jsVars(array $vars): string
     {
+        DeprecatedException::throw();
+
         $ret = '<script>' . "\n";
         foreach ($vars as $var => $value) {
             $ret .= 'var ' . $var . ' = ' . (is_string($value) ? '"' . Html::escapeJS($value) . '"' : $value) . ';' . "\n";
@@ -185,6 +188,8 @@ class Utils
      */
     public static function jsVar(string $n, mixed $v): string
     {
+        DeprecatedException::throw();
+
         return Utils::jsVars([$n => $v]);
     }
 

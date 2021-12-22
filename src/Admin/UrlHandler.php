@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin;
 
 use Dotclear\Exception\AdminException;
+use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Core\Core;
 
@@ -175,6 +176,8 @@ class UrlHandler
      */
     public function decode($name, $params = [], $separator = '&')
     {
+        DeprecatedException::throw();
+
         return urldecode($this->get($name, $params, $separator));
     }
 
