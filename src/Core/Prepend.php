@@ -26,6 +26,7 @@ use Dotclear\Html\Html;
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Autoloader;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -33,7 +34,10 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
-    /** @var string Process */
+    /** @var string Autoloader */
+    public $autoloader;
+
+    /** @var Autoloader Process */
     protected $process;
 
     /**
@@ -43,6 +47,11 @@ class Prepend extends Core
      */
     public function __construct()
     {
+        /* add autoloader (for plugins and themes) */
+        if (!$this->autoloader) {
+            $this->autoloader = new Autoloader('', '', true);
+        }
+
         /* add rcustom regs */
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
