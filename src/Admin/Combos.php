@@ -1,23 +1,36 @@
 <?php
 /**
- * @package Dotclear
- * @subpackage Backend
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-/**
+ * @class Dotclear\Admin\Combos
  * @brief Admin combo library
  *
  * Dotclear utility class that provides reuseable combos across all admin
  * form::combo -compatible format
+ *
+ * @package Dotclear
+ * @subpackage Admin
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
  */
-class dcAdminCombos
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\Utils;
+
+use Dotclear\Utils\L10n;
+use Dotclear\Utils\Dt;
+use Dotclear\Html\Html;
+use Dotclear\Html\FormSelectOption;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
+
+class Combos
 {
-    /** @var dcCore dcCore instance */
+    /** @var Core Core instance */
     public static $core;
 
     /**
@@ -33,12 +46,12 @@ class dcAdminCombos
     {
         $categories_combo = [];
         if ($include_empty) {
-            $categories_combo = [new formSelectOption(__('(No cat)'), '')];
+            $categories_combo = [new FormSelectOption(__('(No cat)'), '')];
         }
         while ($categories->fetch()) {
-            $categories_combo[] = new formSelectOption(
+            $categories_combo[] = new FormSelectOption(
                 str_repeat('&nbsp;', ($categories->level - 1) * 4) .
-                html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')',
+                Html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')',
                 ($use_url ? $categories->cat_url : $categories->cat_id),
                 ($categories->level - 1 ? 'sub-option' . ($categories->level - 1) : '')
             );
@@ -73,7 +86,7 @@ class dcAdminCombos
     {
         $users_combo = [];
         while ($users->fetch()) {
-            $user_cn = dcUtils::getUserCN($users->user_id, $users->user_name,
+            $user_cn = Utils::getUserCN($users->user_id, $users->user_name,
                 $users->user_firstname, $users->user_displayname);
 
             if ($user_cn != $users->user_id) {
@@ -97,7 +110,7 @@ class dcAdminCombos
     {
         $dt_m_combo = [];
         while ($dates->fetch()) {
-            $dt_m_combo[dt::str('%B %Y', $dates->ts())] = $dates->year() . $dates->month();
+            $dt_m_combo[Dt::str('%B %Y', $dates->ts())] = $dates->year() . $dates->month();
         }
 
         return $dt_m_combo;
@@ -114,9 +127,9 @@ class dcAdminCombos
      */
     public static function getLangsCombo($langs, $with_available = false)
     {
-        $all_langs = l10n::getISOcodes(false, true);
+        $all_langs = L10n::getISOcodes(false, true);
         if ($with_available) {
-            $langs_combo = ['' => '', __('Most used') => [], __('Available') => l10n::getISOcodes(true, true)];
+            $langs_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($langs->fetch()) {
                 if (isset($all_langs[$langs->post_lang])) {
                     $langs_combo[__('Most used')][$all_langs[$langs->post_lang]] = $langs->post_lang;
@@ -145,10 +158,10 @@ class dcAdminCombos
     public static function getAdminLangsCombo()
     {
         $lang_combo = [];
-        $langs      = l10n::getISOcodes(true, true);
+        $langs      = L10n::getISOcodes(true, true);
         foreach ($langs as $k => $v) {
             $lang_avail   = $v == 'en' || is_dir(DC_L10N_ROOT . '/' . $v);
-            $lang_combo[] = new formSelectOption($k, $v, $lang_avail ? 'avail10n' : '');
+            $lang_combo[] = new FormSelectOption($k, $v, $lang_avail ? 'avail10n' : '');
         }
 
         return $lang_combo;
@@ -300,7 +313,3 @@ class dcAdminCombos
         return $sortby_combo;
     }
 }
-/*
- * Store current dcCore instance
- */
-dcAdminCombos::$core = $GLOBALS['core'];

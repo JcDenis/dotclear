@@ -19,9 +19,11 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Prepend as CorePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
-Use Dotclear\Core\Notices;
+Use Dotclear\Core\Notices as CoreNotices;
 
-Use Dotclear\Admin\Notices as AdminNotices;
+Use Dotclear\Admin\Notices;
+Use Dotclear\Admin\Combos;
+Use Dotclear\Admin\UserPref;
 
 use Dotclear\Utils\L10n;
 use Dotclear\File\Path;
@@ -56,21 +58,22 @@ class Prepend extends CorePrepend
 
     public function __construct()
     {
-        /* Serve admin file (css, png, ...) */
+        # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
             Utils::fileServer([static::root('Admin', 'files')], 'df');
             exit;
         }
 
+        # Load core prepend and so on
         parent::__construct();
 
-        /* Serve var file */
+        # Serve var file
         if (!empty($_GET['vf'])) {
             Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
             exit;
         }
 
-        /* Serve plugin file */
+        # Serve plugin file
         if (!empty($_GET['pf'])) {
             $paths = array_reverse(explode(PATH_SEPARATOR, DOTCLEAR_PLUGINS_DIR));
             $paths[] = static::root('Core', 'files', 'js');
@@ -79,33 +82,33 @@ class Prepend extends CorePrepend
             exit;
         }
 
-        // HTTP/1.1
+        # Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); # HTTP/1.1
+        header('Pragma: no-cache'); # HTTP/1.0
 
-        // HTTP/1.0
-        header('Pragma: no-cache');
-
+        # Register default admin URLs
         $this->adminLoadURL();
 
-        /* csp report do not need extra stuff */
+        # csp report do not need extra stuff
         if ($this->adminurl->called() == 'admin.cspreport') {
             $this->adminLoadPage();
             exit;
         }
 
+        # Check user session
         $this->adminLoadSession();
 
-        /* no user session, go auth */
-        if (!$this->auth->userID() || $this->blog === null) {
-            if ($this->adminurl->called() != 'admin.auth') {
-                $this->adminurl->redirect('admin.auth');
-                exit;
-            }
-        } else {
+        # User session exists
+        if (!empty($this->auth->userID()) && $this->blog !== null) {
+
+            # Load resources
             $this->adminLoadRessources();
+
+            # Load sidebar menu
             $this->adminLoadMenu();
 
+            # Set jquery stuff
             if (empty($this->blog->settings->system->jquery_migrate_mute)) {
                 $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
             }
@@ -116,10 +119,21 @@ class Prepend extends CorePrepend
             # Ensure theme's settings namespace exists
             $this->blog->settings->addNamespace('themes');
 
-            # Admin behaviors
+            # add some behaviors
             $this->addBehavior('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
+
+        # No user session and not on auth page, go on
+        } elseif ($this->adminurl->called() != 'admin.auth') {
+            $this->adminurl->redirect('admin.auth');
+            exit;
         }
 
+        # Overload static core
+        Notices::$core  = $this;
+        UserPref::$core = $this;
+        Combos::$core   = $this;
+
+        # Load requested admin page
         $this->adminLoadPage();
     }
 
@@ -202,7 +216,7 @@ class Prepend extends CorePrepend
                     $this->adminurl->redirect('admin.auth');
                     exit;
                 }
-            } catch (Exception $e) { //DatabaseException?
+            } catch (Exception $e) { #DatabaseException?
                 static::error(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 
@@ -230,7 +244,7 @@ class Prepend extends CorePrepend
                     # Keep context as far as possible
                     $redir = $_REQUEST['redir'];
                 } else {
-                    # Removing switchblog from URL
+                # Removing switchblog from URL
                     $redir = $_SERVER['REQUEST_URI'];
                     $redir = preg_replace('/switchblog=(.*?)(&|$)/', '', $redir);
                     $redir = preg_replace('/\?$/', '', $redir);
@@ -278,7 +292,7 @@ class Prepend extends CorePrepend
         l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
         l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
 
-        // Set lexical lang
+        # Set lexical lang
         Utils::setlexicalLang('admin', $this->_lang);
     }
 
@@ -286,7 +300,7 @@ class Prepend extends CorePrepend
     {
         $this->adminGetLang();
 
-        /* for now keep old ressources files "as is" */
+        # for now keep old ressources files "as is"
         $_lang        = $this->_lang;
         $__resources = $this->_resources;
 
@@ -305,7 +319,7 @@ class Prepend extends CorePrepend
         }
         unset($hfiles);
 
-        // Contextual help flag
+        # Contextual help flag
         $__resources['ctxhelp'] = false;
 
         $this->_resources = $__resources;
@@ -313,10 +327,8 @@ class Prepend extends CorePrepend
 
     private function adminGetLang(): void
     {
-        $_lang = $this->auth->getInfo('user_lang') ?? 'en';
-        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
-
-        $this->_lang = $_lang;
+        $_lang       = $this->auth->getInfo('user_lang') ?? 'en';
+        $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
     }
 
     private function adminLoadMenu(): void
@@ -327,7 +339,7 @@ class Prepend extends CorePrepend
         $this->auth->user_prefs->addWorkspace('interface');
         $user_ui_nofavmenu = $this->auth->user_prefs->interface->nofavmenu;
 
-        $this->notices = new Notices($this);
+        $this->notices = new CoreNotices($this);
         $this->favs    = new Favorites($this);
 
         # Menus creation
@@ -351,6 +363,7 @@ class Prepend extends CorePrepend
         $_menu['Blog']->title    = __('Blog');
         $_menu['Plugins']->title = __('Plugins');
 
+        # add fefault items to menu
         $this->addMenuItem($_menu, 'Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png',
             $this->auth->check('admin', $this->blog->id));
         $this->addMenuItem($_menu, 'Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
@@ -392,8 +405,6 @@ class Prepend extends CorePrepend
 
     private function adminLoadPage(?string $page = null): void
     {
-        AdminNotices::$core = $this;
-
         if ($page === null) {
             $page = $_REQUEST['handler'] ?? 'admin.home';
         }

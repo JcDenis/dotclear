@@ -1,29 +1,39 @@
 <?php
 /**
- * @package Dotclear
- * @subpackage Backend
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-/**
+ * @class Dotclear\Admin\Menu
  * @brief Admin user preference library
  *
  * Dotclear utility class that provides reuseable user preference
  * across all admin page with lists and filters
+ *
+ * @package Dotclear
+ * @subpackage Admin
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
  */
-class adminUserPref
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\Utils;
+
+use Dotclear\Admin\Combos;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
+
+class UserPref
 {
-    /** @var dcCore core instance */
+    /** @var Core core instance */
     public static $core;
 
-    /** @var arrayObject columns preferences */
+    /** @var \ArrayObject columns preferences */
     protected static $cols = null;
 
-    /** @var arrayObject sorts filters preferences*/
+    /** @var \ArrayObject sorts filters preferences*/
     protected static $sorts = null;
 
     public static function getDefaultColumns()
@@ -41,14 +51,14 @@ class adminUserPref
     {
         # Get default colums (admin lists)
         $cols = self::getDefaultColumns();
-        $cols = new arrayObject($cols);
+        $cols = new \ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        self::$core->callBehavior('adminColumnsLists', self::$core, $cols);
+        self::$core->callBehavior('adminColumnsLists', $cols);
 
         # Load user settings
         $cols_user = @self::$core->auth->user_prefs->interface->cols;
-        if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
+        if (is_array($cols_user) || $cols_user instanceof \ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
                     if (isset($cols[$ct][1][$cn])) {
@@ -78,7 +88,7 @@ class adminUserPref
         if (self::$core->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
-                dcAdminCombos::getUsersSortbyCombo(),
+                Combos::getUsersSortbyCombo(),
                 'user_id',
                 'asc',
                 [__('users per page'), 30]
@@ -88,21 +98,21 @@ class adminUserPref
         return [
             'posts' => [
                 __('Posts'),
-                dcAdminCombos::getPostsSortbyCombo(),
+                Combos::getPostsSortbyCombo(),
                 'post_dt',
                 'desc',
                 [__('entries per page'), 30]
             ],
             'comments' => [
                 __('Comments'),
-                dcAdminCombos::getCommentsSortbyCombo(),
+                Combos::getCommentsSortbyCombo(),
                 'comment_dt',
                 'desc',
                 [__('comments per page'), 30]
             ],
             'blogs' => [
                 __('Blogs'),
-                dcAdminCombos::getBlogsSortbyCombo(),
+                Combos::getBlogsSortbyCombo(),
                 'blog_upddt',
                 'desc',
                 [__('blogs per page'), 30]
@@ -139,10 +149,10 @@ class adminUserPref
     {
         if (self::$sorts === null) {
             $sorts = self::getDefaultFilters();
-            $sorts = new arrayObject($sorts);
+            $sorts = new \ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            self::$core->callBehavior('adminFiltersLists', self::$core, $sorts);
+            self::$core->callBehavior('adminFiltersLists', $sorts);
 
             if (self::$core->auth->user_prefs->interface === null) {
                 self::$core->auth->user_prefs->addWorkspace('interface');
@@ -187,7 +197,3 @@ class adminUserPref
         return null;
     }
 }
-/*
- * Store current dcCore instance
- */
-adminUserPref::$core = $GLOBALS['core'];
