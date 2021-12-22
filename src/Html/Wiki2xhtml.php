@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Wiki2xhtml
+ * @class Dotclear\Html\Wiki2xhtml
  * @brief wiki to xhtml
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Html;
 
 /*
 Contributor(s):

@@ -22,7 +22,7 @@ use Dotclear\Admin\Page;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Form;
-use Dotclear\Utils\Files;
+use Dotclear\File\Files;
 use Dotclear\Html\Html;
 use Dotclear\File\Zip\Unzip;
 use Dotclear\Network\Feed\Reader;

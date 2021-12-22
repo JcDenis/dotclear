@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Files
+ * @class Dotclear\File\Files
  * @brief Basic files handling tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\File;
 
 use Dotclear\Exception\UtilsException;
 

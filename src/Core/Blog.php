@@ -19,7 +19,7 @@ use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
-use Dotclear\Utils\Path;
+use Dotclear\File\Path;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Text;
 

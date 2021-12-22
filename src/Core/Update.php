@@ -15,7 +15,7 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Files;
+use Dotclear\File\Files;
 use Dotclear\Network\Http;
 
 use Dotclear\File\Zip\Zip;

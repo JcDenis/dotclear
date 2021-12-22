@@ -18,8 +18,8 @@ namespace Dotclear\File\Manager;
 use Dotclear\Exception;
 use Dotclear\Exception\FileException;
 
-use Dotclear\Utils\Path;
-use Dotclear\Utils\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

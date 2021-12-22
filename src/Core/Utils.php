@@ -16,8 +16,8 @@ use Dotclear\Exception\CoreException;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Utils\Files;
-use Dotclear\Utils\Path;
+use Dotclear\File\Files;
+use Dotclear\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

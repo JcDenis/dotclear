@@ -24,7 +24,7 @@ use Dotclear\Utils\Dt;
 use Dotclear\Network\Http;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Crypt;
-use Dotclear\Utils\Files;
+use Dotclear\File\Files;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Autoloader;
 

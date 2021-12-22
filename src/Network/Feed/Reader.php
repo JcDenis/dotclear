@@ -23,7 +23,7 @@ namespace Dotclear\Network\Feed;
 
 use Dotclear\Exception;
 
-use Dotclear\Utils\Files;
+use Dotclear\File\Files;
 
 use Dotclear\Network\NetHttp\NetHttp;
 

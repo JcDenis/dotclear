@@ -18,10 +18,10 @@ use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Utils\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Files;
 use Dotclear\Utils\Text;
-use Dotclear\Utils\Wiki2xhtml;
+use Dotclear\File\Files;
+use Dotclear\Html\Html;
+use Dotclear\Html\Wiki2xhtml;
 use Dotclear\Html\HtmlFilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {

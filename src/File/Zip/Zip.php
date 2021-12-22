@@ -18,7 +18,7 @@ namespace Dotclear\File\Zip;
 use Dotclear\Exception;
 use Dotclear\Exception\FileException;
 
-use Dotclear\Utils\Files;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

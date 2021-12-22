@@ -23,8 +23,8 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
 
-use Dotclear\Utils\Path;
-use Dotclear\Utils\files;
+use Dotclear\File\Path;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

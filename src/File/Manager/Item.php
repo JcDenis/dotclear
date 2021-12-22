@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\File\Manager;
 
-use Dotclear\Utils\Path;
-use Dotclear\Utils\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

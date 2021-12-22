@@ -24,8 +24,8 @@ Use Dotclear\Core\Notices;
 Use Dotclear\Admin\Notices as AdminNotices;
 
 use Dotclear\Utils\L10n;
-use Dotclear\Utils\Path;
-use Dotclear\Utils\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Files;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {

@@ -19,8 +19,8 @@ use Dotclear\Exception\DistribException;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Utils\Files;
-use Dotclear\Utils\Path;
+use Dotclear\File\Files;
+use Dotclear\File\Path;
 
 use Dotclear\Database\Structure;
 use Dotclear\Database\Schema;

@@ -20,8 +20,8 @@ use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Form;
-use Dotclear\Utils\Path;
-use Dotclear\Utils\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
