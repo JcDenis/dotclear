@@ -215,7 +215,7 @@ class Page
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (L10n::getTextDirection($this->core->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection($this->core->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
