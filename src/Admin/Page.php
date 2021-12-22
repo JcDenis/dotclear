@@ -359,7 +359,7 @@ class Page
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
 
         # --BEHAVIOR-- adminPageFooter
-        $textAlt = $this->core->callBehavior('adminPageFooter', $this->core, $text);
+        $textAlt = $this->core->callBehavior('adminPageFooter', $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }

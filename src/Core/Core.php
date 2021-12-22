@@ -485,6 +485,8 @@ class Core
     {
         if (isset($this->behaviors[$behavior])) {
             $res = '';
+            /* add core instance to every call */
+            array_unshift($this, $args);
 
             foreach ($this->behaviors[$behavior] as $f) {
                 $res .= call_user_func_array($f, $args);

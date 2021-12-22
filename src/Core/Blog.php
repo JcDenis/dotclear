@@ -1032,7 +1032,7 @@ class Blog
             if (!empty($words)) {
                 # --BEHAVIOR-- corePostSearch
                 if ($this->core->hasBehavior('corePostSearch')) {
-                    $this->core->callBehavior('corePostSearch', $this->core, [&$words, &$strReq, &$params]);
+                    $this->core->callBehavior('corePostSearch', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -2202,7 +2202,7 @@ class Blog
             if (!empty($words)) {
                 # --BEHAVIOR coreCommentSearch
                 if ($this->core->hasBehavior('coreCommentSearch')) {
-                    $this->core->callBehavior('coreCommentSearch', $this->core, [&$words, &$strReq, &$params]);
+                    $this->core->callBehavior('coreCommentSearch', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {

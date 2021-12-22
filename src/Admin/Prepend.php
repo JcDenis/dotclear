@@ -117,7 +117,7 @@ class Prepend extends CorePrepend
             $this->blog->settings->addNamespace('themes');
 
             # Admin behaviors
-            //$this->addBehavior('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
+            $this->addBehavior('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
         }
 
         $this->adminLoadPage();

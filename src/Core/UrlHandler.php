@@ -93,7 +93,7 @@ class UrlHandler extends BaseUrlHandler
         echo $core->tpl->getData($_ctx->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
-        $core->callBehavior('publicAfterDocument', $core);
+        $core->callBehavior('publicAfterDocument');
         exit;
     }
 
@@ -729,7 +729,7 @@ class UrlHandler extends BaseUrlHandler
         $args['type'] = 'webmention';
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        $core->callBehavior('publicBeforeReceiveTrackback', $core, $args);
+        $core->callBehavior('publicBeforeReceiveTrackback', $args);
 
         $tb = new dcTrackback($core);
         $tb->receiveWebmention();

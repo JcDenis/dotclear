@@ -185,7 +185,7 @@ class RestMethods
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
-            $core->callBehavior('restCheckStoreUpdate', $core, $post['store'], [& $mod], [& $url]);
+            $core->callBehavior('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
                 throw new AdminException('Unknown store type');

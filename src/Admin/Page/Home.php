@@ -124,11 +124,11 @@ class Home extends Page
             }
         }
 
-        $this->core->callBehavior('adminDashboardItems', $this->core, $__dashboard_items);
+        $this->core->callBehavior('adminDashboardItems', $__dashboard_items);
 
         # Dashboard content
         $__dashboard_contents = new \ArrayObject([new \ArrayObject, new \ArrayObject]);
-        $this->core->callBehavior('adminDashboardContents', $this->core, $__dashboard_contents);
+        $this->core->callBehavior('adminDashboardContents', $__dashboard_contents);
 
         # Editor stuff
         $admin_post_behavior = '';
