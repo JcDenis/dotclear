@@ -143,7 +143,7 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.comments', 'comments.php');
         $this->adminurl->register('admin.comment', 'comment.php');
         $this->adminurl->register('admin.help', $d . 'Help');
-        $this->adminurl->register('admin.langs', 'langs.php');
+        $this->adminurl->register('admin.langs', $d .'Langs');
         $this->adminurl->register('admin.media', 'media.php');
         $this->adminurl->register('admin.media.item', 'media_item.php');
         $this->adminurl->register('admin.plugins', 'plugins.php');
