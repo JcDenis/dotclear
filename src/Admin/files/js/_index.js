@@ -6,7 +6,7 @@ dotclear.dbCommentsCount = () => {
     f: 'getCommentsCount',
     xd_check: dotclear.nonce,
   };
-  $.get('services.php', params, (data) => {
+  $.get('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length > 0) {
       // For debugging purpose only:
       // console.log($('rsp',data).attr('message'));
@@ -34,7 +34,7 @@ dotclear.dbPostsCount = () => {
     f: 'getPostsCount',
     xd_check: dotclear.nonce,
   };
-  $.get('services.php', params, (data) => {
+  $.get('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length > 0) {
       // For debugging purpose only:
       // console.log($('rsp',data).attr('message'));
@@ -63,7 +63,7 @@ dotclear.dbStoreUpdate = (store, icon, image) => {
     xd_check: dotclear.nonce,
     store,
   };
-  $.post('services.php', params, (data) => {
+  $.post('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length === 0 && $('rsp>update', data).attr('check') == 1) {
       // Something has to be displayed
       const xml = $('rsp>update', data).attr('ret');
@@ -115,7 +115,7 @@ $(() => {
 
     $('p.qinfo', f).remove();
 
-    $.post('services.php', params, (data) => {
+    $.post('?handler=admin.services', params, (data) => {
       let msg;
       if ($('rsp[status=failed]', data).length > 0) {
         msg = `<p class="qinfo"><strong>${dotclear.msg.error}</strong> ${$('rsp', data).text()}</p>`;
@@ -186,7 +186,7 @@ $(() => {
     f: 'checkCoreUpdate',
     xd_check: dotclear.nonce,
   };
-  $.post('services.php', params, (data) => {
+  $.post('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length === 0 && $('rsp>update', data).attr('check') == 1) {
       // Something has to be displayed
       const xml = $('rsp>update', data).attr('ret');
@@ -211,7 +211,7 @@ $(() => {
     f: 'checkNewsUpdate',
     xd_check: dotclear.nonce,
   };
-  $.post('services.php', params, (data) => {
+  $.post('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length === 0 && $('rsp>news', data).attr('check') == 1) {
       // Something has to be displayed
       const xml = $('rsp>news', data).attr('ret');
@@ -258,7 +258,7 @@ $(() => {
         id,
         list,
       };
-      $.post('services.php', params, () => {});
+      $.post('?handler=admin.services', params, () => {});
     };
     const init_positions = (sel, id) => {
       $(sel).sortable({

@@ -147,7 +147,7 @@ jQuery.fn.toggleWithLegend = function (target, s) {
     $(ctarget).on('click', (e) => {
       if (p.user_pref && set_user_pref) {
         jQuery.post(
-          'services.php',
+          '?handler=admin.services',
           {
             f: 'setSectionFold',
             section: p.user_pref,
@@ -358,7 +358,7 @@ dotclear.hideLockable = () => {
         this.disabled = true;
         $(this).width(`${$(this).width() - 14}px`);
         const imgE = document.createElement('img');
-        imgE.src = 'images/locker.png';
+        imgE.src = '?df=images/locker.png';
         imgE.style.position = 'absolute';
         imgE.style.top = '1.8em';
         imgE.style.left = `${$(this).width() + 14}px`;
@@ -802,7 +802,7 @@ $(() => {
   $('p.success,p.warning,p.error,div.error').each(function () {
     $(this).addClass('close-notice-parent');
     $(this).append(
-      `<button class="close-notice" type="button"><img src="images/close.png" alt="${dotclear.msg.close_notice}" /></button>`,
+      `<button class="close-notice" type="button"><img src="?df=images/close.png" alt="${dotclear.msg.close_notice}" /></button>`,
     );
   });
   $('button.close-notice').on('click', function (e) {

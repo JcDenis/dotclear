@@ -7,7 +7,7 @@
  * @copyright GPL-2.0-only
  */
 
-if (!defined('DC_RC_PATH')) {return;}
+if (!defined('DOTCLEAR_ROOT_DIR')) {return;}
 
 $__resources['rss_news'] = 'https://fr.dotclear.org/blog/feed/category/News/atom';
 

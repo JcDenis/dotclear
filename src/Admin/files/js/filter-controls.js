@@ -62,7 +62,7 @@ $(() => {
       order: $('#order').val(),
       nb: $('#nb').val(),
     };
-    $.post('services.php', param)
+    $.post('?handler=admin.services', param)
       .done((data) => {
         const rsp = $(data).children('rsp')[0];
         if (rsp) {

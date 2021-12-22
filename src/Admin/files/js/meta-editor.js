@@ -19,7 +19,7 @@ class metaEditor {
     this.submit_button = null;
     this.post_id = false;
 
-    this.service_uri = 'services.php';
+    this.service_uri = '?handler=admin.services';
   }
 
   displayMeta(type, post_id, input_id = 'post_meta_input') {

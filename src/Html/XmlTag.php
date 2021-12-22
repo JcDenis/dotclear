@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Utils\XmlTag
- * @brief XML Tag
+ * @class Dotclear\Html\XmlTag
+ * @brief XML tree
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Html
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -110,7 +110,7 @@ class XmlTag
      * This method adds a new XML node. Node could be a instance of xmlTag, an
      * array of valid values, a boolean or a string.
      *
-     * @param xmlTag|array|boolean|string    $node    Node value
+     * @param XmlTag|array|boolean|string    $node    Node value
      */
     public function insertNode($node = null)
     {
@@ -151,14 +151,14 @@ class XmlTag
         $res = $attr = $content = '';
 
         foreach ($this->_attr as $k => $v) {
-            $attr .= ' ' . $k . '="' . htmlspecialchars($v, ENT_QUOTES, $encoding) . '"';
+            $attr .= ' ' . $k . '="' . htmlspecialchars((string) $v, ENT_QUOTES, $encoding) . '"';
         }
 
         foreach ($this->_nodes as $node) {
             if ($node instanceof self) {
                 $content .= $node->toXML();
             } else {
-                $content .= htmlspecialchars($node, ENT_QUOTES, $encoding);
+                $content .= htmlspecialchars((string) $node, ENT_QUOTES, $encoding);
             }
         }
 

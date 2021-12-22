@@ -14,7 +14,7 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 
-use Dotclear\Utils\XmlTag;
+use Dotclear\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -91,7 +91,7 @@ class RestServer
 
         if (!isset($this->functions[$_REQUEST['f']])) {
             $this->rsp->status = 'failed';
-            $this->rsp->message('Function does not exist');
+            $this->rsp->message('Function does not exist' . $_REQUEST['f']);
             $this->getXML($encoding);
 
             return false;

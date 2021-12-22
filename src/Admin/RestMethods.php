@@ -1,43 +1,39 @@
 <?php
 /**
+ * @class Dotclear\Admin\RestMethods
+ * @brief Dotclear common admin REST methods
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @var dcCore $core
  */
-require dirname(__FILE__) . '/../inc/admin/prepend.php';
+declare(strict_types=1);
 
-$core->rest->addFunction('getPostsCount', ['dcRestMethods', 'getPostsCount']);
-$core->rest->addFunction('getCommentsCount', ['dcRestMethods', 'getCommentsCount']);
-$core->rest->addFunction('checkNewsUpdate', ['dcRestMethods', 'checkNewsUpdate']);
-$core->rest->addFunction('checkCoreUpdate', ['dcRestMethods', 'checkCoreUpdate']);
-$core->rest->addFunction('checkStoreUpdate', ['dcRestMethods', 'checkStoreUpdate']);
-$core->rest->addFunction('getPostById', ['dcRestMethods', 'getPostById']);
-$core->rest->addFunction('getCommentById', ['dcRestMethods', 'getCommentById']);
-$core->rest->addFunction('quickPost', ['dcRestMethods', 'quickPost']);
-$core->rest->addFunction('validatePostMarkup', ['dcRestMethods', 'validatePostMarkup']);
-$core->rest->addFunction('getZipMediaContent', ['dcRestMethods', 'getZipMediaContent']);
-$core->rest->addFunction('getMeta', ['dcRestMethods', 'getMeta']);
-$core->rest->addFunction('delMeta', ['dcRestMethods', 'delMeta']);
-$core->rest->addFunction('setPostMeta', ['dcRestMethods', 'setPostMeta']);
-$core->rest->addFunction('searchMeta', ['dcRestMethods', 'searchMeta']);
-$core->rest->addFunction('setSectionFold', ['dcRestMethods', 'setSectionFold']);
-$core->rest->addFunction('getModuleById', ['dcRestMethods', 'getModuleById']);
-$core->rest->addFunction('setDashboardPositions', ['dcRestMethods', 'setDashboardPositions']);
-$core->rest->addFunction('setListsOptions', ['dcRestMethods', 'setListsOptions']);
+namespace Dotclear\Admin;
 
-$core->rest->serve();
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException;
 
-/* Common REST methods */
-class dcRestMethods
+use Dotclear\Core\Core;
+use Dotclear\Core\Update;
+
+use Dotclear\Utils\Html;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\Text;
+
+use Dotclear\Html\Validator;
+use Dotclear\Html\XmlTag;
+
+use Dotclear\Network\Feed\Reader;
+
+class RestMethods
 {
     /**
      * Serve method to get number of posts (whatever are their status) for current blog.
      *
-     * @param     dcCore  $core     dcCore instance
+     * @param     Core  $core     Core instance
      * @param     array   $get     cleaned $_GET
      */
     public static function getPostsCount($core, $get)
@@ -45,7 +41,7 @@ class dcRestMethods
         $count = $core->blog->getPosts([], true)->f(0);
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
-        $rsp      = new xmlTag('count');
+        $rsp      = new XmlTag('count');
         $rsp->ret = $str;
 
         return $rsp;
@@ -54,7 +50,7 @@ class dcRestMethods
     /**
      * Serve method to get number of comments (whatever are their status) for current blog.
      *
-     * @param     dcCore  $core     dcCore instance
+     * @param     Core  $core     Core instance
      * @param     array   $get     cleaned $_GET
      */
     public static function getCommentsCount($core, $get)
@@ -62,7 +58,7 @@ class dcRestMethods
         $count = $core->blog->getComments([], true)->f(0);
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
-        $rsp      = new xmlTag('count');
+        $rsp      = new XmlTag('count');
         $rsp->ret = $str;
 
         return $rsp;
@@ -72,20 +68,20 @@ class dcRestMethods
     {
         # Dotclear news
 
-        $rsp        = new xmlTag('news');
+        $rsp        = new XmlTag('news');
         $rsp->check = false;
         $ret        = __('Dotclear news not available');
 
         if ($core->auth->user_prefs->dashboard->dcnews) {
             try {
-                if (empty($GLOBALS['__resources']['rss_news'])) {
-                    throw new Exception();
+                if (empty($core->_resources['rss_news'])) {
+                    throw new AdminException();
                 }
-                $feed_reader = new feedReader();
-                $feed_reader->setCacheDir(DC_TPL_CACHE);
+                $feed_reader = new Reader();
+                $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
-                $feed = $feed_reader->parse($GLOBALS['__resources']['rss_news']);
+                $feed = $feed_reader->parse($core->_resources['rss_news']);
                 if ($feed) {
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;
@@ -93,10 +89,10 @@ class dcRestMethods
                         /* @phpstan-ignore-next-line */
                         $dt = isset($item->link) ? '<a href="' . $item->link . '" class="outgoing" title="' . $item->title . '">' .
                         /* @phpstan-ignore-next-line */
-                        $item->title . ' <img src="images/outgoing-link.svg" alt="" /></a>' : $item->title;
+                        $item->title . ' <img src="?df=images/outgoing-link.svg" alt="" /></a>' : $item->title;
                         $ret .= '<dt>' . $dt . '</dt>' .
-                        '<dd><p><strong>' . dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
-                        '<em>' . text::cutString(html::clean($item->content), 120) . '...</em></p></dd>';
+                        '<dd><p><strong>' . Dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
+                        '<em>' . Text::cutString(Html::clean($item->content), 120) . '...</em></p></dd>';
                         $i++;
                         if ($i > 2) {
                             break;
@@ -117,14 +113,14 @@ class dcRestMethods
     {
         # Dotclear updates notifications
 
-        $rsp        = new xmlTag('update');
+        $rsp        = new XmlTag('update');
         $rsp->check = false;
         $ret        = __('Dotclear update not available');
 
         /* @phpstan-ignore-next-line */
-        if ($core->auth->isSuperAdmin() && !DC_NOT_UPDATE && is_readable(DC_DIGESTS) && !$core->auth->user_prefs->dashboard->nodcupdate) {
-            $updater      = new dcUpdate(DC_UPDATE_URL, 'dotclear', DC_UPDATE_VERSION, DC_TPL_CACHE . '/versions');
-            $new_v        = $updater->check(DC_VERSION);
+        if ($core->auth->isSuperAdmin() && !DOTCLEAR_NOT_UPDATE && is_readable(DOTCLEAR_DIGESTS_DIR) && !$core->auth->user_prefs->dashboard->nodcupdate) {
+            $updater      = new Update(DOTCLEAR_UPDATE_URL, 'dotclear', DOTCLEAR_UPDATE_VERSION, DOTCLEAR_CACHE_DIR . '/versions');
+            $new_v        = $updater->check(DOTCLEAR_VERSION);
             $version_info = $new_v ? $updater->getInfoURL() : '';
 
             if ($updater->getNotify() && $new_v) {
@@ -147,12 +143,12 @@ class dcRestMethods
                 }
                 $rsp->check = true;
             } else {
-                if (version_compare(phpversion(), DC_NEXT_REQUIRED_PHP, '<')) {
+                if (version_compare(phpversion(), DOTCLEAR_NEXT_REQUIRED_PHP, '<')) {
                     if (!$core->auth->user_prefs->interface->hidemoreinfo) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                            DC_NEXT_REQUIRED_PHP,
+                            DOTCLEAR_NEXT_REQUIRED_PHP,
                             phpversion()
                         ) .
                         '</p>';
@@ -170,7 +166,7 @@ class dcRestMethods
     {
         # Dotclear store updates notifications
 
-        $rsp        = new xmlTag('update');
+        $rsp        = new XmlTag('update');
         $rsp->check = false;
         $rsp->nb    = 0;
         $ret        = __('No updates are available');
@@ -178,7 +174,7 @@ class dcRestMethods
         $url        = '';
 
         if (empty($post['store'])) {
-            throw new Exception('No store type');
+            throw new AdminException('No store type');
         }
 
         if ($post['store'] == 'themes') {
@@ -194,7 +190,7 @@ class dcRestMethods
             $core->callBehavior('restCheckStoreUpdate', $core, $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
-                throw new Exception('Unknown store type');
+                throw new AdminException('Unknown store type');
             }
         }
 
@@ -214,7 +210,7 @@ class dcRestMethods
     public static function getPostById($core, $get)
     {
         if (empty($get['id'])) {
-            throw new Exception('No post ID');
+            throw new AdminException('No post ID');
         }
 
         $params = ['post_id' => (int) $get['id']];
@@ -226,10 +222,10 @@ class dcRestMethods
         $rs = $core->blog->getPosts($params);
 
         if ($rs->isEmpty()) {
-            throw new Exception('No post for this ID');
+            throw new AdminException('No post for this ID');
         }
 
-        $rsp     = new xmlTag('post');
+        $rsp     = new XmlTag('post');
         $rsp->id = $rs->post_id;
 
         $rsp->blog_id($rs->blog_id);
@@ -264,7 +260,7 @@ class dcRestMethods
         $rsp->post_display_content($rs->getContent(true));
         $rsp->post_display_excerpt($rs->getExcerpt(true));
 
-        $metaTag = new xmlTag('meta');
+        $metaTag = new XmlTag('meta');
         if (($meta = @unserialize($rs->post_meta)) !== false) {
             foreach ($meta as $K => $V) {
                 foreach ($V as $v) {
@@ -280,16 +276,16 @@ class dcRestMethods
     public static function getCommentById($core, $get)
     {
         if (empty($get['id'])) {
-            throw new Exception('No comment ID');
+            throw new AdminException('No comment ID');
         }
 
         $rs = $core->blog->getComments(['comment_id' => (int) $get['id']]);
 
         if ($rs->isEmpty()) {
-            throw new Exception('No comment for this ID');
+            throw new AdminException('No comment for this ID');
         }
 
-        $rsp     = new xmlTag('post');
+        $rsp     = new XmlTag('post');
         $rsp->id = $rs->comment_id;
 
         $rsp->comment_dt($rs->comment_dt);
@@ -355,7 +351,7 @@ class dcRestMethods
         # --BEHAVIOR-- adminAfterPostCreate
         $core->callBehavior('adminAfterPostCreate', $cur, $return_id);
 
-        $rsp     = new xmlTag('post');
+        $rsp     = new XmlTag('post');
         $rsp->id = $return_id;
 
         $post = $core->blog->getPosts(['post_id' => $return_id]);
@@ -369,19 +365,19 @@ class dcRestMethods
     public static function validatePostMarkup($core, $get, $post)
     {
         if (!isset($post['excerpt'])) {
-            throw new Exception('No entry excerpt');
+            throw new AdminException('No entry excerpt');
         }
 
         if (!isset($post['content'])) {
-            throw new Exception('No entry content');
+            throw new AdminException('No entry content');
         }
 
         if (empty($post['format'])) {
-            throw new Exception('No entry format');
+            throw new AdminException('No entry format');
         }
 
         if (!isset($post['lang'])) {
-            throw new Exception('No entry lang');
+            throw new AdminException('No entry lang');
         }
 
         $excerpt       = $post['excerpt'];
@@ -393,9 +389,9 @@ class dcRestMethods
 
         $core->blog->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
 
-        $rsp = new xmlTag('result');
+        $rsp = new XmlTag('result');
 
-        $v = htmlValidator::validate($excerpt_xhtml . $content_xhtml);
+        $v = Validator::validate($excerpt_xhtml . $content_xhtml);
 
         $rsp->valid($v['valid']);
         $rsp->errors($v['errors']);
@@ -406,13 +402,13 @@ class dcRestMethods
     public static function getZipMediaContent($core, $get, $post)
     {
         if (empty($get['id'])) {
-            throw new Exception('No media ID');
+            throw new AdminException('No media ID');
         }
 
         $id = (int) $get['id'];
 
         if (!$core->auth->check('media,media_admin', $core->blog)) {
-            throw new Exception('Permission denied');
+            throw new AdminException('Permission denied');
         }
 
         $file = null;
@@ -424,10 +420,10 @@ class dcRestMethods
         }
 
         if ($file === null || $file->type != 'application/zip' || !$file->editable) {
-            throw new Exception('Not a valid file');
+            throw new AdminException('Not a valid file');
         }
 
-        $rsp     = new xmlTag('result');
+        $rsp     = new XmlTag('result');
         $content = $core->media->getZipContent($file);
 
         foreach ($content as $k => $v) {
@@ -476,10 +472,10 @@ class dcRestMethods
 
         $rs->sort($sort, $order);
 
-        $rsp = new xmlTag();
+        $rsp = new XmlTag();
 
         while ($rs->fetch()) {
-            $metaTag               = new xmlTag('meta');
+            $metaTag               = new XmlTag('meta');
             $metaTag->type         = $rs->meta_type;
             $metaTag->uri          = rawurlencode($rs->meta_id);
             $metaTag->count        = $rs->count;
@@ -496,15 +492,15 @@ class dcRestMethods
     public static function setPostMeta($core, $get, $post)
     {
         if (empty($post['postId'])) {
-            throw new Exception('No post ID');
+            throw new AdminException('No post ID');
         }
 
         if (empty($post['meta']) && $post['meta'] != '0') {
-            throw new Exception('No meta');
+            throw new AdminException('No meta');
         }
 
         if (empty($post['metaType'])) {
-            throw new Exception('No meta type');
+            throw new AdminException('No meta type');
         }
 
         # Get previous meta for post
@@ -528,15 +524,15 @@ class dcRestMethods
     public static function delMeta($core, $get, $post)
     {
         if (empty($post['postId'])) {
-            throw new Exception('No post ID');
+            throw new AdminException('No post ID');
         }
 
         if (empty($post['metaId']) && $post['metaId'] != '0') {
-            throw new Exception('No meta ID');
+            throw new AdminException('No meta ID');
         }
 
         if (empty($post['metaType'])) {
-            throw new Exception('No meta type');
+            throw new AdminException('No meta type');
         }
 
         $core->meta->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
@@ -577,11 +573,11 @@ class dcRestMethods
 
         $rs->sort($sort, $order);
 
-        $rsp = new xmlTag();
+        $rsp = new XmlTag();
 
         while ($rs->fetch()) {
             if (stripos($rs->meta_id, $q) === 0) {
-                $metaTag               = new xmlTag('meta');
+                $metaTag               = new XmlTag('meta');
                 $metaTag->type         = $rs->meta_type;
                 $metaTag->uri          = rawurlencode($rs->meta_id);
                 $metaTag->count        = $rs->count;
@@ -598,8 +594,9 @@ class dcRestMethods
 
     public static function setSectionFold($core, $get, $post)
     {
+        \Dotclear\Utils\Files::putContent(dirname(__FILE__).'/test.txt', print_r($_REQUEST,true));
         if (empty($post['section'])) {
-            throw new Exception('No section name');
+            throw new AdminException('No section name');
         }
         if ($core->auth->user_prefs->toggles === null) {
             $core->auth->user_prefs->addWorkspace('toggles');
@@ -631,10 +628,10 @@ class dcRestMethods
     public static function setDashboardPositions($core, $get, $post)
     {
         if (empty($post['id'])) {
-            throw new Exception('No zone name');
+            throw new AdminException('No zone name');
         }
         if (empty($post['list'])) {
-            throw new Exception('No sorted list of id');
+            throw new AdminException('No sorted list of id');
         }
 
         if ($core->auth->user_prefs->dashboard === null) {
@@ -652,16 +649,16 @@ class dcRestMethods
     public static function setListsOptions($core, $get, $post)
     {
         if (empty($post['id'])) {
-            throw new Exception('No list name');
+            throw new AdminException('No list name');
         }
 
         $sorts = adminUserPref::getUserFilters();
 
         if (!isset($sorts[$post['id']])) {
-            throw new Exception('List name invalid');
+            throw new AdminException('List name invalid');
         }
 
-        $res = new xmlTag('result');
+        $res = new XmlTag('result');
 
         $su = [];
         foreach ($sorts as $sort_type => $sort_data) {
@@ -691,10 +688,10 @@ class dcRestMethods
     public static function getModuleById($core, $get, $post)
     {
         if (empty($get['id'])) {
-            throw new Exception('No module ID');
+            throw new AdminException('No module ID');
         }
         if (empty($get['list'])) {
-            throw new Exception('No list ID');
+            throw new AdminException('No list ID');
         }
 
         $id     = $get['id'];
@@ -704,7 +701,7 @@ class dcRestMethods
         if ($list == 'plugin-activate') {
             $modules = $core->plugins->getModules();
             if (empty($modules) || !isset($modules[$id])) {
-                throw new Exception('Unknown module ID');
+                throw new AdminException('Unknown module ID');
             }
             $module = $modules[$id];
         } elseif ($list == 'plugin-new') {
@@ -716,19 +713,19 @@ class dcRestMethods
 
             $modules = $store->get();
             if (empty($modules) || !isset($modules[$id])) {
-                throw new Exception('Unknown module ID');
+                throw new AdminException('Unknown module ID');
             }
             $module = $modules[$id];
         }
         // behavior not implemented yet
 
         if (empty($module)) {
-            throw new Exception('Unknown module ID');
+            throw new AdminException('Unknown module ID');
         }
 
         $module = adminModulesList::sanitizeModule($id, $module);
 
-        $rsp     = new xmlTag('module');
+        $rsp     = new XmlTag('module');
         $rsp->id = $id;
 
         foreach ($module as $k => $v) {

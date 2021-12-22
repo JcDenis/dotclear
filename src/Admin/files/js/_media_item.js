@@ -20,7 +20,7 @@ $(() => {
 
     $(a).on('click', () => {
       $.get(
-        'services.php',
+        '?handler=admin.services',
         {
           f: 'getZipMediaContent',
           id: mediaId,

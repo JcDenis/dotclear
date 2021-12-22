@@ -16,7 +16,7 @@ namespace Dotclear\Admin;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Prepend as BasePrepend;
+use Dotclear\Core\Prepend as CorePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
 Use Dotclear\Core\Notices;
@@ -32,7 +32,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Prepend extends BasePrepend
+class Prepend extends CorePrepend
 {
     protected $process = 'Admin';
 
@@ -117,7 +117,7 @@ class Prepend extends BasePrepend
             $this->blog->settings->addNamespace('themes');
 
             # Admin behaviors
-            //$this->addBehavior('adminPopupPosts', ['dcAdminBlogPref', 'adminPopupPosts']);
+            //$this->addBehavior('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
         }
 
         $this->adminLoadPage();
@@ -155,6 +155,7 @@ class Prepend extends BasePrepend
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
         $this->adminurl->register('admin.users', 'users.php');
         $this->adminurl->register('admin.update', $d . 'Update');
+        $this->adminurl->register('admin.services', $d . 'Services');
         $this->adminurl->register('admin.cspreport', $d . 'CspReport');
 
         $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
