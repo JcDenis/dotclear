@@ -1,6 +1,9 @@
 <?php
 /**
- * @class InterfaceSchema
+ * @class Dotclear\Database\InterfaceSchema
+ * @brief PHP interface for database Schema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

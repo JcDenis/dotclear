@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Table
+ * @class Dotclear\Database\Table
+ * @brief Database table structure manipulator
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

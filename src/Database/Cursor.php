@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Cursor
+ * @class Dotclear\Database\Cursor
+ * @brief Database cursor
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

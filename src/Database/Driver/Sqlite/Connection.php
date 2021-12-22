@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Connection with sqlite driver
+ * @class Dotclear\Database\Driver\Sqlite\Connection
+ * @brief Sqlite connection driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

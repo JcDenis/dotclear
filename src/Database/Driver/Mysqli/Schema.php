@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Schema with mysqli driver
+ * @class Dotclear\Database\Driver\Mysqli\Schema
+ * @brief Mysql schema driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

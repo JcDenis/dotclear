@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Connection with mysqlimb4 driver
+ * @class Dotclear\Database\Driver\Mysqlimb4\Connection
+ * @brief Mysql mb4 connection driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

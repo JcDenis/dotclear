@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Schema
+ * @class Dotclear\Database\Schema
+ * @brief Database schema manipulator
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Connection
+ * @class Dotclear\Database\Connection
+ * @brief Database connector
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

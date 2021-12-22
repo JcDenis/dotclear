@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Connection with mysqli driver
+ * @class Dotclear\Database\Driver\Mysqli\Connection
+ * @brief Mysql connection driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

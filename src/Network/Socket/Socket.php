@@ -3,6 +3,8 @@
  * @class Dotclear\Network\Socket\Socket
  * @brief Network base
  *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
  * This class handles network socket through an iterator.
  *
  * @package Dotclear

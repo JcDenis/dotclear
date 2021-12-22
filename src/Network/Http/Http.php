@@ -1,7 +1,9 @@
 <?php
 /**
  * @class Dotclear\Network\Http\Http
- * @brief HTTP Client
+ * @brief Net Http client
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * Features:
  *

@@ -1,6 +1,10 @@
 <?php
 /**
  * @class Dotclear\Network\Http\Client
+ * @brief Http client
+ * @see Dotclear\Network\Http\Http
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Network

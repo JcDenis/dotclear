@@ -1,6 +1,9 @@
 <?php
 /**
- * @class StaticRecord
+ * @class Dotclear\Database\StaticRecord
+ * @brief Database static record
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

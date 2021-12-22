@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Schema with sqlite driver
+ * @class Dotclear\Database\Driver\Sqlite\Schema
+ * @brief Sqlite schema driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

@@ -1,6 +1,9 @@
 <?php
 /**
  * @class Dotclear\File\Manager\Manager
+ * @brief File manager tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage File

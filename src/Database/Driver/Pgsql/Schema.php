@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Schema with pgsql driver
+ * @class Dotclear\Database\Driver\Pgsql\Schema
+ * @brief Pgsql schema driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database

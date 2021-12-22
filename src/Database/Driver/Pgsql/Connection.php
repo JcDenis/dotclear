@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Connection with pgsql driver
+ * @class Dotclear\Database\Driver\Pgsql\Connection
+ * @brief Pgsql connection driver
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Database
