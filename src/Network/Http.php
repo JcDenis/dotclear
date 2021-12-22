@@ -13,9 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Http;
+namespace Dotclear\Network;
 
 use Dotclear\Exception\UtilsException;
+
+use Dotclear\Utils\Crypt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
