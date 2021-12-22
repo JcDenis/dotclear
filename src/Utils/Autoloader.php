@@ -46,7 +46,7 @@ class Autoloader
      * @param string    $root_prefix    Common ns prefix
      * @param string    $root_base_dir  Common dir prefix
      */
-    public function __construct(string $root_prefix = '', string $root_base_dir = '')
+    public function __construct(string $root_prefix = '', string $root_base_dir = '', bool $prepend = false)
     {
         if (!empty($root_prefix)) {
             $this->root_prefix = static::normalizePrefix($root_prefix);
@@ -55,7 +55,7 @@ class Autoloader
             $this->root_base_dir = static::normalizeBaseDir($root_base_dir);
         }
 
-        spl_autoload_register([$this, 'loadClass']);
+        spl_autoload_register([$this, 'loadClass'], true, $prepend);
     }
 
     /**
