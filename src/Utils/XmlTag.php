@@ -1,6 +1,9 @@
 <?php
 /**
- * @class XmlTag
+ * @class Dotclear\Utils\XmlTag
+ * @brief XML Tag
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

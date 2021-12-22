@@ -1,6 +1,6 @@
 <?php
 /**
- * @class distrib Exception
+ * @class Dotclear\Exception\DistribException
  *
  * @package Dotclear
  * @subpackage Exception

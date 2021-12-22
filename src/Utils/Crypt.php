@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Crypt
+ * @class Dotclear\Utils\Crypt
+ * @brief Basic cryptography tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

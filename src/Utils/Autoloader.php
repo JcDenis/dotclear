@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Autoloader
+ * @class Dotclear\Utils\Autoloader
  * @brief Helper to autoload class using php namespace
  *
  * Based on PSR-4 Autoloader

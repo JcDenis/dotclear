@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Files
+ * @class Dotclear\Utils\Files
+ * @brief Basic files handling tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

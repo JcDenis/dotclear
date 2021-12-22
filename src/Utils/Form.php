@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Form
+ * @class Dotclear\Utils\Form
+ * @brief Html form tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

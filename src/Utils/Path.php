@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Path
+ * @class Dotclear\Utils\Path
+ * @brief Basic path handling tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

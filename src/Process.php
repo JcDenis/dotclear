@@ -1,9 +1,9 @@
 <?php
 /**
- * @brief Dotclear process class
+ * @class Dotclear\Process
+ * @brief Dotclear process launcher class
  *
- * Dotclear process launcher
- * ex: Call new Dotclear\Process('admin'); to load admin pages
+ * Call new Dotclear\Process('admin'); to load admin pages
  * could be called also by Dotclear\Process::admin();
  *
  * @package Dotclear

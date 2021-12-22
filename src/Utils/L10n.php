@@ -1,8 +1,11 @@
 <?php
 /**
- * @class L10n
+ * @class Dotclear\Utils\L10n
+ * @brief Localisation tool
  *
- * This file also include L10n __() function.
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * This file also include L10n \__() function.
  *
  * @package Dotclear
  * @subpackage Utils
@@ -18,7 +21,6 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-/** @endcond */
 class L10n
 {
     /// @name Languages properties
@@ -1091,7 +1093,7 @@ class L10n
     //@}
 }
 
-} // end Dotclear\Common namespace
+} // end Dotclear\Utils namespace
 
 namespace { // enter to global namespace to declare root __() function
 
@@ -1118,5 +1120,6 @@ if (!function_exists('__')) {
 
     /* @cond ONCE */
 }
+    /** @endcond */
 
 } // end global namesapce

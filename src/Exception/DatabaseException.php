@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Database Exception
+ * @class Dotclear\Exception\DatabaseException
  *
  * @package Dotclear
  * @subpackage Exception

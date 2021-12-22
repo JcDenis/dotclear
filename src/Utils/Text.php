@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Text
+ * @class Dotclear\Utils\Text
+ * @brief Basic text handling tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

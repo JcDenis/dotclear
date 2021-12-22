@@ -1,6 +1,6 @@
 <?php
 /**
- * @class install Exception
+ * @class Dotclear\Exception\InstallException
  *
  * @package Dotclear
  * @subpackage Database

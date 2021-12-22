@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Dt
+ * @class Dotclear\Utils\Dt
+ * @brief Basic date handling tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

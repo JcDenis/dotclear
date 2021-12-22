@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Exception
  * @brief Dotclear root Exception class
  *
  * @package Dotclear

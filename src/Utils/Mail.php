@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Mail
+ * @class Dotclear\Utils\Mail
+ * @brief Basic mail tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

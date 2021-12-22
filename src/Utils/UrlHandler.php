@@ -1,6 +1,9 @@
 <?php
 /**
- * @class UrlHandler
+ * @class Dotclear\Utils\UrlHandler
+ * @brief URL handling
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

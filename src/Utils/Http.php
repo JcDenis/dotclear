@@ -1,6 +1,9 @@
 <?php
 /**
- * @class Http
+ * @class Dotclear\Utils\Http
+ * @brief Basic Http tool
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
  * @subpackage Utils

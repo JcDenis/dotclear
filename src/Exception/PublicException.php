@@ -1,6 +1,6 @@
 <?php
 /**
- * @class public Exception
+ * @class Dotclear\Exception\PublicException
  *
  * @package Dotclear
  * @subpackage Exception

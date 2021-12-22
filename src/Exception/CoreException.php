@@ -1,6 +1,6 @@
 <?php
 /**
- * @class core Exception
+ * @class Dotclear\Exception\CoreException
  *
  * @package Dotclear
  * @subpackage Exception

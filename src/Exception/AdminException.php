@@ -1,6 +1,6 @@
 <?php
 /**
- * @class admin Exception
+ * @class Dotclear\Exception\AdminException
  *
  * @package Dotclear
  * @subpackage Exception
