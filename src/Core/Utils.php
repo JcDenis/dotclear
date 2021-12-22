@@ -14,8 +14,8 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Html;
-use Dotclear\Utils\Http;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Path;
 

@@ -16,12 +16,12 @@ use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Utils\Files;
-use Dotclear\Utils\Http;
+use Dotclear\Network\Http;
 
 use Dotclear\File\Zip\Zip;
 use Dotclear\File\Zip\Unzip;
 
-use Dotclear\Network\Http\Http as netHttp;
+use Dotclear\Network\NetHttp\NetHttp;
 
 if (!defined('DC_RC_PATH')) {
     return;
@@ -123,7 +123,7 @@ class Update
             $status = 0;
 
             $http_get = function ($http_url) use (&$status, $path) {
-                $client = netHttp::initClient($http_url, $path);
+                $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
                     $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
@@ -247,7 +247,7 @@ class Update
             $status = 0;
 
             $http_get = function ($http_url) use (&$status, $dest, $path) {
-                $client = netHttp::initClient($http_url, $path);
+                $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
                     $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);

@@ -15,7 +15,7 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Http;
+use Dotclear\Network\Http;
 use Dotclear\Utils\Sql\SelectStatement;
 use Dotclear\Utils\Sql\JoinStatement;
 use Dotclear\Utils\Sql\TruncateStatement;

@@ -14,16 +14,15 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Form;
-use Dotclear\Utils\Html;
-use Dotclear\Utils\Files;
-use Dotclear\Utils\Text;
-use Dotclear\Utils\Wiki2xhtml;
-use Dotclear\Utils\HtmlFilter;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Utils\Form;
+use Dotclear\Html\Html;
+use Dotclear\Utils\Files;
+use Dotclear\Utils\Text;
+use Dotclear\Utils\Wiki2xhtml;
+use Dotclear\Html\HtmlFilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

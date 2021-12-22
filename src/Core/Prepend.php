@@ -19,14 +19,13 @@ use Dotclear\Exception\CoreException;
 
 use Dotclear\Distrib\Distrib;
 
+use Dotclear\Database\Schema;
 use Dotclear\Utils\Dt;
-use Dotclear\Utils\Http;
-use Dotclear\Utils\Html;
+use Dotclear\Network\Http;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\L10n;
-
-use Dotclear\Database\Schema;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

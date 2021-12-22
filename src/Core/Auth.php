@@ -20,7 +20,7 @@ use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
 
 use Dotclear\Utils\Crypt;
-use Dotclear\Utils\Http;
+use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

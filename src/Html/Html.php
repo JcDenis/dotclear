@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Html
+ * @class Dotclear\Html\Html
  * @brief Basic html tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

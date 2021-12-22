@@ -19,9 +19,9 @@ namespace Dotclear\Html;
 
 use Dotclear\Exception\HtmlException;
 
-use Dotclear\Network\Http\Http as netHttp;
+use Dotclear\Network\NetHttp\NetHttp;
 
-class Validator extends netHttp
+class Validator extends NetHttp
 {
     protected $host       = 'validator.w3.org';
     protected $path       = '/nu/';

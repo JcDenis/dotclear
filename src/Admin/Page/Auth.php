@@ -20,13 +20,13 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
 
-use Dotclear\Utils\Html;
-use Dotclear\Utils\Http;
+use Dotclear\Distrib\Upgrade;
+
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Form;
 use Dotclear\Utils\Mail;
-
-use Dotclear\Distrib\Upgrade;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

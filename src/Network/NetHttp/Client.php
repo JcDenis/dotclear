@@ -1,8 +1,8 @@
 <?php
 /**
- * @class Dotclear\Network\Http\Client
+ * @class Dotclear\Network\NetHttp\Client
  * @brief Http client
- * @see Dotclear\Network\Http\Http
+ * @see Dotclear\Network\NetHttp\NetHttp
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -14,13 +14,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Http;
+namespace Dotclear\Network\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Client extends Http
+class Client extends NetHttp
 {
     public function getError()
     {

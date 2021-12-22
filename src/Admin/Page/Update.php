@@ -21,11 +21,10 @@ use Dotclear\Core\Update as CoreUpdate;
 
 use Dotclear\Admin\Page;
 
-use Dotclear\Utils\Html;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Form;
-use Dotclear\Utils\Http;
-
+use Dotclear\Network\Http;
 use Dotclear\File\Zip\Unzip;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

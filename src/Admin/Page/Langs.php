@@ -23,12 +23,10 @@ use Dotclear\Admin\Page;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Form;
 use Dotclear\Utils\Files;
-use Dotclear\Utils\Html;
-
+use Dotclear\Html\Html;
 use Dotclear\File\Zip\Unzip;
-
 use Dotclear\Network\Feed\Reader;
-use Dotclear\Network\Http\Http as netHttp;
+use Dotclear\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -99,7 +97,7 @@ class Langs extends Page
                     throw new AdminException(__('Invalid language file URL.'));
                 }
 
-                $client = netHttp::initClient($url, $path);
+                $client = NetHttp::initClient($url, $path);
                 $client->setUserAgent('Dotclear - https://dotclear.org/');
                 $client->useGzip(false);
                 $client->setPersistReferers(false);

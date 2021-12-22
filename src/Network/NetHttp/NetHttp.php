@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Http\Http
+ * @class Dotclear\Network\NetHttp\NetHttp
  * @brief Net Http client
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -41,7 +41,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Http;
+namespace Dotclear\Network\NetHttp;
 
 use Dotclear\Exception;
 use Dotclear\Exception\NetworkException;
@@ -52,7 +52,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Http extends Socket
+class NetHttp extends Socket
 {
     protected $host;          ///< string Server host
     protected $port;          ///< integer Server port

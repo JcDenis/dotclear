@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\HtmlFilter
+ * @class Dotclear\Html\HtmlFilter
  * @brief Html filter
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks

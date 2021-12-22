@@ -20,16 +20,15 @@ use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Favorites;
 
-use Dotclear\Utils\Http;
-use Dotclear\Utils\Html;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Text;
-use Dotclear\Utils\Form;
+use Dotclear\Distrib\Distrib;
 
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
-
-use Dotclear\Distrib\Distrib;
+use Dotclear\Network\Http;
+use Dotclear\Html\Html;
+use Dotclear\Utils\L10n;
+use Dotclear\Utils\Text;
+use Dotclear\Utils\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;

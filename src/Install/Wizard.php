@@ -16,18 +16,19 @@ use Dotclear\Exception\InstallException;
 use Dotclear\Exception\DatabaseException;
 
 use Dotclear\Core\Core;
-use Dotclear\Utils\Http;
+
+use Dotclear\Distrib\Distrib;
+
+use Dotclear\Database\Connection;
+use Dotclear\Database\Schema;
+use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Path;
 use Dotclear\Utils\Files;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\Form;
-use Dotclear\Utils\Html;
+use Dotclear\Html\Html;
 
-use Dotclear\Database\Connection;
-use Dotclear\Database\Schema;
-
-use Dotclear\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;

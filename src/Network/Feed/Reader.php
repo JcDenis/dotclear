@@ -25,13 +25,13 @@ use Dotclear\Exception;
 
 use Dotclear\Utils\Files;
 
-use Dotclear\Network\Http\Http;
+use Dotclear\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Reader extends Http
+class Reader extends NetHttp
 {
     protected $user_agent = 'Clearbricks Feed Reader/0.2';
     protected $timeout    = 5;

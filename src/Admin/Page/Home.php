@@ -21,7 +21,7 @@ use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
 
-use Dotclear\Utils\Html;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

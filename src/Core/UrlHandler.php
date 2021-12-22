@@ -15,8 +15,8 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Html;
-use Dotclear\Utils\Http;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\UrlHandler as BaseUrlHandler;
 

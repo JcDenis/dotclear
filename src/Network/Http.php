@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Http
+ * @class Dotclear\Network\Http
  * @brief Basic Http tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Http;
 
 use Dotclear\Exception\UtilsException;
 

@@ -19,13 +19,11 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 use Dotclear\Core\Update;
 
-use Dotclear\Utils\Html;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
-
+use Dotclear\Html\Html;
 use Dotclear\Html\Validator;
 use Dotclear\Html\XmlTag;
-
 use Dotclear\Network\Feed\Reader;
 
 class RestMethods
@@ -594,7 +592,6 @@ class RestMethods
 
     public static function setSectionFold($core, $get, $post)
     {
-        \Dotclear\Utils\Files::putContent(dirname(__FILE__).'/test.txt', print_r($_REQUEST,true));
         if (empty($post['section'])) {
             throw new AdminException('No section name');
         }

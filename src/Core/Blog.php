@@ -15,14 +15,14 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Utils\Html;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Path;
-use Dotclear\Utils\Http;
-use Dotclear\Utils\Text;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
+use Dotclear\Html\Html;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\Path;
+use Dotclear\Network\Http;
+use Dotclear\Utils\Text;
+
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

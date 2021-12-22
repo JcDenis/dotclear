@@ -17,7 +17,7 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
 
-use Dotclear\Utils\Html;
+use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
