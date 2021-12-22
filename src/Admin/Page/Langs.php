@@ -21,9 +21,9 @@ use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 
 use Dotclear\Utils\L10n;
-use Dotclear\Utils\Form;
-use Dotclear\File\Files;
+use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\File\Files;
 use Dotclear\File\Zip\Unzip;
 use Dotclear\Network\Feed\Reader;
 use Dotclear\Network\NetHttp\NetHttp;

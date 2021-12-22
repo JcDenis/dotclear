@@ -1,19 +1,21 @@
 <?php
 /**
- * @class Dotclear\Utils\Form
+ * @class Dotclear\Html\Form
  * @brief Html form tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Html
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Html;
+
+use Dotclear\Html\FormSelectOption;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

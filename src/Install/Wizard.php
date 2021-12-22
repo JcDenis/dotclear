@@ -23,10 +23,10 @@ use Dotclear\Database\Connection;
 use Dotclear\Database\Schema;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Text;
 use Dotclear\File\Path;
 use Dotclear\File\Files;
-use Dotclear\Utils\Text;
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 
 

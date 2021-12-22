@@ -18,7 +18,7 @@ use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

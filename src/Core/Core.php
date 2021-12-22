@@ -17,7 +17,7 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 use Dotclear\Utils\Text;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;

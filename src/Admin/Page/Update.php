@@ -22,8 +22,8 @@ use Dotclear\Core\Update as CoreUpdate;
 use Dotclear\Admin\Page;
 
 use Dotclear\Html\Html;
+use Dotclear\Html\Form;
 use Dotclear\File\Files;
-use Dotclear\Utils\Form;
 use Dotclear\Network\Http;
 use Dotclear\File\Zip\Unzip;
 

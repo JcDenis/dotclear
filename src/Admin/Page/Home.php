@@ -22,7 +22,7 @@ use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
 
 use Dotclear\Html\Html;
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

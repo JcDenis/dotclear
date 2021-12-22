@@ -26,9 +26,9 @@ use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
 use Dotclear\Network\Http;
 use Dotclear\Html\Html;
+use Dotclear\Html\Form;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
-use Dotclear\Utils\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;

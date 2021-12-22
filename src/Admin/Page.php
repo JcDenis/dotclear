@@ -21,7 +21,7 @@ use Dotclear\Core\Utils;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
 use Dotclear\Html\Html;
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 use Dotclear\File\Path;
 use Dotclear\File\Files;
 

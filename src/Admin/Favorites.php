@@ -15,7 +15,7 @@ namespace Dotclear\Admin;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Utils\Form;
+use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
 use Dotclear\Distrib\Favorites as BaseFavorites;

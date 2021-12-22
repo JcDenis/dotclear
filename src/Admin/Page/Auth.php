@@ -23,9 +23,9 @@ use Dotclear\Admin\Page;
 use Dotclear\Distrib\Upgrade;
 
 use Dotclear\Html\Html;
+use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
-use Dotclear\Utils\Form;
 use Dotclear\Utils\Mail;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
