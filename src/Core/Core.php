@@ -1844,13 +1844,31 @@ class Core
      * @param      integer|null   $mtime  timestamp (microtime format) to evaluate
      * delta from current time is taken if null
      *
-     * @return     integer   The elapsed time.
+     * @return     string   The elapsed time.
      */
-    public function getElapsedTime(?int $mtime = null): int
+    public function getElapsedTime(?int $mtime = null): string
     {
         $start = defined('DOTCLEAR_START_TIME') ? DOTCLEAR_START_TIME : microtime(true);
 
-        return $mtime === null ? microtime(true) - $start : $mtime - $start;
+        return strval(round(($mtime === null ? microtime(true) - $start : $mtime - $start), 5));
+    }
+
+    /**
+     * Return memory consumed since script has been started
+     *
+     * @param      integer|null   $mmem  memory usage to evaluate
+     * delta from current memory usage is taken if null
+     *
+     * @return     string   The consumed memory.
+     */
+    public function getConsumedMemory(?int $mmem = null): string
+    {
+        $start = defined('DOTCLEAR_START_MEMORY') ? DOTCLEAR_START_MEMORY : memory_get_usage(false);
+
+        $usage = $mmem === null ? memory_get_usage(false) - $start : $mmem - $start;
+        $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
+
+        return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
     }
     //@}
 }

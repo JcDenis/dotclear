@@ -386,7 +386,7 @@ class Page
             ' -->' . "\n";
 
         if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true) {
-            echo self::debugInfo();
+            echo $this->debugInfo();
         }
 
         echo
@@ -549,7 +549,7 @@ class Page
      *
      * @return     string
      */
-    private static function debugInfo(): string
+    private function debugInfo(): string
     {
         $global_vars = implode(', ', array_keys($GLOBALS));
 
@@ -582,6 +582,7 @@ class Page
         xdebug.profiler_output_name = timestamp
          */
         }
+        $res.= '<p>Core elapsed time: ' . $this->core->getElapsedTime() . ' | Core consumed memory: ' . $this->core->getConsumedMemory() . '</p>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
             '</div></div>';
