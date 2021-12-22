@@ -61,48 +61,22 @@ class Langs extends Page
         }
 
         # Language installation function
-        $lang_install = function ($file) {
-            $zip = new Unzip($file);
-            $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
-
-            if (!preg_match('/^[a-z]{2,3}(-[a-z]{2})?$/', $zip->getRootDir())) {
-                throw new Exception(__('Invalid language zip file.'));
-            }
-
-            if ($zip->isEmpty() || !$zip->hasFile($zip->getRootDir() . '/main.po')) {
-                throw new Exception(__('The zip file does not appear to be a valid Dotclear language pack.'));
-            }
-
-            $target      = dirname($file);
-            $destination = $target . '/' . $zip->getRootDir();
-            $res         = 1;
-
-            if (is_dir($destination)) {
-                if (!Files::deltree($destination)) {
-                    throw new Exception(__('An error occurred during language upgrade.'));
-                }
-                $res = 2;
-            }
-
-            $zip->unzipAll($target);
-
-            return $res;
-        };
+        ;
 
         # Delete a language pack
         if ($is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
             try {
                 $locale_id = $_POST['locale_id'];
                 if (!isset($iso_codes[$locale_id]) || !is_dir(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
-                    throw new Exception(__('No such installed language'));
+                    throw new AdminException(__('No such installed language'));
                 }
 
                 if ($locale_id == 'en') {
-                    throw new Exception(__("You can't remove English language."));
+                    throw new AdminException(__("You can't remove English language."));
                 }
 
                 if (!Files::deltree(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
-                    throw new Exception(__('Permissions to delete language denied.'));
+                    throw new AdminException(__('Permissions to delete language denied.'));
                 }
 
                 self::addSuccessNotice(__('Language has been successfully deleted.'));
@@ -116,13 +90,13 @@ class Langs extends Page
         if ($is_writable && !empty($_POST['pkg_url'])) {
             try {
                 if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
-                    throw new Exception(__('Password verification failed'));
+                    throw new AdminException(__('Password verification failed'));
                 }
 
                 $url  = html::escapeHTML($_POST['pkg_url']);
                 $dest = DOTCLEAR_L10N_DIR . '/' . basename($url);
                 if (!preg_match('#^https://[^.]+\.dotclear\.(net|org)/.*\.zip$#', $url)) {
-                    throw new Exception(__('Invalid language file URL.'));
+                    throw new AdminException(__('Invalid language file URL.'));
                 }
 
                 $client = netHttp::initClient($url, $path);
@@ -133,7 +107,7 @@ class Langs extends Page
                 $client->get($path);
 
                 try {
-                    $ret_code = $lang_install($dest);
+                    $ret_code = self::langInstall($dest);
                 } catch (Exception $e) {
                     @unlink($dest);
 
@@ -156,17 +130,17 @@ class Langs extends Page
         if ($is_writable && !empty($_POST['upload_pkg'])) {
             try {
                 if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
-                    throw new Exception(__('Password verification failed'));
+                    throw new AdminException(__('Password verification failed'));
                 }
 
                 Files::uploadStatus($_FILES['pkg_file']);
                 $dest = DOTCLEAR_L10N_DIR . '/' . $_FILES['pkg_file']['name'];
                 if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
-                    throw new Exception(__('Unable to move uploaded file.'));
+                    throw new AdminException(__('Unable to move uploaded file.'));
                 }
 
                 try {
-                    $ret_code = $lang_install($dest);
+                    $ret_code = self::langInstall($dest);
                 } catch (Exception $e) {
                     @unlink($dest);
 
@@ -315,5 +289,34 @@ class Langs extends Page
         }
         $this->helpBlock('core_langs');
         $this->close();
+    }
+
+    private static function langInstall($file)
+    {
+        $zip = new Unzip($file);
+        $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
+
+        if (!preg_match('/^[a-z]{2,3}(-[a-z]{2})?$/', $zip->getRootDir())) {
+            throw new AdminException(__('Invalid language zip file.'));
+        }
+
+        if ($zip->isEmpty() || !$zip->hasFile($zip->getRootDir() . '/main.po')) {
+            throw new AdminException(__('The zip file does not appear to be a valid Dotclear language pack.'));
+        }
+
+        $target      = dirname($file);
+        $destination = $target . '/' . $zip->getRootDir();
+        $res         = 1;
+
+        if (is_dir($destination)) {
+            if (!Files::deltree($destination)) {
+                throw new AdminException(__('An error occurred during language upgrade.'));
+            }
+            $res = 2;
+        }
+
+        $zip->unzipAll($target);
+
+        return $res;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Admin\UrlHandler
  * @brief Dotclear admin url handler class
  *
  * @package Dotclear
@@ -19,7 +20,7 @@ use Dotclear\Core\Core;
 use Dotclear\Utils\Form;
 use Dotclear\Utils\Http;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 

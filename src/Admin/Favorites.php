@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Admin\Favorites
  * @brief Dotclear admin favorites handling facilities class
  *
  * @package Dotclear
@@ -19,7 +20,7 @@ use Dotclear\Utils\Http;
 
 use Dotclear\Distrib\Favorites as BaseFavorites;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 

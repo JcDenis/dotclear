@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin menu class
+ * @class Dotclear\Admin\Menu
+ * @brief Dotclear admin menu helper
  *
  * @package Dotclear
  * @subpackage Admin
@@ -14,7 +15,7 @@ namespace Dotclear\Admin;
 
 use Dotclear\Core\Utils;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 

@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin core prepend class
+ * @class Dotclear\Admin\Prepend
+ * @brief Dotclear admin prepend
  *
  * @package Dotclear
  * @subpackage Admin

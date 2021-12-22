@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin home class
+ * @class Dotclear\Admin\Page\Home
+ * @brief Dotclear admin home page
  *
  * @package Dotclear
  * @subpackage Admin

@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin auth class
+ * @class Dotclear\Admin\Page\Help
+ * @brief Dotclear admin help page
  *
  * @package Dotclear
  * @subpackage Admin

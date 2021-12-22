@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear\Admin\Page\Update
+ * @class Dotclear\Admin\Page\Update
+ * @brief Dotclear admin update page
  *
  * @package Dotclear
  * @subpackage Admin

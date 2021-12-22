@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin auth class
+ * @class Dotclear\Admin\Page\CspReport
+ * @brief Dotclear admin csp report endpoint
  *
  * From: https://github.com/nico3333fr/CSP-useful
  * Note: this script requires PHP ≥ 5.4.

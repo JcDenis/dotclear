@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear admin url handler class
+ * @class Dotclear\Admin\Page
+ * @brief Dotclear admin page helper class
  *
  * @package Dotclear
  * @subpackage Admin
@@ -22,7 +23,7 @@ use Dotclear\Utils\Form;
 use Dotclear\Utils\Path;
 use Dotclear\Utils\Files;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 

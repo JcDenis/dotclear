@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Admin\Notices
  * @brief Dotclear backend notices handling facilities
  *
  * @package Dotclear
@@ -16,7 +17,7 @@ use Dotclear\Core\Core;
 
 use Dotclear\Utils\Dt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
