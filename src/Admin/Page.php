@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use Dotclear\Exception\DeprecatedException;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
@@ -595,6 +597,7 @@ class Page
      */
     public static function help($page, $index = ''): void
     {
+        DeprecatedException::throw();
         return;
     }
 
@@ -755,6 +758,7 @@ class Page
      */
     public static function jsVar($n, $v): string
     {
+        DeprecatedException::throw();
         return '';
     }
 
@@ -763,6 +767,7 @@ class Page
      */
     public static function jsVars($vars): string
     {
+        DeprecatedException::throw();
         return '';
     }
 
@@ -933,6 +938,7 @@ class Page
      */
     public static function jsLoadIE7(): string
     {
+        DeprecatedException::throw();
         return '';
     }
 
@@ -990,6 +996,7 @@ class Page
      */
     public static function jsColorPicker(): string
     {
+        DeprecatedException::throw();
         return '';
     }
 
@@ -998,6 +1005,7 @@ class Page
      */
     public static function jsDatePicker(): string
     {
+        DeprecatedException::throw();
         return '';
     }
 
@@ -1006,6 +1014,7 @@ class Page
      */
     public static function jsToolBar(): void
     {
+        DeprecatedException::throw();
         return;
     }
 
