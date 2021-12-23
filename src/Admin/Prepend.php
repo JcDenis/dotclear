@@ -163,7 +163,7 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.media.item', 'media_item.php');
         $this->adminurl->register('admin.plugins', 'plugins.php');
         $this->adminurl->register('admin.plugin', 'plugin.php');
-        $this->adminurl->register('admin.search', 'search.php');
+        $this->adminurl->register('admin.search', $d . 'Search');
         $this->adminurl->register('admin.user.preferences', 'preferences.php');
         $this->adminurl->register('admin.user', 'user.php');
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
