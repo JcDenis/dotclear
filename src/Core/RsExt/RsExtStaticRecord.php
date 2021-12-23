@@ -1,4 +1,14 @@
 <?php
+/**
+ * @class Dotclear\Core\RsExt\RsExtStaticRecord
+ * @brief Dotclear lexical record helpers.
+ *
+ * @package Dotclear
+ * @subpackage Core
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;

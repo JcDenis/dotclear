@@ -207,10 +207,12 @@ class Prepend extends Core
         }
 
         /* Register Core Urls */
-//
+        $this->url->register('posts', 'posts', '^posts(/.+)?$', [__NAMESPACE__ . 'UrlHandler', 'home']);
+//!
 
         /* Register Core post types */
-//
+        $this->setPostType('post', '?handler=admin.posts&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
+//!
 
         /* Store upload_max_filesize in bytes */
         $u_max_size = Files::str2bytes(ini_get('upload_max_filesize'));

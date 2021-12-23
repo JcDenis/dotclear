@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Page\Blogs
- * @brief Dotclear admin home page
+ * @brief Dotclear admin blogs list page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -12,6 +12,9 @@
 declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
+
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 

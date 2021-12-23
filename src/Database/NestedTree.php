@@ -1,92 +1,28 @@
 <?php
 /**
+ * @class Dotclear\Database\NestedTree
+ * @brief Database helper to construct nested tree
+ *
  * nestedTree class is based on excellent work of Kuzma Feskov
  * (http://php.russofile.ru/ru/authors/sql/nestedsets01/)
  *
- * One day we'll move nestedTree to Clearbricks.
- *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Database;
+
+use Dotclear\Database\Connection;
+
+if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class dcCategories extends nestedTree
-{
-    protected $f_left  = 'cat_lft';
-    protected $f_right = 'cat_rgt';
-    protected $f_id    = 'cat_id';
-
-    protected $core;
-    protected $blog_id;
-
-    /**
-     * Constructs a new instance.
-     *
-     * @param      dcCore  $core   The core
-     */
-    public function __construct(dcCore $core)
-    {
-        $this->core          = &$core;
-        $this->con           = &$core->con;
-        $this->blog_id       = $core->blog->id;
-        $this->table         = $core->prefix . 'category';
-        $this->add_condition = ['blog_id' => "'" . $this->con->escape($this->blog_id) . "'"];
-    }
-
-    /**
-     * Gets the category children.
-     *
-     * @param      int     $start   The start
-     * @param      mixed   $id      The identifier
-     * @param      string  $sort    The sort
-     * @param      array   $fields  The fields
-     *
-     * @return     record  The children.
-     */
-    public function getChildren($start = 0, $id = null, $sort = 'asc', $fields = [])
-    {
-        $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
-
-        return parent::getChildren($start, $id, $sort, $fields);
-    }
-
-    /**
-     * Gets the parents.
-     *
-     * @param      int     $id      The category identifier
-     * @param      array   $fields  The fields
-     *
-     * @return     record  The parents.
-     */
-    public function getParents($id, $fields = [])
-    {
-        $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
-
-        return parent::getParents($id, $fields);
-    }
-
-    /**
-     * Gets the parent.
-     *
-     * @param      integer  $id      The category identifier
-     * @param      array    $fields  The fields
-     *
-     * @return     record  The parent.
-     */
-    public function getParent($id, $fields = [])
-    {
-        $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
-
-        return parent::getParent($id, $fields);
-    }
-}
-
-abstract class nestedTree
+abstract class NestedTree
 {
     protected $con;
 
@@ -102,9 +38,9 @@ abstract class nestedTree
     /**
      * Constructs a new instance.
      *
-     * @param      mixed  $con    The con
+     * @param      Connection  $con    The con
      */
-    public function __construct($con)
+    public function __construct(Connection $con)
     {
         $this->con = &$con;
     }
@@ -216,7 +152,7 @@ abstract class nestedTree
     public function addNode($data, $target = 0)
     {
         if (!is_array($data) && !($data instanceof cursor)) {
-            throw new Exception('Invalid data block');
+            throw new DatabaseException('Invalid data block');
         }
 
         if (is_array($data)) {
@@ -253,7 +189,7 @@ abstract class nestedTree
                 $this->setNodeParent($id + 1, $target);
 
                 return $data->{$this->f_id};
-            } catch (Exception $e) {
+            } catch (DatabaseException $e) {
             } # We don't mind error in this case
         } catch (Exception $e) {
             $this->con->unlock();
@@ -306,7 +242,7 @@ abstract class nestedTree
 
         $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
-            throw new Exception('Node does not exist.');
+            throw new DatabaseException('Node does not exist.');
         }
         $node_left  = (integer) $rs->{$this->f_left};
         $node_right = (integer) $rs->{$this->f_right};
@@ -414,7 +350,7 @@ abstract class nestedTree
 
         $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
-            throw new Exception('Node does not exist.');
+            throw new DatabaseException('Node does not exist.');
         }
         $node_left  = (integer) $rs->{$this->f_left};
         $node_right = (integer) $rs->{$this->f_right};
@@ -437,7 +373,7 @@ abstract class nestedTree
             || ($target_left >= $node_left && $target_left <= $node_right)
             || ($node_level == $target_level + 1 && $node_left > $target_left && $node_right < $target_right)
         ) {
-            throw new Exception('Cannot move tree');
+            throw new DatabaseException('Cannot move tree');
         }
 
         if ($target_left < $node_left && $target_right > $node_right && $target_level < $node_level - 1) {
@@ -517,7 +453,7 @@ abstract class nestedTree
 
         $rs = $this->getChildren(0, $nodeA);
         if ($rs->isEmpty()) {
-            throw new Exception('Node does not exist.');
+            throw new DatabaseException('Node does not exist.');
         }
         $A_left  = $rs->{$this->f_left};
         $A_right = $rs->{$this->f_right};
@@ -525,14 +461,14 @@ abstract class nestedTree
 
         $rs = $this->getChildren(0, $nodeB);
         if ($rs->isEmpty()) {
-            throw new Exception('Node does not exist.');
+            throw new DatabaseException('Node does not exist.');
         }
         $B_left  = $rs->{$this->f_left};
         $B_right = $rs->{$this->f_right};
         $B_level = $rs->level;
 
         if ($A_level != $B_level) {
-            throw new Exception('Cannot change position');
+            throw new DatabaseException('Cannot change position');
         }
 
         $rs      = $this->getParents($nodeA);
@@ -541,7 +477,7 @@ abstract class nestedTree
         $parentB = $rs->isEmpty() ? 0 : $rs->{$this->f_id};
 
         if ($parentA != $parentB) {
-            throw new Exception('Cannot change position');
+            throw new DatabaseException('Cannot change position');
         }
 
         if ($position == 'before') {

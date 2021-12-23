@@ -15,8 +15,12 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+use Dotclear\Core\Categories;
+
 use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
+use Dotclear\Database\Record;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 use Dotclear\File\Path;
@@ -348,8 +352,8 @@ class Blog
      */
     public function categories()
     {
-        if (!($this->categories instanceof dcCategories)) {
-            $this->categories = new dcCategories($this->core);
+        if (!($this->categories instanceof Categories)) {
+            $this->categories = new Categories($this->core);
         }
 
         return $this->categories;
@@ -1083,7 +1087,7 @@ class Blog
         $rs            = $this->con->select($strReq);
         $rs->core      = $this->core;
         $rs->_nb_media = [];
-        $rs->extend('rsExtPost');
+        $rs->extend('Dotclear\\Core\\RsExt\\rsExtPost');
 
         # --BEHAVIOR-- coreBlogGetPosts
         $this->core->callBehavior('coreBlogGetPosts', $rs);
@@ -1091,7 +1095,7 @@ class Blog
         # --BEHAVIOR-- coreBlogAfterGetPosts
         $alt = new \ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
         $this->core->callBehavior('coreBlogAfterGetPosts', $rs, $alt);
-        if ($alt['rs'] instanceof record) { // @phpstan-ignore-line
+        if ($alt['rs'] instanceof Record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
         }
 
@@ -1326,7 +1330,7 @@ class Blog
 
         $rs = $this->con->select($strReq);
         $rs->core = $this->core;
-        $rs->extend('rsExtDates');
+        $rs->extend('Dotclear\\Core\\RsExt\\rsExtDates');
 
         return $rs;
     }
@@ -2234,7 +2238,7 @@ class Blog
 
         $rs       = $this->con->select($strReq);
         $rs->core = $this->core;
-        $rs->extend('rsExtComment');
+        $rs->extend('Dotclear\\Core\\RsExt\\rsExtComment');
 
         # --BEHAVIOR-- coreBlogGetComments
         $this->core->callBehavior('coreBlogGetComments', $rs);

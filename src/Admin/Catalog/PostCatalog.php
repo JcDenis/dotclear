@@ -58,10 +58,10 @@ class PostCatalog extends Catalog
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = $this->core->blog->getPosts(['post_status' => 1], true)->f(0);
-                $nb_pending     = $this->core->blog->getPosts(['post_status' => -2], true)->f(0);
-                $nb_programmed  = $this->core->blog->getPosts(['post_status' => -1], true)->f(0);
-                $nb_unpublished = $this->core->blog->getPosts(['post_status' => 0], true)->f(0);
+                $nb_published   = (int) $this->core->blog->getPosts(['post_status' => 1], true)->f(0);
+                $nb_pending     = (int) $this->core->blog->getPosts(['post_status' => -2], true)->f(0);
+                $nb_programmed  = (int) $this->core->blog->getPosts(['post_status' => -1], true)->f(0);
+                $nb_unpublished = (int) $this->core->blog->getPosts(['post_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .
                     ($nb_published ?
@@ -169,7 +169,7 @@ class PostCatalog extends Catalog
             $cat_title = __('(No cat)');
         }
 
-        $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" class="mark mark-%3$s" />';
+        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
         $img_status = '';
         $sts_class  = '';
         switch ($this->rs->post_status) {

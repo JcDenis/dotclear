@@ -65,7 +65,7 @@ class BlogAction extends Action
         $this->close();
     }
 
-    public function error(Exception $e)
+    public function error(AdminException $e)
     {
         $this->core->error->add($e->getMessage());
         $this->beginPage($this->breadcrumb(
