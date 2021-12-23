@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class rsExtDates
+class RsExtDates
 {
     /**
      * Convert date to timestamp

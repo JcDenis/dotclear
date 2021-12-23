@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class rsExtPost
+class RsExtPost
 {
     /**
      * Determines whether the specified post is editable.
