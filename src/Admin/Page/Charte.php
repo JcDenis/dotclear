@@ -1,20 +1,37 @@
 <?php
 /**
+ * @class Dotclear\Admin\Page\Charte
+ * @brief Dotclear admin design help page
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @var dcCore $core
  */
-require dirname(__FILE__) . '/../inc/admin/prepend.php';
+declare(strict_types=1);
 
-dcPage::check('usage,contentadmin');
-$core->auth->user_prefs->addWorkspace('interface');
+namespace Dotclear\Admin\Page;
 
-$js         = [];
-$data_theme = $core->auth->user_prefs->interface->theme;
+use Dotclear\Core\Core;
+
+use Dotclear\Admin\Page;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
+
+class Charte extends Page
+{
+    public function __construct(Core $core)
+    {
+        parent::__construct($core);
+
+        $this->check('usage,contentadmin');
+        $core->auth->user_prefs->addWorkspace('interface');
+
+        $js         = [];
+        $data_theme = $core->auth->user_prefs->interface->theme;
 ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
@@ -24,25 +41,25 @@ $data_theme = $core->auth->user_prefs->interface->theme;
     <meta name="GOOGLEBOT" content="NOSNIPPET" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bibliothèque de styles - Dotclear - 2.7</title>
-    <link rel="icon" type="image/png" href="images/favicon96-login.png" />
+    <link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />
 <?php
 
-echo dcPage::cssLoad('style/default.css');
+echo static::cssLoad('style/default.css');
 
 if ($core->auth->user_prefs->interface->htmlfontsize) {
     $js['htmlFontSize'] = $core->auth->user_prefs->interface->htmlfontsize;
 }
 // Set some JSON data
-echo dcUtils::jsJson('dotclear_init', $js);
+echo static::jsJson('dotclear_init', $js);
 ?>
-    <script src="js/jquery/jquery.js"></script>
-    <script src="js/jquery/jquery-ui.custom.js"></script>
-    <script src="js/jquery/jquery.ui.touch-punch.js"></script>
-    <script src="js/jquery/jquery.pageTabs.js"></script>
-    <script src="js/prepend.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/prelude.js"></script>
-    <script src="js/_charte.js"></script>
+    <script src="?df=js/jquery/jquery.js"></script>
+    <script src="?df=js/jquery/jquery-ui.custom.js"></script>
+    <script src="?df=js/jquery/jquery.ui.touch-punch.js"></script>
+    <script src="?df=js/jquery/jquery.pageTabs.js"></script>
+    <script src="?df=js/prepend.js"></script>
+    <script src="?df=js/common.js"></script>
+    <script src="?df=js/prelude.js"></script>
+    <script src="?df=js/_charte.js"></script>
 </head>
 
 <body id="dotclear-admin" class="no-js guideline">
@@ -52,7 +69,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
         <li><a href="#qx">Aller à la recherche</a></li>
     </ul>
     <div id="header">
-        <h1><a href="./index.php"><span class="hidden">Dotclear</span></a></h1>
+        <h1><a href="?"><span class="hidden">Dotclear</span></a></h1>
         <div id="top-info-blog">
                 <p>Bibliothèque de styles - Dotclear - 2.6+</p>
         </div>
@@ -61,8 +78,8 @@ echo dcUtils::jsJson('dotclear_init', $js);
 
     <div id="wrapper" class="clearfix">
         <div class="hidden-if-no-js collapser-box"><button type="button" id="collapser" class="void-btn">
-        <img class="collapse-mm visually-hidden" src="images/collapser-hide.png" alt="Cacher le menu" />
-        <img class="expand-mm visually-hidden" src="images/collapser-show.png" alt="Montrer le menu" />
+        <img class="collapse-mm visually-hidden" src="?df=images/collapser-hide.png" alt="Cacher le menu" />
+        <img class="expand-mm visually-hidden" src="?df=images/collapser-show.png" alt="Montrer le menu" />
         </button></div>
         <div id="main">
             <div id="content" class="clearfix">
@@ -314,7 +331,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                         <input type="hidden" value="aboutConfig" name="p" />
                     </p>
                 <h3 id="prevnext">Navigation contextuelle</h3>
-                    <p><a title="Titre du lien" href="https://fr.dotclear.org/blog" class="onblog_link outgoing">Lien vers le blog <img alt="" src="images/outgoing-link.svg" /></a></p>
+                    <p><a title="Titre du lien" href="https://fr.dotclear.org/blog" class="onblog_link outgoing">Lien vers le blog <img alt="" src="?df=images/outgoing-link.svg" /></a></p>
                     <p class="nav_prevnext"><a title="Titre de l'élément précédente" href="post.php?id=4145">«&nbsp;Élément précédent</a> | <a title="Titre de l'élément suivant" href="#">Élément suivant&nbsp;»</a></p>
 
                 <h3 id="pseudo-tabs">Pseudo-onglets </h3>
@@ -377,7 +394,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                             <td class="nowrap count">06/08/2013 19:16</td>
                             <td class="nowrap"><a href="#">Les aventures du clafoutis</a></td>
                             <td class="nowrap">kozlika</td><td class="nowrap count">4</td>
-                            <td class="nowrap count">0</td><td class="nowrap status"><img alt="Publié" title="Publié" src="images/check-on.png" /> <img alt="Sélectionné" title="Sélectionné" src="images/selected.png" />  </td>
+                            <td class="nowrap count">0</td><td class="nowrap status"><img alt="Publié" title="Publié" src="?df=images/check-on.png" /> <img alt="Sélectionné" title="Sélectionné" src="?df=images/selected.png" />  </td>
                         </tr>
                         <tr class="line offline">
                             <td class="nowrap"><input type="checkbox" name="name2" value="value2"  /></td>
@@ -385,7 +402,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                             <td class="nowrap count">16/05/2011 22:29</td>
                             <td class="nowrap"><a href="#">Les aventures du clafoutis</a></td>
                             <td class="nowrap">kozlika</td><td class="nowrap count">5</td>
-                            <td class="nowrap count">0</td><td class="nowrap status"><img alt="Non publié" title="Non publié" src="images/check-off.png" /> <img alt="Sélectionné" title="Sélectionné" src="images/selected.png" />  </td>
+                            <td class="nowrap count">0</td><td class="nowrap status"><img alt="Non publié" title="Non publié" src="?df=images/check-off.png" /> <img alt="Sélectionné" title="Sélectionné" src="?df=images/selected.png" />  </td>
                         </tr>
                         <tr class="line">
                             <td class="nowrap"><input type="checkbox" name="entries[]" value="2148" /></td>
@@ -394,14 +411,14 @@ echo dcUtils::jsJson('dotclear_init', $js);
                             <td class="nowrap"><a href="#">Les aventures du clafoutis</a></td>
                             <td class="nowrap">kozlika</td>
                             <td class="nowrap count">4</td><td class="nowrap count">1</td>
-                            <td class="nowrap status"><img alt="Publié" title="Publié" src="images/check-on.png" />   </td>
+                            <td class="nowrap status"><img alt="Publié" title="Publié" src="?df=images/check-on.png" />   </td>
                         </tr>
                         <tr class="line">
                             <td class="nowrap"><input type="checkbox" name="entries[]" value="2136"  /></td>
                             <td class="maximal" scope="row"><a href="#">Souffler six bougies</a></td>
                             <td class="nowrap count">14/08/2009 00:00</td><td class="nowrap"><a href="#">Les aventures du clafoutis</a></td>
                             <td class="nowrap">kozlika</td>
-                            <td class="nowrap count">4</td><td class="nowrap count">2</td><td class="nowrap status"><img alt="Publié" title="Publié" src="images/check-on.png" />   </td>
+                            <td class="nowrap count">4</td><td class="nowrap count">2</td><td class="nowrap status"><img alt="Publié" title="Publié" src="?df=images/check-on.png" />   </td>
                         </tr>
                         <tr class="line">
                             <td class="nowrap"><input type="checkbox" name="entries[]" value="2129"  /></td>
@@ -411,7 +428,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                             <td class="nowrap">kozlika</td>
                             <td class="nowrap count">9</td>
                             <td class="nowrap count">1</td>
-                            <td class="nowrap status"><img alt="Publié" title="Publié" src="images/check-on.png" />   </td>
+                            <td class="nowrap status"><img alt="Publié" title="Publié" src="?df=images/check-on.png" />   </td>
                         </tr>
                         <tr class="line">
                             <td class="nowrap"><input type="checkbox" name="entries[]" value="2111"  /></td>
@@ -419,7 +436,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                             <td class="nowrap count">19/03/2009 10:31</td><td class="nowrap"><a href="#">Les aventures du clafoutis</a></td>
                             <td class="nowrap">kozlika</td>
                             <td class="nowrap count">1</td><td class="nowrap count">0</td>
-                            <td class="nowrap status"><img alt="Publié" title="Publié" src="images/check-on.png" />   </td>
+                            <td class="nowrap status"><img alt="Publié" title="Publié" src="?df=images/check-on.png" />   </td>
                         </tr>
                     </table>
                 </div>
@@ -455,7 +472,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                                     <td class="nowrap">0</td>
                                     <td class="nowrap">0</td>
                                     <td class="nowrap status">
-                                        <img alt="Publié" title="Publié" src="images/check-on.png" />
+                                        <img alt="Publié" title="Publié" src="?df=images/check-on.png" />
                                     </td>
                                 </tr>
                                 <tr class="line" id="p10937">
@@ -472,8 +489,8 @@ echo dcUtils::jsJson('dotclear_init', $js);
                                     <td class="nowrap">0</td>
                                     <td class="nowrap">0</td>
                                     <td class="nowrap status">
-                                        <img alt="Publié" title="Publié" src="images/check-on.png" />
-                                        <img alt="Masqué" title="Masqué" src="images/hidden.png" />
+                                        <img alt="Publié" title="Publié" src="?df=images/check-on.png" />
+                                        <img alt="Masqué" title="Masqué" src="?df=images/hidden.png" />
                                     </td>
                                 </tr>
                                 <tr class="line offline" id="p11047">
@@ -490,7 +507,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                                     <td class="nowrap">0</td>
                                     <td class="nowrap">0</td>
                                     <td class="nowrap status">
-                                        <img alt="En attente" title="En attente" src="images/check-wrn.png" />
+                                        <img alt="En attente" title="En attente" src="?df=images/check-wrn.png" />
                                     </td>
                                 </tr>
                                 <tr class="line offline" id="p10939">
@@ -507,7 +524,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                                     <td class="nowrap">0</td>
                                     <td class="nowrap">0</td>
                                     <td class="nowrap status">
-                                        <img alt="Programmé" title="Programmé" src="images/scheduled.png" />
+                                        <img alt="Programmé" title="Programmé" src="?df=images/scheduled.png" />
                                     </td>
                                 </tr>
                                 <tr class="line offline" id="p10940">
@@ -524,8 +541,8 @@ echo dcUtils::jsJson('dotclear_init', $js);
                                     <td class="nowrap">0</td>
                                     <td class="nowrap">0</td>
                                     <td class="nowrap status">
-                                        <img alt="En attente" title="En attente" src="images/check-wrn.png" />
-                                        <img alt="Protégé" title="Protégé" src="images/locker.png" />
+                                        <img alt="En attente" title="En attente" src="?df=images/check-wrn.png" />
+                                        <img alt="Protégé" title="Protégé" src="?df=images/locker.png" />
                                     </td>
                                 </tr>
                             </tbody>
@@ -538,7 +555,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
                 16*16px pour les petits formats.</p>
                 <p>La plupart sont dérivées de la fonte d'icônes <a href="https://www.elegantthemes.com/blog/resources/elegant-icon-font">Elegant Font</a>. Les autres sont des images vectorielles réalisées
                 par la DC Team. Nous les avons nommées <em>Traviata</em>. La palette de couleurs utilisée est la suivante&nbsp;:</p>
-                <p class="txt-center"><img src="images/palette-traviata.png" alt="palette des couleurs utilisées pour les icônes" /></p>
+                <p class="txt-center"><img src="?df=images/palette-traviata.png" alt="palette des couleurs utilisées pour les icônes" /></p>
                 <p class="txt-center">Bleu&nbsp;: #137bbb - Vert&nbsp;: #9ac123 - Rouge&nbsp;: #c44d58 - Bleu ciel&nbsp;: #a2cbe9 - Gris clair&nbsp;: #ececec -
                 Gris moyen&nbsp;: #b2b2b2 - Gris foncé&nbsp;: #676e78.</p>
             </div><!-- /content -->
@@ -586,7 +603,7 @@ echo dcUtils::jsJson('dotclear_init', $js);
         </div><!-- /main-menu -->
 
         <div id="footer">
-            <a href="https://dotclear.org/" title="Merci de manger des clafoutis."><img src="style/dc_logos/w-dotclear90.png" alt="Merci d'utiliser Dotclear 2.6-dev." /></a>
+            <a href="https://dotclear.org/" title="Merci de manger des clafoutis."><img src="?df=style/dc_logos/w-dotclear90.png" alt="Merci d'utiliser Dotclear 2.6-dev." /></a>
         </div><!-- /footer -->
                                                 <!--
                                                                   .
@@ -599,3 +616,6 @@ echo dcUtils::jsJson('dotclear_init', $js);
     </div><!-- /wrapper -->
 </body>
 </html>
+<?php
+    }
+}
