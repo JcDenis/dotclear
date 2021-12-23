@@ -1,31 +1,47 @@
 <?php
 /**
+ * @class Dotclear\Admin\Action
+ * @brief Dotclear admin handler for action page on selected entries
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Admin\Page;
+
+use Dotclear\Database\Record;
+use Dotclear\Html\FormSelectOption;
+use Dotclear\Html\Form;
+use Dotclear\Network\Http;
+
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-/**
- * dcActionsPage -- handler for action page on selected entries
- */
-abstract class dcActionsPage
+abstract class Action extends Page
 {
     /** @var string form submit uri */
     protected $uri;
-    /** @var dcCore dotclear core instance */
-    protected $core;
+
     /** @var array action combo box */
     protected $combo;
-    /** @var ArrayObject list of defined actions (callbacks) */
+    /** @var \ArrayObject list of defined actions (callbacks) */
     protected $actions;
     /** @var array selected entries (each key is the entry id, value contains the entry description) */
     protected $entries;
-    /** @var record record that challenges ids against permissions */
+    /** @var Record record that challenges ids against permissions */
     protected $rs;
     /** @var array redirection $_GET arguments, if any (does not contain ids by default, ids may be merged to it) */
     protected $redir_args;
@@ -36,7 +52,7 @@ abstract class dcActionsPage
 
     /** @var string current action, if any */
     protected $action;
-    /** @var ArrayObject list of url parameters (usually $_POST) */
+    /** @var \ArrayObject list of url parameters (usually $_POST) */
     protected $from;
     /** @var string form field name for "entries" (usually "entries") */
     protected $field_entries;
@@ -56,17 +72,20 @@ abstract class dcActionsPage
     /**
      * Class constructor
      *
-     * @param mixed  $core   dotclear core
-     * @param mixed  $uri   form uri
+     * @param Core      $core           dotclear core
+     * @param string    $uri            form uri
+     * @param array     $redirect_args  redirect arguments
      *
      * @access public
      *
      * @return mixed Value.
      */
-    public function __construct($core, $uri, $redirect_args = [])
+    public function __construct(Core $core, string $uri, array $redirect_args = [])
     {
+        parent::__construct($core);
+
         $this->core            = $core;
-        $this->actions         = new ArrayObject();
+        $this->actions         = new \ArrayObject();
         $this->combo           = [];
         $this->uri             = $uri;
         $this->redir_args      = $redirect_args;
@@ -74,7 +93,7 @@ abstract class dcActionsPage
         $this->action          = '';
         $this->cb_title        = __('Title');
         $this->entries         = [];
-        $this->from            = new ArrayObject($_POST);
+        $this->from            = new \ArrayObject($_POST);
         $this->field_entries   = 'entries';
         $this->caller_title    = __('Entries');
         if (isset($this->redir_args['_ANCHOR'])) {
@@ -96,7 +115,7 @@ abstract class dcActionsPage
      *
      * @access public
      */
-    public function setEnableRedirSelection($enable)
+    public function setEnableRedirSelection(bool $enable): void
     {
         $this->enable_redir_selection = $enable;
     }
@@ -111,7 +130,7 @@ abstract class dcActionsPage
      *
      * @access public
      *
-     * @return dcActionsPage the actions page itself, enabling to chain addAction().
+     * @return Action the actions page itself, enabling to chain addAction().
      */
     public function addAction($actions, $callback)
     {
@@ -141,7 +160,7 @@ abstract class dcActionsPage
     }
 
     /**
-     * getCombo - returns the actions combo, useable through form::combo
+     * getCombo - returns the actions combo, useable through Form::combo
      *
      * @access public
      *
@@ -175,7 +194,7 @@ abstract class dcActionsPage
     {
         $ret = '';
         foreach ($this->entries as $id => $v) {
-            $ret .= form::hidden($this->field_entries . '[]', $id);
+            $ret .= Form::hidden($this->field_entries . '[]', $id);
         }
 
         return $ret;
@@ -194,7 +213,7 @@ abstract class dcActionsPage
     {
         $ret = '';
         foreach ($this->redir_args as $k => $v) {
-            $ret .= form::hidden([$k], $v);
+            $ret .= Form::hidden([$k], $v);
         }
         if ($with_ids) {
             $ret .= $this->getIDsHidden();
@@ -220,7 +239,7 @@ abstract class dcActionsPage
      *  by default, $_POST fields as defined in redirect_fields attributes
      *  are set into redirect_args.
      *
-     * @param array|ArrayObject     $from   input to parse fields from (usually $_POST)
+     * @param array|\ArrayObject     $from   input to parse fields from (usually $_POST)
      *
      * @access protected
      */
@@ -256,7 +275,7 @@ abstract class dcActionsPage
             $redir_args[$this->field_entries] = array_keys($this->entries);
         }
 
-        return $this->uri . '?' . http_build_query($redir_args) . $this->redir_anchor;
+        return $this->uri . (strpos($this->uri, '?') === false ? '?' : '&') . http_build_query($redir_args) . $this->redir_anchor;
     }
 
     /**
@@ -268,7 +287,7 @@ abstract class dcActionsPage
      */
     public function redirect($with_selected_entries = false, $params = [])
     {
-        http::redirect($this->getRedirection($with_selected_entries, $params));
+        Http::redirect($this->getRedirection($with_selected_entries, $params));
         exit;
     }
 
@@ -335,8 +354,8 @@ abstract class dcActionsPage
                     return true;
                 }
             } catch (Exception $e) {
-                // $this->error($e);
-                return true;
+                //$this->error($e);
+                return false;
             }
         }
     }
@@ -356,7 +375,7 @@ abstract class dcActionsPage
             '</tr>';
         foreach ($this->entries as $id => $title) {
             $ret .= '<tr><td class="minimal">' .
-            form::checkbox([$this->field_entries . '[]'], $id, [
+            Form::checkbox([$this->field_entries . '[]'], $id, [
                 'checked' => true
             ]) .
                 '</td>' .

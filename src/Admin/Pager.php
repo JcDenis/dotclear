@@ -115,11 +115,11 @@ class Pager
     protected function getLink($li_class, $href, $img_src, $img_src_nolink, $img_alt, $enable_link)
     {
         if ($enable_link) {
-            $formatter = '<li class="%s btn"><a href="%s"><img src="%s" alt="%s"/></a><span class="hidden">%s</span></li>';
+            $formatter = '<li class="%s btn"><a href="%s"><img src="?df=%s" alt="%s"/></a><span class="hidden">%s</span></li>';
 
             return sprintf($formatter, $li_class, $href, $img_src, $img_alt, $img_alt);
         }
-        $formatter = '<li class="%s no-link btn"><img src="%s" alt="%s"/></li>';
+        $formatter = '<li class="%s no-link btn"><img src="?df=%s" alt="%s"/></li>';
 
         return sprintf($formatter, $li_class, $img_src_nolink, $img_alt);
     }

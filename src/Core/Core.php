@@ -1340,7 +1340,7 @@ class Core
             $strReq .= "AND post_type = '" . $this->con->escape($type) . "' ";
         }
 
-        return $this->con->select($strReq)->f(0);
+        return (int) $this->con->select($strReq)->f(0);
     }
     //@}
 

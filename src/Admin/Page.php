@@ -758,8 +758,9 @@ class Page
      */
     public static function jsVar($n, $v): string
     {
-        DeprecatedException::throw();
-        return '';
+        //DeprecatedException::throw();
+
+        return $n . " = '" . html::escapeJS($v) . "';\n";
     }
 
     /**
@@ -767,8 +768,15 @@ class Page
      */
     public static function jsVars($vars): string
     {
-        DeprecatedException::throw();
-        return '';
+        //DeprecatedException::throw();
+
+        $ret = '<script>' . "\n";
+        foreach ($vars as $var => $value) {
+            $ret .= $var . ' = ' . (is_string($value) ? "'" . html::escapeJS($value) . "'" : $value) . ';' . "\n";
+        }
+        $ret .= "</script>\n";
+
+        return $ret;
     }
 
     /**

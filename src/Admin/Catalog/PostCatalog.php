@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\List\PostList
+ * @class Dotclear\Admin\Catalog\PostCatalog
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Admin;
+namespace Dotclear\Admin\Catalog;
 
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
-use Dotclear\Admin\List;
+use Dotclear\Admin\Catalog;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -26,7 +26,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PostList extends List
+class PostCatalog extends Catalog
 {
     /**
      * Display admin post list

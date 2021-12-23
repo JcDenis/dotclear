@@ -6,8 +6,8 @@ $(() => {
   Object.assign(dotclear.msg, dotclear.getData('filter_controls'));
 
   let reset_url = '?';
-  if (dotclear.filter_reset_url != undefined) {
-    reset_url = dotclear.filter_reset_url;
+  if (dotclear.msg.filter_reset_url != undefined) {
+    reset_url = dotclear.msg.filter_reset_url;
   }
 
   const $filtersform = $('#filters-form');
@@ -41,7 +41,7 @@ $(() => {
   $('#filter-control').on('click', function () {
     if ($(this).hasClass('open')) {
       if (dotclear.msg.show_filters) {
-        return true;
+        //return true;
       }
       $filtersform.hide();
       $(this).removeClass('open').text(dotclear.msg.filter_posts_list);

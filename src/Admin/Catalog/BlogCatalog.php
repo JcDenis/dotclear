@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\List\BlogList
+ * @class Dotclear\Admin\Catalog\BlogCatalog
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Admin;
+namespace Dotclear\Admin\Catalog;
 
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
-use Dotclear\Admin\List;
+use Dotclear\Admin\Catalog;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -26,7 +26,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class BlogList extends List
+class BlogCatalog extends Catalog
 {
     /**
      * Display a blog list
@@ -130,7 +130,7 @@ class BlogList extends List
             ($this->core->auth->isSuperAdmin() ?
                 '<a href="' . $this->core->adminurl->get('admin.blog', ['id' => $blog_id]) . '"  ' .
                 'title="' . sprintf(__('Edit blog settings for %s'), $blog_id) . '">' .
-                '<img src="images/edit-mini.png" alt="' . __('Edit blog settings') . '" /> ' . $blog_id . '</a> ' :
+                '<img src="?df=images/edit-mini.png" alt="' . __('Edit blog settings') . '" /> ' . $blog_id . '</a> ' :
                 $blog_id . ' ') .
             '</td>',
             'name' => '<td class="maximal">' .
@@ -141,7 +141,7 @@ class BlogList extends List
             'url' => '<td class="nowrap">' .
             '<a class="outgoing" href="' .
             Html::escapeHTML($this->rs->blog_url) . '">' . Html::escapeHTML($this->rs->blog_url) .
-            ' <img src="images/outgoing-link.svg" alt="" /></a></td>',
+            ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
             $this->core->countBlogPosts($this->rs->blog_id) .
             '</td>',
@@ -150,9 +150,9 @@ class BlogList extends List
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
-                '<img src="images/%1$s.png" alt="%2$s" title="%2$s" />',
+                '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
                 ($this->rs->blog_status == 1 ? 'check-on' : ($this->rs->blog_status == 0 ? 'check-off' : 'check-wrn')),
-                $this->core->getBlogStatus($this->rs->blog_status)
+                $this->core->getBlogStatus((int) $this->rs->blog_status)
             ) .
             '</td>',
         ];

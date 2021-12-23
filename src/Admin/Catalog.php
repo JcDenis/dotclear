@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\List
+ * @class Dotclear\Admin\Catalog
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class List
+class Catalog
 {
     protected $core;
     protected $rs;
@@ -40,7 +40,7 @@ class List
     {
         $this->core      = &$core;
         $this->rs        = &$rs;
-        $this->rs_count  = $rs_count;
+        $this->rs_count  = (int) $rs_count;
         $this->html_prev = __('&#171; prev.');
         $this->html_next = __('next &#187;');
     }

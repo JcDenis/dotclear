@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\Utils;
+
 use Dotclear\Database\StaticRecord;
 
 if (!defined('DOTCLEAR_PROCESS')) {
