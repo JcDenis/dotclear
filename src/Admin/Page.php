@@ -117,7 +117,7 @@ class Page
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            $core->formNonce() . Form::combo('switchblog', $blogs, $this->core->blog->id) .
+            $this->core->formNonce() . Form::combo('switchblog', $blogs, $this->core->blog->id) .
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
