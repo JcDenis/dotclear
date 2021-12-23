@@ -1,47 +1,62 @@
 <?php
 /**
+ * @class Dotclear\Admin\Action\CommentAction
+ * @brief Dotclear admin handler for action page on selected comments
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
+declare(strict_types=1);
 
-class dcCommentsActionsPage extends dcActionsPage
+namespace Dotclear\Admin\Action;
+
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Admin\Action;
+use Dotclear\Admin\Action\DefaultCommentAction;
+
+use Dotclear\Html\Html;
+use Dotclear\Html\Form;
+
+class CommentAction extends Action
 {
-    public function __construct($core, $uri, $redirect_args = [])
+    public function __construct(Core $core, $uri, $redirect_args = [])
     {
         parent::__construct($core, $uri, $redirect_args);
+
         $this->redirect_fields = ['type', 'author', 'status',
             'sortby', 'ip', 'order', 'page', 'nb', 'section'];
         $this->field_entries = 'comments';
         $this->cb_title      = __('Comments');
         $this->loadDefaults();
-        $core->callBehavior('adminCommentsActionsPage', $core, $this);
+        $core->callBehavior('adminCommentsActionsPage', $this);
     }
 
     protected function loadDefaults()
     {
         // We could have added a behavior here, but we want default action
         // to be setup first
-        dcDefaultCommentActions::adminCommentsActionsPage($this->core, $this);
+        DefaultCommentAction::CommentAction($this->core, $this);
     }
 
     public function beginPage($breadcrumb = '', $head = '')
     {
         if ($this->in_plugin) {
             echo '<html><head><title>' . __('Comments') . '</title>' .
-            dcPage::jsLoad('js/_comments_actions.js') .
+            static::jsLoad('js/_comments_actions.js') .
                 $head .
                 '</script></head><body>' .
                 $breadcrumb;
         } else {
-            dcPage::open(
+            $this->open(
                 __('Comments'),
-                dcPage::jsLoad('js/_comments_actions.js') .
+                static::jsLoad('js/_comments_actions.js') .
                 $head,
                 $breadcrumb
             );
@@ -51,13 +66,13 @@ class dcCommentsActionsPage extends dcActionsPage
 
     public function endPage()
     {
-        dcPage::close();
+        $this->close();
     }
 
-    public function error(Exception $e)
+    public function error(AdminException $e)
     {
         $this->core->error->add($e->getMessage());
-        $this->beginPage(dcPage::breadcrumb(
+        $this->beginPage($this->breadcrumb(
             [
                 html::escapeHTML($this->core->blog->name) => '',
                 __('Comments')                            => $this->core->adminurl->get('admin.comments'),
@@ -82,7 +97,7 @@ class dcCommentsActionsPage extends dcActionsPage
             '</tr>';
         foreach ($this->entries as $id => $title) {
             $ret .= '<tr><td class="minimal">' .
-            form::checkbox([$this->field_entries . '[]'], $id,
+            Form::checkbox([$this->field_entries . '[]'], $id,
                 [
                     'checked' => true
                 ]) .

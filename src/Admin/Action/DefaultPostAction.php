@@ -40,7 +40,7 @@ class DefaultPostAction
                     __('Schedule')        => 'schedule',
                     __('Mark as pending') => 'pending'
                 ]],
-                ['dcDefaultPostActions', 'doChangePostStatus']
+                [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostStatus']
             );
         }
         $ap->addAction(

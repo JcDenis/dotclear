@@ -79,10 +79,10 @@ class CommentCatalog extends Catalog
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = $this->core->blog->getComments(['comment_status' => 1], true)->f(0);
-                $nb_spam        = $this->core->blog->getComments(['comment_status' => -2], true)->f(0);
-                $nb_pending     = $this->core->blog->getComments(['comment_status' => -1], true)->f(0);
-                $nb_unpublished = $this->core->blog->getComments(['comment_status' => 0], true)->f(0);
+                $nb_published   = (int) $this->core->blog->getComments(['comment_status' => 1], true)->f(0);
+                $nb_spam        = (int) $this->core->blog->getComments(['comment_status' => -2], true)->f(0);
+                $nb_pending     = (int) $this->core->blog->getComments(['comment_status' => -1], true)->f(0);
+                $nb_unpublished = (int) $this->core->blog->getComments(['comment_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?
@@ -146,7 +146,7 @@ class CommentCatalog extends Catalog
             echo $blocks[1];
 
             $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="images/%2$s" /> %1$s', $title, $image);
+                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
             echo '<p class="info">' . __('Legend: ') .
                 $fmt(__('Published'), 'check-on.png') . ' - ' .
@@ -189,7 +189,7 @@ class CommentCatalog extends Catalog
         $comment_dt = Dt::dt2str($this->core->blog->settings->system->date_format . ' - ' .
             $this->core->blog->settings->system->time_format, $this->rs->comment_dt);
 
-        $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" />';
+        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
         $sts_class  = '';
         switch ($this->rs->comment_status) {
@@ -234,7 +234,7 @@ class CommentCatalog extends Catalog
             '</td>',
             'type' => '<td class="nowrap" abbr="' . __('Type and author') . '" scope="row">' .
             '<a href="' . $comment_url . '" title="' . $comment_title . '">' .
-            '<img src="images/edit-mini.png" alt="' . __('Edit') . '"/> ' .
+            '<img src="?df=images/edit-mini.png" alt="' . __('Edit') . '"/> ' .
             ($this->rs->comment_trackback ? __('trackback') : __('comment')) . ' ' . '</a></td>',
             'author' => '<td class="nowrap maximal"><a href="' . $author_url . '">' .
             Html::escapeHTML($this->rs->comment_author) . '</a></td>',
