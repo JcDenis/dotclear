@@ -170,10 +170,11 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.users', 'users.php');
         $this->adminurl->register('admin.update', $d . 'Update');
         $this->adminurl->register('admin.services', $d . 'Services');
+        $this->adminurl->register('admin.xmlrpc', $d . 'Xmlrpc');
         $this->adminurl->register('admin.cspreport', $d . 'CspReport');
 
-        $this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
-        $this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
+        //$this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
+        //$this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
     }
 
     private function adminLoadSession(): bool
