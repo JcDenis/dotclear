@@ -84,7 +84,7 @@ class UserCatalog extends Catalog
             echo $blocks[1];
 
             $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="images/%2$s" /> %1$s', $title, $image);
+                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
             echo '<p class="info">' . __('Legend: ') .
                 $fmt(__('admin'), 'admin.png') . ' - ' .
@@ -104,7 +104,7 @@ class UserCatalog extends Catalog
      */
     private function userLine()
     {
-        $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" />';
+        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
         $p = $this->core->getUserPermissions($this->rs->user_id);

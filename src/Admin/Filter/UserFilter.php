@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Filter\CommentFilter
+ * @class Dotclear\Admin\Filter\UserFilter
  * @brief class for admin user list filters form
  *
  * @package Dotclear
@@ -24,7 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class adminUserFilter extends Filter
+class UserFilter extends Filter
 {
     public function __construct(Core $core)
     {

@@ -167,7 +167,7 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.user.preferences', 'preferences.php');
         $this->adminurl->register('admin.user', 'user.php');
         $this->adminurl->register('admin.user.actions', 'users_actions.php');
-        $this->adminurl->register('admin.users', 'users.php');
+        $this->adminurl->register('admin.users', $d . 'Users');
         $this->adminurl->register('admin.update', $d . 'Update');
         $this->adminurl->register('admin.services', $d . 'Services');
         $this->adminurl->register('admin.xmlrpc', $d . 'Xmlrpc');
