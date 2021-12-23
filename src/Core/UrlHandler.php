@@ -750,7 +750,7 @@ class UrlHandler extends BaseUrlHandler
         '  <homePageLink>' . html::escapeHTML($core->blog->url) . "</homePageLink>\n";
 
         if ($core->blog->settings->system->enable_xmlrpc) {
-            $u = sprintf(DC_XMLRPC_URL, $core->blog->url, $core->blog->id); // @phpstan-ignore-line
+            $u = sprintf(DOTCLEAR_XMLRPC_URL, $core->blog->url, $core->blog->id); // @phpstan-ignore-line
 
             echo
                 "  <apis>\n" .

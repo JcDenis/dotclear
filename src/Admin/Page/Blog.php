@@ -20,6 +20,7 @@ use Dotclear\Core\Core;
 use Dotclear\Core\Settings;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\BlogPref;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -71,16 +72,16 @@ class Blog extends Page
                 $core->callBehavior('adminAfterBlogCreate', $cur, $blog_id, $blog_settings);
 
                 static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), html::escapeHTML($cur->blog_name)));
-                $this->core->adminurl->redirect('admin.blog.pref', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
+                $this->core->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
         }
 
         if (!empty($_REQUEST['id'])) {
-            //$edit_blog_mode = true;
-            //include dirname(__FILE__) . '/blog_pref.php';
-            $this->core->adminurl->redirect('admin.blog.pref', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
+            define('EDIT_BLOG_MODE', true);
+            new BlogPref($core);
+            return;
         } else {
             $this->open(__('New blog'), static::jsConfirmClose('blog-form'),
                 $this->breadcrumb(

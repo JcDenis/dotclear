@@ -92,6 +92,3 @@ class Item
         $this->type_prefix = preg_replace('/^(.+?)\/.+$/', '$1', (string) $this->type);
     }
 }
-
-/** Backwards compatibility */
-class_alias('Clearbricks\File\Manager\Item', 'fileItem');

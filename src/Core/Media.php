@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear media manage
+ * @class Dotclear\Core\Media
+ * @brief Dotclear core media class
  *
  * This class handles Dotclear media items.
  *
@@ -10,11 +11,30 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
+declare(strict_types=1);
 
-class dcMedia extends filemanager
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\PostMedia;
+use Dotclear\Core\Sql\SelectStatement;
+use Dotclear\Core\Sql\DeleteStatement;
+use Dotclear\Core\Sql\UpdateStatement;
+
+use Dotclear\File\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Manager\Manager;
+use Dotclear\File\Manager\Item as fileItem;
+use Dotclear\File\Zip\Unzip;
+use Dotclear\Html\XmlTag;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\Text;
+use Dotclear\Utils\ImageTools;
+
+class Media extends Manager
 {
     protected $core;  ///< <b>dcCore</b> dcCore instance
     protected $con;   ///< <b>connection</b> Database connection
@@ -53,19 +73,19 @@ class dcMedia extends filemanager
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore     $core   The core
+     * @param      Core     $core   The core
      * @param      string     $type   The media type filter
      *
      * @throws     Exception  (description)
      */
-    public function __construct(dcCore $core, $type = '')
+    public function __construct(Core $core, $type = '')
     {
         $this->core      = &$core;
         $this->con       = &$core->con;
-        $this->postmedia = new dcPostMedia($core);
+        $this->postmedia = new PostMedia($core);
 
         if ($this->core->blog == null) {
-            throw new Exception(__('No blog defined.'));
+            throw new CoreException(__('No blog defined.'));
         }
 
         $this->table = $this->core->prefix . 'media';
@@ -74,26 +94,27 @@ class dcMedia extends filemanager
         if (preg_match('#^http(s)?://#', $this->core->blog->settings->system->public_url)) {
             $root_url = rawurldecode($this->core->blog->settings->system->public_url);
         } else {
-            $root_url = rawurldecode($this->core->blog->host . path::clean($this->core->blog->settings->system->public_url));
+            $root_url = rawurldecode($this->core->blog->host . Path::clean($this->core->blog->settings->system->public_url));
         }
 
         if (!is_dir($root)) {
             # Check public directory
             if ($core->auth->isSuperAdmin()) {
-                throw new Exception(__('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).'));
+                throw new CoreException(__('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).'));
             }
 
-            throw new Exception(__('There is no writable root directory for the media manager. You should contact your administrator.'));
+            throw new CoreException(__('There is no writable root directory for the media manager. You should contact your administrator.'));
         }
 
         $this->type = $type;
 
         parent::__construct($root, $root_url);
+
         $this->chdir('');
 
         $this->path = $this->core->blog->settings->system->public_path;
 
-        $this->addExclusion(DC_RC_PATH);
+        $this->addExclusion(DOTCLEAR_ROOT_DIR);
         $this->addExclusion(dirname(__FILE__) . '/../');
 
         $this->exclude_pattern = $core->blog->settings->system->media_exclusion;
@@ -222,11 +243,11 @@ class dcMedia extends filemanager
             $f->editable    = true;
             $f->media_id    = $rs->media_id;
             $f->media_title = $rs->media_title;
-            $f->media_meta  = $meta instanceof SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
+            $f->media_meta  = $meta instanceof \SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
             $f->media_user  = $rs->user_id;
             $f->media_priv  = (bool) $rs->media_private;
             $f->media_dt    = strtotime($rs->media_dt);
-            $f->media_dtstr = dt::str('%Y-%m-%d %H:%M', $f->media_dt);
+            $f->media_dtstr = Dt::str('%Y-%m-%d %H:%M', $f->media_dt);
 
             $f->media_image = false;
 
@@ -316,7 +337,7 @@ class dcMedia extends filemanager
 
             # Thumbnails
             $f->media_thumb = [];
-            $p              = path::info($f->relname);
+            $p              = Path::info($f->relname);
 
             $alpha = strtolower($p['extension']) === 'png';
             $webp  = strtolower($p['extension']) === 'webp';
@@ -440,7 +461,7 @@ class dcMedia extends filemanager
 
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new dcSelectStatement($this->core, 'dcMediaGetDir');
+        $sql = new SelectStatement($this->core, 'dcMediaGetDir');
         $sql
             ->columns([
                 'media_file',
@@ -469,7 +490,7 @@ class dcMedia extends filemanager
         $rs = $sql->select();
 
         // Get list of private files in dir
-        $sql = new dcSelectStatement($this->core, 'dcMediaGetDir');
+        $sql = new SelectStatement($this->core, 'dcMediaGetDir');
         $sql
             ->columns([
                 'media_file',
@@ -528,7 +549,7 @@ class dcMedia extends filemanager
                     if (isset($f_reg[$rs->media_file])) {
                         # That media is duplicated in the database,
                         # time to do a bit of house cleaning.
-                        $sql = new dcDeleteStatement($this->core, 'dcMediaGetDir');
+                        $sql = new DeleteStatement($this->core, 'dcMediaGetDir');
                         $sql
                             ->from($this->table)
                             ->where('media_id = ' . $this->fileRecord($rs)->media_id);
@@ -544,14 +565,14 @@ class dcMedia extends filemanager
                 # Because we don't want to erase everything on
                 # dotclear upgrade, do it only if there are files
                 # in directory and directory is root
-                $sql = new dcDeleteStatement($this->core, 'dcMediaGetDir');
+                $sql = new DeleteStatement($this->core, 'dcMediaGetDir');
                 $sql
                     ->from($this->table)
                     ->where('media_path = ' . $sql->quote($this->path, true))
                     ->and('media_file = ' . $sql->quote($rs->media_file, true));
 
                 $sql->delete();
-                $this->callFileHandler(files::getMimeType($rs->media_file), 'remove', $this->pwd . '/' . $rs->media_file);
+                $this->callFileHandler(Files::getMimeType($rs->media_file), 'remove', $this->pwd . '/' . $rs->media_file);
             }
         }
 
@@ -587,7 +608,7 @@ class dcMedia extends filemanager
      */
     public function getFile($id)
     {
-        $sql = new dcSelectStatement($this->core, 'dcMediaGetFile');
+        $sql = new SelectStatement($this->core, 'dcMediaGetFile');
         $sql
             ->from($this->table)
             ->columns([
@@ -631,7 +652,7 @@ class dcMedia extends filemanager
             return false;
         }
 
-        $sql = new dcSelectStatement($this->core, 'dcMediaGetFile');
+        $sql = new SelectStatement($this->core, 'dcMediaGetFile');
         $sql
             ->from($this->table)
             ->columns([
@@ -728,7 +749,7 @@ class dcMedia extends filemanager
     public function rebuild($pwd = '')
     {
         if (!$this->core->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not a super administrator.'));
+            throw new CoreException(__('You are not a super administrator.'));
         }
 
         $this->chdir($pwd);
@@ -754,7 +775,7 @@ class dcMedia extends filemanager
     {
         $media_dir = $pwd ?: '.';
 
-        $sql = new dcSelectStatement($this->core, 'dcMediaRebuildDB');
+        $sql = new SelectStatement($this->core, 'dcMediaRebuildDB');
         $sql
             ->from($this->table)
             ->columns([
@@ -773,7 +794,7 @@ class dcMedia extends filemanager
             }
         }
         if (!empty($del_ids)) {
-            $sql = new dcDeleteStatement($this->core, 'dcMediaRebuildDB');
+            $sql = new DeleteStatement($this->core, 'dcMediaRebuildDB');
             $sql
                 ->from($this->core)
                 ->where('media_id' . $sql->in($del_ids));
@@ -789,7 +810,7 @@ class dcMedia extends filemanager
      */
     public function makeDir($d)
     {
-        $d = files::tidyFileName($d);
+        $d = Files::tidyFileName($d);
         parent::makeDir($d);
     }
 
@@ -810,7 +831,7 @@ class dcMedia extends filemanager
     public function createFile($name, $title = null, $private = false, $dt = null, $force = true)
     {
         if (!$this->core->auth->check('media,media_admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+            throw new CoreException(__('Permission denied.'));
         }
 
         $file = $this->pwd . '/' . $name;
@@ -818,12 +839,12 @@ class dcMedia extends filemanager
             return false;
         }
 
-        $media_file = $this->relpwd ? path::clean($this->relpwd . '/' . $name) : path::clean($name);
-        $media_type = files::getMimeType($name);
+        $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $name) : Path::clean($name);
+        $media_type = Files::getMimeType($name);
 
         $cur = $this->con->openCursor($this->table);
 
-        $sql = new dcSelectStatement($this->core, 'dcMediaCreateFile');
+        $sql = new SelectStatement($this->core, 'dcMediaCreateFile');
         $sql
             ->from($this->table)
             ->column('media_id')
@@ -836,7 +857,7 @@ class dcMedia extends filemanager
             $this->con->writeLock($this->table);
 
             try {
-                $sql = new dcSelectStatement($this->core, 'dcMediaCreateFile');
+                $sql = new SelectStatement($this->core, 'dcMediaCreateFile');
                 $sql
                     ->from($this->table)
                     ->column('MAX(media_id)');
@@ -879,7 +900,7 @@ class dcMedia extends filemanager
 
             $cur->media_upddt = date('Y-m-d H:i:s');
 
-            $sql = new dcUpdateStatement($this->core, 'dcMediaCreateFile');
+            $sql = new UpdateStatement($this->core, 'dcMediaCreateFile');
             $sql->where('media_id = ' . $media_id);
 
             $sql->update($cur);
@@ -901,24 +922,24 @@ class dcMedia extends filemanager
     public function updateFile($file, $newFile)
     {
         if (!$this->core->auth->check('media,media_admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+            throw new CoreException(__('Permission denied.'));
         }
 
         $id = (int) $file->media_id;
 
         if (!$id) {
-            throw new Exception('No file ID');
+            throw new CoreException('No file ID');
         }
 
         if (!$this->core->auth->check('media_admin', $this->core->blog->id)
             && $this->core->auth->userID() != $file->media_user) {
-            throw new Exception(__('You are not the file owner.'));
+            throw new CoreException(__('You are not the file owner.'));
         }
 
         $cur = $this->con->openCursor($this->table);
 
         # We need to tidy newFile basename. If dir isn't empty, concat to basename
-        $newFile->relname = files::tidyFileName($newFile->basename);
+        $newFile->relname = Files::tidyFileName($newFile->basename);
         if ($newFile->dir) {
             $newFile->relname = $newFile->dir . '/' . $newFile->relname;
         }
@@ -927,11 +948,11 @@ class dcMedia extends filemanager
             $newFile->file = $this->root . '/' . $newFile->relname;
 
             if ($this->isFileExclude($newFile->relname)) {
-                throw new Exception(__('This file is not allowed.'));
+                throw new CoreException(__('This file is not allowed.'));
             }
 
             if (file_exists($newFile->file)) {
-                throw new Exception(__('New file already exists.'));
+                throw new CoreException(__('New file already exists.'));
             }
 
             $this->moveFile($file->relname, $newFile->relname);
@@ -945,11 +966,11 @@ class dcMedia extends filemanager
         $cur->media_upddt   = date('Y-m-d H:i:s');
         $cur->media_private = (int) $newFile->media_priv;
 
-        if ($newFile->media_meta instanceof SimpleXMLElement) {
+        if ($newFile->media_meta instanceof \SimpleXMLElement) {
             $cur->media_meta = $newFile->media_meta->asXML();
         }
 
-        $sql = new dcUpdateStatement($this->core, 'dcMediaCreateFile');
+        $sql = new UpdateStatement($this->core, 'dcMediaCreateFile');
         $sql->where('media_id = ' . $id);
 
         $sql->update($cur);
@@ -973,10 +994,10 @@ class dcMedia extends filemanager
     public function uploadFile($tmp, $name, $title = null, $private = false, $overwrite = false)
     {
         if (!$this->core->auth->check('media,media_admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+            throw new CoreException(__('Permission denied.'));
         }
 
-        $name = files::tidyFileName($name);
+        $name = Files::tidyFileName($name);
 
         parent::uploadFile($tmp, $name, $overwrite);
 
@@ -996,10 +1017,10 @@ class dcMedia extends filemanager
     public function uploadBits($name, $bits)
     {
         if (!$this->core->auth->check('media,media_admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+            throw new CoreException(__('Permission denied.'));
         }
 
-        $name = files::tidyFileName($name);
+        $name = Files::tidyFileName($name);
 
         parent::uploadBits($name, $bits);
 
@@ -1016,12 +1037,12 @@ class dcMedia extends filemanager
     public function removeFile($f)
     {
         if (!$this->core->auth->check('media,media_admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+            throw new CoreException(__('Permission denied.'));
         }
 
-        $media_file = $this->relpwd ? path::clean($this->relpwd . '/' . $f) : path::clean($f);
+        $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $f) : Path::clean($f);
 
-        $sql = new dcDeleteStatement($this->core, 'dcMediaRemoveFile');
+        $sql = new DeleteStatement($this->core, 'dcMediaRemoveFile');
         $sql
             ->from($this->table)
             ->where('media_path = ' . $sql->quote($this->path, true))
@@ -1034,12 +1055,12 @@ class dcMedia extends filemanager
         $sql->delete();
 
         if ($this->con->changes() == 0) {
-            throw new Exception(__('File does not exist in the database.'));
+            throw new CoreException(__('File does not exist in the database.'));
         }
 
         parent::removeFile($f);
 
-        $this->callFileHandler(files::getMimeType($media_file), 'remove', $f);
+        $this->callFileHandler(Files::getMimeType($media_file), 'remove', $f);
     }
 
     /**
@@ -1056,7 +1077,7 @@ class dcMedia extends filemanager
         $dir       = [];
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new dcSelectStatement($this->core, 'dcMediaGetDBDirs');
+        $sql = new SelectStatement($this->core, 'dcMediaGetDBDirs');
         $sql
             ->from($this->table)
             ->column('distinct media_dir')
@@ -1084,7 +1105,7 @@ class dcMedia extends filemanager
      */
     public function inflateZipFile($f, $create_dir = true)
     {
-        $zip = new fileUnzip($f->file);
+        $zip = new Unzip($f->file);
         $zip->setExcludePattern($this->exclude_pattern);
         $list = $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
 
@@ -1099,7 +1120,7 @@ class dcMedia extends filemanager
             }
 
             if (is_dir($f->dir . '/' . $destination)) {
-                throw new Exception(sprintf(__('Extract destination directory %s already exists.'), dirname($f->relname) . '/' . $destination));
+                throw new CoreException(sprintf(__('Extract destination directory %s already exists.'), dirname($f->relname) . '/' . $destination));
             }
         } else {
             $target      = $f->dir;
@@ -1111,7 +1132,7 @@ class dcMedia extends filemanager
 
         // Clean-up all extracted filenames
         $clean = function ($name) {
-            $n = text::deaccent($name);
+            $n = Text::deaccent($name);
             $n = preg_replace('/^[.]/u', '', $n);
 
             return preg_replace('/[^A-Za-z0-9._\-\/]/u', '_', $n);
@@ -1139,7 +1160,7 @@ class dcMedia extends filemanager
      */
     public function getZipContent($f)
     {
-        $zip  = new fileUnzip($f->file);
+        $zip  = new Unzip($f->file);
         $list = $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
         $zip->close();
 
@@ -1153,7 +1174,7 @@ class dcMedia extends filemanager
      */
     public function mediaFireRecreateEvent($f)
     {
-        $media_type = files::getMimeType($f->basename);
+        $media_type = Files::getMimeType($f->basename);
         $this->callFileHandler($media_type, 'recreate', null, $f->basename); // Args list to be completed as necessary (Franck)
     }
 
@@ -1176,7 +1197,7 @@ class dcMedia extends filemanager
             return false;
         }
 
-        $p     = path::info($file);
+        $p     = Path::info($file);
         $alpha = strtolower($p['extension']) === 'png';
         $webp  = strtolower($p['extension']) === 'webp';
         $thumb = sprintf(
@@ -1189,7 +1210,7 @@ class dcMedia extends filemanager
         );
 
         try {
-            $img = new imageTools();
+            $img = new ImageTools();
             $img->loadImage($file);
 
             $w = $img->getW();
@@ -1226,7 +1247,7 @@ class dcMedia extends filemanager
     protected function imageThumbUpdate($file, $newFile)
     {
         if ($file->relname != $newFile->relname) {
-            $p         = path::info($file->relname);
+            $p         = Path::info($file->relname);
             $alpha     = strtolower($p['extension']) === 'png';
             $webp      = strtolower($p['extension']) === 'webp';
             $thumb_old = sprintf(
@@ -1238,7 +1259,7 @@ class dcMedia extends filemanager
                 '%s'
             );
 
-            $p         = path::info($newFile->relname);
+            $p         = Path::info($newFile->relname);
             $alpha     = strtolower($p['extension']) === 'png';
             $webp      = strtolower($p['extension']) === 'webp';
             $thumb_new = sprintf(
@@ -1266,7 +1287,7 @@ class dcMedia extends filemanager
      */
     public function imageThumbRemove($f)
     {
-        $p     = path::info($f);
+        $p     = Path::info($f);
         $alpha = strtolower($p['extension']) === 'png';
         $webp  = strtolower($p['extension']) === 'webp';
         $thumb = sprintf(
@@ -1303,8 +1324,8 @@ class dcMedia extends filemanager
             return false;
         }
 
-        $xml  = new xmlTag('meta');
-        $meta = imageMeta::readMeta($file);
+        $xml  = new XmlTag('meta');
+        $meta = ImageMeta::readMeta($file);
         $xml->insertNode($meta);
 
         $c             = $this->core->con->openCursor($this->table);
@@ -1320,15 +1341,15 @@ class dcMedia extends filemanager
             # We set picture time to user timezone
             $media_ts = strtotime($meta['DateTimeOriginal']);
             if ($media_ts !== false) {
-                $o           = dt::getTimeOffset($this->core->auth->getInfo('user_tz'), $media_ts);
-                $c->media_dt = dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o);
+                $o           = Dt::getTimeOffset($this->core->auth->getInfo('user_tz'), $media_ts);
+                $c->media_dt = Dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o);
             }
         }
 
         # --BEHAVIOR-- coreBeforeImageMetaCreate
         $this->core->callBehavior('coreBeforeImageMetaCreate', $c);
 
-        $sql = new dcUpdateStatement($this->core, 'dcMediaImageMetaCreate');
+        $sql = new UpdateStatement($this->core, 'dcMediaImageMetaCreate');
         $sql->where('media_id = ' . $id);
 
         $sql->update($c);

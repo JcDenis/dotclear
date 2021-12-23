@@ -490,6 +490,3 @@ class Manager
         return strcasecmp($a->basename, $b->basename);
     }
 }
-
-/** Backwards compatibility */
-class_alias('Clearbricks\File\Manager\Manager', 'fileManager');

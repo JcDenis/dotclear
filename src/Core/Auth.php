@@ -187,7 +187,8 @@ class Auth
                 $sql->update($cur);
             }
         } elseif ($user_key != '') {
-            if (Http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)) != $user_key) {
+            // Avoid time attacks by measuring server response time during comparison
+            if (!hash_equals(http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
                 return false;
             }
         }
@@ -579,12 +580,13 @@ class Auth
     /**
      * Returns an array with permissions parsed from the string <var>$level</var>
      *
-     * @param string    $level        Permissions string
+     * @param string|null    $level        Permissions string
      *
      * @return array
      */
     public function parsePermissions($level)
     {
+        $level = (string) $level;
         $level = preg_replace('/^\|/', '', $level);
         $level = preg_replace('/\|$/', '', $level);
 

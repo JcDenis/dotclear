@@ -1107,7 +1107,7 @@ class Core
                 'firstname'   => $rs->user_firstname,
                 'displayname' => $rs->user_displayname,
                 'email'       => $rs->user_email,
-                'super'       => (boolean) $rs->user_super,
+                'super'       => (bool) $rs->user_super,
                 'p'           => $this->auth->parsePermissions($rs->permissions)
             ];
         }

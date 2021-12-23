@@ -1,27 +1,36 @@
 <?php
 /**
+ * @class Dotclear\Core\PostMedia
+ * @brief Dotclear core post media class
+ *
+ * This class handles Dotclear media items.
+ *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
+declare(strict_types=1);
 
-class dcPostMedia
+namespace Dotclear\Core;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Database\Record;
+
+class PostMedia
 {
-    protected $core;  ///< <b>dcCore</b> dcCore instance
-    protected $con;   ///< <b>connection</b> Database connection
+    protected $core;  ///< <b>Core</b> Core instance
+    protected $con;   ///< <b>Connection</b> Database connection
     protected $table; ///< <b>string</b> Post-Media table name
 
     /**
      * Constructs a new instance.
      *
-     * @param      dcCore  $core   The core
+     * @param      Core  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
         $this->core  = &$core;
         $this->con   = &$core->con;
@@ -33,9 +42,9 @@ class dcPostMedia
      *
      * @param      array   $params  The parameters
      *
-     * @return     record  The post media.
+     * @return     Record  The post media.
      */
-    public function getPostMedia($params = [])
+    public function getPostMedia(array $params = []): Record
     {
         $strReq = 'SELECT M.media_file, M.media_id, M.media_path, M.media_title, M.media_meta, M.media_dt, ' .
             'M.media_creadt, M.media_upddt, M.media_private, M.user_id, PM.post_id ';
@@ -85,7 +94,7 @@ class dcPostMedia
      * @param      mixed   $media_id   The media identifier
      * @param      string  $link_type  The link type (default: attachment)
      */
-    public function addPostMedia($post_id, $media_id, $link_type = 'attachment')
+    public function addPostMedia($post_id, $media_id, $link_type = 'attachment'): void
     {
         $post_id  = (integer) $post_id;
         $media_id = (integer) $media_id;
@@ -112,7 +121,7 @@ class dcPostMedia
      * @param      mixed   $media_id   The media identifier
      * @param      mixed   $link_type  The link type
      */
-    public function removePostMedia($post_id, $media_id, $link_type = null)
+    public function removePostMedia($post_id, $media_id, $link_type = null): void
     {
         $post_id  = (integer) $post_id;
         $media_id = (integer) $media_id;

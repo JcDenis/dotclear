@@ -160,7 +160,7 @@ class Combos
         $lang_combo = [];
         $langs      = L10n::getISOcodes(true, true);
         foreach ($langs as $k => $v) {
-            $lang_avail   = $v == 'en' || is_dir(DC_L10N_ROOT . '/' . $v);
+            $lang_avail   = $v == 'en' || is_dir(DOTCLEAR_L10N_DIR . '/' . $v);
             $lang_combo[] = new FormSelectOption($k, $v, $lang_avail ? 'avail10n' : '');
         }
 
