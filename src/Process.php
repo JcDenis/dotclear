@@ -30,14 +30,10 @@ class Process
     {
         /* Timer and memory usage for stats and dev */
         if (!defined('DOTCLEAR_START_TIME')) {
-            define('DOTCLEAR_START_TIME',
-                microtime(true)
-            );
+            define('DOTCLEAR_START_TIME', microtime(true));
         }
         if (!defined('DOTCLEAR_START_MEMORY')) {
-            define('DOTCLEAR_START_MEMORY',
-                memory_get_usage(false)
-            );
+            define('DOTCLEAR_START_MEMORY', memory_get_usage(false));
         }
 
         /* Define Dotclear root directory */
