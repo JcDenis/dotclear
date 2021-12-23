@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Page\Services
- * @brief Dotclear admin update page
+ * @brief Dotclear admin rest service page
  *
  * @package Dotclear
  * @subpackage Admin
