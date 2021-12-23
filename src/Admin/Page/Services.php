@@ -27,14 +27,13 @@ class Services extends Page
     {
         $n = 'Dotclear\\Admin\\RestMethods';
         $f = [
-#            'getPostsCount',
-#            'getCommentsCount',
+            'getPostsCount',
+            'getCommentsCount',
             'checkNewsUpdate',
 #            'checkCoreUpdate',
 #            'checkStoreUpdate',
-#            'getPostById',
-#            'getPostById',
-#            'getCommentById',
+            'getPostById',
+            'getCommentById',
 #            'quickPost',
 #            'validatePostMarkup',
 #            'getZipMediaContent',

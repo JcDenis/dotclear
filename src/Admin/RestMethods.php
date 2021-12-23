@@ -259,7 +259,7 @@ class RestMethods
         $rsp->post_display_excerpt($rs->getExcerpt(true));
 
         $metaTag = new XmlTag('meta');
-        if (($meta = @unserialize($rs->post_meta)) !== false) {
+        if (($meta = unserialize((string) $rs->post_meta)) !== false) {
             foreach ($meta as $K => $V) {
                 foreach ($V as $v) {
                     $metaTag->$K($v);
@@ -304,7 +304,7 @@ class RestMethods
         if ($core->auth->userID()) {
             $rsp->comment_ip($rs->comment_ip);
             $rsp->comment_email($rs->comment_email);
-            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
+//!            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
         }
 
         return $rsp;
