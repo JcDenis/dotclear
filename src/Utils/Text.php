@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils;
 
+use Dotclear\Html\Html;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
