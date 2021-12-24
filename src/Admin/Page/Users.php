@@ -121,7 +121,7 @@ class Users extends Page
             $user_list->display(
                 $user_filter->page,
                 $user_filter->nb,
-                '<form action="' . $this->core->adminurl->get('admin.user.actions') . '" method="post" id="form-users">' .
+                '<form action="' . $this->core->adminurl->get('admin.users') . '" method="post" id="form-users">' .
 
                 '%s' .
 
@@ -133,10 +133,10 @@ class Users extends Page
                 Form::combo('action', $combo_action) .
                 '</label> ' .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-                $this->core->adminurl->getHiddenFormFields('admin.users', $user_filter->values(true)) .
                 $this->core->formNonce() .
                 '</p>' .
                 '</div>' .
+                $this->core->adminurl->getHiddenFormFields('admin.user.actions', $user_filter->values(true)) .
                 '</form>',
                 $user_filter->show()
             );
