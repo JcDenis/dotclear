@@ -5,6 +5,8 @@ namespace Dotclear\Core\Sql;
 
 use Dotclear\Core\Core;
 
+use Dotclear\Database\Cursor;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -193,7 +195,7 @@ class UpdateStatement extends SqlStatement
      *
      * @return     bool
      */
-    public function update(?cursor $cur = null): bool
+    public function update(?Cursor $cur = null): bool
     {
         if ($cur) {
             return $cur->update($this->whereStatement());
@@ -213,7 +215,7 @@ class UpdateStatement extends SqlStatement
      *
      * @return     bool
      */
-    public function run(?cursor $cur = null): bool
+    public function run(?Cursor $cur = null): bool
     {
         return $this->update($cur);
     }
