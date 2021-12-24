@@ -17,6 +17,8 @@ namespace Dotclear\File;
 
 use Dotclear\Exception\UtilsException;
 
+use Dotclear\Utils\Text;
+
 class Files
 {
     public static $dir_mode = null; ///< Default directories mode
