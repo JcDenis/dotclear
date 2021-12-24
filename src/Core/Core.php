@@ -1655,6 +1655,7 @@ class Core
                     'Number of comments on feeds'],
                 ['post_url_format', 'string', '{y}/{m}/{d}/{t}',
                     'Post URL format. {y}: year, {m}: month, {d}: day, {id}: post id, {t}: entry title'],
+//!
                 ['public_path', 'string', 'public',
                     'Path to public directory, begins with a / for a full system path'],
                 ['public_url', 'string', '/public',
@@ -1665,6 +1666,7 @@ class Core
                     'Display short feed items'],
                 ['theme', 'string', 'berlin',
                     'Blog theme'],
+//!
                 ['themes_path', 'string', 'themes',
                     'Themes root path'],
                 ['themes_url', 'string', '/themes',

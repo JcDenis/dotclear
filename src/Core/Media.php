@@ -113,7 +113,7 @@ class Media extends Manager
         $this->chdir('');
 
         $this->path = $this->core->blog->settings->system->public_path;
-
+//!
         $this->addExclusion(DOTCLEAR_ROOT_DIR);
         $this->addExclusion(dirname(__FILE__) . '/../');
 
