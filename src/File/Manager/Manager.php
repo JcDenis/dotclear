@@ -416,7 +416,9 @@ class Manager
     {
         $file = Path::real($this->pwd . '/' . Path::clean($f));
 
-        if (is_file($file)) {
+        if ($file === false) {
+            return;
+        } elseif (is_file($file)) {
             $this->removeFile($f);
         } elseif (is_dir($file)) {
             $this->removeDir($f);
@@ -433,6 +435,10 @@ class Manager
     public function removeFile($f)
     {
         $f = Path::real($this->pwd . '/' . Path::clean($f));
+
+        if ($f === false) {
+            return;
+        }
 
         if (!$this->inJail($f)) {
             throw new FileException(__('File is not in jail.'));
@@ -457,6 +463,10 @@ class Manager
     public function removeDir($d)
     {
         $d = Path::real($this->pwd . '/' . Path::clean($d));
+
+        if ($f === false) {
+            return;
+        }
 
         if (!$this->inJail($d)) {
             throw new FileException(__('Directory is not in jail.'));
