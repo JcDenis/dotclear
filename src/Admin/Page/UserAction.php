@@ -60,15 +60,15 @@ class UserAction extends Page
         if (!empty($_POST['action']) && !empty($_POST['users'])) {
             $action = $_POST['action'];
 
-            if (isset($_POST['redir'])) {// && strpos($_POST['redir'], '://') === false) {
+            if (isset($_POST['redir']) && strpos($_POST['redir'], '://') === false) {
                 $redir = $_POST['redir'];
             } else {
                 $redir = $core->adminurl->get('admin.users', [
-                    'q'      => $_POST['q'],
-                    'sortby' => $_POST['sortby'],
-                    'order'  => $_POST['order'],
-                    'page'   => $_POST['page'],
-                    'nb'     => $_POST['nb']
+                    'q'      => $_POST['q'] ?? '',
+                    'sortby' => $_POST['sortby'] ?? '',
+                    'order'  => $_POST['order'] ?? '',
+                    'page'   => $_POST['page'] ?? '',
+                    'nb'     => $_POST['nb'] ?? '',
                 ], '&');
             }
 
@@ -169,14 +169,15 @@ class UserAction extends Page
             $hidden_fields .= Form::hidden(['users[]'], $u);
         }
 
-        if (isset($_POST['redir'])) {// && strpos($_POST['redir'], '://') === false) {
+        if (isset($_POST['redir']) && strpos($_POST['redir'], '://') === false) {
             $hidden_fields .= Form::hidden(['redir'], Html::escapeURL($_POST['redir']));
         } else {
-            $hidden_fields .= Form::hidden(['q'], Html::escapeHTML($_POST['q'])) .
-            Form::hidden(['sortby'], $_POST['sortby']) .
-            Form::hidden(['order'], $_POST['order']) .
-            Form::hidden(['page'], $_POST['page']) .
-            Form::hidden(['nb'], $_POST['nb']);
+            $hidden_fields .=
+            Form::hidden(['q'], Html::escapeHTML($_POST['q'] ?? '')) .
+            Form::hidden(['sortby'], $_POST['sortby'] ?? '') .
+            Form::hidden(['order'], $_POST['order'] ?? '') .
+            Form::hidden(['page'], $_POST['page'] ?? '') .
+            Form::hidden(['nb'], $_POST['nb'] ?? '');
         }
 
         echo '<p><a class="back" href="' . Html::escapeURL($redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
