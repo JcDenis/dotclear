@@ -160,7 +160,7 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.help', $d . 'Help');
         $this->adminurl->register('admin.help.charte', $d . 'Charte');
         $this->adminurl->register('admin.langs', $d .'Langs');
-        $this->adminurl->register('admin.media', 'media.php');
+        $this->adminurl->register('admin.media', $d . 'Media');
         $this->adminurl->register('admin.media.item', 'media_item.php');
         $this->adminurl->register('admin.plugins', 'plugins.php');
         $this->adminurl->register('admin.plugin', 'plugin.php');
@@ -212,7 +212,7 @@ class Prepend extends CorePrepend
                 if (!$this->auth->checkSession()) {
                     # Avoid loop caused by old cookie
                     $p    = $this->session->getCookieParameters(false, -600);
-                    $p[3] = '/';var_dump($p);
+                    $p[3] = '/';
                     call_user_func_array('setcookie', $p);
 
                     $this->adminurl->redirect('admin.auth');

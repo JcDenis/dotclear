@@ -33,6 +33,7 @@ use Dotclear\Html\XmlTag;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\ImageTools;
+use Dotclear\Utils\ImageMeta;
 
 class Media extends Manager
 {
@@ -68,7 +69,7 @@ class Media extends Manager
         'sq' => [48, 'crop', 'square'],
     ];
 
-    public $icon_img = 'images/media/%s.png'; ///< <b>string</b> Icon file pattern
+    public $icon_img = '?df=images/media/%s.png'; ///< <b>string</b> Icon file pattern
 
     /**
      * Constructs a new instance.
