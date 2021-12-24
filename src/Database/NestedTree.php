@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Exception;
+use Dotclear\Exception\DatabaseException;
+
 use Dotclear\Database\Connection;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {

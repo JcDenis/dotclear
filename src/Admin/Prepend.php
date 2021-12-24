@@ -154,7 +154,7 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.blog', $d . 'Blog');
         $this->adminurl->register('admin.blogs', $d . 'Blogs');
         $this->adminurl->register('admin.categories', $d . 'Categories');
-        $this->adminurl->register('admin.category', 'category.php');
+        $this->adminurl->register('admin.category', $d . 'Category');
         $this->adminurl->register('admin.comments', $d . 'Comments');
         $this->adminurl->register('admin.comment', 'comment.php');
         $this->adminurl->register('admin.help', $d . 'Help');

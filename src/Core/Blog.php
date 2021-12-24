@@ -789,6 +789,11 @@ class Blog
                 'ORDER BY cat_url DESC ';
 
             $rs = $this->con->select($strReq);
+
+            if ($rs->isEmpty()) {
+                return $url;
+            }
+
             $a  = [];
             while ($rs->fetch()) {
                 $a[] = $rs->cat_url;
