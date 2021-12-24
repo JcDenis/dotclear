@@ -68,11 +68,13 @@ class ImageMeta
         }
 
         # Fix date format
-        $this->properties['DateTimeOriginal'] = preg_replace(
-            '/^(\d{4}):(\d{2}):(\d{2})/',
-            '$1-$2-$3',
-            $this->properties['DateTimeOriginal']
-        );
+        if ($this->properties['DateTimeOriginal'] !== null) {
+            $this->properties['DateTimeOriginal'] = preg_replace(
+                '/^(\d{4}):(\d{2}):(\d{2})/',
+                '$1-$2-$3',
+                $this->properties['DateTimeOriginal']
+            );
+        }
 
         return $this->properties;
     }
@@ -219,10 +221,10 @@ class ImageMeta
             if (isset($d[$k])) {
                 if (is_array($d[$k])) {
                     foreach ($d[$k] as $kk => $vv) {
-                        $this->exif[$v . '.' . $kk] = Text::toUTF8($vv);
+                        $this->exif[$v . '.' . $kk] = Text::toUTF8((string) $vv);
                     }
                 } else {
-                    $this->exif[$v] = Text::toUTF8($d[$k]);
+                    $this->exif[$v] = Text::toUTF8((string) $d[$k]);
                 }
             }
         }
