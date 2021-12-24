@@ -181,7 +181,7 @@ class Langs extends Page
             'installation.') . '</p>' .
         '<p>' . sprintf(__('You can change your user language in your <a href="%1$s">preferences</a> or ' .
             'change your blog\'s main language in your <a href="%2$s">blog settings</a>.'),
-            $this->core->adminurl->get('admin.user.preferences'), $this->core->adminurl->get('admin.blog.pref')) . '</p>';
+            $this->core->adminurl->get('admin.user.pref'), $this->core->adminurl->get('admin.blog.pref')) . '</p>';
 
         echo
         '<h3>' . __('Installed languages') . '</h3>';

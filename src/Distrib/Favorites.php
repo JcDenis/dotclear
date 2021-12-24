@@ -33,7 +33,7 @@ class Favorites
         $favs->registerMultiple([
             'prefs' => [
                 'title'      => __('My preferences'),
-                'url'        => $core->adminurl->get('admin.user.preferences'),
+                'url'        => $core->adminurl->get('admin.user.pref'),
                 'small-icon' => 'images/menu/user-pref.png',
                 'large-icon' => 'images/menu/user-pref-b.png'],
             'new_post' => [

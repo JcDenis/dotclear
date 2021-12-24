@@ -149,10 +149,10 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.post', 'post.php');
         $this->adminurl->register('admin.post.media', 'post_media.php');
         $this->adminurl->register('admin.blog.theme', 'blog_theme.php');
-        $this->adminurl->register('admin.blog.pref', $d . 'BlogPref');
-        $this->adminurl->register('admin.blog.del', 'blog_del.php');
-        $this->adminurl->register('admin.blog', $d . 'Blog');
         $this->adminurl->register('admin.blogs', $d . 'Blogs');
+        $this->adminurl->register('admin.blog', $d . 'Blog');
+        $this->adminurl->register('admin.blog.pref', $d . 'BlogPref');
+        //$this->adminurl->register('admin.blog.del', 'blog_del.php');
         $this->adminurl->register('admin.categories', $d . 'Categories');
         $this->adminurl->register('admin.category', $d . 'Category');
         $this->adminurl->register('admin.comments', $d . 'Comments');
@@ -165,10 +165,10 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.plugins', 'plugins.php');
         $this->adminurl->register('admin.plugin', 'plugin.php');
         $this->adminurl->register('admin.search', $d . 'Search');
-        $this->adminurl->register('admin.user.preferences', 'preferences.php');
-        $this->adminurl->register('admin.user', $d . 'User');
-        $this->adminurl->register('admin.user.actions', $d . 'UserAction');
         $this->adminurl->register('admin.users', $d . 'Users');
+        $this->adminurl->register('admin.user', $d . 'User');
+        $this->adminurl->register('admin.user.pref', $d . 'UserPref');
+        $this->adminurl->register('admin.user.actions', $d . 'UserAction');
         $this->adminurl->register('admin.update', $d . 'Update');
         $this->adminurl->register('admin.services', $d . 'Services');
         $this->adminurl->register('admin.xmlrpc', $d . 'Xmlrpc');
