@@ -241,7 +241,7 @@ class Pager
         $htmlDirect = ($this->nb_pages > 1 ?
             sprintf(
                 '<li class="direct-access">' . __('Direct access page %s'),
-                Form::number([$this->var_page], 1, $this->nb_pages)
+                Form::number([$this->var_page], 1, (int) $this->nb_pages)
             ) .
             '<input type="submit" value="' . __('ok') . '" class="reset" ' .
             'name="ok" />' . $this->form_hidden . '</li>' : '');
