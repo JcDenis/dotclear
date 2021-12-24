@@ -57,7 +57,7 @@ class Wizard
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
-            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname(DOTCLEAR_CONFIG_PATH))) . '</p>' .
+            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname(DOTCLEAR_CONFIG_PATH), false)) . '</p>' .
             '<p>' . __('Dotclear installation wizard could not create configuration file for you. ' .
                 'You must change folder right or create the <strong>config.php</strong> ' .
                 'file manually, please refer to ' .
