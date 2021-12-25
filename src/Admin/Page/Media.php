@@ -26,6 +26,7 @@ use Dotclear\Admin\Filter\DefaultFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\File\Files;
+use Dotclear\File\Zip\Zip;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -51,7 +52,7 @@ if (!empty($_GET['zipdl']) && $core->auth->check('media_admin', $core->blog->id)
             // Media folder or one of it's sub-folder(s)
             @set_time_limit(300);
             $fp  = fopen('php://output', 'wb');
-            $zip = new fileZip($fp);
+            $zip = new Zip($fp);
             $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
             $zip->addDirectory($core->media->root . '/' . $page->d, '', true);
 
