@@ -54,13 +54,13 @@ define('DOTCLEAR_SESSION_NAME', 'dcxd');
 //define('DOTCLEAR_SESSION_TTL','120 seconds');
 
 // Plugins root
-define('DOTCLEAR_PLUGINS_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
+//define('DOTCLEAR_PLUGINS_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
 
 // Template cache directory
-define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));
+//define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));
 
 // Var directory
-define('DOTCLEAR_VAR_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'var']));
+//define('DOTCLEAR_VAR_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'var']));
 
 // Cryptographic algorithm
 define('DOTCLEAR_CRYPT_ALGO', 'sha512');
