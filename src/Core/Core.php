@@ -51,8 +51,14 @@ class Core
     /** @var Wiki2xhtml         Wiki2xhtml instance */
     public $wiki2xhtml;
 
-    /** ... */
+    /** @var Media              Media instance */
     public $media;
+
+    //** @var Themes             Themes instance */
+    public $themes;
+
+    //** ... */
+    public $plugins;
 
     /** @var RestServer         RestServer instance */
     public $rest;
@@ -201,6 +207,23 @@ class Core
         }
 
         return new $class($this);
+    }
+    //@}
+
+    /// @name Optionnal properties
+    //@{
+    public function loadMediaClass(bool $force = false): void
+    {
+        if ($this->media === null || $force) {
+            $this->media = new Media($this);
+        }
+    }
+
+    public function loadThemeClass(bool $force = false): void
+    {
+        if ($this->themes === null || $force) {
+            $this->themes = new Themes($this);
+        }
     }
     //@}
 

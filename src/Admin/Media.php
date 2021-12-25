@@ -17,7 +17,6 @@ use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Media as CoreMedia;
 
 use Dotclear\Admin\Page\Media as PageMedia;
 use Dotclear\Admin\Filter\MediaFilter;
@@ -67,7 +66,7 @@ class Media extends MediaFilter
 
         // try to load core media and themes
         try {
-            $this->core->media = new CoreMedia($this->core);
+            $this->core->loadMediaClass();
             $this->core->media->setFileSort($this->sortby . '-' . $this->order);
 
             if ($this->q != '') {
@@ -91,7 +90,7 @@ class Media extends MediaFilter
 /*
             if ($this->core->themes === null) {
                 # -- Loading themes, may be useful for some configurable theme --
-                $this->core->themes = new dcThemes($this->core);
+                $this->core->loadThemeClass();
                 $this->core->themes->loadModules($this->core->blog->themes_path, null);
             }
 */        } catch (Exception $e) {

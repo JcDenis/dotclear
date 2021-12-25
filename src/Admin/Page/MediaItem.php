@@ -17,7 +17,6 @@ use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Media;
 
 use Dotclear\Admin\Page;
 
@@ -77,7 +76,7 @@ class MediaItem extends Page
         $dirs_combo = [];
 
         try {
-            $core->media = new Media($core);
+            $core->loadMediaClass();
 
             if ($id) {
                 $file = $core->media->getFile($id);
@@ -102,10 +101,9 @@ class MediaItem extends Page
             ksort($dirs_combo);
 /*
 //!
-
             if ($core->themes === null) {
                 # -- Loading themes, may be useful for some configurable theme --
-                $core->themes = new dcThemes($core);
+                $core->loadThemeClass();
                 $core->themes->loadModules($core->blog->themes_path, null);
             }
 */

@@ -412,8 +412,8 @@ class RestMethods
         $file = null;
 
         try {
-            $core->media = new dcMedia($core);
-            $file        = $core->media->getFile($id);
+            $core->loadMediaClass(;
+            $file = $core->media->getFile($id);
         } catch (Exception $e) {
         }
 
