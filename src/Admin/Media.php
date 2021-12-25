@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Home
+ * @class Dotclear\Admin\Page\Media
  * @brief Dotclear class for admin media page
  *
  * @package Dotclear
