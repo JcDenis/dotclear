@@ -61,21 +61,35 @@ class Distrib
             );
         }
 
-        define('DOTCLEAR_CACHE_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'cache'])
-        );
+        if (!defined('DOTCLEAR_CACHE_DIR')) {
+            define('DOTCLEAR_CACHE_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'cache'])
+            );
+        }
 
-        define('DOTCLEAR_VAR_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'var'])
-        );
+        if (!defined('DOTCLEAR_VAR_DIR')) {
+            define('DOTCLEAR_VAR_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'var'])
+            );
+        }
 
-        define('DOTCLEAR_DIGESTS_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'digests'])
-        );
+        if (!defined('DOTCLEAR_DIGESTS_DIR')) {
+            define('DOTCLEAR_DIGESTS_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'digests'])
+            );
+        }
 
-        define('DOTCLEAR_L10N_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'locales'])
-        );
+        if (!defined('DOTCLEAR_PLUGIN_DIR')) {
+            define('DOTCLEAR_PLUGIN_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugin'])
+            );
+        }
+
+        if (!defined('DOTCLEAR_L10N_DIR')) {
+            define('DOTCLEAR_L10N_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'locales'])
+            );
+        }
 
         define('DOTCLEAR_L10N_UPDATE_URL',
             'https://services.dotclear.net/dc2.l10n/?version=%s'
