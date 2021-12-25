@@ -55,8 +55,22 @@ class Distrib
             '2.21-dev'
         );
 
+        if (!defined('DOTCLEAR_OTHER_DIR')) {
+            define('DOTCLEAR_OTHER_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..'])
+            );
+        }
+
+        define('DOTCLEAR_CACHE_DIR',
+            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'cache'])
+        );
+
+        define('DOTCLEAR_VAR_DIR',
+            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'var'])
+        );
+
         define('DOTCLEAR_DIGESTS_DIR',
-            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'digests'])
+            implode(DIRECTORY_SEPARATOR, [DOTCLEAR_OTHER_DIR, 'digests'])
         );
 
         define('DOTCLEAR_L10N_DIR',
@@ -125,7 +139,7 @@ class Distrib
         }
 
         if (!defined('DOTCLEAR_DATABASE_PERSIST')) {
-            define('DOTCLEAR_DBPERSIST',
+            define('DOTCLEAR_DATABASE_PERSIST',
                 false
             );
         }
@@ -181,18 +195,6 @@ class Distrib
         if (!defined('DOTCLEAR_CRYPT_ALGO')) {
             define('DOTCLEAR_CRYPT_ALGO',
                 'sha1'
-            );
-        }
-
-        if (!defined('DOTCLEAR_CACHE_DIR')) {
-            define('DOTCLEAR_CACHE_DIR',
-                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache'])
-            );
-        }
-
-        if (!defined('DOTCLEAR_VAR_DIR')) {
-            define('DOTCLEAR_VAR_DIR',
-                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'var'])
             );
         }
     }

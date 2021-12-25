@@ -104,8 +104,8 @@ class Blog
 
             $this->settings = new Settings($this->core, $this->id);
 
-            $this->themes_path = Path::fullFromRoot($this->settings->system->themes_path, DOTCLEAR_ROOT_DIR); //? . '/../');
-            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, DOTCLEAR_ROOT_DIR); //? . '/../');
+            $this->themes_path = Path::fullFromRoot($this->settings->system->themes_path, DOTCLEAR_OTHER_DIR);
+            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, DOTCLEAR_OTHER_DIR);
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
