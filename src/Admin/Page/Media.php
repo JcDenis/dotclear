@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Home
+ * @class Dotclear\Admin\Page\Media
  * @brief Dotclear class for admin media page
  *
  * @package Dotclear
@@ -26,6 +26,7 @@ use Dotclear\Admin\Filter\DefaultFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\File\Files;
+use Dotclear\File\Path;
 use Dotclear\File\Zip\Zip;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -37,7 +38,7 @@ class Media extends Page
     public function __construct(Core $core)
     {
         parent::__construct($core);
-        parent::check('media,media_admin');
+        $this->check('media,media_admin');
 
 $page = new AdminMedia($core, $this);
 $page->add('handler', 'admin.media');
@@ -182,7 +183,7 @@ if ($page->getDirs() && !empty($_POST['rmyes']) && !empty($_POST['remove'])) {
     $forget          = false;
 
     try {
-        if (is_dir(path::real($core->media->getPwd() . '/' . path::clean($_POST['remove'])))) {
+        if (is_dir(Path::real($core->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
             $msg = __('Directory has been successfully removed.');
             # Remove dir from recents/favs if necessary
             $forget = true;
@@ -191,8 +192,8 @@ if ($page->getDirs() && !empty($_POST['rmyes']) && !empty($_POST['remove'])) {
         }
         $core->media->removeItem($_POST['remove']);
         if ($forget) {
-            $page->updateLast($page->d . '/' . path::clean($_POST['remove']), true);
-            $page->updateFav($page->d . '/' . path::clean($_POST['remove']), true);
+            $page->updateLast($page->d . '/' . Path::clean($_POST['remove']), true);
+            $page->updateFav($page->d . '/' . Path::clean($_POST['remove']), true);
         }
         static::addSuccessNotice($msg);
         $core->adminurl->redirect('admin.media', $page->values());
