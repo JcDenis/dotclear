@@ -147,7 +147,7 @@ class Prepend extends CorePrepend
         $this->adminurl->register('admin.posts', $d . 'Posts');
         $this->adminurl->register('admin.posts.popup', $d . 'PostsPopup');
         $this->adminurl->register('admin.post', 'post.php');
-        $this->adminurl->register('admin.post.media', 'post_media.php');
+        $this->adminurl->register('admin.post.media', $d . 'PostMedia');
         $this->adminurl->register('admin.blog.theme', 'blog_theme.php');
         $this->adminurl->register('admin.blogs', $d . 'Blogs');
         $this->adminurl->register('admin.blog', $d . 'Blog');
