@@ -35,7 +35,7 @@ $(() => {
 
   $('#static_home_url_selector').on('click', (e) => {
     window.open(
-      'popup_posts.php?plugin_id=admin.blog_pref&type=page',
+      '?handler=admin.posts.popup&plugin_id=admin.blog_pref&type=page',
       'dc_popup',
       'alwaysRaised=yes,dependent=yes,toolbar=yes,height=500,width=760,menubar=no,resizable=yes,scrollbars=yes,status=no'
     );
