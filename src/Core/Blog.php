@@ -130,7 +130,7 @@ class Blog
             $this->comment_status['1']  = __('Published');
 
             # --BEHAVIOR-- after:Core:Blog:__construct, Dotclear\Core\Blog
-            $this->core->callBehavior('after:Core:Blog:__construct', $this);
+            $this->core->behaviors->call('after:Core:Blog:__construct', $this);
         }
     }
 
@@ -273,7 +273,7 @@ class Blog
         $cur->update("WHERE blog_id = '" . $this->con->escape($this->id) . "' ");
 
         # --BEHAVIOR-- after:Core:Blog:triggerBlog, Dotclear\Database\Cursor
-        $this->core->callBehavior('after:Core:Blog:triggerBlog', $cur);
+        $this->core->behaviors->call('after:Core:Blog:triggerBlog', $cur);
     }
 
     /**
@@ -627,7 +627,7 @@ class Blog
         $cur->blog_id = (string) $this->id;
 
         # --BEHAVIOR-- before:Core:Blog:addCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('before:Core:Blog:addCategory', $this, $cur);
+        $this->core->behaviors->call('before:Core:Blog:addCategory', $this, $cur);
 
         $id = $this->categories()->addNode($cur, $parent);
         # Update category's cursor
@@ -638,7 +638,7 @@ class Blog
         }
 
         # --BEHAVIOR-- after:Core:Blog:addCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('after:Core:Blog:addCategory', $this, $cur);
+        $this->core->behaviors->call('after:Core:Blog:addCategory', $this, $cur);
         $this->triggerBlog();
 
         return (int) $cur->cat_id;
@@ -674,7 +674,7 @@ class Blog
         $this->getCategoryCursor($cur, $id);
 
         # --BEHAVIOR-- before:Core:Blog:updCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('before:Core:Blog:updCategory', $this, $cur);
+        $this->core->behaviors->call('before:Core:Blog:updCategory', $this, $cur);
 
         $cur->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
@@ -682,7 +682,7 @@ class Blog
         );
 
         # --BEHAVIOR-- after:Core:Blog:updCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('after:CoreuBlog:updCategory', $this, $cur);
+        $this->core->behaviors->call('after:CoreuBlog:updCategory', $this, $cur);
 
         $this->triggerBlog();
     }
@@ -911,7 +911,7 @@ class Blog
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- before:Core:Blog:getPosts ArrayObject
-        $this->core->callBehavior('before:Core:Blog:getPosts', $params);
+        $this->core->behaviors->call('before:Core:Blog:getPosts', $params);
 
         if ($count_only) {
             $strReq = 'SELECT count(DISTINCT P.post_id) ';
@@ -1055,10 +1055,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                if ($this->core->hasBehavior('search:Core:Blog:getPosts')) {
+                if ($this->core->behaviors->has('search:Core:Blog:getPosts')) {
 
                     # --BEHAVIOR-- search:Core:Blog:getPosts, array
-                    $this->core->callBehavior('search:Core:Blog:getPosts', [&$words, &$strReq, &$params]);
+                    $this->core->behaviors->call('search:Core:Blog:getPosts', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -1110,7 +1110,7 @@ class Blog
         $alt = new ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
 
         # --BEHAVIOR-- after:Core:Blog:getPosts, ArrayObject, array
-        $this->core->callBehavior('after:Core:Blog:getPosts', $rs, $alt);
+        $this->core->behaviors->call('after:Core:Blog:getPosts', $rs, $alt);
 
         if ($alt['rs'] instanceof Record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
@@ -1394,7 +1394,7 @@ class Blog
             }
 
             # --BEHAVIOR-- before:Core:BLog:addPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
-            $this->core->callBehavior('before:Core:BLog:addPost', $this, $cur);
+            $this->core->behaviors->call('before:Core:BLog:addPost', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -1405,7 +1405,7 @@ class Blog
         }
 
         # --BEHAVIOR-- after:Core:Blog:addPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('after:Core:Blog:addPost', $this, $cur);
+        $this->core->behaviors->call('after:Core:Blog:addPost', $this, $cur);
 
         $this->triggerBlog();
 
@@ -1464,12 +1464,12 @@ class Blog
         }
 
         # --BEHAVIOR-- before:Core:Blog:updPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('before:Core:Blog:updPost', $this, $cur);
+        $this->core->behaviors->call('before:Core:Blog:updPost', $this, $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
         # --BEHAVIOR-- before:Core:Blog:updPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        $this->core->callBehavior('before:Core:Blog:updPost', $this, $cur);
+        $this->core->behaviors->call('before:Core:Blog:updPost', $this, $cur);
 
         $this->triggerBlog();
 
@@ -1718,7 +1718,7 @@ class Blog
         if (count($to_change)) {
 
             # --BEHAVIOR-- before:Core:Blog:publishScheduledEntries, Dotclear\Core\Blog, array
-            $this->core->callBehavior('before:Core:Blog:publishScheduledEntries', $this, $to_change);
+            $this->core->behaviors->call('before:Core:Blog:publishScheduledEntries', $this, $to_change);
 
             $strReq = 'UPDATE ' . $this->prefix . 'post SET ' .
             'post_status = 1 ' .
@@ -1728,7 +1728,7 @@ class Blog
             $this->triggerBlog();
 
             # --BEHAVIOR-- after:Core:Blog:publishScheduledEntries, Dotclear\Core\Blog, array
-            $this->core->callBehavior('after:Core:Blog:publishScheduledEntries', $this, $to_change);
+            $this->core->behaviors->call('after:Core:Blog:publishScheduledEntries', $this, $to_change);
 
             $this->firstPublicationEntries($to_change);
         }
@@ -1760,7 +1760,7 @@ class Blog
             $this->con->execute($strReq);
 
             # --BEHAVIOR-- after:Core:Blog:firstPublicationEntries, Dotclear\Core\Blog, array
-            $this->core->callBehavior('after:Core:Blog:firstPublicationEntries', $this, $to_change);
+            $this->core->behaviors->call('after:Core:Blog:firstPublicationEntries', $this, $to_change);
         }
     }
 
@@ -1991,7 +1991,7 @@ class Blog
         }
 
         # --BEHAVIOR-- after:Core:Blog:setPostContent, array
-        $this->core->callBehavior('after:Core:Blog:setPostContent', [
+        $this->core->behaviors->call('after:Core:Blog:setPostContent', [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,
@@ -2225,10 +2225,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                if ($this->core->hasBehavior('search:Core:Blog:getComments')) {
+                if ($this->core->behaviors->has('search:Core:Blog:getComments')) {
 
                     # --BEHAVIOR search:Core:Blog:getComments, array
-                    $this->core->callBehavior('search:Core:Blog:getComments', [&$words, &$strReq, &$params]);
+                    $this->core->behaviors->call('search:Core:Blog:getComments', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -2259,7 +2259,7 @@ class Blog
         $rs->extend('Dotclear\\Core\\RsExt\\rsExtComment');
 
         # --BEHAVIOR-- after:Core:Blog:getComments, Dotclear\Database\Record
-        $this->core->callBehavior('after:Core:Blog:getComments', $rs);
+        $this->core->behaviors->call('after:Core:Blog:getComments', $rs);
 
         return $rs;
     }
@@ -2296,7 +2296,7 @@ class Blog
             }
 
             # --BEHAVIOR-- before:Core:Blog:addComment, Dotclear\Core\Blog, Dotclear\Database\Record
-            $this->core->callBehavior('before:Core:Blog:addComment', $this, $cur);
+            $this->core->behaviors->call('before:Core:Blog:addComment', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -2307,7 +2307,7 @@ class Blog
         }
 
         # --BEHAVIOR-- after:Core:Blog:addComment, Dotclear\Core\Blog, Dotclear\Database\Record
-        $this->core->callBehavior('after:Core:Blog:addComment', $this, $cur);
+        $this->core->behaviors->call('after:Core:Blog:addComment', $this, $cur);
 
         $this->triggerComment($cur->comment_id);
         if ($cur->comment_status != -2) {
@@ -2359,12 +2359,12 @@ class Blog
         }
 
         # --BEHAVIOR-- before:Core:Blog:updComment, Dotclear\Core\Blog, Dotclear\Database\Record
-        $this->core->callBehavior('before:Core:Blog:updComment', $this, $cur, $rs);
+        $this->core->behaviors->call('before:Core:Blog:updComment', $this, $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
         # --BEHAVIOR-- after:Core:Blog:updComment, Dotclear\Core\Blog, Dotclear\Database\Record
-        $this->core->callBehavior('after:Core:Blog:updComment', $this, $cur, $rs);
+        $this->core->behaviors->call('after:Core:Blog:updComment', $this, $cur, $rs);
 
         $this->triggerComment($id);
         $this->triggerBlog();
