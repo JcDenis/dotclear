@@ -15,6 +15,8 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 
@@ -24,19 +26,19 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Notices
 {
-    /** @var dcCore dotclear core instance */
+    /** @var Core       Core instance */
     protected $core;
+
+    /** @var string     notices table prefix */
     protected $prefix;
+
+    /** @var string     notices table */
     protected $table = 'notice';
 
     /**
      * Class constructor
      *
-     * @param mixed  $core   dotclear core
-     *
-     * @access public
-     *
-     * @return mixed Value.
+     * @param Core  $core   Core instance
      */
     public function __construct(Core $core)
     {
@@ -44,12 +46,10 @@ class Notices
         $this->prefix = $core->prefix;
     }
 
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
-
-    /* Get notices */
 
     public function getNotices(array $params = [], bool $count_only = false): Record
     {
@@ -72,9 +72,9 @@ class Notices
 
         if (isset($params['notice_id']) && $params['notice_id'] !== '') {
             if (is_array($params['notice_id'])) {
-                array_walk($params['notice_id'], function (&$v, $k) { if ($v !== null) {$v = (integer) $v;}});
+                array_walk($params['notice_id'], function (&$v, $k) { if ($v !== null) {$v = (int) $v;}});
             } else {
-                $params['notice_id'] = [(integer) $params['notice_id']];
+                $params['notice_id'] = [(int) $params['notice_id']];
             }
             $strReq .= 'AND notice_id' . $this->core->con->in($params['notice_id']);
         }
@@ -119,13 +119,13 @@ class Notices
                 'FROM ' . $this->prefix . $this->table
             );
 
-            $cur->notice_id = (integer) $rs->f(0) + 1;
+            $cur->notice_id = (int) $rs->f(0) + 1;
             $cur->ses_id    = (string) session_id();
 
             $this->getNoticeCursor($cur, $cur->notice_id);
 
-            # --BEHAVIOR-- coreBeforeNoticeCreate
-            $this->core->behaviors->call('coreBeforeNoticeCreate', $this, $cur);
+            # --BEHAVIOR-- before:Core:Notices:addNotice, Dotclear\Core\Notices, Dotclear\Database\Cursor
+            $this->core->behaviors->call('before:Core:Notices:addNotice', $this, $cur);
 
             $cur->insert();
             $this->core->con->unlock();
@@ -135,8 +135,8 @@ class Notices
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterNoticeCreate
-        $this->core->behaviors->call('coreAfterNoticeCreate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Notices:addNotice, Dotclear\Core\Notices, Dotclear\Database\Cursor
+        $this->core->behaviors->call('after:Core:Notices:addNotice', $this, $cur);
 
         return $cur->notice_id;
     }
@@ -150,7 +150,7 @@ class Notices
         $this->core->con->execute($strReq);
     }
 
-    private function getNoticeCursor(Cursor $cur, $notice_id = null): void
+    private function getNoticeCursor(Cursor $cur, int $notice_id = null): void
     {
         if ($cur->notice_msg === '') {
             throw new CoreException(__('No notice message'));
