@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\Xmlrpc;
 
 use Dotclear\Admin\Page;
 
@@ -48,7 +49,7 @@ class Xmlrpc extends Page
         $core->plugins->loadModules(DC_PLUGINS_ROOT);
 
         # Start XML-RPC server
-        $server = new dcXmlRpc($core, $blog_id);
+        $server = new XmlRpc($core, $blog_id);
         $server->serve();
     }
 }

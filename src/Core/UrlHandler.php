@@ -15,6 +15,9 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+use Dotclear\Core\Xmlrpc;
+
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Text;
@@ -770,7 +773,7 @@ class UrlHandler extends BaseUrlHandler
     {
         $core    = &$GLOBALS['core'];
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
-        $server  = new dcXmlRpc($core, $blog_id);
+        $server  = new XmlRpc($core, $blog_id);
         $server->serve();
     }
 }
