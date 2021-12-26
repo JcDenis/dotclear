@@ -211,7 +211,7 @@ class Prepend extends Core
 //!
 
         /* Register Core post types */
-        $this->setPostType('post', '?handler=admin.posts&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
+        $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
 //!
 
         /* Store upload_max_filesize in bytes */
