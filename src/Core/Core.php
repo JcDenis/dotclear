@@ -12,7 +12,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use ArrayObject;
+
 use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Behaviors;
+use Dotclear\Core\Error;
+use Dotclear\Core\UrlHandler;
+use Dotclear\Core\RestServer;
+use Dotclear\Core\Meta;
+use Dotclear\Core\Log;
+use Dotclear\Core\Utils;
+use Dotclear\Core\Media;
+//use Dotclear\Core\Themes;
+use Dotclear\Core\Blog;
+use Dotclear\Core\Auth;
+use Dotclear\Core\Settings;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
@@ -72,14 +87,14 @@ class Core
     /** @var Blog               Blog instance */
     public $blog;
 
+    /** @var Behaviors          Behaviors instance */
+    public $behaviors;
+
     /** @var array              versions container */
     private $versions   = null;
 
     /** @var array              formaters container */
     private $formaters  = [];
-
-    /** @var array              behaviors container */
-    private $behaviors  = [];
 
     /** @var array              top behaviors */
     protected static $top_behaviors = [];
@@ -97,15 +112,16 @@ class Core
         static::startStatistics();
         Utils::setCore($this);
 
-        $this->con     = $this->conInstance();
-        $this->error   = new Error();
-        $this->auth    = $this->authInstance();
-        $this->session = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
-        $this->url     = new UrlHandler($this);
-        $this->plugins = null;//new Plugins($this);
-        $this->rest    = new RestServer($this);
-        $this->meta    = new Meta($this);
-        $this->log     = new Log($this);
+        $this->behaviors = new Behaviors($this);
+        $this->con       = $this->conInstance();
+        $this->error     = new Error();
+        $this->auth      = $this->authInstance();
+        $this->session   = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
+        $this->url       = new UrlHandler($this);
+        $this->plugins   = null;//new Plugins($this);
+        $this->rest      = new RestServer($this);
+        $this->meta      = new Meta($this);
+        $this->log       = new Log($this);
 
         $this->registerTopBehaviors();
     }
@@ -445,78 +461,35 @@ class Core
     /// @name Behaviors methods
     //@{
     /**
-     * Adds a new behavior to behaviors stack. <var>$func</var> must be a valid
-     * and callable callback.
-     *
-     * @param      string    $behavior  The behavior
-     * @param      callable  $func      The function
+     * @deprecated
      */
     public function addBehavior(string $behavior, $func): void
     {
-        if (is_callable($func)) {
-            $this->behaviors[$behavior][] = $func;
-        }
+        $this->behaviors->call($behavior, $func);
     }
 
     /**
-     * Determines if behavior exists in behaviors stack.
-     *
-     * @param      string  $behavior  The behavior
-     *
-     * @return     bool    True if behavior exists, False otherwise.
+     * @deprecated
      */
     public function hasBehavior(string $behavior): bool
     {
-        return isset($this->behaviors[$behavior]);
+        return $this->behaviors->has($behavior);
     }
 
     /**
-     * Gets the behaviors stack (or part of).
-     *
-     * @param      string  $behavior  The behavior
-     *
-     * @return     array   The behaviors.
+     * @deprecated
      */
     public function getBehaviors(string $behavior = ''): array
     {
-        if (empty($this->behaviors)) {
-            return [];
-        }
-
-        if ($behavior == '') {
-            return $this->behaviors;
-        } elseif (isset($this->behaviors[$behavior])) {
-            return $this->behaviors[$behavior];
-        }
-
-        return [];
+        return $this->behaviors->get($behavior);
     }
 
     /**
-     * Calls every function in behaviors stack for a given behavior and returns
-     * concatened result of each function.
-     *
-     * Every parameters added after <var>$behavior</var> will be pass to
-     * behavior calls.
-     *
-     * @param      string  $behavior  The behavior
-     * @param      mixed   ...$args   The arguments
-     *
-     * @return     mixed   Behavior concatened result
+     * @deprecated
      */
     public function callBehavior(string $behavior, ...$args)
     {
-        if (isset($this->behaviors[$behavior])) {
-            $res = '';
-            /* add core instance to every call */
-            array_unshift($args, $this);
-
-            foreach ($this->behaviors[$behavior] as $f) {
-                $res .= call_user_func_array($f, $args);
-            }
-
-            return $res;
-        }
+        return $this->behaviors->callArray($behavior, $args);
     }
 
     /**
@@ -1384,7 +1357,7 @@ class Core
             return $str;
         }
 
-        $options = new \ArrayObject([
+        $options = new ArrayObject([
             'keep_aria' => false,
             'keep_data' => false,
             'keep_js'   => false
