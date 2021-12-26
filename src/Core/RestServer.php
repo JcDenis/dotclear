@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\RestServer
  * @brief Dotclear core rest server class
  *
  * @package Dotclear
@@ -14,6 +15,8 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 
+use Dotclear\Core\Core;
+
 use Dotclear\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -22,17 +25,18 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class RestServer
 {
-    public $core; ///< dcCore instance
+    /** @var Core       Core instance */
+    public $core;
 
     /**
      * Constructs a new instance.
      *
-     * @param      Core  $core   The core
+     * @param Core  $core   The core
      */
     public function __construct(Core $core)
     {
         $this->rsp = new XmlTag('rsp');
-        $this->core = &$core;
+        $this->core = $core;
     }
 
     /**
@@ -45,7 +49,7 @@ class RestServer
      * @param string    $name        Function name
      * @param callable  $callback        Callback function
      */
-    public function addFunction($name, $callback)
+    public function addFunction(string $name, $callback): void
     {
         if (is_callable($callback)) {
             $this->functions[$name] = $callback;
@@ -62,7 +66,7 @@ class RestServer
      * @param array        $post        POST values
      * @return mixed
      */
-    protected function callFunction($name, $get, $post)
+    protected function callFunction(string $name, array $get, array $post)
     {
         if (isset($this->functions[$name])) {
             return call_user_func($this->functions[$name], $this->core, $get, $post);
@@ -75,8 +79,10 @@ class RestServer
      * This method creates the main server.
      *
      * @param string    $encoding        Server charset
+     *
+     * @return bool
      */
-    public function serve($encoding = 'UTF-8')
+    public function serve(string $encoding = 'UTF-8'): bool
     {
         $get  = $_GET ?: [];
         $post = $_POST ?: [];
@@ -116,7 +122,14 @@ class RestServer
         return true;
     }
 
-    private function getXML($encoding = 'UTF-8')
+    /**
+     * Get XML
+     *
+     * This method send to ouput the xml response
+     *
+     * @param string    $encoding        Server charset
+     */
+    private function getXML(string $encoding = 'UTF-8'): void
     {
         header('Content-Type: text/xml; charset=' . $encoding);
         echo $this->rsp->toXML(1, $encoding);
