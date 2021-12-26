@@ -1371,7 +1371,9 @@ class Core
             'keep_data' => false,
             'keep_js'   => false
         ]);
-        $this->behaviors->call('HTMLfilter', $options);
+
+        # --BEHAVIOR-- before:Core:Core:HTMLfilter, ArrayObject
+        $this->behaviors->call('before:Core:Core:HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
         $str    = trim($filter->apply($str));
@@ -1457,8 +1459,8 @@ class Core
 
         $this->wiki2xhtml->registerFunction('url:post', [$this, 'wikiPostLink']);
 
-        # --BEHAVIOR-- coreWikiPostInit
-        $this->behaviors->call('coreInitWikiPost', $this->wiki2xhtml);
+        # --BEHAVIOR-- after:Core:Core:iniWikiPost, Wiki2xhtml
+        $this->behaviors->call('after:Core:Core:iniWikiPost', $this->wiki2xhtml);
     }
 
     /**
@@ -1506,8 +1508,8 @@ class Core
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- coreInitWikiSimpleComment
-        $this->behaviors->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
+        # --BEHAVIOR-- after:Core:Core:initWikiSimpleComment, Wiki2xhtml
+        $this->behaviors->call('after:Core:Core:initWikiSimpleComment', $this->wiki2xhtml);
     }
 
     /**
@@ -1554,8 +1556,8 @@ class Core
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- coreInitWikiComment
-        $this->behaviors->call('coreInitWikiComment', $this->wiki2xhtml);
+        # --BEHAVIOR-- after:Core:Core:initWikiComment, Wiki2xhtml
+        $this->behaviors->call('after:Core:Core:initWikiComment', $this->wiki2xhtml);
     }
 
     /**
