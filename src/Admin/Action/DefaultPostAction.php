@@ -199,7 +199,7 @@ class DefaultPostAction
             if (empty($posts_ids)) {
                 throw new AdminException(__('No entry selected'));
             }
-            $new_cat_id = $post['new_cat_id'];
+            $new_cat_id = (int) $post['new_cat_id'];
             if (!empty($post['new_cat_title']) && $core->auth->check('categories', $core->blog->id)) {
                 $cur_cat            = $core->con->openCursor($core->prefix . 'category');
                 $cur_cat->cat_title = $post['new_cat_title'];

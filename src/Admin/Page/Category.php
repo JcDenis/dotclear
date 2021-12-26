@@ -56,13 +56,13 @@ class Category extends Page
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = $core->blog->getCategory($_REQUEST['id']);
+                $rs = $core->blog->getCategory((int) $_REQUEST['id']);
             } catch (Exception $e) {
                 $core->error->add($e->getMessage());
             }
 
             if (!$core->error->flag() && !$rs->isEmpty()) {
-                $cat_id    = (integer) $rs->cat_id;
+                $cat_id    = (int) $rs->cat_id;
                 $cat_title = $rs->cat_title;
                 $cat_url   = $rs->cat_url;
                 $cat_desc  = $rs->cat_desc;
@@ -72,7 +72,7 @@ class Category extends Page
             # Getting hierarchy information
             $parents    = $core->blog->getCategoryParents($cat_id);
             $rs         = $core->blog->getCategoryParent($cat_id);
-            $cat_parent = $rs->isEmpty() ? 0 : (integer) $rs->cat_id;
+            $cat_parent = $rs->isEmpty() ? 0 : (int) $rs->cat_id;
             unset($rs);
 
             # Allowed parents list
@@ -267,7 +267,7 @@ class Category extends Page
             '<form action="' . $core->adminurl->get('admin.category') . '" method="post" class="fieldset">' .
             '<h4>' . __('Category parent') . '</h4>' .
             '<p><label for="cat_parent" class="classic">' . __('Parent:') . '</label> ' .
-            Form::combo('cat_parent', $allowed_parents, $cat_parent) . '</p>' .
+            Form::combo('cat_parent', $allowed_parents, (string) $cat_parent) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             Form::hidden(['id'], $cat_id) . $core->formNonce() . '</p>' .
                 '</form>' .

@@ -114,7 +114,7 @@ class Post extends Page
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
-            $params['post_id'] = $_REQUEST['id'];
+            $params['post_id'] = (int) $_REQUEST['id'];
 
             $post = $core->blog->getPosts($params);
 
@@ -122,7 +122,7 @@ class Post extends Page
                 $core->error->add(__('This entry does not exist.'));
                 $can_view_page = false;
             } else {
-                $post_id            = $post->post_id;
+                $post_id            = (int) $post->post_id;
                 $cat_id             = $post->cat_id;
                 $post_dt            = date('Y-m-d H:i', strtotime($post->post_dt));
                 $post_format        = $post->post_format;
