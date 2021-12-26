@@ -19,6 +19,8 @@ use Dotclear\Core\Sql\SqlStatement;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
 
+use Dotclear\Database\Connection;
+use Dotclear\Database\Cursor;
 use Dotclear\Utils\Crypt;
 use Dotclear\Network\Http;
 
@@ -28,34 +30,45 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Auth
 {
-    /** @var dcCore dcCore instance */
+    /** @var Core           Core instance */
     protected $core;
-    /** @var object Database connection object */
+
+    /** @var Connection     Connection instance */
     protected $con;
 
-    /** @var string User table name */
+    /** @var string         User table name */
     protected $user_table;
+
     /** @var string Perm table name */
     protected $perm_table;
+
     /** @var string Blog table name */
     protected $blog_table;
 
     /** @var string Current user ID */
     protected $user_id;
+
     /** @var array Array with user information */
     protected $user_info = [];
+
     /** @var array Array with user options */
     protected $user_options = [];
+
     /** @var boolean User must change his password after login */
     protected $user_change_pwd;
+
     /** @var boolean User is super admin */
     protected $user_admin;
+
     /** @var array Permissions for each blog */
     protected $permissions = [];
+
     /** @var boolean User can change its password */
     protected $allow_pass_change = true;
+
     /** @var array List of blogs on which the user has permissions */
     protected $blogs = [];
+
     /** @var integer Count of user blogs */
     public $blog_count = null;
 
@@ -236,7 +249,7 @@ class Auth
      *
      * @return string crypted value
      */
-    public function crypt($pwd)
+    public function crypt(string $pwd): string
     {
         return password_hash($pwd, PASSWORD_DEFAULT);
     }
@@ -248,7 +261,7 @@ class Auth
      *
      * @return string crypted value
      */
-    public function cryptLegacy($pwd)
+    public function cryptLegacy(string $pwd): string
     {
         return Crypt::hmac(DOTCLEAR_MASTER_KEY, $pwd, DOTCLEAR_CRYPT_ALGO);
     }
@@ -260,7 +273,7 @@ class Auth
      *
      * @return boolean
      */
-    public function checkPassword($pwd)
+    public function checkPassword(string $pwd): bool
     {
         if (!empty($this->user_info['user_pwd'])) {
             return password_verify($pwd, $this->user_info['user_pwd']);
@@ -274,7 +287,7 @@ class Auth
      *
      * @return boolean
      */
-    public function sessionExists()
+    public function sessionExists(): bool
     {
         return isset($_COOKIE[DOTCLEAR_SESSION_NAME]);
     }
@@ -284,7 +297,7 @@ class Auth
      *
      * @return boolean
      */
-    public function checkSession($uid = null)
+    public function checkSession(?string $uid = null): bool
     {
         $this->core->session->start();
 
@@ -315,7 +328,7 @@ class Auth
      *
      * @return boolean
      */
-    public function mustChangePassword()
+    public function mustChangePassword(): bool
     {
         return $this->user_change_pwd;
     }
@@ -325,7 +338,7 @@ class Auth
      *
      * @return boolean
      */
-    public function isSuperAdmin()
+    public function isSuperAdmin(): bool
     {
         return $this->user_admin;
     }
@@ -340,7 +353,7 @@ class Auth
      *
      * @return boolean
      */
-    public function check($permissions, $blog_id)
+    public function check(string $permissions, string $blog_id): bool
     {
         if ($this->user_admin) {
             return true;
@@ -369,7 +382,7 @@ class Auth
      *
      * @return    boolean
      */
-    public function allowPassChange()
+    public function allowPassChange(): bool
     {
         return $this->allow_pass_change;
     }
@@ -423,7 +436,7 @@ class Auth
      *
      * @return array
      */
-    public function getPermissions($blog_id)
+    public function getPermissions(string $blog_id): array
     {
         if (isset($this->blogs[$blog_id])) {
             return $this->blogs[$blog_id];
@@ -467,13 +480,13 @@ class Auth
      *
      * @return     integer  The blog count.
      */
-    public function getBlogCount()
+    public function getBlogCount(): int
     {
         if ($this->blog_count === null) {
             $this->blog_count = $this->core->getBlogs([], true)->f(0);  // @phpstan-ignore-line
         }
 
-        return $this->blog_count;
+        return (int) $this->blog_count;
     }
 
     /**
@@ -481,9 +494,9 @@ class Auth
      *
      * @param      mixed  $blog_id  The blog identifier
      *
-     * @return     mixed
+     * @return     string|false
      */
-    public function findUserBlog($blog_id = null)
+    public function findUserBlog(?string $blog_id = null): string|false
     {
         if ($blog_id && $this->getPermissions($blog_id) !== false) {
             return $blog_id;
@@ -531,9 +544,9 @@ class Auth
      *
      * @return string
      */
-    public function userID()
+    public function userID(): string
     {
-        return $this->user_id;
+        return $this->user_id ?? '';
     }
 
     /**
@@ -543,7 +556,7 @@ class Auth
      *
      * @return mixed
      */
-    public function getInfo($n)
+    public function getInfo(string $n)
     {
         if (isset($this->user_info[$n])) {
             return $this->user_info[$n];
@@ -557,7 +570,7 @@ class Auth
      *
      * @return mixed
      */
-    public function getOption($n)
+    public function getOption(string $n)
     {
         if (isset($this->user_options[$n])) {
             return $this->user_options[$n];
@@ -569,7 +582,7 @@ class Auth
      *
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->user_options;
     }
@@ -584,7 +597,7 @@ class Auth
      *
      * @return array
      */
-    public function parsePermissions($level)
+    public function parsePermissions(?string $level): array
     {
         $level = (string) $level;
         $level = preg_replace('/^\|/', '', $level);
@@ -603,7 +616,7 @@ class Auth
      *
      * @return array
      */
-    public function getPermissionsTypes()
+    public function getPermissionsTypes(): array
     {
         return $this->perm_types;
     }
@@ -614,7 +627,7 @@ class Auth
      * @param string    $name        Permission name
      * @param string    $title        Permission title
      */
-    public function setPermissionType($name, $title)
+    public function setPermissionType(string $name, string $title): void
     {
         $this->perm_types[$name] = $title;
     }
@@ -631,7 +644,7 @@ class Auth
      *
      * @return string
      */
-    public function setRecoverKey($user_id, $user_email)
+    public function setRecoverKey(string $user_id, string $user_email): string
     {
         $sql = new SelectStatement($this->core, 'coreAuthSetRecoverKey');
         $sql
@@ -670,7 +683,7 @@ class Auth
      *
      * @return array
      */
-    public function recoverUserPassword($recover_key)
+    public function recoverUserPassword(string $recover_key): array
     {
         $sql = new SelectStatement($this->core, 'coreAuthRecoverUserPassword');
         $sql
@@ -711,32 +724,32 @@ class Auth
 
     /**
      * Called after core->addUser
-     * @see dcCore::addUser
+     * @see Core::addUser
      *
-     * @param cursor    $cur            User cursor
+     * @param Cursor    $cur            User cursor
      */
-    public function afterAddUser($cur)
+    public function afterAddUser(Cursor $cur): void
     {
     }
 
     /**
      * Called after core->updUser
-     * @see dcCore::updUser
+     * @see Core::updUser
      *
      * @param string    $id            User ID
      * @param cursor    $cur            User cursor
      */
-    public function afterUpdUser($id, $cur)
+    public function afterUpdUser(string $id, Cursor $cur): void
     {
     }
 
     /**
      * Called after core->delUser
-     * @see dcCore::delUser
+     * @see Core::delUser
      *
      * @param string    $id            User ID
      */
-    public function afterDelUser($id)
+    public function afterDelUser(string $id): void
     {
     }
     //@}
