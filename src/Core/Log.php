@@ -15,6 +15,11 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+
+use Dotclear\Database\Connection;
+use Dotclear\Database\Record;
+use Dotclear\Database\Cursor;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Sql\SelectStatement;
 use Dotclear\Utils\Sql\JoinStatement;
@@ -27,9 +32,16 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Log
 {
+    /** @var Core       Core instance */
     protected $core;
+
+    /** @var Connetion  Connection instance */
     protected $con;
+
+    /** @var string     Log table name */
     protected $log_table;
+
+    /** @var string     User table name */
     protected $user_table;
 
     /**
@@ -59,9 +71,9 @@ class Log
      * @param      array   $params      The parameters
      * @param      bool    $count_only  Count only resultats
      *
-     * @return     record  The logs.
+     * @return     Record  The logs.
      */
-    public function getLogs($params = [], $count_only = false)
+    public function getLogs(array $params = [], bool $count_only = false): Record
     {
         $sql = new SelectStatement($this->core, 'dcLogGetLogs');
 
@@ -128,7 +140,7 @@ class Log
 
         $rs = $sql->select();
         $rs->core = $this->core;
-        $rs->extend('rsExtLog');
+        $rs->extend('Dotclear\\Core\\RsExt\\rsExtLog');
 
         return $rs;
     }
@@ -136,11 +148,11 @@ class Log
     /**
      * Creates a new log. Takes a cursor as input and returns the new log ID.
      *
-     * @param      cursor  $cur    The current
+     * @param      Cursor  $cur    The current
      *
-     * @return     integer
+     * @return     int
      */
-    public function addLog($cur)
+    public function addLog(Cursor $cur): int
     {
         $this->con->writeLock($this->log_table);
 
@@ -159,8 +171,8 @@ class Log
 
             $this->getLogCursor($cur, $cur->log_id);
 
-            # --BEHAVIOR-- coreBeforeLogCreate
-            $this->core->behaviors->call('coreBeforeLogCreate', $this, $cur);
+            # --BEHAVIOR-- before:Core:Log:addLog, Dotclear\Core\Log, Dotclear\Database\Cursor
+            $this->core->behaviors->call('before:Core:Log:addLog', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -170,19 +182,19 @@ class Log
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterLogCreate
-        $this->core->behaviors->call('coreAfterLogCreate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Log:addLog, Dotclear\Core\Log, Dotclear\Database\Cursor
+        $this->core->behaviors->call('after:Core:Log:addLog', $this, $cur);
 
-        return $cur->log_id;
+        return (int) $cur->log_id;
     }
 
     /**
      * Deletes a log.
      *
-     * @param      mixed    $id     The identifier
-     * @param      bool     $all    Remove all logs
+     * @param      int|array    $id     The identifier
+     * @param      bool         $all    Remove all logs
      */
-    public function delLogs($id, $all = false)
+    public function delLogs(int|array $id, bool $all = false): void
     {
         if ($all) {
             $sql = new TruncateStatement($this->core, 'dcLogDelLogs');
@@ -201,12 +213,12 @@ class Log
     /**
      * Gets the log cursor.
      *
-     * @param      cursor     $cur     The current
+     * @param      Cursor     $cur     The current
      * @param      mixed      $log_id  The log identifier
      *
      * @throws     CoreException
      */
-    private function getLogCursor($cur, $log_id = null)
+    private function getLogCursor(Cursor $cur, ?int $log_id = null)
     {
         if ($cur->log_msg === '') {
             throw new CoreException(__('No log message'));
@@ -225,9 +237,9 @@ class Log
         }
 
         if ($cur->log_ip === null) {
-            $cur->log_ip = http::realIP();
+            $cur->log_ip = Http::realIP();
         }
 
-        $log_id = is_int($log_id) ? $log_id : $cur->log_id;
+        $log_id = is_int($log_id) ? $log_id : (int) $cur->log_id;
     }
 }
