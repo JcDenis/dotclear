@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Exception;
+
 use Dotclear\Core\Core;
 
 class Behaviors
@@ -101,10 +103,29 @@ class Behaviors
             array_unshift($args, $this->core);
 
             foreach ($this->behaviors[$behavior] as $f) {
+                $this->trace($f, $args);
                 $res .= call_user_func_array($f, $args);
             }
 
             return $res;
+        }
+    }
+
+    /**
+     * Trace behaviors call
+     *
+     *  For debug purpose, you can define a callable function.
+     *
+     * @param  string $f Called function
+     * @param  array  $a Called function arguments
+     */
+    private function trace($f, $a): void
+    {
+        if (defined('DOTCLEAR_BEHAVIOR_TRACE') && is_callable(DOTCLEAR_BEHAVIOR_TRACE)) {
+            try {
+                call_user_func(DOTCLEAR_BEHAVIOR_TRACE, $f, $a);
+            } catch (Exception $e) {
+            }
         }
     }
 }
