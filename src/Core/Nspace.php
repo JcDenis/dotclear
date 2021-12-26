@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class  Dotclear\Core\
  * @brief Dotclear core nspace (namespace) class
  *
  * @package Dotclear
@@ -14,6 +15,10 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Database\Connection;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -44,7 +49,7 @@ class Nspace
      *
      * @throws     CoreException  (description)
      */
-    public function __construct(Core &$core, $blog_id, $name, $rs = null)
+    public function __construct(Core $core, $blog_id, $name, $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
@@ -52,7 +57,7 @@ class Nspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->con     = &$core->con;
+        $this->con     = $core->con;
         $this->table   = $core->prefix . 'setting';
         $this->blog_id = &$blog_id;
 

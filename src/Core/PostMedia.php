@@ -17,13 +17,19 @@ namespace Dotclear\Core;
 
 use Dotclear\Core\Core;
 
+use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 
 class PostMedia
 {
-    protected $core;  ///< <b>Core</b> Core instance
-    protected $con;   ///< <b>Connection</b> Database connection
-    protected $table; ///< <b>string</b> Post-Media table name
+    /** @var Core           Core instance */
+    protected $core;
+
+    /** @var Connection     Connection instance */
+    protected $con;
+
+    /** @var string         post media table name */
+    protected $table;
 
     /**
      * Constructs a new instance.
@@ -32,8 +38,8 @@ class PostMedia
      */
     public function __construct(Core $core)
     {
-        $this->core  = &$core;
-        $this->con   = &$core->con;
+        $this->core  = $core;
+        $this->con   = $core->con;
         $this->table = $this->core->prefix . 'post_media';
     }
 
@@ -90,14 +96,14 @@ class PostMedia
     /**
      * Attaches a media to a post.
      *
-     * @param      mixed   $post_id    The post identifier
-     * @param      mixed   $media_id   The media identifier
+     * @param      int   $post_id    The post identifier
+     * @param      int   $media_id   The media identifier
      * @param      string  $link_type  The link type (default: attachment)
      */
-    public function addPostMedia($post_id, $media_id, $link_type = 'attachment'): void
+    public function addPostMedia(int $post_id, int $media_id, string $link_type = 'attachment'): void
     {
-        $post_id  = (integer) $post_id;
-        $media_id = (integer) $media_id;
+        $post_id  = (int) $post_id;
+        $media_id = (int) $media_id;
 
         $f = $this->getPostMedia(['post_id' => $post_id, 'media_id' => $media_id, 'link_type' => $link_type]);
 
