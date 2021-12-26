@@ -361,7 +361,7 @@ class Auth extends Page
 
 <?php
 /*        # --BEHAVIOR-- loginPageHTMLHead
-        $core->callBehavior('loginPageHTMLHead');
+        $core->behaviors->call('loginPageHTMLHead');
 
         echo
             dcPage::jsJson('pwstrength', [

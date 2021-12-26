@@ -64,7 +64,7 @@ class UserCatalog extends Catalog
             ];
 
             $cols = new \ArrayObject($cols);
-            $this->core->callBehavior('adminUserListHeader', $this->core, $this->rs, $cols);
+            $this->core->behaviors->call('adminUserListHeader', $this->core, $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -133,7 +133,7 @@ class UserCatalog extends Catalog
         ];
 
         $cols = new \ArrayObject($cols);
-        $this->core->callBehavior('adminUserListValue', $this->core, $this->rs, $cols);
+        $this->core->behaviors->call('adminUserListValue', $this->core, $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

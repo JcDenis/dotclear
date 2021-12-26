@@ -120,7 +120,7 @@ class Prepend extends CorePrepend
             $this->blog->settings->addNamespace('themes');
 
             # add some behaviors
-            $this->addBehavior('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
+            $this->behaviors->add('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
 
         # No user session and not on auth page, go on
         } elseif ($this->adminurl->called() != 'admin.auth') {

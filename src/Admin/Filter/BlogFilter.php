@@ -39,7 +39,7 @@ class BlogFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        $core->callBehavior('adminBlogFilter', $core, $filters);
+        $core->behaviors->call('adminBlogFilter', $core, $filters);
 
         $filters = $filters->getArrayCopy();
 

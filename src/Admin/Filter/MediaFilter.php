@@ -50,7 +50,7 @@ class MediaFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        $core->callBehavior('adminMediaFilter', $filters);
+        $core->behaviors->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -66,7 +66,7 @@ class MediaFilter extends Filter
     {
         $values = new \ArrayObject($this->values());
 
-        $this->core->callBehavior('adminMediaURLParams', $values);
+        $this->core->behaviors->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {

@@ -66,7 +66,7 @@ class BlogCatalog extends Catalog
             ];
 
             $cols = new \ArrayObject($cols);
-            $this->core->callBehavior('adminBlogListHeader', $this->core, $this->rs, $cols);
+            $this->core->behaviors->call('adminBlogListHeader', $this->core, $this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -158,7 +158,7 @@ class BlogCatalog extends Catalog
         ];
 
         $cols = new \ArrayObject($cols);
-        $this->core->callBehavior('adminBlogListValue', $this->core, $this->rs, $cols);
+        $this->core->behaviors->call('adminBlogListValue', $this->core, $this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

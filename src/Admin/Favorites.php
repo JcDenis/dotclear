@@ -84,7 +84,7 @@ class Favorites
     {
         BaseFavorites::initDefaultFavorites($this->core, $this);
         $this->legacyFavorites();
-        $this->core->callBehavior('adminDashboardFavorites', $this);
+        $this->core->behaviors->call('adminDashboardFavorites', $this);
         $this->setUserPrefs();
     }
 
@@ -232,7 +232,7 @@ class Favorites
     protected function legacyFavorites()
     {
         $f = new \ArrayObject();
-        $this->core->callBehavior('adminDashboardFavs', $f);
+        $this->core->behaviors->call('adminDashboardFavs', $f);
         foreach ($f as $k => $v) {
             $fav = [
                 'title'       => __($v[1]),
@@ -355,7 +355,7 @@ class Favorites
                 call_user_func($v['dashboard_cb'], $this->core, $v);
             }
             $icons[$k] = new \ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
-            $this->core->callBehavior('adminDashboardFavsIcon', $k, $icons[$k]);
+            $this->core->behaviors->call('adminDashboardFavsIcon', $k, $icons[$k]);
         }
     }
 

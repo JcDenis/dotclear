@@ -46,19 +46,19 @@ class Search extends Page
 
         $this->check('usage,contentadmin');
 
-        $this->core->addBehavior('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
-        $this->core->addBehavior('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
+        $this->core->behaviors->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
+        $this->core->behaviors->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
         // posts search
-        $this->core->addBehavior('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
-        $this->core->addBehavior('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
+        $this->core->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
+        $this->core->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
         // comments search
-        $this->core->addBehavior('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
-        $this->core->addBehavior('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
+        $this->core->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
+        $this->core->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
 
         $qtype_combo = new \ArrayObject();
 
         # --BEHAVIOR-- adminSearchPageCombo
-        $this->core->callBehavior('adminSearchPageCombo', $qtype_combo);
+        $this->core->behaviors->call('adminSearchPageCombo', $qtype_combo);
 
         $qtype_combo = $qtype_combo->getArrayCopy();
         $q     = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
@@ -77,12 +77,12 @@ class Search extends Page
         $args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         # --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? $this->core->callBehavior('adminSearchPageHead', $args) : '';
+        $starting_scripts = $q ? $this->core->behaviors->call('adminSearchPageHead', $args) : '';
 
         if ($q) {
 
             # --BEHAVIOR-- adminSearchPageProcess
-            $this->core->callBehavior('adminSearchPageProcess', $args);
+            $this->core->behaviors->call('adminSearchPageProcess', $args);
         }
 
         $this->open(__('Search'), $starting_scripts,
@@ -111,7 +111,7 @@ class Search extends Page
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
-            $this->core->callBehavior('adminSearchPageDisplay', $args);
+            $this->core->behaviors->call('adminSearchPageDisplay', $args);
 
             $res = ob_get_contents();
             ob_end_clean();

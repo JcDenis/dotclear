@@ -214,7 +214,7 @@ class Post extends Page
                 foreach (explode("\n", $tb_urls) as $tb_url) {
                     try {
                         # --BEHAVIOR-- adminBeforePingTrackback
-                        $core->callBehavior('adminBeforePingTrackback', $tb_url, $post_id, $tb_post_title, $tb_excerpt, $tb_post_url);
+                        $core->behaviors->call('adminBeforePingTrackback', $tb_url, $post_id, $tb_post_title, $tb_excerpt, $tb_post_url);
 
                         $TB->ping($tb_url, $post_id, $tb_post_title, $tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
@@ -289,7 +289,7 @@ class Post extends Page
         if (!empty($_POST['delete']) && $can_delete) {
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
-                $core->callBehavior('adminBeforePostDelete', $post_id);
+                $core->behaviors->call('adminBeforePostDelete', $post_id);
                 $core->blog->delPost($post_id);
                 $core->adminurl->redirect('admin.posts');
             } catch (Exception $e) {
@@ -308,12 +308,12 @@ class Post extends Page
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                $core->callBehavior('adminBeforeCategoryCreate', $cur_cat);
+                $core->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
 
                 $cat_id = $core->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                $core->callBehavior('adminAfterCategoryCreate', $cur_cat, $cat_id);
+                $core->behaviors->call('adminAfterCategoryCreate', $cur_cat, $cat_id);
             }
 
             $cur = $core->con->openCursor($core->prefix . 'post');
@@ -342,12 +342,12 @@ class Post extends Page
             if ($post_id) {
                 try {
                     # --BEHAVIOR-- adminBeforePostUpdate
-                    $core->callBehavior('adminBeforePostUpdate', $cur, $post_id);
+                    $core->behaviors->call('adminBeforePostUpdate', $cur, $post_id);
 
                     $core->blog->updPost($post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
-                    $core->callBehavior('adminAfterPostUpdate', $cur, $post_id);
+                    $core->behaviors->call('adminAfterPostUpdate', $cur, $post_id);
                     static::addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
                     $core->adminurl->redirect(
                         'admin.post',
@@ -361,12 +361,12 @@ class Post extends Page
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
-                    $core->callBehavior('adminBeforePostCreate', $cur);
+                    $core->behaviors->call('adminBeforePostCreate', $cur);
 
                     $return_id = $core->blog->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
-                    $core->callBehavior('adminAfterPostCreate', $cur, $return_id);
+                    $core->behaviors->call('adminAfterPostCreate', $cur, $return_id);
 
                     static::addSuccessNotice(__('Entry has been successfully created.'));
                     $core->adminurl->redirect(
@@ -433,7 +433,7 @@ class Post extends Page
                 $c_edit = $post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $admin_post_behavior .= $core->callBehavior(
+                $admin_post_behavior .= $core->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -441,14 +441,14 @@ class Post extends Page
                     $post_format
                 );
             } else {
-                $admin_post_behavior .= $core->callBehavior(
+                $admin_post_behavior .= $core->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $post_format
                 );
-                $admin_post_behavior .= $core->callBehavior(
+                $admin_post_behavior .= $core->behaviors->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -466,7 +466,7 @@ class Post extends Page
             static::jsLoad('js/_post.js') .
             static::jsConfirmClose('entry-form', 'comment-form') .
             # --BEHAVIOR-- adminPostHeaders
-            $core->callBehavior('adminPostHeaders') .
+            $core->behaviors->call('adminPostHeaders') .
             static::jsPageTabs($default_tab) .
             $next_headlink . "\n" . $prev_headlink,
             $this->breadcrumb(
@@ -523,7 +523,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostNavLinks
-            $core->callBehavior('adminPostNavLinks', $post ?? null, 'post');
+            $core->behaviors->call('adminPostNavLinks', $post ?? null, 'post');
 
             echo '</p>';
         }
@@ -678,7 +678,7 @@ class Post extends Page
             );
 
             # --BEHAVIOR-- adminPostFormItems
-            $core->callBehavior('adminPostFormItems', $main_items, $sidebar_items, $post ?? null, 'post');
+            $core->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $post_format) . '" id="edit-entry">';
@@ -693,7 +693,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostForm (may be deprecated)
-            $core->callBehavior('adminPostForm', $post ?? null, 'post');
+            $core->behaviors->call('adminPostForm', $post ?? null, 'post');
 
             echo
             '<p class="border-top">' .
@@ -737,13 +737,13 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            $core->callBehavior('adminPostFormSidebar', $post ?? null, 'post');
+            $core->behaviors->call('adminPostFormSidebar', $post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             # --BEHAVIOR-- adminPostForm
-            $core->callBehavior('adminPostAfterForm', $post ?? null, 'post');
+            $core->behaviors->call('adminPostAfterForm', $post ?? null, 'post');
 
             echo '</div>';
         }

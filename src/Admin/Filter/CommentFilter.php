@@ -43,7 +43,7 @@ class CommentFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminCommentFilter
-        $core->callBehavior('adminCommentFilter', $core, $filters);
+        $core->behaviors->call('adminCommentFilter', $core, $filters);
 
         $filters = $filters->getArrayCopy();
 

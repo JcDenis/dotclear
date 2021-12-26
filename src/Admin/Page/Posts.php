@@ -61,7 +61,7 @@ class Posts extends Page
             'user_id'    => 'P.user_id'];
 
         # --BEHAVIOR-- adminPostsSortbyLexCombo
-        $core->callBehavior('adminPostsSortbyLexCombo', [& $sortby_lex]);
+        $core->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($post_filter->sortby, $sortby_lex) ?
             $this->core->con->lexFields($sortby_lex[$post_filter->sortby]) :

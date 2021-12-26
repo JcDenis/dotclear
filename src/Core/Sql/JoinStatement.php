@@ -50,7 +50,7 @@ class JoinStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeDeleteStatement
-        $this->core->callBehavior('coreBeforeJoinStatement', $this);
+        $this->core->behaviors->call('coreBeforeJoinStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -88,7 +88,7 @@ class JoinStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        $this->core->callBehavior('coreAfterJoinStatement', $this, $query);
+        $this->core->behaviors->call('coreAfterJoinStatement', $this, $query);
 
         return $query;
     }

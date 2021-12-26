@@ -262,7 +262,7 @@ class BlogPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeBlogUpdate
-                $core->callBehavior('adminBeforeBlogUpdate', $cur, $blog_id);
+                $core->behaviors->call('adminBeforeBlogUpdate', $cur, $blog_id);
 
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_POST['lang'])) {
                     throw new AdminException(__('Invalid language code'));
@@ -271,7 +271,7 @@ class BlogPref extends Page
                 $core->updBlog($blog_id, $cur);
 
                 # --BEHAVIOR-- adminAfterBlogUpdate
-                $core->callBehavior('adminAfterBlogUpdate', $cur, $blog_id);
+                $core->behaviors->call('adminAfterBlogUpdate', $cur, $blog_id);
 
                 if ($cur->blog_id != null && $cur->blog_id != $blog_id) {
                     if ($blog_id == $core->blog->id) {
@@ -336,7 +336,7 @@ class BlogPref extends Page
                 $blog_settings->system->put('static_home_url', $_POST['static_home_url']);
 
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                $core->callBehavior('adminBeforeBlogSettingsUpdate', $blog_settings);
+                $core->behaviors->call('adminBeforeBlogSettingsUpdate', $blog_settings);
 
                 if ($core->auth->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $blog_settings->system->put('url_scan', $_POST['url_scan']);
@@ -380,11 +380,11 @@ class BlogPref extends Page
                 'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.')
             ]) .
             static::jsConfirmClose('blog-form') .
-            ($rte_flag ? $core->callBehavior('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+            ($rte_flag ? $core->behaviors->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
             static::jsLoad('js/_blog_pref.js') .
 
             # --BEHAVIOR-- adminBlogPreferencesHeaders
-            $core->callBehavior('adminBlogPreferencesHeaders') .
+            $core->behaviors->call('adminBlogPreferencesHeaders') .
 
             static::jsPageTabs(),
             $breadcrumb
@@ -830,7 +830,7 @@ class BlogPref extends Page
             echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
             # --BEHAVIOR-- adminBlogPreferencesForm
-            $core->callBehavior('adminBlogPreferencesForm', $core, $blog_settings);
+            $core->behaviors->call('adminBlogPreferencesForm', $core, $blog_settings);
 
             echo '</div>'; // End 3rd party, aka plugins
 

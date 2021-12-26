@@ -47,7 +47,7 @@ class LinkPopup extends Page
             $core->themes->loadModules($core->blog->themes_path, null);
         }
 */
-        $this->openPopup(__('Add a link'), static::jsLoad('js/_popup_link.js') . $core->callBehavior('adminPopupLink', $plugin_id));
+        $this->openPopup(__('Add a link'), static::jsLoad('js/_popup_link.js') . $core->behaviors->call('adminPopupLink', $plugin_id));
 
         echo '<h2 class="page-title">' . __('Add a link') . '</h2>';
 

@@ -52,7 +52,7 @@ class PostMiniCatalog extends Catalog
             ];
 
             $cols = new \ArrayObject($cols);
-            $this->core->callBehavior('adminPostMiniListHeader', $this->core, $this->rs, $cols);
+            $this->core->behaviors->call('adminPostMiniListHeader', $this->core, $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -142,7 +142,7 @@ class PostMiniCatalog extends Catalog
         ];
 
         $cols = new \ArrayObject($cols);
-        $this->core->callBehavior('adminPostMiniListValue', $this->core, $this->rs, $cols);
+        $this->core->behaviors->call('adminPostMiniListValue', $this->core, $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

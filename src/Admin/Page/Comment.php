@@ -74,12 +74,12 @@ class Comment extends Page
                 $cur->post_id         = (integer) $_POST['post_id'];
 
                 # --BEHAVIOR-- adminBeforeCommentCreate
-                $core->callBehavior('adminBeforeCommentCreate', $cur);
+                $core->behaviors->call('adminBeforeCommentCreate', $cur);
 
                 $comment_id = $core->blog->addComment($cur);
 
                 # --BEHAVIOR-- adminAfterCommentCreate
-                $core->callBehavior('adminAfterCommentCreate', $cur, $comment_id);
+                $core->behaviors->call('adminAfterCommentCreate', $cur, $comment_id);
 
                 static::addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
@@ -151,12 +151,12 @@ class Comment extends Page
 
                 try {
                     # --BEHAVIOR-- adminBeforeCommentUpdate
-                    $core->callBehavior('adminBeforeCommentUpdate', $cur, $comment_id);
+                    $core->behaviors->call('adminBeforeCommentUpdate', $cur, $comment_id);
 
                     $core->blog->updComment($comment_id, $cur);
 
                     # --BEHAVIOR-- adminAfterCommentUpdate
-                    $core->callBehavior('adminAfterCommentUpdate', $cur, $comment_id);
+                    $core->behaviors->call('adminAfterCommentUpdate', $cur, $comment_id);
 
                     static::addSuccessNotice(__('Comment has been successfully updated.'));
                     $core->adminurl->redirect('admin.comment', ['id' => $comment_id]);
@@ -168,7 +168,7 @@ class Comment extends Page
             if (!empty($_POST['delete']) && $can_delete) {
                 try {
                     # --BEHAVIOR-- adminBeforeCommentDelete
-                    $core->callBehavior('adminBeforeCommentDelete', $comment_id);
+                    $core->behaviors->call('adminBeforeCommentDelete', $comment_id);
 
                     $core->blog->delComment($comment_id);
 
@@ -205,9 +205,9 @@ class Comment extends Page
         $this->open(__('Edit comment'),
             static::jsConfirmClose('comment-form') .
             static::jsLoad('js/_comment.js') .
-            $core->callBehavior('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
+            $core->behaviors->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
             # --BEHAVIOR-- adminCommentHeaders
-            $core->callBehavior('adminCommentHeaders'),
+            $core->behaviors->call('adminCommentHeaders'),
             $breadcrumb
         );
 
@@ -264,7 +264,7 @@ class Comment extends Page
             '</p>' .
 
             # --BEHAVIOR-- adminAfterCommentDesc
-            $core->callBehavior('adminAfterCommentDesc', $rs) .
+            $core->behaviors->call('adminAfterCommentDesc', $rs) .
 
             '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
             Form::textarea('comment_content', 50, 10,

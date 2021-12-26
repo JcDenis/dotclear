@@ -260,7 +260,7 @@ class Combos
             __('Number of trackbacks') => 'nb_trackback'
         ];
         # --BEHAVIOR-- adminPostsSortbyCombo
-        self::$core->callBehavior('adminPostsSortbyCombo', [& $sortby_combo]);
+        self::$core->behaviors->call('adminPostsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
@@ -277,7 +277,7 @@ class Combos
             __('Spam filter') => 'comment_spam_filter'
         ];
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        self::$core->callBehavior('adminCommentsSortbyCombo', [& $sortby_combo]);
+        self::$core->behaviors->call('adminCommentsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
@@ -291,7 +291,7 @@ class Combos
             __('Status')      => 'blog_status'
         ];
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        self::$core->callBehavior('adminBlogsSortbyCombo', [& $sortby_combo]);
+        self::$core->behaviors->call('adminBlogsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
@@ -308,7 +308,7 @@ class Combos
                 __('Number of entries') => 'nb_post'
             ];
             # --BEHAVIOR-- adminUsersSortbyCombo
-            self::$core->callBehavior('adminUsersSortbyCombo', [& $sortby_combo]);
+            self::$core->behaviors->call('adminUsersSortbyCombo', [& $sortby_combo]);
         }
         return $sortby_combo;
     }

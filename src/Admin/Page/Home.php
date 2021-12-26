@@ -125,11 +125,11 @@ class Home extends Page
             }
         }
 
-        $this->core->callBehavior('adminDashboardItems', $__dashboard_items);
+        $this->core->behaviors->call('adminDashboardItems', $__dashboard_items);
 
         # Dashboard content
         $__dashboard_contents = new \ArrayObject([new \ArrayObject, new \ArrayObject]);
-        $this->core->callBehavior('adminDashboardContents', $__dashboard_contents);
+        $this->core->behaviors->call('adminDashboardContents', $__dashboard_contents);
 
         # Editor stuff
         $admin_post_behavior = '';
@@ -139,7 +139,7 @@ class Home extends Page
                 $post_editor = $this->core->auth->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
                     // context is not post because of tags not available
-                    $admin_post_behavior = $this->core->callBehavior('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+                    $admin_post_behavior = $this->core->behaviors->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
                 }
             }
         }
@@ -172,7 +172,7 @@ class Home extends Page
             $dragndrop_head .
             $admin_post_behavior .
             # --BEHAVIOR-- adminDashboardHeaders
-            $this->core->callBehavior('adminDashboardHeaders'),
+            $this->core->behaviors->call('adminDashboardHeaders'),
             $this->breadcrumb(
                 [
                     __('Dashboard') . ' : ' . Html::escapeHTML($this->core->blog->name) => ''

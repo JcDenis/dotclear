@@ -34,7 +34,7 @@ class BlogAction extends Action
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        $core->callBehavior('adminBlogsActionsPage', $this);
+        $core->behaviors->call('adminBlogsActionsPage', $this);
     }
 
     protected function loadDefaults()

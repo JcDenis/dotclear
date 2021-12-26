@@ -53,7 +53,7 @@ class UrlHandler extends BaseUrlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $url  = $this->core->callBehavior('publicGetURLFor', $type, $value);
+        $url  = $this->core->behaviors->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -70,7 +70,7 @@ class UrlHandler extends BaseUrlHandler
     public function register($type, $url, $representation, $handler)
     {
         $t    = new \ArrayObject([$type, $url, $representation, $handler]);
-        $this->core->callBehavior('publicRegisterURL', $t);
+        $this->core->behaviors->call('publicRegisterURL', $t);
         parent::register($t[0], $t[1], $t[2], $t[3]);
     }
 
@@ -96,7 +96,7 @@ class UrlHandler extends BaseUrlHandler
         echo $core->tpl->getData($_ctx->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
-        $core->callBehavior('publicAfterDocument');
+        $core->behaviors->call('publicAfterDocument');
         exit;
     }
 
@@ -138,7 +138,7 @@ class UrlHandler extends BaseUrlHandler
         $_ctx->content_type = $content_type;
         $_ctx->http_cache   = $http_cache;
         $_ctx->http_etag    = $http_etag;
-        $core->callBehavior('urlHandlerBeforeGetData', $_ctx);
+        $core->behaviors->call('urlHandlerBeforeGetData', $_ctx);
 
         if ($_ctx->http_cache) {
             $GLOBALS['mod_files'][] = $tpl_file;
@@ -164,7 +164,7 @@ class UrlHandler extends BaseUrlHandler
             $headers->append('Permissions-Policy: interest-cohort=()');
         }
         # --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        $core->callBehavior('urlHandlerServeDocumentHeaders', $headers);
+        $core->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any
         foreach ($headers as $header) {
@@ -178,7 +178,7 @@ class UrlHandler extends BaseUrlHandler
         $result['headers']      = $headers;
 
         # --BEHAVIOR-- urlHandlerServeDocument
-        $core->callBehavior('urlHandlerServeDocument', $result);
+        $core->behaviors->call('urlHandlerServeDocument', $result);
 
         if ($_ctx->http_cache && $_ctx->http_etag) {
             http::etag($result['content'], http::getSelfURI());
@@ -225,7 +225,7 @@ class UrlHandler extends BaseUrlHandler
         $this->getArgs($part, $type, $this->args);
 
         # --BEHAVIOR-- urlHandlerGetArgsDocument
-        $core->callBehavior('urlHandlerGetArgsDocument', $this);
+        $core->behaviors->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -299,7 +299,7 @@ class UrlHandler extends BaseUrlHandler
             $GLOBALS['_search'] = !empty($_GET['q']) ? html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
                 $params = new \ArrayObject(['search' => $GLOBALS['_search']]);
-                $core->callBehavior('publicBeforeSearchCount', $params);
+                $core->behaviors->call('publicBeforeSearchCount', $params);
                 $GLOBALS['_search_count'] = $core->blog->getPosts($params, true)->f(0);
             }
 
@@ -316,7 +316,7 @@ class UrlHandler extends BaseUrlHandler
         $params = new \ArrayObject([
             'lang' => $args]);
 
-        $core->callBehavior('publicLangBeforeGetLangs', $params, $args);
+        $core->behaviors->call('publicLangBeforeGetLangs', $params, $args);
 
         $_ctx->langs = $core->blog->getLangs($params);
 
@@ -348,7 +348,7 @@ class UrlHandler extends BaseUrlHandler
                 'post_type'     => 'post',
                 'without_empty' => false]);
 
-            $core->callBehavior('publicCategoryBeforeGetCategories', $params, $args);
+            $core->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
 
             $_ctx->categories = $core->blog->getCategories($params);
 
@@ -378,7 +378,7 @@ class UrlHandler extends BaseUrlHandler
                 'month' => $m[2],
                 'type'  => 'month']);
 
-            $core->callBehavior('publicArchiveBeforeGetDates', $params, $args);
+            $core->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
 
             $_ctx->archives = $core->blog->getDates($params);
 
@@ -408,7 +408,7 @@ class UrlHandler extends BaseUrlHandler
             $params = new \ArrayObject([
                 'post_url' => $args]);
 
-            $core->callBehavior('publicPostBeforeGetPosts', $params, $args);
+            $core->behaviors->call('publicPostBeforeGetPosts', $params, $args);
 
             $_ctx->posts = $core->blog->getPosts($params);
 
@@ -479,7 +479,7 @@ class UrlHandler extends BaseUrlHandler
 
                     if ($content != '') {
                         # --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = $core->callBehavior('publicBeforeCommentTransform', $content);
+                        $buffer = $core->behaviors->call('publicBeforeCommentTransform', $content);
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
@@ -501,7 +501,7 @@ class UrlHandler extends BaseUrlHandler
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        $core->callBehavior('publicBeforeCommentPreview', $_ctx->comment_preview);
+                        $core->behaviors->call('publicBeforeCommentPreview', $_ctx->comment_preview);
 
                         $_ctx->comment_preview['preview'] = true;
                     } else {
@@ -524,12 +524,12 @@ class UrlHandler extends BaseUrlHandler
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
-                            $core->callBehavior('publicBeforeCommentCreate', $cur);
+                            $core->behaviors->call('publicBeforeCommentCreate', $cur);
                             if ($cur->post_id) {
                                 $comment_id = $core->blog->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
-                                $core->callBehavior('publicAfterCommentCreate', $cur, $comment_id);
+                                $core->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if ($cur->comment_status == 1) {
@@ -538,7 +538,7 @@ class UrlHandler extends BaseUrlHandler
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var($core->callBehavior('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var($core->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
@@ -600,7 +600,7 @@ class UrlHandler extends BaseUrlHandler
 
             $args = $m[3];
 
-            $core->callBehavior('publicFeedBeforeGetLangs', $params, $args);
+            $core->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
 
             $_ctx->langs = $core->blog->getLangs($params);
 
@@ -642,7 +642,7 @@ class UrlHandler extends BaseUrlHandler
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
-            $core->callBehavior('publicFeedBeforeGetCategories', $params, $args);
+            $core->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
 
             $_ctx->categories = $core->blog->getCategories($params);
 
@@ -659,7 +659,7 @@ class UrlHandler extends BaseUrlHandler
                 'post_id'   => $post_id,
                 'post_type' => '']);
 
-            $core->callBehavior('publicFeedBeforeGetPosts', $params, $args);
+            $core->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
 
             $_ctx->posts = $core->blog->getPosts($params);
 
@@ -715,7 +715,7 @@ class UrlHandler extends BaseUrlHandler
             $args['type']    = 'trackback';
 
             # --BEHAVIOR-- publicBeforeReceiveTrackback
-            $core->callBehavior('publicBeforeReceiveTrackback', $core, $args);
+            $core->behaviors->call('publicBeforeReceiveTrackback', $core, $args);
 
             $tb = new dcTrackback($core);
             $tb->receiveTrackback($post_id);
@@ -732,7 +732,7 @@ class UrlHandler extends BaseUrlHandler
         $args['type'] = 'webmention';
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        $core->callBehavior('publicBeforeReceiveTrackback', $args);
+        $core->behaviors->call('publicBeforeReceiveTrackback', $args);
 
         $tb = new dcTrackback($core);
         $tb->receiveWebmention();

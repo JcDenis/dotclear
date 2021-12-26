@@ -144,7 +144,7 @@ class User extends Page
                 # Udate user
                 if ($user_id) {
                     # --BEHAVIOR-- adminBeforeUserUpdate
-                    $core->callBehavior('adminBeforeUserUpdate', $cur, $user_id);
+                    $core->behaviors->call('adminBeforeUserUpdate', $cur, $user_id);
 
                     $new_id = $core->updUser($user_id, $cur);
 
@@ -163,7 +163,7 @@ class User extends Page
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserUpdate
-                    $core->callBehavior('adminAfterUserUpdate', $cur, $new_id);
+                    $core->behaviors->call('adminAfterUserUpdate', $cur, $new_id);
 
                     if ($user_id == $core->auth->userID() && $user_id != $new_id) {
                         $core->session->destroy();
@@ -179,7 +179,7 @@ class User extends Page
                     }
 
                     # --BEHAVIOR-- adminBeforeUserCreate
-                    $core->callBehavior('adminBeforeUserCreate', $cur);
+                    $core->behaviors->call('adminBeforeUserCreate', $cur);
 
                     $new_id = $core->addUser($cur);
 
@@ -198,7 +198,7 @@ class User extends Page
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserCreate
-                    $core->callBehavior('adminAfterUserCreate', $cur, $new_id);
+                    $core->behaviors->call('adminAfterUserCreate', $cur, $new_id);
 
                     static::addSuccessNotice(__('User has been successfully created.'));
                     static::addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
@@ -224,7 +224,7 @@ class User extends Page
             ]) .
             static::jsLoad('js/pwstrength.js') .
             static::jsLoad('js/_user.js') .
-            $core->callBehavior('adminUserHeaders'),
+            $core->behaviors->call('adminUserHeaders'),
 
             $this->breadcrumb(
                 [
@@ -387,7 +387,7 @@ class User extends Page
             '</p>';
 
         # --BEHAVIOR-- adminUserForm
-        $core->callBehavior('adminUserForm', $rs ?? null);
+        $core->behaviors->call('adminUserForm', $rs ?? null);
 
         echo
             '</div>' .

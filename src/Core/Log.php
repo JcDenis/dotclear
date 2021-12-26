@@ -160,7 +160,7 @@ class Log
             $this->getLogCursor($cur, $cur->log_id);
 
             # --BEHAVIOR-- coreBeforeLogCreate
-            $this->core->callBehavior('coreBeforeLogCreate', $this, $cur);
+            $this->core->behaviors->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -171,7 +171,7 @@ class Log
         }
 
         # --BEHAVIOR-- coreAfterLogCreate
-        $this->core->callBehavior('coreAfterLogCreate', $this, $cur);
+        $this->core->behaviors->call('coreAfterLogCreate', $this, $cur);
 
         return $cur->log_id;
     }

@@ -150,12 +150,12 @@ class Category extends Page
                 # Update category
                 if ($cat_id) {
                     # --BEHAVIOR-- adminBeforeCategoryUpdate
-                    $core->callBehavior('adminBeforeCategoryUpdate', $cur, $cat_id);
+                    $core->behaviors->call('adminBeforeCategoryUpdate', $cur, $cat_id);
 
                     $core->blog->updCategory($_POST['id'], $cur);
 
                     # --BEHAVIOR-- adminAfterCategoryUpdate
-                    $core->callBehavior('adminAfterCategoryUpdate', $cur, $cat_id);
+                    $core->behaviors->call('adminAfterCategoryUpdate', $cur, $cat_id);
 
                     static::addSuccessNotice(__('The category has been successfully updated.'));
 
@@ -164,12 +164,12 @@ class Category extends Page
                 # Create category
                 else {
                     # --BEHAVIOR-- adminBeforeCategoryCreate
-                    $core->callBehavior('adminBeforeCategoryCreate', $cur);
+                    $core->behaviors->call('adminBeforeCategoryCreate', $cur);
 
                     $id = $core->blog->addCategory($cur, (integer) $_POST['new_cat_parent']);
 
                     # --BEHAVIOR-- adminAfterCategoryCreate
-                    $core->callBehavior('adminAfterCategoryCreate', $cur, $id);
+                    $core->behaviors->call('adminAfterCategoryCreate', $cur, $id);
 
                     static::addSuccessNotice(sprintf(__('The category "%s" has been successfully created.'),
                         Html::escapeHTML($cur->cat_title)));
@@ -203,7 +203,7 @@ class Category extends Page
         $this->open($title,
             static::jsConfirmClose('category-form') .
             static::jsLoad('js/_category.js') .
-            ($rte_flag ? $core->callBehavior('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : ''),
+            ($rte_flag ? $core->behaviors->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : ''),
             $this->breadcrumb($elements)
         );
 

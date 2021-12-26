@@ -61,7 +61,7 @@ class Blogs extends Page
         try {
             # --BEHAVIOR-- adminGetBlogs
             $params = new \ArrayObject($params);
-            $this->core->callBehavior('adminGetBlogs', $params);
+            $this->core->behaviors->call('adminGetBlogs', $params);
 
             $counter  = $this->core->getBlogs($params, true);
             $rs       = $this->core->getBlogs($params);

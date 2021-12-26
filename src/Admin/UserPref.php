@@ -54,7 +54,7 @@ class UserPref
         $cols = new \ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        self::$core->callBehavior('adminColumnsLists', $cols);
+        self::$core->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
         $cols_user = @self::$core->auth->user_prefs->interface->cols;
@@ -152,7 +152,7 @@ class UserPref
             $sorts = new \ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            self::$core->callBehavior('adminFiltersLists', $sorts);
+            self::$core->behaviors->call('adminFiltersLists', $sorts);
 
             if (self::$core->auth->user_prefs->interface === null) {
                 self::$core->auth->user_prefs->addWorkspace('interface');

@@ -60,7 +60,7 @@ class PostFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminPostFilter
-        $core->callBehavior('adminPostFilter', $core, $filters);
+        $core->behaviors->call('adminPostFilter', $core, $filters);
 
         $filters = $filters->getArrayCopy();
 

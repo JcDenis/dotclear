@@ -33,7 +33,7 @@ class TruncateStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeInsertStatement
-        $this->core->callBehavior('coreBeforeTruncateStatement', $this);
+        $this->core->behaviors->call('coreBeforeTruncateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -51,7 +51,7 @@ class TruncateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertInsertStatement
-        $this->core->callBehavior('coreAfterTruncateStatement', $this, $query);
+        $this->core->behaviors->call('coreAfterTruncateStatement', $this, $query);
 
         return $query;
     }

@@ -179,7 +179,7 @@ class Page
             $csp['frame-src'] = '*';
 
             # --BEHAVIOR-- adminPageHTTPHeaderCSP
-            $this->core->callBehavior('adminPageHTTPHeaderCSP', $csp);
+            $this->core->behaviors->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -196,7 +196,7 @@ class Page
         }
 
         # --BEHAVIOR-- adminPageHTTPHeaders
-        $this->core->callBehavior('adminPageHTTPHeaders', $headers);
+        $this->core->behaviors->call('adminPageHTTPHeaders', $headers);
         foreach ($headers as $key => $value) {
             header($value);
         }
@@ -247,7 +247,7 @@ class Page
             $head;
 
         # --BEHAVIOR-- adminPageHTMLHead
-        $this->core->callBehavior('adminPageHTMLHead');
+        $this->core->behaviors->call('adminPageHTMLHead');
 
         echo
         "</head>\n" .
@@ -361,7 +361,7 @@ class Page
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
 
         # --BEHAVIOR-- adminPageFooter
-        $textAlt = $this->core->callBehavior('adminPageFooter', $text);
+        $textAlt = $this->core->behaviors->call('adminPageFooter', $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }
@@ -456,7 +456,7 @@ class Page
             $head;
 
         # --BEHAVIOR-- adminPageHTMLHead
-        $this->core->callBehavior('adminPageHTMLHead');
+        $this->core->behaviors->call('adminPageHTMLHead');
 
         echo
             "</head>\n" .
@@ -615,7 +615,7 @@ class Page
         $args = new \ArrayObject($params);
 
         # --BEHAVIOR-- adminPageHelpBlock
-        $this->core->callBehavior('adminPageHelpBlock', $args);
+        $this->core->behaviors->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;

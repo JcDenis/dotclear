@@ -156,7 +156,7 @@ class Media extends Manager
         $this->thumb_sizes['sq'][2] = __($this->thumb_sizes['sq'][2]);
 
         # --BEHAVIOR-- coreMediaConstruct
-        $this->core->callBehavior('coreMediaConstruct', $this);
+        $this->core->behaviors->call('coreMediaConstruct', $this);
     }
 
     /**
@@ -1348,7 +1348,7 @@ class Media extends Manager
         }
 
         # --BEHAVIOR-- coreBeforeImageMetaCreate
-        $this->core->callBehavior('coreBeforeImageMetaCreate', $c);
+        $this->core->behaviors->call('coreBeforeImageMetaCreate', $c);
 
         $sql = new UpdateStatement($this->core, 'dcMediaImageMetaCreate');
         $sql->where('media_id = ' . $id);

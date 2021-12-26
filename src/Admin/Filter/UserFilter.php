@@ -36,7 +36,7 @@ class UserFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminUserFilter
-        $core->callBehavior('adminUserFilter', $core, $filters);
+        $core->behaviors->call('adminUserFilter', $core, $filters);
 
         $filters = $filters->getArrayCopy();
 

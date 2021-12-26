@@ -125,7 +125,7 @@ class CommentCatalog extends Catalog
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new \ArrayObject($cols);
-            $this->core->callBehavior('adminCommentListHeader', $this->core, $this->rs, $cols);
+            $this->core->behaviors->call('adminCommentListHeader', $this->core, $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -260,7 +260,7 @@ class CommentCatalog extends Catalog
             ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
 
         $cols = new \ArrayObject($cols);
-        $this->core->callBehavior('adminCommentListValue', $this->core, $this->rs, $cols);
+        $this->core->behaviors->call('adminCommentListValue', $this->core, $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

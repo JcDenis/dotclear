@@ -77,7 +77,7 @@ class UserAction extends Page
             }
 
             # --BEHAVIOR-- adminUsersActions
-            $core->callBehavior('adminUsersActions', $users, $blogs, $action, $redir);
+            $core->behaviors->call('adminUsersActions', $users, $blogs, $action, $redir);
 
             # Delete users
             if ($action == 'deleteuser' && !empty($users)) {
@@ -88,7 +88,7 @@ class UserAction extends Page
                         }
 
                         # --BEHAVIOR-- adminBeforeUserDelete
-                        $core->callBehavior('adminBeforeUserDelete', $u);
+                        $core->behaviors->call('adminBeforeUserDelete', $u);
 
                         $core->delUser($u);
                     } catch (Exception $e) {
@@ -155,7 +155,7 @@ class UserAction extends Page
             __('Users'),
             static::jsLoad('js/_users_actions.js') .
             # --BEHAVIOR-- adminUsersActionsHeaders
-            $core->callBehavior('adminUsersActionsHeaders'),
+            $core->behaviors->call('adminUsersActionsHeaders'),
             $breadcrumb
         );
 
@@ -183,7 +183,7 @@ class UserAction extends Page
         echo '<p><a class="back" href="' . Html::escapeURL($redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
 
         # --BEHAVIOR-- adminUsersActionsContent
-        $core->callBehavior('adminUsersActionsContent', $action, $hidden_fields);
+        $core->behaviors->call('adminUsersActionsContent', $action, $hidden_fields);
 
         # Blog list where to set permissions
         if (!empty($users) && empty($blogs) && $action == 'blogs') {

@@ -35,7 +35,7 @@ class CommentAction extends Action
         $this->field_entries = 'comments';
         $this->cb_title      = __('Comments');
         $this->loadDefaults();
-        $core->callBehavior('adminCommentsActionsPage', $this);
+        $core->behaviors->call('adminCommentsActionsPage', $this);
     }
 
     protected function loadDefaults()
@@ -224,11 +224,11 @@ class dcDefaultCommentActions
         // Backward compatibility
         foreach ($co_ids as $comment_id) {
             # --BEHAVIOR-- adminBeforeCommentDelete
-            $core->callBehavior('adminBeforeCommentDelete', $comment_id);
+            $core->behaviors->call('adminBeforeCommentDelete', $comment_id);
         }
 
         # --BEHAVIOR-- adminBeforeCommentsDelete
-        $core->callBehavior('adminBeforeCommentsDelete', $co_ids);
+        $core->behaviors->call('adminBeforeCommentsDelete', $co_ids);
 
         $core->blog->delComments($co_ids);
         dcPage::addSuccessNotice(__('Selected comments have been successfully deleted.'));

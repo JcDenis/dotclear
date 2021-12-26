@@ -501,12 +501,12 @@ class Trackback
         $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate
-        $this->core->callBehavior('publicBeforeTrackbackCreate', $cur);
+        $this->core->behaviors->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->post_id) {
             $comment_id = $this->core->blog->addComment($cur);
 
             # --BEHAVIOR-- publicAfterTrackbackCreate
-            $this->core->callBehavior('publicAfterTrackbackCreate', $cur, $comment_id);
+            $this->core->behaviors->call('publicAfterTrackbackCreate', $cur, $comment_id);
         }
     }
 

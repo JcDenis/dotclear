@@ -51,7 +51,7 @@ class Notices
         if (self::$core->error->flag() && !self::$error_displayed) {
 
             # --BEHAVIOR-- adminPageNotificationError
-            $notice_error = self::$core->callBehavior('adminPageNotificationError', self::$core->error);
+            $notice_error = self::$core->behaviors->call('adminPageNotificationError', self::$core->error);
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
@@ -101,7 +101,7 @@ class Notices
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
                     # --BEHAVIOR-- adminPageNotification
-                    $notice = self::$core->callBehavior('adminPageNotification', $notification);
+                    $notice = self::$core->behaviors->call('adminPageNotification', $notification);
 
                     $res .= (isset($notice) && !empty($notice) ? $notice : self::getNotification($notification));
                 }

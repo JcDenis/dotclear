@@ -15,6 +15,7 @@ namespace Dotclear\Core;
 use ArrayObject;
 
 use Dotclear\Exception\CoreException;
+use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Core\Behaviors;
 use Dotclear\Core\Error;
@@ -461,34 +462,42 @@ class Core
     /// @name Behaviors methods
     //@{
     /**
-     * @deprecated
+     * @deprecated use $core->behaviors->add();
      */
     public function addBehavior(string $behavior, $func): void
     {
+        DeprecatedException::throw();
+
         $this->behaviors->add($behavior, $func);
     }
 
     /**
-     * @deprecated
+     * @deprecated use $core->behaviors->has();
      */
     public function hasBehavior(string $behavior): bool
     {
+        DeprecatedException::throw();
+
         return $this->behaviors->has($behavior);
     }
 
     /**
-     * @deprecated
+     * @deprecated use $core->behaviors->get();
      */
     public function getBehaviors(string $behavior = ''): array
     {
+        DeprecatedException::throw();
+
         return $this->behaviors->get($behavior);
     }
 
     /**
-     * @deprecated
+     * @deprecated use $core->behaviors->call();
      */
     public function callBehavior(string $behavior, ...$args)
     {
+        DeprecatedException::throw();
+
         return $this->behaviors->callArray($behavior, $args);
     }
 
@@ -804,7 +813,7 @@ class Core
      *
      * @return     string
      */
-    public function updUser(string $id, Cursor $cur)
+    public function updUser(string $id, Cursor $cur): string
     {
         $this->getUserCursor($cur);
 
@@ -1362,7 +1371,7 @@ class Core
             'keep_data' => false,
             'keep_js'   => false
         ]);
-        $this->callBehavior('HTMLfilter', $options);
+        $this->behaviors->call('HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
         $str    = trim($filter->apply($str));
@@ -1449,7 +1458,7 @@ class Core
         $this->wiki2xhtml->registerFunction('url:post', [$this, 'wikiPostLink']);
 
         # --BEHAVIOR-- coreWikiPostInit
-        $this->callBehavior('coreInitWikiPost', $this->wiki2xhtml);
+        $this->behaviors->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 
     /**
@@ -1498,7 +1507,7 @@ class Core
         ]);
 
         # --BEHAVIOR-- coreInitWikiSimpleComment
-        $this->callBehavior('coreInitWikiSimpleComment', $this->wiki2xhtml);
+        $this->behaviors->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
     }
 
     /**
@@ -1546,7 +1555,7 @@ class Core
         ]);
 
         # --BEHAVIOR-- coreInitWikiComment
-        $this->callBehavior('coreInitWikiComment', $this->wiki2xhtml);
+        $this->behaviors->call('coreInitWikiComment', $this->wiki2xhtml);
     }
 
     /**

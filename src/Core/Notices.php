@@ -125,7 +125,7 @@ class Notices
             $this->getNoticeCursor($cur, $cur->notice_id);
 
             # --BEHAVIOR-- coreBeforeNoticeCreate
-            $this->core->callBehavior('coreBeforeNoticeCreate', $this, $cur);
+            $this->core->behaviors->call('coreBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
             $this->core->con->unlock();
@@ -136,7 +136,7 @@ class Notices
         }
 
         # --BEHAVIOR-- coreAfterNoticeCreate
-        $this->core->callBehavior('coreAfterNoticeCreate', $this, $cur);
+        $this->core->behaviors->call('coreAfterNoticeCreate', $this, $cur);
 
         return $cur->notice_id;
     }

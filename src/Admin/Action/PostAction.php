@@ -40,7 +40,7 @@ class PostAction extends Action
         // We could have added a behavior here, but we want default action
         // to be setup first
         DefaultPostAction::PostAction($this->core, $this);
-        $this->core->callBehavior('adminPostsActionsPage', $this);
+        $this->core->behaviors->call('adminPostsActionsPage', $this);
     }
 
     public function beginPage($breadcrumb = '', $head = '')

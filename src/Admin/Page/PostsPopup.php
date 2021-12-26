@@ -74,7 +74,7 @@ class PostsPopup extends Page
         $this->openPopup(__('Add a link to an entry'),
             static::jsLoad('js/_posts_list.js') .
             static::jsLoad('js/_popup_posts.js') .
-            $core->callBehavior('adminPopupPosts', $plugin_id));
+            $core->behaviors->call('adminPopupPosts', $plugin_id));
 
         echo '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>';
 

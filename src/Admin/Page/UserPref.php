@@ -163,7 +163,7 @@ class UserPref extends Page
             'cat_descr'  => [true, __('Category description')],
         ];
         $rte = new \ArrayObject($rte);
-        $core->callBehavior('adminRteFlags', $rte);
+        $core->behaviors->call('adminRteFlags', $rte);
         # Load user settings
         $rte_flags = @$core->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags)) {
@@ -221,7 +221,7 @@ class UserPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeUserUpdate
-                $core->callBehavior('adminBeforeUserProfileUpdate', $cur, $core->auth->userID());
+                $core->behaviors->call('adminBeforeUserProfileUpdate', $cur, $core->auth->userID());
 
                 # Udate user
                 $core->updUser($core->auth->userID(), $cur);
@@ -239,7 +239,7 @@ class UserPref extends Page
                 $core->auth->user_prefs->profile->put('urls', $urls, 'string');
 
                 # --BEHAVIOR-- adminAfterUserUpdate
-                $core->callBehavior('adminAfterUserProfileUpdate', $cur, $core->auth->userID());
+                $core->behaviors->call('adminAfterUserProfileUpdate', $cur, $core->auth->userID());
 
                 static::addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -276,7 +276,7 @@ class UserPref extends Page
                 $cur->user_options = new \ArrayObject($user_options);
 
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                $core->callBehavior('adminBeforeUserOptionsUpdate', $cur, $core->auth->userID());
+                $core->behaviors->call('adminBeforeUserOptionsUpdate', $cur, $core->auth->userID());
 
                 # Update user prefs
                 $core->auth->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
@@ -343,7 +343,7 @@ class UserPref extends Page
                 $core->updUser($core->auth->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                $core->callBehavior('adminAfterUserOptionsUpdate', $cur, $core->auth->userID());
+                $core->behaviors->call('adminAfterUserOptionsUpdate', $cur, $core->auth->userID());
 
                 static::addSuccessNotice(__('Personal options has been successfully updated.'));
                 $core->adminurl->redirect('admin.user.pref', [], '#user-options');
@@ -356,7 +356,7 @@ class UserPref extends Page
         if (isset($_POST['db-options'])) {
             try {
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                $core->callBehavior('adminBeforeDashboardOptionsUpdate', $core->auth->userID());
+                $core->behaviors->call('adminBeforeDashboardOptionsUpdate', $core->auth->userID());
 
                 # Update user prefs
                 $core->auth->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
@@ -370,7 +370,7 @@ class UserPref extends Page
                 $core->auth->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                $core->callBehavior('adminAfterDashboardOptionsUpdate', $core->auth->userID());
+                $core->behaviors->call('adminAfterDashboardOptionsUpdate', $core->auth->userID());
 
                 static::addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 $core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
@@ -493,7 +493,7 @@ class UserPref extends Page
             static::jsConfirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
             # --BEHAVIOR-- adminPreferencesHeaders
-            $core->callBehavior('adminPreferencesHeaders'),
+            $core->behaviors->call('adminPreferencesHeaders'),
             $this->breadcrumb(
                 [
                     Html::escapeHTML($core->auth->userID()) => '',
@@ -781,7 +781,7 @@ class UserPref extends Page
         '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         # --BEHAVIOR-- adminPreferencesForm
-        $core->callBehavior('adminPreferencesForm');
+        $core->behaviors->call('adminPreferencesForm');
 
         echo
         '<p class="clear vertical-separator">' .
@@ -961,7 +961,7 @@ class UserPref extends Page
         echo '</div>';
 
         # --BEHAVIOR-- adminDashboardOptionsForm
-        $core->callBehavior('adminDashboardOptionsForm', $core);
+        $core->behaviors->call('adminDashboardOptionsForm', $core);
 
         echo
         '<p>' .

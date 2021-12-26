@@ -209,7 +209,7 @@ class Update extends Page
 
                 $core->error->add($msg);
 
-                $core->callBehavior('adminDCUpdateException', $e);
+                $core->behaviors->call('adminDCUpdateException', $e);
             }
         }
 

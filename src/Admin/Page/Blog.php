@@ -52,7 +52,7 @@ class Blog extends Page
 
             try {
                 # --BEHAVIOR-- adminBeforeBlogCreate
-                $this->core->callBehavior('adminBeforeBlogCreate', $cur, $blog_id);
+                $this->core->behaviors->call('adminBeforeBlogCreate', $cur, $blog_id);
 
                 $this->core->addBlog($cur);
 
@@ -69,7 +69,7 @@ class Blog extends Page
                 }
 
                 # --BEHAVIOR-- adminAfterBlogCreate
-                $core->callBehavior('adminAfterBlogCreate', $cur, $blog_id, $blog_settings);
+                $core->behaviors->call('adminAfterBlogCreate', $cur, $blog_id, $blog_settings);
 
                 static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), html::escapeHTML($cur->blog_name)));
                 $this->core->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);

@@ -46,7 +46,7 @@ class Users extends Page
         ];
 
         # --BEHAVIOR-- adminUsersActionsCombo
-        $this->core->callBehavior('adminUsersActionsCombo', [& $combo_action]);
+        $this->core->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
 
         /* Filters
         -------------------------------------------------------- */
@@ -64,7 +64,7 @@ class Users extends Page
             'user_displayname' => 'user_displayname'];
 
         # --BEHAVIOR-- adminUsersSortbyLexCombo
-        $this->core->callBehavior('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        $this->core->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($user_filter->sortby, $sortby_lex) ?
             $this->core->con->lexFields($sortby_lex[$user_filter->sortby]) :
@@ -77,7 +77,7 @@ class Users extends Page
         try {
             # --BEHAVIOR-- adminGetUsers
             $params = new \ArrayObject($params);
-            $this->core->callBehavior('adminGetUsers', $params);
+            $this->core->behaviors->call('adminGetUsers', $params);
 
             $rs       = $this->core->getUsers($params);
             $counter  = $this->core->getUsers($params, true);
