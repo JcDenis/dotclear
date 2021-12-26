@@ -12,21 +12,25 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
+use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Core\Core;
 use Dotclear\Core\Categories;
+use Dotclear\Core\Settings;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Record;
+use Dotclear\Database\Cursor;
 use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
-use Dotclear\File\Path;
 use Dotclear\Network\Http;
+use Dotclear\File\Path;
+use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
-
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -34,41 +38,49 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
-    /** @var Core Core instance */
+    /** @var Core       Core instance */
     protected $core;
 
-    /** @var Connection Database connection object */
+    /** @var Connection Database connection instance */
     public $con;
 
-    /** @var string Database table prefix */
-    public $prefix;
-
-    /** @var string Blog ID */
-    public $id;
-    /** @var string Blog unique ID */
-    public $uid;
-    /** @var string Blog name */
-    public $name;
-    /** @var string Blog description */
-    public $desc;
-    /** @var string Blog URL */
-    public $url;
-    /** @var string Blog host */
-    public $host;
-    /** @var mixed Blog creation date */
-    public $creadt;
-    /** @var mixed Blog last update date */
-    public $upddt;
-    /** @var string Blog status */
-    public $status;
-
-    /** @var Settings Settings object */
+    /** @var Settings   Settings instance */
     public $settings;
 
-    /** @var string Blog theme path */
+    /** @var string     Database table prefix */
+    public $prefix;
+
+    /** @var string     Blog ID */
+    public $id;
+
+    /** @var string     Blog unique ID */
+    public $uid;
+
+    /** @var string     Blog name */
+    public $name;
+
+    /** @var string     Blog description */
+    public $desc;
+
+    /** @var string     Blog URL */
+    public $url;
+
+    /** @var string     Blog host */
+    public $host;
+
+    /** @var mixed      Blog creation date */
+    public $creadt;
+
+    /** @var mixed      Blog last update date */
+    public $upddt;
+
+    /** @var string     Blog status */
+    public $status;
+
+    /** @var string     Blog theme path */
     public $themes_path;
 
-    /** @var string Blog public path */
+    /** @var string     Blog public path */
     public $public_path;
 
     private $post_status    = [];
@@ -85,7 +97,7 @@ class Blog
      * @param      Core  $core   The core
      * @param      string  $id     The blog identifier
      */
-    public function __construct(Core $core, $id)
+    public function __construct(Core $core, string $id)
     {
         $this->con    = &$core->con;
         $this->prefix = $core->prefix;
@@ -117,8 +129,8 @@ class Blog
             $this->comment_status['0']  = __('Unpublished');
             $this->comment_status['1']  = __('Published');
 
-            # --BEHAVIOR-- coreBlogConstruct
-            $this->core->callBehavior('coreBlogConstruct', $this);
+            # --BEHAVIOR-- after:Core:Blog:__construct, Dotclear\Core\Blog
+            $this->core->callBehavior('after:Core:Blog:__construct', $this);
         }
     }
 
@@ -129,7 +141,7 @@ class Blog
      *
      * @return     string  The qmark url.
      */
-    public function getQmarkURL()
+    public function getQmarkURL(): string
     {
         if (substr($this->url, -1) != '?') {
             return $this->url . '?';
@@ -143,7 +155,7 @@ class Blog
      *
      * @return     string
      */
-    public function getJsJQuery()
+    public function getJsJQuery(): string
     {
         $version = $this->settings->system->jquery_version;
         if ($version == '') {
@@ -169,7 +181,7 @@ class Blog
      *
      * @return     string
      */
-    public function getPF($pf, $strip_host = true)
+    public function getPF(string $pf, bool $strip_host = true): string
     {
         $ret = $this->getQmarkURL() . 'pf=' . $pf;
         if ($strip_host) {
@@ -187,7 +199,7 @@ class Blog
      *
      * @return     string
      */
-    public function getVF($vf, $strip_host = true)
+    public function getVF(string $vf, bool $strip_host = true): string
     {
         $ret = $this->getQmarkURL() . 'vf=' . $vf;
         if ($strip_host) {
@@ -205,7 +217,7 @@ class Blog
      *
      * @return     string  The post status.
      */
-    public function getPostStatus($s)
+    public function getPostStatus(int $s): string
     {
         if (isset($this->post_status[$s])) {
             return $this->post_status[$s];
@@ -219,7 +231,7 @@ class Blog
      *
      * @return     array  Simple array with codes in keys and names in value.
      */
-    public function getAllPostStatus()
+    public function getAllPostStatus(): array
     {
         return $this->post_status;
     }
@@ -229,7 +241,7 @@ class Blog
      *
      * @return    array Simple array with codes in keys and names in value
      */
-    public function getAllCommentStatus()
+    public function getAllCommentStatus(): array
     {
         return $this->comment_status;
     }
@@ -240,9 +252,9 @@ class Blog
      *
      * @param      mixed  $v
      */
-    public function withoutPassword($v)
+    public function withoutPassword(bool $v): void
     {
-        $this->without_password = (bool) $v;
+        $this->without_password = $v;
     }
     //@}
 
@@ -252,7 +264,7 @@ class Blog
      * Updates blog last update date. Should be called every time you change
      * an element related to the blog.
      */
-    public function triggerBlog()
+    public function triggerBlog(): void
     {
         $cur = $this->con->openCursor($this->prefix . 'blog');
 
@@ -260,8 +272,8 @@ class Blog
 
         $cur->update("WHERE blog_id = '" . $this->con->escape($this->id) . "' ");
 
-        # --BEHAVIOR-- coreBlogAfterTriggerBlog
-        $this->core->callBehavior('coreBlogAfterTriggerBlog', $cur);
+        # --BEHAVIOR-- after:Core:Blog:triggerBlog, Dotclear\Database\Cursor
+        $this->core->callBehavior('after:Core:Blog:triggerBlog', $cur);
     }
 
     /**
@@ -271,7 +283,7 @@ class Blog
      * @param      integer  $id     The comment identifier
      * @param      bool     $del    If comment is deleted, set this to true
      */
-    public function triggerComment($id, $del = false)
+    public function triggerComment(int $id, bool $del = false): void
     {
         $this->triggerComments($id, $del);
     }
@@ -280,11 +292,11 @@ class Blog
      * Updates comments and trackbacks counters in post table. Should be called
      * every time comments or trackbacks are added, removed or changed their status.
      *
-     * @param      mixed   $ids             The identifiers
-     * @param      bool    $del             If comment is delete, set this to true
-     * @param      mixed   $affected_posts  The affected posts IDs
+     * @param      int|array|ArrayObject    $ids             The identifiers
+     * @param      bool                     $del             If comment is delete, set this to true
+     * @param      null|array               $affected_posts  The affected posts IDs
      */
-    public function triggerComments($ids, $del = false, $affected_posts = null)
+    public function triggerComments($ids, bool $del = false, ?array $affected_posts = null): void
     {
         $comments_ids = Utils::cleanIds($ids);
 
@@ -346,11 +358,11 @@ class Blog
     /// @name Categories management methods
     //@{
     /**
-     * Get dcCategories instance
+     * Get Categories instance
      *
-     * @return     dcCategories
+     * @return     Categories
      */
-    public function categories()
+    public function categories(): Categories
     {
         if (!($this->categories instanceof Categories)) {
             $this->categories = new Categories($this->core);
@@ -371,9 +383,9 @@ class Blog
      *
      * @param      array   $params  The parameters
      *
-     * @return     record  The categories.
+     * @return     Record  The categories. (StaticRecord)
      */
-    public function getCategories($params = [])
+    public function getCategories(array $params = []): Record
     {
         $c_params = [];
         if (isset($params['post_type'])) {
@@ -475,9 +487,9 @@ class Blog
      *
      * @param      integer  $id     The category identifier
      *
-     * @return     record  The category.
+     * @return     Record  The category. (StaticRecord)
      */
-    public function getCategory($id)
+    public function getCategory(int $id): Record
     {
         return $this->getCategories(['cat_id' => $id]);
     }
@@ -487,9 +499,9 @@ class Blog
      *
      * @param      integer  $id     The category identifier
      *
-     * @return     record  The category parents.
+     * @return     Record  The category parents. (StaticRecord)
      */
-    public function getCategoryParents($id)
+    public function getCategoryParents(int $id): Record
     {
         return $this->categories()->getParents($id);
     }
@@ -499,9 +511,9 @@ class Blog
      *
      * @param      integer  $id     The category identifier
      *
-     * @return     record  The category parent.
+     * @return     Record  The category parent. (StaticRecord)
      */
-    public function getCategoryParent($id)
+    public function getCategoryParent(int $id): Record
     {
         return $this->categories()->getParent($id);
     }
@@ -511,9 +523,9 @@ class Blog
      *
      * @param      int     $id     The category identifier
      *
-     * @return     record  The category first children.
+     * @return     Record  The category first children. (StaticRecord)
      */
-    public function getCategoryFirstChildren($id)
+    public function getCategoryFirstChildren(int $id): Record
     {
         return $this->getCategories(['start' => $id, 'level' => $id == 0 ? 1 : 2]);
     }
@@ -526,7 +538,7 @@ class Blog
      *
      * @return     boolean  true if cat_url is in given start_url cat subtree
      */
-    public function IsInCatSubtree($cat_url, $start_url)
+    public function IsInCatSubtree(string $cat_url, string $start_url): bool
     {
         // Get cat_id from start_url
         $cat = $this->getCategories(['cat_url' => $start_url]);
@@ -551,7 +563,7 @@ class Blog
      *
      * @return     array  The categories counter.
      */
-    private function getCategoriesCounter($params = [])
+    private function getCategoriesCounter(array $params = []): array
     {
         $strReq = 'SELECT  C.cat_id, COUNT(P.post_id) AS nb_post ' .
         'FROM ' . $this->prefix . 'category AS C ' .
@@ -580,14 +592,14 @@ class Blog
     /**
      * Adds a new category. Takes a cursor as input and returns the new category ID.
      *
-     * @param      cursor        $cur     The category cursor
+     * @param      Cursor        $cur     The category cursor
      * @param      int           $parent  The parent category ID
      *
      * @throws     CoreException
      *
      * @return     int  New category ID
      */
-    public function addCategory($cur, $parent = 0)
+    public function addCategory(Cursor $cur, int $parent = 0): int
     {
         if (!$this->core->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to add categories'));
@@ -614,8 +626,8 @@ class Blog
         $this->getCategoryCursor($cur);
         $cur->blog_id = (string) $this->id;
 
-        # --BEHAVIOR-- coreBeforeCategoryCreate
-        $this->core->callBehavior('coreBeforeCategoryCreate', $this, $cur);
+        # --BEHAVIOR-- before:Core:Blog:addCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('before:Core:Blog:addCategory', $this, $cur);
 
         $id = $this->categories()->addNode($cur, $parent);
         # Update category's cursor
@@ -625,22 +637,22 @@ class Blog
             $cur->cat_rgt = $rs->cat_rgt;
         }
 
-        # --BEHAVIOR-- coreAfterCategoryCreate
-        $this->core->callBehavior('coreAfterCategoryCreate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Blog:addCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('after:Core:Blog:addCategory', $this, $cur);
         $this->triggerBlog();
 
-        return $cur->cat_id;
+        return (int) $cur->cat_id;
     }
 
     /**
      * Updates an existing category.
      *
      * @param      integer     $id     The category ID
-     * @param      cursor      $cur    The category cursor
+     * @param      Cursor      $cur    The category cursor
      *
      * @throws     CoreException
      */
-    public function updCategory($id, $cur)
+    public function updCategory(int $id, Cursor $cur): void
     {
         if (!$this->core->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to update categories'));
@@ -661,16 +673,16 @@ class Blog
 
         $this->getCategoryCursor($cur, $id);
 
-        # --BEHAVIOR-- coreBeforeCategoryUpdate
-        $this->core->callBehavior('coreBeforeCategoryUpdate', $this, $cur);
+        # --BEHAVIOR-- before:Core:Blog:updCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('before:Core:Blog:updCategory', $this, $cur);
 
         $cur->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
             "AND blog_id = '" . $this->con->escape($this->id) . "' "
         );
 
-        # --BEHAVIOR-- coreAfterCategoryUpdate
-        $this->core->callBehavior('coreAfterCategoryUpdate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Blog:updCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('after:CoreuBlog:updCategory', $this, $cur);
 
         $this->triggerBlog();
     }
@@ -682,7 +694,7 @@ class Blog
      * @param      integer  $left   The category ID before
      * @param      integer  $right  The category ID after
      */
-    public function updCategoryPosition($id, $left, $right)
+    public function updCategoryPosition(int $id, int $left, int $right): void
     {
         $this->categories()->updatePosition($id, $left, $right);
         $this->triggerBlog();
@@ -694,7 +706,7 @@ class Blog
      * @param      integer  $id      The category ID
      * @param      integer  $parent  The parent category ID
      */
-    public function setCategoryParent($id, $parent)
+    public function setCategoryParent(int $id, int $parent): void
     {
         $this->categories()->setNodeParent($id, $parent);
         $this->triggerBlog();
@@ -707,7 +719,7 @@ class Blog
      * @param      integer  $sibling  The sibling category ID
      * @param      string   $move     The move (before|after)
      */
-    public function setCategoryPosition($id, $sibling, $move)
+    public function setCategoryPosition(int $id, int $sibling, string $move): void
     {
         $this->categories()->setNodePosition($id, $sibling, $move);
         $this->triggerBlog();
@@ -720,7 +732,7 @@ class Blog
      *
      * @throws     CoreException
      */
-    public function delCategory($id)
+    public function delCategory(int $id): void
     {
         if (!$this->core->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to delete categories'));
@@ -744,7 +756,7 @@ class Blog
     /**
      * Reset categories order and relocate them to first level
      */
-    public function resetCategoriesOrder()
+    public function resetCategoriesOrder(): void
     {
         if (!$this->core->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to reset categories order'));
@@ -757,13 +769,13 @@ class Blog
     /**
      * Check if the category title and url are unique.
      *
-     * @param      string  $title  The title
-     * @param      string  $url    The url
-     * @param      mixed   $id     The identifier
+     * @param      string       $title  The title
+     * @param      string       $url    The url
+     * @param      null|int     $id     The identifier
      *
      * @return     string
      */
-    private function checkCategory($title, $url, $id = null)
+    private function checkCategory(string $title, string $url, ?int $id = null): string
     {
         # Let's check if URL is taken...
         $strReq = 'SELECT cat_url FROM ' . $this->prefix . 'category ' .
@@ -823,12 +835,12 @@ class Blog
     /**
      * Gets the category cursor.
      *
-     * @param      cursor     $cur    The category cursor
-     * @param      mixed      $id     The category ID
+     * @param      Cursor       $cur    The category cursor
+     * @param      null|int     $id     The category ID
      *
      * @throws     CoreException
      */
-    private function getCategoryCursor($cur, $id = null)
+    private function getCategoryCursor(Cursor $cur, ?int $id = null): void
     {
         if ($cur->cat_title == '') {
             throw new CoreException(__('You must provide a category title'));
@@ -887,20 +899,24 @@ class Blog
      * Please note that on every cat_id or cat_url, you can add ?not to exclude
      * the category and ?sub to get subcategories.
      *
+     * @since 3.0 : remove sql_only params (reimplement someting later)
+     *
      * @param    array  $params        Parameters
      * @param    bool   $count_only    Only counts results
      *
-     * @return   mixed    A record with some more capabilities or the SQL request
+     * @return   Record    A record with some more capabilities or the SQL request
      */
-    public function getPosts($params = [], $count_only = false)
+    public function getPosts(array $params = [], bool $count_only = false): Record
     {
-        # --BEHAVIOR-- coreBlogBeforeGetPosts
-        $params = new \ArrayObject($params);
-        $this->core->callBehavior('coreBlogBeforeGetPosts', $params);
+        $params = new ArrayObject($params);
+
+        # --BEHAVIOR-- before:Core:Blog:getPosts ArrayObject
+        $this->core->callBehavior('before:Core:Blog:getPosts', $params);
 
         if ($count_only) {
             $strReq = 'SELECT count(DISTINCT P.post_id) ';
         } elseif (!empty($params['sql_only'])) {
+            DeprecatedException::throw();
             $strReq = 'SELECT P.post_id ';
         } else {
             if (!empty($params['no_content'])) {
@@ -1039,9 +1055,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                # --BEHAVIOR-- corePostSearch
-                if ($this->core->hasBehavior('corePostSearch')) {
-                    $this->core->callBehavior('corePostSearch', [&$words, &$strReq, &$params]);
+                if ($this->core->hasBehavior('search:Core:Blog:getPosts')) {
+
+                    # --BEHAVIOR-- search:Core:Blog:getPosts, array
+                    $this->core->callBehavior('search:Core:Blog:getPosts', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -1085,21 +1102,16 @@ class Blog
             $strReq .= $this->con->limit($params['limit']);
         }
 
-        if (!empty($params['sql_only'])) {
-            return $strReq;
-        }
-
         $rs            = $this->con->select($strReq);
         $rs->core      = $this->core;
         $rs->_nb_media = [];
         $rs->extend('Dotclear\\Core\\RsExt\\rsExtPost');
 
-        # --BEHAVIOR-- coreBlogGetPosts
-        $this->core->callBehavior('coreBlogGetPosts', $rs);
+        $alt = new ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
 
-        # --BEHAVIOR-- coreBlogAfterGetPosts
-        $alt = new \ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
-        $this->core->callBehavior('coreBlogAfterGetPosts', $rs, $alt);
+        # --BEHAVIOR-- after:Core:Blog:getPosts, ArrayObject, array
+        $this->core->callBehavior('after:Core:Blog:getPosts', $rs, $alt);
+
         if ($alt['rs'] instanceof Record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
         }
@@ -1112,14 +1124,14 @@ class Blog
      * according to the post ID.
      * $dir could be 1 (next post) or -1 (previous post).
      *
-     * @param      record  $post                  The post ID
+     * @param      Record  $post                  The post ID
      * @param      int     $dir                   The search direction
      * @param      bool    $restrict_to_category  Restrict to same category
      * @param      bool    $restrict_to_lang      Restrict to same language
      *
-     * @return     mixed   The next post.
+     * @return     null|Record   The next post.
      */
-    public function getNextPost($post, $dir, $restrict_to_category = false, $restrict_to_lang = false)
+    public function getNextPost(Record $post, int $dir, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
     {
         $dt      = $post->post_dt;
         $post_id = (int) $post->post_id;
@@ -1151,7 +1163,7 @@ class Blog
         $rs = $this->getPosts($params);
 
         if ($rs->isEmpty()) {
-            return;
+            return null;
         }
 
         return $rs;
@@ -1168,9 +1180,9 @@ class Blog
      *
      * @param      array   $params  The parameters
      *
-     * @return     record  The langs.
+     * @return     Record  The langs.
      */
-    public function getLangs($params = [])
+    public function getLangs(array $params = []): Record
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
         'FROM ' . $this->prefix . 'post ' .
@@ -1235,7 +1247,7 @@ class Blog
      *
      * @return     record  The dates.
      */
-    public function getDates($params = [])
+    public function getDates(array $params = []): Record
     {
         $dt_f  = '%Y-%m-%d';
         $dt_fc = '%Y%m%d';
@@ -1343,13 +1355,13 @@ class Blog
     /**
      * Creates a new entry. Takes a cursor as input and returns the new entry ID.
      *
-     * @param      cursor     $cur    The post cursor
+     * @param      Cursor     $cur    The post cursor
      *
      * @throws     CoreException
      *
      * @return     integer
      */
-    public function addPost($cur)
+    public function addPost(Cursor $cur): int
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to create an entry'));
@@ -1381,8 +1393,8 @@ class Blog
                 $cur->post_status = -2;
             }
 
-            # --BEHAVIOR-- coreBeforePostCreate
-            $this->core->callBehavior('coreBeforePostCreate', $this, $cur);
+            # --BEHAVIOR-- before:Core:BLog:addPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
+            $this->core->callBehavior('before:Core:BLog:addPost', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -1392,25 +1404,25 @@ class Blog
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterPostCreate
-        $this->core->callBehavior('coreAfterPostCreate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Blog:addPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('after:Core:Blog:addPost', $this, $cur);
 
         $this->triggerBlog();
 
         $this->firstPublicationEntries($cur->post_id);
 
-        return $cur->post_id;
+        return (int) $cur->post_id;
     }
 
     /**
      * Updates an existing post.
      *
      * @param      integer     $id     The post identifier
-     * @param      cursor      $cur    The post cursor
+     * @param      Cursor      $cur    The post cursor
      *
      * @throws     CoreException
      */
-    public function updPost($id, $cur)
+    public function updPost(int $id, Cursor $cur): void
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update entries'));
@@ -1451,13 +1463,13 @@ class Blog
             }
         }
 
-        # --BEHAVIOR-- coreBeforePostUpdate
-        $this->core->callBehavior('coreBeforePostUpdate', $this, $cur);
+        # --BEHAVIOR-- before:Core:Blog:updPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('before:Core:Blog:updPost', $this, $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
-        # --BEHAVIOR-- coreAfterPostUpdate
-        $this->core->callBehavior('coreAfterPostUpdate', $this, $cur);
+        # --BEHAVIOR-- before:Core:Blog:updPost, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        $this->core->callBehavior('before:Core:Blog:updPost', $this, $cur);
 
         $this->triggerBlog();
 
@@ -1470,7 +1482,7 @@ class Blog
      * @param      integer  $id      The identifier
      * @param      integer  $status  The status
      */
-    public function updPostStatus($id, $status)
+    public function updPostStatus(int $id, int $status): void
     {
         $this->updPostsStatus($id, $status);
     }
@@ -1478,12 +1490,12 @@ class Blog
     /**
      * Updates posts status.
      *
-     * @param      mixed       $ids     The identifiers
-     * @param      integer     $status  The status
+     * @param      int|array|ArrayObject    $ids     The identifiers
+     * @param      int                      $status  The status
      *
      * @throws     CoreException
      */
-    public function updPostsStatus($ids, $status)
+    public function updPostsStatus($ids, int $status): void
     {
         if (!$this->core->auth->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
@@ -1514,10 +1526,10 @@ class Blog
     /**
      * Updates post selection.
      *
-     * @param      integer  $id        The identifier
-     * @param      mixed    $selected  The selected flag
+     * @param      int              $id        The identifier
+     * @param      bool|int|null    $selected  The selected flag
      */
-    public function updPostSelected($id, $selected)
+    public function updPostSelected(int $id, $selected): void
     {
         $this->updPostsSelected($id, $selected);
     }
@@ -1525,12 +1537,12 @@ class Blog
     /**
      * Updates posts selection.
      *
-     * @param      mixed      $ids       The identifiers
-     * @param      mixed      $selected  The selected flag
+     * @param      int|array|ArrayObject          $ids       The identifiers
+     * @param      bool|int|null                  $selected  The selected flag
      *
      * @throws     CoreException
      */
-    public function updPostsSelected($ids, $selected)
+    public function updPostsSelected($ids, $selected): void
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
@@ -1559,10 +1571,10 @@ class Blog
     /**
      * Updates post category. <var>$cat_id</var> can be null.
      *
-     * @param      integer  $id      The identifier
-     * @param      mixed    $cat_id  The cat identifier
+     * @param      int  $id         The identifier
+     * @param      bool|int|null    $cat_id  The cat identifier
      */
-    public function updPostCategory($id, $cat_id)
+    public function updPostCategory(int $id, $cat_id): void
     {
         $this->updPostsCategory($id, $cat_id);
     }
@@ -1570,12 +1582,12 @@ class Blog
     /**
      * Updates posts category. <var>$cat_id</var> can be null.
      *
-     * @param      mixed      $ids     The identifiers
-     * @param      mixed      $cat_id  The cat identifier
+     * @param      int|array|ArrayObject    $ids     The identifiers
+     * @param      boo|int|null             $cat_id  The cat identifier
      *
      * @throws     CoreException
      */
-    public function updPostsCategory($ids, $cat_id)
+    public function updPostsCategory($ids, $cat_id): void
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
@@ -1604,12 +1616,12 @@ class Blog
     /**
      * Updates posts category. <var>$new_cat_id</var> can be null.
      *
-     * @param      mixed    $old_cat_id  The old cat identifier
-     * @param      mixed    $new_cat_id  The new cat identifier
+     * @param      int    $old_cat_id  The old cat identifier
+     * @param      int    $new_cat_id  The new cat identifier
      *
      * @throws     CoreException
      */
-    public function changePostsCategory($old_cat_id, $new_cat_id)
+    public function changePostsCategory(int $old_cat_id, int $new_cat_id): void
     {
         if (!$this->core->auth->check('contentadmin,categories', $this->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
@@ -1635,7 +1647,7 @@ class Blog
      *
      * @param      integer  $id     The post identifier
      */
-    public function delPost($id)
+    public function delPost(int $id): void
     {
         $this->delPosts($id);
     }
@@ -1643,11 +1655,11 @@ class Blog
     /**
      * Deletes multiple posts.
      *
-     * @param      mixed     $ids    The posts identifiers
+     * @param      int|array|ArrayObject    $ids    The posts identifiers
      *
      * @throws     CoreException
      */
-    public function delPosts($ids)
+    public function delPosts($ids): void
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete entries'));
@@ -1675,7 +1687,7 @@ class Blog
     /**
      * Publishes all entries flaged as "scheduled".
      */
-    public function publishScheduledEntries()
+    public function publishScheduledEntries(): void
     {
         $strReq = 'SELECT post_id, post_dt, post_tz ' .
         'FROM ' . $this->prefix . 'post ' .
@@ -1685,7 +1697,7 @@ class Blog
         $rs = $this->con->select($strReq);
 
         $now       = Dt::toUTC(time());
-        $to_change = new \ArrayObject();
+        $to_change = new ArrayObject();
 
         if ($rs->isEmpty()) {
             return;
@@ -1704,8 +1716,9 @@ class Blog
             }
         }
         if (count($to_change)) {
-            # --BEHAVIOR-- coreBeforeScheduledEntriesPublish
-            $this->core->callBehavior('coreBeforeScheduledEntriesPublish', $this, $to_change);
+
+            # --BEHAVIOR-- before:Core:Blog:publishScheduledEntries, Dotclear\Core\Blog, array
+            $this->core->callBehavior('before:Core:Blog:publishScheduledEntries', $this, $to_change);
 
             $strReq = 'UPDATE ' . $this->prefix . 'post SET ' .
             'post_status = 1 ' .
@@ -1714,8 +1727,8 @@ class Blog
             $this->con->execute($strReq);
             $this->triggerBlog();
 
-            # --BEHAVIOR-- coreAfterScheduledEntriesPublish
-            $this->core->callBehavior('coreAfterScheduledEntriesPublish', $this, $to_change);
+            # --BEHAVIOR-- after:Core:Blog:publishScheduledEntries, Dotclear\Core\Blog, array
+            $this->core->callBehavior('after:Core:Blog:publishScheduledEntries', $this, $to_change);
 
             $this->firstPublicationEntries($to_change);
         }
@@ -1724,9 +1737,9 @@ class Blog
     /**
      * First publication mecanism (on post create, update, publish, status)
      *
-     * @param      mixed  $ids    The posts identifiers
+     * @param      int|array|ArrayObject      $ids    The posts identifiers
      */
-    public function firstPublicationEntries($ids)
+    public function firstPublicationEntries($ids): void
     {
         $posts = $this->getPosts([
             'post_id'       => Utils::cleanIds($ids),
@@ -1746,8 +1759,8 @@ class Blog
             'AND post_id ' . $this->con->in((array) $to_change) . ' ';
             $this->con->execute($strReq);
 
-            # --BEHAVIOR-- coreFirstPublicationEntries
-            $this->core->callBehavior('coreFirstPublicationEntries', $this, $to_change);
+            # --BEHAVIOR-- after:Core:Blog:firstPublicationEntries, Dotclear\Core\Blog, array
+            $this->core->callBehavior('after:Core:Blog:firstPublicationEntries', $this, $to_change);
         }
     }
 
@@ -1756,9 +1769,9 @@ class Blog
      *
      * @param    string     $post_type post_type filter (post)
      *
-     * @return    record
+     * @return    Record
      */
-    public function getPostsUsers($post_type = 'post')
+    public function getPostsUsers(string $post_type = 'post'): Record
     {
         $strReq = 'SELECT P.user_id, user_name, user_firstname, ' .
         'user_displayname, user_email ' .
@@ -1775,7 +1788,7 @@ class Blog
         return $this->con->select($strReq);
     }
 
-    private function getPostsCategoryFilter($arr, $field = 'cat_id')
+    private function getPostsCategoryFilter(array $arr, string $field = 'cat_id'): string
     {
         $field = $field == 'cat_id' ? 'cat_id' : 'cat_url';
 
@@ -1849,12 +1862,12 @@ class Blog
     /**
      * Gets the post cursor.
      *
-     * @param      cursor      $cur      The post cursor
+     * @param      Cursor      $cur      The post cursor
      * @param      integer     $post_id  The post identifier
      *
      * @throws     CoreException
      */
-    private function getPostCursor($cur, $post_id = null)
+    private function getPostCursor(Cursor $cur, int $post_id = null): void
     {
         if ($cur->post_title == '') {
             throw new CoreException(__('No entry title'));
@@ -1898,10 +1911,10 @@ class Blog
     /**
      * Gets the post content.
      *
-     * @param      cursor  $cur      The post cursor
+     * @param      Cursor  $cur      The post cursor
      * @param      integer $post_id  The post identifier
      */
-    private function getPostContent($cur, $post_id)
+    private function getPostContent(Cursor $cur, int $post_id): void
     {
         $post_excerpt       = $cur->post_excerpt;
         $post_excerpt_xhtml = $cur->post_excerpt_xhtml;
@@ -1935,7 +1948,7 @@ class Blog
      * @param      string   $content        The content
      * @param      string   $content_xhtml  The content xhtml
      */
-    public function setPostContent($post_id, $format, $lang, &$excerpt, &$excerpt_xhtml, &$content, &$content_xhtml)
+    public function setPostContent(int $post_id, string $format, string $lang, string &$excerpt, string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ($format == 'wiki') {
             $this->core->initWikiPost();
@@ -1977,8 +1990,8 @@ class Blog
             $content_xhtml = '';
         }
 
-        # --BEHAVIOR-- coreAfterPostContentFormat
-        $this->core->callBehavior('coreAfterPostContentFormat', [
+        # --BEHAVIOR-- after:Core:Blog:setPostContent, array
+        $this->core->callBehavior('after:Core:Blog:setPostContent', [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,
@@ -2097,16 +2110,19 @@ class Blog
      * - limit: Limit parameter
      * - sql_only : return the sql request instead of results. Only ids are selected
      *
+     * @since 3.0 remove sql_only param: reimplement something later
+     *
      * @param    array      $params        Parameters
      * @param    bool       $count_only    Only counts results
      *
-     * @return   mixed      A record with some more capabilities
+     * @return   Record      A record with some more capabilities
      */
-    public function getComments($params = [], $count_only = false)
+    public function getComments(array $params = [], bool $count_only = false): Record
     {
         if ($count_only) {
             $strReq = 'SELECT count(comment_id) ';
         } elseif (!empty($params['sql_only'])) {
+            DeprecatedException::throw();
             $strReq = 'SELECT P.post_id ';
         } else {
             if (!empty($params['no_content'])) {
@@ -2209,9 +2225,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                # --BEHAVIOR coreCommentSearch
-                if ($this->core->hasBehavior('coreCommentSearch')) {
-                    $this->core->callBehavior('coreCommentSearch', [&$words, &$strReq, &$params]);
+                if ($this->core->hasBehavior('search:Core:Blog:getComments')) {
+
+                    # --BEHAVIOR search:Core:Blog:getComments, array
+                    $this->core->callBehavior('search:Core:Blog:getComments', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -2237,16 +2254,12 @@ class Blog
             $strReq .= $this->con->limit($params['limit']);
         }
 
-        if (!empty($params['sql_only'])) {
-            return $strReq;
-        }
-
         $rs       = $this->con->select($strReq);
         $rs->core = $this->core;
         $rs->extend('Dotclear\\Core\\RsExt\\rsExtComment');
 
-        # --BEHAVIOR-- coreBlogGetComments
-        $this->core->callBehavior('coreBlogGetComments', $rs);
+        # --BEHAVIOR-- after:Core:Blog:getComments, Dotclear\Database\Record
+        $this->core->callBehavior('after:Core:Blog:getComments', $rs);
 
         return $rs;
     }
@@ -2254,11 +2267,11 @@ class Blog
     /**
      * Creates a new comment. Takes a cursor as input and returns the new comment ID.
      *
-     * @param      cursor  $cur    The comment cursor
+     * @param      Cursor  $cur    The comment cursor
      *
      * @return     integer
      */
-    public function addComment($cur)
+    public function addComment(Cursor $cur): int
     {
         $this->con->writeLock($this->prefix . 'comment');
 
@@ -2282,8 +2295,8 @@ class Blog
                 $cur->comment_ip = Http::realIP();
             }
 
-            # --BEHAVIOR-- coreBeforeCommentCreate
-            $this->core->callBehavior('coreBeforeCommentCreate', $this, $cur);
+            # --BEHAVIOR-- before:Core:Blog:addComment, Dotclear\Core\Blog, Dotclear\Database\Record
+            $this->core->callBehavior('before:Core:Blog:addComment', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -2293,26 +2306,26 @@ class Blog
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterCommentCreate
-        $this->core->callBehavior('coreAfterCommentCreate', $this, $cur);
+        # --BEHAVIOR-- after:Core:Blog:addComment, Dotclear\Core\Blog, Dotclear\Database\Record
+        $this->core->callBehavior('after:Core:Blog:addComment', $this, $cur);
 
         $this->triggerComment($cur->comment_id);
         if ($cur->comment_status != -2) {
             $this->triggerBlog();
         }
 
-        return $cur->comment_id;
+        return (int) $cur->comment_id;
     }
 
     /**
      * Updates an existing comment.
      *
      * @param      integer     $id     The comment identifier
-     * @param      cursor      $cur    The comment cursor
+     * @param      Cursor      $cur    The comment cursor
      *
      * @throws     CoreException
      */
-    public function updComment($id, $cur)
+    public function updComment(int $id, Cursor $cur): void
     {
         if (!$this->core->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
@@ -2345,13 +2358,13 @@ class Blog
             $cur->unsetField('comment_status');
         }
 
-        # --BEHAVIOR-- coreBeforeCommentUpdate
-        $this->core->callBehavior('coreBeforeCommentUpdate', $this, $cur, $rs);
+        # --BEHAVIOR-- before:Core:Blog:updComment, Dotclear\Core\Blog, Dotclear\Database\Record
+        $this->core->callBehavior('before:Core:Blog:updComment', $this, $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
-        # --BEHAVIOR-- coreAfterCommentUpdate
-        $this->core->callBehavior('coreAfterCommentUpdate', $this, $cur, $rs);
+        # --BEHAVIOR-- after:Core:Blog:updComment, Dotclear\Core\Blog, Dotclear\Database\Record
+        $this->core->callBehavior('after:Core:Blog:updComment', $this, $cur, $rs);
 
         $this->triggerComment($id);
         $this->triggerBlog();
@@ -2360,10 +2373,10 @@ class Blog
     /**
      * Updates comment status.
      *
-     * @param      integer  $id      The comment identifier
-     * @param      mixed    $status  The comment status
+     * @param      int      $id      The comment identifier
+     * @param      int      $status  The comment status
      */
-    public function updCommentStatus($id, $status)
+    public function updCommentStatus(int $id, int $status): void
     {
         $this->updCommentsStatus($id, $status);
     }
@@ -2371,12 +2384,12 @@ class Blog
     /**
      * Updates comments status.
      *
-     * @param      mixed      $ids     The identifiers
-     * @param      mixed      $status  The status
+     * @param      int|array|ArrayObject    $ids     The identifiers
+     * @param      int                      $status  The status
      *
      * @throws     CoreException
      */
-    public function updCommentsStatus($ids, $status)
+    public function updCommentsStatus($ids, int $status): void
     {
         if (!$this->core->auth->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
@@ -2405,7 +2418,7 @@ class Blog
      *
      * @param      integer  $id     The comment identifier
      */
-    public function delComment($id)
+    public function delComment(int $id): void
     {
         $this->delComments($id);
     }
@@ -2413,11 +2426,11 @@ class Blog
     /**
      * Delete comments.
      *
-     * @param      mixed     $ids    The comments identifiers
+     * @param      int|array|ArrayObject    $ids    The comments identifiers
      *
      * @throws     CoreException
      */
-    public function delComments($ids)
+    public function delComments($ids): void
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
@@ -2462,7 +2475,7 @@ class Blog
      *
      * @throws     CoreException  (description)
      */
-    public function delJunkComments()
+    public function delJunkComments():void
     {
         if (!$this->core->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
@@ -2485,11 +2498,11 @@ class Blog
     /**
      * Gets the comment cursor.
      *
-     * @param      cursor     $cur    The comment cursor
+     * @param      Cursor     $cur    The comment cursor
      *
      * @throws     CoreException
      */
-    private function getCommentCursor($cur)
+    private function getCommentCursor(Cursor $cur): void
     {
         if ($cur->comment_content !== null && $cur->comment_content == '') {
             throw new CoreException(__('You must provide a comment'));
