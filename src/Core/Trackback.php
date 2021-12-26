@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Trackback
  * @brief Trackbacks/Pingbacks sender and server
  *
  * Sends and receives trackbacks/pingbacks.
@@ -11,11 +12,26 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Core;
+
+use Dotclear\Network\Http;
+use Dotclear\Network\Xmlrpc\Client as XmlrpcClient;
+use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Html\Html;
+use Dotclear\Utils\Text;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcTrackback
+class Trackback
 {
     public $core;  ///< <b>dcCore</b> dcCore instance
     public $table; ///< <b>string</b> done pings table name
@@ -23,9 +39,9 @@ class dcTrackback
     /**
      * Object constructor
      *
-     * @param    dcCore $core  dcCore instance
+     * @param    Core $core  Core instance
      */
-    public function __construct(dcCore $core)
+    public function __construct(Core $core)
     {
         $this->core  = &$core;
         $this->table = $this->core->prefix . 'ping';
@@ -78,7 +94,7 @@ class dcTrackback
         $rs = $this->core->con->select($strReq);
 
         if (!$rs->isEmpty()) {
-            throw new Exception(sprintf(__('%s has still been pinged'), $url));
+            throw new CoreException(sprintf(__('%s has still been pinged'), $url));
         }
 
         $ping_parts = explode('|', $url);
@@ -100,7 +116,7 @@ class dcTrackback
                 $status     = $http->getStatus();
                 $ping_error = '0';
             } catch (Exception $e) {
-                throw new Exception(__('Unable to ping URL'));
+                throw new CoreException(__('Unable to ping URL'));
             }
 
             if (!in_array($status, ['200', '201', '202'])) {
@@ -114,7 +130,7 @@ class dcTrackback
                 'title'     => $post_title,
                 'excerpt'   => $post_excerpt,
                 'url'       => $post_url,
-                'blog_name' => trim(html::escapeHTML(html::clean($this->core->blog->name)))
+                'blog_name' => trim(Html::escapeHTML(Html::clean($this->core->blog->name)))
                 //,'__debug' => false
             ];
 
@@ -124,7 +140,7 @@ class dcTrackback
                 $http->post($path, $data, 'UTF-8');
                 $res = $http->getContent();
             } catch (Exception $e) {
-                throw new Exception(__('Unable to ping URL'));
+                throw new CoreException(__('Unable to ping URL'));
             }
 
             $pattern = '|<response>.*<error>(.*)</error>(.*)' .
@@ -132,7 +148,7 @@ class dcTrackback
                 '</response>|msU';
 
             if (!preg_match($pattern, $res, $match)) {
-                throw new Exception(sprintf(__('%s is not a ping URL'), $url));
+                throw new CoreException(sprintf(__('%s is not a ping URL'), $url));
             }
 
             $ping_error = trim($match[1]);
@@ -141,19 +157,19 @@ class dcTrackback
         # Damnit ! Let's play pingback
         else {
             try {
-                $xmlrpc     = new xmlrpcClient($ping_parts[0]);
+                $xmlrpc     = new XmlrpcClient($ping_parts[0]);
                 $res        = $xmlrpc->query('pingback.ping', $post_url, $ping_parts[1]);
                 $ping_error = '0';
             } catch (xmlrpcException $e) {
                 $ping_error = $e->getCode();
                 $ping_msg   = $e->getMessage();
             } catch (Exception $e) {
-                throw new Exception(__('Unable to ping URL'));
+                throw new CoreException(__('Unable to ping URL'));
             }
         }
 
         if ($ping_error != '0') {
-            throw new Exception(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
+            throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
         $cur           = $this->core->con->openCursor($this->table);
@@ -176,7 +192,7 @@ class dcTrackback
     {
         header('Content-Type: text/xml; charset=UTF-8');
         if (empty($_POST)) {
-            http::head(405, 'Method Not Allowed');
+            Http::head(405, 'Method Not Allowed');
             echo
                 '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
                 "<response>\n" .
@@ -221,7 +237,7 @@ class dcTrackback
                 $msg = 'Trackbacks are not allowed for this post or weblog.';
             }
 
-            $url = trim(html::clean($url));
+            $url = trim(Html::clean($url));
             if ($this->pingAlreadyDone($post->post_id, $url)) {
                 $err = true;
                 $msg = 'The trackback has already been registered';
@@ -241,21 +257,21 @@ class dcTrackback
                 $blog_name = iconv($charset, 'UTF-8', $blog_name);
             }
 
-            $title = trim(html::clean($title));
-            $title = html::decodeEntities($title);
-            $title = html::escapeHTML($title);
-            $title = text::cutString($title, 60);
+            $title = trim(Html::clean($title));
+            $title = Html::decodeEntities($title);
+            $title = Html::escapeHTML($title);
+            $title = Text::cutString($title, 60);
 
-            $excerpt = trim(html::clean($excerpt));
-            $excerpt = html::decodeEntities($excerpt);
+            $excerpt = trim(Html::clean($excerpt));
+            $excerpt = Html::decodeEntities($excerpt);
             $excerpt = preg_replace('/\s+/ms', ' ', $excerpt);
-            $excerpt = text::cutString($excerpt, 252);
-            $excerpt = html::escapeHTML($excerpt) . '...';
+            $excerpt = Text::cutString($excerpt, 252);
+            $excerpt = Html::escapeHTML($excerpt) . '...';
 
-            $blog_name = trim(html::clean($blog_name));
-            $blog_name = html::decodeEntities($blog_name);
-            $blog_name = html::escapeHTML($blog_name);
-            $blog_name = text::cutString($blog_name, 60);
+            $blog_name = trim(Html::clean($blog_name));
+            $blog_name = Html::decodeEntities($blog_name);
+            $blog_name = Html::escapeHTML($blog_name);
+            $blog_name = Text::cutString($blog_name, 60);
 
             try {
                 $this->addBacklink($post_id, $url, $blog_name, $title, $excerpt, $comment);
@@ -303,19 +319,19 @@ class dcTrackback
             $posts = $this->getTargetPost($to_url);
 
             if ($this->pingAlreadyDone($posts->post_id, $from_url)) {
-                throw new Exception(__('Don\'t repeat yourself, please.'), 48);
+                throw new CoreException(__('Don\'t repeat yourself, please.'), 48);
             }
 
             $remote_content = $this->getRemoteContent($from_url);
 
             # We want a title...
             if (!preg_match('!<title>([^<].*?)</title>!mis', $remote_content, $m)) {
-                throw new Exception(__('Where\'s your title?'), 0);
+                throw new CoreException(__('Where\'s your title?'), 0);
             }
-            $title = trim(html::clean($m[1]));
-            $title = html::decodeEntities($title);
-            $title = html::escapeHTML($title);
-            $title = text::cutString($title, 60);
+            $title = trim(Html::clean($m[1]));
+            $title = Html::decodeEntities($title);
+            $title = Html::escapeHTML($title);
+            $title = Text::cutString($title, 60);
 
             preg_match('!<body[^>]*?>(.*)?</body>!msi', $remote_content, $m);
             $source = $m[1];
@@ -335,14 +351,14 @@ class dcTrackback
                 }
             }
             if ($excerpt) {
-                $excerpt = '(&#8230;) ' . text::cutString(html::escapeHTML($excerpt), 200) . ' (&#8230;)';
+                $excerpt = '(&#8230;) ' . Text::cutString(Html::escapeHTML($excerpt), 200) . ' (&#8230;)';
             } else {
                 $excerpt = '(&#8230;)';
             }
 
             $this->addBacklink($posts->post_id, $from_url, '', $title, $excerpt, $comment);
         } catch (Exception $e) {
-            throw new Exception(__('Sorry, an internal problem has occured.'), 0);
+            throw new CoreException(__('Sorry, an internal problem has occured.'), 0);
         }
 
         return __('Thanks, mate. It was a pleasure.');
@@ -363,7 +379,7 @@ class dcTrackback
         try {
             # Check if post and target are valid URL
             if (empty($_POST['source']) || empty($_POST['target'])) {
-                throw new Exception('Source or target is not valid', 0);
+                throw new CoreException('Source or target is not valid', 0);
             }
 
             $from_url = urldecode($_POST['source']);
@@ -385,12 +401,12 @@ class dcTrackback
 
             # We want a title...
             if (!preg_match('!<title>([^<].*?)</title>!mis', $remote_content, $m)) {
-                throw new Exception(__('Where\'s your title?'), 0);
+                throw new CoreException(__('Where\'s your title?'), 0);
             }
-            $title = trim(html::clean($m[1]));
-            $title = html::decodeEntities($title);
-            $title = html::escapeHTML($title);
-            $title = text::cutString($title, 60);
+            $title = trim(Html::clean($m[1]));
+            $title = Html::decodeEntities($title);
+            $title = Html::escapeHTML($title);
+            $title = Text::cutString($title, 60);
 
             preg_match('!<body[^>]*?>(.*)?</body>!msi', $remote_content, $m);
             $source = $m[1];
@@ -410,7 +426,7 @@ class dcTrackback
                 }
             }
             if ($excerpt) {
-                $excerpt = '(&#8230;) ' . text::cutString(html::escapeHTML($excerpt), 200) . ' (&#8230;)';
+                $excerpt = '(&#8230;) ' . Text::cutString(Html::escapeHTML($excerpt), 200) . ' (&#8230;)';
             } else {
                 $excerpt = '(&#8230;)';
             }
@@ -419,14 +435,14 @@ class dcTrackback
 
             # All done, thanks
             $code = $this->core->blog->settings->system->trackbacks_pub ? 200 : 202;
-            http::head($code);
+            Http::head($code);
 
             return;
         } catch (Exception $e) {
             $err = $e->getMessage();
         }
 
-        http::head(400);
+        Http::head(400);
         echo $err ?: 'Something went wrong.';
     }
 
@@ -482,7 +498,7 @@ class dcTrackback
         $cur->post_id           = $post_id;
         $cur->comment_trackback = 1;
         $cur->comment_status    = $this->core->blog->settings->system->trackbacks_pub ? 1 : -1;
-        $cur->comment_ip        = http::realIP();
+        $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate
         $this->core->callBehavior('publicBeforeTrackbackCreate', $cur);
@@ -561,7 +577,7 @@ class dcTrackback
 
         # Are you dumb?
         if (!preg_match($reg, $to_url, $m)) {
-            throw new Exception(__('Any chance you ping one of my contents? No? Really?'), 0);
+            throw new CoreException(__('Any chance you ping one of my contents? No? Really?'), 0);
         }
 
         # Does the targeted URL look like a registered post type?
@@ -580,7 +596,7 @@ class dcTrackback
         }
 
         if (empty($p_type)) {
-            throw new Exception(__('Sorry but you can not ping this type of content.'), 33);
+            throw new CoreException(__('Sorry but you can not ping this type of content.'), 33);
         }
 
         # Time to see if we've got a winner...
@@ -592,12 +608,12 @@ class dcTrackback
 
         # Missed!
         if ($posts->isEmpty()) {
-            throw new Exception(__('Oops. Kinda "not found" stuff. Please check the target URL twice.'), 33);
+            throw new CoreException(__('Oops. Kinda "not found" stuff. Please check the target URL twice.'), 33);
         }
 
         # Nice try. But, sorry, no.
         if (!$posts->trackbacksActive()) {
-            throw new Exception(__('Sorry, dude. This entry does not accept pingback at the moment.'), 33);
+            throw new CoreException(__('Sorry, dude. This entry does not accept pingback at the moment.'), 33);
         }
 
         return $posts;
@@ -623,7 +639,7 @@ class dcTrackback
 
         # Bad luck. Bye, bye...
         if (!in_array($c_type[0], ['text/html', 'application/xhtml+xml'])) {
-            throw new Exception(__('Your source URL does not look like a supported content type. Sorry. Bye, bye!'), 0);
+            throw new CoreException(__('Your source URL does not look like a supported content type. Sorry. Bye, bye!'), 0);
         }
 
         # Second round : let's go fetch and parse the remote content
@@ -709,7 +725,7 @@ class dcTrackback
     private function getPingURL($url)
     {
         if (strpos($url, '/') === 0) {
-            $url = http::getHost() . $url;
+            $url = Http::getHost() . $url;
         }
 
         try {
@@ -731,7 +747,7 @@ class dcTrackback
         preg_match_all($pattern_rdf, $page_content, $rdf_all, PREG_SET_ORDER);
 
         $url_path      = parse_url($url, PHP_URL_PATH);
-        $sanitized_url = str_replace($url_path, html::sanitizeURL($url_path), $url);
+        $sanitized_url = str_replace($url_path, Html::sanitizeURL($url_path), $url);
 
         for ($i = 0; $i < count($rdf_all); $i++) {
             $rdf = $rdf_all[$i][1];
@@ -797,11 +813,11 @@ class dcTrackback
      * @param      string  $url    The url
      * @param      string  $path   The path
      *
-     * @return     netHttp
+     * @return     NetHttp
      */
     private static function initHttp($url, &$path)
     {
-        $client = netHttp::initClient($url, $path);
+        $client = NetHttp::initClient($url, $path);
         $client->setTimeout(DC_QUERY_TIMEOUT);
         $client->setUserAgent('Dotclear - https://dotclear.org/');
         $client->useGzip(false);
@@ -821,15 +837,15 @@ class dcTrackback
     public static function checkURLs($from_url, $to_url)
     {
         if (!(filter_var($from_url, FILTER_VALIDATE_URL) && preg_match('!^https?://!', $from_url))) {
-            throw new Exception(__('No valid source URL provided? Try again!'), 0);
+            throw new CoreException(__('No valid source URL provided? Try again!'), 0);
         }
 
         if (!(filter_var($to_url, FILTER_VALIDATE_URL) && preg_match('!^https?://!', $to_url))) {
-            throw new Exception(__('No valid target URL provided? Try again!'), 0);
+            throw new CoreException(__('No valid target URL provided? Try again!'), 0);
         }
 
-        if (html::sanitizeURL(urldecode($from_url)) == html::sanitizeURL(urldecode($to_url))) {
-            throw new Exception(__('LOL!'), 0);
+        if (Html::sanitizeURL(urldecode($from_url)) == Html::sanitizeURL(urldecode($to_url))) {
+            throw new CoreException(__('LOL!'), 0);
         }
     }
 }
