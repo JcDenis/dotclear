@@ -152,7 +152,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminBeforeCategoryUpdate
                     $core->behaviors->call('adminBeforeCategoryUpdate', $cur, $cat_id);
 
-                    $core->blog->updCategory($_POST['id'], $cur);
+                    $core->blog->updCategory((int) $_POST['id'], $cur);
 
                     # --BEHAVIOR-- adminAfterCategoryUpdate
                     $core->behaviors->call('adminAfterCategoryUpdate', $cur, $cat_id);

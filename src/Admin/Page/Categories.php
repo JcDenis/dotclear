@@ -42,7 +42,7 @@ class Categories extends Page
             $cat_id = (int) $keys[0];
 
             # Check if category to delete exists
-            $c = $this->core->blog->getCategory((integer) $cat_id);
+            $c = $this->core->blog->getCategory($cat_id);
             if ($c->isEmpty()) {
                 static::addErrorNotice(__('This category does not exist.'));
                 $this->core->adminurl->redirect('admin.categories');
@@ -96,7 +96,7 @@ class Categories extends Page
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    $this->core->blog->updCategoryPosition($category->item_id, $category->left, $category->right);
+                    $this->core->blog->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
                 }
             }
 
