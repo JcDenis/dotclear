@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class  Dotclear\Core\Log
  * @brief Dotclear core log class
  *
  * @package Dotclear
@@ -51,8 +52,8 @@ class Log
      */
     public function __construct(Core $core)
     {
-        $this->core       = &$core;
-        $this->con        = &$core->con;
+        $this->core       = $core;
+        $this->con        = $core->con;
         $this->log_table  = $core->prefix . 'log';
         $this->user_table = $core->prefix . 'user';
     }
@@ -214,7 +215,7 @@ class Log
      * Gets the log cursor.
      *
      * @param      Cursor     $cur     The current
-     * @param      mixed      $log_id  The log identifier
+     * @param      int|null   $log_id  The log identifier
      *
      * @throws     CoreException
      */

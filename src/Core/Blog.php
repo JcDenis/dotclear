@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Blog
  * @brief Dotclear core blog class
  *
  * @package Dotclear
@@ -41,7 +42,7 @@ class Blog
     /** @var Core       Core instance */
     protected $core;
 
-    /** @var Connection Database connection instance */
+    /** @var Connection Connection instance */
     public $con;
 
     /** @var Settings   Settings instance */
@@ -68,10 +69,10 @@ class Blog
     /** @var string     Blog host */
     public $host;
 
-    /** @var mixed      Blog creation date */
+    /** @var int        Blog creation date */
     public $creadt;
 
-    /** @var mixed      Blog last update date */
+    /** @var int        Blog last update date */
     public $upddt;
 
     /** @var string     Blog status */
@@ -83,19 +84,23 @@ class Blog
     /** @var string     Blog public path */
     public $public_path;
 
+    /** @var array      post status list */
     private $post_status    = [];
+
+    /** @var array      comment status list */
     private $comment_status = [];
 
+    /** @var Categories Categories instance */
     private $categories;
 
-    /** @var boolean Disallow entries password protection */
+    /** @var bool       Disallow entries password protection */
     public $without_password = true;
 
     /**
      * Constructs a new instance.
      *
-     * @param      Core  $core   The core
-     * @param      string  $id     The blog identifier
+     * @param      Core     $core   The core
+     * @param      string   $id     The blog identifier
      */
     public function __construct(Core $core, string $id)
     {
@@ -110,9 +115,9 @@ class Blog
             $this->desc   = $b->blog_desc;
             $this->url    = $b->blog_url;
             $this->host   = Http::getHostFromURL($this->url);
-            $this->creadt = strtotime($b->blog_creadt);
-            $this->upddt  = strtotime($b->blog_upddt);
-            $this->status = $b->blog_status;
+            $this->creadt = (int) strtotime($b->blog_creadt);
+            $this->upddt  = (int) strtotime($b->blog_upddt);
+            $this->status = (int) $b->blog_status;
 
             $this->settings = new Settings($this->core, $this->id);
 
@@ -213,7 +218,7 @@ class Blog
      * Returns an entry status name given to a code. Status are translated, never
      * use it for tests. If status code does not exist, returns <i>unpublished</i>.
      *
-     * @param      integer  $s      The status code
+     * @param      int  $s      The status code
      *
      * @return     string  The post status.
      */
@@ -250,7 +255,7 @@ class Blog
      * Disallows entries password protection. You need to set it to
      * <var>false</var> while serving a public blog.
      *
-     * @param      mixed  $v
+     * @param      bool  $v
      */
     public function withoutPassword(bool $v): void
     {
@@ -280,7 +285,7 @@ class Blog
      * Updates comment and trackback counters in post table. Should be called
      * every time a comment or trackback is added, removed or changed its status.
      *
-     * @param      integer  $id     The comment identifier
+     * @param      int  $id     The comment identifier
      * @param      bool     $del    If comment is deleted, set this to true
      */
     public function triggerComment(int $id, bool $del = false): void
@@ -485,7 +490,7 @@ class Blog
     /**
      * Gets the category by its ID.
      *
-     * @param      integer  $id     The category identifier
+     * @param      int  $id     The category identifier
      *
      * @return     Record  The category. (StaticRecord)
      */
@@ -497,7 +502,7 @@ class Blog
     /**
      * Gets the category parents.
      *
-     * @param      integer  $id     The category identifier
+     * @param      int  $id     The category identifier
      *
      * @return     Record  The category parents. (StaticRecord)
      */
@@ -509,7 +514,7 @@ class Blog
     /**
      * Gets the category first parent.
      *
-     * @param      integer  $id     The category identifier
+     * @param      int  $id     The category identifier
      *
      * @return     Record  The category parent. (StaticRecord)
      */
@@ -536,7 +541,7 @@ class Blog
      * @param      string   $cat_url    The cat url
      * @param      string   $start_url  The top cat url
      *
-     * @return     boolean  true if cat_url is in given start_url cat subtree
+     * @return     bool     true if cat_url is in given start_url cat subtree
      */
     public function IsInCatSubtree(string $cat_url, string $start_url): bool
     {
@@ -647,7 +652,7 @@ class Blog
     /**
      * Updates an existing category.
      *
-     * @param      integer     $id     The category ID
+     * @param      int     $id     The category ID
      * @param      Cursor      $cur    The category cursor
      *
      * @throws     CoreException
@@ -690,9 +695,9 @@ class Blog
     /**
      * Set category position.
      *
-     * @param      integer  $id     The category ID
-     * @param      integer  $left   The category ID before
-     * @param      integer  $right  The category ID after
+     * @param      int  $id     The category ID
+     * @param      int  $left   The category ID before
+     * @param      int  $right  The category ID after
      */
     public function updCategoryPosition(int $id, int $left, int $right): void
     {
@@ -703,8 +708,8 @@ class Blog
     /**
      * Sets the category parent.
      *
-     * @param      integer  $id      The category ID
-     * @param      integer  $parent  The parent category ID
+     * @param      int  $id      The category ID
+     * @param      int  $parent  The parent category ID
      */
     public function setCategoryParent(int $id, int $parent): void
     {
@@ -715,8 +720,8 @@ class Blog
     /**
      * Sets the category position.
      *
-     * @param      integer  $id       The category ID
-     * @param      integer  $sibling  The sibling category ID
+     * @param      int      $id       The category ID
+     * @param      int      $sibling  The sibling category ID
      * @param      string   $move     The move (before|after)
      */
     public function setCategoryPosition(int $id, int $sibling, string $move): void
@@ -728,7 +733,7 @@ class Blog
     /**
      * Delete a category.
      *
-     * @param      integer     $id     The category ID
+     * @param      int     $id     The category ID
      *
      * @throws     CoreException
      */
@@ -1359,7 +1364,7 @@ class Blog
      *
      * @throws     CoreException
      *
-     * @return     integer
+     * @return     int
      */
     public function addPost(Cursor $cur): int
     {
@@ -1417,7 +1422,7 @@ class Blog
     /**
      * Updates an existing post.
      *
-     * @param      integer     $id     The post identifier
+     * @param      int     $id     The post identifier
      * @param      Cursor      $cur    The post cursor
      *
      * @throws     CoreException
@@ -1479,8 +1484,8 @@ class Blog
     /**
      * Update post status.
      *
-     * @param      integer  $id      The identifier
-     * @param      integer  $status  The status
+     * @param      int  $id      The identifier
+     * @param      int  $status  The status
      */
     public function updPostStatus(int $id, int $status): void
     {
@@ -1616,12 +1621,12 @@ class Blog
     /**
      * Updates posts category. <var>$new_cat_id</var> can be null.
      *
-     * @param      int    $old_cat_id  The old cat identifier
-     * @param      int    $new_cat_id  The new cat identifier
+     * @param      int|null    $old_cat_id  The old cat identifier
+     * @param      int|null    $new_cat_id  The new cat identifier
      *
      * @throws     CoreException
      */
-    public function changePostsCategory(int $old_cat_id, int $new_cat_id): void
+    public function changePostsCategory(?int $old_cat_id, ?int $new_cat_id): void
     {
         if (!$this->core->auth->check('contentadmin,categories', $this->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
@@ -1645,7 +1650,7 @@ class Blog
     /**
      * Deletes a post.
      *
-     * @param      integer  $id     The post identifier
+     * @param      int  $id     The post identifier
      */
     public function delPost(int $id): void
     {
@@ -1863,7 +1868,7 @@ class Blog
      * Gets the post cursor.
      *
      * @param      Cursor      $cur      The post cursor
-     * @param      integer     $post_id  The post identifier
+     * @param      int     $post_id  The post identifier
      *
      * @throws     CoreException
      */
@@ -1911,8 +1916,8 @@ class Blog
     /**
      * Gets the post content.
      *
-     * @param      Cursor  $cur      The post cursor
-     * @param      integer $post_id  The post identifier
+     * @param      Cursor   $cur      The post cursor
+     * @param      int      $post_id  The post identifier
      */
     private function getPostContent(Cursor $cur, int $post_id): void
     {
@@ -1940,7 +1945,7 @@ class Blog
     /**
      * Creates post HTML content, taking format and lang into account.
      *
-     * @param      integer  $post_id        The post identifier
+     * @param      int      $post_id        The post identifier
      * @param      string   $format         The format
      * @param      string   $lang           The language
      * @param      string   $excerpt        The excerpt
@@ -2003,10 +2008,10 @@ class Blog
      * Returns URL for a post according to blog setting <var>post_url_format</var>.
      * It will try to guess URL and append some figures if needed.
      *
-     * @param      string|null   $url         The url
-     * @param      string|null   $post_dt     The post dt
-     * @param      string|null   $post_title  The post title
-     * @param      integer|null  $post_id     The post identifier
+     * @param      string|null  $url         The url
+     * @param      string|null  $post_dt     The post dt
+     * @param      string|null  $post_title  The post title
+     * @param      int|null     $post_id     The post identifier
      *
      * @return     string  The post url.
      */
@@ -2269,7 +2274,7 @@ class Blog
      *
      * @param      Cursor  $cur    The comment cursor
      *
-     * @return     integer
+     * @return     int
      */
     public function addComment(Cursor $cur): int
     {
@@ -2320,8 +2325,8 @@ class Blog
     /**
      * Updates an existing comment.
      *
-     * @param      integer     $id     The comment identifier
-     * @param      Cursor      $cur    The comment cursor
+     * @param      int      $id     The comment identifier
+     * @param      Cursor   $cur    The comment cursor
      *
      * @throws     CoreException
      */
@@ -2416,7 +2421,7 @@ class Blog
     /**
      * Delete a comment.
      *
-     * @param      integer  $id     The comment identifier
+     * @param      int  $id     The comment identifier
      */
     public function delComment(int $id): void
     {

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Auth
  * @brief Dotclear core auth class
  *
  * @package Dotclear
@@ -54,22 +55,22 @@ class Auth
     /** @var array Array with user options */
     protected $user_options = [];
 
-    /** @var boolean User must change his password after login */
+    /** @var bool User must change his password after login */
     protected $user_change_pwd;
 
-    /** @var boolean User is super admin */
+    /** @var bool User is super admin */
     protected $user_admin;
 
     /** @var array Permissions for each blog */
     protected $permissions = [];
 
-    /** @var boolean User can change its password */
+    /** @var bool User can change its password */
     protected $allow_pass_change = true;
 
     /** @var array List of blogs on which the user has permissions */
     protected $blogs = [];
 
-    /** @var integer Count of user blogs */
+    /** @var int Count of user blogs */
     public $blog_count = null;
 
     /** @var array Permission types */
@@ -85,8 +86,8 @@ class Auth
      */
     public function __construct(Core $core)
     {
-        $this->core       = &$core;
-        $this->con        = &$core->con;
+        $this->core       = $core;
+        $this->con        = $core->con;
         $this->blog_table = $core->prefix . 'blog';
         $this->user_table = $core->prefix . 'user';
         $this->perm_table = $core->prefix . 'permissions';
@@ -113,9 +114,9 @@ class Auth
      * @param string    $user_id        User ID
      * @param string    $pwd            User password
      * @param string    $user_key        User key check
-     * @param boolean    $check_blog    checks if user is associated to a blog or not.
+     * @param bool    $check_blog    checks if user is associated to a blog or not.
      *
-     * @return boolean
+     * @return bool
      */
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
@@ -271,7 +272,7 @@ class Auth
      *
      * @param string    $pwd            User password
      *
-     * @return boolean
+     * @return bool
      */
     public function checkPassword(string $pwd): bool
     {
@@ -285,7 +286,7 @@ class Auth
     /**
      * This method checks if user session cookie exists
      *
-     * @return boolean
+     * @return bool
      */
     public function sessionExists(): bool
     {
@@ -295,7 +296,7 @@ class Auth
     /**
      * This method checks user session validity.
      *
-     * @return boolean
+     * @return bool
      */
     public function checkSession(?string $uid = null): bool
     {
@@ -326,7 +327,7 @@ class Auth
     /**
      * Checks if user must change his password in order to login.
      *
-     * @return boolean
+     * @return bool
      */
     public function mustChangePassword(): bool
     {
@@ -336,7 +337,7 @@ class Auth
     /**
      * Checks if user is super admin
      *
-     * @return boolean
+     * @return bool
      */
     public function isSuperAdmin(): bool
     {
@@ -351,7 +352,7 @@ class Auth
      * @param string    $permissions    Permissions list
      * @param string    $blog_id        Blog ID
      *
-     * @return boolean
+     * @return bool
      */
     public function check(string $permissions, string $blog_id): bool
     {
@@ -380,7 +381,7 @@ class Auth
     /**
      * Returns true if user is allowed to change its password.
      *
-     * @return    boolean
+     * @return    bool
      */
     public function allowPassChange(): bool
     {
@@ -478,7 +479,7 @@ class Auth
     /**
      * Gets the blog count.
      *
-     * @return     integer  The blog count.
+     * @return     int  The blog count.
      */
     public function getBlogCount(): int
     {
@@ -492,7 +493,7 @@ class Auth
     /**
      * Finds an user blog.
      *
-     * @param      mixed  $blog_id  The blog identifier
+     * @param      string|null  $blog_id  The blog identifier
      *
      * @return     string|false
      */

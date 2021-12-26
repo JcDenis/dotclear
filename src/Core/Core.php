@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Core
  * @brief Dotclear core class
  *
  * @package Dotclear
@@ -286,7 +287,7 @@ class Core
      * human-readable and will be translated, so never use it for tests.
      * If status code does not exist, returns <i>offline</i>.
      *
-     * @param      integer  $s      Status code
+     * @param      int  $s      Status code
      *
      * @return     string   The blog status name.
      */
@@ -536,13 +537,13 @@ class Core
     /**
      * Gets the post admin url.
      *
-     * @param      string  $type     The type
-     * @param      mixed   $post_id  The post identifier
-     * @param      bool    $escaped  Escape the URL
+     * @param      string       $type     The type
+     * @param      string|int   $post_id  The post identifier
+     * @param      bool         $escaped  Escape the URL
      *
      * @return     string    The post admin url.
      */
-    public function getPostAdminURL(string $type, string $post_id, bool $escaped = true): string
+    public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
     {
         if (!isset($this->post_types[$type])) {
             $type = 'post';
@@ -1200,7 +1201,7 @@ class Core
         }
 
         if (isset($params['blog_status']) && $params['blog_status'] !== '' && $this->auth->isSuperAdmin()) {
-            $where .= 'AND blog_status = ' . (integer) $params['blog_status'] . ' ';
+            $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
         }
 
         if (isset($params['blog_id']) && $params['blog_id'] !== '') {
@@ -1333,7 +1334,7 @@ class Core
      * @param      string  $id     The blog identifier
      * @param      string|null   $type   The post type
      *
-     * @return     integer  Number of blog posts.
+     * @return     int  Number of blog posts.
      */
     public function countBlogPosts(string $id, ?string $type = null): int
     {
@@ -1574,7 +1575,7 @@ class Core
             return [];
         }
 
-        $post_id = abs((integer) substr($url, 5));
+        $post_id = abs((int) substr($url, 5));
         if (!$post_id) {
             return [];
         }
@@ -1722,10 +1723,10 @@ class Core
     /**
      * Recreates entries search engine index.
      *
-     * @param      integer|null   $start  The start entry index
-     * @param      integer|null   $limit  The limit of entry to index
+     * @param      int|null   $start  The start entry index
+     * @param      int|null   $limit  The limit of entry to index
      *
-     * @return     integer|null   sum of <var>$start</var> and <var>$limit</var>
+     * @return     int|null   sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
     {
@@ -1750,7 +1751,7 @@ class Core
             $rs->post_content_xhtml;
 
             $cur->post_words = implode(' ', Text::splitWords($words));
-            $cur->update('WHERE post_id = ' . (integer) $rs->post_id);
+            $cur->update('WHERE post_id = ' . (int) $rs->post_id);
             $cur->clean();
         }
 
@@ -1764,10 +1765,10 @@ class Core
     /**
      * Recreates comments search engine index.
      *
-     * @param      integer|null   $start  The start comment index
-     * @param      integer|null   $limit  The limit of comment to index
+     * @param      int|null   $start  The start comment index
+     * @param      int|null   $limit  The limit of comment to index
      *
-     * @return     integer|null   sum of <var>$start</var> and <var>$limit</var>
+     * @return     int|null   sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
@@ -1826,8 +1827,8 @@ class Core
      */
     public function emptyTemplatesCache(): void
     {
-        if (is_dir(DOTCLEAR_CACHE_DIR . '/cbtpl')) {
-            Files::deltree(DOTCLEAR_CACHE_DIR . '/cbtpl');
+        if (is_dir(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'))) {
+            Files::deltree(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'));
         }
     }
 
@@ -1852,7 +1853,7 @@ class Core
     /**
      * Return elapsed time since script has been started
      *
-     * @param      integer|null   $mtime  timestamp (microtime format) to evaluate
+     * @param      int|null   $mtime  timestamp (microtime format) to evaluate
      * delta from current time is taken if null
      *
      * @return     string   The elapsed time.
@@ -1867,7 +1868,7 @@ class Core
     /**
      * Return memory consumed since script has been started
      *
-     * @param      integer|null   $mmem  memory usage to evaluate
+     * @param      int|null   $mmem  memory usage to evaluate
      * delta from current memory usage is taken if null
      *
      * @return     string   The consumed memory.
@@ -1880,6 +1881,20 @@ class Core
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
 
         return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
+    }
+
+    public static function root(string ...$args): string
+    {
+        if (!defined('DOTCLEAR_ROOT_DIR')) {
+            define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
+        }
+
+        return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
+    }
+
+    public static function path(string ...$args): string
+    {
+        return implode(DIRECTORY_SEPARATOR, $args);
     }
     //@}
 }

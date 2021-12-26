@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class  Dotclear\Core\Error
  * @brief Dotclear core error class
  *
  * @package Dotclear
@@ -21,7 +22,7 @@ class Error
     /** @var array Errors stack */
     protected $errors = [];
 
-    /** @var boolean True if stack is not empty */
+    /** @var bool True if stack is not empty */
     protected $flag = false;
 
     /** @var string HTML errors list pattern */
@@ -63,7 +64,7 @@ class Error
     /**
      * Returns the value of <var>flag</var> property. True if errors stack is not empty
      *
-     * @return boolean
+     * @return bool
      */
     public function flag(): bool
     {
