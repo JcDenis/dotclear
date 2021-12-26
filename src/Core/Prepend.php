@@ -295,18 +295,4 @@ class Prepend extends Core
             }
         }
     }
-
-    public static function root(string ...$args): string
-    {
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
-        }
-
-        return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
-    }
-
-    public static function path(string ...$args): string
-    {
-        return implode(DIRECTORY_SEPARATOR, $args);
-    }
 }
