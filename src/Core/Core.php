@@ -131,7 +131,7 @@ class Core
     //@{
     private function getTTL(): ?string
     {
-        /* Session time */
+        # Session time
         $ttl = DOTCLEAR_SESSION_TTL;
         if (!is_null($ttl)) {   // @phpstan-ignore-line
             if (substr(trim($ttl), 0, 1) != '-') {
@@ -161,23 +161,23 @@ class Core
             throw new CoreException('Database connection class ' . $class . ' does not inherit ' . $default_class);
         }
 
-        /* PHP 7.0 mysql driver is obsolete, map to mysqli */
+        # PHP 7.0 mysql driver is obsolete, map to mysqli
         if ($driver === 'mysql') {
             $driver = 'mysqli';
         }
 
-        /* Set full namespace of distributed database driver */
+        # Set full namespace of distributed database driver
         if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
             $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
         }
 
-        /* Check if database connection class exists */
+        # Check if database connection class exists
         if (!class_exists($class)) {
             trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
             exit(1);
         }
 
-        /* Create connection instance */
+        # Create connection instance
         $con = new $class(
             DOTCLEAR_DATABASE_HOST,
             DOTCLEAR_DATABASE_NAME,
@@ -186,12 +186,12 @@ class Core
             DOTCLEAR_DATABASE_PERSIST
         );
 
-        /* Define weak_locks for mysql */
+        # Define weak_locks for mysql
         if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
             $con::$weak_locks = true;
         }
 
-        /* Define searchpath for postgresql */
+        # Define searchpath for postgresql
         if ($driver == 'pgsql') {
             $searchpath = explode('.', $prefix, 2);
             if (count($searchpath) > 1) {
@@ -201,7 +201,7 @@ class Core
             }
         }
 
-        /* Set table prefix in core */
+        # Set table prefix in core
         $this->prefix = $prefix;
 
         return $con;
@@ -213,12 +213,12 @@ class Core
         # Your new class *should* inherits Dotclear\Core\Auth class.
         $class = defined('DOTCLEAR_AUTH_CLASS') ? DOTCLEAR_AUTH_CLASS : __NAMESPACE__ . '\\Auth';
 
-        /* Check if auth class exists */
+        # Check if auth class exists
         if (!class_exists($class)) {
             throw new CoreException('Authentication class ' . $class . ' does not exist.');
         }
 
-        /* Check if auth class inherit Dotclear auth class */
+        # Check if auth class inherit Dotclear auth class
         if ($class != __NAMESPACE__ . '\\Auth' && !is_subclass_of($class, __NAMESPACE__ . '\\Auth')) {
             throw new CoreException('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }
@@ -1372,7 +1372,7 @@ class Core
             'keep_js'   => false
         ]);
 
-        # --BEHAVIOR-- before:Core:Core:HTMLfilter, ArrayObject
+        # --BEHAVIOR-- before:Core:Core:HTMLfilter, \ArrayObject
         $this->behaviors->call('before:Core:Core:HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
@@ -1459,7 +1459,7 @@ class Core
 
         $this->wiki2xhtml->registerFunction('url:post', [$this, 'wikiPostLink']);
 
-        # --BEHAVIOR-- after:Core:Core:iniWikiPost, Wiki2xhtml
+        # --BEHAVIOR-- after:Core:Core:iniWikiPost, Dotclear\Html\Wiki2xhtml
         $this->behaviors->call('after:Core:Core:iniWikiPost', $this->wiki2xhtml);
     }
 
@@ -1508,7 +1508,7 @@ class Core
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- after:Core:Core:initWikiSimpleComment, Wiki2xhtml
+        # --BEHAVIOR-- after:Core:Core:initWikiSimpleComment, Dotclear\Html\Wiki2xhtml
         $this->behaviors->call('after:Core:Core:initWikiSimpleComment', $this->wiki2xhtml);
     }
 
@@ -1556,7 +1556,7 @@ class Core
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- after:Core:Core:initWikiComment, Wiki2xhtml
+        # --BEHAVIOR-- after:Core:Core:initWikiComment, Dotclear\Html\Wiki2xhtml
         $this->behaviors->call('after:Core:Core:initWikiComment', $this->wiki2xhtml);
     }
 
@@ -1836,7 +1836,7 @@ class Core
      */
     public static function startStatistics(): void
     {
-        /* Timer and memory usage for stats and dev */
+        # Timer and memory usage for stats and dev
         if (!defined('DOTCLEAR_START_TIME')) {
             define('DOTCLEAR_START_TIME',
                 microtime(true)
