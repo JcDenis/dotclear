@@ -515,7 +515,7 @@ class Core
     {
         if (is_array(static::$top_behaviors) && !empty(static::$top_behaviors)) {
             foreach (static::$top_behaviors as $b) {
-                $this->addBehavior($b[0], $b[1]);
+                $this->behaviors->add($b[0], $b[1]);
             }
             unset($b);
         }
