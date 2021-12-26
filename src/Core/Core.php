@@ -465,7 +465,7 @@ class Core
      */
     public function addBehavior(string $behavior, $func): void
     {
-        $this->behaviors->call($behavior, $func);
+        $this->behaviors->add($behavior, $func);
     }
 
     /**
