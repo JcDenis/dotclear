@@ -412,7 +412,7 @@ class RestMethods
         $file = null;
 
         try {
-            $core->loadMediaClass(;
+            $core->loadMediaClass();
             $file = $core->media->getFile($id);
         } catch (Exception $e) {
         }

@@ -96,9 +96,9 @@ class PostCatalog extends Catalog
                 'date'     => '<th scope="col">' . __('Date') . '</th>',
                 'category' => '<th scope="col">' . __('Category') . '</th>',
                 'author'   => '<th scope="col">' . __('Author') . '</th>',
-                'comments' => '<th scope="col"><img src="images/comments.png" alt="" title="' . __('Comments') .
+                'comments' => '<th scope="col"><img src="?df=images/comments.png" alt="" title="' . __('Comments') .
                 '" /><span class="hidden">' . __('Comments') . '</span></th>',
-                'trackbacks' => '<th scope="col"><img src="images/trackbacks.png" alt="" title="' . __('Trackbacks') .
+                'trackbacks' => '<th scope="col"><img src="?df=images/trackbacks.png" alt="" title="' . __('Trackbacks') .
                 '" /><span class="hidden">' . __('Trackbacks') . '</span></th>',
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
@@ -126,7 +126,7 @@ class PostCatalog extends Catalog
             echo $blocks[1];
 
             $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="images/%2$s" /> %1$s', $title, $image);
+                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
             echo '<p class="info">' . __('Legend: ') .
                 $fmt(__('Published'), 'check-on.png') . ' - ' .

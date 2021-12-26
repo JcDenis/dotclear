@@ -232,7 +232,7 @@ class DefaultPostAction
             $ap->redirect(true);
         } else {
             $ap->beginPage(
-                $this->breadcrumb(
+                $ap->breadcrumb(
                     [
                         Html::escapeHTML($core->blog->name)      => '',
                         $ap->getCallerTitle()                    => $ap->getRedirection(true),
@@ -313,7 +313,7 @@ class DefaultPostAction
                 }
             }
             $ap->beginPage(
-                $this->breadcrumb(
+                $ap->breadcrumb(
                     [
                         Html::escapeHTML($core->blog->name)    => '',
                         $ap->getCallerTitle()                  => $ap->getRedirection(true),
@@ -359,7 +359,7 @@ class DefaultPostAction
             $ap->redirect(true);
         } else {
             $ap->beginPage(
-                $this->breadcrumb(
+                $ap->breadcrumb(
                     [
                         Html::escapeHTML($core->blog->name)      => '',
                         $ap->getCallerTitle()                    => $ap->getRedirection(true),
