@@ -27,9 +27,15 @@ use Dotclear\Core\Log;
 use Dotclear\Core\Utils;
 use Dotclear\Core\Media;
 //use Dotclear\Core\Themes;
+//use Dotclear\Core\Plugins;
 use Dotclear\Core\Blog;
 use Dotclear\Core\Auth;
 use Dotclear\Core\Settings;
+
+use Dotclear\Core\Sql\SelectStatement;
+use Dotclear\Core\Sql\InsertStatement;
+use Dotclear\Core\Sql\UpdateStatement;
+use Dotclear\Core\Sql\deleteStatement;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
@@ -74,7 +80,7 @@ class Core
     //** @var Themes             Themes instance */
     public $themes;
 
-    //** ... */
+    //** @var Plugins            Plugins instance */
     public $plugins;
 
     /** @var RestServer         RestServer instance */
@@ -107,7 +113,7 @@ class Core
     /**
      * Start Dotclear process
      *
-     * @param  string $process public/admin/install/...
+     * @param   string  $process    public/admin/install/...
      */
     public function __construct()
     {
@@ -130,11 +136,17 @@ class Core
 
     /// @name Core init methods
     //@{
+    /**
+     * Get session ttl
+     *
+     * @return  string|null  The TTL
+     */
     private function getTTL(): ?string
     {
         # Session time
         $ttl = DOTCLEAR_SESSION_TTL;
         if (!is_null($ttl)) {   // @phpstan-ignore-line
+            $tll = (string) $ttl;
             if (substr(trim($ttl), 0, 1) != '-') {
                 // We requires negative session TTL
                 $ttl = '-' . trim($ttl);
@@ -144,6 +156,13 @@ class Core
         return $ttl;
     }
 
+    /**
+     * Instanciate database connection
+     *
+     * @throws  CoreException
+     *
+     * @return  Connection      Database connection instance
+     */
     private function conInstance(): Connection
     {
         $prefix        = DOTCLEAR_DATABASE_PREFIX;
@@ -208,6 +227,13 @@ class Core
         return $con;
     }
 
+    /**
+     * Instanciate authentication
+     *
+     * @throws  CoreException
+     *
+     * @return  Auth    Auth instance
+     */
     private function authInstance(): Auth
     {
         # You can set DC_AUTH_CLASS to whatever you want.
@@ -228,18 +254,28 @@ class Core
     }
     //@}
 
-    /// @name Optionnal properties
+    /// @name Optionnal Core init methods
     //@{
-    public function loadMediaClass(bool $force = false): void
+    /**
+     * Instanciate media manager into Core
+     *
+     * @param  bool     $reload     Force to reload instance
+     */
+    public function mediaInstance(bool $reload = false): void
     {
-        if ($this->media === null || $force) {
+        if (!($this->media instanceof Media) || $reload) {
             $this->media = new Media($this);
         }
     }
 
-    public function loadThemeClass(bool $force = false): void
+    /**
+     * Instanciate themes manager into Core
+     *
+     * @param   bool    $reload     Force to reload instance
+     */
+    public function themeInstance(bool $reload = false): void
     {
-        if ($this->themes === null || $force) {
+        if (!($this->themes instanceof Themes) || $reload) {
             $this->themes = new Themes($this);
         }
     }
@@ -250,11 +286,11 @@ class Core
     /**
      * Sets the blog to use.
      *
-     * @param      string  $id     The blog ID
+     * @param   string  $blog_id    The blog ID
      */
-    public function setBlog(string $id): void
+    public function setBlog(string $blog_id): void
     {
-        $this->blog = new Blog($this, $id);
+        $this->blog = new Blog($this, $blog_id);
     }
 
     /**
@@ -271,7 +307,7 @@ class Core
     /**
      * Gets all blog status.
      *
-     * @return     array  An array of available blog status codes and names.
+     * @return  array   An array of available blog status codes and names.
      */
     public function getAllBlogStatus(): array
     {
@@ -283,22 +319,21 @@ class Core
     }
 
     /**
+     * Get blog status
+     *
      * Returns a blog status name given to a code. This is intended to be
      * human-readable and will be translated, so never use it for tests.
      * If status code does not exist, returns <i>offline</i>.
      *
-     * @param      int  $s      Status code
+     * @param   int     $status_code    Status code
      *
-     * @return     string   The blog status name.
+     * @return  string  The blog status name.
      */
-    public function getBlogStatus(int $s): string
+    public function getBlogStatus(int $status_code): string
     {
-        $r = $this->getAllBlogStatus();
-        if (isset($r[$s])) {
-            return $r[$s];
-        }
+        $all = $this->getAllBlogStatus();
 
-        return $r[0];
+        return isset($all[$status_code]) ? $all[$status_code] : $all[0];
     }
     //@}
 
@@ -308,7 +343,7 @@ class Core
     /**
      * Gets the nonce.
      *
-     * @return     string  The nonce.
+     * @return  string  The nonce.
      */
     public function getNonce(): string
     {
@@ -318,77 +353,78 @@ class Core
     /**
      * Check the nonce
      *
-     * @param      string  $secret  The nonce
+     * @param   string  $secret     The nonce
      *
-     * @return     bool
+     * @return  bool    The success
      */
     public function checkNonce(string $secret): bool
     {
-        // 40 alphanumeric characters min
-        if (!preg_match('/^([0-9a-f]{40,})$/i', $secret)) {
-            return false;
-        }
-
-        return $secret == $this->auth->cryptLegacy(session_id());
+        return preg_match('/^([0-9a-f]{40,})$/i', $secret) ? $secret == $this->getNonce() : false;
     }
 
     /**
      * Get the nonce HTML code
      *
-     * @return     string|null
+     * @return  string|null     HTML hidden form for nonce
      */
     public function formNonce(): ?string
     {
-        if (!session_id()) {
-            return null;
-        }
-
-        return Form::hidden(['xd_check'], $this->getNonce());
+        return session_id() ? Form::hidden(['xd_check'], $this->getNonce()) : null;
     }
     //@}
 
     /// @name Text Formatters methods
     //@{
     /**
-     * Adds a new text formater which will call the function <var>$func</var> to
+     * Add editor formater
+     *
+     * Adds a new text formater which will call the function <var>$callback</var> to
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param      string    $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
-     * @param      string    $name       The formater name
-     * @param      callable  $func       The function to use, must be a valid and callable callback
+     * @param   string          $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string          $formater   The formater name
+     * @param   string|array    $callback   The function to use, must be a valid and callable callback
      */
-    public function addEditorFormater(string $editor_id, string $name, $func): void
+    public function addEditorFormater(string $editor, string $formater, string|array $callback): void
     {
-        if (is_callable($func)) {
-            $this->formaters[$editor_id][$name] = $func;
+        # Silently failed non callable function
+        if (is_callable($callback)) {
+            $this->formaters[$editor][$formater] = $callback;
         }
     }
 
     /**
+     * Add dcLegacyEditor formater
+     *
      * Adds a new dcLegacyEditor text formater which will call the function
-     * <var>$func</var> to transform text. The function must be a valid callback
+     * <var>$callback</var> to transform text. The function must be a valid callback
      * and takes one argument: the string to transform. It returns the transformed string.
      *
-     * @param      string    $name       The formater name
-     * @param      callable  $func       The function to use, must be a valid and callable callback
+     * @deprecated use $core->addEditorFormater('dcLegacyEditor', $formater, $callback);
+     *
+     * @param   string          $formater   The formater name
+     * @param   string|array    $callback   The function to use, must be a valid and callable callback
      */
-    public function addFormater(string $name, $func): void
+    public function addFormater(string $formater, string|array $callback): void
     {
-        $this->addEditorFormater('dcLegacyEditor', $name, $func);
+        # No plugin call into Core
+        DeprecatedException::throw();
+
+        $this->addEditorFormater('dcLegacyEditor', $formater, $callback);
     }
 
     /**
      * Gets the editors list.
      *
-     * @return     array  The editors.
+     * @return  array   The editors.
      */
     public function getEditors(): array
     {
         $editors = [];
 
-        foreach (array_keys($this->formaters) as $editor_id) {
-            $editors[$editor_id] = $this->plugins->moduleInfo($editor_id, 'name');
+        foreach (array_keys($this->formaters) as $editor) {
+            $editors[$editor] = $this->plugins->moduleInfo($editor, 'name');
         }
 
         return $editors;
@@ -397,25 +433,25 @@ class Core
     /**
      * Gets the formaters.
      *
-     * if @param editor_id is empty:
+     * if @param editor is empty:
      * return all formaters sorted by actives editors
      *
-     * if @param editor_id is not empty
+     * if @param editor is not empty
      * return formaters for an editor if editor is active
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later
      *
-     * @param      string  $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string  $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
      *
-     * @return     array   The formaters.
+     * @return  array   The formaters.
      */
-    public function getFormaters(string $editor_id = ''): array
+    public function getFormaters(string $editor = ''): array
     {
         $formaters_list = [];
 
-        if (!empty($editor_id)) {
-            if (isset($this->formaters[$editor_id])) {
-                $formaters_list = array_keys($this->formaters[$editor_id]);
+        if (!empty($editor)) {
+            if (isset($this->formaters[$editor])) {
+                $formaters_list = array_keys($this->formaters[$editor]);
             }
         } else {
             foreach ($this->formaters as $editor => $formaters) {
@@ -427,35 +463,44 @@ class Core
     }
 
     /**
-     * If <var>$name</var> is a valid formater, it returns <var>$str</var>
+     * Call editor formater. (format a string)
+     *
+     * If <var>$formater</var> is a valid formater, it returns <var>$str</var>
      * transformed using that formater.
      *
-     * @param      string  $editor_id  The editor identifier (dcLegacyEditor, dcCKEditor, ...)
-     * @param      string  $name       The formater name
-     * @param      string  $str        The string to transform
+     * @param   string  $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string  $formater   The formater name
+     * @param   string  $str        The string to transform
      *
-     * @return     string
+     * @return  string  The formated string
      */
-    public function callEditorFormater(string $editor_id, string $name, string $str): string
+    public function callEditorFormater(string $editor, string $formater, string $str): string
     {
-        if (isset($this->formaters[$editor_id]) && isset($this->formaters[$editor_id][$name])) {
-            return call_user_func($this->formaters[$editor_id][$name], $str);
+        if (isset($this->formaters[$editor]) && isset($this->formaters[$editor][$formater])) {
+            return call_user_func($this->formaters[$editor][$formater], $str);
         }
 
         return $str;
     }
 
     /**
-     * If <var>$name</var> is a valid dcLegacyEditor formater, it returns
+     * Call formater (format string using dcLegacyEditor)
+     *
+     * If <var>$formater</var> is a valid dcLegacyEditor formater, it returns
      * <var>$str</var> transformed using that formater.
      *
-     * @param      string  $name   The name
-     * @param      string  $str    The string
+     * @deprecated use $core->callEditorFormater('dcLegacyEditor', $formater, $str);
      *
-     * @return     string
+     * @param   string  $formater   The name
+     * @param   string  $str        The string
+     *
+     * @return  string  The formated string
      */
-    public function callFormater(string $name, string $str): string
+    public function callFormater(string $formater, string $str): string
     {
+        # No plugin call into Core
+        DeprecatedException::throw();
+
         return $this->callEditorFormater('dcLegacyEditor', $name, $str);
     }
     //@}
@@ -463,17 +508,17 @@ class Core
     /// @name Behaviors methods
     //@{
     /**
-     * @deprecated use $core->behaviors->add();
+     * @deprecated use $core->behaviors->($behavior, $callback);
      */
-    public function addBehavior(string $behavior, $func): void
+    public function addBehavior(string $behavior, $callback): void
     {
         DeprecatedException::throw();
 
-        $this->behaviors->add($behavior, $func);
+        $this->behaviors->add($behavior, $callback);
     }
 
     /**
-     * @deprecated use $core->behaviors->has();
+     * @deprecated use $core->behaviors->has($behavior);
      */
     public function hasBehavior(string $behavior): bool
     {
@@ -483,7 +528,7 @@ class Core
     }
 
     /**
-     * @deprecated use $core->behaviors->get();
+     * @deprecated use $core->behaviors->get($behavior);
      */
     public function getBehaviors(string $behavior = ''): array
     {
@@ -493,9 +538,9 @@ class Core
     }
 
     /**
-     * @deprecated use $core->behaviors->call();
+     * @deprecated use $core->behaviors->call($behavior, $arg, $argx);
      */
-    public function callBehavior(string $behavior, ...$args)
+    public function callBehavior(string $behavior, mixed ...$args): mixed
     {
         DeprecatedException::throw();
 
@@ -508,26 +553,25 @@ class Core
      * Dotclear\Core\Core::addTopBehavior('MyBehavior', 'MyFunction');
      * also work from Dotclear\Core\Prepend and other child class
      *
-     * @param      string    $behavior  The behavior
-     * @param      callable  $func      The function
+     * @param  string           $behavior   The behavior
+     * @param  string|array     $callback   The function
      */
-    public static function addTopBehavior(string $behavior, $func): void
+    public static function addTopBehavior(string $behavior, string|array $callback): void
     {
-        $top = static::$top_behaviors;
-        $top[$behavior][] = $func;
-        static::$top_behaviors = $top;
+        $top = self::$top_behaviors;
+        $top[] = [$behavior, $callback];
+        self::$top_behaviors = $top;
     }
 
     /**
-     * Register Top Behaviors into Core behaviors
+     * Register Top Behaviors into Core instance behaviors
      */
     protected function registerTopBehaviors(): void
     {
-        if (is_array(static::$top_behaviors) && !empty(static::$top_behaviors)) {
-            foreach (static::$top_behaviors as $b) {
-                $this->behaviors->add($b[0], $b[1]);
+        if (is_array(self::$top_behaviors) && !empty(self::$top_behaviors)) {
+            foreach (self::$top_behaviors as $behavior) {
+                $this->behaviors->add($behavior[0], $behavior[1]);
             }
-            unset($b);
         }
     }
     //@}
@@ -537,11 +581,11 @@ class Core
     /**
      * Gets the post admin url.
      *
-     * @param      string       $type     The type
-     * @param      string|int   $post_id  The post identifier
-     * @param      bool         $escaped  Escape the URL
+     * @param   string      $type       The type
+     * @param   string|int  $post_id    The post identifier
+     * @param   bool        $escaped    Escape the URL
      *
-     * @return     string    The post admin url.
+     * @return  string  The post admin url.
      */
     public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
     {
@@ -557,11 +601,11 @@ class Core
     /**
      * Gets the post public url.
      *
-     * @param      string  $type      The type
-     * @param      string  $post_url  The post url
-     * @param      bool    $escaped   Escape the URL
+     * @param  string   $type       The type
+     * @param  string   $post_url   The post url
+     * @param  bool     $escaped    Escape the URL
      *
-     * @return     string    The post public url.
+     * @return string   The post public url.
      */
     public function getPostPublicURL(string $type, string $post_url, bool $escaped = true): string
     {
@@ -577,10 +621,10 @@ class Core
     /**
      * Sets the post type.
      *
-     * @param      string  $type        The type
-     * @param      string  $admin_url   The admin url
-     * @param      string  $public_url  The public url
-     * @param      string  $label       The label
+     * @param   string  $type           The type
+     * @param   string  $admin_url      The admin url
+     * @param   string  $public_url     The public url
+     * @param   string  $label          The label
      */
     public function setPostType(string $type, string $admin_url, string $public_url, string $label = ''): void
     {
@@ -594,7 +638,7 @@ class Core
     /**
      * Gets the post types.
      *
-     * @return     array  The post types.
+     * @return  array   The post types.
      */
     public function getPostTypes(): array
     {
@@ -607,32 +651,34 @@ class Core
     /**
      * Gets the version of a module.
      *
-     * @param      string  $module  The module
+     * @param   string  $module     The module
      *
-     * @return     string  The version.
+     * @return  string|null  The version.
      */
-    public function getVersion(string $module = 'core'): string
+    public function getVersion(string $module = 'core'): ?string
     {
         # Fetch versions if needed
         if (!is_array($this->versions)) {
-            $strReq = 'SELECT module, version FROM ' . $this->prefix . 'version';
-            $rs     = $this->con->select($strReq);
+            $sql = new SelectStatement($this->core, 'CoreCoreGetVersion');
+            $sql
+                ->columns(['module', 'version'])
+                ->from($this->prefix . 'version');
+
+            $rs = $sql->select();
 
             while ($rs->fetch()) {
                 $this->versions[$rs->module] = $rs->version;
             }
         }
 
-        if (isset($this->versions[$module])) {
-            return (string) $this->versions[$module];
-        }
+        return isset($this->versions[$module]) ? (string) $this->versions[$module] : null;
     }
 
     /**
      * Sets the version of a module.
      *
-     * @param      string  $module   The module
-     * @param      string  $version  The version
+     * @param   string  $module     The module
+     * @param   string  $version    The version
      */
     public function setVersion(string $module, string $version): void
     {
@@ -654,14 +700,14 @@ class Core
     /**
      * Remove a module version entry
      *
-     * @param      string  $module  The module
+     * @param   string  $module     The module
      */
     public function delVersion(string $module): void
     {
-        $strReq = 'DELETE FROM ' . $this->prefix . 'version ' .
-        "WHERE module = '" . $this->con->escape($module) . "' ";
-
-        $this->con->execute($strReq);
+        $sql = new DeleteStatement($this->core, 'CoreCoreDelVersion');
+        $sql->from($this->prefix . 'version')
+            ->where("module = '" . $this->con->escape($module) . "'")
+            ->delete();
 
         if (is_array($this->versions)) {
             unset($this->versions[$module]);
@@ -674,18 +720,18 @@ class Core
     /**
      * Gets the user by its ID.
      *
-     * @param      string  $id     The identifier
+     * @param   string  $user_id    The identifier
      *
-     * @return     Record  The user.
+     * @return  Record  The user.
      */
-    public function getUser(string $id): Record
+    public function getUser(string $user_id): Record
     {
-        $params['user_id'] = $id;
-
-        return $this->getUsers($params);
+        return $this->getUsers(['user_id' => $user_id]);
     }
 
     /**
+     * Get users
+     *
      * Returns a users list. <b>$params</b> is an array with the following
      * optionnal parameters:
      *
@@ -694,12 +740,12 @@ class Core
      * - <var>order</var>: ORDER BY clause (default: user_id ASC)
      * - <var>limit</var>: LIMIT clause (should be an array ![limit,offset])
      *
-     * @param      array|ArrayObject    $params      The parameters
-     * @param      bool                 $count_only  Count only results
+     * @param   array|ArrayObject   $params         The parameters
+     * @param   bool                $count_only     Count only results
      *
-     * @return     Record  The users.
+     * @return  Record  The users
      */
-    public function getUsers($params = [], bool $count_only = false): Record
+    public function getUsers(array|ArrayObject $params = [], bool $count_only = false): Record
     {
         if ($count_only) {
             $strReq = 'SELECT count(U.user_id) ' .
@@ -771,11 +817,11 @@ class Core
     /**
      * Adds a new user. Takes a cursor as input and returns the new user ID.
      *
-     * @param      Cursor     $cur    The user cursor
+     * @param   Cursor  $cur    The user cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     string
+     * @return  string
      */
     public function addUser(Cursor $cur): string
     {
@@ -807,33 +853,33 @@ class Core
     /**
      * Updates an existing user. Returns the user ID.
      *
-     * @param      string     $id     The user identifier
-     * @param      Cursor     $cur    The cursor
+     * @param   string  $user_id    The user identifier
+     * @param   Cursor  $cur        The cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     string
+     * @return  string
      */
-    public function updUser(string $id, Cursor $cur): string
+    public function updUser(string $user_id, Cursor $cur): string
     {
         $this->getUserCursor($cur);
 
-        if (($cur->user_id !== null || $id != $this->auth->userID()) && !$this->auth->isSuperAdmin()) {
+        if (($cur->user_id !== null || $user_id != $this->auth->userID()) && !$this->auth->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $cur->update("WHERE user_id = '" . $this->con->escape($id) . "' ");
+        $cur->update("WHERE user_id = '" . $this->con->escape($user_id) . "' ");
 
-        $this->auth->afterUpdUser($id, $cur);
+        $this->auth->afterUpdUser($user_id, $cur);
 
         if ($cur->user_id !== null) {
-            $id = $cur->user_id;
+            $user_id = $cur->user_id;
         }
 
         # Updating all user's blogs
         $rs = $this->con->select(
             'SELECT DISTINCT(blog_id) FROM ' . $this->prefix . 'post ' .
-            "WHERE user_id = '" . $this->con->escape($id) . "' "
+            "WHERE user_id = '" . $this->con->escape($user_id) . "' "
         );
 
         while ($rs->fetch()) {
@@ -842,52 +888,52 @@ class Core
             unset($b);
         }
 
-        return $id;
+        return $user_id;
     }
 
     /**
      * Deletes a user.
      *
-     * @param      string     $id     The user identifier
+     * @param   string  $user_id    The user identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function delUser(string $id): void
+    public function delUser(string $user_id): void
     {
         if (!$this->auth->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if ($id == $this->auth->userID()) {
+        if ($user_id == $this->auth->userID()) {
             return;
         }
 
-        $rs = $this->getUser($id);
+        $rs = $this->getUser($user_id);
 
         if ($rs->nb_post > 0) {
             return;
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'user ' .
-        "WHERE user_id = '" . $this->con->escape($id) . "' ";
+        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
 
         $this->con->execute($strReq);
 
-        $this->auth->afterDelUser($id);
+        $this->auth->afterDelUser($user_id);
     }
 
     /**
      * Determines if user exists.
      *
-     * @param      string  $id     The identifier
+     * @param   string  $user_id    The identifier
      *
-     * @return      bool  True if user exists, False otherwise.
+     * @return  bool  True if user exists, False otherwise.
      */
-    public function userExists(string $id): bool
+    public function userExists(string $user_id): bool
     {
         $strReq = 'SELECT user_id ' .
         'FROM ' . $this->prefix . 'user ' .
-        "WHERE user_id = '" . $this->con->escape($id) . "' ";
+        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
 
         $rs = $this->con->select($strReq);
 
@@ -904,16 +950,16 @@ class Core
      * - [permission] => true
      * - ...
      *
-     * @param      string  $id     The user identifier
+     * @param   string  $user_id    The user identifier
      *
-     * @return     array   The user permissions.
+     * @return  array   The user permissions.
      */
-    public function getUserPermissions(string $id): array
+    public function getUserPermissions(string $user_id): array
     {
         $strReq = 'SELECT B.blog_id, blog_name, blog_url, permissions ' .
         'FROM ' . $this->prefix . 'permissions P ' .
         'INNER JOIN ' . $this->prefix . 'blog B ON P.blog_id = B.blog_id ' .
-        "WHERE user_id = '" . $this->con->escape($id) . "' ";
+        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
 
         $rs = $this->con->select($strReq);
 
@@ -931,43 +977,44 @@ class Core
     }
 
     /**
-     * Sets user permissions. The <var>$perms</var> array looks like:
+     * Sets user permissions.
      *
+     * The <var>$perms</var> array looks like:
      * - [blog_id] => '|perm1|perm2|'
      * - ...
      *
-     * @param      string     $id     The user identifier
-     * @param      array      $perms  The permissions
+     * @param   string     $user_id     The user identifier
+     * @param   array      $perms       The permissions
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function setUserPermissions(string $id, array $perms): void
+    public function setUserPermissions(string $user_id, array $perms): void
     {
         if (!$this->auth->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'permissions ' .
-        "WHERE user_id = '" . $this->con->escape($id) . "' ";
+        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
 
         $this->con->execute($strReq);
 
         foreach ($perms as $blog_id => $p) {
-            $this->setUserBlogPermissions($id, $blog_id, $p, false);
+            $this->setUserBlogPermissions($user_id, $blog_id, $p, false);
         }
     }
 
     /**
      * Sets the user blog permissions.
      *
-     * @param      string     $id            The user identifier
-     * @param      string     $blog_id       The blog identifier
-     * @param      array      $perms         The permissions
-     * @param      bool       $delete_first  Delete permissions first
+     * @param   string      $user_id        The user identifier
+     * @param   string      $blog_id        The blog identifier
+     * @param   array       $perms          The permissions
+     * @param   bool        $delete_first   Delete permissions first
      *
-     * @throws     CoreException  (description)
+     * @throws  CoreException
      */
-    public function setUserBlogPermissions(string $id, string $blog_id, array $perms, bool $delete_first = true): void
+    public function setUserBlogPermissions(string $user_id, string $blog_id, array $perms, bool $delete_first = true): void
     {
         if (!$this->auth->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
@@ -979,14 +1026,14 @@ class Core
 
         $cur = $this->con->openCursor($this->prefix . 'permissions');
 
-        $cur->user_id     = (string) $id;
-        $cur->blog_id     = (string) $blog_id;
+        $cur->user_id     = $user_id;
+        $cur->blog_id     = $blog_id;
         $cur->permissions = $perms;
 
         if ($delete_first || $no_perm) {
             $strReq = 'DELETE FROM ' . $this->prefix . 'permissions ' .
             "WHERE blog_id = '" . $this->con->escape($blog_id) . "' " .
-            "AND user_id = '" . $this->con->escape($id) . "' ";
+            "AND user_id = '" . $this->con->escape($user_id) . "' ";
 
             $this->con->execute($strReq);
         }
@@ -997,26 +1044,28 @@ class Core
     }
 
     /**
-     * Sets the user default blog. This blog will be selected when user log in.
+     * Sets the user default blog.
      *
-     * @param      string  $id       The user identifier
-     * @param      string  $blog_id  The blog identifier
+     * This blog will be selected when user log in.
+     *
+     * @param   string  $user_id    The user identifier
+     * @param   string  $blog_id    The blog identifier
      */
-    public function setUserDefaultBlog(string $id, string $blog_id): void
+    public function setUserDefaultBlog(string $user_id, string $blog_id): void
     {
         $cur = $this->con->openCursor($this->prefix . 'user');
 
-        $cur->user_default_blog = (string) $blog_id;
+        $cur->user_default_blog = $blog_id;
 
-        $cur->update("WHERE user_id = '" . $this->con->escape($id) . "'");
+        $cur->update("WHERE user_id = '" . $this->con->escape($user_id) . "'");
     }
 
     /**
      * Gets the user cursor.
      *
-     * @param      Cursor     $cur    The user cursor
+     * @param   Cursor  $cur    The user cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     private function getUserCursor(Cursor $cur): void
     {
@@ -1054,7 +1103,7 @@ class Core
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
-     * @return     array
+     * @return  array   User default settings.
      */
     public function userDefaults(): array
     {
@@ -1082,18 +1131,18 @@ class Core
      * - [permission] => true
      * - ...
      *
-     * @param      string  $id          The blog identifier
-     * @param      bool    $with_super  Includes super admins in result
+     * @param   string  $blog_id        The blog identifier
+     * @param   bool    $with_super     Includes super admins in result
      *
-     * @return     array   The blog permissions.
+     * @return  array   The blog permissions.
      */
-    public function getBlogPermissions(string $id, bool $with_super = true): array
+    public function getBlogPermissions(string $blog_id, bool $with_super = true): array
     {
         $strReq = 'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
         'user_displayname, user_email, permissions ' .
         'FROM ' . $this->prefix . 'user U ' .
         'JOIN ' . $this->prefix . 'permissions P ON U.user_id = P.user_id ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
+        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
 
         if ($with_super) {
             $strReq .= 'UNION ' .
@@ -1124,13 +1173,13 @@ class Core
     /**
      * Gets the blog.
      *
-     * @param      string  $id     The blog identifier
+     * @param   string  $blog_id    The blog identifier
      *
-     * @return     Record|null    The blog.
+     * @return  Record|null         The blog.
      */
-    public function getBlog(string $id): ?Record
+    public function getBlog(string $blog_id): ?Record
     {
-        $blog = $this->getBlogs(['blog_id' => $id]);
+        $blog = $this->getBlogs(['blog_id' => $blog_id]);
 
         if ($blog->isEmpty()) {
             return null;
@@ -1140,19 +1189,19 @@ class Core
     }
 
     /**
-     * Returns a record of blogs. <b>$params</b> is an array with the following
-     * optionnal parameters:
+     * Returns a record of blogs.
      *
+     * <b>$params</b> is an array with the following optionnal parameters:
      * - <var>blog_id</var>: Blog ID
      * - <var>q</var>: Search string on blog_id, blog_name and blog_url
      * - <var>limit</var>: limit results
      *
-     * @param      array|ArrayObject    $params      The parameters
-     * @param      bool                 $count_only  Count only results
+     * @param   array|ArrayObject   $params         The parameters
+     * @param   bool                $count_only     Count only results
      *
-     * @return     Record  The blogs.
+     * @return  Record  The blogs.
      */
-    public function getBlogs($params = [], bool $count_only = false): Record
+    public function getBlogs(array|ArrayObject $params = [], bool $count_only = false): Record
     {
         $join  = ''; // %1$s
         $where = ''; // %2$s
@@ -1228,9 +1277,9 @@ class Core
     /**
      * Adds a new blog.
      *
-     * @param      cursor     $cur    The blog cursor
+     * @param   cursor  $cur    The blog cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     public function addBlog(Cursor $cur): void
     {
@@ -1250,24 +1299,24 @@ class Core
     /**
      * Updates a given blog.
      *
-     * @param      string  $id     The blog identifier
-     * @param      Cursor  $cur    The cursor
+     * @param   string  $blog_id    The blog identifier
+     * @param   Cursor  $cur        The cursor
      */
-    public function updBlog(string $id, Cursor $cur): void
+    public function updBlog(string $blog_id, Cursor $cur): void
     {
         $this->getBlogCursor($cur);
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
-        $cur->update("WHERE blog_id = '" . $this->con->escape($id) . "'");
+        $cur->update("WHERE blog_id = '" . $this->con->escape($blog_id) . "'");
     }
 
     /**
      * Gets the blog cursor.
      *
-     * @param      Cursor  $cur    The cursor
+     * @param   Cursor  $cur    The cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     private function getBlogCursor(Cursor $cur): void
     {
@@ -1294,18 +1343,18 @@ class Core
      * @warning This will remove everything related to the blog (posts,
      * categories, comments, links...)
      *
-     * @param      string     $id     The blog identifier
+     * @param   string  $blog_id    The blog identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function delBlog(string $id): void
+    public function delBlog(string $blog_id): void
     {
         if (!$this->auth->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'blog ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
+        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
 
         $this->con->execute($strReq);
     }
@@ -1313,15 +1362,15 @@ class Core
     /**
      * Determines if blog exists.
      *
-     * @param      string  $id     The blog identifier
+     * @param   string  $blog_id    The blog identifier
      *
-     * @return     bool  True if blog exists, False otherwise.
+     * @return  bool    True if blog exists, False otherwise.
      */
-    public function blogExists(string $id): bool
+    public function blogExists(string $blog_id): bool
     {
         $strReq = 'SELECT blog_id ' .
         'FROM ' . $this->prefix . 'blog ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
+        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
 
         $rs = $this->con->select($strReq);
 
@@ -1331,19 +1380,19 @@ class Core
     /**
      * Counts the number of blog posts.
      *
-     * @param      string  $id     The blog identifier
-     * @param      string|null   $type   The post type
+     * @param   string          $blog_id    The blog identifier
+     * @param   string|null     $post_type  The post type
      *
-     * @return     int  Number of blog posts.
+     * @return  int     Number of blog posts.
      */
-    public function countBlogPosts(string $id, ?string $type = null): int
+    public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {
         $strReq = 'SELECT COUNT(post_id) ' .
         'FROM ' . $this->prefix . 'post ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
+        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
 
-        if ($type) {
-            $strReq .= "AND post_type = '" . $this->con->escape($type) . "' ";
+        if ($post_type) {
+            $strReq .= "AND post_type = '" . $this->con->escape($post_type) . "' ";
         }
 
         return (int) $this->con->select($strReq)->f(0);
@@ -1353,13 +1402,15 @@ class Core
     /// @name HTML Filter methods
     //@{
     /**
+     * Filter HTML string
+     *
      * Calls HTML filter to drop bad tags and produce valid XHTML output (if
      * tidy extension is present). If <b>enable_html_filter</b> blog setting is
      * false, returns not filtered string.
      *
-     * @param      string  $str    The string
+     * @param   string  $str    The string
      *
-     * @return     string
+     * @return  string
      */
     public function HTMLfilter(string $str): string
     {
@@ -1397,9 +1448,9 @@ class Core
     /**
      * Returns a transformed string with wiki2xhtml.
      *
-     * @param      string  $str    The string
+     * @param   string  $str    The string
      *
-     * @return     string
+     * @return  string
      */
     public function wikiTransform(string $str): string
     {
@@ -1564,10 +1615,10 @@ class Core
     /**
      * Get info about a post:id wiki macro
      *
-     * @param      string  $url      The post url
-     * @param      string  $content  The content
+     * @param   string  $url        The post url
+     * @param   string  $content    The content
      *
-     * @return     array
+     * @return  array
      */
     public function wikiPostLink(string $url, string $content): array
     {
@@ -1607,10 +1658,12 @@ class Core
     /// @name Maintenance methods
     //@{
     /**
+     * Get blog default settings
+     *
      * Creates default settings for active blog. Optionnal parameter
      * <var>defaults</var> replaces default params while needed.
      *
-     * @param      array  $defaults  The defaults settings
+     * @param   array   $defaults   The defaults settings
      */
     public function blogDefaults($defaults = null): void
     {
@@ -1663,7 +1716,6 @@ class Core
                     'Number of comments on feeds'],
                 ['post_url_format', 'string', '{y}/{m}/{d}/{t}',
                     'Post URL format. {y}: year, {m}: month, {d}: day, {id}: post id, {t}: entry title'],
-//!
                 ['public_path', 'string', 'public',
                     'Path to public directory, begins with a / for a full system path'],
                 ['public_url', 'string', '/public',
@@ -1674,7 +1726,6 @@ class Core
                     'Display short feed items'],
                 ['theme', 'string', 'berlin',
                     'Blog theme'],
-//!
                 ['themes_path', 'string', 'themes',
                     'Themes root path'],
                 ['themes_url', 'string', '/themes',
@@ -1723,10 +1774,10 @@ class Core
     /**
      * Recreates entries search engine index.
      *
-     * @param      int|null   $start  The start entry index
-     * @param      int|null   $limit  The limit of entry to index
+     * @param   int|null    $start  The start entry index
+     * @param   int|null    $limit  The limit of entry to index
      *
-     * @return     int|null   sum of <var>$start</var> and <var>$limit</var>
+     * @return  int|null    Sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
     {
@@ -1765,10 +1816,10 @@ class Core
     /**
      * Recreates comments search engine index.
      *
-     * @param      int|null   $start  The start comment index
-     * @param      int|null   $limit  The limit of comment to index
+     * @param  int|null     $start  The start comment index
+     * @param  int|null     $limit  The limit of comment to index
      *
-     * @return     int|null   sum of <var>$start</var> and <var>$limit</var>
+     * @return int|null     Sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
@@ -1825,7 +1876,7 @@ class Core
     /**
      * Empty templates cache directory
      */
-    public function emptyTemplatesCache(): void
+    public static function emptyTemplatesCache(): void
     {
         if (is_dir(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'))) {
             Files::deltree(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'));
@@ -1853,12 +1904,11 @@ class Core
     /**
      * Return elapsed time since script has been started
      *
-     * @param      int|null   $mtime  timestamp (microtime format) to evaluate
-     * delta from current time is taken if null
+     * @param   int|null    $mtime  Timestamp (microtime format) to evaluate delta from current time is taken if null
      *
-     * @return     string   The elapsed time.
+     * @return  string  The elapsed time.
      */
-    public function getElapsedTime(?int $mtime = null): string
+    public static function getElapsedTime(?int $mtime = null): string
     {
         $start = defined('DOTCLEAR_START_TIME') ? DOTCLEAR_START_TIME : microtime(true);
 
@@ -1868,12 +1918,12 @@ class Core
     /**
      * Return memory consumed since script has been started
      *
-     * @param      int|null   $mmem  memory usage to evaluate
+     * @param   int|null    $mmem   Memory usage to evaluate
      * delta from current memory usage is taken if null
      *
-     * @return     string   The consumed memory.
+     * @return  string  The consumed memory.
      */
-    public function getConsumedMemory(?int $mmem = null): string
+    public static function getConsumedMemory(?int $mmem = null): string
     {
         $start = defined('DOTCLEAR_START_MEMORY') ? DOTCLEAR_START_MEMORY : memory_get_usage(false);
 
@@ -1883,6 +1933,15 @@ class Core
         return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
     }
 
+    /**
+     * Join folder function
+     *
+     * Starting from Dotclear roo directory
+     *
+     * @param  string   $args   One argument per folder
+     *
+     * @return string   Directory
+     */
     public static function root(string ...$args): string
     {
         if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -1892,6 +1951,13 @@ class Core
         return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
     }
 
+    /**
+     * Join folder function
+     *
+     * @param  string   $args   One argument per folder
+     *
+     * @return string   Directory
+     */
     public static function path(string ...$args): string
     {
         return implode(DIRECTORY_SEPARATOR, $args);
