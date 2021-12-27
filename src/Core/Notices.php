@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Notices
  * @brief Dotclear backend notices handling facilities
  *
  * @package Dotclear
@@ -38,22 +39,53 @@ class Notices
     /**
      * Class constructor
      *
-     * @param Core  $core   Core instance
+     * @param   Core    $core   Core instance
      */
     public function __construct(Core $core)
     {
-        $this->core   = &$core;
+        $this->core   = $core;
         $this->prefix = $core->prefix;
     }
 
+    /** @see    table() */
     public function getTable(): string
+    {
+        return $this->table();
+    }
+
+    /**
+     * Get notice table name
+     *
+     * @return  string  The table name
+     */
+    public function table(): string
     {
         return $this->table;
     }
 
+    /** @see    get() */
     public function getNotices(array $params = [], bool $count_only = false): Record
     {
-        // Return a recordset of notices
+        return $this->get($params, $count_only);
+    }
+
+    /**
+     * Get notices
+     *
+     * Parameters can be :
+     * - ses_id => (string) session id
+     * - notice_id => one or more notice id
+     * - notice_type => one or more notice type (alias notice_format)
+     * - order
+     * - limit
+     * - sql
+     *
+     * @param   array           $params         The params
+     * @param   bool|boolean    $count_only     Count only
+     * @return  Record                          Notices record
+     */
+    public function get(array $params = [], bool $count_only = false): Record
+    {
         if ($count_only) {
             $f = 'COUNT(notice_id)';
         } else {
@@ -108,7 +140,19 @@ class Notices
         return $rs;
     }
 
+    /** @see    add() */
     public function addNotice(Cursor $cur): int
+    {
+        return $this->add($cur);
+    }
+
+
+    /**
+     * Add a notice
+     *
+     * @param   Cursor  $cur    The cursor
+     */
+    public function add(Cursor $cur): int
     {
         $this->core->con->writeLock($this->prefix . $this->table);
 
@@ -122,7 +166,7 @@ class Notices
             $cur->notice_id = (int) $rs->f(0) + 1;
             $cur->ses_id    = (string) session_id();
 
-            $this->getNoticeCursor($cur, $cur->notice_id);
+            $this->cursor($cur, $cur->notice_id);
 
             # --BEHAVIOR-- before:Core:Notices:addNotice, Dotclear\Core\Notices, Dotclear\Database\Cursor
             $this->core->behaviors->call('before:Core:Notices:addNotice', $this, $cur);
@@ -141,16 +185,35 @@ class Notices
         return $cur->notice_id;
     }
 
-    public function delNotices($id, bool $all = false): void
+
+    /** @see    del() */
+    public function delNotices(?int $notice_id, bool $delete_all = false): void
     {
-        $strReq = $all ?
+        $this->del($notice_id, $delete_all);
+    }
+
+    /**
+     * Delete a notice
+     *
+     * @param   int|null    $notice_id      The notice id
+     * @param   bool        $delete_all     Delete all notices
+     */
+    public function del(?int $notice_id, bool $delete_all = false): void
+    {
+        $strReq = $delete_all ?
         'DELETE FROM ' . $this->prefix . $this->table . " WHERE ses_id = '" . (string) session_id() . "'" :
-        'DELETE FROM ' . $this->prefix . $this->table . ' WHERE notice_id' . $this->core->con->in($id);
+        'DELETE FROM ' . $this->prefix . $this->table . ' WHERE notice_id' . $this->core->con->in($notice_id);
 
         $this->core->con->execute($strReq);
     }
 
-    private function getNoticeCursor(Cursor $cur, int $notice_id = null): void
+    /**
+     * Get notices cursor
+     *
+     * @param   Cursor      $cur        The cursor
+     * @param   int|null    $notice_id  The notice id
+     */
+    private function cursor(Cursor $cur, int $notice_id = null): void
     {
         if ($cur->notice_msg === '') {
             throw new CoreException(__('No notice message'));
