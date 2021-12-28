@@ -23,10 +23,10 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Notices
 {
-    /** @var Core Core instance */
+    /** @var    Core        Core instance */
     public static $core;
 
-    /** @var array notices types */
+    /** @var    array       notices types */
     private static $N_TYPES = [
         // id → CSS class
         'success' => 'success',
@@ -35,39 +35,40 @@ class Notices
         'message' => 'message',
         'static'  => 'static-msg'];
 
-    /** @var boolean is displayed error */
+    /** @var    bool        is displayed error */
     private static $error_displayed = false;
 
     /**
      * Gets the HTML code of notices.
      *
-     * @return     string  The notices.
+     * @return  string  The notices.
      */
     public static function getNotices(): string
     {
         $res = '';
 
-        // return error messages if any
+        # Return error messages if any
         if (self::$core->error->flag() && !self::$error_displayed) {
 
-            # --BEHAVIOR-- adminPageNotificationError
-            $notice_error = self::$core->behaviors->call('adminPageNotificationError', self::$core->error);
+            # --BEHAVIOR-- before:AdminNotices:getNotices, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
+            $notice_error = self::$core->behaviors->call('before:Admin:Notices:getNotices', self::$core->error);
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
-                $res .= '<div class="error" role="alert"><p>' .
-                '<strong>' . (count(self::$core->error->getErrors()) > 1 ? __('Errors:') : __('Error:')) . '</strong>' .
-                '</p>' . self::$core->error->toHTML() . '</div>';
+                $res .= sprintf(
+                    '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
+                    count(self::$core->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    self::$core->error->toHTML()
+                );
             }
             self::$error_displayed = true;
         } else {
             self::$error_displayed = false;
         }
 
-        // return notices if any
-
-        // Should retrieve static notices first, then others
+        # Return notices if any
+        # Should retrieve static notices first, then others
         $step = 2;
         do {
             if ($step == 2) {
@@ -81,9 +82,9 @@ class Notices
                     'sql' => "AND notice_type != 'static'"
                 ];
             }
-            $counter = self::$core->notices->getNotices($params, true);
+            $counter = self::$core->notices->get($params, true);
             if ($counter) {
-                $lines = self::$core->notices->getNotices($params);
+                $lines = self::$core->notices->get($params);
                 while ($lines->fetch()) {
                     if (isset(self::$N_TYPES[$lines->notice_type])) {
                         $class = self::$N_TYPES[$lines->notice_type];
@@ -100,16 +101,16 @@ class Notices
                     if ($lines->notice_options !== null) {
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
-                    # --BEHAVIOR-- adminPageNotification
-                    $notice = self::$core->behaviors->call('adminPageNotification', $notification);
+                    # --BEHAVIOR-- after:Admin:Notices:getNotices, array
+                    $notice = self::$core->behaviors->call('after:Admin:Notices:getNotices', $notification);
 
-                    $res .= (isset($notice) && !empty($notice) ? $notice : self::getNotification($notification));
+                    $res .= !empty($notice) ? $notice : self::getNotification($notification);
                 }
             }
         } while (--$step);
 
-        // Delete returned notices
-        self::$core->notices->delNotices(null, true);
+        # Delete returned notices
+        self::$core->notices->del(null, true);
 
         return $res;
     }
@@ -117,13 +118,13 @@ class Notices
     /**
      * Adds a notice.
      *
-     * @param      string  $type     The type
-     * @param      string  $message  The message
-     * @param      array   $options  The options
+     * @param   string  $type       The type
+     * @param   string  $message    The message
+     * @param   array   $options    The options
      */
     public static function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = self::$core->con->openCursor(self::$core->prefix . self::$core->notices->getTable());
+        $cur = self::$core->con->openCursor(self::$core->prefix . self::$core->notices->table());
 
         $cur->notice_type    = $type;
         $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');
@@ -137,14 +138,14 @@ class Notices
             $cur->notice_format = $options['format'];
         }
 
-        self::$core->notices->addNotice($cur);
+        self::$core->notices->add($cur);
     }
 
     /**
      * Adds a success notice.
      *
-     * @param      string  $message  The message
-     * @param      array   $options  The options
+     * @param   string  $message    The message
+     * @param   array   $options    The options
      */
     public static function addSuccessNotice(string $message, array $options = []): void
     {
@@ -154,8 +155,8 @@ class Notices
     /**
      * Adds a warning notice.
      *
-     * @param      string  $message  The message
-     * @param      array   $options  The options
+     * @param   string  $message    The message
+     * @param   array   $options    The options
      */
     public static function addWarningNotice(string $message, array $options = []): void
     {
@@ -165,8 +166,8 @@ class Notices
     /**
      * Adds an error notice.
      *
-     * @param      string  $message  The message
-     * @param      array   $options  The options
+     * @param   string  $message    The message
+     * @param   array   $options    The options
      */
     public static function addErrorNotice(string $message, array $options = []): void
     {
@@ -176,38 +177,36 @@ class Notices
     /**
      * Gets the notification.
      *
-     * @param      array  $n      The notification
+     * @param   array   $notification   The notification
      *
-     * @return     string  The notification.
+     * @return  string  The notification.
      */
-    private static function getNotification(array $n): string
+    private static function getNotification(array $notification): string
     {
-        $tag = (isset($n['format']) && $n['format'] === 'html') ? 'div' : 'p';
+        $tag = isset($notification['format']) && $notification['format'] === 'html' ? 'div' : 'p';
         $ts  = '';
-        if (!isset($n['with_ts']) || ($n['with_ts'] == true)) {
-            $ts = '<span class="notice-ts">' .
-                '<time datetime="' . Dt::iso8601(strtotime($n['ts']), self::$core->auth->getInfo('user_tz')) . '">' .
-                Dt::dt2str(__('%H:%M:%S'), $n['ts'], self::$core->auth->getInfo('user_tz')) .
-                '</time>' .
-                '</span> ';
+        if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
+            $ts = sprintf(
+                '<span class="notice-ts"><time datetime="%s">%s</time></span>',
+                Dt::iso8601(strtotime($notification['ts']), self::$core->auth->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], self::$core->auth->getInfo('user_tz')),
+            );
         }
-        $res = '<' . $tag . ' class="' . $n['class'] . '" role="alert">' . $ts . $n['text'] . '</' . $tag . '>';
+        $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
 
         return $res;
     }
 
-    /*  */
-
     /**
      * Direct messages, usually immediately displayed
      *
-     * @param      string  $msg        The message
-     * @param      bool    $timestamp  With the timestamp
-     * @param      bool    $div        Inside a div (else in a p)
-     * @param      bool    $echo       Display the message?
-     * @param      string  $class      The class of block (div/p)
+     * @param   string  $msg        The message
+     * @param   bool    $timestamp  With the timestamp
+     * @param   bool    $div        Inside a div (else in a p)
+     * @param   bool    $echo       Display the message?
+     * @param   string  $class      The class of block (div/p)
      *
-     * @return     string
+     * @return  string
      */
     public static function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
     {
@@ -215,11 +214,11 @@ class Notices
         if ($msg != '') {
             $ts = '';
             if ($timestamp) {
-                $ts = '<span class="notice-ts">' .
-                    '<time datetime="' . Dt::iso8601(time(), self::$core->auth->getInfo('user_tz')) . '">' .
-                    Dt::str(__('%H:%M:%S'), null, self::$core->auth->getInfo('user_tz')) .
-                    '</time>' .
-                    '</span> ';
+                $ts = sprintf(
+                    '<span class="notice-ts"><time datetime="%s">%s</time></span>',
+                    Dt::iso8601(time(), self::$core->auth->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, self::$core->auth->getInfo('user_tz')),
+                );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .
                 $ts . $msg .
@@ -235,12 +234,12 @@ class Notices
     /**
      * Display a success message
      *
-     * @param      string  $msg        The message
-     * @param      bool    $timestamp  With the timestamp
-     * @param      bool    $div        Inside a div (else in a p)
-     * @param      bool    $echo       Display the message?
+     * @param   string  $msg        The message
+     * @param   bool    $timestamp  With the timestamp
+     * @param   bool    $div        Inside a div (else in a p)
+     * @param   bool    $echo       Display the message?
      *
-     * @return     string
+     * @return  string
      */
     public static function success(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
@@ -250,12 +249,12 @@ class Notices
     /**
      * Display a warning message
      *
-     * @param      string  $msg        The message
-     * @param      bool    $timestamp  With the timestamp
-     * @param      bool    $div        Inside a div (else in a p)
-     * @param      bool    $echo       Display the message?
+     * @param   string  $msg        The message
+     * @param   bool    $timestamp  With the timestamp
+     * @param   bool    $div        Inside a div (else in a p)
+     * @param   bool    $echo       Display the message?
      *
-     * @return     string
+     * @return  string
      */
     public static function warning(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
