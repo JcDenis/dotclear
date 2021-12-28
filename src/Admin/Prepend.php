@@ -19,7 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Prepend as CorePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
-Use Dotclear\Core\Notices as CoreNotices;
 
 Use Dotclear\Admin\Notices;
 Use Dotclear\Admin\Combos;
@@ -40,9 +39,6 @@ class Prepend extends CorePrepend
 
     /** @var UrlHandler UrlHandler instance */
     public $adminurl;
-
-    /** @var Notices    Notices instance */
-    public $notices;
 
     /** @var Favorites  Favorites instance */
     public $favs;
@@ -342,7 +338,6 @@ class Prepend extends CorePrepend
         $this->auth->user_prefs->addWorkspace('interface');
         $user_ui_nofavmenu = $this->auth->user_prefs->interface->nofavmenu;
 
-        $this->notices = new CoreNotices($this);
         $this->favs    = new Favorites($this);
 
         # Menus creation

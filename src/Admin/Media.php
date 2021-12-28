@@ -66,7 +66,7 @@ class Media extends MediaFilter
 
         // try to load core media and themes
         try {
-            $this->core->loadMediaClass();
+            $this->core->mediaInstance();
             $this->core->media->setFileSort($this->sortby . '-' . $this->order);
 
             if ($this->q != '') {
@@ -90,7 +90,7 @@ class Media extends MediaFilter
 /*
             if ($this->core->themes === null) {
                 # -- Loading themes, may be useful for some configurable theme --
-                $this->core->loadThemeClass();
+                $this->core->themeInstance();
                 $this->core->themes->loadModules($this->core->blog->themes_path, null);
             }
 */        } catch (Exception $e) {

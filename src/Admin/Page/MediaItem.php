@@ -76,7 +76,7 @@ class MediaItem extends Page
         $dirs_combo = [];
 
         try {
-            $core->loadMediaClass();
+            $core->mediaInstance();
 
             if ($id) {
                 $file = $core->media->getFile($id);
@@ -103,7 +103,7 @@ class MediaItem extends Page
 //!
             if ($core->themes === null) {
                 # -- Loading themes, may be useful for some configurable theme --
-                $core->loadThemeClass();
+                $core->themeInstance();
                 $core->themes->loadModules($core->blog->themes_path, null);
             }
 */

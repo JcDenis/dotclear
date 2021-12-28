@@ -43,7 +43,7 @@ class LinkPopup extends Page
 /*
         if ($core->themes === null) {
             # -- Loading themes, may be useful for some configurable theme --
-            $core->loadThemeClass();
+            $core->themeInstance();
             $core->themes->loadModules($core->blog->themes_path, null);
         }
 */
