@@ -20,12 +20,11 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Page;
-
-use Dotclear\Admin\Action\BlogAction;
+use Dotclear\Admin\notices;
 
 class DefaultBlogAction
 {
-    public static function BlogsAction(Core $core, BlogAction $ap)
+    public static function BlogsAction(Core $core, Action $ap): void
     {
         if (!$core->auth->isSuperAdmin()) {
             return;
@@ -46,7 +45,7 @@ class DefaultBlogAction
         );
     }
 
-    public static function doChangeBlogStatus(Core $core, BlogAction $ap, $post)
+    public static function doChangeBlogStatus(Core $core, Action $ap, $post): void
     {
         if (!$core->auth->isSuperAdmin()) {
             return;
@@ -81,11 +80,11 @@ class DefaultBlogAction
         //$cur->blog_upddt = date('Y-m-d H:i:s');
         $cur->update('WHERE blog_id ' . $core->con->in($ids));
 
-        Page::addSuccessNotice(__('Selected blogs have been successfully updated.'));
+        Notices::addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
     }
 
-    public static function doDeleteBlog(Core $core, BlogAction $ap, $post)
+    public static function doDeleteBlog(Core $core, Action $ap, $post): void
     {
         if (!$core->auth->isSuperAdmin()) {
             return;
@@ -103,7 +102,7 @@ class DefaultBlogAction
         $ids = [];
         foreach ($ap_ids as $id) {
             if ($id == $core->blog->id) {
-                Page::addWarningNotice(__('The current blog cannot be deleted.'));
+                Notices::addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;
             }
@@ -117,7 +116,7 @@ class DefaultBlogAction
                 $core->delBlog($id);
             }
 
-            Page::addSuccessNotice(sprintf(
+            Notices::addSuccessNotice(sprintf(
                 __(
                     '%d blog has been successfully deleted',
                     '%d blogs have been successfully deleted',
