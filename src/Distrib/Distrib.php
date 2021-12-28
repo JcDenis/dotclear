@@ -505,8 +505,8 @@ class Distrib
     {
         $err = [];
 
-        if (version_compare(phpversion(), '7.4', '<')) {
-            $err[] = sprintf(__('PHP version is %s (7.4 or earlier needed).'), phpversion());
+        if (version_compare(phpversion(), '8.0', '<')) {
+            $err[] = sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), '8.0');
         }
 
         if (!function_exists('mb_detect_encoding')) {
