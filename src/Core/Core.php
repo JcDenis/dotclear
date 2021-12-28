@@ -664,7 +664,7 @@ class Core
     {
         # Fetch versions if needed
         if (!is_array($this->versions)) {
-            $sql = new SelectStatement($this->core, 'CoreCoreGetVersion');
+            $sql = new SelectStatement($this, 'CoreCoreGetVersion');
             $sql
                 ->columns(['module', 'version'])
                 ->from($this->prefix . 'version');
