@@ -13,10 +13,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Exception\DeprecatedException;
+use ArrayObject;
+
+use Dotclear\Exception;
+use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
+
+use Dotclear\Admin\Action;
+use Dotclear\Admin\Filter;
+use Dotclear\Admin\Catalog;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
@@ -31,73 +38,232 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Page
 {
-    /** @var Core   Core instance */
-    protected $core;
+    /** @var string|null            Page type */
+    private $page_type = null;
 
+    /** @var string                 Page title */
+    private $page_title = '';
+
+    /** @var string                 Page head */
+    private $page_head = '';
+
+    /** @var string                 Page content */
+    private $page_content = '';
+
+    /** @var array                  Help blocks names */
+    private $page_help = [];
+
+    /** @var array                  Page breadcrumb (brut)) */
+    private $page_breadcrumb = ['elements' => null, 'options' => []];
+
+    /** @var array                  Keep track of loaded js files */
     private static $loaded_js     = [];
+
+    /** @var array                  Keep track of loaded css files */
     private static $loaded_css    = [];
+
+    /** @var array                  Keep track of preloaded script */
     private static $preloaded     = [];
+
+    /** @var bool                   Load once xframe */
     private static $xframe_loaded = false;
 
-    public function __construct(Core $core)
+    /** @var string                 Handler name that calls page */
+    protected $handler;
+
+    /** @var Core                    Core instance */
+    protected $core;
+
+    /** @var Core                   Core instance */
+    protected $action;
+
+    /** @var Filter                 Filter instance */
+    protected $filter;
+
+    /** @var Catalog                Catalog instance */
+    protected $catalog;
+
+    /** @var array                  Blog settings namespace to initialize */
+    protected $settings_namespaces = [];
+
+    /** @var array                  User workswpaces to initialize */
+    protected $user_workspaces = [];
+
+    /** @var array                  Misc options for page content */
+    protected $options = [];
+
+    public function __construct(Core $core, string $handler = 'admin.home')
     {
-        $this->core = $core;
+        $this->core    = $core;
+        $this->handler = $handler;
+
+        # Check user permissions
+        $this->pagePermissions();
     }
 
     /**
-     * Auth check
+     * Check if current page is home page
      *
-     * @param      string  $permissions  The permissions
-     * @param      bool    $home         The home
+     * @return  bool    Is home
      */
-    public function check(string $permissions, bool $home = false): void
+    final public function isHome(): bool
     {
-        if ($this->core->blog && $this->core->auth->check($permissions, $this->core->blog->id)) {
+        return $this->handler == 'admin.home';
+    }
+
+    /**
+     * Check if current page is authentication page
+     *
+     * @return  bool    Is home
+     */
+    final public function isAuth(): bool
+    {
+        return $this->handler == 'admin.auth';
+    }
+
+    /**
+     * Process page display
+     *
+     * Split process into readable methods
+     */
+    final public function pageProcess(): void
+    {
+        $this->pageInstances();
+        $this->pageNamespaces();
+        $this->pageWorkspaces();
+        $action = $this->pagePrepend();
+
+        if ($action === null) {
             return;
         }
 
-        // Check if dashboard is not the current page et if it is granted for the user
-        if (!$home && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
-            // Go back to the dashboard
-            Http::redirect(DOTCLEAR_ADMIN_URL);
+        $this->pageBegin();
+        $this->pageBreadcrumb();
+        $this->pageNotices();
+        $this->pageContent();
+        $this->pageHelp();
+        $this->pageEnd();
+
+        if ($action !== null) {
+            exit;
+        }
+    }
+
+    /// @name Page internal methods
+    //@{
+    /**
+     * Check user permissions to load this page
+     */
+    private function pagePermissions(): void
+    {
+        $permissions = $this->getPermissions();
+
+        # No permissions required
+        if ($permissions === false) {
+            return;
         }
 
+        # Super Admin
+        if ($this->core->auth->isSuperAdmin()) {
+            return;
+        }
+
+        # Has required permissions
+        if (is_string($permissions) && $this->core->blog && $this->core->auth->check($this->getPermissions(), $this->core->blog->id)) {
+            return;
+        }
+
+        # Check if dashboard is not the current page and if it is granted for the user
+        if (!$this->isHome && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
+            # Go back to the dashboard
+            $this->core->adminurl->redirect('admin.home');
+        }
+
+        # Not enought permissions
         if (session_id()) {
             $this->core->session->destroy();
         }
+        # Go to auth page
         $this->core->adminurl->redirect('admin.auth');
     }
 
     /**
-     * Check super admin
+     * Load into page usefull instance
      *
-     * @param      bool  $home   The home
+     * Class type is verified by abstract class type hint.
      */
-    public function checkSuper(bool $home = false): void
+    private function pageInstances(): void
     {
-        if (!$this->core->auth->isSuperAdmin()) {
-            // Check if dashboard is not the current page et if it is granted for the user
-            if (!$home && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
-                // Go back to the dashboard
-                Http::redirect(DOTCLEAR_ADMIN_URL);
+        try {
+            # Load and process page Action
+            if (($action_class = $this->getActionInstance()) !== null) {
+                $this->action = $action_class;
+                $this->action->pageProcess();
             }
 
-            if (session_id()) {
-                $this->core->session->destroy();
+            # Load list Filter
+            if (($filter_class = $this->getFilterInstance()) !== null) {
+                $this->filter = $filter_class;
             }
-            $this->core->adminurl->redirect('admin.auth');
+
+            # Load list Catalog
+            if (($catalog_class = $this->getCatalogInstance()) !== null) {
+                $this->catalog = $catalog_class;
+            }
+        } catch (Exception $e) {
+            $this->core->error->add($e->getMessage());
+        }
+    }
+
+    private function pageWorkspaces(): void
+    {
+        if (!empty($this->user_workspaces)) {
+            foreach($this->user_workspaces as $ws) {
+                $this->core->auth->user_prefs->addWorkspace($ws);
+            }
+        }
+    }
+
+    private function pageNamespaces(): void
+    {
+        if (!empty($this->settings_namespaces) && $core->blog->id) {
+            foreach($this->settings_namespaces as $ws) {
+                $this->blog->settings->addNamespace($ns);
+            }
+        }
+    }
+
+    private function pagePrepend(): ?bool
+    {
+        return $this->getPagePrepend();
+    }
+
+    private function pageBegin(): void
+    {
+        switch ($this->page_type) {
+            case null:
+            case 'full':
+                $this->pageOpen();
+                break;
+
+            case 'plugin':
+                $this->pageOpenPlugin();
+                break;
+
+            case 'popup':
+                $this->pageOpenPopup();
+                break;
+
+            default:
+                $this->getPageBegin();
+                break;
         }
     }
 
     /**
-     * Top of admin page
-     *
-     * @param      string  $title       The title
-     * @param      string  $head        The head
-     * @param      string  $breadcrumb  The breadcrumb
-     * @param      array   $options     The options
+     * The top of a popup.
      */
-    public function open(string $title = '', string $head = '', string $breadcrumb = '', array $options = []): void
+    public function pageOpen() //(string $title = '', string $head = '', string $breadcrumb = '', array $options = []): void
     {
         $js   = [];
 
@@ -125,7 +291,7 @@ class Page
         $safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
 
         # Display
-        $headers = new \ArrayObject([]);
+        $headers = new ArrayObject([]);
 
         # Content-Type
         $headers['content-type'] = 'Content-Type: text/html; charset=UTF-8';
@@ -134,8 +300,8 @@ class Page
         $headers['referrer'] = 'Referrer-Policy: strict-origin';
 
         # Prevents Clickjacking as far as possible
-        if (isset($options['x-frame-allow'])) {
-            self::setXFrameOptions($headers, $options['x-frame-allow']);
+        if (isset($this->options['x-frame-allow'])) {
+            self::setXFrameOptions($headers, $this->options['x-frame-allow']);
         } else {
             self::setXFrameOptions($headers);
         }
@@ -146,7 +312,7 @@ class Page
         # Content-Security-Policy (only if safe mode if not active, it may help)
         if (!$safe_mode && $this->core->blog->settings->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
-            $csp = new \ArrayObject([]);
+            $csp = new ArrayObject([]);
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
@@ -178,8 +344,8 @@ class Page
             # Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
-            # --BEHAVIOR-- adminPageHTTPHeaderCSP
-            $this->core->behaviors->call('adminPageHTTPHeaderCSP', $csp);
+            # --BEHAVIOR-- before:Admin:openPage:csp, ArrayObject
+            $this->core->behaviors->call('before:Admin:Page:openPage:csp', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -195,8 +361,9 @@ class Page
             }
         }
 
-        # --BEHAVIOR-- adminPageHTTPHeaders
-        $this->core->behaviors->call('adminPageHTTPHeaders', $headers);
+        # --BEHAVIOR-- before:Admin:Page:openPage:headers, ArrayObject
+        $this->core->behaviors->call('before:Admin:Page:openPage:headers', $headers);
+
         foreach ($headers as $key => $value) {
             header($value);
         }
@@ -211,7 +378,7 @@ class Page
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n";
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
@@ -244,10 +411,10 @@ class Page
         echo
         $this->jsCommon() .
         $this->jsToggles() .
-            $head;
+        $this->page_head;
 
-        # --BEHAVIOR-- adminPageHTMLHead
-        $this->core->behaviors->call('adminPageHTMLHead');
+        # --BEHAVIOR-- after:Admin:Page:openPage:head, string, string
+        $this->core->behaviors->call('after:Admin:Page:openPage:head', $this->handler, $this->page_type);
 
         echo
         "</head>\n" .
@@ -297,112 +464,20 @@ class Page
             '<p>' . __('You are in safe mode. All plugins have been temporarily disabled. Remind to log out then log in again normally to get back all functionalities') . '</p>' .
                 '</div>';
         }
-
-        // Display breadcrumb (if given) before any error messages
-        echo $breadcrumb;
-
-        // Display notices and errors
-        echo Notices::getNotices();
     }
 
-    public static function notices(): string
+    private function pageOpenPlugin(): void
     {
-        return Notices::getNotices();
-    }
-
-    public static function addNotice(string $type, string $message, array $options = []): void
-    {
-        Notices::addNotice($type, $message, $options);
-    }
-
-    public static function addSuccessNotice(string $message, array $options = []): void
-    {
-        self::addNotice('success', $message, $options);
-    }
-
-    public static function addWarningNotice(string $message, array $options = []): void
-    {
-        self::addNotice('warning', $message, $options);
-    }
-
-    public static function addErrorNotice(string $message, array $options = []): void
-    {
-        self::addNotice('error', $message, $options);
-    }
-
-    /**
-     * The end
-     */
-    public function close(): void
-    {
-        if (!$this->core->_resources['ctxhelp']) {
-            if (!$this->core->auth->user_prefs->interface->hidehelpbutton) {
-                echo
-                '<p id="help-button"><a href="' . $this->core->adminurl->get('admin.help') . '" class="outgoing" title="' .
-                __('Global help') . '">' . __('Global help') . '</a></p>';
-            }
-        }
-
         echo
-        "</div>\n" .  // End of #content
-        "</main>\n" . // End of #main
-
-        '<nav id="main-menu" role="navigation">' . "\n" .
-
-        '<form id="search-menu" action="' . $this->core->adminurl->get('admin.search') . '" method="get" role="search">' .
-        '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . Form::field('qx', 30, 255, '') .
-        '<input type="submit" value="' . __('OK') . '" /></p>' .
-            '</form>';
-
-        foreach ($this->core->_menu as $k => $v) {
-            echo $this->core->_menu[$k]->draw();
-        }
-
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
-
-        # --BEHAVIOR-- adminPageFooter
-        $textAlt = $this->core->behaviors->call('adminPageFooter', $text);
-        if ($textAlt != '') {
-            $text = $textAlt;
-        }
-        $text = Html::escapeHTML($text);
-
-        echo
-        '</nav>' . "\n" . // End of #main-menu
-        "</div>\n";       // End of #wrapper
-
-        echo '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>' . "\n";
-
-        $figure = <<<EOT
-
-                ¯\_(ツ)_/¯
-
-            EOT;
-
-        echo
-            '<footer id="footer" role="contentinfo">' .
-            '<a href="https://dotclear.org/" title="' . $text . '">' .
-            '<img src="?df=style/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
-            '<!-- ' . "\n" .
-            $figure .
-            ' -->' . "\n";
-
-        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true) {
-            echo $this->debugInfo();
-        }
-
-        echo
-            '</body></html>';
+            '<html><head><title>' . $this->page_title . '</title>' .
+            $this->page_head .
+            '</script></head><body>';
     }
 
     /**
      * The top of a popup.
-     *
-     * @param      string  $title       The title
-     * @param      string  $head        The head
-     * @param      string  $breadcrumb  The breadcrumb
      */
-    public function openPopup(string $title = '', string $head = '', string $breadcrumb = ''): void
+    public function pageOpenPopup(): void //(string $title = '', string $head = '', string $breadcrumb = ''): void
     {
         $js   = [];
 
@@ -453,10 +528,10 @@ class Page
         echo
         $this->jsCommon() .
         $this->jsToggles() .
-            $head;
+        $this->page_head;
 
-        # --BEHAVIOR-- adminPageHTMLHead
-        $this->core->behaviors->call('adminPageHTMLHead');
+        # --BEHAVIOR-- after:Admin:Page:openPage:head, string, string
+        $this->core->behaviors->call('after:Admin:Page:openPage:head', $this->handler, $this->page_type);
 
         echo
             "</head>\n" .
@@ -473,40 +548,17 @@ class Page
             '<div id="wrapper">' . "\n" .
             '<main id="main" role="main">' . "\n" .
             '<div id="content">' . "\n";
-
-        // display breadcrumb if given
-        echo $breadcrumb;
-
-        // Display notices and errors
-        echo Notices::getNotices();
     }
 
-    /**
-     * The end of a popup.
-     */
-    public function closePopup()
+    private function pageBreadcrumb(): void //(?array $elements = null, array $options = []): string
     {
-        echo
-        "</div>\n" .  // End of #content
-        "</main>\n" . // End of #main
-        "</div>\n" .  // End of #wrapper
+        $elements = $this->page_breadcrumb['elements'];
+        $options  = $this->page_breadcrumb['options'];
 
-        '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>' . "\n" .
+        if ($elements === null) {
+            return;
+        }
 
-            '<footer id="footer" role="contentinfo"><p>&nbsp;</p></footer>' . "\n" .
-            '</body></html>';
-    }
-
-    /**
-     * Get breadcrumb
-     *
-     * @param      array|null   $elements  The elements
-     * @param      array   $options   The options
-     *
-     * @return     string
-     */
-    public function breadcrumb(?array $elements = null, array $options = []): string
-    {
         $with_home_link = $options['home_link'] ?? true;
         $hl             = $options['hl']        ?? true;
         $hl_pos         = $options['hl_pos']    ?? -1;
@@ -528,94 +580,36 @@ class Page
         }
         $res .= '</h2>';
 
-        return $res;
+        echo $res;
     }
 
-    public static function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
+    private function pageNotices(): void
     {
-        return Notices::message($msg, $timestamp, $div, $echo, $class);
+        echo Notices::getNotices();
     }
 
-    public static function success(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
+    private function pageContent(): void
     {
-        return self::message($msg, $timestamp, $div, $echo, 'success');
-    }
-
-    public static function warning(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
-    {
-        return self::message($msg, $timestamp, $div, $echo, 'warning-msg');
-    }
-
-    /**
-     * Get HTML code of debug information
-     *
-     * @return     string
-     */
-    private function debugInfo(): string
-    {
-        $global_vars = implode(', ', array_keys($GLOBALS));
-
-        $res = '<div id="debug"><div>' .
-        '<p>memory usage: ' . memory_get_usage() . ' (' . Files::size(memory_get_usage()) . ')</p>';
-
-        if (function_exists('xdebug_get_profiler_filename')) {
-            $res .= '<p>Elapsed time: ' . xdebug_time_index() . ' seconds</p>';
-
-            $prof_file = xdebug_get_profiler_filename();
-            if ($prof_file) {
-                $res .= '<p>Profiler file : ' . xdebug_get_profiler_filename() . '</p>';
-            } else {
-                $prof_url = Http::getSelfURI();
-                $prof_url .= (strpos($prof_url, '?') === false) ? '?' : '&';
-                $prof_url .= 'XDEBUG_PROFILE';
-                $res      .= '<p><a href="' . Html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
-            }
-
-            /* xdebug configuration:
-        zend_extension = /.../xdebug.so
-        xdebug.auto_trace = On
-        xdebug.trace_format = 0
-        xdebug.trace_options = 1
-        xdebug.show_mem_delta = On
-        xdebug.profiler_enable = 0
-        xdebug.profiler_enable_trigger = 1
-        xdebug.profiler_output_dir = /tmp
-        xdebug.profiler_append = 0
-        xdebug.profiler_output_name = timestamp
-         */
-        }
-        $res.= '<p>Core elapsed time: ' . $this->core->getElapsedTime() . ' | Core consumed memory: ' . $this->core->getConsumedMemory() . '</p>';
-
-        $res .= '<p>Global vars: ' . $global_vars . '</p>' .
-            '</div></div>';
-
-        return $res;
-    }
-
-    /**
-     * @deprecated 2.15
-     */
-    public static function help($page, $index = ''): void
-    {
-        DeprecatedException::throw();
-        return;
+        $this->getPageContent();
     }
 
     /**
      * Display Help block
-     *
-     * @param      mixed  ...$params  The parameters
      */
-    public function helpBlock(...$params)
+    private function pageHelp(): void
     {
+        if (!$this->core->auth->user_prefs) {
+            return;
+        }
+        $this->core->auth->user_prefs->addWorkspace('interface');
         if ($this->core->auth->user_prefs->interface->hidehelpbutton) {
             return;
         }
 
-        $args = new \ArrayObject($params);
+        $args = new ArrayObject($this->page_help);
 
-        # --BEHAVIOR-- adminPageHelpBlock
-        $this->core->behaviors->call('adminPageHelpBlock', $args);
+        # --BEHAVIOR-- before:Admin:Page:pageHelp, ArrayObject
+        $this->core->behaviors->call('before:Admin:Page:pageHelp', $args);
 
         if (!count($args)) {
             return;
@@ -667,152 +661,346 @@ class Page
             '</div></div>';
     }
 
-    /**
-     * Get HTML code to preload resource
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
-     * @param      string  $type   The type
-     *
-     * @return     mixed
-     */
-    public static function preload(string $src, string $v = '', string $type = 'style'): string
+    private function pageEnd(): void
     {
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$preloaded[$escaped_src])) {
-            self::$preloaded[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+        switch ($this->page_type) {
+            case null:
+            case 'full':
+            case 'plugin':
+                $this->pageClose();
+                break;
 
-            return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
+            case 'popup':
+                $this->pageClosePopup();
+                break;
+
+            default:
+                $this->getPageEnd();
+                break;
+        }
+    }
+
+    private function pageClose(): void
+    {
+        if (!$this->core->_resources['ctxhelp'] && !$this->core->auth->user_prefs->interface->hidehelpbutton) {
+            echo sprintf(
+                '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
+                $this->core->adminurl->get('admin.help'),
+                 __('Global help')
+            );
         }
 
-        return '';
-    }
+        echo
+        "</div>\n" .  // End of #content
+        "</main>\n" . // End of #main
 
-    /**
-     * Get HTML code to load CSS stylesheet
-     *
-     * This include ?df= loader, plugins should use
-     * Utils::cssLoad() for their own files
-     *
-     * @param      string  $src    The source
-     * @param      string  $media  The media
-     * @param      string  $v      The version
-     *
-     * @return     string
-     */
-    public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
-    {
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$loaded_css[$escaped_src])) {
-            self::$loaded_css[$escaped_src] = true;
-            $escaped_src                    = self::appendVersion('?df=' . $escaped_src, $v);
+        '<nav id="main-menu" role="navigation">' . "\n" .
 
-            return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
+        '<form id="search-menu" action="' . $this->core->adminurl->get('admin.search') . '" method="get" role="search">' .
+        '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . Form::field('qx', 30, 255, '') .
+        '<input type="submit" value="' . __('OK') . '" /></p>' .
+            '</form>';
+
+        foreach ($this->core->_menu as $k => $v) {
+            echo $this->core->_menu[$k]->draw();
         }
 
-        return '';
-    }
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
 
-    /**
-     * Get HTML code to load JS script
-     *
-     * This include ?df= loader, plugins should use
-     * Utils::jsLoad() for their own files
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
-     *
-     * @return     string
-     */
-    public static function jsLoad(string $src, string $v = ''): string
-    {
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$loaded_js[$escaped_src])) {
-            self::$loaded_js[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+        # --BEHAVIOR-- before:Admin:Page:pageClose, string
+        $textAlt = $this->core->behaviors->call('before:Admin:Page:pageClose', $text);
+        if ($textAlt != '') {
+            $text = $textAlt;
+        }
+        $text = Html::escapeHTML($text);
 
-            return '<script src="' . $escaped_src . '"></script>' . "\n";
+        echo
+        '</nav>' . "\n" . // End of #main-menu
+        "</div>\n";       // End of #wrapper
+
+        echo '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>' . "\n";
+
+        $figure = <<<EOT
+
+                ¯\_(ツ)_/¯
+
+            EOT;
+
+        echo
+            '<footer id="footer" role="contentinfo">' .
+            '<a href="https://dotclear.org/" title="' . $text . '">' .
+            '<img src="?df=style/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
+            '<!-- ' . "\n" .
+            $figure .
+            ' -->' . "\n";
+
+        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true) {
+            echo $this->pageDebugInfo();
         }
 
-        return '';
+        echo
+            '</body></html>';
     }
 
     /**
-     * Appends a version to force cache refresh if necessary.
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
+     * Get HTML code of debug information
      *
      * @return     string
      */
-    private static function appendVersion(string $src, ?string $v = ''): string
+    private function pageDebugInfo(): string
     {
-        return $src .
-            (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (defined('DC_DEV') && DOTCLEAR_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
-    }
+        $global_vars = implode(', ', array_keys($GLOBALS));
 
-    /**
-     * @deprecated 2.15 use dcPage::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     */
-    public static function jsVar($n, $v): string
-    {
-        //DeprecatedException::throw();
+        $res = '<div id="debug"><div>' .
+        '<p>memory usage: ' . memory_get_usage() . ' (' . Files::size(memory_get_usage()) . ')</p>';
 
-        return $n . " = '" . html::escapeJS($v) . "';\n";
-    }
+        if (function_exists('xdebug_get_profiler_filename')) {
+            $res .= '<p>Elapsed time: ' . xdebug_time_index() . ' seconds</p>';
 
-    /**
-     * @deprecated 2.15 use dcPage::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     */
-    public static function jsVars($vars): string
-    {
-        //DeprecatedException::throw();
-
-        $ret = '<script>' . "\n";
-        foreach ($vars as $var => $value) {
-            $ret .= $var . ' = ' . (is_string($value) ? "'" . html::escapeJS($value) . "'" : $value) . ';' . "\n";
-        }
-        $ret .= "</script>\n";
-
-        return $ret;
-    }
-
-    /**
-     * Get HTML code to load JS variables encoded as JSON
-     *
-     * @param      string  $id     The identifier
-     * @param      mixed   $vars   The variables
-     *
-     * @return     string
-     */
-    public static function jsJson(string $id, $vars): string
-    {
-        return Utils::jsJson($id, $vars);
-    }
-
-    /**
-     * Get HTML code to load toggles JS
-     *
-     * @return     string
-     */
-    public function jsToggles(): string
-    {
-        $js = [];
-        if ($this->core->auth->user_prefs->toggles) {
-            $unfolded_sections = explode(',', $this->core->auth->user_prefs->toggles->unfolded_sections);
-            foreach ($unfolded_sections as $k => &$v) {
-                if ($v !== '') {
-                    $js[$unfolded_sections[$k]] = true;
-                }
+            $prof_file = xdebug_get_profiler_filename();
+            if ($prof_file) {
+                $res .= '<p>Profiler file : ' . xdebug_get_profiler_filename() . '</p>';
+            } else {
+                $prof_url = Http::getSelfURI();
+                $prof_url .= (strpos($prof_url, '?') === false) ? '?' : '&';
+                $prof_url .= 'XDEBUG_PROFILE';
+                $res      .= '<p><a href="' . Html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
             }
+
+            /* xdebug configuration:
+        zend_extension = /.../xdebug.so
+        xdebug.auto_trace = On
+        xdebug.trace_format = 0
+        xdebug.trace_options = 1
+        xdebug.show_mem_delta = On
+        xdebug.profiler_enable = 0
+        xdebug.profiler_enable_trigger = 1
+        xdebug.profiler_output_dir = /tmp
+        xdebug.profiler_append = 0
+        xdebug.profiler_output_name = timestamp
+         */
+        }
+        $res.= '<p>Core elapsed time: ' . $this->core->getElapsedTime() . ' | Core consumed memory: ' . $this->core->getConsumedMemory() . '</p>';
+
+        $res .= '<p>Global vars: ' . $global_vars . '</p>' .
+            '</div></div>';
+
+        return $res;
+    }
+
+    private function pageClosePopup(): void
+    {
+        echo implode("\n", [
+            '</div>',  // End of #content
+            '</main>', // End of #main
+            '</div>',  // End of #wrapper
+
+            '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>',
+
+            '<footer id="footer" role="contentinfo"><p>&nbsp;</p></footer>',
+            '</body></html>'
+        ]);
+    }
+
+    /**
+     * Sets the x frame options.
+     *
+     * @param      array|\ArrayObject    $headers  The headers
+     * @param      mixed                $origin   The origin
+     */
+    public static function setXFrameOptions($headers, ?string $origin = null): void
+    {
+        if (self::$xframe_loaded) {
+            return;
         }
 
-        return
-        self::jsJson('dotclear_toggles', $js) .
-        self::jsLoad('js/toggles.js');
+        if ($origin !== null) {
+            $url                        = parse_url($origin);
+            $headers['x-frame-options'] = sprintf('X-Frame-Options: %s', is_array($url) && isset($url['host']) ?
+                ('ALLOW-FROM ' . (isset($url['scheme']) ? $url['scheme'] . ':' : '') . '//' . $url['host']) :
+                'SAMEORIGIN');
+        } else {
+            $headers['x-frame-options'] = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
+        }
+        self::$xframe_loaded = true;
     }
+    //@}
+
+    /// @name Page child class methods
+    //@{
+    /**
+     * Set page type
+     *
+     * type can be :
+     * - null for standard page
+     * - 'popup',
+     * - ...
+     *
+     * If not default value, this should be set before page opening.
+     *
+     * @param string|null $page_type Page type
+     */
+    final public function setPageType(?string $page_type = null): Page
+    {
+        $this->page_type = $page_type;
+
+        return $this;
+    }
+
+    /**
+     * Set page title
+     *
+     * This must be set before page opening
+     *
+     * @param   string  ...$blocks  The blocks names
+     */
+    final public function setPageTitle(string $page_title): Page
+    {
+        $this->page_title = $page_title;
+
+        return $this;
+    }
+
+    /**
+     * Set page HTML head content
+     *
+     * @param   string  $page_script    The HTML code for head
+     */
+    final public function setPageHead(string $page_head): Page
+    {
+        $this->page_head .= $page_head;
+
+        return $this;
+    }
+
+    final public function setPageBreadcrumb(?array $elements = null, array $options = []): Page
+    {
+        $this->page_breadcrumb = ['elements' => $elements, 'options' => $options];
+
+        return $this;
+    }
+
+    final public function setPageContent(string $page_content): Page
+    {
+        $this->page_content .= $page_content;
+
+        return $this;
+    }
+
+    /**
+     * Set Help block names
+     *
+     * @param   string  ...$page_help   The blocks names
+     */
+    final public function setPageHelp(string ...$page_help): Page
+    {
+        $this->page_help = $page_help;
+
+        return $this;
+    }
+
+    /**
+     * Get required permissions to load page
+     *
+     * Permissions must be :
+     * a comma separated list of permission 'admin,media',
+     * or null for superAdmin,
+     * or false for no permissions
+     *
+     * @return string|null|false The permissions
+     */
+    protected function getPermissions(): string|null|false
+    {
+        return false;
+    }
+
+    /**
+     * Do something after contruct
+     *
+     * Note that page Action use this method to process actions.
+     * This method returns :
+     * - Null if nothing done, current process stop, parent process goes on.
+     * - Bool else, process goes on and stop, parent process is not executed.
+     *
+     * @return  boll|null   Prepend result
+     */
+    protected function getPagePrepend(): ?bool
+    {
+        return true;
+    }
+
+    /**
+     * Get Action instance
+     *
+     * If page contains Action, load instance from here.
+     * It wil be accessible from $this->action
+     */
+    protected function getActionInstance(): ?Action
+    {
+        return null;
+    }
+
+    /**
+     * Get Filter instance
+     *
+     * If page contains list Filter, load instance from here.
+     * It wil be accessible from $this->filter
+     */
+    protected function getFilterInstance(): ?Filter
+    {
+        return null;
+    }
+
+    /**
+     * Get Catalog instance
+     *
+     * If page contains list Catalog, load instance from here.
+     * It wil be accessible from $this->catalog
+     */
+    protected function getCatalogInstance(): ?Catalog
+    {
+        return null;
+    }
+
+    /**
+     * Get page opening for non standard type
+     *
+     * This method must echo what there is to display.
+     *
+     * This method will be called if @var $page_type is unknow.
+     * Usefull for custom page.
+     */
+    protected function getPageBegin(): void
+    {
+        throw new AdminException('Unknow page type');
+    }
+
+    /**
+     * Get page content
+     *
+     * This method must echo what there is to display.
+     */
+    protected function getPageContent(): void
+    {
+        echo $this->page_content;
+    }
+
+    /**
+     * Get page closure for non standard type
+     *
+     * This method must echo what there is to display.
+     *
+     * This method will be called if @var $page_type is unknow.
+     * Usefull for custom page.
+     */
+    protected function getPageEnd(): void
+    {
+        throw new AdminException('Unknow page type');
+    }
+    //@}
+
+    /// @name Page helper methods
+    //@{
 
     /**
      * Get HTML code to load common JS for admin pages
@@ -942,88 +1130,46 @@ class Page
     }
 
     /**
-     * @deprecated since version 2.11
-     */
-    public static function jsLoadIE7(): string
-    {
-        DeprecatedException::throw();
-        return '';
-    }
-
-    /**
-     * Get HTML code to load ConfirmClose JS
-     *
-     * @param      string  ...$args  The arguments
+     * Get HTML code to load toggles JS
      *
      * @return     string
      */
-    public static function jsConfirmClose(string ...$args): string
+    public function jsToggles(): string
     {
-        $js = [
-            'prompt' => __('You have unsaved changes.'),
-            'forms'  => $args,
+        $js = [];
+        if ($this->core->auth->user_prefs->toggles) {
+            $unfolded_sections = explode(',', $this->core->auth->user_prefs->toggles->unfolded_sections);
+            foreach ($unfolded_sections as $k => &$v) {
+                if ($v !== '') {
+                    $js[$unfolded_sections[$k]] = true;
+                }
+            }
+        }
+
+        return
+        self::jsJson('dotclear_toggles', $js) .
+        self::jsLoad('js/toggles.js');
+    }
+
+    /**
+     * Get HTML code for filters control JS utility
+     *
+     * @param      bool    $show   Show filters?
+     *
+     * @return     string
+     */
+    public function jsFilterControl(bool $show = true): string
+    {
+        $js   = [
+            'show_filters'      => (bool) $show,
+            'filter_posts_list' => __('Show filters and display options'),
+            'cancel_the_filter' => __('Cancel filters and display options'),
         ];
 
         return
-        self::jsJson('confirm_close', $js) .
-        self::jsLoad('js/confirm-close.js');
-    }
-
-    /**
-     * Get HTML code to load page tabs JS
-     *
-     * @param      mixed   $default  The default
-     *
-     * @return     string
-     */
-    public static function jsPageTabs($default = null): string
-    {
-        $js = [
-            'default' => $default,
-        ];
-
-        return
-        self::jsJson('page_tabs', $js) .
-        self::jsLoad('js/jquery/jquery.pageTabs.js') .
-        self::jsLoad('js/page-tabs.js');
-    }
-
-    /**
-     * Get HTML code to load Magnific popup JS
-     *
-     * @return     string
-     */
-    public static function jsModal(): string
-    {
-        return
-        self::jsLoad('js/jquery/jquery.magnific-popup.js');
-    }
-
-    /**
-     * @deprecated since version 2.16
-     */
-    public static function jsColorPicker(): string
-    {
-        DeprecatedException::throw();
-        return '';
-    }
-
-    /**
-     * @deprecated since 2.21
-     */
-    public static function jsDatePicker(): string
-    {
-        DeprecatedException::throw();
-        return '';
-    }
-
-    /**
-     * @deprecated since 2.16
-     */
-    public static function jsToolBar(): void
-    {
-        DeprecatedException::throw();
-        return;
+        self::jsJson('filter_controls', $js) .
+        self::jsJson('filter_options', ['auto_filter' => $this->core->auth->user_prefs->interface->auto_filter]) .
+        self::jsLoad('js/filter-controls.js');
     }
 
     /**
@@ -1087,6 +1233,149 @@ class Page
         self::jsLoad('js/jsUpload/jquery.fileupload-resize.js') .
         self::jsLoad('js/jsUpload/jquery.fileupload-ui.js');
     }
+    //@}
+
+
+    /// @name Page helper static methods
+    //@{
+    /**
+     * Get HTML code to preload resource
+     *
+     * @param      string  $src    The source
+     * @param      string  $v      The version
+     * @param      string  $type   The type
+     *
+     * @return     mixed
+     */
+    public static function preload(string $src, string $v = '', string $type = 'style'): string
+    {
+        $escaped_src = Html::escapeHTML($src);
+        if (!isset(self::$preloaded[$escaped_src])) {
+            self::$preloaded[$escaped_src] = true;
+            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+
+            return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
+        }
+
+        return '';
+    }
+
+    /**
+     * Get HTML code to load CSS stylesheet
+     *
+     * This include ?df= loader, plugins should use
+     * Utils::cssLoad() for their own files
+     *
+     * @param      string  $src    The source
+     * @param      string  $media  The media
+     * @param      string  $v      The version
+     *
+     * @return     string
+     */
+    public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
+    {
+        $escaped_src = Html::escapeHTML($src);
+        if (!isset(self::$loaded_css[$escaped_src])) {
+            self::$loaded_css[$escaped_src] = true;
+            $escaped_src                    = self::appendVersion('?df=' . $escaped_src, $v);
+
+            return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
+        }
+
+        return '';
+    }
+
+    /**
+     * Get HTML code to load JS script
+     *
+     * This include ?df= loader, plugins should use
+     * Utils::jsLoad() for their own files
+     *
+     * @param      string  $src    The source
+     * @param      string  $v      The version
+     *
+     * @return     string
+     */
+    public static function jsLoad(string $src, string $v = ''): string
+    {
+        $escaped_src = Html::escapeHTML($src);
+        if (!isset(self::$loaded_js[$escaped_src])) {
+            self::$loaded_js[$escaped_src] = true;
+            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+
+            return '<script src="' . $escaped_src . '"></script>' . "\n";
+        }
+
+        return '';
+    }
+
+    /**
+     * Appends a version to force cache refresh if necessary.
+     *
+     * @param      string  $src    The source
+     * @param      string  $v      The version
+     *
+     * @return     string
+     */
+    private static function appendVersion(string $src, ?string $v = ''): string
+    {
+        return $src .
+            (strpos($src, '?') === false ? '?' : '&amp;') .
+            'v=' . (defined('DC_DEV') && DOTCLEAR_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
+    }
+
+    /**
+     * Get HTML code to load JS variables encoded as JSON
+     *
+     * use Page::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
+     *
+     * @param      string  $id     The identifier
+     * @param      mixed   $vars   The variables
+     *
+     * @return     string
+     */
+    public static function jsJson(string $id, $vars): string
+    {
+        return Utils::jsJson($id, $vars);
+    }
+
+    /**
+     * Get HTML code to load ConfirmClose JS
+     *
+     * @param      string  ...$args  The arguments
+     *
+     * @return     string
+     */
+    public static function jsConfirmClose(string ...$args): string
+    {
+        $js = [
+            'prompt' => __('You have unsaved changes.'),
+            'forms'  => $args,
+        ];
+
+        return
+        self::jsJson('confirm_close', $js) .
+        self::jsLoad('js/confirm-close.js');
+    }
+
+    /**
+     * Get HTML code to load page tabs JS
+     *
+     * @param      mixed   $default  The default
+     *
+     * @return     string
+     */
+    public static function jsPageTabs($default = null): string
+    {
+        $js = [
+            'default' => $default,
+        ];
+
+        return
+        self::jsJson('page_tabs', $js) .
+        self::jsLoad('js/jquery/jquery.pageTabs.js') .
+        self::jsLoad('js/page-tabs.js');
+    }
 
     /**
      * Get HTML code to load meta editor
@@ -1096,27 +1385,6 @@ class Page
     public static function jsMetaEditor()
     {
         return self::jsLoad('js/meta-editor.js');
-    }
-
-    /**
-     * Get HTML code for filters control JS utility
-     *
-     * @param      bool    $show   Show filters?
-     *
-     * @return     string
-     */
-    public function jsFilterControl(bool $show = true): string
-    {
-        $js   = [
-            'show_filters'      => (bool) $show,
-            'filter_posts_list' => __('Show filters and display options'),
-            'cancel_the_filter' => __('Cancel filters and display options'),
-        ];
-
-        return
-        self::jsJson('filter_controls', $js) .
-        self::jsJson('filter_options', ['auto_filter' => $this->core->auth->user_prefs->interface->auto_filter]) .
-        self::jsLoad('js/filter-controls.js');
     }
 
     /**
@@ -1178,6 +1446,7 @@ class Page
         return $ret;
     }
 
+//! move this don't know where !
     /**
      * Gets the codemirror themes list.
      *
@@ -1200,51 +1469,5 @@ class Page
 
         return $themes;
     }
-
-    /**
-     * Gets plugin file.
-     *
-     * @param      string  $file   The filename
-     *
-     * @return     string  The URL.
-     */
-    public static function getPF(string $file): string
-    {
-        return DOTCLEAR_ADMIN_URL . '?pf=' . urlencode($file);
-    }
-
-    /**
-     * Gets var file.
-     *
-     * @param      string  $file   The filename
-     *
-     * @return     string  The URL.
-     */
-    public static function getVF(string $file): string
-    {
-        return DOTCLEAR_ADMIN_URL . '?vf=' . urlencode($file);
-    }
-
-    /**
-     * Sets the x frame options.
-     *
-     * @param      array|\ArrayObject    $headers  The headers
-     * @param      mixed                $origin   The origin
-     */
-    public static function setXFrameOptions($headers, ?string $origin = null): void
-    {
-        if (self::$xframe_loaded) {
-            return;
-        }
-
-        if ($origin !== null) {
-            $url                        = parse_url($origin);
-            $headers['x-frame-options'] = sprintf('X-Frame-Options: %s', is_array($url) && isset($url['host']) ?
-                ('ALLOW-FROM ' . (isset($url['scheme']) ? $url['scheme'] . ':' : '') . '//' . $url['host']) :
-                'SAMEORIGIN');
-        } else {
-            $headers['x-frame-options'] = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
-        }
-        self::$xframe_loaded = true;
-    }
+    //@}
 }
