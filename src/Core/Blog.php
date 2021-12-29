@@ -635,15 +635,18 @@ class Blog
         $this->core->behaviors->call('before:Core:Blog:addCategory', $this, $cur);
 
         $id = $this->categories()->addNode($cur, $parent);
-        # Update category's cursor
-        $rs = $this->getCategory($id);
-        if (!$rs->isEmpty()) {
-            $cur->cat_lft = $rs->cat_lft;
-            $cur->cat_rgt = $rs->cat_rgt;
+        if ($id !== null) {
+            # Update category's cursor
+            $rs = $this->getCategory($id);
+            if (!$rs->isEmpty()) {
+                $cur->cat_lft = $rs->cat_lft;
+                $cur->cat_rgt = $rs->cat_rgt;
+            }
         }
 
         # --BEHAVIOR-- after:Core:Blog:addCategory, Dotclear\Core\Blog, Dotclear\Database\Cursor
         $this->core->behaviors->call('after:Core:Blog:addCategory', $this, $cur);
+
         $this->triggerBlog();
 
         return (int) $cur->cat_id;
