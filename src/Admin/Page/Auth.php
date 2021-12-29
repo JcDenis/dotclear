@@ -77,6 +77,8 @@ class Auth extends Page
     {
         parent::__construct($core);
 
+        $this->setPageType('custom');
+
         # If we have a session cookie, go to index.php
         if (isset($_SESSION['sess_user_id'])) {
             $core->adminurl->redirect('admin.home');
@@ -142,8 +144,6 @@ class Auth extends Page
         if (isset($_GET['user'])) {
             $this->user_id = $_GET['user'];
         }
-
-        $this->display();
     }
 
     protected function upgrade(): void
@@ -330,7 +330,7 @@ class Auth extends Page
         }
     }
 
-    protected function display()
+    protected function getPageBegin(): void
     {
         header('Content-Type: text/html; charset=UTF-8');
 
@@ -354,27 +354,32 @@ class Auth extends Page
 
 
 <?php
-//        echo dcPage::jsCommon();
+        $this->jsCommon();
 ?>
 
     <link rel="stylesheet" href="?df=style/default.css" type="text/css" media="screen" />
 
 <?php
-/*        # --BEHAVIOR-- loginPageHTMLHead
-        $core->behaviors->call('loginPageHTMLHead');
+        # --BEHAVIOR-- before:Admin:Auth:getPageBegin
+        $this->core->behaviors->call('before:Admin:Auth:getPageBegin');
 
         echo
-            dcPage::jsJson('pwstrength', [
+            self::jsJson('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong')),
             ]) .
-            dcPage::jsLoad('js/pwstrength.js') .
-            dcPage::jsLoad('js/_auth.js');
-*/
+            self::jsLoad('js/pwstrength.js') .
+            self::jsLoad('js/_auth.js');
+
 ?>
 </head>
+<?php
+    }
 
+    protected function getPageContent(): void
+    {
+?>
 <body id="dotclear-admin" class="auth">
 
 <form action="<?php echo $this->core->adminurl->get('admin.auth'); ?>" method="post" id="login-screen">
@@ -524,6 +529,12 @@ class Auth extends Page
         }
 ?>
 </form>
+<?php
+    }
+
+    protected function getPageEnd(): void
+    {
+?>
 </body>
 </html>
 <?php
