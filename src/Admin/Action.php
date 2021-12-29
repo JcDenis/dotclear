@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -37,7 +39,7 @@ abstract class Action extends Page
 
     /** @var array action combo box */
     protected $combo;
-    /** @var \ArrayObject list of defined actions (callbacks) */
+    /** @var ArrayObject list of defined actions (callbacks) */
     protected $actions;
     /** @var array selected entries (each key is the entry id, value contains the entry description) */
     protected $entries;
@@ -52,7 +54,7 @@ abstract class Action extends Page
 
     /** @var string current action, if any */
     protected $action;
-    /** @var \ArrayObject list of url parameters (usually $_POST) */
+    /** @var ArrayObject list of url parameters (usually $_POST) */
     protected $from;
     /** @var string form field name for "entries" (usually "entries") */
     protected $field_entries;
@@ -85,7 +87,7 @@ abstract class Action extends Page
         parent::__construct($core);
 
         $this->core            = $core;
-        $this->actions         = new \ArrayObject();
+        $this->actions         = new ArrayObject();
         $this->combo           = [];
         $this->uri             = $uri;
         $this->redir_args      = $redirect_args;
@@ -93,7 +95,7 @@ abstract class Action extends Page
         $this->action          = '';
         $this->cb_title        = __('Title');
         $this->entries         = [];
-        $this->from            = new \ArrayObject($_POST);
+        $this->from            = new ArrayObject($_POST);
         $this->field_entries   = 'entries';
         $this->caller_title    = __('Entries');
         if (isset($this->redir_args['_ANCHOR'])) {
@@ -239,7 +241,7 @@ abstract class Action extends Page
      *  by default, $_POST fields as defined in redirect_fields attributes
      *  are set into redirect_args.
      *
-     * @param array|\ArrayObject     $from   input to parse fields from (usually $_POST)
+     * @param array|ArrayObject     $from   input to parse fields from (usually $_POST)
      *
      * @access protected
      */
@@ -335,7 +337,7 @@ abstract class Action extends Page
      *
      * @access public
      */
-    public function process()
+    public function getPagePrepend(): ?bool
     {
         $this->setupRedir($this->from);
         $this->fetchEntries($this->from);
@@ -358,6 +360,8 @@ abstract class Action extends Page
                 return false;
             }
         }
+
+        return null;
     }
 
     /**
@@ -385,19 +389,6 @@ abstract class Action extends Page
 
         return $ret;
     }
-
-    /**
-     * beginPage, endPage - displays the beginning/ending of a page, if action does not redirects dirtectly
-     *
-     * These methods are called from the actions themselves.
-     *
-     * @param string $breadcrumb breadcrumb to display
-     * @param string $head    page header to include
-     *
-     * @access public
-     */
-    abstract public function beginPage($breadcrumb = '', $head = '');
-    abstract public function endPage();
 
     /**
      * fetchEntries - fills-in information by requesting into db
