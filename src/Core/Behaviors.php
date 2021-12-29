@@ -89,14 +89,14 @@ class Behaviors
      * @param   string  $behavior   The behavior
      * @param   mixed   ...$args    The arguments
      *
-     * @return  mixed   Behavior concatened result
+     * @return  string|null  Behavior concatened result
      */
-    public function call(string $behavior, mixed ...$args): mixed
+    public function call(string $behavior, mixed ...$args): ?string
     {
         return $this->callArray($behavior, $args);
     }
 
-    public function callArray(string $behavior, array $args)
+    public function callArray(string $behavior, array $args): ?string
     {
         if (isset($this->behaviors[$behavior])) {
             $res = '';
@@ -105,11 +105,15 @@ class Behaviors
 
             foreach ($this->behaviors[$behavior] as $callback) {
                 $this->trace($callback, $args);
-                $res .= call_user_func_array($callback, $args);
+                $ret = call_user_func_array($callback, $args);
+                if (is_string($ret)) {
+                    $res .= $ret;
+                }
             }
 
             return $res;
         }
+        return null;
     }
 
     /**
