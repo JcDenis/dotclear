@@ -401,26 +401,48 @@ class Prepend extends CorePrepend
             preg_match($pattern, $_SERVER['REQUEST_URI']), $perm, null, null, $pinned);
     }
 
-    private function adminLoadPage(?string $page = null): void
+    private function adminLoadPage(?string $handler = null): void
     {
-        if ($page === null) {
-            $page = $_REQUEST['handler'] ?? 'admin.home';
+        # no handler, go to admin home page
+        if ($handler === null) {
+            $handler = $_REQUEST['handler'] ?? 'admin.home';
         }
 
+        # Create page instance
         try {
-            $class = $this->adminurl->getBase($page);
-            if (class_exists($class) && is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
-                new $class($this);
-                exit;
-            } else {
-                throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $page));
+            $class = $this->adminurl->getBase($handler);
+            if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
+                throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler));
             }
+            $page = new $class($this, $handler);
         } catch (AdminException $e) {
             static::error(
                 __('Unknow URL'),
                 $e->getMessage(),
-                20
+                404
             );
+/*
+        } catch (Exception $e) {
+            if (!defined('DOTCLEAR_DEV') || !DOTCLEAR_DEV) {
+                static::error(
+                    'Dotclear error',
+                    $e->getMessage(),
+                    20
+                );
+            } else {
+                throw new Exception($e->getMessage());
+            }
+//*/
+        }
+
+        # Process page
+        try {
+            ob_start();
+            $page->pageProcess();
+            ob_end_flush();
+        } catch (Exception $e) {
+            ob_end_clean();
+            static::error(__('Failed to load page'), $e->getMessage(), 20);
         }
     }
 }
