@@ -19,8 +19,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Action;
-use Dotclear\Admin\Page;
-use Dotclear\Admin\notices;
+use Dotclear\Admin\Notices;
 
 class DefaultBlogAction
 {

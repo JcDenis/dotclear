@@ -30,11 +30,23 @@ class BlogAction extends Action
     {
         parent::__construct($core, $uri, $redirect_args);
 
+        # Action setup
         $this->redirect_fields = ['status', 'sortby', 'order', 'page', 'nb'];
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        $core->behaviors->call('adminBlogsActionsPage', $this);
+        $this->core->behaviors->call('adminBlogsActionsPage', $this);
+
+        # Page setup
+        $this
+            ->setPageTitle(__('Blogs'))
+            ->setPageType($this->in_plugin ? 'plugin' : null)
+            ->setPageHead(static::jsLoad('js/_blogs_actions.js'))
+            ->setPageBreadcrumb([
+                Html::escapeHTML($this->core->blog->name) => '',
+                __('Blogs')                               => $this->core->adminurl->get('admin.blogs'),
+                __('Blogs actions')                       => ''
+            ]);
     }
 
     protected function loadDefaults()
@@ -44,41 +56,10 @@ class BlogAction extends Action
         DefaultBlogAction::BlogsAction($this->core, $this);
     }
 
-    public function beginPage($breadcrumb = '', $head = '')
-    {
-        if ($this->in_plugin) {
-            echo '<html><head><title>' . __('Blogs') . '</title>' .
-            static::jsLoad('js/_blogs_actions.js') .
-                $head .
-                '</script></head><body>' .
-                $breadcrumb;
-        } else {
-            $this->open(
-                __('Blogs'),
-                static::jsLoad('js/_blogs_actions.js') .
-                $head,
-                $breadcrumb
-            );
-        }
-        echo '<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>';
-    }
-
-    public function endPage()
-    {
-        $this->close();
-    }
-
-    public function error(AdminException $e)
+    public function error(Exception $e)
     {
         $this->core->error->add($e->getMessage());
-        $this->beginPage($this->breadcrumb(
-            [
-                Html::escapeHTML($this->core->blog->name) => '',
-                __('Blogs')                               => $this->core->adminurl->get('admin.blogs'),
-                __('Blogs actions')                       => ''
-            ])
-        );
-        $this->endPage();
+        $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
     }
 
     public function getCheckboxes()
