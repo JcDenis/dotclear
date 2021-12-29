@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -31,10 +33,13 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Home extends Page
 {
-    public function __construct(Core $core)
-    {
-        parent::__construct($core);
+    protected $user_workspaces = ['dashboard', 'toggles', 'accessibility'];
 
+    private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
+
+    protected function getPermissions(): string
+    {
+        # Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
                 $this->core->setUserDefaultBlog($this->core->auth->userID(), $this->core->blog->id);
@@ -44,13 +49,6 @@ class Home extends Page
             }
         }
 
-        $this->check('usage,contentadmin', true);
-
-/*
-        if ($core->plugins->disableDepModules($core->adminurl->get('admin.home', []))) {
-            exit;
-        }
-*/
         # Logout
         if (!empty($_GET['logout'])) {
             $this->core->session->destroy();
@@ -62,11 +60,24 @@ class Home extends Page
             exit;
         }
 
-        # Plugin install
-        //$plugins_install = $core->plugins->installModules();
+        return 'usage,contentadmin';
+    }
 
+    protected function getPagePrepend(): ?bool
+    {
+        $this->dragndrop_msg  = [
+            'dragndrop_off' => __("Dashboard area's drag and drop is disabled"),
+            'dragndrop_on'  => __("Dashboard area's drag and drop is enabled")
+        ];
+/*
+        if ($this->core->plugins->disableDepModules($this->core->adminurl->get('admin.home', []))) {
+            exit;
+        }
+
+        # Plugin install
+        //$plugins_install = $this->core->plugins->installModules();
+*/
         # Check dashboard module prefs
-        $ws = $this->core->auth->user_prefs->addWorkspace('dashboard');
         if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks')) {
             if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks', true)) {
                 $this->core->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
@@ -93,19 +104,58 @@ class Home extends Page
         }
 
         // Handle folded/unfolded sections in admin from user preferences
-        $ws = $this->core->auth->user_prefs->addWorkspace('toggles');
         if (!$this->core->auth->user_prefs->toggles->prefExists('unfolded_sections')) {
             $this->core->auth->user_prefs->toggles->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
         }
 
-        # Dashboard icons
-        $__dashboard_icons = new \ArrayObject();
+        # Editor stuff
+        $admin_post_behavior = '';
+        if ($this->core->auth->user_prefs->dashboard->quickentry) {
+            if ($this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
+                $post_format = $this->core->auth->getOption('post_format');
+                $post_editor = $this->core->auth->getOption('editor');
+                if ($post_editor && !empty($post_editor[$post_format])) {
+                    // context is not post because of tags not available
+                    $admin_post_behavior = $this->core->behaviors->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+                }
+            }
+        }
 
-        $favs = $this->core->favs->getUserFavorites();
+        # Dashboard drag'n'drop switch for its elements
+        $dragndrop_head = '';
+        if (!$this->core->auth->user_prefs->accessibility->nodragdrop) {
+            $dragndrop_head = self::jsJson('dotclear_dragndrop', $this->dragndrop_msg);
+        }
+
+        $this->setPageHelp('core_dashboard');
+        $this->setPageTitle(__('Dashboard'));
+        $this->setPageHead(
+            self::jsLoad('js/jquery/jquery-ui.custom.js') .
+            self::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
+            self::jsLoad('js/_index.js') .
+            $dragndrop_head .
+            $admin_post_behavior
+        );
+        $this->setPageBreadcrumb(
+            [
+                __('Dashboard') . ' : ' . Html::escapeHTML($this->core->blog->name) => ''
+            ],
+            ['home_link' => false]
+        );
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
+        # Dashboard icons
+        $__dashboard_icons = new ArrayObject();
+
+        $this->core->favs->getUserFavorites();
         $this->core->favs->appendDashboardIcons($__dashboard_icons);
 
         # Latest news for dashboard
-        $__dashboard_items = new \ArrayObject([new \ArrayObject(), new \ArrayObject()]);
+        $__dashboard_items = new ArrayObject([new ArrayObject(), new ArrayObject()]);
 
         $dashboardItem = 0;
 
@@ -128,60 +178,21 @@ class Home extends Page
         $this->core->behaviors->call('adminDashboardItems', $__dashboard_items);
 
         # Dashboard content
-        $__dashboard_contents = new \ArrayObject([new \ArrayObject, new \ArrayObject]);
+        $__dashboard_contents = new ArrayObject([new ArrayObject, new ArrayObject]);
         $this->core->behaviors->call('adminDashboardContents', $__dashboard_contents);
 
-        # Editor stuff
-        $admin_post_behavior = '';
-        if ($this->core->auth->user_prefs->dashboard->quickentry) {
-            if ($this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
-                $post_format = $this->core->auth->getOption('post_format');
-                $post_editor = $this->core->auth->getOption('editor');
-                if ($post_editor && !empty($post_editor[$post_format])) {
-                    // context is not post because of tags not available
-                    $admin_post_behavior = $this->core->behaviors->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
-                }
-            }
-        }
-
-        # Dashboard drag'n'drop switch for its elements
-        $this->core->auth->user_prefs->addWorkspace('accessibility');
         $dragndrop      = '';
-        $dragndrop_head = '';
-        $dragndrop_msg  = [
-            'dragndrop_off' => __('Dashboard area\'s drag and drop is disabled'),
-            'dragndrop_on'  => __('Dashboard area\'s drag and drop is enabled')
-        ];
         if (!$this->core->auth->user_prefs->accessibility->nodragdrop) {
-            $dragndrop_head = self::jsJson('dotclear_dragndrop', $dragndrop_msg);
-            $dragndrop      = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $dragndrop_msg['dragndrop_off'] . '" />' .
+            $dragndrop      = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
                 '<use xlink:href="?df=images/dragndrop.svg#mask"></use>' .
                 '</svg>' .
-                '<span id="dragndrop-label" class="sr-only">' . $dragndrop_msg['dragndrop_off'] . '</span>' .
+                '<span id="dragndrop-label" class="sr-only">' . $this->dragndrop_msg['dragndrop_off'] . '</span>' .
                 '</label>';
         }
 
-        /* DISPLAY
-        -------------------------------------------------------- */
-        $this->open(__('Dashboard'),
-            self::jsLoad('js/jquery/jquery-ui.custom.js') .
-            self::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-            self::jsLoad('js/_index.js') .
-            $dragndrop_head .
-            $admin_post_behavior .
-            # --BEHAVIOR-- adminDashboardHeaders
-            $this->core->behaviors->call('adminDashboardHeaders'),
-            $this->breadcrumb(
-                [
-                    __('Dashboard') . ' : ' . Html::escapeHTML($this->core->blog->name) => ''
-                ],
-                ['home_link' => false]
-            )
-        );
-
-        if ($this->core->auth->getInfo('user_default_blog') != $this->core->blog->id && $core->auth->getBlogCount() > 1) {
+        if ($this->core->auth->getInfo('user_default_blog') != $this->core->blog->id && $this->core->auth->getBlogCount() > 1) {
             echo
             '<p><a href="' . $this->core->adminurl->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
         }
@@ -331,7 +342,7 @@ class Home extends Page
                 '</div>' .
                 '<p><label for="cat_id" class="classic">' . __('Category:') . '</label> ' .
                 Form::combo('cat_id', $categories_combo) . '</p>' .
-                ($core->auth->check('categories', $this->core->blog->id)
+                ($this->core->auth->check('categories', $this->core->blog->id)
                     ? '<div>' .
                     '<p id="new_cat" class="q-cat">' . __('Add a new category') . '</p>' .
                     '<p class="q-cat"><label for="new_cat_title">' . __('Title:') . '</label> ' .
@@ -343,10 +354,10 @@ class Home extends Page
                     '</div>'
                     : '') .
                 '<p><input type="submit" value="' . __('Save') . '" name="save" /> ' .
-                ($core->auth->check('publish', $this->core->blog->id)
+                ($this->core->auth->check('publish', $this->core->blog->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
-                $core->formNonce() .
+                $this->core->formNonce() .
                 Form::hidden('post_status', -2) .
                 Form::hidden('post_format', $this->core->auth->getOption('post_format')) .
                 Form::hidden('post_excerpt', '') .
@@ -364,9 +375,6 @@ class Home extends Page
         $dashboardMain = self::composeItems($main_order, $__dashboard_main, true);
 
         echo $dragndrop . '<div id="dashboard-main">' . $dashboardMain . '</div>';
-
-        $this->helpBlock('core_dashboard');
-        $this->close();
     }
 
     private static function composeItems($list, $blocks, $flat = false)
