@@ -19,6 +19,10 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\Action;
+use Dotclear\Admin\Filter;
+use Dotclear\Admin\Catalog;
+
 use Dotclear\Admin\Action\PostAction;
 use Dotclear\Admin\Catalog\PostCatalog;
 use Dotclear\Admin\Filter\PostFilter;
@@ -32,26 +36,25 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Posts extends Page
 {
-    public function __construct(Core $core)
+    protected function getPermissions(): string
     {
-        parent::__construct($core);
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
+    protected function getActionInstance(): ?Action
+    {
+        return new PostAction($this->core, $this->core->adminurl->get('admin.posts'));
+    }
 
-        /* Actions
-        -------------------------------------------------------- */
-        $posts_actions_page = new PostAction($this->core, $this->core->adminurl->get('admin.posts'));
+    protected function getFilterInstance(): ?Filter
+    {
+        return new PostFilter($this->core);
+    }
 
-        if ($posts_actions_page->process()) {
-            return;
-        }
-
-        /* Filters
-        -------------------------------------------------------- */
-        $post_filter = new PostFilter($this->core);
-
+    protected function getCatalogInstance(): ?Catalog
+    {
         # get list params
-        $params = $post_filter->params();
+        $params = $this->filter->params();
 
         # lexical sort
         $sortby_lex = [
@@ -61,37 +64,38 @@ class Posts extends Page
             'user_id'    => 'P.user_id'];
 
         # --BEHAVIOR-- adminPostsSortbyLexCombo
-        $core->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
+        $this->core->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
 
-        $params['order'] = (array_key_exists($post_filter->sortby, $sortby_lex) ?
-            $this->core->con->lexFields($sortby_lex[$post_filter->sortby]) :
-            $post_filter->sortby) . ' ' . $post_filter->order;
+        $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
+            $this->core->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params['no_content'] = true;
 
-        /* List
-        -------------------------------------------------------- */
-        $post_list = null;
+        $posts     = $this->core->blog->getPosts($params);
+        $counter   = $this->core->blog->getPosts($params, true);
 
-        try {
-            $posts     = $this->core->blog->getPosts($params);
-            $counter   = $this->core->blog->getPosts($params, true);
-            $post_list = new PostCatalog($this->core, $posts, $counter->f(0));
-        } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
-        }
+        return new PostCatalog($this->core, $posts, $counter->f(0));
+    }
 
-        /* DISPLAY
-        -------------------------------------------------------- */
-
-        $this->open(__('Posts'),
-            static::jsLoad('js/_posts_list.js') . $post_filter->js(),
-            $this->breadcrumb(
-                [
-                    Html::escapeHTML($this->core->blog->name) => '',
-                    __('Posts')                         => ''
-                ])
+    protected function getPagePrepend(): ?bool
+    {
+        $this->setPageHelp('core_posts');
+        $this->setPageTitle(__('Posts'));
+        $this->setPageHead(
+            $this->filter->js() .
+            static::jsLoad('js/_posts_list.js')
         );
+        $this->setPageBreadcrumb([
+            Html::escapeHTML($this->core->blog->name) => '',
+            __('Posts')                               => ''
+        ]);
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
         if (!empty($_GET['upd'])) {
             static::success(__('Selected entries have been successfully updated.'));
         } elseif (!empty($_GET['del'])) {
@@ -101,10 +105,10 @@ class Posts extends Page
             echo '<p class="top-add"><a class="button add" href="' . $this->core->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             # filters
-            $post_filter->display('admin.posts');
+            $this->filter->display('admin.posts');
 
             # Show posts
-            $post_list->display($post_filter->page, $post_filter->nb,
+            $this->catalog->display($this->filter->page, $this->filter->nb,
                 '<form action="' . $this->core->adminurl->get('admin.posts') . '" method="post" id="form-entries">' .
 
                 '%s' .
@@ -113,17 +117,14 @@ class Posts extends Page
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
-                Form::combo('action', $posts_actions_page->getCombo()) .
+                Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                $this->core->adminurl->getHiddenFormFields('admin.posts', $post_filter->values()) .
+                $this->core->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
                 $this->core->formNonce() .
                 '</div>' .
                 '</form>',
-                $post_filter->show()
+                $this->filter->show()
             );
         }
-
-        $this->helpBlock('core_posts');
-        $this->close();
     }
 }

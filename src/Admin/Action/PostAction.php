@@ -30,9 +30,20 @@ class PostAction extends Action
     {
         parent::__construct($core, $uri, $redirect_args);
 
+        # Action setup
         $this->redirect_fields = ['user_id', 'cat_id', 'status',
             'selected', 'attachment', 'month', 'lang', 'sortby', 'order', 'page', 'nb'];
         $this->loadDefaults();
+
+        # Page setup
+        $this->setPageTitle(__('Posts'));
+        $this->setPageType($this->in_plugin ? 'plugin' : null);
+        $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
+        $this->setPageBreadcrumb([
+            Html::escapeHTML($this->core->blog->name) => '',
+            $this->getCallerTitle()                   => $this->getRedirection(true),
+            __('Posts actions')                       => ''
+        ]);
     }
 
     protected function loadDefaults()
@@ -43,45 +54,10 @@ class PostAction extends Action
         $this->core->behaviors->call('adminPostsActionsPage', $this);
     }
 
-    public function beginPage($breadcrumb = '', $head = '')
-    {
-        if ($this->in_plugin) {
-            echo '<html><head><title>' . __('Posts') . '</title>' .
-            static::jsLoad('js/_posts_actions.js') .
-                $head .
-                '</script></head><body>' .
-                $breadcrumb;
-        } else {
-            $this->open(
-                __('Posts'),
-                static::jsLoad('js/_posts_actions.js') .
-                $head,
-                $breadcrumb
-            );
-        }
-        echo '<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>';
-    }
-
-    public function endPage()
-    {
-        if ($this->in_plugin) {
-            echo '</body></html>';
-        } else {
-            $this->close();
-        }
-    }
-
-    public function error(AdminException $e)
+    public function error(Exception $e)
     {
         $this->core->error->add($e->getMessage());
-        $this->beginPage($this->breadcrumb(
-            [
-                Html::escapeHTML($this->core->blog->name) => '',
-                $this->getCallerTitle()                   => $this->getRedirection(true),
-                __('Posts actions')                       => ''
-            ])
-        );
-        $this->endPage();
+        $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
     protected function fetchEntries($from)
