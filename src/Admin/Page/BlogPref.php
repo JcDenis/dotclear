@@ -54,7 +54,16 @@ class BlogPref extends Page
         $this->standalone = $standalone;
 
         parent::__construct($core, $handler);
+    }
 
+    protected function getPermissions(): string|null|false
+    {
+        return $this->standalone ? 'admin' : null;
+    }
+
+    protected function getPagePrepend(): ?bool
+    {
+        # Blog params
         if ($this->standalone) {
             $this->blog_id       = $this->core->blog->id;
             $this->blog_status   = $this->core->blog->status;
@@ -65,19 +74,7 @@ class BlogPref extends Page
 
             $this->action = $this->core->adminurl->get('admin.blog.pref');
             $this->redir  = $this->core->adminurl->get('admin.blog.pref');
-        }
-    }
-
-    protected function getPermissions(): ?string
-    {
-        return $this->standalone ? 'admin' : null;
-    }
-
-    protected function getPagePrepend(): ?bool
-    {
-        # Blog params
-
-        if (!$this->standalone) {
+        } else {
             try {
                 if (empty($_REQUEST['id'])) {
                     throw new AdminException(__('No given blog id.'));

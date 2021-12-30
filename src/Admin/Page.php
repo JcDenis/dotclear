@@ -36,7 +36,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page
+abstract class Page
 {
     /** @var string|null            Page type */
     private $page_type = null;
@@ -909,10 +909,7 @@ class Page
      *
      * @return string|null|false The permissions
      */
-    protected function getPermissions(): string|null|false
-    {
-        return false;
-    }
+    abstract protected function getPermissions(): string|null|false;
 
     /**
      * Do something after contruct

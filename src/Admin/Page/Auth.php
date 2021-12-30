@@ -330,6 +330,12 @@ class Auth extends Page
         }
     }
 
+    # Don't check premissions to show this page
+    protected function getPermissions(): string|null|false
+    {
+        return false;
+    }
+
     protected function getPageBegin(): void
     {
         header('Content-Type: text/html; charset=UTF-8');

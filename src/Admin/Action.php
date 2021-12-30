@@ -329,6 +329,13 @@ abstract class Action extends Page
         return $this->action;
     }
 
+    # Force no check permissions for Action page
+    # each Action manages their own perms
+    protected function getPermissions(): string|null|false
+    {
+        return false;
+    }
+
     /**
      * process - proceeds action handling, if any
      *             this method may issue an exit() if

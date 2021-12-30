@@ -36,7 +36,7 @@ class Blog extends Page
     private $blog_desc = '';
     private $blog_url  = '';
 
-    protected function getPermissions(): string
+    protected function getPermissions(): string|null|false
     {
         return 'usage,contentadmin';
     }

@@ -37,7 +37,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Blogs extends Page
 {
-    protected function getPermissions(): string
+    protected function getPermissions(): string|null|false
     {
         return 'usage,contentadmin';
     }

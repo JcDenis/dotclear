@@ -37,7 +37,7 @@ class Home extends Page
 
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
 
-    protected function getPermissions(): string
+    protected function getPermissions(): string|null|false
     {
         # Set default blog
         if (!empty($_GET['default_blog'])) {

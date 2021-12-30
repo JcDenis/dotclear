@@ -33,7 +33,7 @@ class BlogDel extends Page
     private $blog_id   = '';
     private $blog_name = '';
 
-    protected function getPermissions(): ?string
+    protected function getPermissions(): string|null|false
     {
         return null;
     }
