@@ -1071,7 +1071,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $res[] = [
                 'user_id'      => $k,
                 'user_login'   => $k,
-                'display_name' => Utils::::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
+                'display_name' => Utils::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
             ];
         }
 
