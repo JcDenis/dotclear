@@ -25,62 +25,57 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Help extends Page
 {
-    public function __construct(Core $core)
+    private $help_title   = '';
+    private $help_content = '';
+
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
-
-        $this->check('usage,contentadmin');
-
-        $help_page     = !empty($_GET['page']) ? Html::escapeHTML($_GET['page']) : 'index';
-        $content_array = $this->helpPage($help_page);
-        if (($content_array['content'] == '') || ($help_page == 'index')) {
-            $content_array = $this->helpPage('index');
-        }
-        if ($content_array['title'] != '') {
-            $breadcrumb = $this->breadcrumb(
-                [
-                    __('Global help')       => $core->adminurl->get('admin.help'),
-                    $content_array['title'] => ''
-                ]);
-        } else {
-            $breadcrumb = $this->breadcrumb(
-                [
-                    __('Global help') => ''
-                ]);
-        }
-
-        /* DISPLAY
-        -------------------------------------------------------- */
-        $this->open(__('Global help'),
-            self::jsPageTabs('first-step'),
-            $breadcrumb
-        );
-
-        echo $content_array['content'];
-
-        // Prevents global help link display
-        $this->core->__resources['ctxhelp'] = true;
-
-        $this->close();
+        return 'usage,contentadmin';
     }
 
-    private function helpPage(...$args): array
+    protected function getPagePrepend(): ?bool
     {
-        $ret = ['content' => '', 'title' => ''];
+        $help_page = !empty($_GET['page']) ? Html::escapeHTML($_GET['page']) : 'index';
 
-        if (empty($args)) {
-            return $ret;
+        $this->getHelpContent($help_page);
+        if (($this->help_content == '') || ($help_page == 'index')) {
+            $this->getHelpContent('index');
         }
 
-        if (empty($this->core->_resources['help'])) {
-            return $ret;
+        if ($this->help_title != '') {
+            $this->setPageBreadcrumb([
+                __('Global help')       => $this->core->adminurl->get('admin.help'),
+                $this->help_title => ''
+            ]);
+        } else {
+            $this->setPageBreadcrumb([__('Global help') => '']);
         }
 
-        $content = '';
-        $title   = '';
+        $this
+            ->setPageTitle(__('Global help'))
+            ->setPageHead(self::jsPageTabs('first-step'))
+        ;
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
+        echo $this->help_content;
+
+        # Prevents global help link display
+        $this->core->__resources['ctxhelp'] = true;
+    }
+
+    private function getHelpContent(...$args): void
+    {
+        if (empty($args) || empty($this->core->_resources['help'])) {
+            return;
+        }
+
         foreach ($args as $v) {
             if (is_object($v) && isset($v->content)) {
-                $content .= $v->content;
+                $this->help_content .= $v->content;
 
                 continue;
             }
@@ -95,24 +90,20 @@ class Help extends Page
 
             $fc = file_get_contents($f);
             if (preg_match('|<body[^>]*?>(.*?)</body>|ms', $fc, $matches)) {
-                $content .= $matches[1];
+                $this->help_content .= $matches[1];
                 if (preg_match('|<title[^>]*?>(.*?)</title>|ms', $fc, $matches)) {
-                    $title = $matches[1];
+                    $this->help_title = $matches[1];
                 }
             } else {
-                $content .= $fc;
+                $this->help_content .= $fc;
             }
         }
 
-        if (trim($content) == '') {
-            return $ret;
+        if (trim($this->help_content) == '') {
+            $this->help_content = $this->help_title = '';
+            return;
         }
 
-        $ret['content'] = $content;
-        if ($title != '') {
-            $ret['title'] = $title;
-        }
-
-        return $ret;
+        return;
     }
 }

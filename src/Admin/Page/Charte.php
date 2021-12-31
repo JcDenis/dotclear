@@ -23,15 +23,17 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Charte extends Page
 {
-    public function __construct(Core $core)
+    protected $user_workspaces = ['interface'];
+
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
-        $core->auth->user_prefs->addWorkspace('interface');
-
+    protected function getPageContent(): void
+    {
         $js         = [];
-        $data_theme = $core->auth->user_prefs->interface->theme;
+        $data_theme = $this->core->auth->user_prefs->interface->theme;
 ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
@@ -46,8 +48,8 @@ class Charte extends Page
 
 echo static::cssLoad('style/default.css');
 
-if ($core->auth->user_prefs->interface->htmlfontsize) {
-    $js['htmlFontSize'] = $core->auth->user_prefs->interface->htmlfontsize;
+if ($this->core->auth->user_prefs->interface->htmlfontsize) {
+    $js['htmlFontSize'] = $this->core->auth->user_prefs->interface->htmlfontsize;
 }
 // Set some JSON data
 echo static::jsJson('dotclear_init', $js);
