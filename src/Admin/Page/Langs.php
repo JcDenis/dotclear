@@ -19,6 +19,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\Notices;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Html\Form;
@@ -34,38 +35,24 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Langs extends Page
 {
-    public function __construct(Core $core)
+    private $is_writable = false;
+    private $iso_codes = [];
+
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return null;
+    }
 
-        $this->checkSuper();
-
-        $is_writable = is_dir(DOTCLEAR_L10N_DIR) && is_writable(DOTCLEAR_L10N_DIR);
-        $iso_codes   = L10n::getISOCodes();
-
-        # Get languages list on Dotclear.net
-        $dc_langs    = false;
-        $feed_reader = new Reader;
-        $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
-        $feed_reader->setTimeout(5);
-        $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
-
-        try {
-            $dc_langs = $feed_reader->parse(sprintf(DOTCLEAR_L10N_UPDATE_URL, DOTCLEAR_VERSION));   // @phpstan-ignore-line
-            if ($dc_langs !== false) {
-                $dc_langs = $dc_langs->items;
-            }
-        } catch (Exception $e) {
-        }
-
-        # Language installation function
-        ;
+    protected function getPagePrepend(): ?bool
+    {
+        $this->is_writable = is_dir(DOTCLEAR_L10N_DIR) && is_writable(DOTCLEAR_L10N_DIR);
+        $this->iso_codes   = L10n::getISOCodes();
 
         # Delete a language pack
-        if ($is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
+        if ($this->is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
             try {
                 $locale_id = $_POST['locale_id'];
-                if (!isset($iso_codes[$locale_id]) || !is_dir(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
+                if (!isset($this->iso_codes[$locale_id]) || !is_dir(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
                     throw new AdminException(__('No such installed language'));
                 }
 
@@ -85,7 +72,7 @@ class Langs extends Page
         }
 
         # Download a language pack
-        if ($is_writable && !empty($_POST['pkg_url'])) {
+        if ($this->is_writable && !empty($_POST['pkg_url'])) {
             try {
                 if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
@@ -125,7 +112,7 @@ class Langs extends Page
         }
 
         # Upload a language pack
-        if ($is_writable && !empty($_POST['upload_pkg'])) {
+        if ($this->is_writable && !empty($_POST['upload_pkg'])) {
             try {
                 if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
@@ -147,9 +134,9 @@ class Langs extends Page
 
                 @unlink($dest);
                 if ($ret_code == 2) {
-                    self::addSuccessNotice(__('Language has been successfully upgraded'));
+                    Notices::addSuccessNotice(__('Language has been successfully upgraded'));
                 } else {
-                    self::addSuccessNotice(__('Language has been successfully installed.'));
+                    Notices::addSuccessNotice(__('Language has been successfully installed.'));
                 }
                 $this->core->adminurl->redirect('admin.langs');
             } catch (Exception $e) {
@@ -157,23 +144,44 @@ class Langs extends Page
             }
         }
 
-        /* DISPLAY Main page
-        -------------------------------------------------------- */
-        $this->open(__('Languages management'),
-            self::jsLoad('js/_langs.js'),
-            $this->breadcrumb(
-                [
+        # Page setup
+        $this
+            ->setPageTitle(__('Languages management'))
+            ->setPageHelp('core_langs')
+            ->setPageHead(self::jsLoad('js/_langs.js'))
+            ->setPageBreadcrumb([
                     __('System')               => '',
-                    __('Languages management') => ''
-                ])
-        );
+                    __('Languages management') => '',
+            ])
+        ;
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
 
         if (!empty($_GET['removed'])) {
-            self::success(__('Language has been successfully deleted.'));
+            Notices::success(__('Language has been successfully deleted.'));
         }
 
         if (!empty($_GET['added'])) {
-            self::success(($_GET['added'] == 2 ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
+            Notices::success(($_GET['added'] == 2 ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
+        }
+
+        # Get languages list on Dotclear.net
+        $dc_langs    = false;
+        $feed_reader = new Reader;
+        $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
+        $feed_reader->setTimeout(5);
+        $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
+
+        try {
+            $dc_langs = $feed_reader->parse(sprintf(DOTCLEAR_L10N_UPDATE_URL, DOTCLEAR_VERSION));   // @phpstan-ignore-line
+            if ($dc_langs !== false) {
+                $dc_langs = $dc_langs->items;
+            }
+        } catch (Exception $e) {
         }
 
         echo
@@ -189,7 +197,7 @@ class Langs extends Page
         $locales_content = scandir(DOTCLEAR_L10N_DIR);
         $tmp             = [];
         foreach ($locales_content as $v) {
-            $c = ($v == '.' || $v == '..' || $v == 'en' || !is_dir(DOTCLEAR_L10N_DIR . '/' . $v) || !isset($iso_codes[$v]));
+            $c = ($v == '.' || $v == '..' || $v == 'en' || !is_dir(DOTCLEAR_L10N_DIR . '/' . $v) || !isset($this->iso_codes[$v]));
 
             if (!$c) {
                 $tmp[$v] = DOTCLEAR_L10N_DIR . '/' . $v;
@@ -208,12 +216,12 @@ class Langs extends Page
                 '</tr>';
 
             foreach ($locales_content as $k => $v) {
-                $is_deletable = $is_writable && is_writable($v);
+                $is_deletable = $this->is_writable && is_writable($v);
 
                 echo
                 '<tr class="line wide">' .
                 '<td class="maximal nowrap">(' . $k . ') ' .
-                '<strong>' . html::escapeHTML($iso_codes[$k]) . '</strong></td>' .
+                '<strong>' . html::escapeHTML($this->iso_codes[$k]) . '</strong></td>' .
                     '<td class="nowrap action">';
 
                 if ($is_deletable) {
@@ -234,16 +242,16 @@ class Langs extends Page
 
         echo '<h3>' . __('Install or upgrade languages') . '</h3>';
 
-        if (!$is_writable) {
+        if (!$this->is_writable) {
             echo '<p>' . sprintf(__('You can install or remove a language by adding or ' .
                 'removing the relevant directory in your %s folder.'), '<strong>locales</strong>') . '</p>';
         }
 
-        if (!empty($dc_langs) && $is_writable) {
+        if (!empty($dc_langs) && $this->is_writable) {
             $dc_langs_combo = [];
             foreach ($dc_langs as $k => $v) {
-                if ($v->link && isset($iso_codes[$v->title])) {
-                    $dc_langs_combo[html::escapeHTML('(' . $v->title . ') ' . $iso_codes[$v->title])] = html::escapeHTML($v->link);
+                if ($v->link && isset($this->iso_codes[$v->title])) {
+                    $dc_langs_combo[html::escapeHTML('(' . $v->title . ') ' . $this->iso_codes[$v->title])] = html::escapeHTML($v->link);
                 }
             }
 
@@ -266,7 +274,7 @@ class Langs extends Page
                 '</form>';
         }
 
-        if ($is_writable) {
+        if ($this->is_writable) {
             # 'Upload language pack' form
             echo
             '<form method="post" action="' . $this->core->adminurl->get('admin.langs') . '" enctype="multipart/form-data" class="fieldset">' .
@@ -285,8 +293,6 @@ class Langs extends Page
                 '</p>' .
                 '</form>';
         }
-        $this->helpBlock('core_langs');
-        $this->close();
     }
 
     private static function langInstall($file)

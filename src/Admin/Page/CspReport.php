@@ -32,7 +32,13 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class CspReport extends Page
 {
-    public function __construct(Core $core)
+    # not used but required
+    protected function getPermissions(): string|null|false
+    {
+        return false;
+    }
+
+    public function getPagePrepend(): ?bool
     {
         // Dareboost wants it? Not a problem.
         header('X-Content-Type-Options: "nosniff"');
@@ -97,7 +103,7 @@ class CspReport extends Page
                                     foreach ($list as $idx => $value) {
                                         if (isset($value['hash']) && $value['hash'] == $hash) {
                                             // Already stored, ignore
-                                            return;
+                                            return null;
                                         }
                                     }
                                 }
@@ -108,7 +114,7 @@ class CspReport extends Page
                     // Add report to the file
                     if (!($fp = @fopen(LOGFILE, 'a'))) {
                         // Unable to open file, ignore
-                        return;
+                        return null;
                     }
 
                     // Prettify the JSON-formatted data
@@ -119,9 +125,11 @@ class CspReport extends Page
                     // beeing decoded with json_decoded(<content>,true);
                     fprintf($fp, ($contents != '' ? ',' : '') . '%s', $output);
                 } catch (Exception $e) {
-                    return;
+                    return null;
                 }
             }
         }
+
+        return null;
     }
 }

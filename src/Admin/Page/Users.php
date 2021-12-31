@@ -13,12 +13,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\Notices;
+use Dotclear\Admin\Action;
+use Dotclear\Admin\Filter;
+use Dotclear\Admin\Catalog;
+
 use Dotclear\Admin\Action\UserAction;
 use Dotclear\Admin\Catalog\UserCatalog;
 use Dotclear\Admin\Filter\UserFilter;
@@ -32,28 +39,19 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Users extends Page
 {
-    public function __construct(Core $core)
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return null;
+    }
 
-        $this->checkSuper();
+    protected function getFilterInstance(): ?Filter
+    {
+        return new UserFilter($this->core);
+    }
 
-        /* Actions
-        -------------------------------------------------------- */
-        $combo_action = [
-            __('Set permissions') => 'blogs',
-            __('Delete')          => 'deleteuser'
-        ];
-
-        # --BEHAVIOR-- adminUsersActionsCombo
-        $this->core->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
-
-        /* Filters
-        -------------------------------------------------------- */
-        $user_filter = new UserFilter($this->core);
-
-        # get list params
-        $params = $user_filter->params();
+    protected function getCatalogInstance(): ?Catalog
+    {
+        $params = $this->filter->params();
 
         # lexical sort
         $sortby_lex = [
@@ -66,82 +64,90 @@ class Users extends Page
         # --BEHAVIOR-- adminUsersSortbyLexCombo
         $this->core->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
-        $params['order'] = (array_key_exists($user_filter->sortby, $sortby_lex) ?
-            $this->core->con->lexFields($sortby_lex[$user_filter->sortby]) :
-            $user_filter->sortby) . ' ' . $user_filter->order;
+        $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
+            $this->core->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            $this->filter->sortby) . ' ' . $this->filter->order;
 
-        /* List
-        -------------------------------------------------------- */
-        $user_list = null;
+        $params = new ArrayObject($params);
 
-        try {
-            # --BEHAVIOR-- adminGetUsers
-            $params = new \ArrayObject($params);
-            $this->core->behaviors->call('adminGetUsers', $params);
+        # --BEHAVIOR-- adminGetUsers
+        $this->core->behaviors->call('adminGetUsers', $params);
 
-            $rs       = $this->core->getUsers($params);
-            $counter  = $this->core->getUsers($params, true);
-            $rsStatic = $rs->toStatic();
-            if ($user_filter->sortby != 'nb_post') {
-                // Sort user list using lexical order if necessary
-                $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
-                $rsStatic = $rsStatic->toExtStatic();
-                $rsStatic->lexicalSort($user_filter->sortby, $user_filter->order);
-            }
-            $user_list = new UserCatalog($this->core, $rsStatic, $counter->f(0));
-        } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+        $rs       = $this->core->getUsers($params);
+        $counter  = $this->core->getUsers($params, true);
+        $rsStatic = $rs->toStatic();
+        if ($this->filter->sortby != 'nb_post') {
+            // Sort user list using lexical order if necessary
+            $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
+            $rsStatic = $rsStatic->toExtStatic();
+            $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
 
-        /* DISPLAY
-        -------------------------------------------------------- */
+        return new UserCatalog($this->core, $rsStatic, $counter->f(0));
+    }
 
-        $this->open(__('Users'),
-            static::jsLoad('js/_users.js') . $user_filter->js(),
-            $this->breadcrumb(
-                [
-                    __('System') => '',
-                    __('Users')  => ''
-                ])
+    protected function getPagePrepend(): ?bool
+    {
+        $this
+            ->setPageTitle(__('Users'))
+            ->setPageHelp('core_users')
+            ->setPageHead(static::jsLoad('js/_users.js') . $this->filter->js())
+            ->setPageBreadcrumb([
+                __('System') => '',
+                __('Users')  => ''
+            ])
+        ;
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
+        if ($this->core->error->flag()) {
+            return;
+        }
+
+        if (!empty($_GET['del'])) {
+            Notices::message(__('User has been successfully removed.'));
+        }
+        if (!empty($_GET['upd'])) {
+            Notices::message(__('The permissions have been successfully updated.'));
+        }
+
+        $combo_action = [
+            __('Set permissions') => 'blogs',
+            __('Delete')          => 'deleteuser'
+        ];
+
+        # --BEHAVIOR-- adminUsersActionsCombo
+        $this->core->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
+
+        echo '<p class="top-add"><strong><a class="button add" href="' . $this->core->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
+
+        $this->filter->display('admin.users');
+
+        # Show users
+        $this->catalog->display(
+            $this->filter->page,
+            $this->filter->nb,
+            '<form action="' . $this->core->adminurl->get('admin.users') . '" method="post" id="form-users">' .
+
+            '%s' .
+
+            '<div class="two-cols">' .
+            '<p class="col checkboxes-helpers"></p>' .
+
+            '<p class="col right"><label for="action" class="classic">' .
+            __('Selected users action:') . ' ' .
+            Form::combo('action', $combo_action) .
+            '</label> ' .
+            '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
+            $this->core->formNonce() .
+            '</p>' .
+            '</div>' .
+            $this->core->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
+            '</form>',
+            $this->filter->show()
         );
-
-        if (!$this->core->error->flag()) {
-            if (!empty($_GET['del'])) {
-                static::message(__('User has been successfully removed.'));
-            }
-            if (!empty($_GET['upd'])) {
-                static::message(__('The permissions have been successfully updated.'));
-            }
-
-            echo '<p class="top-add"><strong><a class="button add" href="' . $this->core->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
-
-            $user_filter->display('admin.users');
-
-            # Show users
-            $user_list->display(
-                $user_filter->page,
-                $user_filter->nb,
-                '<form action="' . $this->core->adminurl->get('admin.users') . '" method="post" id="form-users">' .
-
-                '%s' .
-
-                '<div class="two-cols">' .
-                '<p class="col checkboxes-helpers"></p>' .
-
-                '<p class="col right"><label for="action" class="classic">' .
-                __('Selected users action:') . ' ' .
-                Form::combo('action', $combo_action) .
-                '</label> ' .
-                '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-                $this->core->formNonce() .
-                '</p>' .
-                '</div>' .
-                $this->core->adminurl->getHiddenFormFields('admin.user.actions', $user_filter->values(true)) .
-                '</form>',
-                $user_filter->show()
-            );
-        }
-        $this->helpBlock('core_users');
-        $this->close();
     }
 }

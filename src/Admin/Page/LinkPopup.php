@@ -30,32 +30,46 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class LinkPopup extends Page
 {
-    public function __construct(Core $core)
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
+    protected function getPagePrepend(): ?bool
+    {
+        $plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
 
+        $this
+            ->setPageTitle(__('Add a link'))
+            ->setPageType('popup')
+            ->setPageHead(
+                static::jsLoad('js/_popup_link.js') .
+                $this->core->behaviors->call('adminPopupLink', $plugin_id)
+            )
+        ;
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
         $href      = !empty($_GET['href']) ? $_GET['href'] : '';
         $hreflang  = !empty($_GET['hreflang']) ? $_GET['hreflang'] : '';
         $title     = !empty($_GET['title']) ? $_GET['title'] : '';
-        $plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
 /*
-        if ($core->themes === null) {
+        if ($this->core->themes === null) {
             # -- Loading themes, may be useful for some configurable theme --
-            $core->themeInstance();
-            $core->themes->loadModules($core->blog->themes_path, null);
+            $this->core->themeInstance();
+            $this->core->themes->loadModules($this->core->blog->themes_path, null);
         }
 */
-        $this->openPopup(__('Add a link'), static::jsLoad('js/_popup_link.js') . $core->behaviors->call('adminPopupLink', $plugin_id));
-
-        echo '<h2 class="page-title">' . __('Add a link') . '</h2>';
-
         # Languages combo
-        $rs         = $core->blog->getLangs(['order' => 'asc']);
+        $rs         = $this->core->blog->getLangs(['order' => 'asc']);
         $lang_combo = Combos::getLangsCombo($rs, true);
 
         echo
+        '<h2 class="page-title">' . __('Add a link') . '</h2>' .
+
         '<form id="link-insert-form" action="#" method="get">' .
         '<p><label class="required" for="href"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Link URL:') . '</label> ' .
         Form::field('href', 35, 512, [
@@ -73,7 +87,5 @@ class LinkPopup extends Page
 
         '<p><button type="button" class="reset" id="link-insert-cancel">' . __('Cancel') . '</button> - ' .
         '<button type="button" id="link-insert-ok"><strong>' . __('Insert') . '</strong></button></p>' . "\n";
-
-        $this->closePopup();
     }
 }

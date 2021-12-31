@@ -23,35 +23,40 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Services extends Page
 {
-    public function __construct(Core $core)
+    private $rest_default_class   = 'Dotclear\\Admin\\RestMethods';
+    private $rest_default_methods = [
+        'getPostsCount',
+        'getCommentsCount',
+        'checkNewsUpdate',
+#        'checkCoreUpdate',
+#        'checkStoreUpdate',
+        'getPostById',
+        'getCommentById',
+        'quickPost',
+        'validatePostMarkup',
+        'getZipMediaContent',
+        'getMeta',
+        'delMeta',
+        'setPostMeta',
+        'searchMeta',
+        'setSectionFold',
+        'getModuleById',
+        'setDashboardPositions',
+        'setListsOptions',
+    ];
+
+    protected function getPermissions(): string|null|false
     {
-        $n = 'Dotclear\\Admin\\RestMethods';
-        $f = [
-            'getPostsCount',
-            'getCommentsCount',
-            'checkNewsUpdate',
-#            'checkCoreUpdate',
-#            'checkStoreUpdate',
-            'getPostById',
-            'getCommentById',
-            'quickPost',
-            'validatePostMarkup',
-            'getZipMediaContent',
-            'getMeta',
-            'delMeta',
-            'setPostMeta',
-            'searchMeta',
-            'setSectionFold',
-            'getModuleById',
-            'setDashboardPositions',
-            'setListsOptions',
-        ];
+        return false;
+    }
 
-        foreach($f as $m) {
-            $core->rest->addFunction($m, [$n, $m]);
+    protected function getPagePrepend(): ?bool
+    {
+        foreach($this->rest_default_methods as $method) {
+            $this->core->rest->addFunction($method, [$this->rest_default_class, $method]);
         }
+        $this->core->rest->serve();
 
-        $core->rest->serve();
-        exit(1);
+        return null;
     }
 }

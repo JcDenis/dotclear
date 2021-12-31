@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
@@ -30,10 +32,10 @@ class UserPref
     /** @var Core core instance */
     public static $core;
 
-    /** @var \ArrayObject columns preferences */
+    /** @var ArrayObject columns preferences */
     protected static $cols = null;
 
-    /** @var \ArrayObject sorts filters preferences*/
+    /** @var ArrayObject sorts filters preferences*/
     protected static $sorts = null;
 
     public static function getDefaultColumns()
@@ -51,14 +53,14 @@ class UserPref
     {
         # Get default colums (admin lists)
         $cols = self::getDefaultColumns();
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
         self::$core->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
         $cols_user = @self::$core->auth->user_prefs->interface->cols;
-        if (is_array($cols_user) || $cols_user instanceof \ArrayObject) {
+        if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
                     if (isset($cols[$ct][1][$cn])) {
@@ -149,7 +151,7 @@ class UserPref
     {
         if (self::$sorts === null) {
             $sorts = self::getDefaultFilters();
-            $sorts = new \ArrayObject($sorts);
+            $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
             self::$core->behaviors->call('adminFiltersLists', $sorts);

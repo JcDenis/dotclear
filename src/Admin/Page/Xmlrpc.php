@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Xmlrpc;
+use Dotclear\Core\Xmlrpc as CoreXmlrpc;
 
 use Dotclear\Admin\Page;
 
@@ -26,7 +26,12 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Xmlrpc extends Page
 {
-    public function __construct(Core $core)
+    protected function getPermissions(): string|null|false
+    {
+        return false;
+    }
+
+    protected function getPagePrepend(): ?bool
     {
         if (isset($_SERVER['PATH_INFO'])) {
             $blog_id = trim($_SERVER['PATH_INFO']);
@@ -39,17 +44,20 @@ class Xmlrpc extends Page
             header('Content-Type: text/plain');
             Http::head(412);
             echo 'No blog ID given';
-            exit;
+
+            return null;
         }
 
         # Avoid plugins warnings, set a default blog
-        $core->setBlog($blog_id);
+        $this->core->setBlog($blog_id);
 
         # Loading plugins
-        $core->plugins->loadModules(DC_PLUGINS_ROOT);
+        //!$core->plugins->loadModules(DC_PLUGINS_ROOT);
 
         # Start XML-RPC server
-        $server = new XmlRpc($core, $blog_id);
+        $server = new CoreXmlrpc($this->core, $blog_id);
         $server->serve();
+
+        return null;
     }
 }
