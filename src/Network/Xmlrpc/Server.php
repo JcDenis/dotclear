@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace Dotclear\Network\Xmlrpc;
 
 use Dotclear\Exception;
+use Dotclear\Exception\NetworkException;
 
 use Dotclear\Network\Xmlrpc\Message;
 use Dotclear\Network\Xmlrpc\Value;
