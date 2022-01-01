@@ -834,6 +834,8 @@ abstract class Page
     /**
      * Set page type
      *
+     * This must be set before page opening
+     *
      * type can be :
      * - null or 'full' for standard page
      * - 'popup',
@@ -841,11 +843,11 @@ abstract class Page
      *
      * If not default value, this should be set before page opening.
      *
-     * @param string|null $page_type Page type
+     * @param   string|null     $page_type  The page type
      */
     final public function setPageType(?string $page_type = null): Page
     {
-        $this->page_type = $page_type;
+        $this->page_type = is_string($page_type) ? $page_type : 'full';
 
         return $this;
     }
@@ -855,11 +857,11 @@ abstract class Page
      *
      * This must be set before page opening
      *
-     * @param   string  ...$blocks  The blocks names
+     * @param   string|null  $page_title     The page title
      */
-    final public function setPageTitle(string $page_title): Page
+    final public function setPageTitle(?string $page_title): Page
     {
-        $this->page_title = $page_title;
+        $this->page_title = is_string($page_title) ? $page_title : '';
 
         return $this;
     }
@@ -867,15 +869,27 @@ abstract class Page
     /**
      * Set page HTML head content
      *
-     * @param   string  $page_script    The HTML code for head
+     * This must be set before page opening
+     *
+     * @param   string|null     $page_head  The HTML code for head
      */
-    final public function setPageHead(string $page_head): Page
+    final public function setPageHead(?string $page_head): Page
     {
-        $this->page_head .= $page_head;
+        if (is_string($page_head)) {
+            $this->page_head .= $page_head;
+        }
 
         return $this;
     }
 
+    /**
+     * Set page breadcrumb
+     *
+     * This must be set before page opening
+     *
+     * @param   array|null  $elements   The elements
+     * @param   array       $options    The options
+     */
     final public function setPageBreadcrumb(?array $elements = null, array $options = []): Page
     {
         $this->page_breadcrumb = ['elements' => $elements, 'options' => $options];
@@ -883,9 +897,18 @@ abstract class Page
         return $this;
     }
 
-    final public function setPageContent(string $page_content): Page
+    /**
+     * Set page HTML body content
+     *
+     * This must be set before page opening
+     *
+     * @param   string|null     $page_content   The HTML body
+     */
+    final public function setPageContent(?string $page_content): Page
     {
-        $this->page_content .= $page_content;
+        if (is_string($page_content)) {
+            $this->page_content .= $page_content;
+        }
 
         return $this;
     }
@@ -893,7 +916,9 @@ abstract class Page
     /**
      * Set Help block names
      *
-     * @param   string  ...$page_help   The blocks names
+     * This must be set before page opening
+     *
+     * @param   string  ...$page_help   The help blocks names
      */
     final public function setPageHelp(string ...$page_help): Page
     {
@@ -1238,6 +1263,17 @@ abstract class Page
 
     /// @name Page helper static methods
     //@{
+    /**
+     * Get HTML code to load Magnific popup JS
+     *
+     * @return     string
+     */
+    public static function jsModal()
+    {
+        return
+        self::jsLoad('js/jquery/jquery.magnific-popup.js');
+    }
+
     /**
      * Get HTML code to preload resource
      *
