@@ -506,7 +506,7 @@ class Core
         # No plugin call into Core
         DeprecatedException::throw();
 
-        return $this->callEditorFormater('dcLegacyEditor', $name, $str);
+        return $this->callEditorFormater('dcLegacyEditor', $formater, $str);
     }
     //@}
 

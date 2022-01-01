@@ -1985,14 +1985,14 @@ class Blog
         }
 
         if ($excerpt) {
-            $excerpt_xhtml = $this->core->callFormater($format, $excerpt);
+            $excerpt_xhtml = $this->core->callEditorFormater('dcLegacyEditor', $format, $excerpt);
             $excerpt_xhtml = $this->core->HTMLfilter($excerpt_xhtml);
         } else {
             $excerpt_xhtml = '';
         }
 
         if ($content) {
-            $content_xhtml = $this->core->callFormater($format, $content);
+            $content_xhtml = $this->core->callEditorFormater('dcLegacyEditor', $format, $content);
             $content_xhtml = $this->core->HTMLfilter($content_xhtml);
         } else {
             $content_xhtml = '';
