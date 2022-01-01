@@ -57,16 +57,16 @@ abstract class Page
     private $page_breadcrumb = ['elements' => null, 'options' => []];
 
     /** @var array                  Keep track of loaded js files */
-    private static $loaded_js     = [];
+    private static $page_loaded_js     = [];
 
     /** @var array                  Keep track of loaded css files */
-    private static $loaded_css    = [];
+    private static $page_loaded_css    = [];
 
     /** @var array                  Keep track of preloaded script */
-    private static $preloaded     = [];
+    private static $page_preloaded     = [];
 
     /** @var bool                   Load once xframe */
-    private static $xframe_loaded = false;
+    private static $page_xframe_loaded = false;
 
     /** @var string                 Handler name that calls page */
     protected $handler;
@@ -84,10 +84,10 @@ abstract class Page
     protected $catalog;
 
     /** @var array                  Blog settings namespace to initialize */
-    protected $settings_namespaces = [];
+    protected $namespaces = [];
 
     /** @var array                  User workswpaces to initialize */
-    protected $user_workspaces = [];
+    protected $workspaces = [];
 
     /** @var array                  Misc options for page content */
     protected $options = [];
@@ -217,8 +217,8 @@ abstract class Page
 
     private function pageWorkspaces(): void
     {
-        if (!empty($this->user_workspaces)) {
-            foreach($this->user_workspaces as $ws) {
+        if (!empty($this->workspaces)) {
+            foreach($this->workspaces as $ws) {
                 $this->core->auth->user_prefs->addWorkspace($ws);
             }
         }
@@ -226,8 +226,8 @@ abstract class Page
 
     private function pageNamespaces(): void
     {
-        if (!empty($this->settings_namespaces) && $core->blog->id) {
-            foreach($this->settings_namespaces as $ws) {
+        if (!empty($this->namespaces) && $core->blog->id) {
+            foreach($this->namespaces as $ws) {
                 $this->blog->settings->addNamespace($ns);
             }
         }
@@ -782,6 +782,9 @@ abstract class Page
         }
         $res.= '<p>Core elapsed time: ' . $this->core->getElapsedTime() . ' | Core consumed memory: ' . $this->core->getConsumedMemory() . '</p>';
 
+        $loaded_files = \Dotclear\Utils\Autoloader::getLoadedFiles();
+        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . '</p>'; //<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
+
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
             '</div></div>';
 
@@ -810,7 +813,7 @@ abstract class Page
      */
     public static function setXFrameOptions($headers, ?string $origin = null): void
     {
-        if (self::$xframe_loaded) {
+        if (self::$page_xframe_loaded) {
             return;
         }
 
@@ -822,7 +825,7 @@ abstract class Page
         } else {
             $headers['x-frame-options'] = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
         }
-        self::$xframe_loaded = true;
+        self::$page_xframe_loaded = true;
     }
     //@}
 
@@ -832,7 +835,7 @@ abstract class Page
      * Set page type
      *
      * type can be :
-     * - null for standard page
+     * - null or 'full' for standard page
      * - 'popup',
      * - ...
      *
@@ -916,8 +919,8 @@ abstract class Page
      *
      * Note that page Action use this method to process actions.
      * This method returns :
-     * - Null if nothing done, current process stop, parent process goes on.
-     * - Bool else, process goes on and stop, parent process is not executed.
+     * - Null if nothing done, current process stop, if extists parent process goes on.
+     * - Bool else, process goes on and stop, if exists parent process is not executed.
      *
      * @return  boll|null   Prepend result
      */
@@ -1247,8 +1250,8 @@ abstract class Page
     public static function preload(string $src, string $v = '', string $type = 'style'): string
     {
         $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$preloaded[$escaped_src])) {
-            self::$preloaded[$escaped_src] = true;
+        if (!isset(self::$page_preloaded[$escaped_src])) {
+            self::$page_preloaded[$escaped_src] = true;
             $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
 
             return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
@@ -1272,8 +1275,8 @@ abstract class Page
     public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
     {
         $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$loaded_css[$escaped_src])) {
-            self::$loaded_css[$escaped_src] = true;
+        if (!isset(self::$page_loaded_css[$escaped_src])) {
+            self::$page_loaded_css[$escaped_src] = true;
             $escaped_src                    = self::appendVersion('?df=' . $escaped_src, $v);
 
             return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
@@ -1296,8 +1299,8 @@ abstract class Page
     public static function jsLoad(string $src, string $v = ''): string
     {
         $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$loaded_js[$escaped_src])) {
-            self::$loaded_js[$escaped_src] = true;
+        if (!isset(self::$page_loaded_js[$escaped_src])) {
+            self::$page_loaded_js[$escaped_src] = true;
             $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
 
             return '<script src="' . $escaped_src . '"></script>' . "\n";

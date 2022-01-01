@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Charte extends Page
 {
-    protected $user_workspaces = ['interface'];
+    protected $workspaces = ['interface'];
 
     protected function getPermissions(): string|null|false
     {

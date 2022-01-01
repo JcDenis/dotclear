@@ -33,7 +33,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Home extends Page
 {
-    protected $user_workspaces = ['dashboard', 'toggles', 'accessibility'];
+    protected $workspaces = ['dashboard', 'toggles', 'accessibility'];
 
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
 
