@@ -16,14 +16,17 @@ use Dotclear\Exception;
 
 class DeprecatedException extends Exception
 {
-    public function __toString() {
+    public function __construct($message = 'Exception for the use of deprecated function', $code = 0, Throwable $previous = null)
+    {
         $trace = $this->getTrace();
-        return 'Exception for the use of deprecated function "' . $trace[1]['class'] .'::' . $trace[1]['function'] . '" in ' . $trace[1]['file'] . " line " . $trace[1]['line'] . "\n";
+        $message .= ' ' . $trace[1]['class'] .'::' . $trace[1]['function'] . '" in ' . $trace[1]['file'] . " line " . $trace[1]['line'] . "\n";
+
+        parent::__construct($message, $code, $previous);
     }
 
     public static function throw(): void
     {
-        if (defined('DOTCLEAR_DEBUG') && DOTCLEAR_DEBUG) {
+        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV) {
             throw new self();
         }
     }
