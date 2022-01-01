@@ -40,6 +40,9 @@ class Autoloader
     /** @var array Array of registered namespace [prefix=[base dir]] */
     protected $prefixes = [];
 
+    /** @var array Keep track of loaded files */
+    private static $loaded_files = [];
+
     /**
      * Register loader with SPL autoloader stack.
      *
@@ -227,11 +230,22 @@ class Autoloader
     protected function requireFile(string $file): bool
     {
         if (file_exists($file)) {
+            self::$loaded_files[$file] = 1;
             require $file;
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Get list of all loaded files from this autoloader
+     *
+     * @return array Loaded files list
+     */
+    public static function getLoadedFiles(): array
+    {
+        return empty(self::$loaded_files) ? [] : array_keys(self::$loaded_files);
     }
 }
