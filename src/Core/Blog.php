@@ -1948,7 +1948,7 @@ class Blog
     /**
      * Creates post HTML content, taking format and lang into account.
      *
-     * @param      int      $post_id        The post identifier
+     * @param      int|null $post_id        The post identifier
      * @param      string   $format         The format
      * @param      string   $lang           The language
      * @param      string   $excerpt        The excerpt
@@ -1956,11 +1956,11 @@ class Blog
      * @param      string   $content        The content
      * @param      string   $content_xhtml  The content xhtml
      */
-    public function setPostContent(int $post_id, string $format, string $lang, string &$excerpt, string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
+    public function setPostContent(?int $post_id, string $format, string $lang, string &$excerpt, string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ($format == 'wiki') {
             $this->core->initWikiPost();
-            $this->core->wiki2xhtml->setOpt('note_prefix', 'pnote-' . $post_id);
+            $this->core->wiki2xhtml->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
             switch ($this->settings->system->note_title_tag) {
                 case 1:
                     $tag = 'h3';
