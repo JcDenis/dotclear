@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -21,6 +23,7 @@ use Dotclear\Core\Media;
 use Dotclear\Core\Trackback;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\Notices;
 use Dotclear\Admin\Combos;
 use Dotclear\Admin\Action\CommentAction;
 
@@ -36,125 +39,122 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Post extends Page
 {
-    public function __construct(Core $core)
+    private $post_id            = null;
+    private $cat_id             = '';
+    private $post_dt            = '';
+    private $post_format        = '';
+    private $post_editor        = '';
+    private $post_password      = '';
+    private $post_url           = '';
+    private $post_lang          = '';
+    private $post_title         = '';
+    private $post_excerpt       = '';
+    private $post_excerpt_xhtml = '';
+    private $post_content       = '';
+    private $post_content_xhtml = '';
+    private $post_notes         = '';
+    private $post_status        = -2;
+    private $post_selected      = false;
+    private $post_open_comment  = false;
+    private $post_open_tb       = false;
+
+    private $can_view_page = true;
+    private $can_view_ip   = false;
+    private $can_edit_post = false;
+    private $can_publish   = false;
+    private $can_delete    = false;
+
+    private $post = null;
+    private $trackback = null;
+    private $tb_urls    ='';
+    private $tb_excerpt = '';
+    private $comments_actions = null;
+
+    private $next_link     = null;
+    private $prev_link     = null;
+
+    private $bad_dt = false;
+    private $img_status = '';
+
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
-
-        $show_ip = $core->auth->check('contentadmin', $core->blog->id);
-
-        $post_id            = '';
-        $cat_id             = '';
-        $post_dt            = '';
-        $post_format        = $core->auth->getOption('post_format');
-        $post_editor        = $core->auth->getOption('editor');
-        $post_password      = '';
-        $post_url           = '';
-        $post_lang          = $core->auth->getInfo('user_lang');
-        $post_title         = '';
-        $post_excerpt       = '';
-        $post_excerpt_xhtml = '';
-        $post_content       = '';
-        $post_content_xhtml = '';
-        $post_notes         = '';
-        $post_status        = $core->auth->getInfo('user_post_status');
-        $post_selected      = false;
-        $post_open_comment  = $core->blog->settings->system->allow_comments;
-        $post_open_tb       = $core->blog->settings->system->allow_trackbacks;
-
+    protected function getPagePrepend(): ? bool
+    {
         $page_title = __('New post');
 
-        $can_view_page = true;
-        $can_edit_post = $core->auth->check('usage,contentadmin', $core->blog->id);
-        $can_publish   = $core->auth->check('publish,contentadmin', $core->blog->id);
-        $can_delete    = false;
+        $this->post_format        = $this->core->auth->getOption('post_format');
+        $this->post_editor        = $this->core->auth->getOption('editor');
+        $this->post_lang          = $this->core->auth->getInfo('user_lang');
+        $this->post_status        = $this->core->auth->getInfo('user_post_status');
+        $this->post_open_comment  = $this->core->blog->settings->system->allow_comments;
+        $this->post_open_tb       = $this->core->blog->settings->system->allow_trackbacks;
 
-        $post_headlink = '<link rel="%s" title="%s" href="' . $core->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
-        $post_link     = '<a href="' . $core->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
-        $next_link     = $prev_link     = $next_headlink     = $prev_headlink     = null;
+        $this->can_view_ip   = $this->core->auth->check('contentadmin', $this->core->blog->id);
+        $this->can_edit_post = $this->core->auth->check('usage,contentadmin', $this->core->blog->id);
+        $this->can_publish   = $this->core->auth->check('publish,contentadmin', $this->core->blog->id);
+
+        $this->post_headlink = '<link rel="%s" title="%s" href="' . $this->core->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
+        $this->post_link     = '<a href="' . $this->core->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $next_headlink     = $prev_headlink     = null;
 
         # If user can't publish
-        if (!$can_publish) {
-            $post_status = -2;
+        if (!$this->can_publish) {
+            $this->post_status = -2;
         }
 
-        # Getting categories
-        $categories_combo = Combos::getCategoriesCombo(
-            $core->blog->getCategories()
-        );
+        $this->img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
-        $status_combo = Combos::getPostStatusesCombo();
-
-        $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-
-        # Formats combo
-        $core_formaters    = $core->getFormaters();
-        $available_formats = ['' => ''];
-        foreach ($core_formaters as $editor => $formats) {
-            foreach ($formats as $format) {
-                $available_formats[$format] = $format;
-            }
-        }
-
-        # Languages combo
-        $rs         = $core->blog->getLangs(['order' => 'asc']);
-        $lang_combo = Combos::getLangsCombo($rs, true);
-
-        # Validation flag
-        $bad_dt = false;
-
-        # Trackbacks
-        $TB      = new Trackback($core);
-        $tb_urls = $tb_excerpt = '';
+        $this->trackback      = new Trackback($this->core);
 
         # Get entry informations
-        $post = null;
 
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
             $params['post_id'] = (int) $_REQUEST['id'];
 
-            $post = $core->blog->getPosts($params);
+            $this->post = $this->core->blog->getPosts($params);
 
-            if ($post->isEmpty()) {
-                $core->error->add(__('This entry does not exist.'));
-                $can_view_page = false;
+            if ($this->post->isEmpty()) {
+                $this->core->error->add(__('This entry does not exist.'));
+                $this->can_view_page = false;
             } else {
-                $post_id            = (int) $post->post_id;
-                $cat_id             = $post->cat_id;
-                $post_dt            = date('Y-m-d H:i', strtotime($post->post_dt));
-                $post_format        = $post->post_format;
-                $post_password      = $post->post_password;
-                $post_url           = $post->post_url;
-                $post_lang          = $post->post_lang;
-                $post_title         = $post->post_title;
-                $post_excerpt       = $post->post_excerpt;
-                $post_excerpt_xhtml = $post->post_excerpt_xhtml;
-                $post_content       = $post->post_content;
-                $post_content_xhtml = $post->post_content_xhtml;
-                $post_notes         = $post->post_notes;
-                $post_status        = $post->post_status;
-                $post_selected      = (bool) $post->post_selected;
-                $post_open_comment  = (bool) $post->post_open_comment;
-                $post_open_tb       = (bool) $post->post_open_tb;
+                $this->post_id            = (int) $this->post->post_id;
+                $this->cat_id             = $this->post->cat_id;
+                $this->post_dt            = date('Y-m-d H:i', strtotime($this->post->post_dt));
+                $this->post_format        = $this->post->post_format;
+                $this->post_password      = $this->post->post_password;
+                $this->post_url           = $this->post->post_url;
+                $this->post_lang          = $this->post->post_lang;
+                $this->post_title         = $this->post->post_title;
+                $this->post_excerpt       = $this->post->post_excerpt;
+                $this->post_excerpt_xhtml = $this->post->post_excerpt_xhtml;
+                $this->post_content       = $this->post->post_content;
+                $this->post_content_xhtml = $this->post->post_content_xhtml;
+                $this->post_notes         = $this->post->post_notes;
+                $this->post_status        = $this->post->post_status;
+                $this->post_selected      = (bool) $this->post->post_selected;
+                $this->post_open_comment  = (bool) $this->post->post_open_comment;
+                $this->post_open_tb       = (bool) $this->post->post_open_tb;
 
-                $can_edit_post = $post->isEditable();
-                $can_delete    = $post->isDeletable();
+                $this->can_edit_post = $this->post->isEditable();
+                $this->can_delete    = $this->post->isDeletable();
 
-                $next_rs = $core->blog->getNextPost($post, 1);
-                $prev_rs = $core->blog->getNextPost($post, -1);
+                $next_rs = $this->core->blog->getNextPost($this->post, 1);
+                $prev_rs = $this->core->blog->getNextPost($this->post, -1);
 
                 if ($next_rs !== null) {
-                    $next_link = sprintf(
-                        $post_link,
+                    $this->next_link = sprintf(
+                        $this->post_link,
                         $next_rs->post_id,
                         Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
                         __('Next entry') . '&nbsp;&#187;'
                     );
                     $next_headlink = sprintf(
-                        $post_headlink,
+                        $this->post_headlink,
                         'next',
                         Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
                         $next_rs->post_id
@@ -162,14 +162,14 @@ class Post extends Page
                 }
 
                 if ($prev_rs !== null) {
-                    $prev_link = sprintf(
-                        $post_link,
+                    $this->prev_link = sprintf(
+                        $this->post_link,
                         $prev_rs->post_id,
                         Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
                         '&#171;&nbsp;' . __('Previous entry')
                     );
                     $prev_headlink = sprintf(
-                        $post_headlink,
+                        $this->post_headlink,
                         'previous',
                         Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
                         $prev_rs->post_id
@@ -177,18 +177,18 @@ class Post extends Page
                 }
 
                 try {
-                    $core->media = new Media($core);
+                    $this->core->media = new Media($this->core);
                 } catch (Exception $e) {
-                    $core->error->add($e->getMessage());
+                    $this->core->error->add($e->getMessage());
                 }
 
                 # Sanitize trackbacks excerpt
-                $tb_excerpt = empty($_POST['tb_excerpt']) ?
-                $post_excerpt_xhtml . ' ' . $post_content_xhtml :
+                $this->tb_excerpt = empty($_POST['tb_excerpt']) ?
+                $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml :
                 $_POST['tb_excerpt'];
-                $tb_excerpt = Html::decodeEntities(Html::clean($tb_excerpt));
-                $tb_excerpt = Text::cutString(Html::escapeHTML($tb_excerpt), 255);
-                $tb_excerpt = preg_replace('/\s+/ms', ' ', $tb_excerpt);
+                $this->tb_excerpt = Html::decodeEntities(Html::clean($this->tb_excerpt));
+                $this->tb_excerpt = Text::cutString(Html::escapeHTML($this->tb_excerpt), 255);
+                $this->tb_excerpt = preg_replace('/\s+/ms', ' ', $this->tb_excerpt);
             }
         }
         if (isset($_REQUEST['section']) && $_REQUEST['section'] == 'trackbacks') {
@@ -197,196 +197,190 @@ class Post extends Page
             $anchor = 'comments';
         }
 
-        $comments_actions_page = new CommentAction($core, $core->adminurl->get('admin.post'), ['id' => $post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
-
-        if ($comments_actions_page->process()) {
-            return;
+        $this->comments_actions = new CommentAction($this->core, $this->core->adminurl->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
+        if ($this->comments_actions->pageProcess()) {
+            return null;
         }
 
         # Ping blogs
         if (!empty($_POST['ping'])) {
-            if (!empty($_POST['tb_urls']) && $post_id && $post_status == 1 && $can_edit_post) {
-                $tb_urls       = $_POST['tb_urls'];
-                $tb_urls       = str_replace("\r", '', $tb_urls);
-                $tb_post_title = Html::escapeHTML(trim(Html::clean($post_title)));
-                $tb_post_url   = $post->getURL();
+            if (!empty($_POST['tb_urls']) && $this->post_id && $this->post_status == 1 && $this->can_edit_post) {
+                $this->tb_urls       = $_POST['tb_urls'];
+                $this->tb_urls       = str_replace("\r", '', $this->tb_urls);
+                $tb_post_title = Html::escapeHTML(trim(Html::clean($this->post_title)));
+                $tb_post_url   = $this->post->getURL();
 
-                foreach (explode("\n", $tb_urls) as $tb_url) {
+                foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
                         # --BEHAVIOR-- adminBeforePingTrackback
-                        $core->behaviors->call('adminBeforePingTrackback', $tb_url, $post_id, $tb_post_title, $tb_excerpt, $tb_post_url);
+                        $this->core->behaviors->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
-                        $TB->ping($tb_url, $post_id, $tb_post_title, $tb_excerpt, $tb_post_url);
+                        $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
-                        $core->error->add($e->getMessage());
+                        $this->core->error->add($e->getMessage());
                     }
                 }
 
-                if (!$core->error->flag()) {
-                    static::addSuccessNotice(__('All pings sent.'));
-                    $core->adminurl->redirect(
+                if (!$this->core->error->flag()) {
+                    Notices::addSuccessNotice(__('All pings sent.'));
+                    $this->core->adminurl->redirect(
                         'admin.post',
-                        ['id' => $post_id, 'tb' => '1']
+                        ['id' => $this->post_id, 'tb' => '1']
                     );
                 }
             }
         }
 
         # Format excerpt and content
-        elseif (!empty($_POST) && $can_edit_post) {
-            $post_format  = $_POST['post_format'];
-            $post_excerpt = $_POST['post_excerpt'];
-            $post_content = $_POST['post_content'];
+        elseif (!empty($_POST) && $this->can_edit_post) {
+            $this->post_format  = $_POST['post_format'];
+            $this->post_excerpt = $_POST['post_excerpt'];
+            $this->post_content = $_POST['post_content'];
 
-            $post_title = $_POST['post_title'];
+            $this->post_title = $_POST['post_title'];
 
-            $cat_id = (int) $_POST['cat_id'];
+            $this->cat_id = (int) $_POST['cat_id'];
 
             if (isset($_POST['post_status'])) {
-                $post_status = (int) $_POST['post_status'];
+                $this->post_status = (int) $_POST['post_status'];
             }
 
             if (empty($_POST['post_dt'])) {
-                $post_dt = '';
+                $this->post_dt = '';
             } else {
                 try {
-                    $post_dt = strtotime($_POST['post_dt']);
-                    if ($post_dt == false || $post_dt == -1) {
-                        $bad_dt = true;
+                    $this->post_dt = strtotime($_POST['post_dt']);
+                    if ($this->post_dt == false || $this->post_dt == -1) {
+                        $this->bad_dt = true;
 
                         throw new AdminException(__('Invalid publication date'));
                     }
-                    $post_dt = date('Y-m-d H:i', $post_dt);
+                    $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (Exception $e) {
-                    $core->error->add($e->getMessage());
+                    $this->core->error->add($e->getMessage());
                 }
             }
 
-            $post_open_comment = !empty($_POST['post_open_comment']);
-            $post_open_tb      = !empty($_POST['post_open_tb']);
-            $post_selected     = !empty($_POST['post_selected']);
-            $post_lang         = $_POST['post_lang'];
-            $post_password     = !empty($_POST['post_password']) ? $_POST['post_password'] : null;
+            $this->post_open_comment = !empty($_POST['post_open_comment']);
+            $this->post_open_tb      = !empty($_POST['post_open_tb']);
+            $this->post_selected     = !empty($_POST['post_selected']);
+            $this->post_lang         = $_POST['post_lang'];
+            $this->post_password     = !empty($_POST['post_password']) ? $_POST['post_password'] : null;
 
-            $post_notes = $_POST['post_notes'];
+            $this->post_notes = $_POST['post_notes'];
 
             if (isset($_POST['post_url'])) {
-                $post_url = $_POST['post_url'];
+                $this->post_url = $_POST['post_url'];
             }
 
-            $core->blog->setPostContent(
-                $post_id,
-                $post_format,
-                $post_lang,
-                $post_excerpt,
-                $post_excerpt_xhtml,
-                $post_content,
-                $post_content_xhtml
+            $this->core->blog->setPostContent(
+                $this->post_id,
+                $this->post_format,
+                $this->post_lang,
+                $this->post_excerpt,
+                $this->post_excerpt_xhtml,
+                $this->post_content,
+                $this->post_content_xhtml
             );
         }
 
         # Delete post
-        if (!empty($_POST['delete']) && $can_delete) {
+        if (!empty($_POST['delete']) && $this->can_delete) {
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
-                $core->behaviors->call('adminBeforePostDelete', $post_id);
-                $core->blog->delPost($post_id);
-                $core->adminurl->redirect('admin.posts');
+                $this->core->behaviors->call('adminBeforePostDelete', $this->post_id);
+                $this->core->blog->delPost($this->post_id);
+                $this->core->adminurl->redirect('admin.posts');
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                $this->core->error->add($e->getMessage());
             }
         }
 
         # Create or update post
-        if (!empty($_POST) && !empty($_POST['save']) && $can_edit_post && !$bad_dt) {
+        if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
-            if (!empty($_POST['new_cat_title']) && $core->auth->check('categories', $core->blog->id)) {
-                $cur_cat            = $core->con->openCursor($core->prefix . 'category');
+            if (!empty($_POST['new_cat_title']) && $this->core->auth->check('categories', $this->core->blog->id)) {
+                $cur_cat            = $this->core->con->openCursor($this->core->prefix . 'category');
                 $cur_cat->cat_title = $_POST['new_cat_title'];
                 $cur_cat->cat_url   = '';
 
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                $core->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+                $this->core->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $cat_id = $core->blog->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = $this->core->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                $core->behaviors->call('adminAfterCategoryCreate', $cur_cat, $cat_id);
+                $this->core->behaviors->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
-            $cur = $core->con->openCursor($core->prefix . 'post');
+            $cur = $this->core->con->openCursor($this->core->prefix . 'post');
 
-            $cur->cat_id             = ($cat_id ?: null);
-            $cur->post_dt            = $post_dt ? date('Y-m-d H:i:00', strtotime($post_dt)) : '';
-            $cur->post_format        = $post_format;
-            $cur->post_password      = $post_password;
-            $cur->post_lang          = $post_lang;
-            $cur->post_title         = $post_title;
-            $cur->post_excerpt       = $post_excerpt;
-            $cur->post_excerpt_xhtml = $post_excerpt_xhtml;
-            $cur->post_content       = $post_content;
-            $cur->post_content_xhtml = $post_content_xhtml;
-            $cur->post_notes         = $post_notes;
-            $cur->post_status        = $post_status;
-            $cur->post_selected      = (int) $post_selected;
-            $cur->post_open_comment  = (int) $post_open_comment;
-            $cur->post_open_tb       = (int) $post_open_tb;
+            $cur->cat_id             = ($this->cat_id ?: null);
+            $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
+            $cur->post_format        = $this->post_format;
+            $cur->post_password      = $this->post_password;
+            $cur->post_lang          = $this->post_lang;
+            $cur->post_title         = $this->post_title;
+            $cur->post_excerpt       = $this->post_excerpt;
+            $cur->post_excerpt_xhtml = $this->post_excerpt_xhtml;
+            $cur->post_content       = $this->post_content;
+            $cur->post_content_xhtml = $this->post_content_xhtml;
+            $cur->post_notes         = $this->post_notes;
+            $cur->post_status        = $this->post_status;
+            $cur->post_selected      = (int) $this->post_selected;
+            $cur->post_open_comment  = (int) $this->post_open_comment;
+            $cur->post_open_tb       = (int) $this->post_open_tb;
 
             if (isset($_POST['post_url'])) {
-                $cur->post_url = $post_url;
+                $cur->post_url = $this->post_url;
             }
 
             # Update post
-            if ($post_id) {
+            if ($this->post_id) {
                 try {
                     # --BEHAVIOR-- adminBeforePostUpdate
-                    $core->behaviors->call('adminBeforePostUpdate', $cur, $post_id);
+                    $this->core->behaviors->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    $core->blog->updPost($post_id, $cur);
+                    $this->core->blog->updPost($this->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
-                    $core->behaviors->call('adminAfterPostUpdate', $cur, $post_id);
-                    static::addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
-                    $core->adminurl->redirect(
+                    $this->core->behaviors->call('adminAfterPostUpdate', $cur, $this->post_id);
+                    Notices::addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
+                    $this->core->adminurl->redirect(
                         'admin.post',
-                        ['id' => $post_id]
+                        ['id' => $this->post_id]
                     );
                 } catch (Exception $e) {
-                    $core->error->add($e->getMessage());
+                    $this->core->error->add($e->getMessage());
                 }
             } else {
-                $cur->user_id = $core->auth->userID();
+                $cur->user_id = $this->core->auth->userID();
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
-                    $core->behaviors->call('adminBeforePostCreate', $cur);
+                    $this->core->behaviors->call('adminBeforePostCreate', $cur);
 
-                    $return_id = $core->blog->addPost($cur);
+                    $return_id = $this->core->blog->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
-                    $core->behaviors->call('adminAfterPostCreate', $cur, $return_id);
+                    $this->core->behaviors->call('adminAfterPostCreate', $cur, $return_id);
 
-                    static::addSuccessNotice(__('Entry has been successfully created.'));
-                    $core->adminurl->redirect(
+                    Notices::addSuccessNotice(__('Entry has been successfully created.'));
+                    $this->core->adminurl->redirect(
                         'admin.post',
                         ['id' => $return_id]
                     );
                 } catch (Exception $e) {
-                    $core->error->add($e->getMessage());
+                    $this->core->error->add($e->getMessage());
                 }
             }
         }
 
-        # Getting categories
-        $categories_combo = Combos::getCategoriesCombo(
-            $core->blog->getCategories()
-        );
-        /* DISPLAY
-        -------------------------------------------------------- */
+        # Page setup
         $default_tab = 'edit-entry';
-        if (!$can_edit_post) {
+        if (!$this->can_edit_post) {
             $default_tab = '';
         }
         if (!empty($_GET['co'])) {
@@ -395,189 +389,213 @@ class Post extends Page
             $default_tab = 'trackbacks';
         }
 
-        if ($post_id) {
-            switch ($post_status) {
+        if ($this->post_id) {
+            switch ($this->post_status) {
                 case 1:
-                    $img_status = sprintf($img_status_pattern, __('Published'), 'check-on.png');
+                    $this->img_status = sprintf($this->img_status_pattern, __('Published'), 'check-on.png');
 
                     break;
                 case 0:
-                    $img_status = sprintf($img_status_pattern, __('Unpublished'), 'check-off.png');
+                    $this->img_status = sprintf($this->img_status_pattern, __('Unpublished'), 'check-off.png');
 
                     break;
                 case -1:
-                    $img_status = sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png');
+                    $this->img_status = sprintf($this->img_status_pattern, __('Scheduled'), 'scheduled.png');
 
                     break;
                 case -2:
-                    $img_status = sprintf($img_status_pattern, __('Pending'), 'check-wrn.png');
+                    $this->img_status = sprintf($this->img_status_pattern, __('Pending'), 'check-wrn.png');
 
                     break;
                 default:
-                    $img_status = '';
+                    $this->img_status = '';
             }
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
-            $page_title_edit = sprintf($edit_entry_str, Html::escapeHTML(trim(Html::clean($post_title)))) . ' ' . $img_status;
+            $page_title_edit = sprintf($edit_entry_str, Html::escapeHTML(trim(Html::clean($this->post_title)))) . ' ' . $this->img_status;
         } else {
-            $img_status      = '';
             $page_title_edit = '';
         }
 
-        $admin_post_behavior = '';
-        if ($post_editor) {
+        $this->setPageHead(
+            static::jsModal() .
+            static::jsMetaEditor()
+        );
+
+        if ($this->post_editor) {
             $p_edit = $c_edit = '';
-            if (!empty($post_editor[$post_format])) {
-                $p_edit = $post_editor[$post_format];
+            if (!empty($this->post_editor[$this->post_format])) {
+                $p_edit = $this->post_editor[$this->post_format];
             }
-            if (!empty($post_editor['xhtml'])) {
-                $c_edit = $post_editor['xhtml'];
+            if (!empty($this->post_editor['xhtml'])) {
+                $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $admin_post_behavior .= $core->behaviors->call(
+                $this->setPageHead($this->core->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content', '#comment_content'],
-                    $post_format
-                );
+                    $this->post_format
+                ));
             } else {
-                $admin_post_behavior .= $core->behaviors->call(
+                $this->setPageHead($this->core->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
-                    $post_format
-                );
-                $admin_post_behavior .= $core->behaviors->call(
+                    $this->post_format
+                ));
+                $this->setPageHead($this->core->behaviors->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
                     ['#comment_content'],
                     'xhtml'
-                );
+                ));
             }
         }
 
-        $this->open(
-            $page_title . ' - ' . __('Posts'),
-            static::jsModal() .
-            static::jsMetaEditor() .
-            $admin_post_behavior .
-            static::jsLoad('js/_post.js') .
-            static::jsConfirmClose('entry-form', 'comment-form') .
-            # --BEHAVIOR-- adminPostHeaders
-            $core->behaviors->call('adminPostHeaders') .
-            static::jsPageTabs($default_tab) .
-            $next_headlink . "\n" . $prev_headlink,
-            $this->breadcrumb(
-                [
-                    Html::escapeHTML($core->blog->name)         => '',
-                    __('Posts')                                 => $core->adminurl->get('admin.posts'),
-                    ($post_id ? $page_title_edit : $page_title) => '',
-                ]
-            ),
-            [
-                'x-frame-allow' => $core->blog->url,
-            ]
+        $this->setPageHelp('core_post');
+        if (!$this->can_view_page) {
+            $this->setPageHelp('core_post', 'core_trackbacks', 'core_wiki');
+        }
+
+        $this
+            ->setPageTitle($page_title . ' - ' . __('Posts'))
+            ->setPageHead(
+                static::jsLoad('js/_post.js') .
+                static::jsConfirmClose('entry-form', 'comment-form') .
+                # --BEHAVIOR-- adminPostHeaders
+                $this->core->behaviors->call('adminPostHeaders') .
+                static::jsPageTabs($default_tab) .
+                $next_headlink . "\n" . $prev_headlink
+            )
+            ->setPageBreadcrumb([
+                Html::escapeHTML($this->core->blog->name)         => '',
+                __('Posts')                                        => $this->core->adminurl->get('admin.posts'),
+                ($this->post_id ? $page_title_edit : $page_title) => '',
+            ], [
+                'x-frame-allow' => $this->core->blog->url,
+            ])
+        ;
+
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
+        $categories_combo = Combos::getCategoriesCombo(
+            $this->core->blog->getCategories()
         );
 
+        $status_combo = Combos::getPostStatusesCombo();
+
+        $rs         = $this->core->blog->getLangs(['order' => 'asc']);
+        $lang_combo = Combos::getLangsCombo($rs, true);
+
+        $this->core_formaters    = $this->core->getFormaters();
+        $available_formats = ['' => ''];
+        foreach ($this->core_formaters as $editor => $formats) {
+            foreach ($formats as $format) {
+                $available_formats[$format] = $format;
+            }
+        }
+
         if (!empty($_GET['upd'])) {
-            static::success(__('Entry has been successfully updated.'));
+            Notices::success(__('Entry has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
-            static::success(__('Entry has been successfully created.'));
+            Notices::success(__('Entry has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
-            static::success(__('File has been successfully attached.'));
+            Notices::success(__('File has been successfully attached.'));
         } elseif (!empty($_GET['rmattach'])) {
-            static::success(__('Attachment has been successfully removed.'));
+            Notices::success(__('Attachment has been successfully removed.'));
         }
 
         if (!empty($_GET['creaco'])) {
-            static::success(__('Comment has been successfully created.'));
+            Notices::success(__('Comment has been successfully created.'));
         }
         if (!empty($_GET['tbsent'])) {
-            static::success(__('All pings sent.'));
+            Notices::success(__('All pings sent.'));
         }
 
         # XHTML conversion
         if (!empty($_GET['xconv'])) {
-            $post_excerpt = $post_excerpt_xhtml;
-            $post_content = $post_content_xhtml;
-            $post_format  = 'xhtml';
+            $this->post_excerpt = $this->post_excerpt_xhtml;
+            $this->post_content = $this->post_content_xhtml;
+            $this->post_format  = 'xhtml';
 
-            static::message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
+            Notices::message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
-        if ($post_id && $post->post_status == 1) {
-            echo '<p><a class="onblog_link outgoing" href="' . $post->getURL() . '" title="' . Html::escapeHTML(trim(Html::clean($post_title))) . '">' . __('Go to this entry on the site') . ' <img src="?df=images/outgoing-link.svg" alt="" /></a></p>';
+        if ($this->post_id && $this->post->post_status == 1) {
+            echo '<p><a class="onblog_link outgoing" href="' . $this->post->getURL() . '" title="' . Html::escapeHTML(trim(Html::clean($this->post_title))) . '">' . __('Go to this entry on the site') . ' <img src="?df=images/outgoing-link.svg" alt="" /></a></p>';
         }
-        if ($post_id) {
+        if ($this->post_id) {
             echo '<p class="nav_prevnext">';
-            if ($prev_link) {
-                echo $prev_link;
+            if ($this->prev_link) {
+                echo $this->prev_link;
             }
-            if ($next_link && $prev_link) {
+            if ($this->next_link && $this->prev_link) {
                 echo ' | ';
             }
-            if ($next_link) {
-                echo $next_link;
+            if ($this->next_link) {
+                echo $this->next_link;
             }
 
             # --BEHAVIOR-- adminPostNavLinks
-            $core->behaviors->call('adminPostNavLinks', $post ?? null, 'post');
+            $this->core->behaviors->call('adminPostNavLinks', $this->post ?? null, 'post');
 
             echo '</p>';
         }
 
         # Exit if we cannot view page
-        if (!$can_view_page) {
-            $this->helpBlock('core_post');
-            $this->close();
-            exit;
+        if (!$this->can_view_page) {
+            return;
         }
 
         /* Post form if we can edit post
         -------------------------------------------------------- */
-        if ($can_edit_post) {
-            $sidebar_items = new \ArrayObject([
+        if ($this->can_edit_post) {
+            $sidebar_items = new ArrayObject([
                 'status-box' => [
                     'title' => __('Status'),
                     'items' => [
-                        'post_status' => '<p class="entry-status"><label for="post_status">' . __('Entry status') . ' ' . $img_status . '</label>' .
+                        'post_status' => '<p class="entry-status"><label for="post_status">' . __('Entry status') . ' ' . $this->img_status . '</label>' .
                         Form::combo(
                             'post_status',
                             $status_combo,
-                            ['default' => $post_status, 'class' => 'maximal', 'disabled' => !$can_publish]
+                            ['default' => $this->post_status, 'class' => 'maximal', 'disabled' => !$this->can_publish]
                         ) .
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', strtotime($post_dt))),
-                            'class'   => ($bad_dt ? 'invalid' : ''),
+                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', strtotime($this->post_dt))),
+                            'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
                         'post_lang' => '<p><label for="post_lang">' . __('Entry language') . '</label>' .
-                        Form::combo('post_lang', $lang_combo, $post_lang) .
+                        Form::combo('post_lang', $lang_combo, $this->post_lang) .
                         '</p>',
                         'post_format' => '<div>' .
                         '<h5 id="label_format"><label for="post_format" class="classic">' . __('Text formatting') . '</label></h5>' .
-                        '<p>' . Form::combo('post_format', $available_formats, $post_format, 'maximal') . '</p>' .
+                        '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_no_xhtml">' .
-                        '<a id="convert-xhtml" class="button' . ($post_id && $post_format != 'wiki' ? ' hide' : '') . '" href="' .
-                        $core->adminurl->get('admin.post', ['id' => $post_id, 'xconv' => '1']) .
+                        '<a id="convert-xhtml" class="button' . ($this->post_id && $this->post_format != 'wiki' ? ' hide' : '') . '" href="' .
+                        $this->core->adminurl->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
                         '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
                 'metas-box' => [
                     'title' => __('Filing'),
                     'items' => [
                         'post_selected' => '<p><label for="post_selected" class="classic">' .
-                        Form::checkbox('post_selected', 1, $post_selected) . ' ' .
+                        Form::checkbox('post_selected', 1, $this->post_selected) . ' ' .
                         __('Selected entry') . '</label></p>',
                         'cat_id' => '<div>' .
                         '<h5 id="label_cat_id">' . __('Category') . '</h5>' .
                         '<p><label for="cat_id">' . __('Category:') . '</label>' .
-                        Form::combo('cat_id', $categories_combo, $cat_id, 'maximal') .
+                        Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
                         '</p>' .
-                        ($core->auth->check('categories', $core->blog->id) ?
+                        ($this->core->auth->check('categories', $this->core->blog->id) ?
                             '<div>' .
                             '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
                             '<p><label for="new_cat_title">' . __('Title:') . ' ' .
@@ -594,45 +612,45 @@ class Post extends Page
                         'post_open_comment_tb' => '<div>' .
                         '<h5 id="label_comment_tb">' . __('Comments and trackbacks list') . '</h5>' .
                         '<p><label for="post_open_comment" class="classic">' .
-                        Form::checkbox('post_open_comment', 1, $post_open_comment) . ' ' .
+                        Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        ($core->blog->settings->system->allow_comments ?
-                            ($this->isContributionAllowed($post_id, strtotime($post_dt), true) ?
+                        ($this->core->blog->settings->system->allow_comments ?
+                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Comments are not more accepted for this entry.') . '</p>') :
                             '<p class="form-note warn">' .
                             __('Comments are not accepted on this blog so far.') . '</p>') .
                         '<p><label for="post_open_tb" class="classic">' .
-                        Form::checkbox('post_open_tb', 1, $post_open_tb) . ' ' .
+                        Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        ($core->blog->settings->system->allow_trackbacks ?
-                            ($this->isContributionAllowed($post_id, strtotime($post_dt), false) ?
+                        ($this->core->blog->settings->system->allow_trackbacks ?
+                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Trackbacks are not more accepted for this entry.') . '</p>') :
                             '<p class="form-note warn">' . __('Trackbacks are not accepted on this blog so far.') . '</p>') .
                         '</div>',
                         'post_password' => '<p><label for="post_password">' . __('Password') . '</label>' .
-                        Form::field('post_password', 10, 32, Html::escapeHTML($post_password), 'maximal') .
+                        Form::field('post_password', 10, 32, Html::escapeHTML($this->post_password), 'maximal') .
                         '</p>',
                         'post_url' => '<div class="lockable">' .
                         '<p><label for="post_url">' . __('Edit basename') . '</label>' .
-                        Form::field('post_url', 10, 255, Html::escapeHTML($post_url), 'maximal') .
+                        Form::field('post_url', 10, 255, Html::escapeHTML($this->post_url), 'maximal') .
                         '</p>' .
                         '<p class="form-note warn">' .
                         __('Warning: If you set the URL manually, it may conflict with another entry.') .
                         '</p></div>',
                     ], ], ]);
 
-            $main_items = new \ArrayObject(
+            $main_items = new ArrayObject(
                 [
                     'post_title' => '<p class="col">' .
                     '<label class="required no-margin bold" for="post_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
                     Form::field('post_title', 20, 255, [
-                        'default'    => Html::escapeHTML($post_title),
+                        'default'    => Html::escapeHTML($this->post_title),
                         'class'      => 'maximal',
-                        'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . $post_lang . '" spellcheck="true"',
+                        'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . $this->post_lang . '" spellcheck="true"',
                     ]) .
                     '</p>',
 
@@ -643,8 +661,8 @@ class Post extends Page
                         50,
                         5,
                         [
-                            'default'    => Html::escapeHTML($post_excerpt),
-                            'extra_html' => 'lang="' . $post_lang . '" spellcheck="true"',
+                            'default'    => Html::escapeHTML($this->post_excerpt),
+                            'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
                         ]
                     ) .
                     '</p>',
@@ -654,10 +672,10 @@ class Post extends Page
                     Form::textarea(
                         'post_content',
                         50,
-                        $core->auth->getOption('edit_size'),
+                        $this->core->auth->getOption('edit_size'),
                         [
-                            'default'    => Html::escapeHTML($post_content),
-                            'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $post_lang . '" spellcheck="true"',
+                            'default'    => Html::escapeHTML($this->post_content),
+                            'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
                         ]
                     ) .
                     '</p>',
@@ -669,8 +687,8 @@ class Post extends Page
                         50,
                         5,
                         [
-                            'default'    => Html::escapeHTML($post_notes),
-                            'extra_html' => 'lang="' . $post_lang . '" spellcheck="true"',
+                            'default'    => Html::escapeHTML($this->post_notes),
+                            'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
                         ]
                     ) .
                     '</p>',
@@ -678,11 +696,11 @@ class Post extends Page
             );
 
             # --BEHAVIOR-- adminPostFormItems
-            $core->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $post ?? null, 'post');
+            $this->core->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
-            echo '<div class="multi-part" title="' . ($post_id ? __('Edit post') : __('New post')) .
-            sprintf(' &rsaquo; %s', $post_format) . '" id="edit-entry">';
-            echo '<form action="' . $core->adminurl->get('admin.post') . '" method="post" id="entry-form">';
+            echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
+            sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
+            echo '<form action="' . $this->core->adminurl->get('admin.post') . '" method="post" id="entry-form">';
             echo '<div id="entry-wrapper">';
             echo '<div id="entry-content"><div class="constrained">';
 
@@ -693,20 +711,20 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostForm (may be deprecated)
-            $core->behaviors->call('adminPostForm', $post ?? null, 'post');
+            $this->core->behaviors->call('adminPostForm', $this->post ?? null, 'post');
 
             echo
             '<p class="border-top">' .
-            ($post_id ? Form::hidden('id', $post_id) : '') .
+            ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
-            if ($post_id) {
-                $preview_url = $core->blog->url . $core->url->getURLFor('preview', $core->auth->userID() . '/' .
-                    Http::browserUID(DOTCLEAR_MASTER_KEY . $core->auth->userID() . $core->auth->cryptLegacy($core->auth->userID())) .
-                    '/' . $post->post_url);
+            if ($this->post_id) {
+                $preview_url = $this->core->blog->url . $this->core->url->getURLFor('preview', $this->core->auth->userID() . '/' .
+                    Http::browserUID(DOTCLEAR_MASTER_KEY . $this->core->auth->userID() . $this->core->auth->cryptLegacy($this->core->auth->userID())) .
+                    '/' . $this->post->post_url);
 
-                $core->auth->user_prefs->addWorkspace('interface');
-                $blank_preview = $core->auth->user_prefs->interface->blank_preview;
+                $this->core->auth->user_prefs->addWorkspace('interface');
+                $blank_preview = $this->core->auth->user_prefs->interface->blank_preview;
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -715,11 +733,11 @@ class Post extends Page
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
                 echo
-                '<a id="post-cancel" href="' . $core->adminurl->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                '<a id="post-cancel" href="' . $this->core->adminurl->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
-            echo($can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            $core->formNonce() .
+            echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
+            $this->core->formNonce() .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -737,39 +755,39 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            $core->behaviors->call('adminPostFormSidebar', $post ?? null, 'post');
+            $this->core->behaviors->call('adminPostFormSidebar', $this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             # --BEHAVIOR-- adminPostForm
-            $core->behaviors->call('adminPostAfterForm', $post ?? null, 'post');
+            $this->core->behaviors->call('adminPostAfterForm', $this->post ?? null, 'post');
 
             echo '</div>';
         }
 
-        if ($post_id) {
+        if ($this->post_id) {
             /* Comments
             -------------------------------------------------------- */
 
-            $params = ['post_id' => $post_id, 'order' => 'comment_dt ASC'];
+            $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments = $core->blog->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = $this->core->blog->getComments(array_merge($params, ['comment_trackback' => 0]));
 
             echo
             '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
-            $combo_action = $comments_actions_page->getCombo();
+            $combo_action = $this->comments_actions->getCombo();
             $has_action   = !empty($combo_action) && !$comments->isEmpty();
             echo
             '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
-                echo '<form action="' . $core->adminurl->get('admin.post') . '" id="form-comments" method="post">';
+                echo '<form action="' . $this->core->adminurl->get('admin.post') . '" id="form-comments" method="post">';
             }
 
             echo '<h3>' . __('Comments') . '</h3>';
             if (!$comments->isEmpty()) {
-                $this->showComments($comments, $has_action, false, $show_ip);
+                $this->showComments($comments, $has_action, false);
             } else {
                 echo '<p>' . __('No comments') . '</p>';
             }
@@ -782,8 +800,8 @@ class Post extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
                 Form::hidden(['section'], 'comments') .
-                Form::hidden(['id'], $post_id) .
-                $core->formNonce() .
+                Form::hidden(['id'], $this->post_id) .
+                $this->core->formNonce() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -795,21 +813,21 @@ class Post extends Page
             '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
-            '<form action="' . $core->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
+            '<form action="' . $this->core->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML($core->auth->getInfo('user_cn')),
+                'default'    => Html::escapeHTML($this->core->auth->getInfo('user_cn')),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .
 
             '<p><label for="comment_email">' . __('Email:') . '</label>' .
-            Form::email('comment_email', 30, 255, Html::escapeHTML($core->auth->getInfo('user_email'))) .
+            Form::email('comment_email', 30, 255, Html::escapeHTML($this->core->auth->getInfo('user_email'))) .
             '</p>' .
 
             '<p><label for="comment_site">' . __('Web site:') . '</label>' .
-            Form::url('comment_site', 30, 255, Html::escapeHTML($core->auth->getInfo('user_url'))) .
+            Form::url('comment_site', 30, 255, Html::escapeHTML($this->core->auth->getInfo('user_url'))) .
             '</p>' .
 
             '<p class="area"><label for="comment_content" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' .
@@ -819,15 +837,15 @@ class Post extends Page
                 50,
                 8,
                 [
-                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . $core->auth->getInfo('user_lang') .
+                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . $this->core->auth->getInfo('user_lang') .
                         '" spellcheck="true"',
                 ]
             ) .
             '</p>' .
 
             '<p>' .
-            Form::hidden('post_id', $post_id) .
-            $core->formNonce() .
+            Form::hidden('post_id', $this->post_id) .
+            $this->core->formNonce() .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . #constrained
 
@@ -836,19 +854,19 @@ class Post extends Page
             '</div>'; #comments
         }
 
-        if ($post_id && $post_status == 1) {
+        if ($this->post_id && $this->post_status == 1) {
             /* Trackbacks
             -------------------------------------------------------- */
 
-            $params     = ['post_id' => $post_id, 'order' => 'comment_dt ASC'];
-            $trackbacks = $core->blog->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
+            $this->trackbacks = $this->core->blog->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             # Actions combo box
-            $combo_action = $comments_actions_page->getCombo();
-            $has_action   = !empty($combo_action) && !$trackbacks->isEmpty();
+            $combo_action = $this->comments_actions->getCombo();
+            $has_action   = !empty($combo_action) && !$this->trackbacks->isEmpty();
 
             if (!empty($_GET['tb_auto'])) {
-                $tb_urls = implode("\n", $TB->discover($post_excerpt_xhtml . ' ' . $post_content_xhtml));
+                $this->tb_urls = implode("\n", $this->trackback->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
             }
 
             # Display tab
@@ -857,13 +875,13 @@ class Post extends Page
 
             # tracbacks actions
             if ($has_action) {
-                echo '<form action="' . $core->adminurl->get('admin.post') . '" id="form-trackbacks" method="post">';
+                echo '<form action="' . $this->core->adminurl->get('admin.post') . '" id="form-trackbacks" method="post">';
             }
 
             echo '<h3>' . __('Trackbacks received') . '</h3>';
 
-            if (!$trackbacks->isEmpty()) {
-                $this->showComments($trackbacks, $has_action, true, $show_ip);
+            if (!$this->trackbacks->isEmpty()) {
+                $this->showComments($this->trackbacks, $has_action, true);
             } else {
                 echo '<p>' . __('No trackback') . '</p>';
             }
@@ -875,9 +893,9 @@ class Post extends Page
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected trackbacks action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
-                Form::hidden('id', $post_id) .
+                Form::hidden('id', $this->post_id) .
                 Form::hidden(['section'], 'trackbacks') .
-                $core->formNonce() .
+                $this->core->formNonce() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -885,32 +903,32 @@ class Post extends Page
 
             /* Add trackbacks
             -------------------------------------------------------- */
-            if ($can_edit_post && $post->post_status) {
+            if ($this->can_edit_post && $this->post->post_status) {
                 echo
                     '<div class="fieldset clear">';
 
                 echo
                 '<h3>' . __('Ping blogs') . '</h3>' .
-                '<form action="' . $core->adminurl->get('admin.post', ['id' => $post_id]) . '" id="trackback-form" method="post">' .
+                '<form action="' . $this->core->adminurl->get('admin.post', ['id' => $this->post_id]) . '" id="trackback-form" method="post">' .
                 '<p><label for="tb_urls" class="area">' . __('URLs to ping:') . '</label>' .
-                Form::textarea('tb_urls', 60, 5, $tb_urls) .
+                Form::textarea('tb_urls', 60, 5, $this->tb_urls) .
                 '</p>' .
 
                 '<p><label for="tb_excerpt" class="area">' . __('Excerpt to send:') . '</label>' .
-                Form::textarea('tb_excerpt', 60, 5, $tb_excerpt) . '</p>' .
+                Form::textarea('tb_excerpt', 60, 5, $this->tb_excerpt) . '</p>' .
 
                 '<p>' .
-                $core->formNonce() .
+                $this->core->formNonce() .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
                     (empty($_GET['tb_auto']) ?
                     '&nbsp;&nbsp;<a class="button" href="' .
-                    $core->adminurl->get('admin.post', ['id' => $post_id, 'tb_auto' => 1, 'tb' => 1]) .
+                    $this->core->adminurl->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
                     '">' . __('Auto discover ping URLs') . '</a>'
                     : '') .
                     '</p>' .
                     '</form>';
 
-                $pings = $TB->getPostPings($post_id);
+                $pings = $this->trackback->getPostPings($this->post_id);
 
                 if (!$pings->isEmpty()) {
                     echo '<h3>' . __('Previously sent pings') . '</h3>';
@@ -929,9 +947,6 @@ class Post extends Page
 
             echo '</div>'; #trackbacks
         }
-
-        $this->helpBlock('core_post', 'core_trackbacks', 'core_wiki');
-        $this->close();
     }
 
     # Controls comments or trakbacks capabilities
@@ -954,14 +969,14 @@ class Post extends Page
     }
 
     # Show comments or trackbacks
-    protected function showComments($rs, $has_action, $tb = false, $show_ip = true)
+    protected function showComments($rs, $has_action, $tb = false)
     {
         echo
         '<div class="table-outer">' .
         '<table class="comments-list"><tr>' .
         '<th colspan="2" class="first">' . __('Author') . '</th>' .
         '<th>' . __('Date') . '</th>' .
-        ($show_ip ? '<th class="nowrap">' . __('IP address') . '</th>' : '') .
+        ($this->can_view_ip ? '<th class="nowrap">' . __('IP address') . '</th>' : '') .
         '<th>' . __('Status') . '</th>' .
         '<th>' . __('Edit') . '</th>' .
             '</tr>';
@@ -976,26 +991,26 @@ class Post extends Page
             $comment_url = $this->core->adminurl->get('admin.comment', ['id' => $rs->comment_id]);
 
             $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-            $img_status = '';
+            $this->img_status = '';
             $sts_class  = '';
             switch ($rs->comment_status) {
                 case 1:
-                    $img_status = sprintf($img, __('Published'), 'check-on.png');
+                    $this->img_status = sprintf($img, __('Published'), 'check-on.png');
                     $sts_class  = 'sts-online';
 
                     break;
                 case 0:
-                    $img_status = sprintf($img, __('Unpublished'), 'check-off.png');
+                    $this->img_status = sprintf($img, __('Unpublished'), 'check-off.png');
                     $sts_class  = 'sts-offline';
 
                     break;
                 case -1:
-                    $img_status = sprintf($img, __('Pending'), 'check-wrn.png');
+                    $this->img_status = sprintf($img, __('Pending'), 'check-wrn.png');
                     $sts_class  = 'sts-pending';
 
                     break;
                 case -2:
-                    $img_status = sprintf($img, __('Junk'), 'junk.png');
+                    $this->img_status = sprintf($img, __('Junk'), 'junk.png');
                     $sts_class  = 'sts-junk';
 
                     break;
@@ -1016,9 +1031,9 @@ class Post extends Page
             ) : '') . '</td>' .
             '<td class="maximal">' . Html::escapeHTML($rs->comment_author) . '</td>' .
             '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->comment_dt) . '</td>' .
-            ($show_ip ?
+            ($this->can_view_ip ?
                 '<td class="nowrap"><a href="' . $this->core->adminurl->get('admin.comments', ['ip' => $rs->comment_ip]) . '">' . $rs->comment_ip . '</a></td>' : '') .
-            '<td class="nowrap status">' . $img_status . '</td>' .
+            '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .
 

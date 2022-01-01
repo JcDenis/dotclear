@@ -19,13 +19,12 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Action;
+use Dotclear\Admin\Notices;
 use Dotclear\Admin\Page;
-
-use Dotclear\Admin\Action\CommentAction;
 
 class DefaultCommentAction
 {
-    public static function CommentAction(Core $core, CommentAction $ap)
+    public static function CommentAction(Core $core, Action $ap)
     {
         if ($core->auth->check('publish,contentadmin', $core->blog->id)) {
             $ap->addAction(
@@ -70,7 +69,7 @@ class DefaultCommentAction
 */
     }
 
-    public static function doChangeCommentStatus(Core $core, CommentAction $ap, $post)
+    public static function doChangeCommentStatus(Core $core, Action $ap, $post)
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -98,11 +97,11 @@ class DefaultCommentAction
 
         $core->blog->updCommentsStatus($co_ids, $status);
 
-        Page::addSuccessNotice(__('Selected comments have been successfully updated.'));
+        Notices::addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
     }
 
-    public static function doDeleteComment(Core $core, CommentAction $ap, $post)
+    public static function doDeleteComment(Core $core, Action $ap, $post)
     {
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {
@@ -118,11 +117,11 @@ class DefaultCommentAction
         $core->behaviors->call('adminBeforeCommentsDelete', $co_ids);
 
         $core->blog->delComments($co_ids);
-        Page::addSuccessNotice(__('Selected comments have been successfully deleted.'));
+        Notices::addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }
 
-    public static function doBlocklistIP(Core $core, CommentAction $ap, $post)
+    public static function doBlocklistIP(Core $core, Action $ap, $post)
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -138,7 +137,7 @@ class DefaultCommentAction
             $ip_filter->addIP('black', $rs->comment_ip, $global);
         }
 
-        Page::addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        Notices::addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
         $ap->redirect(true);
     }
 }

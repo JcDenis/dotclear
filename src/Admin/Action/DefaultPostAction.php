@@ -22,15 +22,13 @@ use Dotclear\Admin\Action;
 use Dotclear\Admin\Combos;
 use Dotclear\Admin\Notices;
 
-use Dotclear\Admin\Action\PostAction;
-
 use Dotclear\Utils\L10n;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 
 class DefaultPostAction
 {
-    public static function PostAction(Core $core, $ap)
+    public static function PostAction(Core $core, Action $ap)
     {
         if ($core->auth->check('publish,contentadmin', $core->blog->id)) {
             $ap->addAction(
@@ -78,7 +76,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostStatus(Core $core, PostAction $ap, $post)
+    public static function doChangePostStatus(Core $core, Action $ap, $post)
     {
         switch ($ap->getAction()) {
             case 'unpublish':
@@ -134,7 +132,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doUpdateSelectedPost(Core $core, PostAction $ap, $post)
+    public static function doUpdateSelectedPost(Core $core, Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -164,7 +162,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doDeletePost(Core $core, PostAction $ap, $post)
+    public static function doDeletePost(Core $core, Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -192,7 +190,7 @@ class DefaultPostAction
         $ap->redirect(false);
     }
 
-    public static function doChangePostCategory(Core $core, PostAction $ap, $post)
+    public static function doChangePostCategory(Core $core, Action $ap, $post)
     {
         if (isset($post['new_cat_id'])) {
             $posts_ids = $ap->getIDs();
@@ -272,7 +270,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostAuthor(Core $core, PostAction $ap, $post)
+    public static function doChangePostAuthor(Core $core, Action $ap, $post)
     {
         if (isset($post['new_auth_id']) && $core->auth->check('admin', $core->blog->id)) {
             $new_user_id = $post['new_auth_id'];
@@ -338,7 +336,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostLang(Core $core, PostAction $ap, $post)
+    public static function doChangePostLang(Core $core, Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
