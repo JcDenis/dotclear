@@ -17,7 +17,8 @@ declare(strict_types=1);
 namespace Dotclear\Admin;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Utils;
+
+use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Dt;
@@ -86,7 +87,7 @@ class Combos
     {
         $users_combo = [];
         while ($users->fetch()) {
-            $user_cn = Utils::getUserCN($users->user_id, $users->user_name,
+            $user_cn = ContainerUser::getUserCN($users->user_id, $users->user_name,
                 $users->user_firstname, $users->user_displayname);
 
             if ($user_cn != $users->user_id) {
