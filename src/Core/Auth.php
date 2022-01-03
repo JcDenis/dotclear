@@ -20,6 +20,8 @@ use Dotclear\Core\Sql\SqlStatement;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Utils\Crypt;
@@ -37,6 +39,9 @@ class Auth
     /** @var Connection     Connection instance */
     protected $con;
 
+    /** @var ContainerUser  User container instance */
+    protected $container;
+
     /** @var string         User table name */
     protected $user_table;
 
@@ -45,21 +50,6 @@ class Auth
 
     /** @var string Blog table name */
     protected $blog_table;
-
-    /** @var string Current user ID */
-    protected $user_id;
-
-    /** @var array Array with user information */
-    protected $user_info = [];
-
-    /** @var array Array with user options */
-    protected $user_options = [];
-
-    /** @var bool User must change his password after login */
-    protected $user_change_pwd;
-
-    /** @var bool User is super admin */
-    protected $user_admin;
 
     /** @var array Permissions for each blog */
     protected $permissions = [];
@@ -88,6 +78,7 @@ class Auth
     {
         $this->core       = $core;
         $this->con        = $core->con;
+        $this->container  = new ContainerUser();
         $this->blog_table = $core->prefix . 'blog';
         $this->user_table = $core->prefix . 'user';
         $this->perm_table = $core->prefix . 'permissions';
@@ -207,33 +198,9 @@ class Auth
             }
         }
 
-        $this->user_id         = $rs->user_id;
-        $this->user_change_pwd = (bool) $rs->user_change_pwd;
-        $this->user_admin      = (bool) $rs->user_super;
+        $this->container->fromRecord($rs);
 
-        $this->user_info['user_pwd']          = $rs->user_pwd;
-        $this->user_info['user_name']         = $rs->user_name;
-        $this->user_info['user_firstname']    = $rs->user_firstname;
-        $this->user_info['user_displayname']  = $rs->user_displayname;
-        $this->user_info['user_email']        = $rs->user_email;
-        $this->user_info['user_url']          = $rs->user_url;
-        $this->user_info['user_default_blog'] = $rs->user_default_blog;
-        $this->user_info['user_lang']         = $rs->user_lang;
-        $this->user_info['user_tz']           = $rs->user_tz;
-        $this->user_info['user_post_status']  = $rs->user_post_status;
-        $this->user_info['user_creadt']       = $rs->user_creadt;
-        $this->user_info['user_upddt']        = $rs->user_upddt;
-
-        $this->user_info['user_cn'] = Utils::getUserCN(
-            $rs->user_id,
-            $rs->user_name,
-            $rs->user_firstname,
-            $rs->user_displayname
-        );
-
-        $this->user_options = array_merge($this->core->userDefaults(), $rs->options());
-
-        $this->user_prefs = new Prefs($this->core, $this->user_id);
+        $this->user_prefs = new Prefs($this->core, $this->container->getId());
 
         # Get permissions on blogs
         if ($check_blog && ($this->findUserBlog() === false)) {
@@ -276,8 +243,8 @@ class Auth
      */
     public function checkPassword(string $pwd): bool
     {
-        if (!empty($this->user_info['user_pwd'])) {
-            return password_verify($pwd, $this->user_info['user_pwd']);
+        if (!empty($this->container->getPwd())) {
+            return password_verify($pwd, $this->container->getPwd());
         }
 
         return false;
@@ -331,7 +298,7 @@ class Auth
      */
     public function mustChangePassword(): bool
     {
-        return $this->user_change_pwd;
+        return (bool) $this->container->getChangePwd();
     }
 
     /**
@@ -341,7 +308,7 @@ class Auth
      */
     public function isSuperAdmin(): bool
     {
-        return $this->user_admin;
+        return (bool) $this->container->getSuper();
     }
 
     /**
@@ -356,7 +323,7 @@ class Auth
      */
     public function check(string $permissions, string $blog_id): bool
     {
-        if ($this->user_admin) {
+        if ($this->container->getSuper()) {
             return true;
         }
 
@@ -405,16 +372,16 @@ class Auth
             throw new CoreException($f . ' function doest not exist');
         }
 
-        if ($this->user_admin) {
+        if ($this->container->getSuper()) {
             $res = call_user_func_array($f, $args);
         } else {
-            $this->user_admin = true;
+            $this->container->setSuper(true);
 
             try {
                 $res              = call_user_func_array($f, $args);
-                $this->user_admin = false;
+                $this->container->setSuper(false);
             } catch (Exception $e) {
-                $this->user_admin = false;
+                $this->container->setSuper(false);
 
                 throw $e;
             }
@@ -443,7 +410,7 @@ class Auth
             return $this->blogs[$blog_id];
         }
 
-        if ($this->user_admin) {
+        if ($this->container->getSuper()) {
             $sql = new SelectStatement($this->core, 'coreAuthGetPermissions');
             $sql
                 ->column('blog_id')
@@ -461,7 +428,7 @@ class Auth
         $sql
             ->column('permissions')
             ->from($this->perm_table)
-            ->where('user_id = ' . $sql->quote($this->user_id))
+            ->where('user_id = ' . $sql->quote($this->container->getId()))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
                 $sql->like('permissions', '%|usage|%'),
@@ -505,7 +472,7 @@ class Auth
 
         $sql = new SelectStatement($this->core, 'coreAuthFindUserBlog');
 
-        if ($this->user_admin) {
+        if ($this->container->getSuper()) {
             /* @phpstan-ignore-next-line */
             $sql
                 ->column('blog_id')
@@ -520,7 +487,7 @@ class Auth
                     $this->perm_table . ' P',
                     $this->blog_table . ' B',
                 ])
-                ->where('user_id = ' . $sql->quote($this->user_id))
+                ->where('user_id = ' . $sql->quote($this->container->getId()))
                 ->and('P.blog_id = B.blog_id')
                 ->and($sql->orGroup([
                     $sql->like('permissions', '%|usage|%'),
@@ -547,7 +514,7 @@ class Auth
      */
     public function userID(): string
     {
-        return $this->user_id ?? '';
+        return $this->container->getId();
     }
 
     /**
@@ -559,9 +526,7 @@ class Auth
      */
     public function getInfo(string $n)
     {
-        if (isset($this->user_info[$n])) {
-            return $this->user_info[$n];
-        }
+        return $this->container->getInfo($n);
     }
 
     /**
@@ -573,9 +538,7 @@ class Auth
      */
     public function getOption(string $n)
     {
-        if (isset($this->user_options[$n])) {
-            return $this->user_options[$n];
-        }
+        return $this->container->getOption($n);
     }
 
     /**
@@ -585,7 +548,7 @@ class Auth
      */
     public function getOptions(): array
     {
-        return $this->user_options;
+        return $this->container->getOptions();
     }
     //@}
 
