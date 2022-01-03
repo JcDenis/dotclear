@@ -18,6 +18,8 @@ use Dotclear\Core\Core;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Admin\Favorites;
 
 use Dotclear\Distrib\Distrib;
@@ -152,7 +154,7 @@ class Install
                 $cur->user_tz        = $default_tz;
                 $cur->user_creadt    = date('Y-m-d H:i:s');
                 $cur->user_upddt     = date('Y-m-d H:i:s');
-                $cur->user_options   = serialize($core->userDefaults());
+                $cur->user_options   = serialize(ContainerUser::defaultOptions());
                 $cur->insert();
 
                 $core->auth->checkUser($u_login);
