@@ -19,9 +19,10 @@ use Dotclear\Utils\Dt;
 
 class Common
 {
-    public static $check_password_len = 6;
+    /** @var integer Password lengh (by default we talk about encoded password!) */
+    public static $password_len = 40;
 
-    public static function checkType(mixed $arg, string $type)
+    public static function isType(mixed $arg, string $type)
     {
         return gettype($arg) == $type;
     }
@@ -37,7 +38,7 @@ class Common
         return $arg;
     }
 
-    public static function checkBinary(mixed $arg, $strict = true): bool
+    public static function isBinary(mixed $arg, $strict = true): bool
     {
         return is_int($arg) && in_array($arg, [0, 1]);
     }
@@ -47,7 +48,7 @@ class Common
         return (int) (bool) $arg;
     }
 
-    public static function checkString(mixed $arg, $strict = true): bool
+    public static function isString(mixed $arg, $strict = true): bool
     {
         return $strict ? is_string($arg) && trim((string) $arg) != '' : is_string($arg);
     }
@@ -57,7 +58,7 @@ class Common
         return trim((string) $arg);
     }
 
-    public static function checkInteger(mixed $arg, $strict = true): bool
+    public static function isInteger(mixed $arg, $strict = true): bool
     {
         return is_int($arg);
     }
@@ -67,9 +68,9 @@ class Common
         return (int) $arg;
     }
 
-    public static function checkPassword(mixed $arg, $strict = true): bool
+    public static function isPassword(mixed $arg, $strict = true): bool
     {
-        return $strict ? is_string($arg) && strlen((string) $arg) >= (int) self::$check_password_len : is_string($arg);
+        return $strict ? is_string($arg) && strlen((string) $arg) >= (int) self::$password_len : is_string($arg);
     }
 
     public static function toPassword(mixed $arg): string
@@ -77,7 +78,7 @@ class Common
         return (string) $arg;
     }
 
-    public static function checkEmail(mixed $arg, $strict = true): bool
+    public static function isEmail(mixed $arg, $strict = true): bool
     {
         return $strict ? filter_var((string) $arg, FILTER_VALIDATE_EMAIL) !== false : is_string($arg);
     }
@@ -87,7 +88,7 @@ class Common
         return trim((string) $arg);
     }
 
-    public static function checkURL(mixed $arg, $strict = true): bool
+    public static function isURL(mixed $arg, $strict = true): bool
     {
         return $strict ? filter_var((string) $arg, FILTER_VALIDATE_URL) !== false : is_string($arg);
     }
@@ -99,7 +100,7 @@ class Common
         return empty($arg) || preg_match('|^http(s?)://|', (string) $arg) ? $arg : 'http://' . $arg;
     }
 
-    public static function checkLang(mixed $arg, $strict = true): bool
+    public static function isLang(mixed $arg, $strict = true): bool
     {
         return $strict ? is_string($arg) && preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $arg) : is_string($arg);
     }
@@ -109,7 +110,7 @@ class Common
         return trim((string) $arg);
     }
 
-    public static function checkTZ(mixed $arg, $strict = true): bool
+    public static function isTZ(mixed $arg, $strict = true): bool
     {
         return $strict ? is_string($arg) && in_array($arg, Dt::getZones(true)) : is_string($arg);
     }
