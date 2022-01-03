@@ -38,6 +38,8 @@ use Dotclear\Core\Sql\InsertStatement;
 use Dotclear\Core\Sql\UpdateStatement;
 use Dotclear\Core\Sql\deleteStatement;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -1108,17 +1110,15 @@ class Core
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
+     * @deprecated use Dotclear\Container\User::defaultOptions();
+     *
      * @return  array   User default settings.
      */
     public function userDefaults(): array
     {
-        return [
-            'edit_size'      => 24,
-            'enable_wysiwyg' => true,
-            'toolbar_bottom' => false,
-            'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'dcLegacyEditor'],
-            'post_format'    => 'xhtml'
-        ];
+        DeprecatedException::throw();
+
+        return ContainerUser::defaultOptions();
     }
     //@}
 
