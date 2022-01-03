@@ -254,6 +254,9 @@ abstract class Page
                 $this->pageOpenPopup();
                 break;
 
+            case 'standalone':
+                break;
+
             default:
                 $this->getPageBegin();
                 break;
@@ -672,6 +675,9 @@ abstract class Page
 
             case 'popup':
                 $this->pageClosePopup();
+                break;
+
+            case 'standalone':
                 break;
 
             default:

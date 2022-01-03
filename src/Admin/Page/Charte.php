@@ -27,6 +27,8 @@ class Charte extends Page
 
     protected function getPermissions(): string|null|false
     {
+        $this->setPageType('standalone');
+
         return 'usage,contentadmin';
     }
 
