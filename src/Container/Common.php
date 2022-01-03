@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Container;
 
+use Dotclear\Exception;
+
 use Dotclear\Utils\Dt;
 
 class Common
@@ -26,8 +28,10 @@ class Common
 
     public static function toType(mixed $arg, $type)
     {
-        if (!settype($arg, $type)) {
-            throw new Exception('Unknow type') ;
+        if ($type === null) {
+            if (!@settype($arg, $type)) {
+                throw new Exception('Could not convert type');
+            }
         }
 
         return $arg;
