@@ -19,41 +19,23 @@ use Dotclear\Database\Record;
 
 class User extends Common
 {
-    /** @var string   User id */
-    protected $user_id = '';
-
-    /** @var int        Is super admin */
-    protected $user_super = 0;
-
-    /** @var string     User password */
-    protected $user_pwd = '';
-
-    /** @var int        User can change password */
-    protected $user_change_pwd = 0;
-
-    /** @var string     User name */
-    protected $user_name = '';
-
-    /** @var string     User firstname */
-    protected $user_firstname = '';
-
-    /** @var string     User displayname (pseudo) */
-    protected $user_displayname = '';
-
-    /** @var string     User main email */
-    protected $user_email = '';
-
-    /** @var string     User URL */
-    protected $user_url = '';
-
-    /** @var string     User language */
-    protected $user_lang = 'en';
-
-    /** @var string     User timesone */
-    protected $user_tz = 'Europe/London';
-
-    /** @var string     User default post status */
-    protected $user_post_status = '';
+    /** @var array  User info */
+    protected $user_info = [
+        'user_id'          => '',
+        'user_super'       => 0,
+        'user_pwd'         => '',
+        'user_change_pwd'  => 0,
+        'user_name'        => '',
+        'user_firstname'   => '',
+        'user_displayname' => '',
+        'user_email'       => '',
+        'user_url'         => '',
+        'user_lang'        => 'en',
+        'user_tz'          => 'Europe/London',
+        'user_post_status' => -2,
+        'user_creadt'      => '',
+        'user_upddt'       => '',
+    ];
 
     /** @var string     User options */
     protected $user_options = [
@@ -108,11 +90,50 @@ class User extends Common
         if ($rs->exists('user_post_status')) {
             $this->setPostStatus($rs->user_post_status);
         }
+        if ($rs->exists('user_creadt')) {
+            $this->setOptions($rs->options());
+        }
+        if ($rs->exists('user_upddt')) {
+            $this->setOptions($rs->options());
+        }
         if ($rs->exists('user_options')) {
             $this->setOptions($rs->options());
         }
 
+        $this->setCN();
+
         return $this;
+    }
+
+    /**
+     * Static function that returns user's common name given to his
+     * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
+     * <var>user_displayname</var>.
+     *
+     * @param      string       $user_id           The user identifier
+     * @param      string|null  $user_name         The user name
+     * @param      string|null  $user_firstname    The user firstname
+     * @param      string|null  $user_displayname  The user displayname
+     *
+     * @return     string  The user cn.
+     */
+    public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
+    {
+        if (!empty($user_displayname)) {
+            return $user_displayname;
+        }
+
+        if (!empty($user_name)) {
+            if (!empty($user_firstname)) {
+                return $user_firstname . ' ' . $user_name;
+            }
+
+            return $user_name;
+        } elseif (!empty($user_firstname)) {
+            return $user_firstname;
+        }
+
+        return $user_id;
     }
 
     /**
@@ -131,7 +152,12 @@ class User extends Common
         ];
     }
 
-    public static function checkId(mixed $arg, $strict = true): bool
+    public function getInfo(string $key): mixed
+    {
+        return isset($this->user_info[$key]) ? $this->user_info[$key] : null;
+    }
+
+    public static function isId(mixed $arg, $strict = true): bool
     {
         return $strict ? is_string($arg) && preg_match('/^[A-Za-z0-9@._-]{2,}$/', $arg) : is_string($arg);
     }
@@ -143,19 +169,19 @@ class User extends Common
 
     public function setId(mixed $arg): string
     {
-        $this->user_id = self::toId($arg);
+        $this->user_info['user_id'] = self::toId($arg);
 
-        return $this->user_id;
+        return $this->user_info['user_id'];
     }
 
     public function getId(): string
     {
-        return $this->user_id;
+        return $this->user_info['user_id'];
     }
 
-    public static function checkSuper(mixed $arg, $strict = true): bool
+    public static function isSuper(mixed $arg, $strict = true): bool
     {
-        return self::checkBinary($arg, $strict);
+        return self::isBinary($arg, $strict);
     }
 
     public static function toSuper(mixed $arg): int
@@ -165,19 +191,19 @@ class User extends Common
 
     public function setSuper(mixed $arg): int
     {
-        $this->user_super = self::toBinary($arg);
+        $this->user_info['user_super'] = self::toBinary($arg);
 
-        return $this->user_super;
+        return $this->user_info['user_super'];
     }
 
     public function getSuper(): int
     {
-        return $this->user_super;
+        return $this->user_info['user_super'];
     }
 
-    public static function checkPwd(mixed $arg, $strict = true): bool
+    public static function isPwd(mixed $arg, $strict = true): bool
     {
-        return self::checkPassword($arg, $strict);
+        return self::isPassword($arg, $strict);
     }
 
     public static function toPwd(mixed $arg)
@@ -187,19 +213,19 @@ class User extends Common
 
     public function setPwd(mixed $arg): string
     {
-        $this->user_pwd = self::toPassword($arg);
+        $this->user_info['user_pwd'] = self::toPassword($arg);
 
-        return $this->user_pwd;
+        return $this->user_info['user_pwd'];
     }
 
     public function getPwd(): string
     {
-        return $this->user_pwd;
+        return $this->user_info['user_pwd'];
     }
 
-    public static function checkChangePwd(mixed $arg, $strict = true): bool
+    public static function isChangePwd(mixed $arg, $strict = true): bool
     {
-        return self::checkBinary($arg, $strict);
+        return self::isBinary($arg, $strict);
     }
 
     public static function toChangePwd(mixed $arg): int
@@ -209,19 +235,19 @@ class User extends Common
 
     public function setChangePwd(mixed $arg): int
     {
-        $this->user_change_pwd = self::toBinary($arg);
+        $this->user_info['user_change_pwd'] = self::toBinary($arg);
 
-        return $this->user_change_pwd;
+        return $this->user_info['user_change_pwd'];
     }
 
     public function getChangePwd(): int
     {
-        return $this->user_change_pwd;
+        return $this->user_info['user_change_pwd'];
     }
 
-    public static function checkName(mixed $arg, $strict = true): bool
+    public static function isName(mixed $arg, $strict = true): bool
     {
-        return self::checkString($arg, $strict);
+        return self::isString($arg, $strict);
     }
 
     public static function toName(mixed $arg): string
@@ -231,17 +257,17 @@ class User extends Common
 
     public function setName(mixed $arg): string
     {
-        $this->user_name = self::toString($arg);
+        $this->user_info['user_name'] = self::toString($arg);
 
-        return $this->user_name;
+        return $this->user_info['user_name'];
     }
 
     public function getName(): string
     {
-        return $this->user_name;
+        return $this->user_info['user_name'];
     }
 
-    public static function checkFirstame(mixed $arg, $strict = true): bool
+    public static function isFirstame(mixed $arg, $strict = true): bool
     {
         return self::chekString($arg, $strict);
     }
@@ -253,17 +279,17 @@ class User extends Common
 
     public function setFirstname(mixed $arg): string
     {
-        $this->user_firstname = self::toString($arg);
+        $this->user_info['user_firstname'] = self::toString($arg);
 
-        return $this->user_firstname;
+        return $this->user_info['user_firstname'];
     }
 
     public function getFirstname(): string
     {
-        return $this->user_firstname;
+        return $this->user_info['user_firstname'];
     }
 
-    public static function checkDisplayname(mixed $arg, $strict = true): bool
+    public static function isDisplayname(mixed $arg, $strict = true): bool
     {
         return self::chekString($arg, $strict);
     }
@@ -275,67 +301,67 @@ class User extends Common
 
     public function setDisplayname(mixed $arg): string
     {
-        $this->user_displayname = self::toString($arg);
+        $this->user_info['user_displayname'] = self::toString($arg);
 
-        return $this->user_displayname;
+        return $this->user_info['user_displayname'];
     }
 
     public function getDisplayname(): string
     {
-        return $this->user_displayname;
+        return $this->user_info['user_displayname'];
     }
 
     public function setEmail(mixed $arg): string
     {
-        $this->user_email = self::toEmail($arg);
+        $this->user_info['user_email'] = self::toEmail($arg);
 
-        return $this->user_email;
+        return $this->user_info['user_email'];
     }
 
     public function getEmail(): string
     {
-        return $this->user_email;
+        return $this->user_info['user_email'];
     }
 
     public function setURL(mixed $arg): string
     {
-        $this->user_url = self::toLang($arg);
+        $this->user_info['user_url'] = self::toLang($arg);
 
-        return $this->user_url;
+        return $this->user_info['user_url'];
     }
 
     public function getURL(): string
     {
-        return $this->user_url;
+        return $this->user_info['user_url'];
     }
 
     public function setlang(mixed $arg): string
     {
-        $this->user_lang = self::toLang($arg);
+        $this->user_info['user_lang'] = self::toLang($arg);
 
-        return $this->user_lang;
+        return $this->user_info['user_lang'];
     }
 
     public function getLang(): string
     {
-        return $this->user_lang;
+        return $this->user_info['user_lang'];
     }
 
     public function setTZ(mixed $arg): string
     {
-        $this->user_tz = self::toTZ($arg);
+        $this->user_info['user_tz'] = self::toTZ($arg);
 
-        return $this->user_tz;
+        return $this->user_info['user_tz'];
     }
 
     public function getTZ(): string
     {
-        return $this->user_tz;
+        return $this->user_info['user_tz'];
     }
 
-    public static function checkPostStatus(mixed $arg, $strict = true): bool
+    public static function isPostStatus(mixed $arg, $strict = true): bool
     {
-        return self::checkInteger($arg, $strict);
+        return self::isInteger($arg, $strict);
     }
 
     public static function toPostStatus(mixed $arg): int
@@ -345,21 +371,31 @@ class User extends Common
 
     public function setPostStatus(mixed $arg): int
     {
-        $this->user_post_status = self::toInteger($arg);
+        $this->user_info['user_post_status'] = self::toInteger($arg);
 
-        return $this->user_post_status;
+        return $this->user_info['user_post_status'];
     }
 
     public function getPostStatus(): int
     {
-        return $this->user_post_status;
+        return $this->user_info['user_post_status'];
+    }
+
+    public function getCreadt(): string
+    {
+        return $this->user_info['user_creadt'];
+    }
+
+    public function getUpddt(): string
+    {
+        return $this->user_info['user_upddt'];
     }
 
     public function setOptions(array $arg)
     {
-        $this->user_options = array_merge($this->getOptions(), $arg);
+        $this->user_info['user_options'] = array_merge($this->getOptions(), $arg);
 
-        return $this->user_options;
+        return $this->user_info['user_options'];
     }
 
     public function getOptions(): array
@@ -378,20 +414,23 @@ class User extends Common
     {
         $this->user_options = $this->getOptions();
 
-        if (isset($this->user_options[$key])) {
-            return $this->user_options[$key];
-        }
-
-        return null;
+        return isset($this->user_options[$key]) ? $this->user_options[$key] : null;
     }
 
-    public function getUserCN(): string
+    public function setCN(): string
     {
-        return Utils::getUserCN(
-            $this->user_id,
-            $this->user_name,
-            $this->user_firstname,
-            $this->user_displayname
+        $this->user_info['user_cn'] = self::getUserCN(
+            $this->user_info['user_id'],
+            $this->user_info['user_name'],
+            $this->user_info['user_firstname'],
+            $this->user_info['user_displayname']
         );
+
+        return $this->user_info['user_cn'];
+    }
+
+    public function getCN(): string
+    {
+        return $this->user_info['user_cn'] ?? $this->getCN();
     }
 }
