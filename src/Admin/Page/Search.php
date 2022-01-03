@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -36,16 +38,22 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Search extends Page
 {
+    private $qtype_combo = [];
+    private $args = [];
+
     protected static $count   = null;
     protected static $list    = null;
     protected static $actions = null;
 
-    public function __construct(Core $core)
+    protected $workspaces = ['interface'];
+
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct($core);
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
-
+    protected function getPagePrepend(): ?bool
+    {
         $this->core->behaviors->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
         $this->core->behaviors->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
         // posts search
@@ -55,51 +63,58 @@ class Search extends Page
         $this->core->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
         $this->core->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
 
-        $qtype_combo = new \ArrayObject();
+        $qtype_combo = new ArrayObject();
 
         # --BEHAVIOR-- adminSearchPageCombo
         $this->core->behaviors->call('adminSearchPageCombo', $qtype_combo);
 
-        $qtype_combo = $qtype_combo->getArrayCopy();
+        $this->qtype_combo = $qtype_combo->getArrayCopy();
         $q     = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
         $qtype = !empty($_REQUEST['qtype']) ? $_REQUEST['qtype'] : 'p';
-        if (!empty($q) && !in_array($qtype, $qtype_combo)) {
+        if (!empty($q) && !in_array($qtype, $this->qtype_combo)) {
             $qtype = 'p';
         }
 
-        $this->core->auth->user_prefs->addWorkspace('interface');
         $page = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
         $nb = UserPref::getUserFilters('search', 'nb');
         if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
             $nb = (integer) $_GET['nb'];
         }
 
-        $args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
+        $this->args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         # --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? $this->core->behaviors->call('adminSearchPageHead', $args) : '';
+        $starting_scripts = $q ? $this->core->behaviors->call('adminSearchPageHead', $this->args) : '';
 
         if ($q) {
 
             # --BEHAVIOR-- adminSearchPageProcess
-            $this->core->behaviors->call('adminSearchPageProcess', $args);
+            $this->core->behaviors->call('adminSearchPageProcess', $this->args);
         }
 
-        $this->open(__('Search'), $starting_scripts,
-            $this->breadcrumb(
-                [
-                    html::escapeHTML($core->blog->name) => '',
+        # Page setup
+        $this
+            ->setPageTitle(__('Search'))
+            ->setPageHelp('core_search')
+            ->setPageHead($starting_scripts)
+            ->setPageBreadcrumb([
+                    html::escapeHTML($this->core->blog->name) => '',
                     __('Search')                        => ''
-                ])
-        );
+            ])
+        ;
 
+        return true;
+    }
+
+    protected function getPageContent(): void
+    {
         echo
         '<form action="' . $this->core->adminurl->get('admin.search') . '" method="get" role="search">' .
         '<div class="fieldset"><h3>' . __('Search options') . '</h3>' .
         '<p><label for="q">' . __('Query:') . ' </label>' .
-        Form::field('q', 30, 255, Html::escapeHTML($q)) . '</p>' .
+        Form::field('q', 30, 255, Html::escapeHTML($this->args['q'])) . '</p>' .
         '<p><label for="qtype">' . __('In:') . '</label> ' .
-        Form::combo('qtype', $qtype_combo, $qtype) . '</p>' .
+        Form::combo('qtype', $this->qtype_combo, $this->args['qtype']) . '</p>' .
         '<p><input type="submit" value="' . __('Search') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         Form::hidden('handler', 'admin.search') .
@@ -107,22 +122,19 @@ class Search extends Page
         '</div>' .
         '</form>';
 
-        if ($q && !$this->core->error->flag()) {
+        if ($this->args['q'] && !$this->core->error->flag()) {
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
-            $this->core->behaviors->call('adminSearchPageDisplay', $args);
+            $this->core->behaviors->call('adminSearchPageDisplay', $this->args);
 
             $res = ob_get_contents();
             ob_end_clean();
             echo $res ?: '<p>' . __('No results found') . '</p>';
         }
-
-        $this->helpBlock('core_search');
-        $this->close();
     }
 
-    public static function typeCombo(Core $core, \ArrayObject $combo)
+    public static function typeCombo(Core $core, ArrayObject $combo)
     {
         $combo[__('Search in entries')]  = 'p';
         $combo[__('Search in comments')] = 'c';
@@ -154,7 +166,7 @@ class Search extends Page
             self::$count   = (int) $core->blog->getPosts($params, true)->f(0);
             self::$list    = new PostCatalog($core, $core->blog->getPosts($params), self::$count);
             self::$actions = new PostAction($core, $core->adminurl->get('admin.search'), $args);
-            if (self::$actions->process()) {
+            if (self::$actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
@@ -207,7 +219,7 @@ class Search extends Page
             self::$count   = (int) $core->blog->getComments($params, true)->f(0);
             self::$list    = new CommentCatalog($core, $core->blog->getComments($params), self::$count);
             self::$actions = new CommentAction($core, $core->adminurl->get('admin.search'), $args);
-            if (self::$actions->process()) {
+            if (self::$actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
