@@ -15,6 +15,8 @@ namespace Dotclear\Core;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
 use Dotclear\File\Files;
@@ -48,6 +50,8 @@ class Utils
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
      * <var>user_displayname</var>.
      *
+     * @deprecated use Dotclear\Container\User::getUserCN();
+     *
      * @param      string       $user_id           The user identifier
      * @param      string|null  $user_name         The user name
      * @param      string|null  $user_firstname    The user firstname
@@ -57,21 +61,9 @@ class Utils
      */
     public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
     {
-        if (!empty($user_displayname)) {
-            return $user_displayname;
-        }
+        DeprecatedException::throw();
 
-        if (!empty($user_name)) {
-            if (!empty($user_firstname)) {
-                return $user_firstname . ' ' . $user_name;
-            }
-
-            return $user_name;
-        } elseif (!empty($user_firstname)) {
-            return $user_firstname;
-        }
-
-        return $user_id;
+        return ContainerUser::getUserCN($user_id, $user_name, $user_firstname, $user_displayname);
     }
 
     /**

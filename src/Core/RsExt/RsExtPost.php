@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\Utils;
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Core\RsExt\RsExtStaticRecord;
 
 use Dotclear\Html\Html;
@@ -341,7 +342,7 @@ class RsExtPost
      */
     public static function getAuthorCN($rs)
     {
-        return Utils::getUserCN($rs->user_id, $rs->user_name,
+        return ContainerUser::getUserCN($rs->user_id, $rs->user_name,
             $rs->user_firstname, $rs->user_displayname);
     }
 

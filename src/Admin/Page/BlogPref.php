@@ -23,6 +23,8 @@ use Dotclear\Core\Media;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Combos;
 use Dotclear\Admin\Notices;
@@ -914,7 +916,7 @@ class BlogPref extends Page
                     echo
                     '<div class="user-perm' . ($v['super'] ? ' user_super' : '') . '">' .
                     '<h4>' . sprintf($user_url_p, Html::escapeHTML($k)) .
-                    ' (' . Html::escapeHTML(Utils::getUserCN(
+                    ' (' . Html::escapeHTML(ContainerUser::getUserCN(
                         $k, $v['name'], $v['firstname'], $v['displayname']
                     )) . ')</h4>';
 

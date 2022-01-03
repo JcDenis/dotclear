@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\Utils;
+use Dotclear\Container\User as ContainerUser;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -33,7 +33,7 @@ class RsExtLog
      */
     public static function getUserCN($rs)
     {
-        $user = Utils::getUserCN(
+        $user = ContainerUser::getUserCN(
             $rs->user_id,
             $rs->user_name,
             $rs->user_firstname,

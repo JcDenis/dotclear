@@ -16,9 +16,10 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Container\User as ContainerUser;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\Media;
-use Dotclear\Core\Utils;
 use Dotclear\Core\Trackback;
 
 use Dotclear\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
@@ -1071,7 +1072,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $res[] = [
                 'user_id'      => $k,
                 'user_login'   => $k,
-                'display_name' => Utils::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
+                'display_name' => ContainerUser::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
             ];
         }
 
