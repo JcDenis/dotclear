@@ -113,11 +113,11 @@ class User extends Page
                     $cur->user_pwd = $_POST['new_pwd'];
                 }
 
-                $this->container->setOption('post_format', Html::escapeHTML($_POST['user_post_format']), 'string');
+                $this->container->setOption('post_format', Html::escapeHTML($_POST['user_post_format']));
                 $this->container->setOption('edit_size', $_POST['user_edit_size'], 'int');
 
                 if ($this->container->getOption('edit_size') < 1) {
-                    $this->container->setOption('edit_size', 10, 'int');
+                    $this->container->setOption('edit_size', 10);
                 }
 
                 $cur->user_options = new ArrayObject($this->container->getOptions());
