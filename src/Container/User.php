@@ -93,6 +93,12 @@ class User extends Common
         if ($rs->exists('user_displayname')) {
             $this->setDisplayname($rs->user_displayname);
         }
+        if ($rs->exists('user_email')) {
+            $this->setEmail($rs->user_email);
+        }
+        if ($rs->exists('user_url')) {
+            $this->setURL($rs->user_url);
+        }
         if ($rs->exists('user_lang')) {
             $this->setLang($rs->user_lang);
         }
@@ -352,6 +358,8 @@ class User extends Common
     public function setOptions(array $arg)
     {
         $this->user_options = array_merge($this->getOptions(), $arg);
+
+        return $this->user_options;
     }
 
     public function getOptions(): array
@@ -359,9 +367,9 @@ class User extends Common
         return array_merge($this->defaultOptions(), $this->user_options);
     }
 
-    public function setOption(string $key, mixed $val, ?string $type): mixed
+    public function setOption(string $key, mixed $val, ?string $type = null): mixed
     {
-        $this->user_options = $this->setOptions([$key => $type ? self::toType($arg, $type) : $val]);
+        $this->user_options = $this->setOptions([$key => $type ? self::toType($val, $type) : $val]);
 
         return $this->user_options[$key];
     }
