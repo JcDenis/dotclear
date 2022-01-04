@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Filter;
@@ -36,7 +38,7 @@ class MediaFilter extends Filter
     {
         parent::__construct($core, $type);
 
-        $filters = new \arrayObject([
+        $filters = new ArrayObject([
             Filters::getPageFilter(),
             Filters::getSearchFilter(),
 
@@ -64,7 +66,7 @@ class MediaFilter extends Filter
      */
     protected function legacyBehavior()
     {
-        $values = new \ArrayObject($this->values());
+        $values = new ArrayObject($this->values());
 
         $this->core->behaviors->call('adminMediaURLParams', $values);
 

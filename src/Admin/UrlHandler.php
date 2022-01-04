@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Exception\AdminException;
 use Dotclear\Exception\DeprecatedException;
 
@@ -41,7 +43,7 @@ class UrlHandler
     {
         $this->core = $core;
         $this->root_url = $root_url;
-        $this->urls = new \ArrayObject();
+        $this->urls = new ArrayObject();
     }
 
     public function called()
@@ -184,7 +186,7 @@ class UrlHandler
     /**
      * Returns $urls property content.
      *
-     * @return  \ArrayObject
+     * @return  ArrayObject
      */
     public function dumpUrls()
     {

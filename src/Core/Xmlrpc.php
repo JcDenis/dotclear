@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -549,7 +551,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $post = $this->getPostRS($post_id, $user, $pwd);
 
-        $res = new \ArrayObject();
+        $res = new ArrayObject();
 
         $res['dateCreated'] = new xmlrpcDate($post->getTS());
         $res['userid']      = $post->user_id;

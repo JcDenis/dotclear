@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 
@@ -119,7 +121,7 @@ class MediaCatalog extends Catalog
             }
         } else {
             // Item
-            $params = new \ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
+            $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
 
             $core->behaviors->call('adminMediaURLParams', $params);
 

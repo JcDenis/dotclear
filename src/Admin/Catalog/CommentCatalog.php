@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
@@ -124,7 +126,7 @@ class CommentCatalog extends Catalog
             }
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
-            $cols = new \ArrayObject($cols);
+            $cols = new ArrayObject($cols);
             $this->core->behaviors->call('adminCommentListHeader', $this->core, $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
@@ -259,7 +261,7 @@ class CommentCatalog extends Catalog
         $cols['entry'] = '<td class="nowrap discrete"><a href="' . $post_url . '">' . $post_title . '</a>' .
             ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
 
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
         $this->core->behaviors->call('adminCommentListValue', $this->core, $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));

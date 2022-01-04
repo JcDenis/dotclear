@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;

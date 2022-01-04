@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class  Dotclear\Core\Meta
  * @brief Dotclear core meta class
  *
  * @package Dotclear

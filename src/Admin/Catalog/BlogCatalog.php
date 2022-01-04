@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
@@ -65,7 +67,7 @@ class BlogCatalog extends Catalog
                 'status' => '<th scope="col" class="txt-center">' . __('Status') . '</th>',
             ];
 
-            $cols = new \ArrayObject($cols);
+            $cols = new ArrayObject($cols);
             $this->core->behaviors->call('adminBlogListHeader', $this->core, $this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
@@ -157,7 +159,7 @@ class BlogCatalog extends Catalog
             '</td>',
         ];
 
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
         $this->core->behaviors->call('adminBlogListValue', $this->core, $this->rs, $cols);
 
         return

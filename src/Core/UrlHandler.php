@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -69,7 +71,7 @@ class UrlHandler extends BaseUrlHandler
 
     public function register($type, $url, $representation, $handler)
     {
-        $t    = new \ArrayObject([$type, $url, $representation, $handler]);
+        $t    = new ArrayObject([$type, $url, $representation, $handler]);
         $this->core->behaviors->call('publicRegisterURL', $t);
         parent::register($t[0], $t[1], $t[2], $t[3]);
     }
@@ -132,7 +134,7 @@ class UrlHandler extends BaseUrlHandler
             throw new CoreException('Unable to find template ');
         }
 
-        $result = new \ArrayObject;
+        $result = new ArrayObject;
 
         $_ctx->current_tpl  = $tpl;
         $_ctx->content_type = $content_type;
@@ -148,7 +150,7 @@ class UrlHandler extends BaseUrlHandler
         header('Content-Type: ' . $_ctx->content_type . '; charset=UTF-8');
 
         // Additional headers
-        $headers = new \ArrayObject;
+        $headers = new ArrayObject;
         if ($core->blog->settings->system->prevents_clickjacking) {
             if ($_ctx->exists('xframeoption')) {
                 $url    = parse_url($_ctx->xframeoption);
@@ -298,7 +300,7 @@ class UrlHandler extends BaseUrlHandler
 
             $GLOBALS['_search'] = !empty($_GET['q']) ? html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
-                $params = new \ArrayObject(['search' => $GLOBALS['_search']]);
+                $params = new ArrayObject(['search' => $GLOBALS['_search']]);
                 $core->behaviors->call('publicBeforeSearchCount', $params);
                 $GLOBALS['_search_count'] = $core->blog->getPosts($params, true)->f(0);
             }
@@ -313,7 +315,7 @@ class UrlHandler extends BaseUrlHandler
         $core = &$GLOBALS['core'];
 
         $n      = self::getPageNumber($args);
-        $params = new \ArrayObject([
+        $params = new ArrayObject([
             'lang' => $args]);
 
         $core->behaviors->call('publicLangBeforeGetLangs', $params, $args);
@@ -343,7 +345,7 @@ class UrlHandler extends BaseUrlHandler
             # No category was specified.
             self::p404();
         } else {
-            $params = new \ArrayObject([
+            $params = new ArrayObject([
                 'cat_url'       => $args,
                 'post_type'     => 'post',
                 'without_empty' => false]);
@@ -373,7 +375,7 @@ class UrlHandler extends BaseUrlHandler
         if ($args == '') {
             self::serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
-            $params = new \ArrayObject([
+            $params = new ArrayObject([
                 'year'  => $m[1],
                 'month' => $m[2],
                 'type'  => 'month']);
@@ -405,14 +407,14 @@ class UrlHandler extends BaseUrlHandler
 
             $core->blog->withoutPassword(false);
 
-            $params = new \ArrayObject([
+            $params = new ArrayObject([
                 'post_url' => $args]);
 
             $core->behaviors->call('publicPostBeforeGetPosts', $params, $args);
 
             $_ctx->posts = $core->blog->getPosts($params);
 
-            $_ctx->comment_preview               = new \ArrayObject();
+            $_ctx->comment_preview               = new ArrayObject();
             $_ctx->comment_preview['content']    = '';
             $_ctx->comment_preview['rawcontent'] = '';
             $_ctx->comment_preview['name']       = '';
@@ -596,7 +598,7 @@ class UrlHandler extends BaseUrlHandler
         $core = &$GLOBALS['core'];
 
         if (preg_match('!^([a-z]{2}(-[a-z]{2})?)/(.*)$!', $args, $m)) {
-            $params = new \ArrayObject(['lang' => $m[1]]);
+            $params = new ArrayObject(['lang' => $m[1]]);
 
             $args = $m[3];
 
@@ -638,7 +640,7 @@ class UrlHandler extends BaseUrlHandler
         }
 
         if ($cat_url) {
-            $params = new \ArrayObject([
+            $params = new ArrayObject([
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
@@ -655,7 +657,7 @@ class UrlHandler extends BaseUrlHandler
 
             $subtitle = ' - ' . $_ctx->categories->cat_title;
         } elseif ($post_id) {
-            $params = new \ArrayObject([
+            $params = new ArrayObject([
                 'post_id'   => $post_id,
                 'post_type' => '']);
 

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
@@ -51,7 +53,7 @@ class PostMiniCatalog extends Catalog
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
 
-            $cols = new \ArrayObject($cols);
+            $cols = new ArrayObject($cols);
             $this->core->behaviors->call('adminPostMiniListHeader', $this->core, $this->rs, $cols);
 
             // Cope with optional columns
@@ -141,7 +143,7 @@ class PostMiniCatalog extends Catalog
             'status' => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
 
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
         $this->core->behaviors->call('adminPostMiniListValue', $this->core, $this->rs, $cols);
 
         // Cope with optional columns

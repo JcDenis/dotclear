@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Pager;
@@ -102,7 +104,7 @@ class PostCatalog extends Catalog
                 '" /><span class="hidden">' . __('Trackbacks') . '</span></th>',
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
-            $cols = new \ArrayObject($cols);
+            $cols = new ArrayObject($cols);
             $this->core->behaviors->call('adminPostListHeader', $this->core, $this->rs, $cols);
 
             // Cope with optional columns
@@ -236,7 +238,7 @@ class PostCatalog extends Catalog
             'trackbacks' => '<td class="nowrap count">' . $this->rs->nb_trackback . '</td>',
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
         $this->core->behaviors->call('adminPostListValue', $this->rs, $cols);
 
         // Cope with optional columns

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Html\Form;
@@ -29,7 +31,7 @@ class Favorites
     /** @var Core dotclear core instance */
     protected $core;
 
-    /** @var \ArrayObject list of favorite definitions  */
+    /** @var ArrayObject list of favorite definitions  */
     protected $fav_defs;
 
     /** @var Workspace current favorite landing workspace */
@@ -54,7 +56,7 @@ class Favorites
     public function __construct($core)
     {
         $this->core       = $core;
-        $this->fav_defs   = new \ArrayObject();
+        $this->fav_defs   = new ArrayObject();
         $this->ws         = $core->auth->user_prefs->addWorkspace('dashboard');
         $this->user_prefs = [];
 
@@ -231,7 +233,7 @@ class Favorites
      */
     protected function legacyFavorites()
     {
-        $f = new \ArrayObject();
+        $f = new ArrayObject();
         $this->core->behaviors->call('adminDashboardFavs', $f);
         foreach ($f as $k => $v) {
             $fav = [
@@ -305,7 +307,7 @@ class Favorites
      * appendMenuTitle - adds favorites section title to sidebar menu
      *                    shall not be called outside admin/prepend.php...
      *
-     * @param array|\ArrayObject  $menu   admin menu
+     * @param array|ArrayObject  $menu   admin menu
      *
      * @access public
      */
@@ -319,7 +321,7 @@ class Favorites
      * appendMenu - adds favorites items title to sidebar menu
      *                    shall not be called outside admin/prepend.php...
      *
-     * @param array|\ArrayObject  $menu   admin menu
+     * @param array|ArrayObject  $menu   admin menu
      *
      * @access public
      */
@@ -351,10 +353,10 @@ class Favorites
     {
         foreach ($this->user_prefs as $k => $v) {
             if (isset($v['dashboard_cb']) && is_callable($v['dashboard_cb'])) {
-                $v = new \ArrayObject($v);
+                $v = new ArrayObject($v);
                 call_user_func($v['dashboard_cb'], $this->core, $v);
             }
-            $icons[$k] = new \ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
+            $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
             $this->core->behaviors->call('adminDashboardFavsIcon', $k, $icons[$k]);
         }
     }

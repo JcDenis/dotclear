@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Filter;
@@ -32,7 +34,7 @@ class CommentFilter extends Filter
     {
         parent::__construct($core, 'comments');
 
-        $filters = new \arrayObject([
+        $filters = new ArrayObject([
             Filters::getPageFilter(),
             $this->getCommentAuthorFilter(),
             $this->getCommentTypeFilter(),

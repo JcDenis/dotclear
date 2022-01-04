@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -43,7 +45,7 @@ class Prepend extends CorePrepend
     /** @var Favorites  Favorites instance */
     public $favs;
 
-    /** @var \ArrayObject sidebar menu */
+    /** @var ArrayObject sidebar menu */
     public $_menu;
 
     /** @var string     user lang */
@@ -341,7 +343,7 @@ class Prepend extends CorePrepend
         $this->favs    = new Favorites($this);
 
         # Menus creation
-        $_menu              = new \ArrayObject();
+        $_menu              = new ArrayObject();
         $_menu['Dashboard'] = new Menu('dashboard-menu', '');
         if (!$user_ui_nofavmenu) {
             $this->favs->appendMenuTitle($_menu);

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Combos;
@@ -32,7 +34,7 @@ class BlogFilter extends Filter
     {
         parent::__construct($core, 'blogs');
 
-        $filters = new \arrayObject([
+        $filters = new ArrayObject([
             Filters::getPageFilter(),
             Filters::getSearchFilter(),
             $this->getBlogStatusFilter()

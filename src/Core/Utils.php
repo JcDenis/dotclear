@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use ArrayObject;
+
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
@@ -77,12 +79,12 @@ class Utils
     {
         $clean_ids = [];
 
-        if (!is_array($ids) && !($ids instanceof \ArrayObject)) {
+        if (!is_array($ids) && !($ids instanceof ArrayObject)) {
             $ids = [$ids];
         }
 
         foreach ($ids as $id) {
-            if (is_array($id) || ($id instanceof \ArrayObject)) {
+            if (is_array($id) || ($id instanceof ArrayObject)) {
                 $clean_ids = array_merge($clean_ids, self::cleanIds($id));
             } else {
                 $id = abs((int) $id);

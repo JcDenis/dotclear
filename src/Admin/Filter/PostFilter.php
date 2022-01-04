@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use ArrayObject;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -44,7 +46,7 @@ class PostFilter extends Filter
             $this->add((new DefaultFilter('post_type', $post_type))->param('post_type'));
         }
 
-        $filters = new \ArrayObject([
+        $filters = new ArrayObject([
             Filters::getPageFilter(),
             $this->getPostUserFilter(),
             $this->getPostCategoriesFilter(),

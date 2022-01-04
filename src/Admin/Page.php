@@ -814,10 +814,10 @@ abstract class Page
     /**
      * Sets the x frame options.
      *
-     * @param      array|\ArrayObject    $headers  The headers
+     * @param      array|ArrayObject    $headers  The headers
      * @param      mixed                $origin   The origin
      */
-    public static function setXFrameOptions($headers, ?string $origin = null): void
+    public static function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
     {
         if (self::$page_xframe_loaded) {
             return;

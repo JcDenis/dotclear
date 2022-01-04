@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Filter;
@@ -30,7 +32,7 @@ class UserFilter extends Filter
     {
         parent::__construct($core, 'users');
 
-        $filters = new \arrayObject([
+        $filters = new arrayObject([
             Filters::getPageFilter(),
             Filters::getSearchFilter()
         ]);
