@@ -51,7 +51,7 @@ header('HTTP/1.0 ' . $code . ' ' . $summary);   // @phpstan-ignore-line
 
 <body>
 <div id="content">
-<h1>Dotclear</h1>
+<h1><?php echo defined('DOTCLEAR_VENDOR_NAME') ? htmlspecialchars(DOTCLEAR_VENDOR_NAME, ENT_COMPAT, "UTF-8") : 'Dotclear' ?></h1>
 <h2><?php echo $summary; /* @phpstan-ignore-line */ ?></h2>
 <?php echo $message; /* @phpstan-ignore-line */ ?></div>
 </body>
