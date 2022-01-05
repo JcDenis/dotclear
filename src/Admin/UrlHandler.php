@@ -64,6 +64,24 @@ class UrlHandler
     }
 
     /**
+     * Registers multiple new url class
+     *
+     * @param  array  $args   array of url name, class, params
+     */
+    public function registerMultiple(array ...$args): void
+    {
+        foreach($args as $arg) {
+            $name   = isset($arg[0]) && is_string($arg[0]) ? $arg[0] : null;
+            $class  = isset($arg[1]) && is_string($arg[1]) ? $arg[1] : null;
+            $params = isset($arg[2]) && is_array($arg[2]) ? $arg[2] : [];
+
+            if ($name && $class) {
+                $this->urls[$name] = ['class' => $class, 'qs' => $params];
+            }
+        }
+    }
+
+    /**
      * Registers a new url as a copy of an existing one
      *
      * @param  string $name   url name
@@ -71,7 +89,7 @@ class UrlHandler
      * @param  array  $params extra parameters to add
      * @param  string $newclass new class if different from the original
      */
-    public function registercopy(string $name, string $orig, array $params = [], string $newclass = ''): void
+    public function registerCopy(string $name, string $orig, array $params = [], string $newclass = ''): void
     {
         if (!isset($this->urls[$orig])) {
             throw new AdminException('Unknown URL handler for ' . $orig);

@@ -135,38 +135,40 @@ class Prepend extends CorePrepend
         $d = 'Dotclear\\Admin\\Page\\';
         $this->adminurl = new UrlHandler($this, defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '');
 
-        $this->adminurl->register('admin.home', $d . 'Home');
-        $this->adminurl->register('admin.auth', $d . 'Auth');
-        $this->adminurl->register('admin.posts', $d . 'Posts');
-        $this->adminurl->register('admin.posts.popup', $d . 'PostsPopup');
-        $this->adminurl->register('admin.post', $d . 'Post');
-        $this->adminurl->register('admin.post.media', $d . 'PostMedia');
-        $this->adminurl->register('admin.blog.theme', 'blog_theme.php');
-        $this->adminurl->register('admin.blogs', $d . 'Blogs');
-        $this->adminurl->register('admin.blog', $d . 'Blog');
-        $this->adminurl->register('admin.blog.pref', $d . 'BlogPref');
-        $this->adminurl->register('admin.blog.del', $d . 'BlogDel');
-        $this->adminurl->register('admin.categories', $d . 'Categories');
-        $this->adminurl->register('admin.category', $d . 'Category');
-        $this->adminurl->register('admin.comments', $d . 'Comments');
-        $this->adminurl->register('admin.comment', $d . 'Comment');
-        $this->adminurl->register('admin.help', $d . 'Help');
-        $this->adminurl->register('admin.help.charte', $d . 'Charte');
-        $this->adminurl->register('admin.langs', $d .'Langs');
-        $this->adminurl->register('admin.link.popup', $d .'LinkPopup');
-        $this->adminurl->register('admin.media', $d . 'Media');
-        $this->adminurl->register('admin.media.item', $d . 'MediaItem');
-        $this->adminurl->register('admin.plugins', 'plugins.php');
-        $this->adminurl->register('admin.plugin', 'plugin.php');
-        $this->adminurl->register('admin.search', $d . 'Search');
-        $this->adminurl->register('admin.users', $d . 'Users');
-        $this->adminurl->register('admin.user', $d . 'User');
-        $this->adminurl->register('admin.user.pref', $d . 'UserPref');
-        $this->adminurl->register('admin.user.actions', $d . 'UserAction');
-        $this->adminurl->register('admin.update', $d . 'Update');
-        $this->adminurl->register('admin.services', $d . 'Services');
-        $this->adminurl->register('admin.xmlrpc', $d . 'Xmlrpc');
-        $this->adminurl->register('admin.cspreport', $d . 'CspReport');
+        $this->adminurl->registerMultiple(
+            ['admin.home', $d . 'Home'],
+            ['admin.auth', $d . 'Auth'],
+            ['admin.posts', $d . 'Posts'],
+            ['admin.posts.popup', $d . 'PostsPopup'],
+            ['admin.post', $d . 'Post'],
+            ['admin.post.media', $d . 'PostMedia'],
+            ['admin.blog.theme', 'blog_theme.php'],
+            ['admin.blogs', $d . 'Blogs'],
+            ['admin.blog', $d . 'Blog'],
+            ['admin.blog.pref', $d . 'BlogPref'],
+            ['admin.blog.del', $d . 'BlogDel'],
+            ['admin.categories', $d . 'Categories'],
+            ['admin.category', $d . 'Category'],
+            ['admin.comments', $d . 'Comments'],
+            ['admin.comment', $d . 'Comment'],
+            ['admin.help', $d . 'Help'],
+            ['admin.help.charte', $d . 'Charte'],
+            ['admin.langs', $d .'Langs'],
+            ['admin.link.popup', $d .'LinkPopup'],
+            ['admin.media', $d . 'Media'],
+            ['admin.media.item', $d . 'MediaItem'],
+            ['admin.plugins', 'plugins.php'],
+            ['admin.plugin', 'plugin.php'],
+            ['admin.search', $d . 'Search'],
+            ['admin.users', $d . 'Users'],
+            ['admin.user', $d . 'User'],
+            ['admin.user.pref', $d . 'UserPref'],
+            ['admin.user.actions', $d . 'UserAction'],
+            ['admin.update', $d . 'Update'],
+            ['admin.services', $d . 'Services'],
+            ['admin.xmlrpc', $d . 'Xmlrpc'],
+            ['admin.cspreport', $d . 'CspReport']
+        );
 
         //$this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
         //$this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
