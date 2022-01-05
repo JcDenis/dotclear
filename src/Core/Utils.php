@@ -17,6 +17,8 @@ use ArrayObject;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
+use Dotclear\Core\StaticCore;
+
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Html\Html;
@@ -30,22 +32,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
-    /** @var Core Core instance */
-    protected static $core;
-
-    public static function setCore(Core $core): void
-    {
-        self::$core = $core;
-    }
-
-    protected static function getCore(): Core
-    {
-        if (is_a(self::$core, 'Core')) {
-            throw new CoreException('No Core instance');
-        }
-
-        return self::$core;
-    }
+    use StaticCore;
 
     /**
      * Static function that returns user's common name given to his

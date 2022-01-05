@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\StaticCore;
 
 use Dotclear\Utils\Dt;
 
@@ -23,8 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Notices
 {
-    /** @var    Core        Core instance */
-    public static $core;
+    use StaticCore;
 
     /** @var    array       notices types */
     private static $N_TYPES = [
@@ -45,21 +45,22 @@ class Notices
      */
     public static function getNotices(): string
     {
+        $core = self::getCore();
         $res = '';
 
         # Return error messages if any
-        if (self::$core->error->flag() && !self::$error_displayed) {
+        if ($core->error->flag() && !self::$error_displayed) {
 
             # --BEHAVIOR-- before:AdminNotices:getNotices, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
-            $notice_error = self::$core->behaviors->call('before:Admin:Notices:getNotices', self::$core->error);
+            $notice_error = $core->behaviors->call('before:Admin:Notices:getNotices', $core->error);
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count(self::$core->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
-                    self::$core->error->toHTML()
+                    count($core->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    $core->error->toHTML()
                 );
             }
             self::$error_displayed = true;
@@ -82,9 +83,9 @@ class Notices
                     'sql' => "AND notice_type != 'static'"
                 ];
             }
-            $counter = self::$core->notices->get($params, true);
+            $counter = $core->notices->get($params, true);
             if ($counter) {
-                $lines = self::$core->notices->get($params);
+                $lines = $core->notices->get($params);
                 while ($lines->fetch()) {
                     if (isset(self::$N_TYPES[$lines->notice_type])) {
                         $class = self::$N_TYPES[$lines->notice_type];
@@ -102,7 +103,7 @@ class Notices
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
                     # --BEHAVIOR-- after:Admin:Notices:getNotices, array
-                    $notice = self::$core->behaviors->call('after:Admin:Notices:getNotices', $notification);
+                    $notice = $core->behaviors->call('after:Admin:Notices:getNotices', $notification);
 
                     $res .= !empty($notice) ? $notice : self::getNotification($notification);
                 }
@@ -110,7 +111,7 @@ class Notices
         } while (--$step);
 
         # Delete returned notices
-        self::$core->notices->del(null, true);
+        $core->notices->del(null, true);
 
         return $res;
     }
@@ -124,7 +125,8 @@ class Notices
      */
     public static function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = self::$core->con->openCursor(self::$core->prefix . self::$core->notices->table());
+        $core = self::getCore();
+        $cur = $core->con->openCursor($core->prefix . $core->notices->table());
 
         $cur->notice_type    = $type;
         $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');
@@ -138,7 +140,7 @@ class Notices
             $cur->notice_format = $options['format'];
         }
 
-        self::$core->notices->add($cur);
+        $core->notices->add($cur);
     }
 
     /**
@@ -183,13 +185,14 @@ class Notices
      */
     private static function getNotification(array $notification): string
     {
+        $core = self::getCore();
         $tag = isset($notification['format']) && $notification['format'] === 'html' ? 'div' : 'p';
         $ts  = '';
         if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), self::$core->auth->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], self::$core->auth->getInfo('user_tz')),
+                Dt::iso8601(strtotime($notification['ts']), $core->auth->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], $core->auth->getInfo('user_tz')),
             );
         }
         $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
@@ -210,14 +213,15 @@ class Notices
      */
     public static function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
     {
+        $core = self::getCore();
         $res = '';
         if ($msg != '') {
             $ts = '';
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), self::$core->auth->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, self::$core->auth->getInfo('user_tz')),
+                    Dt::iso8601(time(), $core->auth->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, $core->auth->getInfo('user_tz')),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

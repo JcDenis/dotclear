@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\StaticCore;
 
 use Dotclear\Container\User as ContainerUser;
 
@@ -31,8 +32,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Combos
 {
-    /** @var Core Core instance */
-    public static $core;
+    use StaticCore;
 
     /**
      * Returns an hierarchical categories combo from a category record
@@ -68,8 +68,9 @@ class Combos
      */
     public static function getPostStatusesCombo()
     {
+        $core = self::getCore();
         $status_combo = [];
-        foreach (self::$core->blog->getAllPostStatus() as $k => $v) {
+        foreach ($core->blog->getAllPostStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -175,9 +176,9 @@ class Combos
      */
     public static function getEditorsCombo()
     {
+        $core = self::getCore();
         $editors_combo = [];
-
-        foreach (self::$core->getEditors() as $v) {
+        foreach ($core->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -193,14 +194,14 @@ class Combos
      */
     public static function getFormatersCombo($editor_id = '')
     {
+        $core = self::getCore();
         $formaters_combo = [];
-
         if (!empty($editor_id)) {
-            foreach (self::$core->getFormaters($editor_id) as $formater) {
+            foreach ($core->getFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach (self::$core->getFormaters() as $editor => $formaters) {
+            foreach ($core->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }
@@ -217,8 +218,9 @@ class Combos
      */
     public static function getBlogStatusesCombo()
     {
+        $core = self::getCore();
         $status_combo = [];
-        foreach (self::$core->getAllBlogStatus() as $k => $v) {
+        foreach ($core->getAllBlogStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -232,8 +234,9 @@ class Combos
      */
     public static function getCommentStatusesCombo()
     {
+        $core = self::getCore();
         $status_combo = [];
-        foreach (self::$core->blog->getAllCommentStatus() as $k => $v) {
+        foreach ($core->blog->getAllCommentStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -250,6 +253,7 @@ class Combos
 
     public static function getPostsSortbyCombo()
     {
+        $core = self::getCore();
         $sortby_combo = [
             __('Date')                 => 'post_dt',
             __('Title')                => 'post_title',
@@ -261,13 +265,14 @@ class Combos
             __('Number of trackbacks') => 'nb_trackback'
         ];
         # --BEHAVIOR-- adminPostsSortbyCombo
-        self::$core->behaviors->call('adminPostsSortbyCombo', [& $sortby_combo]);
+        $core->behaviors->call('adminPostsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
 
     public static function getCommentsSortbyCombo()
     {
+        $core = self::getCore();
         $sortby_combo = [
             __('Date')        => 'comment_dt',
             __('Entry title') => 'post_title',
@@ -278,13 +283,14 @@ class Combos
             __('Spam filter') => 'comment_spam_filter'
         ];
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        self::$core->behaviors->call('adminCommentsSortbyCombo', [& $sortby_combo]);
+        $core->behaviors->call('adminCommentsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
 
     public static function getBlogsSortbyCombo()
     {
+        $core = self::getCore();
         $sortby_combo = [
             __('Last update') => 'blog_upddt',
             __('Blog name')   => 'UPPER(blog_name)',
@@ -292,15 +298,16 @@ class Combos
             __('Status')      => 'blog_status'
         ];
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        self::$core->behaviors->call('adminBlogsSortbyCombo', [& $sortby_combo]);
+        $core->behaviors->call('adminBlogsSortbyCombo', [& $sortby_combo]);
 
         return $sortby_combo;
     }
 
     public static function getUsersSortbyCombo()
     {
+        $core = self::getCore();
         $sortby_combo = [];
-        if (self::$core->auth->isSuperAdmin()) {
+        if ($core->auth->isSuperAdmin()) {
             $sortby_combo = [
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
@@ -309,7 +316,7 @@ class Combos
                 __('Number of entries') => 'nb_post'
             ];
             # --BEHAVIOR-- adminUsersSortbyCombo
-            self::$core->behaviors->call('adminUsersSortbyCombo', [& $sortby_combo]);
+            $core->behaviors->call('adminUsersSortbyCombo', [& $sortby_combo]);
         }
         return $sortby_combo;
     }

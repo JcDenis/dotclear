@@ -19,6 +19,7 @@ namespace Dotclear\Admin;
 use ArrayObject;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\StaticCore;
 use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Combos;
@@ -29,8 +30,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class UserPref
 {
-    /** @var Core core instance */
-    public static $core;
+    use StaticCore;
 
     /** @var ArrayObject columns preferences */
     protected static $cols = null;
@@ -51,15 +51,17 @@ class UserPref
 
     public static function getUserColumns($type = null, $columns = null)
     {
+        $core = self::getCore();
+
         # Get default colums (admin lists)
         $cols = self::getDefaultColumns();
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        self::$core->behaviors->call('adminColumnsLists', $cols);
+        $core->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
-        $cols_user = @self::$core->auth->user_prefs->interface->cols;
+        $cols_user = @$core->auth->user_prefs->interface->cols;
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -86,8 +88,9 @@ class UserPref
 
     public static function getDefaultFilters()
     {
+        $core = self::getCore();
         $users = [null, null, null, null, null];
-        if (self::$core->auth->isSuperAdmin()) {
+        if ($core->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
                 Combos::getUsersSortbyCombo(),
@@ -149,17 +152,18 @@ class UserPref
      */
     public static function getUserFilters($type = null, $option = null)
     {
+        $core = self::getCore();
         if (self::$sorts === null) {
             $sorts = self::getDefaultFilters();
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            self::$core->behaviors->call('adminFiltersLists', $sorts);
+            $core->behaviors->call('adminFiltersLists', $sorts);
 
-            if (self::$core->auth->user_prefs->interface === null) {
-                self::$core->auth->user_prefs->addWorkspace('interface');
+            if ($core->auth->user_prefs->interface === null) {
+                $core->auth->user_prefs->addWorkspace('interface');
             }
-            $sorts_user = @self::$core->auth->user_prefs->interface->sorts;
+            $sorts_user = @$core->auth->user_prefs->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {

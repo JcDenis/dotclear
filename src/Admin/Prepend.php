@@ -126,11 +126,6 @@ class Prepend extends CorePrepend
             exit;
         }
 
-        # Overload static core
-        Notices::$core  = $this;
-        UserPref::$core = $this;
-        Combos::$core   = $this;
-
         # Load requested admin page
         $this->adminLoadPage();
     }

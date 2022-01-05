@@ -18,6 +18,7 @@ use ArrayObject;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
+use Dotclear\Core\StaticCore;
 use Dotclear\Core\Behaviors;
 use Dotclear\Core\Error;
 use Dotclear\Core\UrlHandler;
@@ -124,7 +125,7 @@ class Core
     public function __construct()
     {
         static::startStatistics();
-        Utils::setCore($this);
+        StaticCore::setCore($this);
 
         $this->behaviors = new Behaviors($this);
         $this->con       = $this->conInstance();
