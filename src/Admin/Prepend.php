@@ -46,7 +46,7 @@ class Prepend extends CorePrepend
     public $favs;
 
     /** @var ArrayObject sidebar menu */
-    public $_menu;
+    public $menu;
 
     /** @var string     user lang */
     public $_lang = 'en';
@@ -56,14 +56,14 @@ class Prepend extends CorePrepend
 
     public function __construct()
     {
+        # Load core prepend and so on
+        parent::__construct();
+
         # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
             Utils::fileServer([static::root('Admin', 'files')], 'df');
             exit;
         }
-
-        # Load core prepend and so on
-        parent::__construct();
 
         # Serve var file
         if (!empty($_GET['vf'])) {
@@ -73,7 +73,7 @@ class Prepend extends CorePrepend
 
         # Serve plugin file
         if (!empty($_GET['pf'])) {
-            $paths = array_reverse(explode(PATH_SEPARATOR, DOTCLEAR_PLUGINS_DIR));
+            $paths = array_reverse(explode(PATH_SEPARATOR, DOTCLEAR_PLUGIN_DIR));
             $paths[] = static::root('Core', 'files', 'js');
             $paths[] = static::root('Core', 'files', 'css');
             Utils::fileServer($paths, 'pf');
@@ -334,69 +334,69 @@ class Prepend extends CorePrepend
         $this->auth->user_prefs->addWorkspace('interface');
         Menu::$iconset = @$this->auth->user_prefs->interface->iconset;
 
-        $this->auth->user_prefs->addWorkspace('interface');
         $user_ui_nofavmenu = $this->auth->user_prefs->interface->nofavmenu;
 
         $this->favs    = new Favorites($this);
 
         # Menus creation
-        $_menu              = new ArrayObject();
-        $_menu['Dashboard'] = new Menu('dashboard-menu', '');
+        $this->menu              = new ArrayObject();
+        $this->menu['Dashboard'] = new Menu('dashboard-menu', '');
         if (!$user_ui_nofavmenu) {
-            $this->favs->appendMenuTitle($_menu);
+            $this->favs->appendMenuTitle($this->menu);
         }
-        $_menu['Blog']    = new Menu('blog-menu', 'Blog');
-        $_menu['System']  = new Menu('system-menu', 'System');
-        $_menu['Plugins'] = new Menu('plugins-menu', 'Plugins');
-        //$this->plugins->loadModules(DC_PLUGINS_ROOT, 'admin', $_lang);
+        $this->menu['Blog']    = new Menu('blog-menu', 'Blog');
+        $this->menu['System']  = new Menu('system-menu', 'System');
+        $this->menu['Plugins'] = new Menu('plugins-menu', 'Plugins');
+
+        $this->plugins->loadModules(DOTCLEAR_PLUGIN_DIR, $this->_lang);
         $this->favs->setup();
 
         if (!$user_ui_nofavmenu) {
-            $this->favs->appendMenu($_menu);
+            $this->favs->appendMenu($this->menu);
         }
 
         # Set menu titles
-        $_menu['System']->title  = __('System settings');
-        $_menu['Blog']->title    = __('Blog');
-        $_menu['Plugins']->title = __('Plugins');
+        $this->menu['System']->title  = __('System settings');
+        $this->menu['Blog']->title    = __('Blog');
+        $this->menu['Plugins']->title = __('Plugins');
 
         # add fefault items to menu
-        $this->addMenuItem($_menu, 'Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png',
             $this->auth->check('admin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
             $this->auth->check('admin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Media manager'), 'admin.media', 'images/menu/media.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Media manager'), 'admin.media', 'images/menu/media.png',
             $this->auth->check('media,media_admin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Categories'), 'admin.categories', 'images/menu/categories.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Categories'), 'admin.categories', 'images/menu/categories.png',
             $this->auth->check('categories', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Search'), 'admin.search', 'images/menu/search.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Search'), 'admin.search', 'images/menu/search.png',
             $this->auth->check('usage,contentadmin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Comments'), 'admin.comments', 'images/menu/comments.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Comments'), 'admin.comments', 'images/menu/comments.png',
             $this->auth->check('usage,contentadmin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('Posts'), 'admin.posts', 'images/menu/entries.png',
+        $this->addMenuItem($this->menu, 'Blog', __('Posts'), 'admin.posts', 'images/menu/entries.png',
             $this->auth->check('usage,contentadmin', $this->blog->id));
-        $this->addMenuItem($_menu, 'Blog', __('New post'), 'admin.post', 'images/menu/edit.png',
+        $this->addMenuItem($this->menu, 'Blog', __('New post'), 'admin.post', 'images/menu/edit.png',
             $this->auth->check('usage,contentadmin', $this->blog->id), true, true);
 
-        $this->addMenuItem($_menu, 'System', __('Update'), 'admin.update', 'images/menu/update.png',
+        $this->addMenuItem($this->menu, 'System', __('Update'), 'admin.update', 'images/menu/update.png',
             $this->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR));
-        $this->addMenuItem($_menu, 'System', __('Languages'), 'admin.langs', 'images/menu/langs.png',
+        $this->addMenuItem($this->menu, 'System', __('Languages'), 'admin.langs', 'images/menu/langs.png',
             $this->auth->isSuperAdmin());
-        $this->addMenuItem($_menu, 'System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png',
+        $this->addMenuItem($this->menu, 'System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png',
             $this->auth->isSuperAdmin());
-        $this->addMenuItem($_menu, 'System', __('Users'), 'admin.users', 'images/menu/users.png',
+        $this->addMenuItem($this->menu, 'System', __('Users'), 'admin.users', 'images/menu/users.png',
             $this->auth->isSuperAdmin());
-        $this->addMenuItem($_menu, 'System', __('Blogs'), 'admin.blogs', 'images/menu/blogs.png',
+        $this->addMenuItem($this->menu, 'System', __('Blogs'), 'admin.blogs', 'images/menu/blogs.png',
             $this->auth->isSuperAdmin() || $this->auth->check('usage,contentadmin', $this->blog->id) && $this->auth->getBlogCount() > 1);
 
-        $this->_menu = $_menu;
+        //$this->_menu = $this->menu;
     }
 
-    private function addMenuItem($_menu, $section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
+    private function addMenuItem($menu, $section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
         $url     = $this->adminurl->get($adminurl);
         $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
-        $_menu[$section]->prependItem($desc, $url, $icon,
+        $menu[$section]->prependItem($desc, $url, $icon,
             preg_match($pattern, $_SERVER['REQUEST_URI']), $perm, null, null, $pinned);
     }
 

@@ -707,8 +707,8 @@ abstract class Page
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach ($this->core->_menu as $k => $v) {
-            echo $this->core->_menu[$k]->draw();
+        foreach ($this->core->menu as $k => $v) {
+            echo $this->core->menu[$k]->draw();
         }
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
@@ -1340,10 +1340,13 @@ abstract class Page
      */
     public static function jsLoad(string $src, string $v = ''): string
     {
+        # By default use Dotclear Admin files
+        $prefix = strpos($src, '?') === false ? '?df=' : '';
+
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$page_loaded_js[$escaped_src])) {
             self::$page_loaded_js[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+            $escaped_src                   = self::appendVersion($prefix . $escaped_src, $v);
 
             return '<script src="' . $escaped_src . '"></script>' . "\n";
         }

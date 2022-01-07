@@ -133,7 +133,7 @@ class Core
         $this->auth      = $this->authInstance();
         $this->session   = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
         $this->url       = new UrlHandler($this);
-        $this->plugins   = null;//new Plugins($this);
+        $this->plugins   = new Modules($this, 'Plugin');
         $this->rest      = new RestServer($this);
         $this->meta      = new Meta($this);
         $this->log       = new Log($this);
