@@ -185,6 +185,11 @@ class Menu
             }
         }
 
-        return '?df=' . $img;
+        # By default use Dotclear Admin files
+        if (strpos($img, '?') === false) {
+            $img = '?df=' . $img;
+        }
+
+        return $img;
     }
 }
