@@ -52,7 +52,7 @@ class Distrib
         }
 
         define('DOTCLEAR_VERSION',
-            '2.21-dev'
+            trim(file_get_contents(DOTCLEAR_ROOT_DIR . DIRECTORY_SEPARATOR . 'version'))
         );
 
         if (!defined('DOTCLEAR_OTHER_DIR')) {
@@ -82,6 +82,12 @@ class Distrib
         if (!defined('DOTCLEAR_PLUGIN_DIR')) {
             define('DOTCLEAR_PLUGIN_DIR',
                 implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugin'])
+            );
+        }
+
+        if (!defined('DOTCLEAR_THEME_DIR')) {
+            define('DOTCLEAR_THEME_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Theme'])
             );
         }
 
