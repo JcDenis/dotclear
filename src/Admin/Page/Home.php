@@ -161,10 +161,10 @@ class Home extends Page
 
         # Documentation links
         if ($this->core->auth->user_prefs->dashboard->doclinks) {
-            if (!empty($this->core->_resources['doc'])) {
+            if (!empty($this->core->resources['doc'])) {
                 $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
 
-                foreach ($this->core->_resources['doc'] as $k => $v) {
+                foreach ($this->core->resources['doc'] as $k => $v) {
                     $doc_links .= '<li><a class="outgoing" href="' . $v . '" title="' . $k . '">' . $k .
                         ' <img src="?df=images/outgoing-link.svg" alt="" /></a></li>';
                 }

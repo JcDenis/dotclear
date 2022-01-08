@@ -20,7 +20,11 @@ use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Core;
 
+use Dotclear\Core\Admin\Notices;
+
 use Dotclear\Html\Html;
+use Dotclear\Utils\L10n;
+use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -28,22 +32,23 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Modules
 {
-    /** @var Core       Core instance */
-    protected $core;
+    /** @var    Core    Core instance */
+    public $core;
 
-    /** @var string     Current process */
+    /** @var    string  Current process */
     protected $process;
 
-    /** @var string     Modules type */
+    /** @var    string  Modules type */
     protected $type;
 
-    /** @var bool       Safe mode */
+    /** @var    bool    Safe mode */
     protected $safe_mode = false;
 
     protected $id = null;
     protected $mroot = null;
 
-    /** @var array      List of registered modules */
+    # Modules
+    /** @var    array   List of registered modules */
     protected $modules       = [];
     protected $disabled      = [];
     protected $errors        = [];
@@ -126,7 +131,7 @@ class Modules
         uasort($this->modules, [$this, 'sortModules']);
 
         foreach ($this->modules as $id => $m) {
-            # ex: Dotclear\MyPloug\Admin\Prepend
+            # ex: Dotclear\Plugin\MyPloug\Admin\Prepend
             $class = implode('\\', [$this->ns, $id, $this->process, 'Prepend']);
             # Load translation and Prepend
             if (class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
@@ -140,10 +145,9 @@ class Modules
                 }
                 unset($r);
             }
-/*
+
             $this->loadModuleL10N($id, $lang, 'main');
-            if ($ns == 'admin') {
-                $this->loadModuleL10Nresources($id, $lang);
+/*            if ($this->process == 'Admin') {
                 $this->core->adminurl->register('admin.plugin.' . $id, 'plugin.php', ['p' => $id]);
             }
 */
@@ -284,6 +288,16 @@ class Modules
     }
 
     /**
+     * Gets the errors.
+     *
+     * @return  array   The errors.
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
      * Returns all modules associative array
      *
      * @return     array  The modules.
@@ -360,21 +374,25 @@ class Modules
         return ($a['priority'] < $b['priority']) ? -1 : 1;
     }
 
-    public function getFileDirs(string $file): array
+    /**
+     * This method will search for file <var>$file</var> in language
+     * <var>$lang</var> for module <var>$id</var>.
+     *
+     * <var>$file</var> should not have any extension.
+     *
+     * @param   string          $id     The module identifier
+     * @param   string|null     $lang   The language code
+     * @param   string          $file   The filename (without extension)
+     */
+    public function loadModuleL10N(string $id, ?string $lang, string $file): void
     {
-        $len = strpos($file, '/');
-        if (!$len) {
-            return [];
+        if (!$lang || !isset($this->modules[$id])) {
+            return;
         }
 
-        $module = substr($file, 0, $len);
-        $file = substr($file, $len);
-
-        if (!$this->moduleExists($module)) {
-            return [];
+        $lfile = $this->modules[$id]['root'] . '/locales/%s/%s';
+        if (L10n::set(sprintf($lfile, $lang, $file)) === false && $lang != 'en') {
+            L10n::set(sprintf($lfile, 'en', $file));
         }
-
-        $dirs = [$this->core::path($this->moduleInfo['root'], 'files', $file)];
-        pdump($dirs);
     }
 }

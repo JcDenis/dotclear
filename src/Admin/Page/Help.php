@@ -69,7 +69,7 @@ class Help extends Page
 
     private function getHelpContent(...$args): void
     {
-        if (empty($args) || empty($this->core->_resources['help'])) {
+        if (empty($args) || empty($this->core->resources['help'])) {
             return;
         }
 
@@ -80,10 +80,10 @@ class Help extends Page
                 continue;
             }
 
-            if (!isset($this->core->_resources['help'][$v])) {
+            if (!isset($this->core->resources['help'][$v])) {
                 continue;
             }
-            $f = $this->core->_resources['help'][$v];
+            $f = $this->core->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }

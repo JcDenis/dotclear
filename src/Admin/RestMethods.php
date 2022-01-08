@@ -72,14 +72,14 @@ class RestMethods
 
         if ($core->auth->user_prefs->dashboard->dcnews) {
             try {
-                if (empty($core->_resources['rss_news'])) {
+                if (empty($core->resources['rss_news'])) {
                     throw new AdminException();
                 }
                 $feed_reader = new Reader();
                 $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
-                $feed = $feed_reader->parse($core->_resources['rss_news']);
+                $feed = $feed_reader->parse($core->resources['rss_news']);
                 if ($feed) {
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;

@@ -618,7 +618,7 @@ abstract class Page
             return;
         };
 
-        if (empty($this->core->_resources['help'])) {
+        if (empty($this->core->resources['help'])) {
             return;
         }
 
@@ -630,10 +630,10 @@ abstract class Page
                 continue;
             }
 
-            if (!isset($this->core->_resources['help'][$v])) {
+            if (!isset($this->core->resources['help'][$v])) {
                 continue;
             }
-            $f = $this->core->_resources['help'][$v];
+            $f = $this->core->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }
@@ -651,7 +651,7 @@ abstract class Page
         }
 
         // Set contextual help global flag
-        $this->core->_resources['ctxhelp'] = true;
+        $this->core->resources['ctxhelp'] = true;
 
         echo
         '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
@@ -688,7 +688,7 @@ abstract class Page
 
     private function pageClose(): void
     {
-        if (!$this->core->_resources['ctxhelp'] && !$this->core->auth->user_prefs->interface->hidehelpbutton) {
+        if (!$this->core->resources['ctxhelp'] && !$this->core->auth->user_prefs->interface->hidehelpbutton) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 $this->core->adminurl->get('admin.help'),
