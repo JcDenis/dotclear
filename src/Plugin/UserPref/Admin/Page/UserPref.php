@@ -95,7 +95,7 @@ class UserPref extends Page
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
-                html::escapeHTML($this->core->auth->userID()) => '',
+                Html::escapeHTML($this->core->auth->userID()) => '',
                 __('user:preferences')                        => ''
             ])
         ;
@@ -118,6 +118,7 @@ class UserPref extends Page
             }
         }
         ksort($prefs);
+
         if (count($prefs) > 0) {
             $ws_combo = [];
             foreach ($prefs as $ws => $s) {
@@ -126,7 +127,7 @@ class UserPref extends Page
             $this->prefMenu($ws_combo, false);
         }
 
-        $this->preftable($prefs, false);
+        $this->prefTable($prefs, false);
 
         echo '</div>' .
 
@@ -134,13 +135,11 @@ class UserPref extends Page
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-
         foreach ($this->core->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
         }
-
         ksort($prefs);
 
         if (count($prefs) > 0) {
@@ -151,7 +150,7 @@ class UserPref extends Page
             $this->prefMenu($ws_combo, true);
         }
 
-        $this->preftable($prefs, true);
+        $this->prefTable($prefs, true);
 
         echo '</div>';
     }
@@ -162,7 +161,7 @@ class UserPref extends Page
         '<form action="' . $this->core->adminurl->get('admin.plugin.userPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
-        form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
+        Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
         $this->core->formNonce() . '</p></form>';
     }
@@ -180,7 +179,6 @@ class UserPref extends Page
             '</thead>' . "\n" .
             '<tbody>';
         $table_footer = '</tbody></table></div>';
-
 
         echo '<form action="' . $this->core->adminurl->get('admin.plugin.userPref') . '" method="post">';
 
@@ -203,30 +201,30 @@ class UserPref extends Page
     private static function prefLine($id, $s, $ws, $field_name, $strong_label)
     {
         if ($s['type'] == 'boolean') {
-            $field = form::combo(
+            $field = Form::combo(
                 [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
                 [__('yes') => 1, __('no') => 0],
                 $s['value'] ? 1 : 0);
         } else {
             if ($s['type'] == 'array') {
-                $field = form::field([$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id], 40, null,
-                    html::escapeHTML(json_encode($s['value'])));
+                $field = Form::field([$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id], 40, null,
+                    Html::escapeHTML(json_encode($s['value'])));
             } else {
-                $field = form::field([$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id], 40, null,
-                    html::escapeHTML((string) $s['value']));
+                $field = Form::field([$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id], 40, null,
+                    Html::escapeHTML((string) $s['value']));
             }
         }
-        $type = form::hidden([$field_name . '_type' . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id . '_type'],
-            html::escapeHTML($s['type']));
+        $type = Form::hidden([$field_name . '_type' . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id . '_type'],
+            Html::escapeHTML($s['type']));
 
         $slabel = $strong_label ? '<strong>%s</strong>' : '%s';
 
         return
         '<tr class="line">' .
-        '<td scope="row"><label for="' . $field_name . '_' . $ws . '_' . $id . '">' . sprintf($slabel, html::escapeHTML($id)) . '</label></td>' .
+        '<td scope="row"><label for="' . $field_name . '_' . $ws . '_' . $id . '">' . sprintf($slabel, Html::escapeHTML($id)) . '</label></td>' .
         '<td>' . $field . '</td>' .
         '<td>' . $s['type'] . $type . '</td>' .
-        '<td>' . html::escapeHTML($s['label']) . '</td>' .
+        '<td>' . Html::escapeHTML($s['label']) . '</td>' .
             '</tr>';
 
     }
