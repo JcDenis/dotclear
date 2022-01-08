@@ -672,7 +672,7 @@ class Post extends Page
                     Form::textarea(
                         'post_content',
                         50,
-                        $this->core->auth->getOption('edit_size'),
+                        (int) $this->core->auth->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
