@@ -37,6 +37,8 @@ class Home extends Page
 
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
 
+    private $plugins_install = [];
+
     protected function getPermissions(): string|null|false
     {
         # Set default blog
@@ -69,14 +71,14 @@ class Home extends Page
             'dragndrop_off' => __("Dashboard area's drag and drop is disabled"),
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled")
         ];
-/*
-        if ($this->core->plugins->disableDepModules($this->core->adminurl->get('admin.home', []))) {
+
+        if ($this->core->plugins->disableDepModules($this->core->adminurl->get('admin.home'))) {
             exit;
         }
 
         # Plugin install
-        //$plugins_install = $this->core->plugins->installModules();
-*/
+        //$this->plugins_install = $this->core->plugins->installModules();
+
         # Check dashboard module prefs
         if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks')) {
             if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks', true)) {
@@ -251,22 +253,23 @@ class Home extends Page
 
         # Plugins install messages
 /*
-        if (!empty($plugins_install['success'])) {
+        if (!empty($this->plugins_install['success'])) {
             echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
-            $list = new adminModulesList($this->core->plugins, DOTCLEAR_PLUGINS_DIR, $this->core->blog->settings->system->store_plugin_url);
-            foreach ($plugins_install['success'] as $k => $v) {
+            $list = new adminModulesList($this->core->plugins, DOTCLEAR_PLUGIN_DIR, $this->core->blog->settings->system->store_plugin_url);
+            foreach ($this->plugins_install['success'] as $k => $v) {
                 $info = implode(' - ', $list->getSettingsUrls($this->core, $k, true));
                 echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
             echo '</ul></div>';
         }
-        if (!empty($plugins_install['failure'])) {
+        if (!empty($this->plugins_install['failure'])) {
             echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
-            foreach ($plugins_install['failure'] as $k => $v) {
+            foreach ($this->plugins_install['failure'] as $k => $v) {
                 echo '<li>' . $k . ' (' . $v . ')</li>';
             }
             echo '</ul></div>';
         }
+*/
         # Errors modules notifications
         if ($this->core->auth->isSuperAdmin()) {
             $list = $this->core->plugins->getErrors();
@@ -276,7 +279,7 @@ class Home extends Page
                 '<ul><li>' . implode("</li>\n<li>", $list) . '</li></ul></div>';
             }
         }
-*/
+
         # Get current main orders
         $main_order = $this->core->auth->user_prefs->dashboard->main_order;
         $main_order = ($main_order != '' ? explode(',', $main_order) : []);

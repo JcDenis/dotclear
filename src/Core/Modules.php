@@ -152,10 +152,6 @@ class Modules
             }
 */
         }
-
-
-//        pdump($this->modules_names, $this->modules, $this->all_modules);
-//!...
     }
 
     protected function checkModule(array $properties): void
@@ -196,7 +192,9 @@ class Modules
                         'desc'          => $properties['desc'],
                         'author'        => $properties['author'],
                         'version'       => $properties['version'],
+                        'enabled'       => $this->disabled_mode ? false : (isset($properties['version']) ? (bool) $properties['version'] : true),
                         'root_writable' => is_writable($this->mroot ?? ''),
+                        'type'          => $this->type
                     ]
                 );
             } else {
@@ -274,6 +272,66 @@ class Modules
                     }
                 }
             }
+        }
+    }
+
+
+    /**
+     * Disables the dep modules.
+     *
+     * @param   string  $redir_url  URL to redirect if modules are to disable
+     *
+     * @return  bool                true if a redirection has been performed
+     */
+    public function disableDepModules(string $redir_url): bool
+    {
+        if (isset($_GET['dep'])) {
+            // Avoid infinite redirects
+            return false;
+        }
+        $reason = [];
+        foreach ($this->to_disable as $module) {
+            try {
+                $this->deactivateModule($module['name']);
+                $reason[] = sprintf('<li>%s : %s</li>', $module['name'], join(',', $module['reason']));
+            } catch (Exception $e) {
+            }
+        }
+        if (count($reason)) {
+            $message = sprintf(
+                '<p>%s</p><ul>%s</ul>',
+                __('The following modules have been disabled :'),
+                join('', $reason)
+            );
+            Notices::addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
+            Http::redirect($url);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Deactivate a module
+     *
+     * @param   string  $id     The identifier
+     *
+     * @throws  CoreException
+     */
+    public function deactivateModule(string $id): void
+    {
+        if (!isset($this->modules[$id])) {
+            throw new CoreException(__('No such module.'));
+        }
+
+        if (!$this->modules[$id]['root_writable']) {
+            throw new CoreException(__('Cannot deactivate plugin.'));
+        }
+
+        if (@file_put_contents($this->modules[$id]['root'] . '/_disabled', '')) {
+            throw new CoreException(__('Cannot deactivate plugin.'));
         }
     }
 

@@ -1,68 +1,120 @@
 <?php
 /**
+ * @class Dotclear\Admin\Modules
+ * @brief Helper for admin list of modules.
+ *
+ * Provides an object to parse XML feed of modules from a repository.
+ *
  * @package Dotclear
- * @subpackage Backend
+ * @subpackage Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Admin;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\Store;
+use Dotclear\Core\Modules as CoreModules;
+
+use Dotclear\Admin\Notices;
+
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
+use Dotclear\Html\Form;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-/**
- * @brief Helper for admin list of modules.
- * @since 2.6
-
- * Provides an object to parse XML feed of modules from a repository.
- */
-class adminModulesList
+class Modules
 {
-    public $core; /**< @var    object    dcCore instance */
-    public $modules; /**< @var    object    dcModules instance */
-    public $store; /**< @var    object    dcStore instance */
+    /** @var    Core    Core instance */
+    public $core;
 
-    public static $allow_multi_install = false; /**< @var    boolean    Work with multiple root directories */
-    public static $distributed_modules = []; /**< @var    array    List of modules distributed with Dotclear */
+    /** @var    CoreModules     Core Modules instance */
+    public $modules;
 
-    protected $list_id = 'unknown'; /**< @var    string    Current list ID */
-    protected $data    = []; /**< @var    array    Current modules */
+    /** @var    Store   Store instance */
+    public $store;
 
-    protected $config_module  = ''; /**< @var    string    Module ID to configure */
-    protected $config_file    = ''; /**< @var    string    Module path to configure */
-    protected $config_content = ''; /**< @var    string    Module configuration page content */
+    /** @var    bool    Work with multiple root directories */
+    public static $allow_multi_install = false;
 
-    protected $path          = false; /**< @var    string    Modules root directory */
-    protected $path_writable = false; /**< @var    boolean    Indicate if modules root directory is writable */
-    protected $path_pattern  = false; /**< @var    string    Directory pattern to work on */
+    /** @var    array   List of modules distributed with Dotclear */
+    public static $distributed_modules = [];
 
-    protected $page_url   = ''; /**< @var    string    Page URL */
-    protected $page_qs    = '?'; /**< @var    string    Page query string */
-    protected $page_tab   = ''; /**< @var    string    Page tab */
-    protected $page_redir = ''; /**< @var    string    Page redirection */
+    /** @var    string  Current list ID */
+    protected $list_id = 'unknown';
 
-    public static $nav_indexes = 'abcdefghijklmnopqrstuvwxyz0123456789'; /**< @var    string    Index list */
-    protected $nav_list        = []; /**< @var    array    Index list with special index */
-    protected $nav_special     = 'other'; /**< @var    string    Text for other special index */
+    /** @var    array   Current modules */
+    protected $data    = [];
 
-    protected $sort_field = 'sname'; /**< @var    string    Field used to sort modules */
-    protected $sort_asc   = true; /**< @var    boolean    Sort order asc */
+    /** @var    string  Module ID to configure */
+    protected $config_module  = '';
+
+    /** @var    string  Module path to configure */
+    protected $config_class    = '';
+
+    /** @var    string  Module configuration page content */
+    protected $config_content = '';
+
+    /** @var    bool    Modules root directory */
+    protected $path          = false;
+
+    /** @var    bool    Indicate if modules root directory is writable */
+    protected $path_writable = false;
+
+    /** @var    bool    Directory pattern to work on */
+    protected $path_pattern  = false;
+
+    /** @var    string  Page URL */
+    protected $page_url   = '';
+
+    /** @var    string  Page query string */
+    protected $page_qs    = '&';
+
+    /** @var    string  Page tab */
+    protected $page_tab   = '';
+
+    /** @var    string  Page redirection */
+    protected $page_redir = '';
+
+    /** @var    string  Index list */
+    public static $nav_indexes = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+    /** @var    array   Index list with special index */
+    protected $nav_list        = [];
+
+    /** @var    string  Text for other special index */
+    protected $nav_special     = 'other';
+
+    /** @var    string  Field used to sort modules */
+    protected $sort_field = 'sname';
+
+    /** @var    bool    Sort order asc */
+    protected $sort_asc   = true;
 
     /**
      * Constructor.
      *
      * Note that this creates dcStore instance.
      *
-     * @param    dcModules    $modules        dcModules instance
-     * @param    string       $modules_root   Modules root directories
-     * @param    string       $xml_url        URL of modules feed from repository
-     * @param    boolean      $force          Force query repository
+     * @param    CoreModules    $modules        CoreModules instance
+     * @param    string         $modules_root   Modules root directories
+     * @param    string         $xml_url        URL of modules feed from repository
+     * @param    bool           $force          Force query repository
      */
-    public function __construct(dcModules $modules, $modules_root, $xml_url, $force = false)
+    public function __construct(CoreModules $modules, string $modules_root, string $xml_url, bool $force = false)
     {
         $this->core    = $modules->core;
         $this->modules = $modules;
-        $this->store   = new dcStore($modules, $xml_url, $force);
+        $this->store   = new Store($modules, $xml_url, $force);
 
         $this->page_url = $this->core->adminurl->get('admin.plugins');
 
@@ -268,7 +320,7 @@ class adminModulesList
         '<div class="modules-search">' .
         '<form action="' . $this->getURL() . '" method="get">' .
         '<p><label for="m_search" class="classic">' . __('Search in repository:') . '&nbsp;</label><br />' .
-        form::field('m_search', 30, 255, html::escapeHTML($query)) .
+        Form::field('m_search', 30, 255, Html::escapeHTML($query)) .
         '<input type="submit" value="' . __('OK') . '" /> ';
 
         if ($query) {
@@ -288,7 +340,7 @@ class adminModulesList
             '<p class="message">' . sprintf(
                 __('Found %d result for search "%s":', 'Found %d results for search "%s":', count($this->data)),
                 count($this->data),
-                html::escapeHTML($query)
+                Html::escapeHTML($query)
             ) .
                 '</p>';
         }
@@ -548,8 +600,8 @@ class adminModulesList
         echo
         '<form action="' . $this->getURL() . '" method="post" class="modules-form-actions">' .
         '<div class="table-outer">' .
-        '<table id="' . html::escapeHTML($this->list_id) . '" class="modules' . (in_array('expander', $cols) ? ' expandable' : '') . '">' .
-        '<caption class="hidden">' . html::escapeHTML(__('Plugins list')) . '</caption><tr>';
+        '<table id="' . Html::escapeHTML($this->list_id) . '" class="modules' . (in_array('expander', $cols) ? ' expandable' : '') . '">' .
+        '<caption class="hidden">' . Html::escapeHTML(__('Plugins list')) . '</caption><tr>';
 
         if (in_array('name', $cols)) {
             $colspan = 1;
@@ -622,8 +674,8 @@ class adminModulesList
             }
 
             echo
-            '<tr class="line" id="' . html::escapeHTML($this->list_id) . '_m_' . html::escapeHTML($id) . '"' .
-                (in_array('desc', $cols) ? ' title="' . html::escapeHTML(__($module['desc'])) . '" ' : '') .
+            '<tr class="line" id="' . Html::escapeHTML($this->list_id) . '_m_' . Html::escapeHTML($id) . '"' .
+                (in_array('desc', $cols) ? ' title="' . Html::escapeHTML(__($module['desc'])) . '" ' : '') .
                 '>';
 
             $tds = 0;
@@ -632,22 +684,22 @@ class adminModulesList
                 $tds++;
                 echo
                 '<td class="module-icon nowrap">' .
-                form::checkbox(['modules[' . $count . ']', html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id)], html::escapeHTML($id)) .
+                Form::checkbox(['modules[' . $count . ']', Html::escapeHTML($this->list_id) . '_modules_' . Html::escapeHTML($id)], Html::escapeHTML($id)) .
                     '</td>';
             }
 
             if (in_array('icon', $cols)) {
                 $tds++;
                 if (file_exists($module['root'] . '/icon.svg')) {
-                    $icon = dcPage::getPF($id . '/icon.svg');
+                    $icon = '?pf=' . $id . '/icon.svg';
                 } elseif (file_exists($module['root'] . '/icon.png')) {
-                    $icon = dcPage::getPF($id . '/icon.png');
+                    $icon = '?pf=' . $id . '/icon.png';
                 } else {
                     $icon = 'images/module.png';
                 }
                 echo
                 '<td class="module-icon nowrap">' .
-                sprintf('<img alt="%1$s" title="%1$s" src="%2$s" />', html::escapeHTML($id), $icon) .
+                sprintf('<img alt="%1$s" title="%1$s" src="%2$s" />', Html::escapeHTML($id), $icon) .
                 '</td>';
             }
 
@@ -657,17 +709,17 @@ class adminModulesList
             if (in_array('checkbox', $cols)) {
                 if (in_array('expander', $cols)) {
                     echo
-                    html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '');
+                    Html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '');
                 } else {
                     echo
-                    '<label for="' . html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id) . '">' .
-                    html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '') .
+                    '<label for="' . Html::escapeHTML($this->list_id) . '_modules_' . Html::escapeHTML($id) . '">' .
+                    Html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '') .
                         '</label>';
                 }
             } else {
                 echo
-                html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '') .
-                form::hidden(['modules[' . $count . ']'], html::escapeHTML($id));
+                Html::escapeHTML($module['name']) . ($id != $module['name'] ? sprintf(__(' (%s)'), $id) : '') .
+                Form::hidden(['modules[' . $count . ']'], Html::escapeHTML($id));
             }
             echo
             $this->core->formNonce() .
@@ -683,19 +735,19 @@ class adminModulesList
             if (in_array('version', $cols)) {
                 $tds++;
                 echo
-                '<td class="module-version nowrap count">' . html::escapeHTML($module['version']) . '</td>';
+                '<td class="module-version nowrap count">' . Html::escapeHTML($module['version']) . '</td>';
             }
 
             if (in_array('current_version', $cols)) {
                 $tds++;
                 echo
-                '<td class="module-current-version nowrap count">' . html::escapeHTML($module['current_version']) . '</td>';
+                '<td class="module-current-version nowrap count">' . Html::escapeHTML($module['current_version']) . '</td>';
             }
 
             if (in_array('desc', $cols)) {
                 $tds++;
                 echo
-                '<td class="module-desc maximal">' . html::escapeHTML(__($module['desc']));
+                '<td class="module-desc maximal">' . Html::escapeHTML(__($module['desc']));
                 if (isset($module['cannot_disable']) && $module['enabled']) {
                     echo
                     '<br/><span class="info">' .
@@ -729,7 +781,7 @@ class adminModulesList
                 $tds++;
                 echo
                     '<td class="module-distrib">' . (self::isDistributedModule($id) ?
-                    '<img src="images/dotclear_pw.png" alt="' .
+                    '<img src="?df=images/dotclear_pw.png" alt="' .
                     __('Plugin from official distribution') . '" title="' .
                     __('Plugin from official distribution') . '" />'
                     : '') . '</td>';
@@ -761,7 +813,7 @@ class adminModulesList
 
                     if (!empty($module['author'])) {
                         echo
-                        '<li class="module-author">' . __('Author:') . ' ' . html::escapeHTML($module['author']) . '</li>';
+                        '<li class="module-author">' . __('Author:') . ' ' . Html::escapeHTML($module['author']) . '</li>';
                     }
 
                     $more = [];
@@ -782,11 +834,14 @@ class adminModulesList
                         '</ul></div>';
                 }
 
-                $config = !empty($module['root']) && file_exists(path::real($module['root'] . '/_config.php'));
-                $index  = !empty($module['root']) && file_exists(path::real($module['root'] . '/index.php'));
+                $class    = implode('\\', ['Dotclear', $module['type'], $id, 'Admin', 'Config']);
+                $config   = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig');
+                $index    = false;
+                //$config = !empty($module['root']) && file_exists(path::real($module['root'] . '/_config.php'));
+                //$index  = !empty($module['root']) && file_exists(path::real($module['root'] . '/index.php'));
 
                 /* @phpstan-ignore-next-line */
-                if ($config || $index || !empty($module['section']) || !empty($module['tags']) || !empty($module['settings']) || !empty($module['repository']) && DC_DEBUG && DC_ALLOW_REPOSITORIES) {
+                if ($config || $index || !empty($module['section']) || !empty($module['tags']) || !empty($module['settings']) || !empty($module['repository']) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_ALLOW_REPOSITORIES) {
                     echo
                         '<div><ul class="mod-more">';
 
@@ -795,18 +850,18 @@ class adminModulesList
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module['repository']) && DC_DEBUG && DC_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
+                    if (!empty($module['repository']) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
                         echo '<li class="modules-repository"><a href="' . $module['repository'] . '">' . __('Third-party repository') . '</a></li>';
                     }
 
                     if (!empty($module['section'])) {
                         echo
-                        '<li class="module-section">' . __('Section:') . ' ' . html::escapeHTML($module['section']) . '</li>';
+                        '<li class="module-section">' . __('Section:') . ' ' . Html::escapeHTML($module['section']) . '</li>';
                     }
 
                     if (!empty($module['tags'])) {
                         echo
-                        '<li class="module-tags">' . __('Tags:') . ' ' . html::escapeHTML($module['tags']) . '</li>';
+                        '<li class="module-tags">' . __('Tags:') . ' ' . Html::escapeHTML($module['tags']) . '</li>';
                     }
 
                     echo
@@ -857,9 +912,9 @@ class adminModulesList
     {
         $st = [];
 
-        $mr       = $core->plugins->moduleRoot($id);
-        $config   = !empty($mr) && file_exists(path::real($mr . '/_config.php'));
-        $index    = !empty($mr) && file_exists(path::real($mr . '/index.php'));
+        $class    = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config']);
+        $config   = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig');
+        $index    = false; //!
         $settings = $core->plugins->moduleInfo($id, 'settings');
         if ($self) {
             if (isset($settings['self']) && $settings['self'] === false) {
@@ -892,7 +947,7 @@ class adminModulesList
                         case 'pref':
                             if (!$check || $core->auth->isSuperAdmin() || $core->auth->check('usage,contentadmin', $core->blog->id)) {
                                 $st[] = '<a class="module-config" href="' .
-                                $core->adminurl->get('admin.user.preferences') . $sv .
+                                $core->adminurl->get('admin.user.pref') . $sv .
                                 '">' . __('Plugin settings (in user preferences)') . '</a>';
                             }
 
@@ -952,7 +1007,7 @@ class adminModulesList
                 # Deactivate
                 case 'activate':
                     if ($this->core->auth->isSuperAdmin() && $module['root_writable'] && !isset($module['cannot_enable'])) {
-                        $submits[] = '<input type="submit" name="activate[' . html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
+                        $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
 
                     break;
@@ -960,7 +1015,7 @@ class adminModulesList
                 # Activate
                 case 'deactivate':
                     if ($this->core->auth->isSuperAdmin() && $module['root_writable'] && !isset($module['cannot_disable'])) {
-                        $submits[] = '<input type="submit" name="deactivate[' . html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
+                        $submits[] = '<input type="submit" name="deactivate[' . Html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
                     }
 
                     break;
@@ -969,7 +1024,7 @@ class adminModulesList
                 case 'delete':
                     if ($this->core->auth->isSuperAdmin() && $this->isDeletablePath($module['root']) && !isset($module['cannot_disable'])) {
                         $dev       = !preg_match('!^' . $this->path_pattern . '!', $module['root']) && defined('DC_DEV') && DC_DEV ? ' debug' : '';
-                        $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
+                        $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 
                     break;
@@ -977,7 +1032,7 @@ class adminModulesList
                 # Clone
                 case 'clone':
                     if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
-                        $submits[] = '<input type="submit" class="button clone" name="clone[' . html::escapeHTML($id) . ']" value="' . __('Clone') . '" />';
+                        $submits[] = '<input type="submit" class="button clone" name="clone[' . Html::escapeHTML($id) . ']" value="' . __('Clone') . '" />';
                     }
 
                     break;
@@ -985,7 +1040,7 @@ class adminModulesList
                 # Install (from store)
                 case 'install':
                     if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
-                        $submits[] = '<input type="submit" name="install[' . html::escapeHTML($id) . ']" value="' . __('Install') . '" />';
+                        $submits[] = '<input type="submit" name="install[' . Html::escapeHTML($id) . ']" value="' . __('Install') . '" />';
                     }
 
                     break;
@@ -993,7 +1048,7 @@ class adminModulesList
                 # Update (from store)
                 case 'update':
                     if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
-                        $submits[] = '<input type="submit" name="update[' . html::escapeHTML($id) . ']" value="' . __('Update') . '" />';
+                        $submits[] = '<input type="submit" name="update[' . Html::escapeHTML($id) . ']" value="' . __('Update') . '" />';
                     }
 
                     break;
@@ -1002,7 +1057,7 @@ class adminModulesList
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = $this->core->callBehavior('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = $this->core->behaviors->call('adminModulesListGetActions', $this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1071,7 +1126,7 @@ class adminModulesList
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = $this->core->callBehavior('adminModulesListGetGlobalActions', $this, $with_selection);
+                    $tmp = $this->core->behaviors->call('adminModulesListGetGlobalActions', $this, $with_selection);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1141,9 +1196,9 @@ class adminModulesList
             if (!$count && $failed) {
                 throw new Exception(__("You don't have permissions to delete this plugin."));
             } elseif ($failed) {
-                dcPage::addWarningNotice(__('Some plugins have not been delete.'));
+                Notices::addWarningNotice(__('Some plugins have not been delete.'));
             } else {
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Plugin has been successfully deleted.', 'Plugins have been successuflly deleted.', $count)
                 );
             }
@@ -1178,7 +1233,7 @@ class adminModulesList
                 $count++;
             }
 
-            dcPage::addSuccessNotice(
+            Notices::addSuccessNotice(
                 __('Plugin has been successfully installed.', 'Plugins have been successfully installed.', $count)
             );
             http::redirect($this->getURL());
@@ -1209,7 +1264,7 @@ class adminModulesList
                 $count++;
             }
 
-            dcPage::addSuccessNotice(
+            Notices::addSuccessNotice(
                 __('Plugin has been successfully activated.', 'Plugins have been successuflly activated.', $count)
             );
             http::redirect($this->getURL());
@@ -1250,9 +1305,9 @@ class adminModulesList
             }
 
             if ($failed) {
-                dcPage::addWarningNotice(__('Some plugins have not been deactivated.'));
+                Notices::addWarningNotice(__('Some plugins have not been deactivated.'));
             } else {
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Plugin has been successfully deactivated.', 'Plugins have been successuflly deactivated.', $count)
                 );
             }
@@ -1295,7 +1350,7 @@ class adminModulesList
 
             $tab = $count && $count == count($list) ? '#plugins' : '#update';
 
-            dcPage::addSuccessNotice(
+            Notices::addSuccessNotice(
                 __('Plugin has been successfully updated.', 'Plugins have been successfully updated.', $count)
             );
             http::redirect($this->getURL() . $tab);
@@ -1329,7 +1384,7 @@ class adminModulesList
             # --BEHAVIOR-- moduleAfterAdd
             $this->core->callBehavior('pluginAfterAdd', null);
 
-            dcPage::addSuccessNotice(
+            Notices::addSuccessNotice(
                 $ret_code == 2 ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')
@@ -1360,7 +1415,7 @@ class adminModulesList
         '<p class="field"><label for="pkg_file" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Zip file path:') . '</label> ' .
         '<input type="file" name="pkg_file" id="pkg_file" required /></p>' .
         '<p class="field"><label for="your_pwd1" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label> ' .
-        form::password(
+        Form::password(
             ['your_pwd', 'your_pwd1'],
             20,
             255,
@@ -1378,12 +1433,12 @@ class adminModulesList
         '<form method="post" action="' . $this->getURL() . '" id="fetchpkg" class="fieldset">' .
         '<h4>' . __('Download a zip file') . '</h4>' .
         '<p class="field"><label for="pkg_url" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Zip file URL:') . '</label> ' .
-        form::field('pkg_url', 40, 255, [
+        Form::field('pkg_url', 40, 255, [
             'extra_html' => 'required placeholder="' . __('URL') . '"',
         ]) .
         '</p>' .
         '<p class="field"><label for="your_pwd2" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label> ' .
-        form::password(
+        Form::password(
             ['your_pwd', 'your_pwd2'],
             20,
             255,
@@ -1405,21 +1460,11 @@ class adminModulesList
     /**
      * Prepare module configuration.
      *
-     * We need to get configuration content in three steps
-     * and out of this class to keep backward compatibility.
+     * @param   string|null     $id     Module to work on or it gather through REQUEST
      *
-     * if ($xxx->setConfiguration()) {
-     *    include $xxx->includeConfiguration();
-     * }
-     * $xxx->getConfiguration();
-     * ... [put here page headers and other stuff]
-     * $xxx->displayConfiguration();
-     *
-     * @param    string    $id        Module to work on or it gather through REQUEST
-     *
-     * @return   bool  True if config set
+     * @return  bool            True if config set
      */
-    public function setConfiguration($id = null)
+    public function loadModuleConfiguration(?string $id = null): bool
     {
         if (empty($_REQUEST['conf']) || empty($_REQUEST['module']) && !$id) {
             return false;
@@ -1435,70 +1480,61 @@ class adminModulesList
             return false;
         }
 
-        $module = $this->modules->getModules($id);
+        $module = $this->modules->getModule($id);
         $module = self::sanitizeModule($id, $module);
-        $file   = path::real($module['root'] . '/_config.php');
+        $class  = implode('\\', ['Dotclear', $module['type'], $module['id'], DOTCLEAR_PROCESS, 'Config']);
 
-        if (!file_exists($file)) {
+        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
             $this->core->error->add(__('This plugin has no configuration file.'));
 
             return false;
         }
 
         if (!$this->core->auth->isSuperAdmin()
-            && !$this->core->auth->check($this->core->plugins->moduleInfo($id, 'permissions'), $this->core->blog->id)
+            && !$this->core->auth->check((string) $class::getPermissions(), $this->core->blog->id)
         ) {
             $this->core->error->add(__('Insufficient permissions'));
 
             return false;
         }
 
-        $this->config_module  = $module;
-        $this->config_file    = $file;
-        $this->config_content = '';
-
-        if (!defined('DC_CONTEXT_MODULE')) {
-            define('DC_CONTEXT_MODULE', true);
+        if (!defined('DOTCLEAR_CONTEXT_MODULE')) {
+            define('DOTCLEAR_CONTEXT_MODULE', true);
         }
+
+        $this->config_module  = $module;
+        $this->config_class   = new $class($this->core);
+        $this->config_content = '';
+        $this->setRedir($this->getURL() . '#plugins');
 
         return true;
     }
 
-    /**
-     * Get path of module configuration file.
-     *
-     * @note Required previously set file info
-     *
-     * @return mixed    Full path of config file or null
-     */
-    public function includeConfiguration()
+    public function parseModuleConfiguration(): bool
     {
-        if (!$this->config_file) {
-            return;
+        if (!$this->config_class) {
+            return false;
         }
-        $this->setRedir($this->getURL() . '#plugins');
 
-        ob_start();
+        try {
+            # Save changes
+            if (!empty($_POST['save'])) {
+                $this->config_class->setConfiguration($_POST, $this->getURL(['module' => $this->config_module['id'], 'conf' => 1]));
+            }
 
-        return $this->config_file;
-    }
+            # Get form content
+            ob_start();
 
-    /**
-     * Gather module configuration file content.
-     *
-     * @note Required previously file inclusion
-     *
-     * @return bool     True if content has been captured
-     */
-    public function getConfiguration()
-    {
-        if ($this->config_file) {
+            $this->config_class->getConfiguration();
             $this->config_content = ob_get_contents();
+
+            ob_end_clean();
+        } catch (Exception $e) {
+            ob_end_clean();
+            $this->core->error->add($e->getMessage());
         }
 
-        ob_end_clean();
-
-        return !empty($this->file_content);
+        return !empty($this->config_content);
     }
 
     /**
@@ -1508,29 +1544,38 @@ class adminModulesList
      *
      * @return    adminModulesList self instance
      */
-    public function displayConfiguration()
+    public function displayModuleConfiguration(): string
     {
-        if ($this->config_file) {
-            if (!$this->config_module['standalone_config']) {
-                echo
-                '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
-                '<h3>' . sprintf(__('Configure "%s"'), html::escapeHTML($this->config_module['name'])) . '</h3>' .
-                '<p><a class="back" href="' . $this->getRedir() . '">' . __('Back') . '</a></p>';
-            }
-
-            echo $this->config_content;
-
-            if (!$this->config_module['standalone_config']) {
-                echo
-                '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
-                form::hidden('module', $this->config_module['id']) .
-                form::hidden('redir', $this->getRedir()) .
-                $this->core->formNonce() . '</p>' .
-                    '</form>';
-            }
+        if (!$this->config_class) {
+            return '';
         }
 
-        return $this;
+        $res = '';
+
+        if (!$this->config_module['standalone_config']) {
+            $res .=
+            '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
+            '<h3>' . sprintf(__('Configure "%s"'), Html::escapeHTML($this->config_module['name'])) . '</h3>' .
+            '<p><a class="back" href="' . $this->getRedir() . '">' . __('Back') . '</a></p>';
+        }
+
+        $res .= $this->config_content;
+
+        if (!$this->config_module['standalone_config']) {
+            $res .=
+            '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
+            Form::hidden('module', $this->config_module['id']) .
+            Form::hidden('redir', $this->getRedir()) .
+            $this->core->formNonce() . '</p>' .
+                '</form>';
+        }
+/*
+        $res .= sprintf(
+            '<hr /><div><ul class="mod-more"><li>%s</li></div>',
+            implode('</li><li>', $this->getSettingsUrls($this->core, $this->config_module['id']))
+        );
+*/
+        return $res;
     }
     //@}
 
@@ -1546,617 +1591,5 @@ class adminModulesList
     public static function sanitizeString($str)
     {
         return preg_replace('/[^A-Za-z0-9\@\#+_-]/', '', strtolower($str));
-    }
-}
-
-/**
- * @ingroup DC_CORE
- * @brief Helper to manage list of themes.
- * @since 2.6
- */
-class adminThemesList extends adminModulesList
-{
-    /**
-     * Constructor.
-     *
-     * Note that this creates dcStore instance.
-     *
-     * @param    dcModules    $modules        dcModules instance
-     * @param    string       $modules_root   Modules root directories
-     * @param    string       $xml_url        URL of modules feed from repository
-     * @param    boolean      $force          Force query repository
-     */
-    public function __construct(dcModules $modules, $modules_root, $xml_url, $force = false)
-    {
-        parent::__construct($modules, $modules_root, $xml_url, $force);
-        $this->page_url = $this->core->adminurl->get('admin.blog.theme');
-    }
-
-    /**
-     * Display themes list
-     *
-     * @param      array  $cols       The cols
-     * @param      array  $actions    The actions
-     * @param      bool   $nav_limit  The navigation limit
-     */
-    public function displayModules($cols = ['name', 'config', 'version', 'desc'], $actions = [], $nav_limit = false)
-    {
-        echo
-        '<form action="' . $this->getURL() . '" method="post" class="modules-form-actions">' .
-        '<div id="' . html::escapeHTML($this->list_id) . '" class="modules' . (in_array('expander', $cols) ? ' expandable' : '') . ' one-box">';
-
-        $sort_field = $this->getSort();
-
-        # Sort modules by id
-        $modules = $this->getSearch() === null ?
-        self::sortModules($this->data, $sort_field, $this->sort_asc) :
-        $this->data;
-
-        $res   = '';
-        $count = 0;
-        foreach ($modules as $id => $module) {
-            # Show only requested modules
-            if ($nav_limit && $this->getSearch() === null) {
-                $char = substr($module[$sort_field], 0, 1);
-                if (!in_array($char, $this->nav_list)) {
-                    $char = $this->nav_special;
-                }
-                if ($this->getIndex() != $char) {
-                    continue;
-                }
-            }
-
-            $current = $this->core->blog->settings->system->theme == $id && $this->modules->moduleExists($id);
-            $distrib = self::isDistributedModule($id) ? ' dc-box' : '';
-
-            $line = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
-
-            if (in_array('name', $cols) && !$current) {
-                $line .= '<h4 class="module-name">';
-
-                if (in_array('checkbox', $cols)) {
-                    $line .= '<label for="' . html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id) . '">' .
-                    form::checkbox(['modules[' . $count . ']', html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id)], html::escapeHTML($id)) .
-                    html::escapeHTML($module['name']) .
-                        '</label>';
-                } else {
-                    $line .= form::hidden(['modules[' . $count . ']'], html::escapeHTML($id)) .
-                    html::escapeHTML($module['name']);
-                }
-
-                $line .= $this->core->formNonce() .
-                    '</h4>';
-            }
-
-            # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && defined('DC_DEBUG') && DC_DEBUG) {   // @phpstan-ignore-line
-                $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module['score']) . '</p>';
-            }
-
-            if (in_array('sshot', $cols)) {
-                # Screenshot from url
-                if (preg_match('#^http(s)?://#', $module['sshot'])) {
-                    $sshot = $module['sshot'];
-                }
-                # Screenshot from installed module
-                elseif (file_exists($this->core->blog->themes_path . '/' . $id . '/screenshot.jpg')) {
-                    $sshot = $this->getURL('shot=' . rawurlencode($id));
-                }
-                # Default screenshot
-                else {
-                    $sshot = 'images/noscreenshot.png';
-                }
-
-                $line .= '<div class="module-sshot"><img src="' . $sshot . '" loading="lazy" alt="' .
-                sprintf(__('%s screenshot.'), html::escapeHTML($module['name'])) . '" /></div>';
-            }
-
-            $line .= $current ? '' : '<details><summary>' . __('Details') . '</summary>';
-            $line .= '<div class="module-infos">';
-
-            if (in_array('name', $cols) && $current) {
-                $line .= '<h4 class="module-name">';
-
-                if (in_array('checkbox', $cols)) {
-                    $line .= '<label for="' . html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id) . '">' .
-                    form::checkbox(['modules[' . $count . ']', html::escapeHTML($this->list_id) . '_modules_' . html::escapeHTML($id)], html::escapeHTML($id)) .
-                    html::escapeHTML($module['name']) .
-                        '</label>';
-                } else {
-                    $line .= form::hidden(['modules[' . $count . ']'], html::escapeHTML($id)) .
-                    html::escapeHTML($module['name']);
-                }
-
-                $line .= '</h4>';
-            }
-
-            $line .= '<p>';
-
-            if (in_array('desc', $cols)) {
-                $line .= '<span class="module-desc">' . html::escapeHTML(__($module['desc'])) . '</span> ';
-            }
-
-            if (in_array('author', $cols)) {
-                $line .= '<span class="module-author">' . sprintf(__('by %s'), html::escapeHTML($module['author'])) . '</span> ';
-            }
-
-            if (in_array('version', $cols)) {
-                $line .= '<span class="module-version">' . sprintf(__('version %s'), html::escapeHTML($module['version'])) . '</span> ';
-            }
-
-            if (in_array('current_version', $cols)) {
-                $line .= '<span class="module-current-version">' . sprintf(__('(current version %s)'), html::escapeHTML($module['current_version'])) . '</span> ';
-            }
-
-            if (in_array('parent', $cols) && !empty($module['parent'])) {
-                if ($this->modules->moduleExists($module['parent'])) {
-                    $line .= '<span class="module-parent-ok">' . sprintf(__('(built on "%s")'), html::escapeHTML($module['parent'])) . '</span> ';
-                } else {
-                    $line .= '<span class="module-parent-missing">' . sprintf(__('(requires "%s")'), html::escapeHTML($module['parent'])) . '</span> ';
-                }
-            }
-
-            if (in_array('repository', $cols) && DC_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
-                $line .= '<span class="module-repository">' . (!empty($module['repository']) ? __('Third-party repository') : __('Official repository')) . '</span> ';
-            }
-
-            $has_details = in_array('details', $cols) && !empty($module['details']);
-            $has_support = in_array('support', $cols) && !empty($module['support']);
-            if ($has_details || $has_support) {
-                $line .= '<span class="mod-more">';
-
-                if ($has_details) {
-                    $line .= '<a class="module-details" href="' . $module['details'] . '">' . __('Details') . '</a>';
-                }
-
-                if ($has_support) {
-                    $line .= ' - <a class="module-support" href="' . $module['support'] . '">' . __('Support') . '</a>';
-                }
-
-                $line .= '</span>';
-            }
-
-            $line .= '</p>' .
-                '</div>';
-            $line .= '<div class="module-actions">';
-
-            # Plugins actions
-            if ($current) {
-
-                # _GET actions
-                if (file_exists(path::real($this->core->blog->themes_path . '/' . $id) . '/style.css')) {
-                    $theme_url = preg_match('#^http(s)?://#', $this->core->blog->settings->system->themes_url) ?
-                    http::concatURL($this->core->blog->settings->system->themes_url, '/' . $id) :
-                    http::concatURL($this->core->blog->url, $this->core->blog->settings->system->themes_url . '/' . $id);
-                    $line .= '<p><a href="' . $theme_url . '/style.css">' . __('View stylesheet') . '</a></p>';
-                }
-
-                $line .= '<div class="current-actions">';
-
-                if (file_exists(path::real($this->core->blog->themes_path . '/' . $id) . '/_config.php')) {
-                    $line .= '<p><a href="' . $this->getURL('module=' . $id . '&amp;conf=1', false) . '" class="button submit">' . __('Configure theme') . '</a></p>';
-                }
-
-                # --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= $this->core->callBehavior('adminCurrentThemeDetails', $this->core, $id, $module);
-
-                $line .= '</div>';
-            }
-
-            # _POST actions
-            if (!empty($actions)) {
-                $line .= '<p class="module-post-actions">' . implode(' ', $this->getActions($id, $module, $actions)) . '</p>';
-            }
-
-            $line .= '</div>';
-            $line .= $current ? '' : '</details>';
-
-            $line .= '</div>';
-
-            $count++;
-
-            $res = $current ? $line . $res : $res . $line;
-        }
-
-        echo
-            $res .
-            '</div>';
-
-        if (!$count && $this->getSearch() === null) {
-            echo
-            '<p class="message">' . __('No themes matched your search.') . '</p>';
-        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && $this->core->auth->isSuperAdmin()) {
-            $buttons = $this->getGlobalActions($actions, in_array('checkbox', $cols));
-
-            if (!empty($buttons)) {
-                if (in_array('checkbox', $cols)) {
-                    echo
-                        '<p class="checkboxes-helpers"></p>';
-                }
-                echo '<div>' . implode(' ', $buttons) . '</div>';
-            }
-        }
-
-        echo
-            '</form>';
-
-        return $this;
-    }
-
-    /**
-     * Gets the actions.
-     *
-     * @param      string  $id       The identifier
-     * @param      array   $module   The module
-     * @param      array   $actions  The actions
-     *
-     * @return     array  The actions.
-     */
-    protected function getActions($id, $module, $actions)
-    {
-        $submits = [];
-
-        $this->core->blog->settings->addNamespace('system');
-        if ($id != $this->core->blog->settings->system->theme) {
-
-            # Select theme to use on curent blog
-            if (in_array('select', $actions)) {
-                $submits[] = '<input type="submit" name="select[' . html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
-            }
-        }
-
-        if (self::isDistributedModule($id) && ($pos = array_search('delete', $actions, true))) {
-            // Remove 'delete' action for officially distributed themes
-            unset($actions[$pos]);
-        }
-
-        return array_merge(
-            $submits,
-            parent::getActions($id, $module, $actions)
-        );
-    }
-
-    /**
-     * Gets the global actions.
-     *
-     * @param      array   $actions         The actions
-     * @param      bool    $with_selection  The with selection
-     *
-     * @return     array   The global actions.
-     */
-    protected function getGlobalActions($actions, $with_selection = false)
-    {
-        $submits = [];
-
-        foreach ($actions as $action) {
-            switch ($action) {
-
-                # Update (from store)
-                case 'update':
-
-                    if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
-                        $submits[] = '<input type="submit" name="update" value="' . (
-                            $with_selection ?
-                            __('Update selected themes') :
-                            __('Update all themes from this list')
-                        ) . '" />' . $this->core->formNonce();
-                    }
-
-                    break;
-
-                # Behavior
-                case 'behavior':
-
-                    # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = $this->core->callBehavior('adminModulesListGetGlobalActions', $this);
-
-                    if (!empty($tmp)) {
-                        $submits[] = $tmp;
-                    }
-
-                    break;
-            }
-        }
-
-        return $submits;
-    }
-
-    /**
-     * Does actions.
-     *
-     * @throws     Exception
-     */
-    public function doActions()
-    {
-        if (empty($_POST) || !empty($_REQUEST['conf'])) {
-            return;
-        }
-
-        $modules = !empty($_POST['modules']) && is_array($_POST['modules']) ? array_values($_POST['modules']) : [];
-
-        if (!empty($_POST['select'])) {
-
-            # Can select only one theme at a time!
-            if (is_array($_POST['select'])) {
-                $modules = array_keys($_POST['select']);
-                $id      = $modules[0];
-
-                if (!$this->modules->moduleExists($id)) {
-                    throw new Exception(__('No such theme.'));
-                }
-
-                $this->core->blog->settings->addNamespace('system');
-                $this->core->blog->settings->system->put('theme', $id);
-                $this->core->blog->triggerBlog();
-
-                $module = $this->modules->getModules($id);
-                dcPage::addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), html::escapeHTML($module['name'])));
-                http::redirect($this->getURL() . '#themes');
-            }
-        } else {
-            if (!$this->isWritablePath()) {
-                return;
-            }
-
-            if ($this->core->auth->isSuperAdmin() && !empty($_POST['activate'])) {
-                if (is_array($_POST['activate'])) {
-                    $modules = array_keys($_POST['activate']);
-                }
-
-                $list = $this->modules->getDisabledModules();
-                if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
-                }
-
-                $count = 0;
-                foreach ($list as $id => $module) {
-                    if (!in_array($id, $modules)) {
-                        continue;
-                    }
-
-                    # --BEHAVIOR-- themeBeforeActivate
-                    $this->core->callBehavior('themeBeforeActivate', $id);
-
-                    $this->modules->activateModule($id);
-
-                    # --BEHAVIOR-- themeAfterActivate
-                    $this->core->callBehavior('themeAfterActivate', $id);
-
-                    $count++;
-                }
-
-                dcPage::addSuccessNotice(
-                    __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
-                );
-                http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
-                if (is_array($_POST['deactivate'])) {
-                    $modules = array_keys($_POST['deactivate']);
-                }
-
-                $list = $this->modules->getModules();
-                if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
-                }
-
-                $failed = false;
-                $count  = 0;
-                foreach ($list as $id => $module) {
-                    if (!in_array($id, $modules)) {
-                        continue;
-                    }
-
-                    if (!$module['root_writable']) {
-                        $failed = true;
-
-                        continue;
-                    }
-
-                    $module[$id] = $id;
-
-                    # --BEHAVIOR-- themeBeforeDeactivate
-                    $this->core->callBehavior('themeBeforeDeactivate', $module);
-
-                    $this->modules->deactivateModule($id);
-
-                    # --BEHAVIOR-- themeAfterDeactivate
-                    $this->core->callBehavior('themeAfterDeactivate', $module);
-
-                    $count++;
-                }
-
-                if ($failed) {
-                    dcPage::addWarningNotice(__('Some themes have not been deactivated.'));
-                } else {
-                    dcPage::addSuccessNotice(
-                        __('Theme has been successfully deactivated.', 'Themes have been successuflly deactivated.', $count)
-                    );
-                }
-                http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['clone'])) {
-                if (is_array($_POST['clone'])) {
-                    $modules = array_keys($_POST['clone']);
-                }
-
-                $count = 0;
-                foreach ($modules as $id) {
-                    if (!$this->modules->moduleExists($id)) {
-                        throw new Exception(__('No such theme.'));
-                    }
-
-                    # --BEHAVIOR-- themeBeforeClone
-                    $this->core->callBehavior('themeBeforeClone', $id);
-
-                    $this->modules->cloneModule($id);
-
-                    # --BEHAVIOR-- themeAfterClone
-                    $this->core->callBehavior('themeAfterClone', $id);
-
-                    $count++;
-                }
-
-                dcPage::addSuccessNotice(
-                    __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
-                );
-                http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['delete'])) {
-                if (is_array($_POST['delete'])) {
-                    $modules = array_keys($_POST['delete']);
-                }
-
-                $list = $this->modules->getDisabledModules();
-
-                $failed = false;
-                $count  = 0;
-                foreach ($modules as $id) {
-                    if (!isset($list[$id])) {
-                        if (!$this->modules->moduleExists($id)) {
-                            throw new Exception(__('No such theme.'));
-                        }
-
-                        $module       = $this->modules->getModules($id);
-                        $module['id'] = $id;
-
-                        if (!$this->isDeletablePath($module['root'])) {
-                            $failed = true;
-
-                            continue;
-                        }
-
-                        # --BEHAVIOR-- themeBeforeDelete
-                        $this->core->callBehavior('themeBeforeDelete', $module);
-
-                        $this->modules->deleteModule($id);
-
-                        # --BEHAVIOR-- themeAfterDelete
-                        $this->core->callBehavior('themeAfterDelete', $module);
-                    } else {
-                        $this->modules->deleteModule($id, true);
-                    }
-
-                    $count++;
-                }
-
-                if (!$count && $failed) {
-                    throw new Exception(__("You don't have permissions to delete this theme."));
-                } elseif ($failed) {
-                    dcPage::addWarningNotice(__('Some themes have not been delete.'));
-                } else {
-                    dcPage::addSuccessNotice(
-                        __('Theme has been successfully deleted.', 'Themes have been successuflly deleted.', $count)
-                    );
-                }
-                http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['install'])) {
-                if (is_array($_POST['install'])) {
-                    $modules = array_keys($_POST['install']);
-                }
-
-                $list = $this->store->get();
-
-                if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
-                }
-
-                $count = 0;
-                foreach ($list as $id => $module) {
-                    if (!in_array($id, $modules)) {
-                        continue;
-                    }
-
-                    $dest = $this->getPath() . '/' . basename($module['file']);
-
-                    # --BEHAVIOR-- themeBeforeAdd
-                    $this->core->callBehavior('themeBeforeAdd', $module);
-
-                    $this->store->process($module['file'], $dest);
-
-                    # --BEHAVIOR-- themeAfterAdd
-                    $this->core->callBehavior('themeAfterAdd', $module);
-
-                    $count++;
-                }
-
-                dcPage::addSuccessNotice(
-                    __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
-                );
-                http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['update'])) {
-                if (is_array($_POST['update'])) {
-                    $modules = array_keys($_POST['update']);
-                }
-
-                $list = $this->store->get(true);
-                if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
-                }
-
-                $count = 0;
-                foreach ($list as $module) {
-                    if (!in_array($module['id'], $modules)) {
-                        continue;
-                    }
-
-                    $dest = $module['root'] . '/../' . basename($module['file']);
-
-                    # --BEHAVIOR-- themeBeforeUpdate
-                    $this->core->callBehavior('themeBeforeUpdate', $module);
-
-                    $this->store->process($module['file'], $dest);
-
-                    # --BEHAVIOR-- themeAfterUpdate
-                    $this->core->callBehavior('themeAfterUpdate', $module);
-
-                    $count++;
-                }
-
-                $tab = $count && $count == count($list) ? '#themes' : '#update';
-
-                dcPage::addSuccessNotice(
-                    __('Theme has been successfully updated.', 'Themes have been successfully updated.', $count)
-                );
-                http::redirect($this->getURL() . $tab);
-            }
-
-            # Manual actions
-            elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
-                || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
-                if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
-                    throw new Exception(__('Password verification failed'));
-                }
-
-                if (!empty($_POST['upload_pkg'])) {
-                    files::uploadStatus($_FILES['pkg_file']);
-
-                    $dest = $this->getPath() . '/' . $_FILES['pkg_file']['name'];
-                    if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
-                        throw new Exception(__('Unable to move uploaded file.'));
-                    }
-                } else {
-                    $url  = urldecode($_POST['pkg_url']);
-                    $dest = $this->getPath() . '/' . basename($url);
-                    $this->store->download($url, $dest);
-                }
-
-                # --BEHAVIOR-- themeBeforeAdd
-                $this->core->callBehavior('themeBeforeAdd', null);
-
-                $ret_code = $this->store->install($dest);
-
-                # --BEHAVIOR-- themeAfterAdd
-                $this->core->callBehavior('themeAfterAdd', null);
-
-                dcPage::addSuccessNotice(
-                    $ret_code == 2 ?
-                    __('The theme has been successfully updated.') :
-                    __('The theme has been successfully installed.')
-                );
-                http::redirect($this->getURL() . '#themes');
-            } else {
-
-                # --BEHAVIOR-- adminModulesListDoActions
-                $this->core->callBehavior('adminModulesListDoActions', $this, $modules, 'theme');
-            }
-        }
     }
 }
