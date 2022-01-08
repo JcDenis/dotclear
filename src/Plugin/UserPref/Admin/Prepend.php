@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
         # Register Plugin Admin Page
         $core->adminurl->register(
             'admin.plugin.userPref',
-            'Dotclear\\Plugin\\UserPref\\Admin\\Page\\UserPref'
+            __NAMESPACE__ . '\\Page\\UserPref'
         );
 
         # Add Plugin Admin Page sidebar menu item
@@ -36,7 +36,7 @@ class Prepend extends AbstractPrepend
             'user:preferences',
             $core->adminurl->get('admin.plugin.userPref'),
             '?pf=UserPref/icon.png',
-            preg_match('@' . preg_quote($core->adminurl->get('admin.plugin.userPref')) . '(&.*)?$@', $_SERVER['REQUEST_URI']),
+            $core->adminurl->called() == 'admin.plugin.userPref',
             $core->auth->isSuperAdmin()
         );
 
