@@ -91,10 +91,10 @@ class User extends Common
             $this->setPostStatus($rs->user_post_status);
         }
         if ($rs->exists('user_creadt')) {
-            $this->setOptions($rs->options());
+            $this->user_info['user_creadt'];
         }
         if ($rs->exists('user_upddt')) {
-            $this->setOptions($rs->options());
+            $this->user_info['user_upddt'];
         }
         if ($rs->exists('user_options')) {
             $this->setOptions($rs->options());
@@ -393,9 +393,9 @@ class User extends Common
 
     public function setOptions(array $arg)
     {
-        $this->user_info['user_options'] = array_merge($this->getOptions(), $arg);
+        $this->user_options = array_merge($this->getOptions(), $arg);
 
-        return $this->user_info['user_options'];
+        return $this->user_options;
     }
 
     public function getOptions(): array
@@ -410,11 +410,11 @@ class User extends Common
         return $this->user_options[$key];
     }
 
-    public function getOption(string $key): mixed
+    public function getOption(string $key, ?string $type = null): mixed
     {
         $this->user_options = $this->getOptions();
 
-        return isset($this->user_options[$key]) ? $this->user_options[$key] : null;
+        return isset($this->user_options[$key]) ? self::toType($this->user_options[$key], $type) : null;
     }
 
     public function setCN(): string

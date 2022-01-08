@@ -27,9 +27,9 @@ class Common
         return gettype($arg) == $type;
     }
 
-    public static function toType(mixed $arg, $type)
+    public static function toType(mixed $arg, ?string $type)
     {
-        if ($type === null) {
+        if ($type !== null) {
             if (!@settype($arg, $type)) {
                 throw new Exception('Could not convert type');
             }
