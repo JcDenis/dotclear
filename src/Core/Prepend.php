@@ -184,7 +184,7 @@ class Prepend extends Core
                         '<p>If you\'re unsure what these terms mean you should probably contact ' .
                         'your host. If you still need help you can always visit the ' .
                         '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
-                        (DOTCLEAR_DEBUG ? // @phpstan-ignore-line
+                        (DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
                             '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                             ''),
                         (DOTCLEAR_DATABASE_HOST != '' ? DOTCLEAR_DATABASE_HOST : 'localhost')

@@ -112,7 +112,7 @@ class Utils
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
+            'v=' . (DOTCLEAR_MODE_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
     }
 
     public static function cssLoad(string $src, string $media = 'screen', string $v = null): string

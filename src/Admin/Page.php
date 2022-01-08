@@ -404,7 +404,7 @@ abstract class Page
         $this->core->auth->user_prefs->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = !!DOTCLEAR_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !!DOTCLEAR_MODE_DEBUG;  // @phpstan-ignore-line
 
         $js['showIp'] = $this->core->blog && $this->core->blog->id ? $this->core->auth->check('contentadmin', $this->core->blog->id) : false;
 
@@ -423,7 +423,7 @@ abstract class Page
         "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
         ($safe_mode ? ' safe-mode' : '') .
-        (DOTCLEAR_DEBUG ? // @phpstan-ignore-line
+        (DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
             ' debug-mode' :
             '') .
         '">' . "\n" .
@@ -523,7 +523,7 @@ abstract class Page
         $this->core->auth->user_prefs->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = !!DOTCLEAR_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !!DOTCLEAR_MODE_DEBUG;  // @phpstan-ignore-line
 
         // Set JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -540,7 +540,7 @@ abstract class Page
             "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
             ($safe_mode ? ' safe-mode' : '') .
-            (DOTCLEAR_DEBUG ? // @phpstan-ignore-line
+            (DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
                 ' debug-mode' :
                 '') .
             '">' . "\n" .
@@ -740,7 +740,7 @@ abstract class Page
             $figure .
             ' -->' . "\n";
 
-        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV === true) {
+        if (DOTCLEAR_MODE_DEV === true) {
             echo $this->pageDebugInfo();
         }
 
@@ -1142,7 +1142,7 @@ abstract class Page
         self::jsLoad('js/prepend.js') .
         self::jsLoad('js/jquery/jquery.js') .
         (
-            DOTCLEAR_DEBUG ? // @phpstan-ignore-line
+            DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
                 'mute' => (empty($this->core->blog) || $this->core->blog->settings->system->jquery_migrate_mute),
             ]) .
@@ -1366,7 +1366,7 @@ abstract class Page
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (defined('DC_DEV') && DOTCLEAR_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
+            'v=' . (DOTCLEAR_MODE_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
     }
 
     /**

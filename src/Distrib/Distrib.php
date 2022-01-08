@@ -37,22 +37,30 @@ class Distrib
 
     public static function getCoreConstants(): void
     {
-        //*== DOTCLEAR_DEBUG ==
-        if (!defined('DOTCLEAR_DEBUG')) {
-            define('DOTCLEAR_DEBUG', true);
+        //*== DOTCLEAR_MODE_DEBUG ==
+        if (!defined('DOTCLEAR_MODE_DEBUG')) {
+            define('DOTCLEAR_MODE_DEBUG', true);
         }
-        if (DOTCLEAR_DEBUG) { // @phpstan-ignore-line
+        if (DOTCLEAR_MODE_DEBUG) { // @phpstan-ignore-line
             ini_set('display_errors', '1');
             error_reporting(E_ALL | E_STRICT);
         }
         //*/
 
-        if (!defined('DOTCLEAR_DEBUG')) {
-            define('DOTCLEAR_DEBUG', false);
+        if (!defined('DOTCLEAR_MODE_DEBUG')) {
+            define('DOTCLEAR_MODE_DEBUG', false);
+        }
+
+        if (!defined('DOTCLEAR_MODE_DEV')) {
+            define('DOTCLEAR_MODE_DEV', false);
         }
 
         define('DOTCLEAR_VERSION',
             trim(file_get_contents(DOTCLEAR_ROOT_DIR . DIRECTORY_SEPARATOR . 'version'))
+        );
+
+        define('DOTCLEAR_VERSION_BREAK',
+            '3.0'
         );
 
         if (!defined('DOTCLEAR_OTHER_DIR')) {

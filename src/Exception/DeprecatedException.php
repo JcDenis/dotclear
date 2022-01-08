@@ -26,7 +26,7 @@ class DeprecatedException extends Exception
 
     public static function throw(): void
     {
-        if (defined('DOTCLEAR_DEV') && DOTCLEAR_DEV) {
+        if (DOTCLEAR_MODE_DEV) {
             throw new self();
         }
     }

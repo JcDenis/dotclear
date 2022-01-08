@@ -422,7 +422,7 @@ class Prepend extends CorePrepend
             );
 /*
         } catch (Exception $e) {
-            if (!defined('DOTCLEAR_DEV') || !DOTCLEAR_DEV) {
+            if (!DOTCLEAR_MODE_DEV) {
                 static::error(
                     'Dotclear error',
                     $e->getMessage(),
