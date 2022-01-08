@@ -1,20 +1,29 @@
 <?php
 /**
- * @brief dcLegacyEditor, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\LegacyEditor\Admin\Behaviors
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PlugniUserPref
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-class dcLegacyEditorBehaviors
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\LegacyEditor\Admin;
+
+use Dotclear\Core\Core;
+use Dotclear\Admin\Page;
+
+class LegacyEditorBehaviors
 {
-    protected static $p_url = 'index.php?pf=dcLegacyEditor';
+    protected static $p_url = '?pf=LegacyEditor';
 
     /**
      * adminPostEditor add javascript to the DOM to load legacy editor depending on context
      *
+     * @param      Core    $core     Core instance
      * @param      string  $editor   The wanted editor
      * @param      string  $context  The page context (post,page,comment,event,...)
      * @param      array   $tags     The array of ids to inject editor
@@ -22,9 +31,9 @@ class dcLegacyEditorBehaviors
      *
      * @return     mixed
      */
-    public static function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = '')
+    public static function adminPostEditor(Core $core, $editor = '', $context = '', array $tags = [], $syntax = '')
     {
-        if (empty($editor) || $editor != 'dcLegacyEditor') {
+        if (empty($editor) || $editor != 'LegacyEditor') {
             return;
         }
 
@@ -35,41 +44,41 @@ class dcLegacyEditorBehaviors
         ];
 
         return
-        self::jsToolBar() .
-        dcPage::jsJson('legacy_editor_ctx', $js) .
-        dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/_post_editor.js'));
+        self::jsToolBar($core) .
+        Page::jsJson('legacy_editor_ctx', $js) .
+        Page::jsLoad('?pf=LegacyEditor/js/_post_editor.js');
     }
 
-    public static function adminPopupMedia($editor = '')
+    public static function adminPopupMedia(Core $core, $editor = '')
     {
-        if (empty($editor) || $editor != 'dcLegacyEditor') {
+        if (empty($editor) || $editor != 'LegacyEditor') {
             return;
         }
 
-        return dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/popup_media.js'));
+        return Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/popup_media.js');
     }
 
-    public static function adminPopupLink($editor = '')
+    public static function adminPopupLink(Core $core, $editor = '')
     {
-        if (empty($editor) || $editor != 'dcLegacyEditor') {
+        if (empty($editor) || $editor != 'LegacyEditor') {
             return;
         }
 
-        return dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/popup_link.js'));
+        return Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/popup_link.js');
     }
 
-    public static function adminPopupPosts($editor = '')
+    public static function adminPopupPosts(Core $core, $editor = '')
     {
-        if (empty($editor) || $editor != 'dcLegacyEditor') {
+        if (empty($editor) || $editor != 'LegacyEditor') {
             return;
         }
 
-        return dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/popup_posts.js'));
+        return Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/popup_posts.js');
     }
 
-    protected static function jsToolBar()
+    protected static function jsToolBar($core)
     {
-        $rtl = l10n::getTextDirection($GLOBALS['_lang']) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = l10n::getTextDirection($core->_lang) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;
@@ -90,7 +99,7 @@ class dcLegacyEditorBehaviors
         $js = [
             'dialog_url'            => 'popup.php',
             'iframe_css'            => $css,
-            'base_url'              => $GLOBALS['core']->blog->host,
+            'base_url'              => $core->blog->host,
             'switcher_visual_title' => __('visual'),
             'switcher_source_title' => __('source'),
             'legend_msg'            => __('You can use the following shortcuts to format your text.'),
@@ -142,22 +151,22 @@ class dcLegacyEditorBehaviors
                 'post_link'    => ['title' => __('Link to an entry')],
                 'removeFormat' => ['title' => __('Remove text formating')],
             ],
-            'toolbar_bottom' => (bool) isset($GLOBALS['core']->auth) && $GLOBALS['core']->auth->getOption('toolbar_bottom'),
+            'toolbar_bottom' => (bool) isset($core->auth) && $core->auth->getOption('toolbar_bottom'),
         ];
-        if (!$GLOBALS['core']->auth->check('media,media_admin', $GLOBALS['core']->blog->id)) {
+        if (!$core->auth->check('media,media_admin', $core->blog->id)) {
             $js['elements']['img_select']['disabled'] = true;
         }
 
-        $res = dcPage::jsJson('legacy_editor', $js) .
-        dcPage::cssLoad(dcPage::getPF('dcLegacyEditor/css/jsToolBar/jsToolBar.css')) .
-        dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/jsToolBar.js'));
+        $res = Page::jsJson('legacy_editor', $js) .
+        Page::cssLoad('?pf=LegacyEditor/css/jsToolBar/jsToolBar.css') .
+        Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.js');
 
-        if (isset($GLOBALS['core']->auth) && $GLOBALS['core']->auth->getOption('enable_wysiwyg')) {
-            $res .= dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/jsToolBar.wysiwyg.js'));
+        if (isset($core->auth) && $core->auth->getOption('enable_wysiwyg')) {
+            $res .= Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.wysiwyg.js');
         }
 
-        $res .= dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/jsToolBar.dotclear.js')) .
-        dcPage::jsLoad(dcPage::getPF('dcLegacyEditor/js/jsToolBar/jsToolBar.config.js'));
+        $res .= Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.dotclear.js') .
+        Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.config.js'))
 
         return $res;
     }

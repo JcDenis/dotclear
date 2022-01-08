@@ -29,7 +29,7 @@ $(() => {
     formatField = $('#post_format').get(0);
     let last_post_format = $(formatField).val();
     $(formatField).on('change', function () {
-      if (this.value != 'dcLegacyEditor') {
+      if (this.value != 'LegacyEditor') {
         return;
       }
 
