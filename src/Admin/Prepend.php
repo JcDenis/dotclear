@@ -100,11 +100,19 @@ class Prepend extends CorePrepend
         # User session exists
         if (!empty($this->auth->userID()) && $this->blog !== null) {
 
+            $this->auth->user_prefs->addWorkspace('interface');
+
             # Load resources
             $this->adminLoadResources(DOTCLEAR_L10N_DIR);
 
             # Load sidebar menu
             $this->adminLoadMenu();
+
+            # Load plugins (and there Admin Prepend class)
+            $this->adminLoadPlugins();
+
+            # Add default top menus
+            $this->adminAddMenu();
 
             # Set jquery stuff
             if (empty($this->blog->settings->system->jquery_migrate_mute)) {
@@ -157,7 +165,7 @@ class Prepend extends CorePrepend
             ['admin.link.popup', $d .'LinkPopup'],
             ['admin.media', $d . 'Media'],
             ['admin.media.item', $d . 'MediaItem'],
-            ['admin.plugins', 'plugins.php'],
+            ['admin.plugins', $d . 'Plugins'],
             ['admin.plugin', 'plugin.php'],
             ['admin.search', $d . 'Search'],
             ['admin.users', $d . 'Users'],
@@ -333,28 +341,26 @@ class Prepend extends CorePrepend
 
     private function adminLoadMenu(): void
     {
-        $this->auth->user_prefs->addWorkspace('interface');
         Menu::$iconset = @$this->auth->user_prefs->interface->iconset;
-
-        $user_ui_nofavmenu = $this->auth->user_prefs->interface->nofavmenu;
 
         $this->favs    = new Favorites($this);
 
         # Menus creation
         $this->menu              = new ArrayObject();
         $this->menu['Dashboard'] = new Menu('dashboard-menu', '');
-        if (!$user_ui_nofavmenu) {
+        if (!$this->auth->user_prefs->interface->nofavmenu) {
             $this->favs->appendMenuTitle($this->menu);
         }
         $this->menu['Blog']    = new Menu('blog-menu', 'Blog');
         $this->menu['System']  = new Menu('system-menu', 'System');
         $this->menu['Plugins'] = new Menu('plugins-menu', 'Plugins');
+    }
 
-        $this->adminLoadPlugins();
-
+    private function adminAddMenu()
+    {
         $this->favs->setup();
 
-        if (!$user_ui_nofavmenu) {
+        if (!$this->auth->user_prefs->interface->nofavmenu) {
             $this->favs->appendMenu($this->menu);
         }
 
