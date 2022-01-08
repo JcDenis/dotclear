@@ -1291,10 +1291,13 @@ abstract class Page
      */
     public static function preload(string $src, string $v = '', string $type = 'style'): string
     {
+        # By default use Dotclear Admin files
+        $prefix = strpos($src, '?') === false ? '?df=' : '';
+
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$page_preloaded[$escaped_src])) {
             self::$page_preloaded[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion('?df=' . $escaped_src, $v);
+            $escaped_src                   = self::appendVersion($prefix . $escaped_src, $v);
 
             return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
         }
@@ -1316,10 +1319,13 @@ abstract class Page
      */
     public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
     {
+        # By default use Dotclear Admin files
+        $prefix = strpos($src, '?') === false ? '?df=' : '';
+
         $escaped_src = Html::escapeHTML($src);
         if (!isset(self::$page_loaded_css[$escaped_src])) {
             self::$page_loaded_css[$escaped_src] = true;
-            $escaped_src                    = self::appendVersion('?df=' . $escaped_src, $v);
+            $escaped_src                    = self::appendVersion($prefix . $escaped_src, $v);
 
             return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
         }
