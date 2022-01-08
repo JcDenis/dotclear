@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use ArrayObject;
+use Closure;
 
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
@@ -390,11 +391,11 @@ class Core
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param   string          $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
-     * @param   string          $formater   The formater name
-     * @param   string|array    $callback   The function to use, must be a valid and callable callback
+     * @param   string                  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param   string                  $formater   The formater name
+     * @param   string|array|Closure    $callback   The function to use, must be a valid and callable callback
      */
-    public function addEditorFormater(string $editor, string $formater, string|array $callback): void
+    public function addEditorFormater(string $editor, string $formater, string|array|Closure $callback): void
     {
         # Silently failed non callable function
         if (is_callable($callback)) {
@@ -411,10 +412,10 @@ class Core
      *
      * @deprecated use $core->addEditorFormater('LegacyEditor', $formater, $callback);
      *
-     * @param   string          $formater   The formater name
-     * @param   string|array    $callback   The function to use, must be a valid and callable callback
+     * @param   string                  $formater   The formater name
+     * @param   string|array|Closure    $callback   The function to use, must be a valid and callable callback
      */
-    public function addFormater(string $formater, string|array $callback): void
+    public function addFormater(string $formater, string|array|Closure $callback): void
     {
         # No plugin call into Core
         DeprecatedException::throw();
