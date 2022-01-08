@@ -390,7 +390,7 @@ class Core
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param   string          $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string          $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
      * @param   string          $formater   The formater name
      * @param   string|array    $callback   The function to use, must be a valid and callable callback
      */
@@ -403,13 +403,13 @@ class Core
     }
 
     /**
-     * Add dcLegacyEditor formater
+     * Add LegacyEditor formater
      *
-     * Adds a new dcLegacyEditor text formater which will call the function
+     * Adds a new LegacyEditor text formater which will call the function
      * <var>$callback</var> to transform text. The function must be a valid callback
      * and takes one argument: the string to transform. It returns the transformed string.
      *
-     * @deprecated use $core->addEditorFormater('dcLegacyEditor', $formater, $callback);
+     * @deprecated use $core->addEditorFormater('LegacyEditor', $formater, $callback);
      *
      * @param   string          $formater   The formater name
      * @param   string|array    $callback   The function to use, must be a valid and callable callback
@@ -419,7 +419,7 @@ class Core
         # No plugin call into Core
         DeprecatedException::throw();
 
-        $this->addEditorFormater('dcLegacyEditor', $formater, $callback);
+        $this->addEditorFormater('LegacyEditor', $formater, $callback);
     }
 
     /**
@@ -449,7 +449,7 @@ class Core
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later
      *
-     * @param   string  $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
      *
      * @return  array   The formaters.
      */
@@ -476,7 +476,7 @@ class Core
      * If <var>$formater</var> is a valid formater, it returns <var>$str</var>
      * transformed using that formater.
      *
-     * @param   string  $editor     The editor identifier (dcLegacyEditor, dcCKEditor, ...)
+     * @param   string  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
      * @param   string  $formater   The formater name
      * @param   string  $str        The string to transform
      *
@@ -492,12 +492,12 @@ class Core
     }
 
     /**
-     * Call formater (format string using dcLegacyEditor)
+     * Call formater (format string using LegacyEditor)
      *
-     * If <var>$formater</var> is a valid dcLegacyEditor formater, it returns
+     * If <var>$formater</var> is a valid LegacyEditor formater, it returns
      * <var>$str</var> transformed using that formater.
      *
-     * @deprecated use $core->callEditorFormater('dcLegacyEditor', $formater, $str);
+     * @deprecated use $core->callEditorFormater('LegacyEditor', $formater, $str);
      *
      * @param   string  $formater   The name
      * @param   string  $str        The string
@@ -509,7 +509,7 @@ class Core
         # No plugin call into Core
         DeprecatedException::throw();
 
-        return $this->callEditorFormater('dcLegacyEditor', $formater, $str);
+        return $this->callEditorFormater('LegacyEditor', $formater, $str);
     }
     //@}
 

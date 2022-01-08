@@ -42,7 +42,7 @@ class User extends Common
         'edit_size'      => 24,
         'enable_wysiwyg' => true,
         'toolbar_bottom' => false,
-        'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'dcLegacyEditor'],
+        'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'LegacyEditor'],
         'post_format'    => 'xhtml',
     ];
 
@@ -147,7 +147,7 @@ class User extends Common
             'edit_size'      => 24,
             'enable_wysiwyg' => true,
             'toolbar_bottom' => false,
-            'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'dcLegacyEditor'],
+            'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'LegacyEditor'],
             'post_format'    => 'xhtml',
         ];
     }

@@ -110,7 +110,7 @@ class Distrib
         );
 
         define('DOTCLEAR_DISTRIBUTED_PLUGINS',
-            'aboutConfig,akismet,antispam,attachments,blogroll,blowupConfig,dclegacy,fairTrackbacks,importExport,maintenance,pages,pings,simpleMenu,tags,themeEditor,userPref,widgets,dcLegacyEditor,dcCKEditor,breadcrumb'
+            'AboutConfig,akismet,antispam,attachments,blogroll,blowupConfig,dclegacy,fairTrackbacks,importExport,maintenance,pages,pings,simpleMenu,tags,themeEditor,UserPref,widgets,LegacyEditor,dcCKEditor,breadcrumb'
         );
 
         define('DOTCLEAR_DISTRIBUTED_THEMES',
