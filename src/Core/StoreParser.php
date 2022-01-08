@@ -1,46 +1,58 @@
 <?php
 /**
- * @brief Repository modules XML feed parser
+ * @class Dotclear\Core\StoreParser
+ * @brief Repository modules XML feed parse
  *
- * Provides an object to parse XML feed of modules from a repository.
+ * Provides an object to parse XML feed of modules from repository.
  *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @since 2.6
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use SimpleXMLElement;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Utils;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcStoreParser
+class StoreParser
 {
-    /** @var    object    XML object of feed contents */
+    /** @var    SimpleXMLElement    XML object of feed contents */
     protected $xml;
+
     /** @var    array    Array of feed contents */
     protected $items;
+
     /** @var    string    XML bloc tag */
     protected static $bloc = 'http://dotaddict.org/da/';
 
     /**
      * Constructor.
      *
-     * @param    string    $data        Feed content
+     * @param    string|null    $data        Feed content
      */
-    public function __construct($data)
+    public function __construct(?string $data)
     {
         if (!is_string($data)) {
-            throw new Exception(__('Failed to read data feed'));
+            throw new CoreException(__('Failed to read data feed'));
         }
 
         $this->xml   = simplexml_load_string($data);
         $this->items = [];
 
         if ($this->xml === false) {
-            throw new Exception(__('Wrong data feed'));
+            throw new CoreException(__('Wrong data feed'));
         }
 
         $this->_parse();
@@ -51,7 +63,7 @@ class dcStoreParser
     /**
      * Parse XML into array
      */
-    protected function _parse()
+    protected function _parse(): void
     {
         if (empty($this->xml->module)) {
             return;
@@ -65,7 +77,6 @@ class dcStoreParser
             # DC/DA shared markers
             $item['id']      = (string) $attrs['id'];
             $item['file']    = (string) $i->file;
-            $item['label']   = (string) $i->name; // deprecated
             $item['name']    = (string) $i->name;
             $item['version'] = (string) $i->version;
             $item['author']  = (string) $i->author;
@@ -84,8 +95,11 @@ class dcStoreParser
             }
             $item['tags'] = implode(', ', $tags);
 
-            # First filter right now. If DC_DEV is set all modules are parse
-            if (defined('DC_DEV') && DC_DEV === true || dcUtils::versionsCompare(DC_VERSION, $item['dc_min'], '>=', false)) {
+            # First filter right now. If DOTCLEAR_MODE_DEV is set all modules are parse
+            if (DOTCLEAR_MODE_DEV === true
+                || Utils::versionsCompare(DOTCLEAR_VERSION, $item['dc_min'], '>=', false)
+                && Utils::versionsCompare(DOTCLEAR_VERSION_BREAK, $item['dc_min'], '<=', false)
+            ) {
                 $this->items[$item['id']] = $item;
             }
         }
@@ -94,9 +108,9 @@ class dcStoreParser
     /**
      * Get modules.
      *
-     * @return    array        Modules list
+     * @return  array   Modules list
      */
-    public function getModules()
+    public function getModules(): array
     {
         return $this->items;
     }

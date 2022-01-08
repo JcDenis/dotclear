@@ -1,26 +1,38 @@
 <?php
 /**
- * @brief Repository modules XML feed reader
- *
- * Provides an object to parse XML feed of modules from repository.
+ * @class Dotclear\Core\Store
+ * @brief Repository modules manager
  *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @since 2.6
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+use Dotclear\Exception\CoreException;
+
+use Dotclear\Core\Core;
+use Dotclear\Core\Modules;
+use Dotclear\Core\StoreReader;
+
+use Dotclear\Network\Http;
+use Dotclear\Network\NetHttp\NetHttp;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcStore
+class Store
 {
-    /** @var    object    dcCore instance */
+    /** @var    Core        Core instance */
     public $core;
-    /** @var    object    dcModules instance */
+
+    /** @var    Modules     Modules instance */
     public $modules;
 
     /** @var    array    Modules fields to search on and their weighting */
@@ -34,24 +46,26 @@ class dcStore
 
     /** @var    string    User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
+
     /** @var    string    XML feed URL */
     protected $xml_url;
+
     /** @var    array    Array of new/update modules from repository */
     protected $data;
 
     /**
      * Constructor.
      *
-     * @param    dcModules $modules        dcModules instance
-     * @param    string    $xml_url        XML feed URL
-     * @param    boolean   $force          Force query repository
+     * @param   Modules     $modules    Modules instance
+     * @param   string      $xml_url    XML feed URL
+     * @param   bool        $force      Force query repository
      */
-    public function __construct(dcModules $modules, $xml_url, $force = false)
+    public function __construct(Modules $modules, string $xml_url, bool $force = false)
     {
         $this->core       = $modules->core;
         $this->modules    = $modules;
         $this->xml_url    = $xml_url;
-        $this->user_agent = sprintf('Dotclear/%s)', DC_VERSION);
+        $this->user_agent = sprintf('Dotclear/%s)', DOTCLEAR_VERSION);
 
         $this->check($force);
     }
@@ -59,10 +73,11 @@ class dcStore
     /**
      * Check repository.
      *
-     * @param    boolean    $force        Force query repository
-     * @return    boolean    True if get feed or cache
+     * @param   bool        $force      Force query repository
+     *
+     * @return  bool                    True if get feed or cache
      */
-    public function check($force = false)
+    public function check(bool $force = false): bool
     {
         if (!$this->xml_url) {
             return false;
@@ -70,7 +85,7 @@ class dcStore
 
         try {
             /* @phpstan-ignore-next-line */
-            $parser = DC_STORE_NOT_UPDATE ? false : dcStoreReader::quickParse($this->xml_url, DC_TPL_CACHE, $force);
+            $parser = DOTCLEAR_STORE_NOT_UPDATE ? false : StoreReader::quickParse($this->xml_url, DOTCLEAR_CACHE_DIR, $force);
         } catch (Exception $e) {
             return false;
         }
@@ -95,7 +110,7 @@ class dcStore
             }
             # main repository
             if (isset($raw_datas[$p_id])) {
-                if (dcUtils::versionsCompare($raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
+                if (self::compare($raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
                     $updates[$p_id]                    = $raw_datas[$p_id];
                     $updates[$p_id]['root']            = $p_infos['root'];
                     $updates[$p_id]['root_writable']   = $p_infos['root_writable'];
@@ -104,14 +119,14 @@ class dcStore
                 unset($raw_datas[$p_id]);
             }
             # per module third-party repository
-            if (!empty($p_infos['repository']) && DC_ALLOW_REPOSITORIES) {  // @phpstan-ignore-line
+            if (!empty($p_infos['repository']) && DOTCLEAR_ALLOW_REPOSITORIES) {  // @phpstan-ignore-line
                 try {
                     $dcs_url    = substr($p_infos['repository'], -12, 12) == '/dcstore.xml' ? $p_infos['repository'] : http::concatURL($p_infos['repository'], 'dcstore.xml');
-                    $dcs_parser = dcStoreReader::quickParse($dcs_url, DC_TPL_CACHE, $force);
+                    $dcs_parser = StoreReader::quickParse($dcs_url, DOTCLEAR_CACHE_DIR, $force);
                     if ($dcs_parser !== false) {
                         $dcs_raw_datas = $dcs_parser->getModules();
-                        if (isset($dcs_raw_datas[$p_id]) && dcUtils::versionsCompare($dcs_raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
-                            if (!isset($updates[$p_id]) || dcUtils::versionsCompare($dcs_raw_datas[$p_id]['version'], $updates[$p_id]['version'], '>')) {
+                        if (isset($dcs_raw_datas[$p_id]) && self::compare($dcs_raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
+                            if (!isset($updates[$p_id]) || self::compare($dcs_raw_datas[$p_id]['version'], $updates[$p_id]['version'], '>')) {
                                 $dcs_raw_datas[$p_id]['repository'] = true;
                                 $updates[$p_id]                     = $dcs_raw_datas[$p_id];
                                 $updates[$p_id]['root']             = $p_infos['root'];
@@ -136,11 +151,11 @@ class dcStore
     /**
      * Get a list of modules.
      *
-     * @param    boolean    $update    True to get update modules, false for new ones
+     * @param   bool    $update     True to get update modules, false for new ones
      *
-     * @return    array    List of update/new modules
+     * @return  array               List of update/new modules
      */
-    public function get($update = false)
+    public function get(bool $update = false): array
     {
         /* @phpstan-ignore-next-line */
         return is_array($this->data) ? $this->data[$update ? 'update' : 'new'] : [];
@@ -157,10 +172,11 @@ class dcStore
      * Every time a part of query is find on module,
      * result accuracy grow. Result is sorted by accuracy.
      *
-     * @param    string    $pattern    String to search
-     * @return    array    Match modules
+     * @param   string  $pattern    String to search
+     *
+     * @return  array               Match modules
      */
-    public function search($pattern)
+    public function search(string $pattern): array
     {
         $result = [];
         $sorter = [];
@@ -214,11 +230,12 @@ class dcStore
     /**
      * Quick download and install module.
      *
-     * @param    string    $url    Module package URL
-     * @param    string    $dest    Path to install module
-     * @return    integer        1 = installed, 2 = update
+     * @param   string  $url    Module package URL
+     * @param   string  $dest   Path to install module
+     *
+     * @return  int             1 = installed, 2 = update
      */
-    public function process($url, $dest)
+    public function process(string $url, string $dest): int
     {
         $this->download($url, $dest);
 
@@ -228,17 +245,17 @@ class dcStore
     /**
      * Download a module.
      *
-     * @param    string    $url    Module package URL
-     * @param    string    $dest    Path to put module package
+     * @param   string  $url    Module package URL
+     * @param   string  $dest   Path to put module package
      */
-    public function download($url, $dest)
+    public function download(string $url, string $dest): void
     {
         // Check and add default protocol if necessary
         if (!preg_match('%^http[s]?:\/\/%', $url)) {
             $url = 'http://' . $url;
         }
         // Download package
-        if ($client = netHttp::initClient($url, $path)) {
+        if ($client = NetHttp::initClient($url, $path)) {
             try {
                 $client->setUserAgent($this->user_agent);
                 $client->useGzip(false);
@@ -249,31 +266,31 @@ class dcStore
             } catch (Exception $e) {
                 unset($client);
 
-                throw new Exception(__('An error occurred while downloading the file.'));
+                throw new CoreException(__('An error occurred while downloading the file.'));
             }
         } else {
-            throw new Exception(__('An error occurred while downloading the file.'));
+            throw new CoreException(__('An error occurred while downloading the file.'));
         }
     }
 
     /**
      * Install a previously downloaded module.
      *
-     * @param    string    $path    Module package URL
-     * @param    string    $path    Path to module package
-     * @return    integer        1 = installed, 2 = update
+     * @param   string  $path   Path to module package
+     *
+     * @return  int             1 = installed, 2 = update
      */
-    public function install($path)
+    public function install(string $path): int
     {
-        return dcModules::installPackage($path, $this->modules);
+        return Modules::installPackage($path, $this->modules);
     }
 
     /**
      * User Agent String.
      *
-     * @param    string    $str        User agent string
+     * @param   string  $str    User agent string
      */
-    public function agent($str)
+    public function agent(string $str): void
     {
         $this->user_agent = $str;
     }
@@ -281,10 +298,11 @@ class dcStore
     /**
      * Split and clean pattern.
      *
-     * @param    string    $str        String to sanitize
-     * @return    array    Array of cleaned pieces of string or false if none
+     * @param   string  $str    String to sanitize
+     *
+     * @return  array           Array of cleaned pieces of string or false if none
      */
-    public static function patternize($str)
+    public static function patternize(string $str): array
     {
         $arr = [];
 
@@ -301,12 +319,13 @@ class dcStore
     /**
      * Compare version.
      *
-     * @param    string    $v1        Version
-     * @param    string    $v2        Version
-     * @param    string    $op        Comparison operator
-     * @return    boolean    True is comparison is true, dude!
+     * @param   string  $v1     Version
+     * @param   string  $v2     Version
+     * @param   string  $op     Comparison operator
+     *
+     * @return  bool            True is comparison is true, dude!
      */
-    private static function compare($v1, $v2, $op)
+    private static function compare(string $v1, string $v2, string $op): bool
     {
         return version_compare(
             preg_replace('!-r(\d+)$!', '-p$1', $v1),
@@ -318,11 +337,11 @@ class dcStore
     /**
      * Sort modules list.
      *
-     * @param    array    $a        A module
-     * @param    array    $b        A module
-     * @return    integer
+     * @param   array   $a      A module
+     * @param   array   $b      A module
+     * @return  int
      */
-    private static function sort($a, $b)
+    private static function sort(array $a, array $b): int
     {
         $c = strtolower($a['id']);
         $d = strtolower($b['id']);

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\StoreReader
  * @brief Repository modules XML feed reader
  *
  * Provides an object to parse XML feed of modules from repository.
@@ -9,27 +10,42 @@
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
- *
- * @since 2.6
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Core;
+
+use Dotclear\Exception;
+
+use Dotclear\Core\StoreParser;
+
+use Dotclear\File\Files;
+use Dotclear\Network\NetHttp\NetHttp;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcStoreReader extends netHttp
+class StoreReader extends NetHttp
 {
     /** @var    string    User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
+
     /** @var    array     HTTP Cache validators */
     protected $validators = null;
+
     /** @var    mixed     Cache temporary directory */
     protected $cache_dir = null;
+
     /** @var    string    Cache file prefix */
     protected $cache_file_prefix = 'dcrepo';
+
     /** @var    string    Cache TTL */
     protected $cache_ttl = '-1440 minutes';
+
     /** @var    boolean    'Cache' TTL on server failed */
     protected $cache_touch_on_fail = true;
+
     /** @var    boolean    Force query server */
     protected $force = false;
 
@@ -41,17 +57,18 @@ class dcStoreReader extends netHttp
     public function __construct()
     {
         parent::__construct('');
-        $this->setUserAgent(sprintf('Dotclear/%s', DC_VERSION));
-        $this->setTimeout(DC_QUERY_TIMEOUT);
+        $this->setUserAgent(sprintf('Dotclear/%s', DOTCLEAR_VERSION));
+        $this->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
     }
 
     /**
      * Parse modules feed.
      *
-     * @param    string    $url        XML feed URL
-     * @return   mixed     dcStore instance
+     * @param   string              $url    XML feed URL
+     *
+     * @return  StoreParser|false   StoreParser instance
      */
-    public function parse($url)
+    public function parse(string $url): StoreParser|false
     {
         $this->validators = [];
 
@@ -61,18 +78,19 @@ class dcStoreReader extends netHttp
             return false;
         }
 
-        return new dcStoreParser($this->getContent());
+        return new StoreParser($this->getContent());
     }
 
     /**
      * Quick parse modules feed.
      *
-     * @param    string    $url        XML feed URL
-     * @param    string    $cache_dir    Cache directoy or null for no cache
-     * @param    boolean    $force        Force query repository
-     * @return    object    Self instance
+     * @param   string  $url        XML feed URL
+     * @param   string  $cache_dir  Cache directoy or null for no cache
+     * @param   bool    $force      Force query repository
+     *
+     * @return  StoreParser|false   StoreParser instance
      */
-    public static function quickParse($url, $cache_dir = null, $force = false)
+    public static function quickParse(string $url, ?string $cache_dir = null, bool $force = false): StoreParser|false
     {
         $parser = new self();
         if ($cache_dir) {
@@ -88,10 +106,11 @@ class dcStoreReader extends netHttp
     /**
      * Set cache directory.
      *
-     * @param    string    $dir        Cache directory
-     * @return    boolean    True if cache dierctory is useable
+     * @param   string  $dir    Cache directory
+     *
+     * @return  bool            True if cache dierctory is useable
      */
-    public function setCacheDir($dir)
+    public function setCacheDir(string $dir): bool
     {
         $this->cache_dir = null;
 
@@ -107,9 +126,9 @@ class dcStoreReader extends netHttp
     /**
      * Set cache TTL.
      *
-     * @param    string    $str        Cache TTL
+     * @param   string  $str    Cache TTL
      */
-    public function setCacheTTL($str)
+    public function setCacheTTL(string $str): void
     {
         $str = trim($str);
 
@@ -121,9 +140,9 @@ class dcStoreReader extends netHttp
     /**
      * Set force query repository.
      *
-     * @param    boolean    $force    True to force query
+     * @param   bool    $force  True to force query
      */
-    public function setForce($force)
+    public function setForce(bool $force): void
     {
         $this->force = $force;
     }
@@ -131,10 +150,13 @@ class dcStoreReader extends netHttp
     /**
      * Get repository XML feed URL content.
      *
-     * @param    string    $url        XML feed URL
-     * @return   mixed     Feed content
+     * send content to ouput.
+     *
+     * @param   string  $url    XML feed URL
+     *
+     * @return  bool            Success
      */
-    protected function getModulesXML($url)
+    protected function getModulesXML(string $url): bool
     {
         if (!self::readURL($url, $ssl, $host, $port, $path, $user, $pass)) {
             return false;
@@ -146,7 +168,7 @@ class dcStoreReader extends netHttp
         try {
             return $this->get($path);
         } catch (Exception $e) {
-            // @todo Log error when repository query fail
+            //! @todo Log error when repository query fail
             return false;
         }
     }
@@ -154,10 +176,11 @@ class dcStoreReader extends netHttp
     /**
      * Get repository modules list using cache.
      *
-     * @param    string    $url        XML feed URL
-     * @return   mixed     Feed content or False on fail
+     * @param   string              $url    XML feed URL
+     *
+     * @return  StoreParser|false           Feed content or False on fail
      */
-    protected function withCache($url)
+    protected function withCache(string $url): StoreParser|false
     {
         $url_md5     = md5($url);
         $cached_file = sprintf(
@@ -187,7 +210,7 @@ class dcStoreReader extends netHttp
             if ($may_use_cached) {
                 # Touch cache TTL even if query failed ?
                 if ($this->cache_touch_on_fail) {
-                    @files::touch($cached_file);
+                    @Files::touch($cached_file);
                 }
                 # Connection failed - fetched from cache
                 return unserialize(file_get_contents($cached_file));
@@ -200,15 +223,15 @@ class dcStoreReader extends netHttp
         switch ($this->getStatus()) {
             # Not modified, use cache
             case '304':
-                @files::touch($cached_file);
+                @Files::touch($cached_file);
 
                 return unserialize(file_get_contents($cached_file));
             # Ok, parse feed
             case '200':
-                $modules = new dcStoreParser($this->getContent());
+                $modules = new StoreParser($this->getContent());
 
                 try {
-                    files::makeDir(dirname($cached_file), true);
+                    Files::makeDir(dirname($cached_file), true);
                 } catch (Exception $e) {
                     return $modules;
                 }
@@ -216,7 +239,7 @@ class dcStoreReader extends netHttp
                 if (($fp = @fopen($cached_file, 'wb'))) {
                     fwrite($fp, serialize($modules));
                     fclose($fp);
-                    files::inheritChmod($cached_file);
+                    Files::inheritChmod($cached_file);
                 }
 
                 return $modules;
@@ -228,9 +251,9 @@ class dcStoreReader extends netHttp
     /**
      * Prepare query.
      *
-     * @return    array    Query headers
+     * @return  array   Query headers
      */
-    protected function buildRequest()
+    protected function buildRequest(): array
     {
         $headers = parent::buildRequest();
 
@@ -255,10 +278,10 @@ class dcStoreReader extends netHttp
     /**
      * Tweak query cache validator.
      *
-     * @param    string    $key        Validator key
-     * @param    mixed     $value      Validator value
+     * @param   string  $key    Validator key
+     * @param   mixed   $value  Validator value
      */
-    private function setValidator($key, $value)
+    private function setValidator(string $key, mixed $value): void
     {
         if ($key == 'IfModifiedSince') {
             $value = gmdate('D, d M Y H:i:s', $value) . ' GMT';
