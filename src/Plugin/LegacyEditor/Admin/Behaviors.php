@@ -15,8 +15,9 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
+use Dotclear\Utils\l10n;
 
-class LegacyEditorBehaviors
+class Behaviors
 {
     protected static $p_url = '?pf=LegacyEditor';
 
@@ -78,7 +79,7 @@ class LegacyEditorBehaviors
 
     protected static function jsToolBar($core)
     {
-        $rtl = l10n::getTextDirection($core->_lang) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = l10n::getLanguageTextDirection($core->_lang) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;
@@ -166,7 +167,7 @@ class LegacyEditorBehaviors
         }
 
         $res .= Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.dotclear.js') .
-        Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.config.js'))
+        Page::jsLoad('?pf=LegacyEditor/js/jsToolBar/jsToolBar.config.js');
 
         return $res;
     }
