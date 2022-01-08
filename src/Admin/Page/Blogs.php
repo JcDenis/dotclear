@@ -57,8 +57,8 @@ class Blogs extends Page
         $params = $this->filter->params();
         $params = new ArrayObject($params);
 
-        # --BEHAVIOR-- before:Admin:Blogs:getblogs, ArrayObject
-        $this->core->behaviors->call('before:Admin:Blogs:getblogs', $params);
+        # --BEHAVIOR-- adminGetBlogs, ArrayObject
+        $this->core->behaviors->call('adminGetBlogs', $params);
 
         $counter  = $this->core->getBlogs($params, true);
         $rs       = $this->core->getBlogs($params);

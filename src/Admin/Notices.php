@@ -51,8 +51,8 @@ class Notices
         # Return error messages if any
         if ($core->error->flag() && !self::$error_displayed) {
 
-            # --BEHAVIOR-- before:AdminNotices:getNotices, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
-            $notice_error = $core->behaviors->call('before:Admin:Notices:getNotices', $core->error);
+            # --BEHAVIOR-- adminPageNotificationError, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
+            $notice_error = $core->behaviors->call('adminPageNotificationError', $core->error);
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
@@ -102,8 +102,8 @@ class Notices
                     if ($lines->notice_options !== null) {
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
-                    # --BEHAVIOR-- after:Admin:Notices:getNotices, array
-                    $notice = $core->behaviors->call('after:Admin:Notices:getNotices', $notification);
+                    # --BEHAVIOR-- adminPageNotification, array
+                    $notice = $core->behaviors->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : self::getNotification($notification);
                 }

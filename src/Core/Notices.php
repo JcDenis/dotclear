@@ -168,8 +168,8 @@ class Notices
 
             $this->cursor($cur, $cur->notice_id);
 
-            # --BEHAVIOR-- before:Core:Notices:addNotice, Dotclear\Core\Notices, Dotclear\Database\Cursor
-            $this->core->behaviors->call('before:Core:Notices:addNotice', $this, $cur);
+            # --BEHAVIOR-- coreBeforeNoticeCreate, Dotclear\Core\Notices, Dotclear\Database\Cursor
+            $this->core->behaviors->call('coreBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
             $this->core->con->unlock();
@@ -179,8 +179,8 @@ class Notices
             throw $e;
         }
 
-        # --BEHAVIOR-- after:Core:Notices:addNotice, Dotclear\Core\Notices, Dotclear\Database\Cursor
-        $this->core->behaviors->call('after:Core:Notices:addNotice', $this, $cur);
+        # --BEHAVIOR-- coreAfterNoticeCreate, Dotclear\Core\Notices, Dotclear\Database\Cursor
+        $this->core->behaviors->call('coreAfterNoticeCreate', $this, $cur);
 
         return $cur->notice_id;
     }

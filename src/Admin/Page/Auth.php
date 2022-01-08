@@ -366,8 +366,8 @@ class Auth extends Page
     <link rel="stylesheet" href="?df=style/default.css" type="text/css" media="screen" />
 
 <?php
-        # --BEHAVIOR-- before:Admin:Auth:getPageBegin
-        $this->core->behaviors->call('before:Admin:Auth:getPageBegin');
+        # --BEHAVIOR-- loginPageHTMLHead
+        $this->core->behaviors->call('loginPageHTMLHead');
 
         echo
             self::jsJson('pwstrength', [

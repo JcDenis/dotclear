@@ -172,8 +172,8 @@ class Log
 
             $this->getLogCursor($cur, $cur->log_id);
 
-            # --BEHAVIOR-- before:Core:Log:addLog, Dotclear\Core\Log, Dotclear\Database\Cursor
-            $this->core->behaviors->call('before:Core:Log:addLog', $this, $cur);
+            # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
+            $this->core->behaviors->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -183,8 +183,8 @@ class Log
             throw $e;
         }
 
-        # --BEHAVIOR-- after:Core:Log:addLog, Dotclear\Core\Log, Dotclear\Database\Cursor
-        $this->core->behaviors->call('after:Core:Log:addLog', $this, $cur);
+        # --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
+        $this->core->behaviors->call('coreAfterLogCreate', $this, $cur);
 
         return (int) $cur->log_id;
     }

@@ -347,8 +347,8 @@ abstract class Page
             # Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
-            # --BEHAVIOR-- before:Admin:openPage:csp, ArrayObject
-            $this->core->behaviors->call('before:Admin:Page:openPage:csp', $csp);
+            # --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
+            $this->core->behaviors->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -364,8 +364,8 @@ abstract class Page
             }
         }
 
-        # --BEHAVIOR-- before:Admin:Page:openPage:headers, ArrayObject
-        $this->core->behaviors->call('before:Admin:Page:openPage:headers', $headers);
+        # --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
+        $this->core->behaviors->call('adminPageHTTPHeaders', $headers);
 
         foreach ($headers as $key => $value) {
             header($value);
@@ -416,8 +416,8 @@ abstract class Page
         $this->jsToggles() .
         $this->page_head;
 
-        # --BEHAVIOR-- after:Admin:Page:openPage:head, string, string
-        $this->core->behaviors->call('after:Admin:Page:openPage:head', $this->handler, $this->page_type);
+        # --BEHAVIOR-- adminPageHTMLHead, string, string
+        $this->core->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
         "</head>\n" .
@@ -533,8 +533,8 @@ abstract class Page
         $this->jsToggles() .
         $this->page_head;
 
-        # --BEHAVIOR-- after:Admin:Page:openPage:head, string, string
-        $this->core->behaviors->call('after:Admin:Page:openPage:head', $this->handler, $this->page_type);
+        # --BEHAVIOR-- adminPageHTMLHead, string, string
+        $this->core->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
             "</head>\n" .
@@ -611,8 +611,8 @@ abstract class Page
 
         $args = new ArrayObject($this->page_help);
 
-        # --BEHAVIOR-- before:Admin:Page:pageHelp, ArrayObject
-        $this->core->behaviors->call('before:Admin:Page:pageHelp', $args);
+        # --BEHAVIOR-- adminPageHelpBlock, ArrayObject
+        $this->core->behaviors->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
@@ -713,8 +713,8 @@ abstract class Page
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
 
-        # --BEHAVIOR-- before:Admin:Page:pageClose, string
-        $textAlt = $this->core->behaviors->call('before:Admin:Page:pageClose', $text);
+        # --BEHAVIOR-- adminPageFooter, string
+        $textAlt = $this->core->behaviors->call('adminPageFooter', $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }
