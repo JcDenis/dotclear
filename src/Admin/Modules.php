@@ -1183,12 +1183,12 @@ class Modules
                     }
 
                     # --BEHAVIOR-- moduleBeforeDelete
-                    $this->core->callBehavior('pluginBeforeDelete', $module);
+                    $this->core->behaviors->call('pluginBeforeDelete', $module);
 
                     $this->modules->deleteModule($id);
 
                     # --BEHAVIOR-- moduleAfterDelete
-                    $this->core->callBehavior('pluginAfterDelete', $module);
+                    $this->core->behaviors->call('pluginAfterDelete', $module);
                 } else {
                     $this->modules->deleteModule($id, true);
                 }
@@ -1205,7 +1205,7 @@ class Modules
                     __('Plugin has been successfully deleted.', 'Plugins have been successuflly deleted.', $count)
                 );
             }
-            http::redirect($this->getURL());
+            Http::redirect($this->getURL());
         } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['install'])) {
             if (is_array($_POST['install'])) {
                 $modules = array_keys($_POST['install']);
@@ -1226,12 +1226,12 @@ class Modules
                 $dest = $this->getPath() . '/' . basename($module['file']);
 
                 # --BEHAVIOR-- moduleBeforeAdd
-                $this->core->callBehavior('pluginBeforeAdd', $module);
+                $this->core->behaviors->call('pluginBeforeAdd', $module);
 
                 $this->store->process($module['file'], $dest);
 
                 # --BEHAVIOR-- moduleAfterAdd
-                $this->core->callBehavior('pluginAfterAdd', $module);
+                $this->core->behaviors->call('pluginAfterAdd', $module);
 
                 $count++;
             }
@@ -1239,7 +1239,7 @@ class Modules
             Notices::addSuccessNotice(
                 __('Plugin has been successfully installed.', 'Plugins have been successfully installed.', $count)
             );
-            http::redirect($this->getURL());
+            Http::redirect($this->getURL());
         } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['activate'])) {
             if (is_array($_POST['activate'])) {
                 $modules = array_keys($_POST['activate']);
@@ -1257,12 +1257,12 @@ class Modules
                 }
 
                 # --BEHAVIOR-- moduleBeforeActivate
-                $this->core->callBehavior('pluginBeforeActivate', $id);
+                $this->core->behaviors->call('pluginBeforeActivate', $id);
 
                 $this->modules->activateModule($id);
 
                 # --BEHAVIOR-- moduleAfterActivate
-                $this->core->callBehavior('pluginAfterActivate', $id);
+                $this->core->behaviors->call('pluginAfterActivate', $id);
 
                 $count++;
             }
@@ -1270,7 +1270,7 @@ class Modules
             Notices::addSuccessNotice(
                 __('Plugin has been successfully activated.', 'Plugins have been successuflly activated.', $count)
             );
-            http::redirect($this->getURL());
+            Http::redirect($this->getURL());
         } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
             if (is_array($_POST['deactivate'])) {
                 $modules = array_keys($_POST['deactivate']);
@@ -1297,12 +1297,12 @@ class Modules
                 $module[$id] = $id;
 
                 # --BEHAVIOR-- moduleBeforeDeactivate
-                $this->core->callBehavior('pluginBeforeDeactivate', $module);
+                $this->core->behaviors->call('pluginBeforeDeactivate', $module);
 
                 $this->modules->deactivateModule($id);
 
                 # --BEHAVIOR-- moduleAfterDeactivate
-                $this->core->callBehavior('pluginAfterDeactivate', $module);
+                $this->core->behaviors->call('pluginAfterDeactivate', $module);
 
                 $count++;
             }
@@ -1314,7 +1314,7 @@ class Modules
                     __('Plugin has been successfully deactivated.', 'Plugins have been successuflly deactivated.', $count)
                 );
             }
-            http::redirect($this->getURL());
+            Http::redirect($this->getURL());
         } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['update'])) {
             if (is_array($_POST['update'])) {
                 $modules = array_keys($_POST['update']);
@@ -1341,12 +1341,12 @@ class Modules
                 }
 
                 # --BEHAVIOR-- moduleBeforeUpdate
-                $this->core->callBehavior('pluginBeforeUpdate', $module);
+                $this->core->behaviors->call('pluginBeforeUpdate', $module);
 
                 $this->store->process($module['file'], $dest);
 
                 # --BEHAVIOR-- moduleAfterUpdate
-                $this->core->callBehavior('pluginAfterUpdate', $module);
+                $this->core->behaviors->call('pluginAfterUpdate', $module);
 
                 $count++;
             }
@@ -1356,7 +1356,7 @@ class Modules
             Notices::addSuccessNotice(
                 __('Plugin has been successfully updated.', 'Plugins have been successfully updated.', $count)
             );
-            http::redirect($this->getURL() . $tab);
+            Http::redirect($this->getURL() . $tab);
         }
 
         # Manual actions
@@ -1380,23 +1380,23 @@ class Modules
             }
 
             # --BEHAVIOR-- moduleBeforeAdd
-            $this->core->callBehavior('pluginBeforeAdd', null);
+            $this->core->behaviors->call('pluginBeforeAdd', null);
 
             $ret_code = $this->store->install($dest);
 
             # --BEHAVIOR-- moduleAfterAdd
-            $this->core->callBehavior('pluginAfterAdd', null);
+            $this->core->behaviors->call('pluginAfterAdd', null);
 
             Notices::addSuccessNotice(
                 $ret_code == 2 ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')
             );
-            http::redirect($this->getURL() . '#plugins');
+            Http::redirect($this->getURL() . '#plugins');
         } else {
 
             # --BEHAVIOR-- adminModulesListDoActions
-            $this->core->callBehavior('adminModulesListDoActions', $this, $modules, 'plugin');
+            $this->core->behaviors->call('adminModulesListDoActions', $this, $modules, 'plugin');
         }
     }
 
