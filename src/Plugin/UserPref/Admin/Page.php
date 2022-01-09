@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\UserPref\Admin\Page\UserPref
+ * @class Dotclear\Plugin\UserPref\Admin\Page
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\UserPref\Admin\Page;
+namespace Dotclear\Plugin\UserPref\Admin;
 
 use Dotclear\Exception;
 
-use Dotclear\Admin\Page;
+use Dotclear\Module\AbstractPage;
 use Dotclear\Admin\Notices;
 
 use Dotclear\Html\Form;
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class UserPref extends Page
+class Page extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -37,11 +37,11 @@ class UserPref extends Page
     {
         # Local navigation
         if (!empty($_POST['gp_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.userPref', [], $_POST['gp_nav']);
+            $this->core->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.userPref', [], $_POST['lp_nav']);
+            $this->core->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
             exit;
         }
 
@@ -59,7 +59,7 @@ class UserPref extends Page
                 }
 
                 Notices::addSuccessNotice(__('Preferences successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.userPref');
+                $this->core->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
@@ -79,7 +79,7 @@ class UserPref extends Page
                 }
 
                 Notices::addSuccessNotice(__('Preferences successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.userPref', ['part' => 'global']);
+                $this->core->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
@@ -88,7 +88,7 @@ class UserPref extends Page
         # Page setup
         $this
             ->setPageTitle(__('user:preferences'))
-            ->setPageHelp('userPref')
+            ->setPageHelp('UserPref')
             ->setPageHead(
                 static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
                 static::jsLoad('?pf=UserPref/js/index.js')
@@ -158,7 +158,7 @@ class UserPref extends Page
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . $this->core->adminurl->get('admin.plugin.userPref') . '" method="post">' .
+        '<form action="' . $this->core->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
@@ -180,7 +180,7 @@ class UserPref extends Page
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . $this->core->adminurl->get('admin.plugin.userPref') . '" method="post">';
+        echo '<form action="' . $this->core->adminurl->get('admin.plugin.UserPref') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);

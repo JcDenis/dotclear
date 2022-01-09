@@ -53,7 +53,6 @@ class Define extends AbstractDefine
     public static function getSettings(): array
     {
         return [
-//            'self' => '',
             'pref' => '#user-options.user_options_edition',
         ];
     }

@@ -23,23 +23,27 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Prepend extends AbstractPrepend
 {
-    public static function loadModule(Core $core): ?bool
+    public static function checkModule(Core $core): bool
     {
+        return true;
+    }
+
+    public static function loadModule(Core $core): void
+    {
+/*
         # Register Plugin Admin Page
         $core->adminurl->register(
-            'admin.plugin.userPref',
+            'admin.plugin.UserPref',
             __NAMESPACE__ . '\\Page\\UserPref'
         );
-
+*/
         # Add Plugin Admin Page sidebar menu item
         $core->menu['System']->addItem(
             'user:preferences',
-            $core->adminurl->get('admin.plugin.userPref'),
+            $core->adminurl->get('admin.plugin.UserPref'),
             '?pf=UserPref/icon.png',
-            $core->adminurl->called() == 'admin.plugin.userPref',
+            $core->adminurl->called() == 'admin.plugin.UserPref',
             $core->auth->isSuperAdmin()
         );
-
-        return true;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\AboutConfig\Admin\Page\AboutConfig
+ * @class Dotclear\Plugin\AboutConfig\Admin\Page
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\AboutConfig\Admin\Page;
+namespace Dotclear\Plugin\AboutConfig\Admin;
 
 use Dotclear\Exception;
 
-use Dotclear\Admin\Page;
+use Dotclear\Module\AbstractPage;
 use Dotclear\Admin\Notices;
 
 use Dotclear\Html\Form;
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class AboutConfig extends Page
+class Page extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -37,11 +37,11 @@ class AboutConfig extends Page
     {
         # Local navigation
         if (!empty($_POST['gs_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.aboutConfig', [], $_POST['gs_nav']);
+            $this->core->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.aboutConfig', [], $_POST['ls_nav']);
+            $this->core->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
             exit;
         }
 
@@ -60,7 +60,7 @@ class AboutConfig extends Page
                 }
 
                 Notices::addSuccessNotice(__('Configuration successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.aboutConfig');
+                $this->core->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
@@ -81,7 +81,7 @@ class AboutConfig extends Page
                 }
 
                 Notices::addSuccessNotice(__('Configuration successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.aboutConfig', ['part' => 'global']);
+                $this->core->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
@@ -96,7 +96,7 @@ class AboutConfig extends Page
                 static::jsLoad('?pf=AboutConfig/js/index.js')
             )
             ->setPageBreadcrumb([
-                __('System')                                  => '',
+                __('System')                              => '',
                 Html::escapeHTML($this->core->blog->name) => '',
                 __('about:config')                        => ''
             ])
@@ -160,7 +160,7 @@ class AboutConfig extends Page
     private function settingMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . $this->core->adminurl->get('admin.plugin.aboutConfig') . '" method="post">' .
+        '<form action="' . $this->core->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
@@ -182,7 +182,7 @@ class AboutConfig extends Page
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . $this->core->adminurl->get('admin.plugin.aboutConfig') . '" method="post">';
+        echo '<form action="' . $this->core->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);

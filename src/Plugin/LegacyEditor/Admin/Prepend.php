@@ -24,7 +24,13 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Prepend extends AbstractPrepend
 {
-    public static function loadModule(Core $core): ?bool
+    public static function checkModule(Core $core): bool
+    {
+        $self_ns = $core->blog->settings->addNamespace('LegacyEditor');
+        return (bool) $self_ns->active;
+    }
+
+    public static function loadModule(Core $core): void
     {
         $self_ns = $core->blog->settings->addNamespace('LegacyEditor');
 
@@ -42,7 +48,5 @@ class Prepend extends AbstractPrepend
             $core->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
             $core->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
-
-        return true;
     }
 }
