@@ -24,9 +24,10 @@ use Dotclear\Core\Modules as CoreModules;
 
 use Dotclear\Admin\Notices;
 
+use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Html\Form;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -1367,7 +1368,7 @@ class Modules
             }
 
             if (!empty($_POST['upload_pkg'])) {
-                files::uploadStatus($_FILES['pkg_file']);
+                Files::uploadStatus($_FILES['pkg_file']);
 
                 $dest = $this->getPath() . '/' . $_FILES['pkg_file']['name'];
                 if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
