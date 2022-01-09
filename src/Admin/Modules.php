@@ -58,7 +58,7 @@ class Modules
     /** @var    string  Module ID to configure */
     protected $config_module  = '';
 
-    /** @var    string  Module path to configure */
+    /** @var    string  Module class to configure */
     protected $config_class    = '';
 
     /** @var    string  Module configuration page content */
@@ -912,10 +912,13 @@ class Modules
     {
         $st = [];
 
-        $class    = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config']);
-        $config   = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig');
-        $index    = false; //!
-        $settings = $core->plugins->moduleInfo($id, 'settings');
+        $config_class = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config']);
+        $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
+
+        $index_class  = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Page']);
+        $index        = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+
+        $settings     = $core->plugins->moduleInfo($id, 'settings');
         if ($self) {
             if (isset($settings['self']) && $settings['self'] === false) {
                 $self = false;
@@ -928,7 +931,7 @@ class Modules
                     if (!$core->plugins->moduleInfo($id, 'standalone_config') && !$self) {
                         $params['redir'] = $core->adminurl->get('admin.plugin.' . $id);
                     }
-                    $st[] = '<a class="module-config" href="' .
+                    $st['config'] = '<a class="module-config" href="' .
                     $core->adminurl->get('admin.plugins', $params) .
                     '">' . __('Configure plugin') . '</a>';
                 }
@@ -938,7 +941,7 @@ class Modules
                     switch ($sk) {
                         case 'blog':
                             if (!$check || $core->auth->isSuperAdmin() || $core->auth->check('admin', $core->blog->id)) {
-                                $st[] = '<a class="module-config" href="' .
+                                $st['blog'] = '<a class="module-config" href="' .
                                 $core->adminurl->get('admin.blog.pref') . $sv .
                                 '">' . __('Plugin settings (in blog parameters)') . '</a>';
                             }
@@ -946,7 +949,7 @@ class Modules
                             break;
                         case 'pref':
                             if (!$check || $core->auth->isSuperAdmin() || $core->auth->check('usage,contentadmin', $core->blog->id)) {
-                                $st[] = '<a class="module-config" href="' .
+                                $st['pref'] = '<a class="module-config" href="' .
                                 $core->adminurl->get('admin.user.pref') . $sv .
                                 '">' . __('Plugin settings (in user preferences)') . '</a>';
                             }
@@ -955,7 +958,7 @@ class Modules
                         case 'self':
                             if ($self) {
                                 if (!$check || $core->auth->isSuperAdmin() || $core->auth->check($core->plugins->moduleInfo($id, 'permissions'), $core->blog->id)) {
-                                    $st[] = '<a class="module-config" href="' .
+                                    $st['self'] = '<a class="module-config" href="' .
                                     $core->adminurl->get('admin.plugin.' . $id) . $sv .
                                     '">' . __('Plugin settings') . '</a>';
                                 }
@@ -966,7 +969,7 @@ class Modules
                             break;
                         case 'other':
                             if (!$check || $core->auth->isSuperAdmin() || $core->auth->check($core->plugins->moduleInfo($id, 'permissions'), $core->blog->id)) {
-                                $st[] = '<a class="module-config" href="' .
+                                $st['other'] = '<a class="module-config" href="' .
                                 $sv .
                                 '">' . __('Plugin settings') . '</a>';
                             }
@@ -977,7 +980,7 @@ class Modules
             }
             if ($index && $self) {
                 if (!$check || $core->auth->isSuperAdmin() || $core->auth->check($core->plugins->moduleInfo($id, 'permissions'), $core->blog->id)) {
-                    $st[] = '<a class="module-config" href="' .
+                    $st['index'] = '<a class="module-config" href="' .
                     $core->adminurl->get('admin.plugin.' . $id) .
                     '">' . __('Plugin settings') . '</a>';
                 }
@@ -1550,32 +1553,27 @@ class Modules
             return '';
         }
 
-        $res = '';
-
-        if (!$this->config_module['standalone_config']) {
-            $res .=
-            '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
-            '<h3>' . sprintf(__('Configure "%s"'), Html::escapeHTML($this->config_module['name'])) . '</h3>' .
-            '<p><a class="back" href="' . $this->getRedir() . '">' . __('Back') . '</a></p>';
+        if ($this->config_module['standalone_config']) {
+            return $this->config_content;
         }
 
-        $res .= $this->config_content;
+        $links = $this->getSettingsUrls($this->core, $this->config_module['id']);
+        unset($links['config']);
 
-        if (!$this->config_module['standalone_config']) {
-            $res .=
-            '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
-            Form::hidden('module', $this->config_module['id']) .
-            Form::hidden('redir', $this->getRedir()) .
-            $this->core->formNonce() . '</p>' .
-                '</form>';
-        }
-/*
-        $res .= sprintf(
-            '<hr /><div><ul class="mod-more"><li>%s</li></div>',
-            implode('</li><li>', $this->getSettingsUrls($this->core, $this->config_module['id']))
-        );
-*/
-        return $res;
+        return
+        '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
+        '<h3>' . sprintf(__('Configure "%s"'), Html::escapeHTML($this->config_module['name'])) . '</h3>' .
+        '<p><a class="back" href="' . $this->getRedir() . '">' . __('Back') . '</a></p>' .
+
+        $this->config_content .
+
+        '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
+        Form::hidden('module', $this->config_module['id']) .
+        Form::hidden('redir', $this->getRedir()) .
+        $this->core->formNonce() . '</p>' .
+            '</form>' .
+
+        (empty($links) ? '' : sprintf('<hr class="clear"/><p class="right modules">%s</p>', implode(' - ', $links)));
     }
     //@}
 
