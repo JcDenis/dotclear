@@ -22,6 +22,11 @@ use Dotclear\Core\Core;
 
 use Dotclear\Core\Admin\Notices;
 
+//use Dotclear\Module\AbstractDefine;
+//use Dotclear\Module\AbstractPrepend;
+//use Dotclear\Module\AbstractConfig;
+//use Dotclear\Module\AbstractPage;
+
 use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
@@ -125,32 +130,40 @@ class Modules
             $d->close();
         }
 
+        # Check modules dependencies
         $this->checkDependencies();
 
-        # Sort plugins
+        # Sort modules
         uasort($this->modules, [$this, 'sortModules']);
 
+        # Load modules stuff
         foreach ($this->modules as $id => $m) {
-            # ex: Dotclear\Plugin\MyPloug\Admin\Prepend
+            # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
             $class = implode('\\', [$this->ns, $id, $this->process, 'Prepend']);
-            # Load translation and Prepend
-            if (class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
-                $r = $class::loadModule($this->core);
+            $has_prepend = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
-                # If _prepend.php file returns null (ie. it has a void return statement)
-                if (is_null($r)) {
-                    $ignored[] = $id;
-
+            # Check module and stop if method not returns True statement
+            if ($has_prepend) {
+                if (true !== $class::checkModule($this->core)) {
                     continue;
                 }
-                unset($r);
             }
 
+            # Load module main l10n
             $this->loadModuleL10N($id, $lang, 'main');
-/*            if ($this->process == 'Admin') {
-                $this->core->adminurl->register('admin.plugin.' . $id, 'plugin.php', ['p' => $id]);
+
+            # Auto register main module Admin Page if exists
+            if ($this->process == 'Admin') {
+                $page = implode('\\', [$this->ns, $id, $this->process, 'Page']);
+                if (class_exists($page) && is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
+                    $this->core->adminurl->register('admin.plugin.' . $id, $page);
+                }
             }
-*/
+
+            # Load others stuff from module
+            if ($has_prepend) {
+                $class::loadModule($this->core);
+            }
         }
     }
 
@@ -218,7 +231,7 @@ class Modules
      *       * cannot_disable : list reasons why module cannot be disabled. Not set if module can be disabled
      *       * implies : reverse dependencies
      */
-    public function checkDependencies()
+    public function checkDependencies(): void
     {
         $dc_version       = preg_replace('/\-dev.*$/', '', DOTCLEAR_VERSION);
         $this->to_disable = [];
