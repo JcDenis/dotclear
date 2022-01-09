@@ -1,7 +1,10 @@
 <?php
 /**
- * @class Dotclear\Core\Module\AbstractPrepend
+ * @class Dotclear\Module\AbstractPrepend
  * @brief Dotclear Module abstract Prepend
+ *
+ * Module Prepend class must extends this class.
+ * It provides information on Module load.
  *
  * @package Dotclear
  * @subpackage Module
@@ -22,6 +25,18 @@ if (!defined('DOTCLEAR_PROCESS')) {
 abstract class AbstractPrepend
 {
     /**
+     * Check Module during process (Amdin, Public, Instal, ...)
+     *
+     * Module can check their specifics requirements here.
+     * This methods must exists and return True or False.
+     *
+     * @param   Core        $core   Core instance
+     *
+     * @return  bool        False to stop module loading, True to go on
+     */
+    abstract public static function checkModule(Core $core): bool;
+
+    /**
      * Load Module during process (Amdin, Public, Instal, ...)
      *
      * For exemple, if module required Prepend class
@@ -29,7 +44,9 @@ abstract class AbstractPrepend
      * Prepend class must be present in Admin sub folder.
      *
      * @param   Core        $core   Core instance
-     * @return  bool|null           Null to stop module loading, True to go on
      */
-    abstract public static function loadModule(Core $core): ?bool;
+    public static function loadModule(Core $core): void
+    {
+        return;
+    }
 }
