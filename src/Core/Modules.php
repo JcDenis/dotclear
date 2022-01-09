@@ -19,6 +19,7 @@ use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\Utils;
 
 use Dotclear\Core\Admin\Notices;
 
@@ -32,6 +33,7 @@ use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
 use Dotclear\File\Files;
+use Dotclear\File\Zip\Unzip;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -301,6 +303,154 @@ class Modules
                 }
             }
         }
+    }
+
+    public function requireDefine(string $dir, string $id, bool $is_clone = false): void
+    {
+        if (!file_exists($dir . '/Define.php')) {
+            return;
+        }
+
+        $this->id = $id;
+        ob_start();
+
+        $ns = $is_clone ? 'C_l_o_n_e' : $this->ns;
+
+        # bad hack to prevent duplicate class in the same namespace.
+        if ($is_clone) {
+            file_put_contents($dir . '/Define.php', str_replace($this->ns, 'C_l_o_n_e', file_get_contents($dir . '/Define.php')));
+        }
+
+        require $dir . '/Define.php';
+
+        $class = implode('\\', [$ns, $id, 'Define']);
+        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Module\\AbstractDefine')) {
+            $this->errors[] = sprintf(
+                __('Module "%s" is not a valid module.'),
+                '<strong>' . $id . '</strong>'
+            );
+        } else {
+            $this->checkModule($class::getProperties());
+        }
+
+        # revert back (for third party called)
+        if ($is_clone) {
+            file_put_contents($dir . '/Define.php', str_replace('C_l_o_n_e', $this->ns, file_get_contents($dir . '/Define.php')));
+        }
+
+        ob_end_clean();
+        $this->id = null;
+    }
+
+    /**
+     * Install a Package
+     *
+     * @param      string     $zip_file  The zip file
+     * @param      dcModules  $modules   The modules
+     *
+     * @throws     Exception
+     *
+     * @return     int
+     */
+    public static function installPackage(string $zip_file, Modules &$modules): int
+    {
+        $zip = new Unzip($zip_file);
+        $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
+
+        $zip_root_dir = $zip->getRootDir();
+        $define       = '';
+        if ($zip_root_dir != false) {
+            $target      = dirname($zip_file);
+            $destination = $target . '/' . $zip_root_dir;
+            $define      = $zip_root_dir . '/Define.php';
+            $has_define  = $zip->hasFile($define);
+        } else {
+            $target      = dirname($zip_file) . '/' . preg_replace('/\.([^.]+)$/', '', basename($zip_file));
+            $destination = $target;
+            $define      = 'Define.php';
+            $has_define  = $zip->hasFile($define);
+        }
+
+        if ($zip->isEmpty()) {
+            $zip->close();
+            unlink($zip_file);
+
+            throw new CoreException(__('Empty module zip file.'));
+        }
+
+        if (!$has_define) {
+            $zip->close();
+            unlink($zip_file);
+
+            throw new CoreException(__('The zip file does not appear to be a valid Dotclear module.'));
+        }
+
+        $ret_code = 1;
+
+        if (!is_dir($destination)) {
+            try {
+                Files::makeDir($destination, true);
+
+                $sandbox = clone $modules;
+                $zip->unzip($define, $target . '/Define.php');
+
+                $sandbox->resetModulesList();
+                $sandbox->requireDefine($target, basename($destination), true);
+                unlink($target . '/Define.php');
+
+                $new_errors = $sandbox->getErrors();
+                if (!empty($new_errors)) {
+                    $new_errors = implode(" \n", $new_errors);
+
+                    throw new CoreException($new_errors);
+                }
+
+                Files::deltree($destination);
+            } catch (Exception $e) {
+                $zip->close();
+                unlink($zip_file);
+                Files::deltree($destination);
+
+                throw new CoreException($e->getMessage());
+            }
+        } else {
+            # test for update
+            $sandbox = clone $modules;
+            $zip->unzip($define, $target . '/Define.php');
+
+            $sandbox->resetModulesList();
+            $sandbox->requireDefine($target, basename($destination), true);
+            unlink($target . '/Define.php');
+            $new_modules = $sandbox->getModules();
+
+            if (!empty($new_modules)) {
+                $tmp        = array_keys($new_modules);
+                $id         = $tmp[0];
+                $cur_module = $modules->getModule($id);
+                if (!empty($cur_module) && (defined('DC_DEV') && DC_DEV === true || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))) {
+                    # delete old module
+                    if (!Files::deltree($destination)) {
+                        throw new CoreException(__('An error occurred during module deletion.'));
+                    }
+                    $ret_code = 2;
+                } else {
+                    $zip->close();
+                    unlink($zip_file);
+
+                    throw new CoreException(sprintf(__('Unable to upgrade "%s". (older or same version)'), basename($destination)));
+                }
+            } else {
+                $zip->close();
+                unlink($zip_file);
+
+                throw new CoreException(sprintf(__('Unable to read new Define.php file')));
+            }
+        }
+        $zip->unzipAll($target);
+        $zip->close();
+        unlink($zip_file);
+
+        return $ret_code;
     }
 
     /**

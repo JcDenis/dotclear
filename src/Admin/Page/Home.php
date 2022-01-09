@@ -23,6 +23,7 @@ use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
 use Dotclear\Admin\Combos;
+use Dotclear\Admin\Modules;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -252,10 +253,9 @@ class Home extends Page
         }
 
         # Plugins install messages
-/*
         if (!empty($this->plugins_install['success'])) {
             echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
-            $list = new adminModulesList($this->core->plugins, DOTCLEAR_PLUGIN_DIR, $this->core->blog->settings->system->store_plugin_url);
+            $list = new Modules($this->core->plugins, DOTCLEAR_PLUGIN_DIR, $this->core->blog->settings->system->store_plugin_url);
             foreach ($this->plugins_install['success'] as $k => $v) {
                 $info = implode(' - ', $list->getSettingsUrls($this->core, $k, true));
                 echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
@@ -269,7 +269,7 @@ class Home extends Page
             }
             echo '</ul></div>';
         }
-*/
+
         # Errors modules notifications
         if ($this->core->auth->isSuperAdmin()) {
             $list = $this->core->plugins->getErrors();
