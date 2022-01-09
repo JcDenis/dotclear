@@ -411,7 +411,7 @@ class Unzip
                     $this->compressed_list[$k]['extra_field']           = $i['extra_field'];
                     $this->compressed_list[$k]['contents_start_offset'] = $i['contents_start_offset'];
 
-                    if (strtolower($stop_on_file) == strtolower($k)) {
+                    if (strtolower((string) $stop_on_file) == strtolower($k)) {
                         break;
                     }
                 }
@@ -447,7 +447,7 @@ class Unzip
             $this->compressed_list[$filename] = $details;
             $return                           = true;
 
-            if (strtolower($stop_on_file) == strtolower($filename)) {
+            if (strtolower((string) $stop_on_file) == strtolower($filename)) {
                 break;
             }
         }
