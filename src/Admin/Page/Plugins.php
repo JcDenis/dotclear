@@ -85,7 +85,6 @@ class Plugins extends Page
         # Modules list
         } else {
 
-    /*
             # -- Execute actions --
             try {
                 $this->list->doActions();
@@ -98,7 +97,7 @@ class Plugins extends Page
             if (!$this->core->error->flag()) {
                 $this->plugins_install = $this->core->plugins->installModules();
             }
-    */
+
             # Page setup
             $this
                 ->setPageTitle(__('Plugins management'))

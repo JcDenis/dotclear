@@ -77,7 +77,7 @@ class Home extends Page
         }
 
         # Plugin install
-        //$this->plugins_install = $this->core->plugins->installModules();
+        $this->plugins_install = $this->core->plugins->installModules();
 
         # Check dashboard module prefs
         if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks')) {

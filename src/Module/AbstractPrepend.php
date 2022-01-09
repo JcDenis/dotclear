@@ -37,7 +37,7 @@ abstract class AbstractPrepend
     abstract public static function checkModule(Core $core): bool;
 
     /**
-     * Load Module during process (Amdin, Public, Instal, ...)
+     * Load Module during process (Amdin, Public, Install, ...)
      *
      * For exemple, if module required Prepend class
      * for backend (Admin) to load admin menu, etc...
@@ -48,5 +48,22 @@ abstract class AbstractPrepend
     public static function loadModule(Core $core): void
     {
         return;
+    }
+
+    /**
+     * Install Module during process (Amdin, Public, Install, ...)
+     *
+     * For exemple, if module required Prepend class
+     * to set up settings, database table, etc...
+     * Prepend class must be present in current process sub folder.
+     * For now only Admin process support install method.
+     *
+     * @param   Core        $core   Core instance
+     *
+     * @return  bool        True on success
+     */
+    public static function installModule(Core $core): ?bool
+    {
+        return null;
     }
 }

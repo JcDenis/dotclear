@@ -49,4 +49,13 @@ class Prepend extends AbstractPrepend
             $core->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
     }
+
+    public static function installModule(Core $core): ?bool
+    {
+        $settings = $core->blog->settings;
+        $settings->addNamespace('LegacyEditor');
+        $settings->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
+
+        return true;
+    }
 }

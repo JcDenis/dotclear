@@ -25,11 +25,13 @@ use Dotclear\Core\Admin\Notices;
 //use Dotclear\Module\AbstractDefine;
 //use Dotclear\Module\AbstractPrepend;
 //use Dotclear\Module\AbstractConfig;
+//use Dotclear\Module\AbstractInstall;
 //use Dotclear\Module\AbstractPage;
 
 use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -103,7 +105,7 @@ class Modules
                 $full_entry = $root . $entry;
 
                 if ($entry != '.' && $entry != '..' && is_dir($full_entry)) {
-                    $this->disabled_mode = file_exists($full_entry . '/_disabled') && $this->safe_mode;
+                    $this->disabled_mode = file_exists($full_entry . '/_disabled') || $this->safe_mode;
 
                     $this->core->autoloader->addNamespace($this->ns . '\\' . $entry, $full_entry);
                     $class = $this->ns . '\\' . $entry . '\\Define';
@@ -112,7 +114,20 @@ class Modules
                         $this->id       = $entry;
                         $this->mroot    = $full_entry;
 
-                        $this->checkModule($class::getProperties());
+                        $properties = $class::getProperties();
+
+                        if ($this->disabled_mode) {
+                            $this->disabled_meta = array_merge(
+                                $properties,
+                                [
+                                    'root'          => $this->mroot,
+                                    'enabled'       => false,
+                                    'root_writable' => is_writable($this->mroot),
+                                ]
+                            );
+                        } else {
+                            $this->checkModule($properties);
+                        }
 
                         if ($this->disabled_mode) {
                             $this->disabled[$entry]    = $this->disabled_meta;
@@ -288,6 +303,72 @@ class Modules
         }
     }
 
+    /**
+     * This method installs all modules having a _install file.
+     *
+     * @see Modules::installModule
+     *
+     * @return  array
+     */
+    public function installModules(): array
+    {
+        $res = ['success' => [], 'failure' => []];
+        foreach ($this->modules as $id => &$m) {
+            $msg = '';
+            $i = $this->installModule($id, $msg);
+            if ($i === true) {
+                $res['success'][$id] = true;
+            } elseif ($i === false) {
+                $res['failure'][$id] = $msg;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * This method installs module with ID <var>$id</var> and having a _install
+     * file. This file should throw exception on failure or true if it installs
+     * successfully.
+     *
+     * <var>$msg</var> is an out parameter that handle installer message.
+     *
+     * @param   string  $id     The identifier
+     * @param   string  $msg    The message
+     *
+     * @return  bool|null
+     */
+    public function installModule(string $id, string &$msg): ?bool
+    {
+        if (!isset($this->modules[$id])) {
+            return null;
+        }
+
+        # Check module version in db
+        if (version_compare((string) $this->core->getVersion($id), (string) $this->modules[$id]['version'], '>=')) {
+            return null;
+        }
+
+        # Search module install class
+        $class = implode('\\', [$this->ns, $id, $this->process, 'Prepend']);
+        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
+            return null;
+        }
+
+        try {
+            # Do module installation
+            $i = $class::installModule($this->core);
+
+            # Update module version in db
+            $this->core->setVersion($id, $this->modules[$id]['version']);
+
+            return $i ? true : null;
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+
+            return false;
+        }
+    }
 
     /**
      * Disables the dep modules.
@@ -327,6 +408,31 @@ class Modules
     }
 
     /**
+     * Delete a module
+     *
+     * @param   string  $id         The module identifier
+     * @param   bool    $disabled   Is module disabled
+     *
+     * @throws  CoreException  (description)
+     */
+    public function deleteModule(string $id, bool $disabled = false): void
+    {
+        if ($disabled) {
+            $p = &$this->disabled;
+        } else {
+            $p = &$this->modules;
+        }
+
+        if (!isset($p[$id])) {
+            throw new CoreException(__('No such module.'));
+        }
+
+        if (!Files::deltree($p[$id]['root'])) {
+            throw new CoreException(__('Cannot remove module files'));
+        }
+    }
+
+    /**
      * Deactivate a module
      *
      * @param   string  $id     The identifier
@@ -345,6 +451,28 @@ class Modules
 
         if (@file_put_contents($this->modules[$id]['root'] . '/_disabled', '')) {
             throw new CoreException(__('Cannot deactivate plugin.'));
+        }
+    }
+
+    /**
+     * Activate a module
+     *
+     * @param   string  $id     The identifier
+     *
+     * @throws  CoreException
+     */
+    public function activateModule(string $id): void
+    {
+        if (!isset($this->disabled[$id])) {
+            throw new CoreException(__('No such module.'));
+        }
+
+        if (!$this->disabled[$id]['root_writable']) {
+            throw new CoreException(__('Cannot activate plugin.'));
+        }
+
+        if (@unlink($this->disabled[$id]['root'] . '/_disabled') === false) {
+            throw new CoreException(__('Cannot activate plugin.'));
         }
     }
 

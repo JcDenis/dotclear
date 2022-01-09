@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin;
 
 use Dotclear\Exception;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Core;
 use Dotclear\Core\Store;
@@ -1147,7 +1147,7 @@ class Modules
      *
      * @note    Set a notice on success through dcPage::addSuccessNotice
      *
-     * @throws    Exception    Module not find or command failed
+     * @throws    AdminException    Module not find or command failed
      */
     public function doActions()
     {
@@ -1170,10 +1170,10 @@ class Modules
             foreach ($modules as $id) {
                 if (!isset($list[$id])) {
                     if (!$this->modules->moduleExists($id)) {
-                        throw new Exception(__('No such plugin.'));
+                        throw new AdminException(__('No such plugin.'));
                     }
 
-                    $module       = $this->modules->getModules($id);
+                    $module       = $this->modules->getModule($id);
                     $module['id'] = $id;
 
                     if (!$this->isDeletablePath($module['root'])) {
@@ -1197,7 +1197,7 @@ class Modules
             }
 
             if (!$count && $failed) {
-                throw new Exception(__("You don't have permissions to delete this plugin."));
+                throw new AdminException(__("You don't have permissions to delete this plugin."));
             } elseif ($failed) {
                 Notices::addWarningNotice(__('Some plugins have not been delete.'));
             } else {
@@ -1214,7 +1214,7 @@ class Modules
             $list = $this->store->get();
 
             if (empty($list)) {
-                throw new Exception(__('No such plugin.'));
+                throw new AdminException(__('No such plugin.'));
             }
 
             $count = 0;
@@ -1247,7 +1247,7 @@ class Modules
 
             $list = $this->modules->getDisabledModules();
             if (empty($list)) {
-                throw new Exception(__('No such plugin.'));
+                throw new AdminException(__('No such plugin.'));
             }
 
             $count = 0;
@@ -1278,7 +1278,7 @@ class Modules
 
             $list = $this->modules->getModules();
             if (empty($list)) {
-                throw new Exception(__('No such plugin.'));
+                throw new AdminException(__('No such plugin.'));
             }
 
             $failed = false;
@@ -1322,7 +1322,7 @@ class Modules
 
             $list = $this->store->get(true);
             if (empty($list)) {
-                throw new Exception(__('No such plugin.'));
+                throw new AdminException(__('No such plugin.'));
             }
 
             $count = 0;
@@ -1363,7 +1363,7 @@ class Modules
         elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
             || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
             if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
-                throw new Exception(__('Password verification failed'));
+                throw new AdminException(__('Password verification failed'));
             }
 
             if (!empty($_POST['upload_pkg'])) {
@@ -1371,7 +1371,7 @@ class Modules
 
                 $dest = $this->getPath() . '/' . $_FILES['pkg_file']['name'];
                 if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
-                    throw new Exception(__('Unable to move uploaded file.'));
+                    throw new AdminException(__('Unable to move uploaded file.'));
                 }
             } else {
                 $url  = urldecode($_POST['pkg_url']);
