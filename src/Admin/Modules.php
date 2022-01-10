@@ -835,11 +835,14 @@ class Modules
                         '</ul></div>';
                 }
 
-                $class    = Core::ns('Dotclear', $module['type'], $id, 'Admin', 'Config');
-                $config   = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig');
-                $index    = false;
-                //$config = !empty($module['root']) && file_exists(path::real($module['root'] . '/_config.php'));
-                //$index  = !empty($module['root']) && file_exists(path::real($module['root'] . '/index.php'));
+                $config_class = $config = $index_class = $index = false;
+                if (!empty($module['type'])) {
+                    $config_class = Core::ns('Dotclear', $module['type'], $id, 'Admin', 'Config');
+                    $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
+
+                    $index_class = Core::ns('Dotclear', $module['type'], $id, 'Admin', 'Page');
+                    $index       = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+                }
 
                 /* @phpstan-ignore-next-line */
                 if ($config || $index || !empty($module['section']) || !empty($module['tags']) || !empty($module['settings']) || !empty($module['repository']) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_ALLOW_REPOSITORIES) {
@@ -912,12 +915,15 @@ class Modules
     public static function getSettingsUrls($core, $id, $check = false, $self = true)
     {
         $st = [];
+        $config_class = $config = $index_class = $index = false;
 
-        $config_class = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config');
-        $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
+        if (!empty($core->plugins->moduleInfo($id, 'type'))) {
+            $config_class = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config');
+            $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
 
-        $index_class  = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Page');
-        $index        = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+            $index_class  = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Page');
+            $index        = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+        }
 
         $settings     = $core->plugins->moduleInfo($id, 'settings');
         if ($self) {
