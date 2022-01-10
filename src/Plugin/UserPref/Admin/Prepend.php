@@ -30,13 +30,6 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(Core $core): void
     {
-/*
-        # Register Plugin Admin Page
-        $core->adminurl->register(
-            'admin.plugin.UserPref',
-            __NAMESPACE__ . '\\Page\\UserPref'
-        );
-*/
         # Add Plugin Admin Page sidebar menu item
         $core->menu['System']->addItem(
             'user:preferences',

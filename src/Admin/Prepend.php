@@ -166,7 +166,6 @@ class Prepend extends CorePrepend
             ['admin.media', $d . 'Media'],
             ['admin.media.item', $d . 'MediaItem'],
             ['admin.plugins', $d . 'Plugins'],
-            ['admin.plugin', 'plugin.php'],
             ['admin.search', $d . 'Search'],
             ['admin.users', $d . 'Users'],
             ['admin.user', $d . 'User'],
@@ -177,9 +176,6 @@ class Prepend extends CorePrepend
             ['admin.xmlrpc', $d . 'Xmlrpc'],
             ['admin.cspreport', $d . 'CspReport']
         );
-
-        //$this->adminurl->registercopy('load.plugin.file', 'admin.home', ['pf' => 'dummy.css']);
-        //$this->adminurl->registercopy('load.var.file', 'admin.home', ['vf' => 'dummy.json']);
     }
 
     private function adminLoadSession(): bool
