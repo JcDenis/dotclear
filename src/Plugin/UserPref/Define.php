@@ -1,7 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\UserPref\Define
- * @brief Dotclear Plugins class
+ * @brief Dotclear Plugins define
  *
  * @package Dotclear
  * @subpackage PluginUserPref
@@ -13,36 +12,24 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref;
 
-use Dotclear\Module\AbstractDefine;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Define extends AbstractDefine
-{
-    public static function getName(): string
-    {
-        return __('user:preferences');
-    }
-
-    public static function getDescription(): string
-    {
-        return __('Manage every user preference directive');
-    }
-
-    public static function getAuthor(): string
-    {
-        return 'Franck Paul';
-    }
-
-    public static function getVersion(): string
-    {
-        return '0.3';
-    }
-
-    public static function getRequires(): array
-    {
-        return [['core', '3.0-dev']];
-    }
-}
+$this
+    ->setName(
+        'user:preferences'
+    )
+    ->SetDescription(
+        __('Manage every user preference directive')
+    )
+    ->setAuthor(
+        'Franck Paul'
+    )
+    ->setversion(
+        '0.3'
+    )
+    ->setRequires(
+        [['core', '3.0-dev']]
+    )
+;

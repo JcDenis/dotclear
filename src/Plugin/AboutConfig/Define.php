@@ -1,7 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\AboutConfig\Define
- * @brief Dotclear Plugins class
+ * @brief Dotclear Plugins define
  *
  * @package Dotclear
  * @subpackage PluginAboutConfig
@@ -13,36 +12,24 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig;
 
-use Dotclear\Module\AbstractDefine;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Define extends AbstractDefine
-{
-    public static function getName(): string
-    {
-        return __('about:config');
-    }
-
-    public static function getDescription(): string
-    {
-        return __('Manage every blog configuration directive');
-    }
-
-    public static function getAuthor(): string
-    {
-        return 'Olivier Meunier';
-    }
-
-    public static function getVersion(): string
-    {
-        return '0.5';
-    }
-
-    public static function getRequires(): array
-    {
-        return [['core', '3.0-dev']];
-    }
-}
+$this
+    ->setName(
+        'about:config'
+    )
+    ->SetDescription(
+        __('Manage every blog configuration directive')
+    )
+    ->setAuthor(
+        'Olivier Meunier'
+    )
+    ->setversion(
+        '0.5'
+    )
+    ->setRequires(
+        [['core', '3.0-dev']]
+    )
+;

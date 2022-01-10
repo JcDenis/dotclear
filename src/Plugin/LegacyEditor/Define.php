@@ -1,7 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Define
- * @brief Dotclear Plugins class
+ * @brief Dotclear Plugins define
  *
  * @package Dotclear
  * @subpackage PluginLegacyEditor
@@ -13,47 +12,30 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor;
 
-use Dotclear\Module\AbstractDefine;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Define extends AbstractDefine
-{
-    public static function getPermissions(): ?string
-    {
-        return 'usage,contentadmin';
-    }
-    public static function getName(): string
-    {
-        return __('Legacy editor');
-    }
-
-    public static function getDescription(): string
-    {
-        return __('dotclear legacy editor');
-    }
-
-    public static function getAuthor(): string
-    {
-        return 'dotclear Team';
-    }
-
-    public static function getVersion(): string
-    {
-        return '0.1.4';
-    }
-
-    public static function getRequires(): array
-    {
-        return [['core', '3.0-dev']];
-    }
-
-    public static function getSettings(): array
-    {
-        return [
-            'pref' => '#user-options.user_options_edition',
-        ];
-    }
-}
+$this
+    ->setName(
+        __('Legacy editor')
+    )
+    ->SetDescription(
+        __('dotclear legacy editor')
+    )
+    ->setAuthor(
+        'dotclear Team'
+    )
+    ->setversion(
+        '0.1.4'
+    )
+    ->setRequires(
+        [['core', '3.0-dev']]
+    )
+    ->setPermissions(
+        'usage,contentadmin'
+    )
+    ->setSettings(
+        ['pref' => '#user-options.user_options_edition']
+    )
+;

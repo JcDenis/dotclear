@@ -23,7 +23,7 @@ use Dotclear\Core\Utils;
 
 use Dotclear\Core\Admin\Notices;
 
-//use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\Define;
 //use Dotclear\Module\AbstractPrepend;
 //use Dotclear\Module\AbstractConfig;
 //use Dotclear\Module\AbstractInstall;
@@ -33,6 +33,7 @@ use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
 use Dotclear\File\Files;
+use Dotclear\File\Path;
 use Dotclear\File\Zip\Unzip;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -50,9 +51,6 @@ class Modules
     /** @var    string  Modules type */
     protected $type;
 
-    /** @var    bool    Safe mode */
-    protected $safe_mode = false;
-
     protected $id = null;
     protected $mroot = null;
 
@@ -69,11 +67,10 @@ class Modules
 
     public function __construct(Core $core, string $type)
     {
-        $this->core = $core;
-        $this->type = ucFirst($type);
+        $this->core    = $core;
+        $this->type    = ucFirst($type);
         $this->process = DOTCLEAR_PROCESS;
-        $this->ns = 'Dotclear\\' . $this->type;
-        $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
+        $this->ns      = 'Dotclear\\' . $this->type;
     }
 
     /**
@@ -89,6 +86,9 @@ class Modules
     public function loadModules(string $path, ?string $lang = null): void
     {
         $this->path = explode(PATH_SEPARATOR, $path);
+
+        $disabled = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
+        $disabled = $disabled                          && !get_parent_class($this) ? true : false;  // @phpstan-ignore-line
 
         foreach ($this->path as $root) {
             if (!is_dir($root) || !is_readable($root)) {
@@ -107,41 +107,27 @@ class Modules
                 $full_entry = $root . $entry;
 
                 if ($entry != '.' && $entry != '..' && is_dir($full_entry)) {
-                    $this->disabled_mode = file_exists($full_entry . '/_disabled') || $this->safe_mode;
-
-                    $this->core->autoloader->addNamespace($this->ns . '\\' . $entry, $full_entry);
-                    $class = $this->ns . '\\' . $entry . '\\Define';
-
-                    if (class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractDefine')) {
-                        $this->id       = $entry;
-                        $this->mroot    = $full_entry;
-
-                        $properties = $class::getProperties();
-
-                        if ($this->disabled_mode) {
-                            $this->disabled_meta = array_merge(
-                                $properties,
-                                [
-                                    'root'          => $this->mroot,
-                                    'enabled'       => false,
-                                    'root_writable' => is_writable($this->mroot),
-                                ]
-                            );
-                        } else {
-                            $this->checkModule($properties);
-                        }
-
-                        if ($this->disabled_mode) {
-                            $this->disabled[$entry]    = $this->disabled_meta;
-                            $this->all_modules[$entry] = $this->disabled[$entry];
-                        } else {
-                            $this->all_modules[$entry] = $this->modules[$entry];
-                        }
-
-                        $this->disabled_mode = false;
-                        $this->id            = null;
-                        $this->mroot         = null;
+                    $this->id       = $entry;
+                    $this->mroot    = $full_entry;
+                    $module_enabled = !file_exists($full_entry . '/_disabled') && !$disabled;
+                    if (!$module_enabled) {
+                        $this->disabled_mode = true;
                     }
+
+                    $this->checkDefine($full_entry, $entry);
+
+                    if (!empty($this->modules[$entry])) {
+                        if ($module_enabled) {
+                            $this->all_modules[$entry] = $this->modules[$entry];
+                            $this->core->autoloader->addNamespace($this->ns . '\\' . $entry, $full_entry);
+                        } else {
+                            $this->disabled_mode       = false;
+                            $this->disabled[$entry]    = $this->disabled_meta;
+                            $this->all_modules[$entry] = &$this->disabled[$entry];
+                        }
+                    }
+                    $this->id    = null;
+                    $this->mroot = null;
                 }
             }
             $d->close();
@@ -156,7 +142,7 @@ class Modules
         # Load modules stuff
         foreach ($this->modules as $id => $m) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = implode('\\', [$this->ns, $id, $this->process, 'Prepend']);
+            $class = Core::ns($this->ns, $id, $this->process, 'Prepend');
             $has_prepend = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
@@ -171,7 +157,7 @@ class Modules
 
             # Auto register main module Admin Page if exists
             if ($this->process == 'Admin') {
-                $page = implode('\\', [$this->ns, $id, $this->process, 'Page']);
+                $page = Core::ns($this->ns, $id, $this->process, 'Page');
                 if (class_exists($page) && is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
                     $this->core->adminurl->register('admin.plugin.' . $id, $page);
                 }
@@ -180,62 +166,6 @@ class Modules
             # Load others stuff from module
             if ($has_prepend) {
                 $class::loadModule($this->core);
-            }
-        }
-    }
-
-    protected function checkModule(array $properties): void
-    {
-        # Check module type
-        if (ucfirst($properties['type']) != $this->type) {
-            $this->errors[] = sprintf(
-                __('Module "%s" has type "%s" that mismatch required module type "%s".'),
-                '<strong>' . Html::escapeHTML($this->id) . '</strong>',
-                '<em>' . Html::escapeHTML($properties['type']) . '</em>',
-                '<em>' . Html::escapeHTML($this->type) . '</em>'
-            );
-
-            return;
-        }
-
-        # Check module perms on admin side
-        $permissions = $properties['permissions'];
-        if ($this->process == 'Admin') {
-            if ($permissions == '' && !$this->core->auth->isSuperAdmin()) {
-                return;
-            } elseif (!$this->core->auth->check((string) $permissions, $this->core->blog->id)) {
-                return;
-            }
-        }
-
-        # Check module install on multiple path
-        if ($this->id) {
-            $module_exists    = array_key_exists($properties['name'], $this->modules_names);
-            $module_overwrite = $module_exists ? version_compare($this->modules_names[$properties['name']], $properties['version'], '<') : false;
-            if (!$module_exists || $module_overwrite) {
-                $this->modules_names[$properties['name']] = $properties['version'];
-                $this->modules[$this->id]   = array_merge(
-                    $properties,
-                    [
-                        'root'          => $this->mroot,
-                        'name'          => $properties['name'],
-                        'desc'          => $properties['desc'],
-                        'author'        => $properties['author'],
-                        'version'       => $properties['version'],
-                        'enabled'       => $this->disabled_mode ? false : (isset($properties['version']) ? (bool) $properties['version'] : true),
-                        'root_writable' => is_writable($this->mroot ?? ''),
-                        'type'          => $this->type
-                    ]
-                );
-            } else {
-                $path1          = path::real($this->moduleInfo($properties['name'], 'root') ?? '');
-                $path2          = path::real($this->mroot ?? '');
-                $this->errors[] = sprintf(
-                    __('Module "%s" is installed twice in "%s" and "%s".'),
-                    '<strong>' . $properties['name'] . '</strong>',
-                    '<em>' . $path1 . '</em>',
-                    '<em>' . $path2 . '</em>'
-                );
             }
         }
     }
@@ -305,41 +235,101 @@ class Modules
         }
     }
 
-    public function requireDefine(string $dir, string $id, bool $is_clone = false): void
+    public function checkDefine(string $dir, string $id): void
     {
-        if (!file_exists($dir . '/Define.php')) {
-            return;
-        }
-
         $this->id = $id;
         ob_start();
 
-        $ns = $is_clone ? 'C_l_o_n_e' : $this->ns;
-
-        # bad hack to prevent duplicate class in the same namespace.
-        if ($is_clone) {
-            file_put_contents($dir . '/Define.php', str_replace($this->ns, 'C_l_o_n_e', file_get_contents($dir . '/Define.php')));
+        $define = new \Dotclear\Module\Define($dir . '/Define.php', $id);
+        if ($define->hasError()) {
+            return;
         }
 
-        require $dir . '/Define.php';
-
-        $class = implode('\\', [$ns, $id, 'Define']);
-        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Module\\AbstractDefine')) {
-            $this->errors[] = sprintf(
-                __('Module "%s" is not a valid module.'),
-                '<strong>' . $id . '</strong>'
-            );
+        $properties = $define->getProperties();
+        if ($define->hasError()) {
+            $this->errors = $define->geterrors();
         } else {
-            $this->checkModule($class::getProperties());
-        }
-
-        # revert back (for third party called)
-        if ($is_clone) {
-            file_put_contents($dir . '/Define.php', str_replace('C_l_o_n_e', $this->ns, file_get_contents($dir . '/Define.php')));
+            $this->checkModule($properties);
         }
 
         ob_end_clean();
         $this->id = null;
+    }
+
+    /**
+     *
+     *
+     * @param      array   $properties  The properties
+     */
+    protected function checkModule($properties = [])
+    {
+        if ($this->disabled_mode) {
+            $this->disabled_meta = array_merge(
+                $properties,
+                [
+                    'root'          => $this->mroot,
+                    'enabled'       => false,
+                    'root_writable' => is_writable($this->mroot),
+                ]
+            );
+
+            return;
+        }
+
+        # Default module properties
+        $properties = array_merge(
+            [
+                'enabled'           => true,
+            ],
+            $properties
+        );
+
+        # Check module type
+        if ($this->type !== null && $properties['type'] !== null && $properties['type'] != $this->type) {
+            $this->errors[] = sprintf(
+                __('Module "%s" has type "%s" that mismatch required module type "%s".'),
+                '<strong>' . html::escapeHTML($properties['name']) . '</strong>',
+                '<em>' . html::escapeHTML($properties['type']) . '</em>',
+                '<em>' . html::escapeHTML($this->type) . '</em>'
+            );
+
+            return;
+        }
+
+        # Check module perms on admin side
+        $permissions = $properties['permissions'];
+        if ($this->ns == 'admin') {
+            if ($permissions == '' && !$this->core->auth->isSuperAdmin()) {
+                return;
+            } elseif (!$this->core->auth->check($permissions, $this->core->blog->id)) {
+                return;
+            }
+        }
+
+        # Check module install on multiple path
+        if ($this->id) {
+            $module_exists    = array_key_exists($properties['name'], $this->modules_names);
+            $module_overwrite = $module_exists ? version_compare($this->modules_names[$properties['name']], $properties['version'], '<') : false;
+            if (!$module_exists || $module_overwrite) {
+                $this->modules_names[$properties['name']] = $properties['version'];
+                $this->modules[$this->id]   = array_merge(
+                    $properties,
+                    [
+                        'root'          => $this->mroot,
+                        'root_writable' => is_writable($this->mroot ?? ''),
+                    ]
+                );
+            } else {
+                $path1          = Path::real($this->moduleInfo($properties['name'], 'root') ?? '');
+                $path2          = Path::real($this->mroot ?? '');
+                $this->errors[] = sprintf(
+                    __('Module "%s" is installed twice in "%s" and "%s".'),
+                    '<strong>' . $properties['name'] . '</strong>',
+                    '<em>' . $path1 . '</em>',
+                    '<em>' . $path2 . '</em>'
+                );
+            }
+        }
     }
 
     /**
@@ -395,7 +385,7 @@ class Modules
                 $zip->unzip($define, $target . '/Define.php');
 
                 $sandbox->resetModulesList();
-                $sandbox->requireDefine($target, basename($destination), true);
+                $sandbox->checkDefine($target, basename($destination));
                 unlink($target . '/Define.php');
 
                 $new_errors = $sandbox->getErrors();
@@ -419,7 +409,7 @@ class Modules
             $zip->unzip($define, $target . '/Define.php');
 
             $sandbox->resetModulesList();
-            $sandbox->requireDefine($target, basename($destination), true);
+            $sandbox->checkDefine($target, basename($destination));
             unlink($target . '/Define.php');
             $new_modules = $sandbox->getModules();
 
@@ -427,7 +417,7 @@ class Modules
                 $tmp        = array_keys($new_modules);
                 $id         = $tmp[0];
                 $cur_module = $modules->getModule($id);
-                if (!empty($cur_module) && (defined('DC_DEV') && DC_DEV === true || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))) {
+                if (!empty($cur_module) && (defined('DC_DEV') && DOTCLEAR_MODE_DEV === true || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))) {
                     # delete old module
                     if (!Files::deltree($destination)) {
                         throw new CoreException(__('An error occurred during module deletion.'));
@@ -500,7 +490,7 @@ class Modules
         }
 
         # Search module install class
-        $class = implode('\\', [$this->ns, $id, $this->process, 'Prepend']);
+        $class = Core::ns($this->ns, $id, $this->process, 'Prepend');
         if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
             return null;
         }
