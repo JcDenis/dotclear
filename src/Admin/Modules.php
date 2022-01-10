@@ -835,7 +835,7 @@ class Modules
                         '</ul></div>';
                 }
 
-                $class    = implode('\\', ['Dotclear', $module['type'], $id, 'Admin', 'Config']);
+                $class    = Core::ns('Dotclear', $module['type'], $id, 'Admin', 'Config');
                 $config   = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig');
                 $index    = false;
                 //$config = !empty($module['root']) && file_exists(path::real($module['root'] . '/_config.php'));
@@ -913,10 +913,10 @@ class Modules
     {
         $st = [];
 
-        $config_class = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config']);
+        $config_class = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Config');
         $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
 
-        $index_class  = implode('\\', ['Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Page']);
+        $index_class  = Core::ns('Dotclear', $core->plugins->moduleInfo($id, 'type'), $id, 'Admin', 'Page');
         $index        = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
 
         $settings     = $core->plugins->moduleInfo($id, 'settings');
@@ -1486,7 +1486,7 @@ class Modules
 
         $module = $this->modules->getModule($id);
         $module = self::sanitizeModule($id, $module);
-        $class  = implode('\\', ['Dotclear', $module['type'], $module['id'], DOTCLEAR_PROCESS, 'Config']);
+        $class  = Core::ns('Dotclear', $module['type'], $module['id'], DOTCLEAR_PROCESS, 'Config');
 
         if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
             $this->core->error->add(__('This plugin has no configuration file.'));

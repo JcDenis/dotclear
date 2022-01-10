@@ -1943,7 +1943,7 @@ class Core
     /**
      * Join folder function
      *
-     * Starting from Dotclear roo directory
+     * Starting from Dotclear root directory
      *
      * @param  string   $args   One argument per folder
      *
@@ -1968,6 +1968,18 @@ class Core
     public static function path(string ...$args): string
     {
         return implode(DIRECTORY_SEPARATOR, $args);
+    }
+
+    /**
+     * Join sub namespace function
+     *
+     * @param  string   $args   One argument per sub namespace
+     *
+     * @return string   Namespace
+     */
+    public static function ns(string ...$args): string
+    {
+        return implode('\\', $args);
     }
     //@}
 }
