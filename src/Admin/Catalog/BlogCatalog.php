@@ -98,7 +98,7 @@ class BlogCatalog extends Catalog
             echo $blocks[1];
 
             $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="images/%2$s" /> %1$s', $title, $image);
+                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
             echo '<p class="info">' . __('Legend: ') .
                 $fmt(__('online'), 'check-on.png') . ' - ' .
