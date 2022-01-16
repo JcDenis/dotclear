@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Plugins
+ * @class Dotclear\Module\Plugin\Admin\PagePlugin
  * @brief Dotclear admin plugins page
  *
  * @package Dotclear
@@ -11,13 +11,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Admin\Page;
+namespace Dotclear\Module\Plugin\Admin;
 
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Notices;
-use Dotclear\Admin\Modules;
+
+use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -26,13 +27,10 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Plugins extends Page
+class PagePlugin extends Page
 {
-    /** @var    Modules     Modules list instance */
-    private $list;
-
     /** @var    array       freashly installed modules */
-    private $plugins_install = [];
+    private $modules_install = [];
 
     private $from_configuration = false;
 
@@ -44,25 +42,14 @@ class Plugins extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        # -- Page helper --
-        $this->list = new Modules(
-            $this->core->plugins,
-            DOTCLEAR_PLUGIN_DIR,
-            (string) $this->core->blog->settings->system->store_plugin_url,
-            !empty($_GET['nocache'])
-        );
-
-        Modules::$allow_multi_install = (bool) DOTCLEAR_ALLOW_MULTI_MODULES;
-        Modules::$distributed_modules = explode(',', DOTCLEAR_DISTRIBUTED_PLUGINS);
-
-        if ($this->core->plugins->disableDepModules($this->core->adminurl->get('admin.plugins'))) {
+        if ($this->core->plugins->disableModulesDependencies($this->core->adminurl->get('admin.plugins'))) {
             exit;
         }
 
         # Module configuration
-        if ($this->list->loadModuleConfiguration()) {
+        if ($this->core->plugins->loadModuleConfiguration()) {
 
-            $this->list->parseModuleConfiguration();
+            $this->core->plugins->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Plugins management'));
@@ -75,7 +62,7 @@ class Plugins extends Page
             }
             $this->setPageBreadcrumb([
                 Html::escapeHTML($this->core->blog->name)                            => '',
-                __('Plugins management')                                             => $this->list->getURL('', false),
+                __('Plugins management')                                             => $this->core->plugins->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>' => ''
             ]);
 
@@ -87,15 +74,15 @@ class Plugins extends Page
 
             # -- Execute actions --
             try {
-                $this->list->doActions();
+                $this->core->plugins->doActions();
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
 
             # -- Plugin install --
-            $this->plugins_install = null;
+            $this->modules_install = null;
             if (!$this->core->error->flag()) {
-                $this->plugins_install = $this->core->plugins->installModules();
+                $this->modules_install = $this->core->plugins->installModules();
             }
 
             # Page setup
@@ -122,12 +109,12 @@ class Plugins extends Page
     protected function getPageContent(): void
     {
         # -- Plugins install messages --
-        if (!empty($this->plugins_install['success'])) {
+        if (!empty($this->modules_install['success'])) {
             echo
             '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
-            foreach ($this->plugins_install['success'] as $k => $v) {
-                $info = implode(' - ', $this->list->getSettingsUrls($this->core, $k, true));
+            foreach ($this->modules_install['success'] as $k => $v) {
+                $info = implode(' - ', $this->core->plugins->getSettingsUrls($this->core, $k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -135,11 +122,11 @@ class Plugins extends Page
             echo
                 '</ul></div>';
         }
-        if (!empty($this->plugins_install['failure'])) {
+        if (!empty($this->modules_install['failure'])) {
             echo
             '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
 
-            foreach ($this->plugins_install['failure'] as $k => $v) {
+            foreach ($this->modules_install['failure'] as $k => $v) {
                 echo
                     '<li>' . $k . ' (' . $v . ')</li>';
             }
@@ -149,7 +136,9 @@ class Plugins extends Page
         }
 
         if ($this->from_configuration) {
-            echo Notices::getNotices() . $this->list->displayModuleConfiguration();
+            echo
+                Notices::getNotices() .
+                $this->core->plugins->displayModuleConfiguration();
 
             return;
         }
@@ -158,12 +147,12 @@ class Plugins extends Page
         if ($this->core->auth->isSuperAdmin()) {
             if (!$this->core->error->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dcPage::success(__('Manual checking of plugins update done successfully.'));
+                    Notices::success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = $this->list->store->get(true);
+            $modules = $this->core->plugins->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
@@ -173,13 +162,13 @@ class Plugins extends Page
                     count($modules)
                 ) . '</p>';
 
-                $this->list
+                $this->core->plugins
                     ->setList('plugin-update')
                     ->setTab('update')
-                    ->setModules($modules)
-                    ->displayModules(
-                        /*cols */['checkbox', 'icon', 'name', 'version', 'repository', 'current_version', 'desc'],
-                        /* actions */['update']
+                    ->setData($modules)
+                    ->displayData(
+                        ['checkbox', 'icon', 'name', 'version', 'repository', 'current_version', 'description'],
+                        ['update']
                     );
 
                 echo
@@ -192,9 +181,10 @@ class Plugins extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . $this->list->getURL('', false) . '" method="get">' .
+                '<form action="' . $this->core->plugins->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
+                Form::hidden('handler', $this->core->adminurl->called()) .
                     '</form>';
             }
         }
@@ -203,37 +193,37 @@ class Plugins extends Page
         '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         # Activated modules
-        $modules = $this->list->modules->getModules();
+        $modules = $this->core->plugins->getModules();
         if (!empty($modules)) {
             echo
             '<h3>' . ($this->core->auth->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            $this->list
+            $this->core->plugins
                 ->setList('plugin-activate')
                 ->setTab('plugins')
-                ->setModules($modules)
-                ->displayModules(
-                    /* cols */['expander', 'icon', 'name', 'version', 'desc', 'distrib', 'deps'],
-                    /* actions */['deactivate', 'delete', 'behavior']
+                ->setData($modules)
+                ->displayData(
+                    ['expander', 'icon', 'name', 'version', 'description', 'distrib', 'deps'],
+                    ['deactivate', 'delete', 'behavior']
                 );
         }
 
         # Deactivated modules
         if ($this->core->auth->isSuperAdmin()) {
-            $modules = $this->list->modules->getDisabledModules();
+            $modules = $this->core->plugins->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                $this->list
+                $this->core->plugins
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
-                    ->setModules($modules)
-                    ->displayModules(
-                        /* cols */['expander', 'icon', 'name', 'version', 'desc', 'distrib'],
-                        /* actions */['activate', 'delete']
+                    ->setData($modules)
+                    ->displayData(
+                        ['expander', 'icon', 'name', 'version', 'description', 'distrib'],
+                        ['activate', 'delete']
                     );
             }
         }
@@ -241,27 +231,27 @@ class Plugins extends Page
         echo
             '</div>';
 
-        if ($this->core->auth->isSuperAdmin() && $this->list->isWritablePath()) {
+        if ($this->core->auth->isSuperAdmin() && $this->core->plugins->isWritablePath()) {
 
             # New modules from repo
-            $search  = $this->list->getSearch();
-            $modules = $search ? $this->list->store->search($search) : $this->list->store->get();
+            $search  = $this->core->plugins->getSearch();
+            $modules = $search ? $this->core->plugins->store->search($search) : $this->core->plugins->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                $this->list
+                $this->core->plugins
                     ->setList('plugin-new')
                     ->setTab('new')
-                    ->setModules($modules)
+                    ->setData($modules)
                     ->displaySearch()
                     ->displayIndex()
-                    ->displayModules(
-                        /* cols */['expander', 'name', 'score', 'version', 'desc', 'deps'],
-                        /* actions */['install'],
-                        /* nav limit */true
+                    ->displayData(
+                        ['expander', 'name', 'score', 'version', 'description', 'deps'],
+                        ['install'],
+                        true
                     );
 
                 echo
@@ -280,7 +270,7 @@ class Plugins extends Page
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            $this->list->displayManualForm();
+            $this->core->plugins->displayManualForm();
 
             echo
                 '</div>';
@@ -290,7 +280,7 @@ class Plugins extends Page
         $this->core->behaviors->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
-        if ($this->core->auth->isSuperAdmin() && !$this->list->isWritablePath()) {
+        if ($this->core->auth->isSuperAdmin() && !$this->core->plugins->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }

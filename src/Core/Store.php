@@ -17,8 +17,9 @@ use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Modules;
 use Dotclear\Core\StoreReader;
+
+use Dotclear\Module\AbstractModules;
 
 use Dotclear\Network\Http;
 use Dotclear\Network\NetHttp\NetHttp;
@@ -56,11 +57,11 @@ class Store
     /**
      * Constructor.
      *
-     * @param   Modules     $modules    Modules instance
-     * @param   string      $xml_url    XML feed URL
-     * @param   bool        $force      Force query repository
+     * @param   AbstractModules     $modules    Modules instance
+     * @param   string              $xml_url    XML feed URL
+     * @param   bool                $force      Force query repository
      */
-    public function __construct(Modules $modules, string $xml_url, bool $force = false)
+    public function __construct(AbstractModules $modules, string $xml_url, bool $force = false)
     {
         $this->core       = $modules->core;
         $this->modules    = $modules;
@@ -95,48 +96,65 @@ class Store
         uasort($raw_datas, ['self', 'sort']);
 
         $skipped = array_keys($this->modules->getDisabledModules());
-        foreach ($skipped as $p_id) {
-            if (isset($raw_datas[$p_id])) {
-                unset($raw_datas[$p_id]);
+        foreach ($skipped as $id) {
+            if (isset($raw_datas[$id])) {
+                unset($raw_datas[$id]);
             }
         }
 
         $updates = [];
-        $current = $this->modules->getModules();
-        foreach ($current as $p_id => $p_infos) {
-            # non privileged user has no info
-            if (!is_array($p_infos)) {
-                continue;
+        foreach ($this->modules->getModules() as $id => $module) {
+            # non privileged user has no info //! todo: check new perms
+            if (!is_array($module)) {
+                //continue;
             }
             # main repository
-            if (isset($raw_datas[$p_id])) {
-                if (self::compare($raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
-                    $updates[$p_id]                    = $raw_datas[$p_id];
-                    $updates[$p_id]['root']            = $p_infos['root'];
-                    $updates[$p_id]['root_writable']   = $p_infos['root_writable'];
-                    $updates[$p_id]['current_version'] = $p_infos['version'];
+            if (isset($raw_datas[$id])) {
+                if (self::compare($raw_datas[$id]['version'], $module->version(), '>')) {
+                    $updates[$id]                    = $raw_datas[$id];
                 }
-                unset($raw_datas[$p_id]);
+                unset($raw_datas[$id]);
             }
             # per module third-party repository
-            if (!empty($p_infos['repository']) && DOTCLEAR_ALLOW_REPOSITORIES) {  // @phpstan-ignore-line
+            if (!empty($module->repository()) && DOTCLEAR_ALLOW_REPOSITORIES) {  // @phpstan-ignore-line
                 try {
-                    $dcs_url    = substr($p_infos['repository'], -12, 12) == '/dcstore.xml' ? $p_infos['repository'] : http::concatURL($p_infos['repository'], 'dcstore.xml');
-                    $dcs_parser = StoreReader::quickParse($dcs_url, DOTCLEAR_CACHE_DIR, $force);
-                    if ($dcs_parser !== false) {
+                    ;
+                    if (false !== ($dcs_parser = StoreReader::quickParse($module->repository(), DOTCLEAR_CACHE_DIR, $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
-                        if (isset($dcs_raw_datas[$p_id]) && self::compare($dcs_raw_datas[$p_id]['version'], $p_infos['version'], '>')) {
-                            if (!isset($updates[$p_id]) || self::compare($dcs_raw_datas[$p_id]['version'], $updates[$p_id]['version'], '>')) {
-                                $dcs_raw_datas[$p_id]['repository'] = true;
-                                $updates[$p_id]                     = $dcs_raw_datas[$p_id];
-                                $updates[$p_id]['root']             = $p_infos['root'];
-                                $updates[$p_id]['root_writable']    = $p_infos['root_writable'];
-                                $updates[$p_id]['current_version']  = $p_infos['version'];
+                        if (isset($dcs_raw_datas[$id]) && self::compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
+                            if (!isset($updates[$id]) || self::compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
+                                $dcs_raw_datas[$id]['repository'] = true;
+                                $updates[$id]                    = $dcs_raw_datas[$id];
                             }
                         }
                     }
                 } catch (Exception $e) {
                 }
+            }
+
+            if (!empty($updates[$id])) {
+                $updates[$id]['type']            = $this->modules->getModulesType();
+                $updates[$id]['root']            = $module->root();
+                $updates[$id]['root_writable']   = $module->writable();
+                $updates[$id]['current_version'] = $module->version();
+
+                $class = Core::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+                $updates[$id] = new $class($id, $properties);
+
+                if (!empty($updates[$id]->error->flag())) {
+                    unset($updates[$id]);
+                }
+            }
+        }
+
+        # Convert new modules from array to Define object
+        foreach($raw_datas as $id => $properties) {
+            $properties['type'] = $this->modules->getModulesType();
+            $class = Core::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+            $raw_datas[$id] = new $class($id, $properties);
+
+            if (!empty($raw_datas[$id]->error->flag())) {
+                unset($raw_datas[$id]);
             }
         }
 
@@ -188,18 +206,18 @@ class Store
 
         # For each modules
         foreach ($this->data['new'] as $id => $module) {
-            $module['id'] = $id;
+            $properties = $module->properties();
 
             # Loop through required module fields
             foreach (self::$weighting as $field => $weight) {
 
                 # Skip fields which not exsist on module
-                if (empty($module[$field])) {
+                if (empty($properties[$field])) {
                     continue;
                 }
 
                 # Split field value into small clean word
-                if (!($subjects = self::patternize($module[$field]))) {
+                if (!($subjects = self::patternize($properties[$field]))) {
                     continue;
                 }
 
@@ -216,7 +234,7 @@ class Store
 
                 # Increment score by matches count * field weight
                 $sorter[$id] += $nb * $weight;
-                $result[$id]['score'] = $sorter[$id];
+                $result[$id]->setScore($sorter[$id]);
             }
         }
         # Sort response by matches count
@@ -282,7 +300,7 @@ class Store
      */
     public function install(string $path): int
     {
-        return Modules::installPackage($path, $this->modules);
+        return $this->modules->installPackage($path, $this->modules);
     }
 
     /**
@@ -298,18 +316,21 @@ class Store
     /**
      * Split and clean pattern.
      *
-     * @param   string  $str    String to sanitize
+     * @param   string|array  $str    String to sanitize
      *
      * @return  array           Array of cleaned pieces of string or false if none
      */
-    public static function patternize(string $str): array
+    public static function patternize(string|array $str): array
     {
         $arr = [];
+        if (!is_array($str)) {
+            $str = explode(' ', $str);
+        }
 
-        foreach (explode(' ', $str) as $_) {
-            $_ = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $_));
-            if (strlen($_) >= 2) {
-                $arr[] = $_;
+        foreach ($str as $word) {
+            $word = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $word));
+            if (strlen($word) >= 2) {
+                $arr[] = $word;
             }
         }
 

@@ -17,7 +17,6 @@ use ArrayObject;
 use Closure;
 
 use Dotclear\Exception\CoreException;
-use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Core\StaticCore;
 use Dotclear\Core\Behaviors;
@@ -28,8 +27,6 @@ use Dotclear\Core\Meta;
 use Dotclear\Core\Log;
 use Dotclear\Core\Utils;
 use Dotclear\Core\Media;
-//use Dotclear\Core\Themes;
-//use Dotclear\Core\Plugins;
 use Dotclear\Core\Blog;
 use Dotclear\Core\Auth;
 use Dotclear\Core\Settings;
@@ -82,12 +79,6 @@ class Core
     /** @var Media              Media instance */
     public $media;
 
-    //** @var Themes             Themes instance */
-    public $themes;
-
-    //** @var Plugins            Plugins instance */
-    public $plugins;
-
     /** @var RestServer         RestServer instance */
     public $rest;
 
@@ -128,13 +119,12 @@ class Core
         static::startStatistics();
         StaticCore::setCore($this);
 
+        $this->error     = new Error();
         $this->behaviors = new Behaviors($this);
         $this->con       = $this->conInstance();
-        $this->error     = new Error();
         $this->auth      = $this->authInstance();
         $this->session   = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
         $this->url       = new UrlHandler($this);
-        $this->plugins   = new Modules($this, 'Plugin');
         $this->rest      = new RestServer($this);
         $this->meta      = new Meta($this);
         $this->log       = new Log($this);
@@ -276,18 +266,6 @@ class Core
             $this->media = new Media($this);
         }
     }
-
-    /**
-     * Instanciate themes manager into Core
-     *
-     * @param   bool    $reload     Force to reload instance
-     */
-    public function themeInstance(bool $reload = false): void
-    {
-        if (!($this->themes instanceof Themes) || $reload) {
-            $this->themes = new Themes($this);
-        }
-    }
     //@}
 
     /// @name Blog init methods
@@ -404,26 +382,6 @@ class Core
     }
 
     /**
-     * Add LegacyEditor formater
-     *
-     * Adds a new LegacyEditor text formater which will call the function
-     * <var>$callback</var> to transform text. The function must be a valid callback
-     * and takes one argument: the string to transform. It returns the transformed string.
-     *
-     * @deprecated use $core->addEditorFormater('LegacyEditor', $formater, $callback);
-     *
-     * @param   string                  $formater   The formater name
-     * @param   string|array|Closure    $callback   The function to use, must be a valid and callable callback
-     */
-    public function addFormater(string $formater, string|array|Closure $callback): void
-    {
-        # No plugin call into Core
-        DeprecatedException::throw();
-
-        $this->addEditorFormater('LegacyEditor', $formater, $callback);
-    }
-
-    /**
      * Gets the editors list.
      *
      * @return  array   The editors.
@@ -433,7 +391,9 @@ class Core
         $editors = [];
 
         foreach (array_keys($this->formaters) as $editor) {
-            $editors[$editor] = $this->plugins->moduleInfo($editor, 'name');
+            if (null !== ($module = $this->plugins->getModule($editor))) {
+                $editors[$editor] = $module->name();
+            }
         }
 
         return $editors;
@@ -491,71 +451,10 @@ class Core
 
         return $str;
     }
-
-    /**
-     * Call formater (format string using LegacyEditor)
-     *
-     * If <var>$formater</var> is a valid LegacyEditor formater, it returns
-     * <var>$str</var> transformed using that formater.
-     *
-     * @deprecated use $core->callEditorFormater('LegacyEditor', $formater, $str);
-     *
-     * @param   string  $formater   The name
-     * @param   string  $str        The string
-     *
-     * @return  string  The formated string
-     */
-    public function callFormater(string $formater, string $str): string
-    {
-        # No plugin call into Core
-        DeprecatedException::throw();
-
-        return $this->callEditorFormater('LegacyEditor', $formater, $str);
-    }
     //@}
 
     /// @name Behaviors methods
     //@{
-    /**
-     * @deprecated use $core->behaviors->($behavior, $callback);
-     */
-    public function addBehavior(string $behavior, $callback): void
-    {
-        DeprecatedException::throw();
-
-        $this->behaviors->add($behavior, $callback);
-    }
-
-    /**
-     * @deprecated use $core->behaviors->has($behavior);
-     */
-    public function hasBehavior(string $behavior): bool
-    {
-        DeprecatedException::throw();
-
-        return $this->behaviors->has($behavior);
-    }
-
-    /**
-     * @deprecated use $core->behaviors->get($behavior);
-     */
-    public function getBehaviors(string $behavior = ''): array
-    {
-        DeprecatedException::throw();
-
-        return $this->behaviors->get($behavior);
-    }
-
-    /**
-     * @deprecated use $core->behaviors->call($behavior, $arg, $argx);
-     */
-    public function callBehavior(string $behavior, mixed ...$args): mixed
-    {
-        DeprecatedException::throw();
-
-        return $this->behaviors->callArray($behavior, $args);
-    }
-
     /**
      * Add Top Behavior statically before Core instance
      *
@@ -1107,20 +1006,6 @@ class Core
         if ($cur->user_options !== null) {
             $cur->user_options = serialize((array) $cur->user_options);
         }
-    }
-
-    /**
-     * Returns user default settings in an associative array with setting names in keys.
-     *
-     * @deprecated use Dotclear\Container\User::defaultOptions();
-     *
-     * @return  array   User default settings.
-     */
-    public function userDefaults(): array
-    {
-        DeprecatedException::throw();
-
-        return ContainerUser::defaultOptions();
     }
     //@}
 

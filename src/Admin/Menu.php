@@ -15,6 +15,9 @@ namespace Dotclear\Admin;
 
 use Dotclear\Core\Utils;
 
+use Dotclear\File\Files;
+use Dotclear\File\Path;
+
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -168,17 +171,31 @@ class Menu
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
     }
 
+    /**
+     * Parse icon path and url from Iconset
+     *
+     * This can't call Iconset as modules are not loaded yet.
+     *
+     * @param   string  $img    Image path
+     *
+     * @return  string          New image path
+     */
     public static function IconURL(string $img): string
     {
         if (!empty(self::$iconset) && !empty($img)) {
+
+            # Extract module name from path
+            $split  = explode('/', self::$iconset);
+            $module = array_pop($split);
+
             $icon = false;
-            if ((preg_match('/^images\/menu\/(.+)$/', $img, $m)) || (preg_match('/^index\.php\?pf=(.+)$/', $img, $m))) {
+            if ((preg_match('/^images\/menu\/(.+)$/', $img, $m)) || (preg_match('/\?mf=(.+)$/', $img, $m))) {
                 if ($m[1]) {
-                    $icon = Path::real(dirname(__FILE__) . '/../files/images/iconset/' . self::$iconset . '/' . $m[1], false);
+                    $icon = Path::real(self::$iconset . '/files/' . $m[1], false);
                     if ($icon !== false) {
                         $allow_types = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return 'images/iconset/' . self::$iconset . '/' . $m[1];
+                            return '?mf=Iconset/' . $module . '/files/' . $m[1];
                         }
                     }
                 }

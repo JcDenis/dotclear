@@ -23,7 +23,6 @@ use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
 use Dotclear\Admin\Combos;
-use Dotclear\Admin\Modules;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -73,12 +72,14 @@ class Home extends Page
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled")
         ];
 
-        if ($this->core->plugins->disableDepModules($this->core->adminurl->get('admin.home'))) {
-            exit;
-        }
+        # Module Plugin
+        if ($this->core->plugins) {
+            if ($this->core->plugins->disableModulesDependencies($this->core->adminurl->get('admin.home'))) {
+                exit;
+            }
 
-        # Plugin install
-        $this->plugins_install = $this->core->plugins->installModules();
+            $this->plugins_install = $this->core->plugins->installModules();
+        }
 
         # Check dashboard module prefs
         if (!$this->core->auth->user_prefs->dashboard->prefExists('doclinks')) {
@@ -252,31 +253,32 @@ class Home extends Page
             '<ul><li>' . implode('</li><li>', $err) . '</li></ul></div>';
         }
 
-        # Plugins install messages
-        if (!empty($this->plugins_install['success'])) {
-            echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
-            $list = new Modules($this->core->plugins, DOTCLEAR_PLUGIN_DIR, $this->core->blog->settings->system->store_plugin_url);
-            foreach ($this->plugins_install['success'] as $k => $v) {
-                $info = implode(' - ', $list->getSettingsUrls($this->core, $k, true));
-                echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
+        # Module Plugin
+        if ($this->core->plugins) {
+            # Plugins install messages
+            if (!empty($this->plugins_install['success'])) {
+                echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
+                foreach ($this->plugins_install['success'] as $k => $v) {
+                    $info = implode(' - ', $this->core->plugins->getSettingsUrls($k, true));
+                    echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
+                }
+                echo '</ul></div>';
             }
-            echo '</ul></div>';
-        }
-        if (!empty($this->plugins_install['failure'])) {
-            echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
-            foreach ($this->plugins_install['failure'] as $k => $v) {
-                echo '<li>' . $k . ' (' . $v . ')</li>';
+            if (!empty($this->plugins_install['failure'])) {
+                echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
+                foreach ($this->plugins_install['failure'] as $k => $v) {
+                    echo '<li>' . $k . ' (' . $v . ')</li>';
+                }
+                echo '</ul></div>';
             }
-            echo '</ul></div>';
-        }
 
-        # Errors modules notifications
-        if ($this->core->auth->isSuperAdmin()) {
-            $list = $this->core->plugins->getErrors();
-            if (!empty($list)) {
-                echo
-                '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
-                '<ul><li>' . implode("</li>\n<li>", $list) . '</li></ul></div>';
+            # Errors modules notifications
+            if ($this->core->auth->isSuperAdmin()) {
+                if ($this->core->plugins->error->flag()) {
+                    echo
+                    '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
+                    '<ul><li>' . implode("</li>\n<li>", $this->core->plugins->error->getErrors()) . '</li></ul></div>';
+                }
             }
         }
 

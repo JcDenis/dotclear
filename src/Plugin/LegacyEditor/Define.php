@@ -26,7 +26,7 @@ $this
     ->setAuthor(
         'dotclear Team'
     )
-    ->setversion(
+    ->setVersion(
         '0.1.4'
     )
     ->setRequires(
@@ -37,5 +37,8 @@ $this
     )
     ->setSettings(
         ['pref' => '#user-options.user_options_edition']
+    )
+    ->setType(
+        'Plugin'
     )
 ;

@@ -93,7 +93,7 @@ class Page extends AbstractPage
             ->setPageHelp('aboutConfig')
             ->setPageHead(
                 static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
-                static::jsLoad('?pf=AboutConfig/js/index.js')
+                static::jsLoad('?mf=Plugin/AboutConfig/js/index.js')
             )
             ->setPageBreadcrumb([
                 __('System')                              => '',

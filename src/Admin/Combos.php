@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use ArrayObject;
+
 use Dotclear\Core\Core;
 use Dotclear\Core\StaticCore;
 
@@ -209,6 +211,23 @@ class Combos
         }
 
         return $formaters_combo;
+    }
+
+    /**
+     * Returns a combo containing all available iconset in admin.
+     *
+     * @return     array  The iconset combo.
+     */
+    public static function getIconsetCombo()
+    {
+        $core = self::getCore();
+
+        $iconsets_combo = new ArrayObject([__('Default') => '']);
+
+        # --BEHAVIOR-- adminPostsSortbyCombo
+        $core->behaviors->call('adminIconsetCombo', $iconsets_combo);
+
+        return $iconsets_combo->getArrayCopy();
     }
 
     /**

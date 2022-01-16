@@ -501,17 +501,7 @@ class UserPref extends Page
         $editors_combo = Combos::getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
-        $iconsets_combo = [__('Default') => ''];
-        $iconsets_root  = dirname(__FILE__) . '/images/iconset/';
-        if (is_dir($iconsets_root) && is_readable($iconsets_root)) {
-            if (($d = @dir($iconsets_root)) !== false) {
-                while (($entry = $d->read()) !== false) {
-                    if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_dir($iconsets_root . '/' . $entry)) {
-                        $iconsets_combo[$entry] = $entry;
-                    }
-                }
-            }
-        }
+        $iconsets_combo = Combos::getIconsetCombo();
 
         # Themes
         $theme_combo = [
@@ -953,6 +943,7 @@ class UserPref extends Page
         '<p><label for="user_dm_nofavicons" class="classic">' .
         Form::checkbox('user_dm_nofavicons', 1, !$this->user_dm_nofavicons) . ' ' .
         __('Display dashboard icons') . '</label></p>';
+
 
         if (count($iconsets_combo) > 1) {
             echo

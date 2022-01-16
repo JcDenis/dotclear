@@ -99,6 +99,12 @@ class Distrib
             );
         }
 
+        if (!defined('DOTCLEAR_ICONSET_DIR')) {
+            define('DOTCLEAR_ICONSET_DIR',
+                implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Iconset'])
+            );
+        }
+
         if (!defined('DOTCLEAR_L10N_DIR')) {
             define('DOTCLEAR_L10N_DIR',
                 implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'locales'])
@@ -115,6 +121,10 @@ class Distrib
 
         define('DOTCLEAR_DISTRIBUTED_THEMES',
             'berlin,blueSilence,blowupConfig,customCSS,default,ductile'
+        );
+
+        define('DOTCLEAR_DISTRIBUTED_ICONSETS',
+            'Legacy,ThomasDaveluy'
         );
 
         define('DOTCLEAR_DEFAULT_TEMPLATE_SET',

@@ -18,9 +18,12 @@ use ArrayObject;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Prepend as CorePrepend;
+use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
+
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Module\Iconset\Admin\ModulesIconset;
 
 Use Dotclear\Admin\Notices;
 Use Dotclear\Admin\Combos;
@@ -35,9 +38,15 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Prepend extends CorePrepend
+class Prepend extends BasePrepend
 {
     protected $process = 'Admin';
+
+    /** @var ModulesPlugin|null ModulesPlugin instance */
+    public $plugins = null;
+
+    /** @var ModulesIconset|null ModulesIconset instance */
+    public $iconsets = null;
 
     /** @var UrlHandler UrlHandler instance */
     public $adminurl;
@@ -59,26 +68,8 @@ class Prepend extends CorePrepend
         # Load core prepend and so on
         parent::__construct();
 
-        # Serve admin file (css, png, ...)
-        if (!empty($_GET['df'])) {
-            Utils::fileServer([static::root('Admin', 'files')], 'df');
-            exit;
-        }
-
-        # Serve var file
-        if (!empty($_GET['vf'])) {
-            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
-            exit;
-        }
-
-        # Serve plugin file
-        if (!empty($_GET['pf'])) {
-            $paths = array_reverse(explode(PATH_SEPARATOR, DOTCLEAR_PLUGIN_DIR));
-            $paths[] = static::root('Core', 'files', 'js');
-            $paths[] = static::root('Core', 'files', 'css');
-            Utils::fileServer($paths, 'pf');
-            exit;
-        }
+        # Serve modules file (mf)
+        $this->adminServeFile();
 
         # Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -108,8 +99,8 @@ class Prepend extends CorePrepend
             # Load sidebar menu
             $this->adminLoadMenu();
 
-            # Load plugins (and there Admin Prepend class)
-            $this->adminLoadPlugins();
+            # Load modules (plugins, iconset) (and there Admin Prepend class)
+            $this->adminLoadModules();
 
             # Add default top menus
             $this->adminAddMenu();
@@ -136,6 +127,50 @@ class Prepend extends CorePrepend
 
         # Load requested admin page
         $this->adminLoadPage();
+    }
+
+    private function adminServeFile(): void
+    {
+        # Serve admin file (css, png, ...)
+        if (!empty($_GET['df'])) {
+            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            exit;
+        }
+
+        # Serve var file
+        if (!empty($_GET['vf'])) {
+            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
+            exit;
+        }
+
+        # Serve modules file
+        if (empty($_GET['mf'])) {
+            return;
+        }
+
+        # Extract modules class name from url
+        $pos = strpos($_GET['mf'], '/');
+        if (!$pos) {
+            static::error(__('Failed to load file'), __('File handler not found'), 20);
+        }
+
+        # Sanitize modules type
+        $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
+        $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
+
+        # Check class
+        $class = Core::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
+        if (!(class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractModules'))) {
+            static::error(__('Failed to load file'), __('File handler not found'), 20);
+        }
+
+        # Get paths and serve file
+        $modules = new $class($this);
+        $paths   = $modules->getModulesPath();
+        $paths[] = static::root('Core', 'files', 'js');
+        $paths[] = static::root('Core', 'files', 'css');
+        Utils::fileServer($paths, 'mf');
+        exit;
     }
 
     private function adminLoadURL(): void
@@ -165,7 +200,6 @@ class Prepend extends CorePrepend
             ['admin.link.popup', $d .'LinkPopup'],
             ['admin.media', $d . 'Media'],
             ['admin.media.item', $d . 'MediaItem'],
-            ['admin.plugins', $d . 'Plugins'],
             ['admin.search', $d . 'Search'],
             ['admin.users', $d . 'Users'],
             ['admin.user', $d . 'User'],
@@ -387,8 +421,6 @@ class Prepend extends CorePrepend
             $this->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR));
         $this->addMenuItem('System', __('Languages'), 'admin.langs', 'images/menu/langs.png',
             $this->auth->isSuperAdmin());
-        $this->addMenuItem('System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png',
-            $this->auth->isSuperAdmin());
         $this->addMenuItem('System', __('Users'), 'admin.users', 'images/menu/users.png',
             $this->auth->isSuperAdmin());
         $this->addMenuItem('System', __('Blogs'), 'admin.blogs', 'images/menu/blogs.png',
@@ -403,13 +435,29 @@ class Prepend extends CorePrepend
             preg_match($pattern, $_SERVER['REQUEST_URI']), $perm, null, null, $pinned);
     }
 
-    private function adminLoadPlugins()
+    private function adminLoadModules()
     {
-        $this->plugins->loadModules(DOTCLEAR_PLUGIN_DIR, $this->_lang);
+        # Iconsets
+        if ('' != DOTCLEAR_ICONSET_DIR) {
+            $this->adminurl->register('admin.iconset', Core::ns('Dotclear', 'Module', 'Iconset', 'Admin', 'PageIconset'));
+            $this->addMenuItem('System', __('Iconset management'), 'admin.iconset', 'images/menu/modules.png', $this->auth->isSuperAdmin());
 
-        # Load loang resources for each plugins
-        foreach($this->plugins->getModules() as $module) {
-            $this->adminLoadResources($module['root'] . '/locales', false);
+            $this->iconsets = new ModulesIconset($this);
+            $this->iconsets->loadModules();
+        }
+
+        # Plugins
+        if ('' != DOTCLEAR_PLUGIN_DIR) {
+            $this->adminurl->register('admin.plugins', Core::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin'));
+            $this->addMenuItem('System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png', $this->auth->isSuperAdmin());
+
+            $this->plugins = new ModulesPlugin($this);
+            $this->plugins->loadModules($this->_lang);
+
+            # Load loang resources for each plugins
+            foreach($this->plugins->getModules() as $module) {
+                $this->adminLoadResources($module->root() . '/locales', false);
+            }
         }
     }
 

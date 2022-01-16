@@ -26,10 +26,13 @@ $this
     ->setAuthor(
         'Franck Paul'
     )
-    ->setversion(
+    ->setVersion(
         '0.3'
     )
     ->setRequires(
         [['core', '3.0-dev']]
+    )
+    ->setType(
+        'Plugin'
     )
 ;

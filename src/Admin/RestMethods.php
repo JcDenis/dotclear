@@ -702,7 +702,7 @@ class RestMethods
             }
             $module = $modules[$id];
         } elseif ($list == 'plugin-new') {
-            $store = new dcStore(
+            $store = new Store(
                 $core->plugins,
                 $core->blog->settings->system->store_plugin_url
             );
@@ -720,12 +720,10 @@ class RestMethods
             throw new AdminException('Unknown module ID');
         }
 
-        $module = adminModulesList::sanitizeModule($id, $module);
-
         $rsp     = new XmlTag('module');
         $rsp->id = $id;
 
-        foreach ($module as $k => $v) {
+        foreach ($module->properties() as $k => $v) {
             $rsp->{$k}((string) $v);
         }
 

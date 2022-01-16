@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\Behaviors
+ * @class Dotclear\Plugin\LegacyEditor\Admin\Config
  * @brief Dotclear Plugins class
  *
  * @package Dotclear

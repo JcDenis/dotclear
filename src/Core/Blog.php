@@ -181,6 +181,8 @@ class Blog
     /**
      * Returns public URL of specified plugin file.
      *
+     * @todo remove this
+     *
      * @param      string  $pf          plugin file
      * @param      bool    $strip_host  Strip host in URL
      *
@@ -188,7 +190,7 @@ class Blog
      */
     public function getPF(string $pf, bool $strip_host = true): string
     {
-        $ret = $this->getQmarkURL() . 'pf=' . $pf;
+        $ret = $this->getQmarkURL() . 'mf=Plugin/' . $pf;
         if ($strip_host) {
             $ret = Html::stripHostURL($ret);
         }

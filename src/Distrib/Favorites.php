@@ -98,11 +98,6 @@ class Favorites
                 'url'        => $core->adminurl->get('admin.users'),
                 'small-icon' => 'images/menu/users.png',
                 'large-icon' => 'images/menu/users-b.png'],
-            'plugins' => [
-                'title'      => __('Plugins management'),
-                'url'        => $core->adminurl->get('admin.plugins'),
-                'small-icon' => 'images/menu/plugins.png',
-                'large-icon' => 'images/menu/plugins-b.png'],
             'langs' => [
                 'title'      => __('Languages'),
                 'url'        => $core->adminurl->get('admin.langs'),
@@ -114,6 +109,14 @@ class Favorites
                 'small-icon' => 'images/menu/help.png',
                 'large-icon' => 'images/menu/help-b.png']
         ]);
+        if (DOTCLEAR_PLUGIN_DIR) {
+            $favs->register('plugins', [
+                'title'      => __('Plugins management'),
+                'url'        => $core->adminurl->get('admin.plugins'),
+                'small-icon' => 'images/menu/plugins.png',
+                'large-icon' => 'images/menu/plugins-b.png'
+            ]);
+        }
     }
 
     /**
