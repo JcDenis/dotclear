@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Distrib\Upgrade
  * @brief Dotclear distribution upgrade class
  *
  * @todo no files remove < dcns as entire structure change
@@ -18,6 +19,7 @@ use Dotclear\Exception;
 use Dotclear\Exception\DistribException;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\StaticCore;
 
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -35,12 +37,11 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
 
 class Upgrade
 {
-    /** @var Core Core static instance */
-    protected static $core;
+    use StaticCore;
 
-    public static function dotclearUpgrade(Core $core): bool
+    public static function dotclearUpgrade(): bool
     {
-        self::$core = $core;
+        $core    = self::getCore();
         $version = $core->getVersion('core');
 
         if ($version === null) {
@@ -203,13 +204,13 @@ class Upgrade
                 'images/menu/edit.png', 'images/menu/edit-b.png',
                 'usage,contentadmin', null, null, ];
             $init_fav['newpage'] = ['newpage', 'New page', 'plugin.php?p=pages&amp;act=page',
-                'index.php?pf=pages/icon-np.png', 'index.php?pf=pages/icon-np-big.png',
+                'index.php?mf=Plugin/pages/icon-np.png', 'index.php?mf=Plugin/pages/icon-np-big.png',
                 'contentadmin,pages', null, null, ];
             $init_fav['media'] = ['media', 'Media manager', 'media.php',
                 'images/menu/media.png', 'images/menu/media-b.png',
                 'media,media_admin', null, null, ];
             $init_fav['widgets'] = ['widgets', 'Presentation widgets', 'plugin.php?p=widgets',
-                'index.php?pf=widgets/icon.png', 'index.php?pf=widgets/icon-big.png',
+                'index.php?mf=Plugin/widgets/icon.png', 'index.php?mf=Plugin/widgets/icon-big.png',
                 'admin', null, null, ];
             $init_fav['blog_theme'] = ['blog_theme', 'Blog appearance', 'blog_theme.php',
                 'images/menu/themes.png', 'images/menu/blog-theme-b.png',
@@ -909,11 +910,13 @@ class Upgrade
      */
     protected static function settings2array(string $ns, string $setting): void
     {
-        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . self::$core->prefix . 'setting ' .
+        $core = self::getCore();
+
+        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . $core->prefix . 'setting ' .
             "WHERE setting_id = '%s' " .
             "AND setting_ns = '%s' " .
             "AND setting_type = 'string'";
-        $rs = self::$core->con->select(sprintf($strReqSelect, $setting, $ns));
+        $rs = $core->con->select(sprintf($strReqSelect, $setting, $ns));
         while ($rs->fetch()) {
             $value = @unserialize($rs->setting_value);
             if (!$value) {
@@ -921,16 +924,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . self::$core->prefix . 'setting ' .
-            "SET setting_type='array', setting_value = '" . self::$core->con->escape($value) . "' " .
-            "WHERE setting_id='" . self::$core->con->escape($rs->setting_id) . "' " .
-            "AND setting_ns='" . self::$core->con->escape($rs->setting_ns) . "' ";
+            $rs2   = 'UPDATE ' . $core->prefix . 'setting ' .
+            "SET setting_type='array', setting_value = '" . $core->con->escape($value) . "' " .
+            "WHERE setting_id='" . $core->con->escape($rs->setting_id) . "' " .
+            "AND setting_ns='" . $core->con->escape($rs->setting_ns) . "' ";
             if ($rs->blog_id == '') {
                 $rs2 .= 'AND blog_id IS null';
             } else {
-                $rs2 .= "AND blog_id = '" . self::$core->con->escape($rs->blog_id) . "'";
+                $rs2 .= "AND blog_id = '" . $core->con->escape($rs->blog_id) . "'";
             }
-            self::$core->con->execute($rs2);
+            $core->con->execute($rs2);
         }
     }
 
@@ -942,11 +945,13 @@ class Upgrade
      */
     protected static function prefs2array(string $ws, string $pref): void
     {
-        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . self::$core->prefix . 'pref ' .
+        $core = self::getCore();
+
+        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . $core->prefix . 'pref ' .
             "WHERE pref_id = '%s' " .
             "AND pref_ws = '%s' " .
             "AND pref_type = 'string'";
-        $rs = self::$core->con->select(sprintf($strReqSelect, $pref, $ws));
+        $rs = $core->con->select(sprintf($strReqSelect, $pref, $ws));
         while ($rs->fetch()) {
             $value = @unserialize($rs->pref_value);
             if (!$value) {
@@ -954,16 +959,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . self::$core->prefix . 'pref ' .
-            "SET pref_type='array', pref_value = '" . self::$core->con->escape($value) . "' " .
-            "WHERE pref_id='" . self::$core->con->escape($rs->pref_id) . "' " .
-            "AND pref_ws='" . self::$core->con->escape($rs->pref_ws) . "' ";
+            $rs2   = 'UPDATE ' . $core->prefix . 'pref ' .
+            "SET pref_type='array', pref_value = '" . $core->con->escape($value) . "' " .
+            "WHERE pref_id='" . $core->con->escape($rs->pref_id) . "' " .
+            "AND pref_ws='" . $core->con->escape($rs->pref_ws) . "' ";
             if ($rs->user_id == '') {
                 $rs2 .= 'AND user_id IS null';
             } else {
-                $rs2 .= "AND user_id = '" . self::$core->con->escape($rs->user_id) . "'";
+                $rs2 .= "AND user_id = '" . $core->con->escape($rs->user_id) . "'";
             }
-            self::$core->con->execute($rs2);
+            $core->con->execute($rs2);
         }
     }
 }
