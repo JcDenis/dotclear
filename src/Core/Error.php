@@ -53,12 +53,14 @@ class Error
     /**
      * Adds an error to stack.
      *
-     * @param string    $msg            Error message
+     * @param string    ...$msg            Error message
      */
-    public function add(string $msg): void
+    public function add(string ...$msgs): void
     {
         $this->flag     = true;
-        $this->errors[] = $msg;
+        foreach($msgs as $msg) {
+            $this->errors[] = (string) $msg;
+        }
     }
 
     /**
