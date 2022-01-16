@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 abstract class AbstractPrepend
 {
     /**
-     * Check Module during process (Amdin, Public, Instal, ...)
+     * Check Module during process (Amdin, Public, Install, ...)
      *
      * Module can check their specifics requirements here.
      * This methods must exists and return True or False.

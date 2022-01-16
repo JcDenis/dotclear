@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Module\AbstractConfig
- * @brief Dotclear Module abstract Config
+ * @class Dotclear\Module\AbstractPage
+ * @brief Dotclear Module abstract admin page
  *
  * If exists, Default plugin Page must extends this class.
  * It provides automatic url registration and configuration links.
