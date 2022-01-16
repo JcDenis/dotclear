@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Container\Common
+ * @class Dotclear\Container\TraitContainer
  * @brief Dotclear simple Container helper
  *
  * @package Dotclear
@@ -17,7 +17,7 @@ use Dotclear\Exception;
 
 use Dotclear\Utils\Dt;
 
-class Common
+trait TraitContainer
 {
     /** @var integer Password lengh (by default we talk about encoded password!) */
     public static $password_len = 40;

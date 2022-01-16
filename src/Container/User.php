@@ -13,12 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Container;
 
-use Dotclear\Container\Common;
+use Dotclear\Container\TraitContainer;
 
 use Dotclear\Database\Record;
 
-class User extends Common
+class User
 {
+    use TraitContainer;
+
     /** @var array  User info */
     protected $user_info = [
         'user_id'          => '',
