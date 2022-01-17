@@ -1,10 +1,15 @@
 <?php
 /**
- * @class Dotclear\Process
- * @brief Dotclear process launcher class
+ * @class Dotclear
+ * @brief Dotclear process launcher
  *
- * Call new Dotclear\Process('admin'); to load admin pages
- * could be called also by Dotclear\Process::admin();
+ * Call Dotclear('admin'); to load admin pages
+ * could be called also by Dotclear::Admin();
+ *
+ * For a public blog, use Dotclear::Public('myblogid');
+ * or Dotclear('public', 'myblogid');
+ *
+ * Process is not case sensitive here, whereas blog id is.
  *
  * @package Dotclear
  * @subpackage Process
@@ -14,9 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear;
-
-class Process
+Class Dotclear
 {
     /** @var    Autoloader  Dotclear custom autoloader */
     public static $autoloader;
@@ -24,9 +27,10 @@ class Process
     /**
      * Start Dotclear process
      *
-     * @param   string  $process    public/admin/install/...
+     * @param   string  $process    The process to launch public/admin/install/...
+     * @param   string  $blog_id    The blog id for Public process
      */
-    public function __construct(string $process = 'public')
+    public function __construct(string $process = 'public', string $blog_id = null)
     {
         /* Timer and memory usage for stats and dev */
         if (!defined('DOTCLEAR_START_TIME')) {
@@ -44,24 +48,25 @@ class Process
         /* Dotclear autoloader (once) */
         if (!static::$autoloader) {
             require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoloader.php']);
-            static::$autoloader = new Utils\Autoloader();
-            static::$autoloader->addNamespace(__NAMESPACE__, DOTCLEAR_ROOT_DIR);
+            static::$autoloader = new Dotclear\Utils\Autoloader();
+            static::$autoloader->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
         }
 
         /* Find process (Admin|Public|Install|...) */
-        $class = implode('\\', [__NAMESPACE__, ucfirst($process), 'Prepend']);
+        $class = implode('\\', ['Dotclear', ucfirst(strtolower($process)), 'Prepend']);
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             exit('No process');
         }
 
         ob_end_clean();
         ob_start();
-        new $class();
+        new $class($blog_id);
         ob_end_flush();
     }
 
-    public static function __callStatic(string $process, array $_): void
+    public static function __callStatic(string $process, array $args): void
     {
-        new Process($process);
+        $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
+        new static($process, $blog_id);
     }
 }

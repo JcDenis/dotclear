@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Process;
-
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -37,7 +35,7 @@ class Prepend extends Core
     /** @var string Autoloader */
     public $autoloader;
 
-    /** @var Autoloader Process */
+    /** @var string Current Process */
     protected $process;
 
     /**
@@ -47,7 +45,7 @@ class Prepend extends Core
      */
     public function __construct()
     {
-        /* add autoloader (for plugins and themes) */
+        /* add autoloader (for modules) */
         if (!$this->autoloader) {
             $this->autoloader = new Autoloader('', '', true);
         }

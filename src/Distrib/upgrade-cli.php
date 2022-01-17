@@ -12,7 +12,7 @@
 
 try {
     require_once implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), '..', 'Process.php']);
-    new Dotclear\Process('Distrib');
+    new Dotclear('Distrib');
     exit(0);
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";

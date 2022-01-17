@@ -17,4 +17,4 @@
  */
 require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), '..', 'src', 'Process.php']);
 
-new Dotclear\Process('admin');
+Dotclear::Admin();

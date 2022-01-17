@@ -38,7 +38,7 @@ class Prepend extends BasePrepend
     /** @var ModulesTheme|null ModulesThemen instance */
     public $themes = null;
 
-    public function __construct()
+    public function __construct(string $blog_id = null)
     {
         # Load Core Prepend
         parent::__construct();
@@ -51,16 +51,14 @@ class Prepend extends BasePrepend
         $this->behaviors->add('coreBlogGetComments', [__CLASS__, 'behaviorCoreBlogGetComments']);
 
         # Load blog
-        if (defined('DC_BLOG_ID')) {
-            try {
-                $this->setBlog(DC_BLOG_ID);
-            } catch (Exception $e) {
-                init_prepend_l10n();
-                /* @phpstan-ignore-next-line */
-                static::error(__('Database problem'), DOTCLEAR_MODE_DEBUG ?
-                    __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
-                    __('Something went wrong while trying to read the database.'), 620);
-            }
+        try {
+            $this->setBlog($blog_id ?: '');
+        } catch (Exception $e) {
+            init_prepend_l10n();
+            /* @phpstan-ignore-next-line */
+            static::error(__('Database problem'), DOTCLEAR_MODE_DEBUG ?
+                __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
+                __('Something went wrong while trying to read the database.'), 620);
         }
 
         if ($this->blog->id == null) {
