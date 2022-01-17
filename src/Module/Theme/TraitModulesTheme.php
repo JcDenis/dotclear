@@ -36,6 +36,6 @@ trait TraitModulesTheme
 
     public function getDistributedModules(): array
     {
-        return explode(',', DOTCLEAR_DISTRIBUTED_THEMES);
+        return explode(',', DOTCLEAR_THEME_OFFICIAL);
     }
 }

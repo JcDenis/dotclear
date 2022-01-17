@@ -165,12 +165,12 @@ class Blog
         $version = $this->settings->system->jquery_version;
         if ($version == '') {
             // Version not set, use default one
-            $version = DOTCLEAR_DEFAULT_JQUERY; // defined in inc/prepend.php
+            $version = DOTCLEAR_JQUERY_DEFAULT; // defined in inc/prepend.php
         } else {
             if (!$this->settings->system->jquery_allow_old_version) {
                 // Use the blog defined version only if more recent than default
-                if (version_compare($version, DOTCLEAR_DEFAULT_JQUERY, '<')) {
-                    $version = DOTCLEAR_DEFAULT_JQUERY; // defined in inc/prepend.php
+                if (version_compare($version, DOTCLEAR_JQUERY_DEFAULT, '<')) {
+                    $version = DOTCLEAR_JQUERY_DEFAULT; // defined in inc/prepend.php
                 }
             }
         }

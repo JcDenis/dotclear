@@ -48,7 +48,7 @@ class Upgrade
             return false;
         }
 
-        if (version_compare($version, DOTCLEAR_VERSION, '<') == 1 || strpos(DOTCLEAR_VERSION, 'dev')) {
+        if (version_compare($version, DOTCLEAR_CORE_VERSION, '<') == 1 || strpos(DOTCLEAR_CORE_VERSION, 'dev')) {
             try {
                 if ($core->con->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
@@ -896,7 +896,7 @@ class Upgrade
             }
         }
 
-        $core->setVersion('core', DOTCLEAR_VERSION);
+        $core->setVersion('core', DOTCLEAR_CORE_VERSION);
         $core->blogDefaults();
 
         return $cleanup_sessions;

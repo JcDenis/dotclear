@@ -97,8 +97,8 @@ class StoreParser
 
             # First filter right now. If DOTCLEAR_MODE_DEV is set all modules are parse
             if (DOTCLEAR_MODE_DEV === true
-                || Utils::versionsCompare(DOTCLEAR_VERSION, $item['dc_min'], '>=', false)
-                && Utils::versionsCompare(DOTCLEAR_VERSION_BREAK, $item['dc_min'], '<=', false)
+                || Utils::versionsCompare(DOTCLEAR_CORE_VERSION, $item['dc_min'], '>=', false)
+                && Utils::versionsCompare(DOTCLEAR_CORE_VERSION_BREAK, $item['dc_min'], '<=', false)
             ) {
                 $this->items[$item['id']] = $item;
             }

@@ -149,7 +149,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            if (in_array('repository', $cols) && DOTCLEAR_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
+            if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
                 $line .= '<span class="module-repository">' . (!empty($module->repository()) ? __('Third-party repository') : __('Official repository')) . '</span> ';
             }
 

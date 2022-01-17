@@ -381,7 +381,7 @@ abstract class Page
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n";
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
@@ -503,7 +503,7 @@ abstract class Page
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_VERSION . '</title>' . "\n" .
+        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
@@ -711,7 +711,7 @@ abstract class Page
             echo $this->core->menu[$k]->draw();
         }
 
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_VERSION);
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_CORE_VERSION);
 
         # --BEHAVIOR-- adminPageFooter, string
         $textAlt = $this->core->behaviors->call('adminPageFooter', $text);
@@ -1372,7 +1372,7 @@ abstract class Page
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (DOTCLEAR_MODE_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_VERSION));
+            'v=' . (DOTCLEAR_MODE_DEV === true ? md5(uniqid()) : ($v ?: DOTCLEAR_CORE_VERSION));
     }
 
     /**

@@ -562,7 +562,7 @@ trait TraitModulesAdmin
             '<th class="nowrap module-desc" scope="col">' . __('Details') . '</th>';
         }
 
-        if (in_array('repository', $cols) && DOTCLEAR_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
+        if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
             echo
             '<th class="nowrap count" scope="col">' . __('Repository') . '</th>';
         }
@@ -700,7 +700,7 @@ trait TraitModulesAdmin
                 echo '</td>';
             }
 
-            if (in_array('repository', $cols) && DOTCLEAR_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
+            if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
                 $tds++;
                 echo
                 '<td class="module-repository nowrap count">' . (!empty($module->repository()) ? __('Third-party repository') : __('Official repository')) . '</td>';
@@ -774,7 +774,7 @@ trait TraitModulesAdmin
 
                 /* @phpstan-ignore-next-line */
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
-                    || !empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_ALLOW_REPOSITORIES
+                    || !empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_STORE_ALLOWREPO
                 ) {
                     echo
                         '<div><ul class="mod-more">';
@@ -784,7 +784,7 @@ trait TraitModulesAdmin
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_ALLOW_REPOSITORIES) {   // @phpstan-ignore-line
+                    if (!empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
                         echo '<li class="modules-repository"><a href="' . $module->repository() . '">' . __('Third-party repository') . '</a></li>';
                     }
 
@@ -1280,7 +1280,7 @@ trait TraitModulesAdmin
                     continue;
                 }
 
-                if (DOTCLEAR_ALLOW_MULTI_MODULES) {
+                if (DOTCLEAR_MODULES_ALLOWMULTI) {
                     $dest = $module->root() . '/../' . basename($module->file());
                 } else {
                     $dest = $this->getPath() . '/' . basename($module->file());

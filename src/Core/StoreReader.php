@@ -57,7 +57,7 @@ class StoreReader extends NetHttp
     public function __construct()
     {
         parent::__construct('');
-        $this->setUserAgent(sprintf('Dotclear/%s', DOTCLEAR_VERSION));
+        $this->setUserAgent(sprintf('Dotclear/%s', DOTCLEAR_CORE_VERSION));
         $this->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
     }
 

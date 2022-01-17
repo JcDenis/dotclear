@@ -36,6 +36,6 @@ trait TraitModulesPlugin
 
     public function getDistributedModules(): array
     {
-        return explode(',', DOTCLEAR_DISTRIBUTED_PLUGINS);
+        return explode(',', DOTCLEAR_PLUGIN_OFFICIAL);
     }
 }

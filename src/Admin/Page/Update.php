@@ -69,8 +69,8 @@ class Update extends Page
             return true;
         }
 
-        $this->updater     = new CoreUpdate(DOTCLEAR_UPDATE_URL, 'dotclear', DOTCLEAR_UPDATE_VERSION, DOTCLEAR_CACHE_DIR . '/versions');
-        $this->new_version = $this->updater->check(DOTCLEAR_VERSION, !empty($_GET['nocache']));
+        $this->updater     = new CoreUpdate(DOTCLEAR_CORE_UPDATE_URL, 'dotclear', DOTCLEAR_CORE_UPDATE_CHANNEL, DOTCLEAR_CACHE_DIR . '/versions');
+        $this->new_version = $this->updater->check(DOTCLEAR_CORE_VERSION, !empty($_GET['nocache']));
         $zip_file          = $this->new_version ? DOTCLEAR_BACKUP_DIR . '/' . basename($this->updater->getFileURL()) : '';
 
         # Hide "update me" message
@@ -159,7 +159,7 @@ class Update extends Page
                             'dotclear/src/digests',
                             DOTCLEAR_ROOT_DIR,
                             DOTCLEAR_ROOT_DIR . '/src/digests',
-                            DOTCLEAR_BACKUP_DIR . '/backup-' . DOTCLEAR_VERSION . '.zip'
+                            DOTCLEAR_BACKUP_DIR . '/backup-' . DOTCLEAR_CORE_VERSION . '.zip'
                         );
                         $this->core->adminurl->redirect('admin.update', ['step' => 'unzip']);
 
@@ -186,7 +186,7 @@ class Update extends Page
                     $msg = sprintf(
                         __('The following files of your Dotclear installation are not readable. ' .
                         'Please fix this or try to make a backup file named %s manually.'),
-                        '<strong>backup-' . DOTCLEAR_VERSION . '.zip</strong>'
+                        '<strong>backup-' . DOTCLEAR_CORE_VERSION . '.zip</strong>'
                     );
                 } elseif ($e->getCode() == dcUpdate::ERR_FILES_UNWRITALBE) {
                     $msg = __('The following files of your Dotclear installation cannot be written. ' .
@@ -226,11 +226,11 @@ class Update extends Page
             echo '<div class="multi-part" id="update" title="' . __('Dotclear update') . '">';
 
             // Warning about PHP version if necessary
-            if (version_compare(phpversion(), DOTCLEAR_NEXT_REQUIRED_PHP, '<')) {
+            if (version_compare(phpversion(), DOTCLEAR_PHP_NEXT_REQUIRED, '<')) {
                 echo '<p class="info more-info">' .
                 sprintf(
                     __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                    DOTCLEAR_NEXT_REQUIRED_PHP,
+                    DOTCLEAR_PHP_NEXT_REQUIRED,
                     phpversion()
                 ) .
                 '</p>';

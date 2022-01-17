@@ -116,9 +116,9 @@ class RestMethods
         $ret        = __('Dotclear update not available');
 
         /* @phpstan-ignore-next-line */
-        if ($core->auth->isSuperAdmin() && !DOTCLEAR_NOT_UPDATE && is_readable(DOTCLEAR_DIGESTS_DIR) && !$core->auth->user_prefs->dashboard->nodcupdate) {
-            $updater      = new Update(DOTCLEAR_UPDATE_URL, 'dotclear', DOTCLEAR_UPDATE_VERSION, DOTCLEAR_CACHE_DIR . '/versions');
-            $new_v        = $updater->check(DOTCLEAR_VERSION);
+        if ($core->auth->isSuperAdmin() && !DOTCLEAR_CORE_UPDATE_NOAUTO && is_readable(DOTCLEAR_DIGESTS_DIR) && !$core->auth->user_prefs->dashboard->nodcupdate) {
+            $updater      = new Update(DOTCLEAR_CORE_UPDATE_URL, 'dotclear', DOTCLEAR_CORE_UPDATE_CHANNEL, DOTCLEAR_CACHE_DIR . '/versions');
+            $new_v        = $updater->check(DOTCLEAR_CORE_VERSION);
             $version_info = $new_v ? $updater->getInfoURL() : '';
 
             if ($updater->getNotify() && $new_v) {
@@ -141,12 +141,12 @@ class RestMethods
                 }
                 $rsp->check = true;
             } else {
-                if (version_compare(phpversion(), DOTCLEAR_NEXT_REQUIRED_PHP, '<')) {
+                if (version_compare(phpversion(), DOTCLEAR_PHP_NEXT_REQUIRED, '<')) {
                     if (!$core->auth->user_prefs->interface->hidemoreinfo) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                            DOTCLEAR_NEXT_REQUIRED_PHP,
+                            DOTCLEAR_PHP_NEXT_REQUIRED,
                             phpversion()
                         ) .
                         '</p>';

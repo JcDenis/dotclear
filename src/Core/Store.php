@@ -66,7 +66,7 @@ class Store
         $this->core       = $modules->core;
         $this->modules    = $modules;
         $this->xml_url    = $xml_url;
-        $this->user_agent = sprintf('Dotclear/%s)', DOTCLEAR_VERSION);
+        $this->user_agent = sprintf('Dotclear/%s)', DOTCLEAR_CORE_VERSION);
 
         $this->check($force);
     }
@@ -86,7 +86,7 @@ class Store
 
         try {
             /* @phpstan-ignore-next-line */
-            $parser = DOTCLEAR_STORE_NOT_UPDATE ? false : StoreReader::quickParse($this->xml_url, DOTCLEAR_CACHE_DIR, $force);
+            $parser = DOTCLEAR_STORE_UPDATE_NOAUTO ? false : StoreReader::quickParse($this->xml_url, DOTCLEAR_CACHE_DIR, $force);
         } catch (Exception $e) {
             return false;
         }
@@ -116,7 +116,7 @@ class Store
                 unset($raw_datas[$id]);
             }
             # per module third-party repository
-            if (!empty($module->repository()) && DOTCLEAR_ALLOW_REPOSITORIES) {  // @phpstan-ignore-line
+            if (!empty($module->repository()) && DOTCLEAR_STORE_ALLOWREPO) {  // @phpstan-ignore-line
                 try {
                     ;
                     if (false !== ($dcs_parser = StoreReader::quickParse($module->repository(), DOTCLEAR_CACHE_DIR, $force))) {

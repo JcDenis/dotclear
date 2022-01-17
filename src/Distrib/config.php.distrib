@@ -75,10 +75,10 @@ define('DOTCLEAR_CRYPT_ALGO', 'sha512');
 //define('DOTCLEAR_UPDATE_NOCHECK', false);
 
 // Update URL
-//define('DOTCLEAR_UPDATE_URL','https://download.dotclear.org/versions.xml');
+//define('DOTCLEAR_CORE_UPDATE_URL','https://download.dotclear.org/versions.xml');
 
 // Update channel (stable, unstable, testing)
-//define('DOTCLEAR_UPDATE_VERSION', 'stable');
+//define('DOTCLEAR_CORE_UPDATE_CHANNEL', 'stable');
 
 // Proxy config
 //define('HTTP_PROXY_HOST','127.0.0.1');

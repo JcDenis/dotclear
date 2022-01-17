@@ -402,12 +402,12 @@ class BlogPref extends Page
 
         # jQuery available versions
         $jquery_root           = $this->core::root('Core', 'files', 'js', 'jquery');
-        $jquery_versions_combo = [__('Default') . ' (' . DOTCLEAR_DEFAULT_JQUERY . ')' => ''];
+        $jquery_versions_combo = [__('Default') . ' (' . DOTCLEAR_JQUERY_DEFAULT . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (($d = @dir($jquery_root)) !== false) {
                 while (($entry = $d->read()) !== false) {
                     if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_dir($jquery_root . '/' . $entry)) {
-                        if ($entry != DOTCLEAR_DEFAULT_JQUERY) {
+                        if ($entry != DOTCLEAR_JQUERY_DEFAULT) {
                             $jquery_versions_combo[$entry] = $entry;
                         }
                     }

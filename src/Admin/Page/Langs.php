@@ -177,7 +177,7 @@ class Langs extends Page
         $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
 
         try {
-            $dc_langs = $feed_reader->parse(sprintf(DOTCLEAR_L10N_UPDATE_URL, DOTCLEAR_VERSION));   // @phpstan-ignore-line
+            $dc_langs = $feed_reader->parse(sprintf(DOTCLEAR_L10N_UPDATE_URL, DOTCLEAR_CORE_VERSION));   // @phpstan-ignore-line
             if ($dc_langs !== false) {
                 $dc_langs = $dc_langs->items;
             }
@@ -259,7 +259,7 @@ class Langs extends Page
             '<form method="post" action="' . $this->core->adminurl->get('admin.langs') . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Available languages') . '</h4>' .
             '<p>' . sprintf(__('You can download and install a additional language directly from Dotclear.net. ' .
-                'Proposed languages are based on your version: %s.'), '<strong>' . DOTCLEAR_VERSION . '</strong>') . '</p>' .
+                'Proposed languages are based on your version: %s.'), '<strong>' . DOTCLEAR_CORE_VERSION . '</strong>') . '</p>' .
             '<p class="field"><label for="pkg_url" class="classic">' . __('Language:') . '</label> ' .
             Form::combo(['pkg_url'], $dc_langs_combo) . '</p>' .
             '<p class="field"><label for="your_pwd1" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label> ' .

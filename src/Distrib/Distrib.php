@@ -37,6 +37,7 @@ class Distrib
 
     public static function getCoreConstants(): void
     {
+        # Dev
         //*== DOTCLEAR_MODE_DEBUG ==
         if (!defined('DOTCLEAR_MODE_DEBUG')) {
             define('DOTCLEAR_MODE_DEBUG', true);
@@ -55,13 +56,32 @@ class Distrib
             define('DOTCLEAR_MODE_DEV', false);
         }
 
-        define('DOTCLEAR_VERSION',
+        # Core
+        define('DOTCLEAR_CORE_VERSION',
             trim(file_get_contents(DOTCLEAR_ROOT_DIR . DIRECTORY_SEPARATOR . 'version'))
         );
 
-        define('DOTCLEAR_VERSION_BREAK',
+        define('DOTCLEAR_CORE_VERSION_BREAK',
             '3.0'
         );
+
+        if (!defined('DOTCLEAR_CORE_UPDATE_URL')) {
+            define('DOTCLEAR_CORE_UPDATE_URL',
+                'https://download.dotclear.org/versions.xml'
+            );
+        }
+
+        if (!defined('DOTCLEAR_CORE_UPDATE_CHANNEL')) {
+            define('DOTCLEAR_CORE_UPDATE_CHANNEL',
+                'stable'
+            );
+        }
+
+        if (!defined('DOTCLEAR_CORE_UPDATE_NOAUTO')) {
+            define('DOTCLEAR_CORE_UPDATE_NOAUTO',
+                false
+            );
+        }
 
         if (!defined('DOTCLEAR_OTHER_DIR')) {
             define('DOTCLEAR_OTHER_DIR',
@@ -87,6 +107,19 @@ class Distrib
             );
         }
 
+        # Modules
+        define('DOTCLEAR_PLUGIN_OFFICIAL',
+            'AboutConfig,Akismet,Antispam,Attachments,Blogroll,BlowupConfig,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'
+        );
+
+        define('DOTCLEAR_THEME_OFFICIAL',
+            'Berlin,BlueSilence,BlowupConfig,CustomCSS,Default,Ductile'
+        );
+
+        define('DOTCLEAR_ICONSET_OFFICIAL',
+            'Legacy,ThomasDaveluy'
+        );
+
         if (!defined('DOTCLEAR_PLUGIN_DIR')) {
             define('DOTCLEAR_PLUGIN_DIR',
                 implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugin'])
@@ -111,32 +144,63 @@ class Distrib
             );
         }
 
-        define('DOTCLEAR_L10N_UPDATE_URL',
-            'https://services.dotclear.net/dc2.l10n/?version=%s'
-        );
+        if (!defined('DOTCLEAR_PLUGIN_UPDATE_URL')) {
+            define('DOTCLEAR_PLUGIN_UPDATE_URL',
+                'https://update.dotaddict.org/dc2/themes.xml'
+            );
+        }
 
-        define('DOTCLEAR_DISTRIBUTED_PLUGINS',
-            'AboutConfig,Akismet,Antispam,Attachments,Blogroll,BlowupConfig,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'
-        );
+        if (!defined('DOTCLEAR_THEME_UPDATE_URL')) {
+            define('DOTCLEAR_THEME_UPDATE_URL',
+                'https://update.dotaddict.org/dc2/plugins.xml'
+            );
+        }
 
-        define('DOTCLEAR_DISTRIBUTED_THEMES',
-            'Berlin,BlueSilence,BlowupConfig,CustomCSS,Default,Ductile'
-        );
+        if (!defined('DOTCLEAR_ICONSET_UPDATE_URL')) {
+            define('DOTCLEAR_ICONSET_UPDATE_URL',
+                ''
+            );
+        }
 
-        define('DOTCLEAR_DISTRIBUTED_ICONSETS',
-            'Legacy,ThomasDaveluy'
-        );
+        if (!defined('DOTCLEAR_L10N_UPDATE_URL')) {
+            define('DOTCLEAR_L10N_UPDATE_URL',
+                'https://services.dotclear.net/dc2.l10n/?version=%s'
+            );
+        }
 
-        define('DOTCLEAR_DEFAULT_TEMPLATE_SET',
-            'mustek'
-        );
+        if (!defined('DOTCLEAR_MODULES_ALLOWMULTI')) {
+            define('DOTCLEAR_MODULES_ALLOWMULTI',
+                false
+            );
+        }
 
-        define('DOTCLEAR_DEFAULT_JQUERY',
-            '3.6.0'
-        );
+        if (!defined('DOTCLEAR_STORE_UPDATE_NOAUTO')) {
+            define('DOTCLEAR_STORE_UPDATE_NOAUTO',
+                false
+            );
+        }
 
-        if (!defined('DOTCLEAR_NEXT_REQUIRED_PHP')) {
-            define('DOTCLEAR_NEXT_REQUIRED_PHP',
+        if (!defined('DOTCLEAR_STORE_ALLOWREPO')) {
+            define('DOTCLEAR_STORE_ALLOWREPO',
+                true
+            );
+        }
+
+        # Diverse
+        if (!defined('DOTCLEAR_TEMPLATE_DEFAULT')) {
+            define('DOTCLEAR_TEMPLATE_DEFAULT',
+                'mustek'
+            );
+        }
+
+        if (!defined('DOTCLEAR_JQUERY_DEFAULT')) {
+            define('DOTCLEAR_JQUERY_DEFAULT',
+                '3.6.0'
+            );
+        }
+
+        if (!defined('DOTCLEAR_PHP_NEXT_REQUIRED')) {
+            define('DOTCLEAR_PHP_NEXT_REQUIRED',
                 '7.4'
             );
         }
@@ -146,15 +210,10 @@ class Distrib
                 'Dotclear'
             );
         }
+
         if (!defined('DOTCLEAR_XMLRPC_URL')) {
             define('DOTCLEAR_XMLRPC_URL',
                 '%1$sxmlrpc/%2$s'
-            );
-        }
-
-        if (!defined('DOTCLEAR_SESSION_TTL')) {
-            define('DOTCLEAR_SESSION_TTL',
-                null
             );
         }
 
@@ -188,39 +247,9 @@ class Distrib
             );
         }
 
-        if (!defined('DOTCLEAR_UPDATE_URL')) {
-            define('DOTCLEAR_UPDATE_URL',
-                'https://download.dotclear.org/versions.xml'
-            );
-        }
-
-        if (!defined('DOTCLEAR_UPDATE_VERSION')) {
-            define('DOTCLEAR_UPDATE_VERSION',
-                'stable'
-            );
-        }
-
-        if (!defined('DOTCLEAR_NOT_UPDATE')) {
-            define('DOTCLEAR_NOT_UPDATE',
-                false
-            );
-        }
-
-        if (!defined('DOTCLEAR_ALLOW_MULTI_MODULES')) {
-            define('DOTCLEAR_ALLOW_MULTI_MODULES',
-                false
-            );
-        }
-
-        if (!defined('DOTCLEAR_STORE_NOT_UPDATE')) {
-            define('DOTCLEAR_STORE_NOT_UPDATE',
-                false
-            );
-        }
-
-        if (!defined('DOTCLEAR_ALLOW_REPOSITORIES')) {
-            define('DOTCLEAR_ALLOW_REPOSITORIES',
-                true
+        if (!defined('DOTCLEAR_SESSION_TTL')) {
+            define('DOTCLEAR_SESSION_TTL',
+                null
             );
         }
 
@@ -235,13 +264,6 @@ class Distrib
                 'sha1'
             );
         }
-    }
-
-    public static function getStoreURL(bool $themes = false): string
-    {
-        return $themes ?
-            'https://update.dotaddict.org/dc2/themes.xml' :
-            'https://update.dotaddict.org/dc2/plugins.xml';
     }
 
     public static function getDatabaseStructure(Structure $_s): void

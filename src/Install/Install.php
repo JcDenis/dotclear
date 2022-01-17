@@ -195,8 +195,9 @@ class Install
                 $blog_settings->system->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
                 /* Add repository URL for themes and plugins */
-                $blog_settings->system->put('store_plugin_url', Distrib::getStoreURL(), 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->system->put('store_theme_url', Distrib::getStoreURL(true), 'string', 'Themes XML feed location', true, true);
+                $blog_settings->system->put('store_plugin_url', DOTCLEAR_PLUGIN_UPDATE_URL, 'string', 'Plugins XML feed location', true, true);
+                $blog_settings->system->put('store_theme_url', DOTCLEAR_THEME_UPDATE_URL, 'string', 'Themes XML feed location', true, true);
+                $blog_settings->system->put('store_iconset_url', DOTCLEAR_ICONSET_UPDATE_URL, 'string', 'Themes XML feed location', true, true);
 
                 /* CSP directive (admin part) */
 
@@ -220,7 +221,7 @@ class Install
                 /* Add Dotclear version */
                 $cur          = $core->con->openCursor($core->prefix . 'version');
                 $cur->module  = 'core';
-                $cur->version = (string) DOTCLEAR_VERSION;
+                $cur->version = (string) DOTCLEAR_CORE_VERSION;
                 $cur->insert();
 
                 /* Create first post */
