@@ -547,6 +547,11 @@ trait TraitModulesAdmin
             '<th class="nowrap">' . __('Score') . '</th>';
         }
 
+        if (in_array('author', $cols) && !in_array('expander', $cols)) {
+            echo
+            '<th class="nowrap module-author" scope="col">' . __('Author') . '</th>';
+        }
+
         if (in_array('version', $cols)) {
             echo
             '<th class="nowrap count" scope="col">' . __('Version') . '</th>';
@@ -659,6 +664,12 @@ trait TraitModulesAdmin
                 $tds++;
                 echo
                     '<td class="module-version nowrap count"><span class="debug">' . $module->score() . '</span></td>';
+            }
+
+            if (in_array('author', $cols) && !in_array('expander', $cols)) {
+                $tds++;
+                echo
+                '<td class="module-author nowrap">' . Html::escapeHTML($module->author()) . '</td>';
             }
 
             if (in_array('version', $cols)) {
