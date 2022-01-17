@@ -88,7 +88,10 @@ trait TraitDefineTheme
                 'parent'      => null,
                 'screenshot'  => '',
             ],
-            $this->properties
+            $this->properties,
+            [
+                'permissions' => 'admin'
+            ]
         );
 
         $this->checkDefinePlugin();

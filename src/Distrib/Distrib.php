@@ -116,11 +116,11 @@ class Distrib
         );
 
         define('DOTCLEAR_DISTRIBUTED_PLUGINS',
-            'AboutConfig,akismet,antispam,attachments,blogroll,blowupConfig,dclegacy,fairTrackbacks,importExport,maintenance,pages,pings,simpleMenu,tags,themeEditor,UserPref,widgets,LegacyEditor,dcCKEditor,breadcrumb'
+            'AboutConfig,Akismet,Antispam,Attachments,Blogroll,BlowupConfig,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'
         );
 
         define('DOTCLEAR_DISTRIBUTED_THEMES',
-            'berlin,blueSilence,blowupConfig,customCSS,default,ductile'
+            'Berlin,BlueSilence,BlowupConfig,CustomCSS,Default,Ductile'
         );
 
         define('DOTCLEAR_DISTRIBUTED_ICONSETS',

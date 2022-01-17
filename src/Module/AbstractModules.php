@@ -196,6 +196,9 @@ abstract class AbstractModules
             if ($has_prepend) {
                 $class::loadModule($this->core);
             }
+
+            //! todo: here or elsewhere, load module 'parent' Prepend
+            //! see: old inc/core/class.dc.themes.php|dcThemes::loadNsFile()
         }
     }
 

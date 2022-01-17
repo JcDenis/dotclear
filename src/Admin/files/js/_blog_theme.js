@@ -15,10 +15,25 @@ $(() => {
         });
     });
 
-  // dirty short search blocker
-  $('div.modules-search form input[type=submit]').on('click', function () {
-    const mlen = $('input[name=m_search]', $(this).parent()).val();
-    return mlen.length > 2 ? true : false;
+  $('.modules-search').each(function () {
+    const m_search = $(this).find('input[name=m_search]');
+    const m_submit = $(this).find('input[type=submit]');
+
+    m_submit.attr('disabled', m_search.val().length < 2);
+    if (m_search.val().length < 2) {
+        m_submit.addClass('disabled');
+      }else{
+        m_submit.removeClass('disabled');
+      }
+
+    m_search.keyup(function() {
+      m_submit.attr('disabled', m_search.val().length < 2);
+      if (m_search.val().length < 2) {
+          m_submit.addClass('disabled');
+        }else{
+          m_submit.removeClass('disabled');
+        }
+    });
   });
 
   // checkboxes selection

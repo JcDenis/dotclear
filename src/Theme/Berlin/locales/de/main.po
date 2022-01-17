@@ -1,0 +1,8 @@
+msgid "Show menu"
+msgstr ""
+
+msgid "Hide menu"
+msgstr ""
+
+msgid "Main menu"
+msgstr ""

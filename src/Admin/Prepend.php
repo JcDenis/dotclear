@@ -24,6 +24,7 @@ Use Dotclear\Core\Utils;
 
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Module\Iconset\Admin\ModulesIconset;
+use Dotclear\Module\Theme\Admin\ModulesTheme;
 
 Use Dotclear\Admin\Notices;
 Use Dotclear\Admin\Combos;
@@ -47,6 +48,9 @@ class Prepend extends BasePrepend
 
     /** @var ModulesIconset|null ModulesIconset instance */
     public $iconsets = null;
+
+    /** @var ModulesTheme|null ModulesTheme instance */
+    public $themes = null;
 
     /** @var UrlHandler UrlHandler instance */
     public $adminurl;
@@ -185,7 +189,6 @@ class Prepend extends BasePrepend
             ['admin.posts.popup', $d . 'PostsPopup'],
             ['admin.post', $d . 'Post'],
             ['admin.post.media', $d . 'PostMedia'],
-            ['admin.blog.theme', 'blog_theme.php'],
             ['admin.blogs', $d . 'Blogs'],
             ['admin.blog', $d . 'Blog'],
             ['admin.blog.pref', $d . 'BlogPref'],
@@ -400,8 +403,6 @@ class Prepend extends BasePrepend
         $this->menu['Plugins']->title = __('Plugins');
 
         # add fefault items to menu
-        $this->addMenuItem('Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png',
-            $this->auth->check('admin', $this->blog->id));
         $this->addMenuItem('Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
             $this->auth->check('admin', $this->blog->id));
         $this->addMenuItem('Blog', __('Media manager'), 'admin.media', 'images/menu/media.png',
@@ -459,6 +460,12 @@ class Prepend extends BasePrepend
                 $this->adminLoadResources($module->root() . '/locales', false);
             }
         }
+
+
+            $this->adminurl->register('admin.blog.theme', Core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme'));
+            $this->addMenuItem('Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png', $this->auth->check('admin', $this->blog->id));
+            $this->themes = new ModulesTheme($this);
+            $this->themes->loadModules($this->_lang);
     }
 
     private function adminLoadPage(?string $handler = null): void

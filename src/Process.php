@@ -18,13 +18,13 @@ namespace Dotclear;
 
 class Process
 {
-    /** @var Autoloader Dotclear custom autoloader */
+    /** @var    Autoloader  Dotclear custom autoloader */
     public static $autoloader;
 
     /**
      * Start Dotclear process
      *
-     * @param  string $process public/admin/install/...
+     * @param   string  $process    public/admin/install/...
      */
     public function __construct(string $process = 'public')
     {
@@ -43,7 +43,7 @@ class Process
 
         /* Dotclear autoloader (once) */
         if (!static::$autoloader) {
-            require_once implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'Utils', 'Autoloader.php']);
+            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoloader.php']);
             static::$autoloader = new Utils\Autoloader();
             static::$autoloader->addNamespace(__NAMESPACE__, DOTCLEAR_ROOT_DIR);
         }

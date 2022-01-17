@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief Dotclear constants user (plateform) configuration
+ * @brief Dotclear constants plateform configuration
  *
  * @package Dotclear
  * @subpackage Core
@@ -54,7 +54,10 @@ define('DOTCLEAR_SESSION_NAME', 'dcxd');
 //define('DOTCLEAR_SESSION_TTL','120 seconds');
 
 // Plugins root
-//define('DOTCLEAR_PLUGINS_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
+//define('DOTCLEAR_PLUGIN_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
+
+// Iconsets root
+//define('DOTCLEAR_ICONSET_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
 
 // Template cache directory
 //define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));

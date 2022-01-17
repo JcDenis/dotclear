@@ -108,7 +108,7 @@ class Blog
         $this->prefix = $core->prefix;
         $this->core   = &$core;
 
-        if (($b = $this->core->getBlog($id)) !== false) {
+        if (($b = $this->core->getBlog($id)) !== null) {
             $this->id     = $id;
             $this->uid    = $b->blog_uid;
             $this->name   = $b->blog_name;
