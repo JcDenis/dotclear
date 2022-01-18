@@ -224,7 +224,7 @@ trait TraitModulesAdmin
      */
     public function setURL(string $url): AbstractModules
     {
-        $this->page_qs  = strpos('?', $url) ? '&' : '?';
+        $this->page_qs  = strpos($url, '?') === false ? '?' : '&';
         $this->page_url = $url;
 
         return $this;
