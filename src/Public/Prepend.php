@@ -159,7 +159,7 @@ class Prepend extends BasePrepend
         $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
 
         # Check class
-        $class = Core::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+        $class = static::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
         if (!(class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractModules'))) {
             static::error(__('Failed to load file'), __('File handler not found'), 20);
         }
