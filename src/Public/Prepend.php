@@ -160,7 +160,7 @@ class Prepend extends BasePrepend
 
         # Check class
         $class = static::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
-        if (!(class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractModules'))) {
+        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
             static::error(__('Failed to load file'), __('File handler not found'), 20);
         }
 

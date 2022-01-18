@@ -198,7 +198,7 @@ class ModulesTheme extends AbstractModules
                 $line .= '<div class="current-actions">';
 
                 $config_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
-                if (class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
+                if (is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {
                         $params['redir'] = $this->getModuleURL($id);

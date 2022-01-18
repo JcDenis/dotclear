@@ -164,7 +164,7 @@ class Prepend extends BasePrepend
 
         # Check class
         $class = Core::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
-        if (!(class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractModules'))) {
+        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
             static::error(__('Failed to load file'), __('File handler not found'), 20);
         }
 
@@ -478,7 +478,7 @@ class Prepend extends BasePrepend
         # Create page instance
         try {
             $class = $this->adminurl->getBase($handler);
-            if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
+            if (!is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
                 throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler));
             }
             $page = new $class($this, $handler);

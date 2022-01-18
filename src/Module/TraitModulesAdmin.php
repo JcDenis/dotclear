@@ -774,13 +774,17 @@ trait TraitModulesAdmin
                         '</ul></div>';
                 }
 
-                $config_class = $config = $index_class = $index = false;
+                $config = $index = false;
                 if (!empty($module->type())) {
-                    $config_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
-                    $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
+                    $config       = is_subclass_of(
+                        Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                        'Dotclear\\Module\\AbstractConfig'
+                    );
 
-                    $index_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Page');
-                    $index       = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+                    $index       = is_subclass_of(
+                        Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                        'Dotclear\\Module\\AbstractPage'
+                    );
                 }
 
                 /* @phpstan-ignore-next-line */
@@ -863,14 +867,18 @@ trait TraitModulesAdmin
         }
         # Reset
         $st = [];
-        $config_class = $config = $index_class = $index = false;
+        $config = $index = false;
 
         if ($module->type()) { // should be always true
-            $config_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
-            $config       = class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig');
+            $config       = is_subclass_of(
+                Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                'Dotclear\\Module\\AbstractConfig'
+            );
 
-            $index_class  = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Page');
-            $index        = class_exists($index_class) && is_subclass_of($index_class, 'Dotclear\\Module\\AbstractPage');
+            $index        = is_subclass_of(
+                Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                'Dotclear\\Module\\AbstractPage'
+            );
         }
 
         $settings = $module->settings();
@@ -1449,7 +1457,7 @@ trait TraitModulesAdmin
 
         # Check config
         $class  = Core::ns('Dotclear', $module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
-        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
+        if (!is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
             $this->core->error->add(__('This module has no configuration file.'));
 
             return false;

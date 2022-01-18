@@ -172,7 +172,7 @@ abstract class AbstractModules
         foreach ($this->modules_enabled as $id => $module) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
             $class = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
-            $has_prepend = class_exists($class) && is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
+            $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
@@ -187,7 +187,7 @@ abstract class AbstractModules
             # Auto register main module Admin Page URL if exists
             if (DOTCLEAR_PROCESS == 'Admin') {
                 $page = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
-                if (class_exists($page) && is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
+                if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
                     $this->core->adminurl->register('admin.plugin.' . $id, $page);
                 }
             }
@@ -502,7 +502,7 @@ abstract class AbstractModules
 
         # Search module install class
         $class = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
-        if (!class_exists($class) || !is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
+        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
             return null;
         }
 
