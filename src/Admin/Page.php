@@ -503,13 +503,13 @@ abstract class Page
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (L10n::getTextDirection($this->core->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection($this->core->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 

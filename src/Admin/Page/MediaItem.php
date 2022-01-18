@@ -273,7 +273,7 @@ class MediaItem extends Page
     protected function getPageContent(): void
     {
         if ($this->popup) {
-            echo Notices::notices();
+            echo Notices::getNotices();
         }
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
             Notices::success(__('File has been successfully updated.'));
@@ -904,10 +904,10 @@ class MediaItem extends Page
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => $this->core->blog->settings->system->media_img_default_size ?: 'm',
-            'alignment' => $this->core->blog->settings->system->media_img_default_alignment ?: 'none',
-            'link'      => (bool) $cthis->ore->blog->settings->system->media_img_default_link,
-            'legend'    => $this->core->blog->settings->system->media_img_default_legend ?: 'legend',
+            'size'      => (string) $this->core->blog->settings->system->media_img_default_size ?: 'm',
+            'alignment' => (string) $this->core->blog->settings->system->media_img_default_alignment ?: 'none',
+            'link'      => (bool) $this->core->blog->settings->system->media_img_default_link,
+            'legend'    => (string) $this->core->blog->settings->system->media_img_default_legend ?: 'legend',
             'mediadef'  => false,
         ];
 

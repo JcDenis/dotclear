@@ -332,7 +332,7 @@ class Media extends Page
         }
 
         if ($this->filter->popup) {
-            echo Notices::notices();
+            echo Notices::getNotices();
         }
 
         if (!$this->mediaWritable() && !$this->core->error->flag()) {
