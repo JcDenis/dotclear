@@ -20,6 +20,10 @@ use Dotclear\Admin\Notices;
 use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
+
 class Config extends AbstractConfig
 {
     public function setConfiguration($post, $redir): void

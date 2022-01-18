@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+use Dotclear\Core\Core;
+
+use Dotclear\Admin\Notices;
+
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Theme\TraitModulesTheme;
@@ -19,6 +23,8 @@ use Dotclear\Module\AbstractDefine;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\File\Path;
+use Dotclear\Network\Http;
 
 class ModulesTheme extends AbstractModules
 {
@@ -87,16 +93,21 @@ class ModulesTheme extends AbstractModules
             }
 
             if (in_array('screenshot', $cols)) {
+                $sshot = '';
                 # Screenshot from url
                 if (preg_match('#^http(s)?://#', $module->screenshot())) {
                     $sshot = $module->screenshot();
-                }
                 # Screenshot from installed module
-                elseif (file_exists($this->core->blog->themes_path . '/' . $id . '/screenshot.jpg')) {
-                    $sshot = '?mf=Theme/' . $id . '/screenshot.jpg'; //$this->getURL('shot=' . rawurlencode($id));
+                } else {
+                    foreach($this->getModulesPath() as $psshot) {
+                        if (file_exists($psshot . '/' . $id . '/screenshot.jpg')) {
+                            $sshot = '?mf=Theme/' . $id . '/screenshot.jpg';
+                            break;
+                        }
+                    }
                 }
                 # Default screenshot
-                else {
+                if (!$sshot) {
                     $sshot = '?df=images/noscreenshot.png';
                 }
 
@@ -176,18 +187,23 @@ class ModulesTheme extends AbstractModules
             # Plugins actions
             if ($current) {
 
-                # _GET actions //! check this
-                if (file_exists(Path::real($this->core->blog->themes_path . '/' . $id) . '/style.css')) {
-                    $theme_url = preg_match('#^http(s)?://#', $this->core->blog->settings->system->themes_url) ?
-                    Http::concatURL($this->core->blog->settings->system->themes_url, '/' . $id) :
-                    Http::concatURL($this->core->blog->url, $this->core->blog->settings->system->themes_url . '/' . $id);
-                    $line .= '<p><a href="' . $theme_url . '/style.css">' . __('View stylesheet') . '</a></p>';
+                # _GET actions
+                foreach($this->getModulesPath() as $psstyle) {
+                    if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
+                        $line .= '<p><a href="' . $this->core->blog->url . '?mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                        break;
+                    }
                 }
 
                 $line .= '<div class="current-actions">';
 
-                if (file_exists(Path::real($this->core->blog->themes_path . '/' . $id) . '/_config.php')) {
-                    $line .= '<p><a href="' . $this->getURL('module=' . $id . '&amp;conf=1', false) . '" class="button submit">' . __('Configure theme') . '</a></p>';
+                $config_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
+                if (class_exists($config_class) && is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
+                    $params = ['module' => $id, 'conf' => '1'];
+                    if (!$module->standaloneConfig()) {
+                        $params['redir'] = $this->getModuleURL($id);
+                    }
+                    $line .= '<p><a href="' . $this->getModulesURL($params) . '" class="button submit">' . __('Configure theme') . '</a></p>';
                 }
 
                 # --BEHAVIOR-- adminCurrentThemeDetails
@@ -376,7 +392,7 @@ class ModulesTheme extends AbstractModules
                 $modules = array_keys($_POST['select']);
                 $id      = $modules[0];
 
-                if (!$this->modules->moduleExists($id)) {
+                if (!$this->hasModule($id)) {
                     throw new Exception(__('No such theme.'));
                 }
 
@@ -384,8 +400,8 @@ class ModulesTheme extends AbstractModules
                 $this->core->blog->settings->system->put('theme', $id);
                 $this->core->blog->triggerBlog();
 
-                $module = $this->modules->getModules($id);
-                dcPage::addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module['name'])));
+                $module = $this->getModule($id);
+                Notices::addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
         } else {
@@ -398,7 +414,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['activate']);
                 }
 
-                $list = $this->modules->getDisabledModules();
+                $list = $this->getDisabledModules();
                 if (empty($list)) {
                     throw new Exception(__('No such theme.'));
                 }
@@ -410,17 +426,17 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeActivate
-                    $this->core->callBehavior('themeBeforeActivate', $id);
+                    $this->core->behaviors->call('themeBeforeActivate', $id);
 
-                    $this->modules->activateModule($id);
+                    $this->activateModule($id);
 
                     # --BEHAVIOR-- themeAfterActivate
-                    $this->core->callBehavior('themeAfterActivate', $id);
+                    $this->core->behaviors->call('themeAfterActivate', $id);
 
                     $count++;
                 }
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -429,7 +445,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['deactivate']);
                 }
 
-                $list = $this->modules->getModules();
+                $list = $this->getModules();
                 if (empty($list)) {
                     throw new Exception(__('No such theme.'));
                 }
@@ -441,29 +457,27 @@ class ModulesTheme extends AbstractModules
                         continue;
                     }
 
-                    if (!$module['root_writable']) {
+                    if (!$module->writable()) {
                         $failed = true;
 
                         continue;
                     }
 
-                    $module[$id] = $id;
-
                     # --BEHAVIOR-- themeBeforeDeactivate
-                    $this->core->callBehavior('themeBeforeDeactivate', $module);
+                    $this->core->behaviors->call('themeBeforeDeactivate', $module);
 
-                    $this->modules->deactivateModule($id);
+                    $this->deactivateModule($id);
 
                     # --BEHAVIOR-- themeAfterDeactivate
-                    $this->core->callBehavior('themeAfterDeactivate', $module);
+                    $this->core->behaviors->call('themeAfterDeactivate', $module);
 
                     $count++;
                 }
 
                 if ($failed) {
-                    dcPage::addWarningNotice(__('Some themes have not been deactivated.'));
+                    Notices::addWarningNotice(__('Some themes have not been deactivated.'));
                 } else {
-                    dcPage::addSuccessNotice(
+                    Notices::addSuccessNotice(
                         __('Theme has been successfully deactivated.', 'Themes have been successuflly deactivated.', $count)
                     );
                 }
@@ -475,22 +489,22 @@ class ModulesTheme extends AbstractModules
 
                 $count = 0;
                 foreach ($modules as $id) {
-                    if (!$this->modules->moduleExists($id)) {
+                    if (!$this->hasModule($id)) {
                         throw new Exception(__('No such theme.'));
                     }
 
                     # --BEHAVIOR-- themeBeforeClone
-                    $this->core->callBehavior('themeBeforeClone', $id);
+                    $this->core->behaviors->call('themeBeforeClone', $id);
 
-                    $this->modules->cloneModule($id);
+                    $this->cloneModule($id);
 
                     # --BEHAVIOR-- themeAfterClone
-                    $this->core->callBehavior('themeAfterClone', $id);
+                    $this->core->behaviors->call('themeAfterClone', $id);
 
                     $count++;
                 }
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -499,34 +513,33 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['delete']);
                 }
 
-                $list = $this->modules->getDisabledModules();
+                $list = $this->getDisabledModules();
 
                 $failed = false;
                 $count  = 0;
                 foreach ($modules as $id) {
                     if (!isset($list[$id])) {
-                        if (!$this->modules->moduleExists($id)) {
+                        if (!$this->hasModule($id)) {
                             throw new Exception(__('No such theme.'));
                         }
 
-                        $module       = $this->modules->getModules($id);
-                        $module['id'] = $id;
+                        $module = $this->getModule($id);
 
-                        if (!$this->isDeletablePath($module['root'])) {
+                        if (!$this->isDeletablePath($module->root())) {
                             $failed = true;
 
                             continue;
                         }
 
                         # --BEHAVIOR-- themeBeforeDelete
-                        $this->core->callBehavior('themeBeforeDelete', $module);
+                        $this->core->behaviors->call('themeBeforeDelete', $module);
 
-                        $this->modules->deleteModule($id);
+                        $this->deleteModule($id);
 
                         # --BEHAVIOR-- themeAfterDelete
-                        $this->core->callBehavior('themeAfterDelete', $module);
+                        $this->core->behaviors->call('themeAfterDelete', $module);
                     } else {
-                        $this->modules->deleteModule($id, true);
+                        $this->deleteModule($id, true);
                     }
 
                     $count++;
@@ -535,9 +548,9 @@ class ModulesTheme extends AbstractModules
                 if (!$count && $failed) {
                     throw new Exception(__("You don't have permissions to delete this theme."));
                 } elseif ($failed) {
-                    dcPage::addWarningNotice(__('Some themes have not been delete.'));
+                    Notices::addWarningNotice(__('Some themes have not been delete.'));
                 } else {
-                    dcPage::addSuccessNotice(
+                    Notices::addSuccessNotice(
                         __('Theme has been successfully deleted.', 'Themes have been successuflly deleted.', $count)
                     );
                 }
@@ -559,20 +572,20 @@ class ModulesTheme extends AbstractModules
                         continue;
                     }
 
-                    $dest = $this->getPath() . '/' . basename($module['file']);
+                    $dest = $this->getPath() . '/' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeAdd
-                    $this->core->callBehavior('themeBeforeAdd', $module);
+                    $this->core->behaviors->call('themeBeforeAdd', $module);
 
-                    $this->store->process($module['file'], $dest);
+                    $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterAdd
-                    $this->core->callBehavior('themeAfterAdd', $module);
+                    $this->core->behaviors->call('themeAfterAdd', $module);
 
                     $count++;
                 }
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -588,26 +601,26 @@ class ModulesTheme extends AbstractModules
 
                 $count = 0;
                 foreach ($list as $module) {
-                    if (!in_array($module['id'], $modules)) {
+                    if (!in_array($module->id(), $modules)) {
                         continue;
                     }
 
-                    $dest = $module['root'] . '/../' . basename($module['file']);
+                    $dest = $module->root() . '/../' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeUpdate
-                    $this->core->callBehavior('themeBeforeUpdate', $module);
+                    $this->core->behaviors->call('themeBeforeUpdate', $module);
 
-                    $this->store->process($module['file'], $dest);
+                    $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterUpdate
-                    $this->core->callBehavior('themeAfterUpdate', $module);
+                    $this->core->behaviors->call('themeAfterUpdate', $module);
 
                     $count++;
                 }
 
                 $tab = $count && $count == count($list) ? '#themes' : '#update';
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     __('Theme has been successfully updated.', 'Themes have been successfully updated.', $count)
                 );
                 Http::redirect($this->getURL() . $tab);
@@ -634,14 +647,14 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- themeBeforeAdd
-                $this->core->callBehavior('themeBeforeAdd', null);
+                $this->core->behaviors->call('themeBeforeAdd', null);
 
                 $ret_code = $this->store->install($dest);
 
                 # --BEHAVIOR-- themeAfterAdd
-                $this->core->callBehavior('themeAfterAdd', null);
+                $this->core->behaviors->call('themeAfterAdd', null);
 
-                dcPage::addSuccessNotice(
+                Notices::addSuccessNotice(
                     $ret_code == 2 ?
                     __('The theme has been successfully updated.') :
                     __('The theme has been successfully installed.')
@@ -650,7 +663,7 @@ class ModulesTheme extends AbstractModules
             } else {
 
                 # --BEHAVIOR-- adminModulesListDoActions
-                $this->core->callBehavior('adminModulesListDoActions', $this, $modules, 'theme');
+                $this->core->behaviors->call('adminModulesListDoActions', $this, $modules, 'theme');
             }
         }
     }

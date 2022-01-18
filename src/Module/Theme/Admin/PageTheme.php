@@ -29,6 +29,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class PageTheme extends Page
 {
+    /** @var    array       freashly installed modules */
+    private $modules_install = [];
+
     private $from_configuration = false;
 
     protected function getPermissions(): string|null|false
@@ -67,6 +70,20 @@ class PageTheme extends Page
 
         # Modules list
         } else {
+
+            # -- Execute actions --
+            try {
+                $this->core->themes->doActions();
+            } catch (Exception $e) {
+                $this->core->themes->add($e->getMessage());
+            }
+
+            # -- Plugin install --
+            $this->modules_install = null;
+            if (!$this->core->error->flag()) {
+                $this->modules_install = $this->core->themes->installModules();
+            }
+
             # Page setup
             $this
                 ->setPageTitle(__('Themes management'))
@@ -90,7 +107,38 @@ class PageTheme extends Page
 
     protected function getPageContent(): void
     {
+        # -- Modules install messages --
+        if (!empty($this->modules_install['success'])) {
+            echo
+            '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
+
+            foreach ($this->modules_install['success'] as $k => $v) {
+                $info = implode(' - ', $this->core->themes->getSettingsUrls($this->core, $k, true));
+                echo
+                    '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
+            }
+
+            echo
+                '</ul></div>';
+        }
+        if (!empty($this->modules_install['failure'])) {
+            echo
+            '<div class="error">' . __('Following themes have not been installed:') . '<ul>';
+
+            foreach ($this->modules_install['failure'] as $k => $v) {
+                echo
+                    '<li>' . $k . ' (' . $v . ')</li>';
+            }
+
+            echo
+                '</ul></div>';
+        }
+
         if ($this->from_configuration) {
+            echo
+                Notices::getNotices() .
+                $this->core->themes->displayModuleConfiguration();
+
             return;
         }
 

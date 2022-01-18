@@ -66,4 +66,7 @@ abstract class AbstractConfig
      * This methods should echo Html form (only fields) content.
      */
     abstract public function getConfiguration(): void;
+
+
+    //! todo: add contextual help
 }

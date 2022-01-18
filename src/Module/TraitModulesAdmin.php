@@ -1484,7 +1484,7 @@ trait TraitModulesAdmin
 
         try {
             # Save changes
-            if (!empty($_POST['save'])) {
+            if (!empty($_POST)) {
                 $this->config_class->setConfiguration($_POST, $this->getURL(['module' => $this->config_module->id(), 'conf' => 1]));
             }
 
