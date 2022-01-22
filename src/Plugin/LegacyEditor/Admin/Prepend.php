@@ -29,8 +29,7 @@ class Prepend extends AbstractPrepend
 
     public static function checkModule(Core $core): bool
     {
-        $self_ns = $core->blog->settings->addNamespace('LegacyEditor');
-        return (bool) $self_ns->active;
+        return true;
     }
 
     public static function loadModule(Core $core): void
