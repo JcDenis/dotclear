@@ -146,6 +146,24 @@ trait TraitDefine
         return $this;
     }
 
+    /**
+     * Set module optionnal definition
+     *
+     * It is not recommanded to use extra definition.
+     * Value type is not tested.
+     *
+     * @param   string  $key    The option key
+     * @param   mixed   $value  The option value
+     *
+     * @return  AbstractDefine  Self instance
+     */
+    protected function setOptions(string $key, mixed $value): AbstractDefine
+    {
+        $this->properties['options'][$key] = $value;
+
+        return $this;
+    }
+
     public function name(): string
     {
         return $this->properties['name'] ?: '';
@@ -196,6 +214,15 @@ trait TraitDefine
         return $this->properties['details'] ?: '';
     }
 
+    public function options(?string $key = null): mixed
+    {
+        if ($key === null) {
+            return $this->properties['options'];
+        }
+
+        return $this->properties['options'][$key] ?? null;
+    }
+
     protected function checkDefine(): void
     {
         $this->properties = array_merge(
@@ -209,6 +236,7 @@ trait TraitDefine
                 'requires'        => [],
                 'details'         => '',
                 'support'         => '',
+                'options'         => [],
             ],
             $this->properties
         );
