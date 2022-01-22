@@ -226,9 +226,9 @@ abstract class Page
 
     private function pageNamespaces(): void
     {
-        if (!empty($this->namespaces) && $core->blog->id) {
-            foreach($this->namespaces as $ws) {
-                $this->blog->settings->addNamespace($ns);
+        if (!empty($this->namespaces) && $this->core->blog->id) {
+            foreach($this->namespaces as $ns) {
+                $this->core->blog->settings->addNamespace($ns);
             }
         }
     }
@@ -924,9 +924,9 @@ abstract class Page
      *
      * This must be set before page opening
      *
-     * @param   string  ...$page_help   The help blocks names
+     * @param   string|Object  ...$page_help   The help blocks names
      */
-    final public function setPageHelp(string ...$page_help): Page
+    final public function setPageHelp(string|Object ...$page_help): Page
     {
         $this->page_help = $page_help;
 
