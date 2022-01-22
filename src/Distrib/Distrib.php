@@ -109,11 +109,11 @@ class Distrib
 
         # Modules
         define('DOTCLEAR_PLUGIN_OFFICIAL',
-            'AboutConfig,Akismet,Antispam,Attachments,Blogroll,BlowupConfig,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'
+            'AboutConfig,Akismet,Antispam,Attachments,Blogroll,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'
         );
 
         define('DOTCLEAR_THEME_OFFICIAL',
-            'Berlin,BlueSilence,BlowupConfig,CustomCSS,Default,Ductile'
+            'Berlin,BlueSilence,BlowUp,CustomCSS,Ductile'
         );
 
         define('DOTCLEAR_ICONSET_OFFICIAL',

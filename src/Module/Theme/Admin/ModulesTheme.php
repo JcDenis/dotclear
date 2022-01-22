@@ -190,7 +190,7 @@ class ModulesTheme extends AbstractModules
                 # _GET actions
                 foreach($this->getModulesPath() as $psstyle) {
                     if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
-                        $line .= '<p><a href="' . $this->core->blog->url . '?mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                        $line .= '<p><a href="' . $this->core->blog->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
                         break;
                     }
                 }
@@ -207,7 +207,7 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= $this->core->behaviors->call('adminCurrentThemeDetails', $id, $module);
+                $line .= $this->core->behaviors->call('adminCurrentThemeDetails', $module);
 
                 $line .= '</div>';
             }

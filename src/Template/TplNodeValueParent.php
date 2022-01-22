@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Template;
 
 use Dotclear\Template\Template;
-use Dotclear\Template\TplNodeValue:
+use Dotclear\Template\TplNodeValue;
 use Dotclear\Template\TplNodeBlockDefinition;
 
 class TplNodeValueParent extends TplNodeValue

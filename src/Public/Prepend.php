@@ -12,13 +12,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
+use Dotclear\Exception;
+
 use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Core\Utils;
+use Dotclear\Core\Core;
+
+use Dotclear\Database\Record;
 
 use Dotclear\Public\Context;
 use Dotclear\Public\Template;
 
 use Dotclear\Module\Plugin\Public\ModulesPlugin;
+use Dotclear\Module\Theme\Public\ModulesTheme;
 
 use Dotclear\Utils\L10n;
 
@@ -30,21 +36,20 @@ class Prepend extends BasePrepend
 {
     protected $process = 'Public';
 
-    public $tpl;
-
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
 
-    /** @var ModulesTheme|null ModulesThemen instance */
+    /** @var ModulesTheme|null ModulesTheme instance */
     public $themes = null;
+
+    public $tpl;
+
+    public $_ctx;
 
     public function __construct(string $blog_id = null)
     {
         # Load Core Prepend
         parent::__construct();
-
-        # Serve modules file (mf)
-        $this->publicServeFile();
 
         # Add Record extensions
         $this->behaviors->add('coreBlogGetPosts', [__CLASS__, 'behaviorCoreBlogGetPosts']);
@@ -71,18 +76,17 @@ class Prepend extends BasePrepend
         }
 
         # Cope with static home page option
-        if ($this->blog->settings->system->static_home) {
-            $this->url->registerDefault(['Dotclear\\Core\\UrlHandler', 'static_home']);
-        }
+        $this->url->registerDefault(['Dotclear\\Core\\UrlHandler', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
 
         # Load media
         try {
             $this->mediaInstance();
         } catch (Exception $e) {
+            static::error(__('Can\'t load media.'), $e->getMessage(), 640);
         }
 
         # Create template context
-        $_ctx = new Context();
+        $this->_ctx = new Context();
 
         try {
             $this->tpl = new Template(DOTCLEAR_CACHE_DIR, '$core->tpl', $this);
@@ -92,39 +96,127 @@ class Prepend extends BasePrepend
 
         # Load locales
         $_lang = $this->blog->settings->system->lang;
-        $_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
+        $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
-        l10n::lang($_lang);
-        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'date')) === false && $_lang != 'en') {
+        l10n::lang($this->_lang);
+        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
             l10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
         }
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'main'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'public'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $_lang, 'plugins'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
+        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
 
         # Set lexical lang
-        Utils::setlexicalLang('public', $_lang);
+        Utils::setlexicalLang('public', $this->_lang);
 
         # Load plugins
         try {
             $this->plugins = new ModulesPlugin($this);
             $this->plugins->loadModules($_lang);
+
+            # Load loang resources for each plugins
+            foreach($this->plugins->getModules() as $module) {
+                $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'main');
+                $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'public');
+            }
         } catch (Exception $e) {
-            static::error(__('Can\'t load modules.'), $e->getMessage(), 640);
+            static::error(__('Can\'t load plugins.'), $e->getMessage(), 640);
         }
 
+        # Load themes
+        try {
+            $this->themes = new ModulesTheme($this);
+            $this->themes->loadModules($_lang);
+        } catch (Exception $e) {
+            static::error(__('Can\'t load themes.'), $e->getMessage(), 640);
+        }
 
+        # Load current theme definition
+        $__parent_theme = null;
+        $__theme = $this->themes->getModule((string) $this->blog->settings->system->theme);
+        if (!$__theme) {
+            $__theme = $this->themes->getModule('BlowUp');
+        # Load parent theme definition
+        } elseif ($__theme->parent()) {
+            $__parent_theme = $this->themes->getModule((string) $__theme->parent());
+            if (!$__parent_theme) {
+                $__theme = $this->themes->getModule('BlowUp');
+                $__parent_theme = null;
+            } else {
+                $this->themes->loadModuleL10N($__parent_theme->id(), $this->_lang, 'main');
+                $this->themes->loadModuleL10N($__parent_theme->id(), $this->_lang, 'public');
+            }
+        }
 
-        echo 'public: public/prepend.php : structure only ';
+        # If theme doesn't exist, stop everything
+        if (!$__theme) {
+            static::error(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
+                    'path in your blog configuration. Please check theme_path value in ' .
+                    'about:config module or reinstall default theme. (' . $__theme . ')'), 650);
+        }
+
+        # Ensure theme's settings namespace exists
+        $this->blog->settings->addNamespace('themes');
+
+        # Themes locales
+        $this->themes->loadModuleL10N($__theme->id(), $this->_lang, 'main');
+        $this->themes->loadModuleL10N($__theme->id(), $this->_lang, 'public');
+
+        # --BEHAVIOR-- publicPrepend
+        $this->behaviors->call('publicPrepend');
+
+        # Prepare the HTTP cache thing
+        $this->url::$mod_files = [__FILE__];//get_included_files();
+        $this->url::$mod_ts    = [$this->blog->upddt];
+
+        $__theme_tpl_path = [
+            static::path($__theme->root(), 'tpl')
+        ];
+        if ($__parent_theme) {
+            $__theme_tpl_path[] = static::path($__parent_theme->root(), 'tpl');
+        }
+        $tplset = $__theme->templateset();
+        if (!empty($tplset)) {
+            $tplset_dir = static::path(dirname(__FILE__), 'Template', $tplset);
+            if (is_dir($tplset_dir)) {
+                $this->tpl->setPath($__theme_tpl_path, $tplset_dir, $this->tpl->getPath());
+            } else {
+                $tplset = null;
+            }
+        }
+        if (empty($tplset)) {
+            $this->tpl->setPath($__theme_tpl_path, $this->tpl->getPath());
+        }
+        $this->url->mode = (string) $this->blog->settings->system->url_scan;
+
+        # Serve modules file (mf)
+        $this->publicServeFile();
+
+        $GLOBALS['core'] = $this;
+        context::setCore($this);
+        $GLOBALS['_ctx'] = $this->_ctx;
+
+        try {
+            # --BEHAVIOR-- publicBeforeDocument
+            $this->behaviors->call('publicBeforeDocument');
+
+            $this->url->getDocument();
+
+            # --BEHAVIOR-- publicAfterDocument
+            $this->behaviors->call('publicAfterDocument');
+        } catch (Exception $e) {
+throw $e;
+//            static::error($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
+        }
     }
 
 
-    public static function behaviorCoreBlogGetPosts($rs)
+    public static function behaviorCoreBlogGetPosts(Core $core, Record $rs)
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
     }
 
-    public static function behaviorCoreBlogGetComments($rs)
+    public static function behaviorCoreBlogGetComments(Core $core, Record $rs)
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
     }
@@ -143,33 +235,68 @@ class Prepend extends BasePrepend
             exit;
         }
 
+        $path = [];
+        $get = '';
+
         # Serve modules file
-        if (empty($_GET['mf'])) {
+        if (!empty($_GET['mf'])) {
+            # Extract modules class name from url
+            $pos = strpos($_GET['mf'], '/');
+            if (!$pos) {
+                static::error(__('Failed to load file'), __('File handler not found'), 20);
+            }
+
+            # Sanitize modules type
+            $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
+            $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
+
+            # Check class
+            $class = static::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+            if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
+                static::error(__('Failed to load file'), __('File handler not found'), 20);
+            }
+
+            # Get paths and serve file
+            $modules = new $class($this);
+            $paths   = $modules->getModulesPath();
+
+            $get = 'mf';
+        }
+
+        # Special Theme file
+        if (!empty($_GET['tf'])) {
+            # Theme
+            $__parent_theme = null;
+            $__theme = $this->themes->getModule((string) $this->blog->settings->system->theme);
+            if (!$__theme) {
+                $__theme = $this->themes->getModule('default');
+            # Theme parent
+            } elseif ($__theme->parent()) {
+                $__parent_theme = $this->themes->getModule((string) $__theme->parent());
+                if (!$__parent_theme) {
+                    $__theme = $this->themes->getModule('default');
+                    $__parent_theme = null;
+                } else {
+                }
+            }
+            if ($__theme) {
+                $paths[] = static::path($__theme->root(), 'files');
+            }
+            if ($__parent_theme) {
+                $paths[] = static::path($__parent_theme->root(), 'files');
+            }
+
+            $get = 'tf';
+        }
+
+        if (!$get) {
             return;
         }
 
-        # Extract modules class name from url
-        $pos = strpos($_GET['mf'], '/');
-        if (!$pos) {
-            static::error(__('Failed to load file'), __('File handler not found'), 20);
-        }
-
-        # Sanitize modules type
-        $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
-        $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
-
-        # Check class
-        $class = static::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
-        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-            static::error(__('Failed to load file'), __('File handler not found'), 20);
-        }
-
-        # Get paths and serve file
-        $modules = new $class($this);
-        $paths   = $modules->getModulesPath();
-        $paths[] = static::root('Core', 'files', 'js');
+        $paths[] = static::root('Public', 'files');
         $paths[] = static::root('Core', 'files', 'css');
-        Utils::fileServer($paths, 'mf');
+        $paths[] = static::root('Core', 'files', 'js');
+        Utils::fileServer($paths, $get);
         exit;
     }
 }

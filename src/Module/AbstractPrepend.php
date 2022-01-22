@@ -45,10 +45,7 @@ abstract class AbstractPrepend
      *
      * @param   Core        $core   Core instance
      */
-    public static function loadModule(Core $core): void
-    {
-        return;
-    }
+    abstract public static function loadModule(Core $core): void;
 
     /**
      * Install Module during process (Amdin, Public, Install, ...)
@@ -62,8 +59,5 @@ abstract class AbstractPrepend
      *
      * @return  bool        True on success
      */
-    public static function installModule(Core $core): ?bool
-    {
-        return null;
-    }
+    abstract public static function installModule(Core $core): ?bool;
 }

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
 use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
 
 use Dotclear\Core\Core;
 
@@ -23,6 +24,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Prepend extends AbstractPrepend
 {
+    use TraitPrependAdmin;
+
     public static function checkModule(Core $core): bool
     {
         return true;

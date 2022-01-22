@@ -16,6 +16,7 @@ namespace Dotclear\Iconset\ThomasDaveluy\Admin;
 use ArrayObject;
 
 use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
 
 use Dotclear\Core\Core;
 
@@ -27,6 +28,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Prepend extends AbstractPrepend
 {
+    use TraitPrependAdmin;
+
     public static function checkModule(Core $core): bool
     {
         return true;

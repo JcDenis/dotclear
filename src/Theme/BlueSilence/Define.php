@@ -36,4 +36,7 @@ $this
     ->setType(
         'Theme'
     )
+    ->setTemplateset(
+        'Mustek'
+    )
 ;

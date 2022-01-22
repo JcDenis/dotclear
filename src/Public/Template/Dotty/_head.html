@@ -1,0 +1,31 @@
+<tpl:Block name="_head-before"></tpl:Block>
+<tpl:Block name="_head-content">
+  <tpl:Block name="_head-meta-viewport">
+    <!-- # media queries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </tpl:Block>
+  <tpl:Block name="_head-link-css-screen">
+    <link rel="preload" href="{{tpl:BlogThemeURL}}style.css" as="style" />
+    <link rel="stylesheet" type="text/css" href="{{tpl:BlogThemeURL}}style.css" media="screen" />
+  </tpl:Block>
+  <tpl:Block name="_head-link-css-print">
+    <link rel="stylesheet" type="text/css" href="{{tpl:BlogThemeURL}}print.css" media="print" />
+  </tpl:Block>
+  <tpl:Block name="_head-link-js-jquery">
+    <tpl:SysIf jquery_needed="1">
+      <link rel="preload" href="{{tpl:BlogThemeURL}}{{tpl:BlogJsJQuery}}/jquery.js" as="script" />
+      <script src="{{tpl:BlogThemeURL}}{{tpl:BlogJsJQuery}}/jquery.js"></script>
+    </tpl:SysIf>
+  </tpl:Block>
+  <tpl:Block name="_head-link-js-util">
+    <link rel="preload" href="{{tpl:BlogThemeURL}}util.js" as="script" />
+    <script src="{{tpl:BlogThemeURL}}util.js"></script>
+  </tpl:Block>
+  <tpl:Block name="_head-user-head">
+    {{tpl:include src="user_head.html"}}
+  </tpl:Block>
+  <tpl:Block name="_head-behavior">
+    {{tpl:SysBehavior behavior="publicHeadContent"}}
+  </tpl:Block>
+</tpl:Block>
+<tpl:Block name="_head-after"></tpl:Block>

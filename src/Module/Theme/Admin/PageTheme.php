@@ -113,7 +113,7 @@ class PageTheme extends Page
             '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', $this->core->themes->getSettingsUrls($this->core, $k, true));
+                $info = implode(' - ', $this->core->themes->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }

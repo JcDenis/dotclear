@@ -263,6 +263,19 @@ class Blog
     {
         $this->without_password = $v;
     }
+
+    public function getUpdateDate(string $format = ''): string
+    {
+        if ($format == 'rfc822') {
+            return Dt::rfc822($this->upddt, $this->settings->system->blog_timezone);
+        } elseif ($format == 'iso8601') {
+            return Dt::iso8601($this->upddt, $this->settings->system->blog_timezone);
+        } elseif (!$format) {
+            return Dt::str($format, $this->upddt);
+        }
+
+        return $this->upddt;
+    }
     //@}
 
     /// @name Triggers methods
@@ -388,11 +401,11 @@ class Blog
      * - start: start with a given category
      * - level: categories level to retrieve
      *
-     * @param      array   $params  The parameters
+     * @param      ArrayObject|array   $params  The parameters
      *
      * @return     Record  The categories. (StaticRecord)
      */
-    public function getCategories(array $params = []): Record
+    public function getCategories(ArrayObject|array $params = []): Record
     {
         $c_params = [];
         if (isset($params['post_type'])) {
@@ -911,12 +924,12 @@ class Blog
      *
      * @since 3.0 : remove sql_only params (reimplement someting later)
      *
-     * @param    array  $params        Parameters
+     * @param    ArrayObject|array  $params        Parameters
      * @param    bool   $count_only    Only counts results
      *
      * @return   Record    A record with some more capabilities or the SQL request
      */
-    public function getPosts(array $params = [], bool $count_only = false): Record
+    public function getPosts(ArrayObject|array $params = [], bool $count_only = false): Record
     {
         $params = new ArrayObject($params);
 

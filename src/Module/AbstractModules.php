@@ -218,7 +218,7 @@ abstract class AbstractModules
 
         # Stop on error in module definition
         if ($define->error->flag()) {
-            $this->error->add($define->error->getErrors());
+            call_user_func_array([$this->error, 'add'], $define->error->getErrors());
 
             return;
         }

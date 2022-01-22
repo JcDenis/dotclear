@@ -18,7 +18,11 @@ use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\StaticCore;
+use Dotclear\Core\Trackback;
 use Dotclear\Core\Xmlrpc;
+
+use Dotclear\Public\Context;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
@@ -31,21 +35,22 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class UrlHandler extends BaseUrlHandler
 {
+    use StaticCore;
 
-    /** @var Core Core instance */
-    protected $core;
+    public static $mod_files = [];
+    public static $mod_ts = [];
 
     public $args;
 
     public function __construct(Core $core, string $mode = 'path_info')
     {
-        $this->core = $core;
+        $this->setCore($core);
         $this->mode = $mode;
     }
 
     protected function getHomeType()
     {
-        return $this->core->blog->settings->system->static_home ? 'static' : 'default';
+        return static::$core->blog->settings->system->static_home ? 'static' : 'default';
     }
 
     public function isHome($type)
@@ -55,7 +60,7 @@ class UrlHandler extends BaseUrlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $url  = $this->core->behaviors->call('publicGetURLFor', $type, $value);
+        $url  = static::$core->behaviors->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -72,7 +77,7 @@ class UrlHandler extends BaseUrlHandler
     public function register($type, $url, $representation, $handler)
     {
         $t    = new ArrayObject([$type, $url, $representation, $handler]);
-        $this->core->behaviors->call('publicRegisterURL', $t);
+        static::$core->behaviors->call('publicRegisterURL', $t);
         parent::register($t[0], $t[1], $t[2], $t[3]);
     }
 
@@ -86,8 +91,8 @@ class UrlHandler extends BaseUrlHandler
         if ($e->getCode() != 404) {
             throw $e;
         }
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = $GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         header('Content-Type: text/html; charset=UTF-8');
         http::head(404, 'Not Found');
@@ -118,8 +123,8 @@ class UrlHandler extends BaseUrlHandler
 
     protected static function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         if ($_ctx->nb_entry_per_page === null) {
             $_ctx->nb_entry_per_page = $core->blog->settings->system->nb_post_per_page;
@@ -143,8 +148,8 @@ class UrlHandler extends BaseUrlHandler
         $core->behaviors->call('urlHandlerBeforeGetData', $_ctx);
 
         if ($_ctx->http_cache) {
-            $GLOBALS['mod_files'][] = $tpl_file;
-            http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
+            static::$mod_files = array_merge(static::$mod_files, [$tpl_file]);
+            http::cache(static::$mod_files, static::$mod_ts);
         }
 
         header('Content-Type: ' . $_ctx->content_type . '; charset=UTF-8');
@@ -190,8 +195,6 @@ class UrlHandler extends BaseUrlHandler
 
     public function getDocument()
     {
-        $core = &$GLOBALS['core'];
-
         $type = $args = '';
 
         if ($this->mode == 'path_info') {
@@ -227,7 +230,7 @@ class UrlHandler extends BaseUrlHandler
         $this->getArgs($part, $type, $this->args);
 
         # --BEHAVIOR-- urlHandlerGetArgsDocument
-        $core->behaviors->call('urlHandlerGetArgsDocument', $this);
+        static::$core->behaviors->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -248,8 +251,8 @@ class UrlHandler extends BaseUrlHandler
             # defaults to the home page, but is not a page number.
             self::p404();
         } else {
-            $_ctx = &$GLOBALS['_ctx'];
-            $core = &$GLOBALS['core'];
+            $core = static::$core;
+            $_ctx = $core->_ctx;
 
             $core->url->type = 'default';
             if ($n) {
@@ -273,8 +276,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function static_home($args)
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         $core->url->type = 'static';
 
@@ -288,8 +291,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function search()
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         if ($core->blog->settings->system->no_search) {
 
@@ -311,8 +314,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function lang($args)
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         $n      = self::getPageNumber($args);
         $params = new ArrayObject([
@@ -336,8 +339,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function category($args)
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         $n = self::getPageNumber($args);
 
@@ -368,8 +371,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function archive($args)
     {
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         # Nothing or year and month
         if ($args == '') {
@@ -402,8 +405,8 @@ class UrlHandler extends BaseUrlHandler
             # No entry was specified.
             self::p404();
         } else {
-            $_ctx = &$GLOBALS['_ctx'];
-            $core = &$GLOBALS['core'];
+            $core = static::$core;
+            $_ctx = $core->_ctx;
 
             $core->blog->withoutPassword(false);
 
@@ -561,8 +564,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static function preview($args)
     {
-        $core = $GLOBALS['core'];
-        $_ctx = $GLOBALS['_ctx'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             # The specified Preview URL is malformed.
@@ -576,8 +579,8 @@ class UrlHandler extends BaseUrlHandler
                 self::p404();
             } else {
                 $_ctx->preview = true;
-                if (defined('DC_ADMIN_URL')) {
-                    $_ctx->xframeoption = DC_ADMIN_URL;
+                if (defined('DOTCLEAR_ADMIN_URL')) {
+                    $_ctx->xframeoption = DOTCLEAR_ADMIN_URL;
                 }
                 self::post($post_url);
             }
@@ -594,8 +597,8 @@ class UrlHandler extends BaseUrlHandler
 
         $mime = 'application/xml';
 
-        $_ctx = &$GLOBALS['_ctx'];
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
+        $_ctx = $core->_ctx;
 
         if (preg_match('!^([a-z]{2}(-[a-z]{2})?)/(.*)$!', $args, $m)) {
             $params = new ArrayObject(['lang' => $m[1]]);
@@ -704,7 +707,7 @@ class UrlHandler extends BaseUrlHandler
             # The specified trackback URL is not an number
             self::p404();
         } else {
-            $core = &$GLOBALS['core'];
+            $core = static::$core;
 
             // Save locally post_id from args
             $post_id = (integer) $args;
@@ -719,14 +722,14 @@ class UrlHandler extends BaseUrlHandler
             # --BEHAVIOR-- publicBeforeReceiveTrackback
             $core->behaviors->call('publicBeforeReceiveTrackback', $core, $args);
 
-            $tb = new dcTrackback($core);
+            $tb = new Trackback($core);
             $tb->receiveTrackback($post_id);
         }
     }
 
     public static function webmention($args)
     {
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
         if (!is_array($args)) {
             $args = [];
         }
@@ -736,13 +739,13 @@ class UrlHandler extends BaseUrlHandler
         # --BEHAVIOR-- publicBeforeReceiveTrackback
         $core->behaviors->call('publicBeforeReceiveTrackback', $args);
 
-        $tb = new dcTrackback($core);
+        $tb = new Trackback($core);
         $tb->receiveWebmention();
     }
 
     public static function rsd($args)
     {
-        $core = &$GLOBALS['core'];
+        $core = static::$core;
         http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
 
         header('Content-Type: text/xml; charset=UTF-8');
@@ -773,7 +776,7 @@ class UrlHandler extends BaseUrlHandler
 
     public static function xmlrpc($args)
     {
-        $core    = &$GLOBALS['core'];
+        $core = static::$core;
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
         $server  = new XmlRpc($core, $blog_id);
         $server->serve();

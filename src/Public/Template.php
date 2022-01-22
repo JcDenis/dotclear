@@ -12,7 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
+use ArrayObject;
+
+use Dotclear\Public\Context;
+
 use Dotclear\Template\Template as BaseTemplate;
+
+use Dotclear\Html\Html;
+use Dotclear\Utils\Dt;
 
 class Template extends BaseTemplate
 {
@@ -29,7 +36,7 @@ class Template extends BaseTemplate
         $this->remove_php = !$core->blog->settings->system->tpl_allow_php;
         $this->use_cache  = $core->blog->settings->system->tpl_use_cache;
 
-        $this->core = &$core;
+        $this->core = $core;
 
         # Transitional tags
         $this->addValue('EntryTrackbackCount', [$this, 'EntryPingCount']);
@@ -229,8 +236,8 @@ class Template extends BaseTemplate
     public function getData(string $________): string
     {
         # --BEHAVIOR-- tplBeforeData
-        if ($this->core->hasBehavior('tplBeforeData')) {
-            self::$_r = $this->core->callBehavior('tplBeforeData', $this->core);
+        if ($this->core->behaviors->has('tplBeforeData')) {
+            self::$_r = $this->core->behaviors->call('tplBeforeData', $this->core);
             if (self::$_r) {
                 return self::$_r;
             }
@@ -239,8 +246,8 @@ class Template extends BaseTemplate
         parent::getData($________);
 
         # --BEHAVIOR-- tplAfterData
-        if ($this->core->hasBehavior('tplAfterData')) {
-            $this->core->callBehavior('tplAfterData', $this->core, self::$_r);
+        if ($this->core->behaviors->has('tplAfterData')) {
+            $this->core->behaviors->call('tplAfterData', $this->core, self::$_r);
         }
 
         return self::$_r;
@@ -251,15 +258,15 @@ class Template extends BaseTemplate
         $this->current_tag = $tag;
         $attr              = new ArrayObject($attr);
         # --BEHAVIOR-- templateBeforeBlock
-        $res = $this->core->callBehavior('templateBeforeBlock', $this->core, $this->current_tag, $attr);
+        $res = $this->core->behaviors->call('templateBeforeBlock', $this->core, $this->current_tag, $attr);
 
         # --BEHAVIOR-- templateInsideBlock
-        $this->core->callBehavior('templateInsideBlock', $this->core, $this->current_tag, $attr, [& $content]);
+        $this->core->behaviors->call('templateInsideBlock', $this->core, $this->current_tag, $attr, [& $content]);
 
         $res .= parent::compileBlockNode($this->current_tag, $attr, $content);
 
         # --BEHAVIOR-- templateAfterBlock
-        $res .= $this->core->callBehavior('templateAfterBlock', $this->core, $this->current_tag, $attr);
+        $res .= $this->core->behaviors->call('templateAfterBlock', $this->core, $this->current_tag, $attr);
 
         return $res;
     }
@@ -270,12 +277,12 @@ class Template extends BaseTemplate
 
         $attr = new ArrayObject($attr);
         # --BEHAVIOR-- templateBeforeValue
-        $res = $this->core->callBehavior('templateBeforeValue', $this->core, $this->current_tag, $attr);
+        $res = $this->core->behaviors->call('templateBeforeValue', $this->core, $this->current_tag, $attr);
 
         $res .= parent::compileValueNode($this->current_tag, $attr, $str_attr);
 
         # --BEHAVIOR-- templateAfterValue
-        $res .= $this->core->callBehavior('templateAfterValue', $this->core, $this->current_tag, $attr);
+        $res .= $this->core->behaviors->call('templateAfterValue', $this->core, $this->current_tag, $attr);
 
         return $res;
     }
@@ -307,7 +314,7 @@ class Template extends BaseTemplate
             $k = preg_filter('/[a-zA-Z0-9_]/', '$0', $k);
             if ($k) {
                 // addslashes protect var_export, str_replace protect sprintf;
-                $p[$k] = str_replace('%', '%%', addslashes($v));
+                $p[$k] = str_replace('%', '%%', addslashes((string) $v));
             }
         }
 
@@ -353,7 +360,7 @@ class Template extends BaseTemplate
         $alias = new ArrayObject();
 
         # --BEHAVIOR-- templateCustomSortByAlias
-        $this->core->callBehavior('templateCustomSortByAlias', $alias);
+        $this->core->behaviors->call('templateCustomSortByAlias', $alias);
 
         $alias = $alias->getArrayCopy();
 
@@ -518,7 +525,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Archives', 'method' => 'blog::getDates'],
             $attr,
@@ -641,7 +648,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'ArchiveNext', 'method' => 'blog::getDates'],
             $attr,
@@ -682,7 +689,7 @@ class Template extends BaseTemplate
         $p .= "\$params['previous'] = \$_ctx->archives->dt;";
 
         $res = "<?php\n";
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'ArchivePrevious', 'method' => 'blog::getDates'],
             $attr,
@@ -816,7 +823,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '$core->blog->settings->system->themes_url."/".$core->blog->settings->system->theme') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$core->blog->getQmarkURL()."tf="') . '; ?>';
     }
 
     /*dtd
@@ -824,10 +831,9 @@ class Template extends BaseTemplate
      */
     public function BlogParentThemeURL($attr)
     {
-        $f      = $this->getFilters($attr);
-        $parent = '$core->themes->moduleInfo($core->blog->settings->system->theme,\'parent\')';
+        $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '$core->blog->settings->system->themes_url."/".(' . "$parent" . ' ? ' . "$parent" . ' : $core->blog->settings->system->theme)') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$core->blog->getQmarkURL()."tf="') . '; ?>';
     }
 
     /*dtd
@@ -863,12 +869,12 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         if ($rfc822) {
-            return '<?php echo ' . sprintf($f, 'dt::rfc822($core->blog->upddt,$core->blog->settings->system->blog_timezone)') . '; ?>';
+            return '<?php echo ' . sprintf($f, "\$core->blog->getUpdateDate('rfc822')") . '; ?>';
         } elseif ($iso8601) {
-            return '<?php echo ' . sprintf($f, 'dt::iso8601($core->blog->upddt,$core->blog->settings->system->blog_timezone)') . '; ?>';
+            return '<?php echo ' . sprintf($f, "\$core->blog->getUpdateDate('iso8601')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dt::str('" . $format . "',\$core->blog->upddt)") . '; ?>';
+        return '<?php echo ' . sprintf($f, "\$core->blog->getUpdateDate('". $format . "')") . '; ?>';
     }
 
     /*dtd
@@ -1025,7 +1031,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Categories', 'method' => 'blog::getCategories'],
             $attr,
@@ -1130,7 +1136,7 @@ class Template extends BaseTemplate
             $if[] = '$_ctx->categories->cat_desc ' . $sign . ' ""';
         }
 
-        $this->core->callBehavior('tplIfConditions', 'CategoryIf', $attr, $content, $if);
+        $this->core->behaviors->call('tplIfConditions', 'CategoryIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -1382,7 +1388,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Entries', 'method' => 'blog::getPosts'],
             $attr,
@@ -1588,7 +1594,7 @@ class Template extends BaseTemplate
             }
         }
 
-        $this->core->callBehavior('tplIfConditions', 'EntryIf', $attr, $content, $if);
+        $this->core->behaviors->call('tplIfConditions', 'EntryIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -2196,7 +2202,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Languages', 'method' => 'blog::getLangs'],
             $attr,
@@ -2293,7 +2299,7 @@ class Template extends BaseTemplate
     {
         $p = "<?php\n";
         $p .= '$params = $_ctx->post_params;' . "\n";
-        $p .= $this->core->callBehavior(
+        $p .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Pagination', 'method' => 'blog::getPosts'],
             $attr,
@@ -2359,7 +2365,7 @@ class Template extends BaseTemplate
             $if[] = $sign . 'context::PaginationEnd()';
         }
 
-        $this->core->callBehavior('tplIfConditions', 'PaginationIf', $attr, $content, $if);
+        $this->core->behaviors->call('tplIfConditions', 'PaginationIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' && ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -2446,7 +2452,7 @@ class Template extends BaseTemplate
         }
 
         $res = "<?php\n";
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Comments', 'method' => 'blog::getComments'],
             $attr,
@@ -2644,7 +2650,7 @@ class Template extends BaseTemplate
             $if[] = $sign . '$_ctx->comments->comment_trackback';
         }
 
-        $this->core->callBehavior('tplIfConditions', 'CommentIf', $attr, $content, $if);
+        $this->core->behaviors->call('tplIfConditions', 'CommentIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' && ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -3083,7 +3089,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= $this->core->callBehavior(
+        $res .= $this->core->behaviors->call(
             'templatePrepareParams',
             ['tag' => 'Pings', 'method' => 'blog::getComments'],
             $attr,
@@ -3156,8 +3162,8 @@ class Template extends BaseTemplate
         $b = addslashes($attr['behavior']);
 
         return
-            '<?php if ($core->hasBehavior(\'' . $b . '\')) { ' .
-            '$core->callBehavior(\'' . $b . '\',$core,$_ctx);' .
+            '<?php if ($core->behaviors->has(\'' . $b . '\')) { ' .
+            '$core->behaviors->call(\'' . $b . '\',$core,$_ctx);' .
             '} ?>';
     }
 
@@ -3273,7 +3279,7 @@ class Template extends BaseTemplate
             $if[] = $sign . '$core->blog->settings->system->jquery_needed';
         }
 
-        $this->core->callBehavior('tplIfConditions', 'SysIf', $attr, $content, $if);
+        $this->core->behaviors->call('tplIfConditions', 'SysIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';

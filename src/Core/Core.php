@@ -1163,7 +1163,12 @@ class Core
 
         $strReq = sprintf($strReq, $join, $where);
 
-        return $this->con->select($strReq);
+        $rs = $this->con->select($strReq);
+
+        $rs->core = $this;
+        $rs->extend('Dotclear\\Core\\RsExt\\rsExtBlog');
+
+        return $rs;
     }
 
     /**

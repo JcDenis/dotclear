@@ -45,30 +45,30 @@ class Prepend extends Core
      */
     public function __construct()
     {
-        /* add autoloader (for modules) */
+        # Add autoloader (for modules)
         if (!$this->autoloader) {
             $this->autoloader = new Autoloader('', '', true);
         }
 
-        /* add rcustom regs */
+        # Add rcustom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
 
-        /* Encoding */
+        # Encoding
         mb_internal_encoding('UTF-8');
 
-        /* Timezone */
+        # Timezone
         Dt::setTZ('UTC');
 
-        /* CLI_MODE, boolean constant that tell if we are in CLI mode */
+        # CLI_MODE, boolean constant that tell if we are in CLI mode
         if (!defined('CLI_MODE')) {
             define('CLI_MODE', PHP_SAPI == 'cli');
         }
 
-        /* Disallow every special wrapper */
+        # Disallow every special wrapper
         Http::unregisterWrapper();
 
-        /* Find configuration file */
+        # Find configuration file
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
@@ -79,15 +79,15 @@ class Prepend extends Core
             }
         }
 
-        /* No configuration ? start installalation process */
+        # No configuration ? start installalation process
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
-            /* Set Dotclear configuration constants for installation process */
+            # Set Dotclear configuration constants for installation process
             if ($this->process == 'Install') {
                 Distrib::getCoreConstants();
 
                 return;
             }
-            /* Redirect to installation process */
+            # Redirect to installation process
             Http::redirect(preg_replace(
                 ['%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
                 '',
@@ -97,17 +97,17 @@ class Prepend extends Core
             exit;
         }
 
-        /* Set plateform (user) configuration constants */
+        #  Set plateform (user) configuration constants
         require_once DOTCLEAR_CONFIG_PATH;
 
-        /* Set Dotclear configuration constants */
+        # Set Dotclear configuration constants
         Distrib::getCoreConstants();
 
-        /* Set  some Http stuff */
+        # Set  some Http stuff
         Http::$https_scheme_on_443 = DOTCLEAR_FORCE_SCHEME_443;
         Http::$reverse_proxy = DOTCLEAR_REVERSE_PROXY;
 
-        /* Check cryptography algorithm */
+        # Check cryptography algorithm
         if ('DOTCLEAR_CRYPT_ALGO' != 'sha1') {
             /* Check length of cryptographic algorithm result and exit if less than 40 characters long */
             if (strlen(Crypt::hmac(DOTCLEAR_MASTER_KEY, DOTCLEAR_VENDOR_NAME, DOTCLEAR_CRYPT_ALGO)) < 40) {
@@ -120,7 +120,7 @@ class Prepend extends Core
             }
         }
 
-        /* Check existence of cache directory */
+        # Check existence of cache directory
         if (!is_dir(DOTCLEAR_CACHE_DIR)) {
             /* Try to create it */
             @Files::makeDir(DOTCLEAR_CACHE_DIR);
@@ -135,7 +135,7 @@ class Prepend extends Core
             }
         }
 
-        /* Check existence of var directory */
+        # Check existence of var directory
         if (!is_dir(DOTCLEAR_VAR_DIR)) {
             // Try to create it
             @Files::makeDir(DOTCLEAR_VAR_DIR);
@@ -150,10 +150,10 @@ class Prepend extends Core
             }
         }
 
-        /* Start l10n */
+        # Start l10n
         L10n::init();
 
-        /* Define current process for files check */
+        # Define current process for files check
         define('DOTCLEAR_PROCESS', $this->process);
 
         try {
@@ -193,7 +193,7 @@ class Prepend extends Core
             }
         }
 
-        /* Clean up Http globals */
+        # Clean up Http globals
         Http::trimRequest();
 
         try {
@@ -204,15 +204,27 @@ class Prepend extends Core
             exit;
         }
 
-        /* Register Core Urls */
-        $this->url->register('posts', 'posts', '^posts(/.+)?$', [__NAMESPACE__ . 'UrlHandler', 'home']);
-//!
+        # Register Core Urls
+        $c = static::ns(__NAMESPACE__, 'UrlHandler');
+        $this->url->registerDefault([$c, 'home']);
+        $this->url->registerError([$c, 'default404']);
+        $this->url->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$c, 'lang']);
+        $this->url->register('posts', 'posts', '^posts(/.+)?$', [$c, 'home']);
+        $this->url->register('post', 'post', '^post/(.+)$', [$c, 'post']);
+        $this->url->register('preview', 'preview', '^preview/(.+)$', [$c, 'preview']);
+        $this->url->register('category', 'category', '^category/(.+)$', [$c, 'category']);
+        $this->url->register('archive', 'archive', '^archive(/.+)?$', [$c, 'archive']);
 
-        /* Register Core post types */
+        $this->url->register('feed', 'feed', '^feed/(.+)$', [$c, 'feed']);
+        $this->url->register('trackback', 'trackback', '^trackback/(.+)$', [$c, 'trackback']);
+        $this->url->register('webmention', 'webmention', '^webmention(/.+)?$', [$c, 'webmention']);
+        $this->url->register('rsd', 'rsd', '^rsd$', [$c, 'rsd']);
+        $this->url->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$c, 'xmlrpc']);
+
+        # Register Core post types
         $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
-//!
 
-        /* Store upload_max_filesize in bytes */
+        # Store upload_max_filesize in bytes
         $u_max_size = Files::str2bytes(ini_get('upload_max_filesize'));
         $p_max_size = Files::str2bytes(ini_get('post_max_size'));
         if ($p_max_size < $u_max_size) {
@@ -221,7 +233,7 @@ class Prepend extends Core
         define('DOTCLEAR_MAX_UPLOAD_SIZE', $u_max_size);
         unset($u_max_size, $p_max_size);
 
-        /* Register supplemental mime types */
+        # Register supplemental mime types
         Files::registerMimeTypes([
             // Audio
             'aac'  => 'audio/aac',
@@ -234,7 +246,7 @@ class Prepend extends Core
             'webm' => 'video/webm',
         ]);
 
-        /* Register shutdown function */
+        # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
     }
 
@@ -248,7 +260,7 @@ class Prepend extends Core
                 }
             }
         }
-        /* Explicitly close session before DB connection */
+        # Explicitly close session before DB connection
         try {
             if (session_id()) {
                 session_write_close();

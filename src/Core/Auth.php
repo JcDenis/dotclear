@@ -438,7 +438,7 @@ class Auth
 
         $rs = $sql->select();
 
-        $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->permissions);
+        $this->blogs[$blog_id] = $rs->isEmpty() ? [] : $this->parsePermissions($rs->permissions);
 
         return $this->blogs[$blog_id];
     }

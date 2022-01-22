@@ -32,7 +32,7 @@ Class Dotclear
      */
     public function __construct(string $process = 'public', string $blog_id = null)
     {
-        /* Timer and memory usage for stats and dev */
+        # Timer and memory usage for stats and dev
         if (!defined('DOTCLEAR_START_TIME')) {
             define('DOTCLEAR_START_TIME', microtime(true));
         }
@@ -40,30 +40,42 @@ Class Dotclear
             define('DOTCLEAR_START_MEMORY', memory_get_usage(false));
         }
 
-        /* Define Dotclear root directory */
+        # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
         }
 
-        /* Dotclear autoloader (once) */
+        # Dotclear autoloader (once)
         if (!static::$autoloader) {
             require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoloader.php']);
             static::$autoloader = new Dotclear\Utils\Autoloader();
-            static::$autoloader->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
+            static::$autoloader->addNamespace(__CLASS__, DOTCLEAR_ROOT_DIR);
         }
 
-        /* Find process (Admin|Public|Install|...) */
-        $class = implode('\\', ['Dotclear', ucfirst(strtolower($process)), 'Prepend']);
-        if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
+        //*
+        # Legacy mode temporary fix
+        require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'DotclearLegacy.php']);
+        //*/
+
+        # Find process (Admin|Public|Install|...)
+        $class = implode('\\', [__CLASS__, ucfirst(strtolower($process)), 'Prepend']);
+        if (!is_subclass_of($class, __CLASS__ . '\\Core\\Core')) {
             exit('No process');
         }
 
+        # Execute Process
         ob_end_clean();
         ob_start();
         new $class($blog_id);
         ob_end_flush();
     }
 
+    /**
+     * Call statically Dotclear process
+     *
+     * @param  string $process The process (admin,install,public...)
+     * @param  array  $args    The arguments (only args[0] for blog id)
+     */
     public static function __callStatic(string $process, array $args): void
     {
         $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
