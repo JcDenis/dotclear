@@ -18,43 +18,45 @@ use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\StaticCore;
 use Dotclear\Core\Trackback;
 use Dotclear\Core\Xmlrpc;
-
-use Dotclear\Public\Context;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
 use Dotclear\Utils\Text;
-use Dotclear\Utils\UrlHandler as BaseUrlHandler;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class UrlHandler extends BaseUrlHandler
+class UrlHandler
 {
-    use StaticCore;
+    protected $core;
+    protected $types = [];
+    protected $default_handler;
+    protected $error_handlers = [];
 
-    public static $mod_files = [];
-    public static $mod_ts = [];
+    public $mode;
+    public $type = 'default';
 
-    public static $allow_sub_dir = false;
+    public $mod_files = [];
+    public $mod_ts = [];
+
+    public $allow_sub_dir = false;
 
     public $args;
 
     public function __construct(Core $core, string $mode = 'path_info')
     {
-        $this->setCore($core);
+        $this->core = $core;
         $this->mode = $mode;
     }
 
     protected function getHomeType()
     {
-        return static::$core->blog->settings->system->static_home ? 'static' : 'default';
+        return $this->core->blog->settings->system->static_home ? 'static' : 'default';
     }
 
     public function isHome($type)
@@ -64,7 +66,7 @@ class UrlHandler extends BaseUrlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $url  = static::$core->behaviors->call('publicGetURLFor', $type, $value);
+        $url  = $this->core->behaviors->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -80,38 +82,47 @@ class UrlHandler extends BaseUrlHandler
 
     public function register($type, $url, $representation, $handler)
     {
-        $t    = new ArrayObject([$type, $url, $representation, $handler]);
-        static::$core->behaviors->call('publicRegisterURL', $t);
-        parent::register($t[0], $t[1], $t[2], $t[3]);
+        $args = new ArrayObject(func_get_args());
+
+        $this->core->behaviors->call('publicRegisterURL', $args);
+
+        $this->types[$args[0]] = [
+            'url'            => $args[1],
+            'representation' => $args[2],
+            'handler'        => $args[3],
+        ];
     }
 
-    public static function p404()
+    public function registerDefault($handler)
     {
-        throw new CoreException('Page not found', 404);
+        $this->default_handler = $handler;
     }
 
-    public static function default404($args, $type, $e)
+    public function registerError($handler)
     {
-        if ($e->getCode() != 404) {
-            throw $e;
+        array_unshift($this->error_handlers, $handler);
+    }
+
+    public function unregister($type)
+    {
+        if (isset($this->types[$type])) {
+            unset($this->types[$type]);
         }
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        header('Content-Type: text/html; charset=UTF-8');
-        http::head(404, 'Not Found');
-        $core->url->type    = '404';
-        $_ctx->current_tpl  = '404.html';
-        $_ctx->content_type = 'text/html';
-
-        echo $core->tpl->getData($_ctx->current_tpl);
-
-        # --BEHAVIOR-- publicAfterDocument
-        $core->behaviors->call('publicAfterDocument');
-        exit;
     }
 
-    protected static function getPageNumber(&$args)
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    public function getBase($type)
+    {
+        if (isset($this->types[$type])) {
+            return $this->types[$type]['url'];
+        }
+    }
+
+    protected function getPageNumber(&$args)
     {
         if (preg_match('#(^|/)page/([0-9]+)$#', $args, $m)) {
             $n = (integer) $m[2];
@@ -125,44 +136,40 @@ class UrlHandler extends BaseUrlHandler
         return false;
     }
 
-    protected static function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
+    protected function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        if ($_ctx->nb_entry_per_page === null) {
-            $_ctx->nb_entry_per_page = $core->blog->settings->system->nb_post_per_page;
+        if ($this->core->_ctx->nb_entry_per_page === null) {
+            $this->core->_ctx->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_page;
         }
-        if ($_ctx->nb_entry_first_page === null) {
-            $_ctx->nb_entry_first_page = $_ctx->nb_entry_per_page;
+        if ($this->core->_ctx->nb_entry_first_page === null) {
+            $this->core->_ctx->nb_entry_first_page = $this->core->_ctx->nb_entry_per_page;
         }
 
-        $tpl_file = $core->tpl->getFilePath($tpl);
-
+        $tpl_file = $this->core->tpl->getFilePath($tpl);
         if (!$tpl_file) {
             throw new CoreException('Unable to find template ');
         }
 
-        $result = new ArrayObject;
 
-        $_ctx->current_tpl  = $tpl;
-        $_ctx->content_type = $content_type;
-        $_ctx->http_cache   = $http_cache;
-        $_ctx->http_etag    = $http_etag;
-        $core->behaviors->call('urlHandlerBeforeGetData', $_ctx);
+        $this->core->_ctx->current_tpl  = $tpl;
+        $this->core->_ctx->content_type = $content_type;
+        $this->core->_ctx->http_cache   = $http_cache;
+        $this->core->_ctx->http_etag    = $http_etag;
 
-        if ($_ctx->http_cache) {
-            static::$mod_files = array_merge(static::$mod_files, [$tpl_file]);
-            http::cache(static::$mod_files, static::$mod_ts);
+        $this->core->behaviors->call('urlHandlerBeforeGetData', $this->core->_ctx);
+
+        if ($this->core->_ctx->http_cache) {
+            $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
+            http::cache($this->mod_files, $this->mod_ts);
         }
 
-        header('Content-Type: ' . $_ctx->content_type . '; charset=UTF-8');
+        header('Content-Type: ' . $this->core->_ctx->content_type . '; charset=UTF-8');
 
         // Additional headers
         $headers = new ArrayObject;
-        if ($core->blog->settings->system->prevents_clickjacking) {
-            if ($_ctx->exists('xframeoption')) {
-                $url    = parse_url($_ctx->xframeoption);
+        if ($this->core->blog->settings->system->prevents_clickjacking) {
+            if ($this->core->_ctx->exists('xframeoption')) {
+                $url    = parse_url($this->core->_ctx->xframeoption);
                 $header = sprintf('X-Frame-Options: %s',
                     is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN');
             } else {
@@ -171,27 +178,29 @@ class UrlHandler extends BaseUrlHandler
             }
             $headers->append($header);
         }
-        if ($core->blog->settings->system->prevents_floc) {
+        if ($this->core->blog->settings->system->prevents_floc) {
             $headers->append('Permissions-Policy: interest-cohort=()');
         }
+
         # --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        $core->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
+        $this->core->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any
         foreach ($headers as $header) {
             header($header);
         }
 
-        $result['content']      = $core->tpl->getData($_ctx->current_tpl);
-        $result['content_type'] = $_ctx->content_type;
-        $result['tpl']          = $_ctx->current_tpl;
-        $result['blogupddt']    = $core->blog->upddt;
+        $result                 = new ArrayObject();
+        $result['content']      = $this->core->tpl->getData($this->core->_ctx->current_tpl);
+        $result['content_type'] = $this->core->_ctx->content_type;
+        $result['tpl']          = $this->core->_ctx->current_tpl;
+        $result['blogupddt']    = $this->core->blog->upddt;
         $result['headers']      = $headers;
 
         # --BEHAVIOR-- urlHandlerServeDocument
-        $core->behaviors->call('urlHandlerServeDocument', $result);
+        $this->core->behaviors->call('urlHandlerServeDocument', $result);
 
-        if ($_ctx->http_cache && $_ctx->http_etag) {
+        if ($this->core->_ctx->http_cache && $this->core->_ctx->http_etag) {
             http::etag($result['content'], http::getSelfURI());
         }
         echo $result['content'];
@@ -205,8 +214,7 @@ class UrlHandler extends BaseUrlHandler
             $part = substr($_SERVER['PATH_INFO'], 1);
         } else {
             $part = '';
-
-            $qs = $this->parseQueryString();
+            $qs   = $this->parseQueryString();
 
             # Recreates some _GET and _REQUEST pairs
             if (!empty($qs)) {
@@ -234,7 +242,7 @@ class UrlHandler extends BaseUrlHandler
         $this->getArgs($part, $type, $this->args);
 
         # --BEHAVIOR-- urlHandlerGetArgsDocument
-        static::$core->behaviors->call('urlHandlerGetArgsDocument', $this);
+        $this->core->behaviors->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -245,202 +253,310 @@ class UrlHandler extends BaseUrlHandler
         }
     }
 
-    public static function home($args)
+    public function getArgs($part, &$type, &$args)
     {
-        // Page number may have been set by self::lang() which ends with a call to self::home(null)
-        $n = $args ? self::getPageNumber($args) : ($GLOBALS['_page_number'] ?? 0);
+        if ($part == '') {
+            $type = null;
+            $args = null;
+
+            return;
+        }
+
+        $this->sortTypes();
+
+        foreach ($this->types as $k => $v) {
+            $repr = $v['representation'];
+            if ($repr == $part) {
+                $type = $k;
+                $args = null;
+
+                return;
+            } elseif (preg_match('#' . $repr . '#', (string) $part, $m)) {
+                $type = $k;
+                $args = $m[1] ?? null;
+
+                return;
+            }
+        }
+
+        # No type, pass args to default
+        $args = $part;
+    }
+
+    public function callHandler($type, $args)
+    {
+        if (!isset($this->types[$type])) {
+            throw new UtilsException('Unknown URL type');
+        }
+
+        $handler = $this->types[$type]['handler'];
+        if (!is_callable($handler)) {
+            throw new UtilsException('Unable to call function');
+        }
+
+        try {
+            call_user_func($handler, $args);
+        } catch (UtilsException $e) {
+            foreach ($this->error_handlers as $err_handler) {
+                if (call_user_func($err_handler, $args, $type, $e) === true) {
+                    return;
+                }
+            }
+            # propagate UtilsException, as it has not been processed by handlers
+            throw $e;
+        }
+    }
+
+    public function callDefaultHandler($args)
+    {
+        if (!is_callable($this->default_handler)) {
+            throw new UtilsException('Unable to call function');
+        }
+
+        try {
+            call_user_func($this->default_handler, $args);
+        } catch (UtilsException $e) {
+            foreach ($this->error_handlers as $err_handler) {
+                if (call_user_func($err_handler, $args, 'default', $e) === true) {
+                    return;
+                }
+            }
+            # propagate UtilsException, as it has not been processed by handlers
+            throw $e;
+        }
+    }
+
+    protected function parseQueryString()
+    {
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            $q = explode('&', $_SERVER['QUERY_STRING']);
+            $T = [];
+            foreach ($q as $v) {
+                $t = explode('=', $v, 2);
+
+                $t[0] = rawurldecode($t[0]);
+                if (!isset($t[1])) {
+                    $T[$t[0]] = null;
+                } else {
+                    $T[$t[0]] = urldecode($t[1]);
+                }
+            }
+
+            return $T;
+        }
+
+        return [];
+    }
+
+    protected function sortTypes()
+    {
+        $r = [];
+        foreach ($this->types as $k => $v) {
+            $r[$k] = $v['url'];
+        }
+        array_multisort($r, SORT_DESC, $this->types);
+    }
+
+    public function p404()
+    {
+        throw new CoreException('Page not found', 404);
+    }
+
+    public function default404($args, $type, $e)
+    {
+        if ($e->getCode() != 404) {
+            throw $e;
+        }
+
+        header('Content-Type: text/html; charset=UTF-8');
+        http::head(404, 'Not Found');
+        $this->core->url->type    = '404';
+        $this->core->_ctx->current_tpl  = '404.html';
+        $this->core->_ctx->content_type = 'text/html';
+
+        echo $this->core->tpl->getData($this->core->_ctx->current_tpl);
+
+        # --BEHAVIOR-- publicAfterDocument
+        $this->core->behaviors->call('publicAfterDocument');
+
+        exit;
+    }
+
+    public function home($args)
+    {
+        // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
+        $n = $args ? $this->getPageNumber($args) : ($GLOBALS['_page_number'] ?? 0);
 
         if ($args && !$n) {
             # Then specified URL went unrecognized by all URL handlers and
             # defaults to the home page, but is not a page number.
-            self::p404();
+            $this->p404();
         } else {
-            $core = static::$core;
-            $_ctx = $core->_ctx;
-
-            $core->url->type = 'default';
+            $this->core->url->type = 'default';
             if ($n) {
                 $GLOBALS['_page_number'] = $n;
                 if ($n > 1) {
-                    $core->url->type = 'default-page';
+                    $this->core->url->type = 'default-page';
                 }
             }
 
             if (empty($_GET['q'])) {
-                if ($core->blog->settings->system->nb_post_for_home !== null) {
-                    $_ctx->nb_entry_first_page = $core->blog->settings->system->nb_post_for_home;
+                if ($this->core->blog->settings->system->nb_post_for_home !== null) {
+                    $this->core->_ctx->nb_entry_first_page = $this->core->blog->settings->system->nb_post_for_home;
                 }
-                self::serveDocument('home.html');
-                $core->blog->publishScheduledEntries();
+                $this->serveDocument('home.html');
+                $this->core->blog->publishScheduledEntries();
             } else {
-                self::search();
+                $this->search();
             }
         }
     }
 
-    public static function static_home($args)
+    public function static_home($args)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        $core->url->type = 'static';
+        $this->core->url->type = 'static';
 
         if (empty($_GET['q'])) {
-            self::serveDocument('static.html');
-            $core->blog->publishScheduledEntries();
+            $this->serveDocument('static.html');
+            $this->core->blog->publishScheduledEntries();
         } else {
-            self::search();
+            $this->search();
         }
     }
 
-    public static function search()
+    public function search()
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        if ($core->blog->settings->system->no_search) {
+        if ($this->core->blog->settings->system->no_search) {
 
             # Search is disabled for this blog.
-            self::p404();
+            $this->p404();
         } else {
-            $core->url->type = 'search';
+            $this->core->url->type = 'search';
 
             $GLOBALS['_search'] = !empty($_GET['q']) ? html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
-                $core->behaviors->call('publicBeforeSearchCount', $params);
-                $GLOBALS['_search_count'] = $core->blog->getPosts($params, true)->f(0);
+                $this->core->behaviors->call('publicBeforeSearchCount', $params);
+                $GLOBALS['_search_count'] = $this->core->blog->getPosts($params, true)->f(0);
             }
 
-            self::serveDocument('search.html');
+            $this->serveDocument('search.html');
         }
     }
 
-    public static function lang($args)
+    public function lang($args)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        $n      = self::getPageNumber($args);
+        $n      = $this->getPageNumber($args);
         $params = new ArrayObject([
             'lang' => $args]);
 
-        $core->behaviors->call('publicLangBeforeGetLangs', $params, $args);
+        $this->core->behaviors->call('publicLangBeforeGetLangs', $params, $args);
 
-        $_ctx->langs = $core->blog->getLangs($params);
+        $this->core->_ctx->langs = $this->core->blog->getLangs($params);
 
-        if ($_ctx->langs->isEmpty()) {
+        if ($this->core->_ctx->langs->isEmpty()) {
             # The specified language does not exist.
-            self::p404();
+            $this->p404();
         } else {
             if ($n) {
                 $GLOBALS['_page_number'] = $n;
             }
-            $_ctx->cur_lang = $args;
-            self::home(null);
+            $this->core->_ctx->cur_lang = $args;
+            $this->home(null);
         }
     }
 
-    public static function category($args)
+    public function category($args)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
-        $n = self::getPageNumber($args);
+        $n = $this->getPageNumber($args);
 
         if ($args == '' && !$n) {
             # No category was specified.
-            self::p404();
+            $this->p404();
         } else {
             $params = new ArrayObject([
                 'cat_url'       => $args,
                 'post_type'     => 'post',
                 'without_empty' => false]);
 
-            $core->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
+            $this->core->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
 
-            $_ctx->categories = $core->blog->getCategories($params);
+            $this->core->_ctx->categories = $this->core->blog->getCategories($params);
 
-            if ($_ctx->categories->isEmpty()) {
+            if ($this->core->_ctx->categories->isEmpty()) {
                 # The specified category does no exist.
-                self::p404();
+                $this->p404();
             } else {
                 if ($n) {
                     $GLOBALS['_page_number'] = $n;
                 }
-                self::serveDocument('category.html');
+                $this->serveDocument('category.html');
             }
         }
     }
 
-    public static function archive($args)
+    public function archive($args)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
         # Nothing or year and month
         if ($args == '') {
-            self::serveDocument('archive.html');
+            $this->serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
             $params = new ArrayObject([
                 'year'  => $m[1],
                 'month' => $m[2],
                 'type'  => 'month']);
 
-            $core->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
+            $this->core->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
 
-            $_ctx->archives = $core->blog->getDates($params);
+            $this->core->_ctx->archives = $this->core->blog->getDates($params->getArrayCopy());
 
-            if ($_ctx->archives->isEmpty()) {
+            if ($this->core->_ctx->archives->isEmpty()) {
                 # There is no entries for the specified period.
-                self::p404();
+                $this->p404();
             } else {
-                self::serveDocument('archive_month.html');
+                $this->serveDocument('archive_month.html');
             }
         } else {
             # The specified URL is not a date.
-            self::p404();
+            $this->p404();
         }
     }
 
-    public static function post($args)
+    public function post($args)
     {
         if ($args == '') {
             # No entry was specified.
-            self::p404();
+            $this->p404();
         } else {
-            $core = static::$core;
-            $_ctx = $core->_ctx;
-
-            $core->blog->withoutPassword(false);
+            $this->core->blog->withoutPassword(false);
 
             $params = new ArrayObject([
                 'post_url' => $args]);
 
-            $core->behaviors->call('publicPostBeforeGetPosts', $params, $args);
+            $this->core->behaviors->call('publicPostBeforeGetPosts', $params, $args);
 
-            $_ctx->posts = $core->blog->getPosts($params);
+            $this->core->_ctx->posts = $this->core->blog->getPosts($params);
 
-            $_ctx->comment_preview               = new ArrayObject();
-            $_ctx->comment_preview['content']    = '';
-            $_ctx->comment_preview['rawcontent'] = '';
-            $_ctx->comment_preview['name']       = '';
-            $_ctx->comment_preview['mail']       = '';
-            $_ctx->comment_preview['site']       = '';
-            $_ctx->comment_preview['preview']    = false;
-            $_ctx->comment_preview['remember']   = false;
+            $this->core->_ctx->comment_preview               = new ArrayObject();
+            $this->core->_ctx->comment_preview['content']    = '';
+            $this->core->_ctx->comment_preview['rawcontent'] = '';
+            $this->core->_ctx->comment_preview['name']       = '';
+            $this->core->_ctx->comment_preview['mail']       = '';
+            $this->core->_ctx->comment_preview['site']       = '';
+            $this->core->_ctx->comment_preview['preview']    = false;
+            $this->core->_ctx->comment_preview['remember']   = false;
 
-            $core->blog->withoutPassword(true);
+            $this->core->blog->withoutPassword(true);
 
-            if ($_ctx->posts->isEmpty()) {
+            if ($this->core->_ctx->posts->isEmpty()) {
                 # The specified entry does not exist.
-                self::p404();
+                $this->p404();
             } else {
-                $post_id       = $_ctx->posts->post_id;
-                $post_password = $_ctx->posts->post_password;
+                $post_id       = $this->core->_ctx->posts->post_id;
+                $post_password = $this->core->_ctx->posts->post_password;
 
                 # Password protected entry
-                if ($post_password != '' && !$_ctx->preview) {
+                if ($post_password != '' && !$this->core->_ctx->preview) {
                     # Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -461,13 +577,13 @@ class UrlHandler extends BaseUrlHandler
                         $pwd_cookie['#' . $post_id] = $post_password;
                         setcookie('dc_passwd', json_encode($pwd_cookie), 0, '/');
                     } else {
-                        self::serveDocument('password-form.html', 'text/html', false);
+                        $this->serveDocument('password-form.html', 'text/html', false);
 
                         return;
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && $_ctx->posts->commentsActive();
+                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && $this->core->_ctx->posts->commentsActive();
 
                 # Posting a comment
                 if ($post_comment) {
@@ -488,44 +604,44 @@ class UrlHandler extends BaseUrlHandler
 
                     if ($content != '') {
                         # --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = $core->behaviors->call('publicBeforeCommentTransform', $content);
+                        $buffer = $this->core->behaviors->call('publicBeforeCommentTransform', $content);
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
-                            if ($core->blog->settings->system->wiki_comments) {
-                                $core->initWikiComment();
+                            if ($this->core->blog->settings->system->wiki_comments) {
+                                $this->core->initWikiComment();
                             } else {
-                                $core->initWikiSimpleComment();
+                                $this->core->initWikiSimpleComment();
                             }
-                            $content = $core->wikiTransform($content);
+                            $content = $this->core->wikiTransform($content);
                         }
-                        $content = $core->HTMLfilter($content);
+                        $content = $this->core->HTMLfilter($content);
                     }
 
-                    $_ctx->comment_preview['content']    = $content;
-                    $_ctx->comment_preview['rawcontent'] = $_POST['c_content'];
-                    $_ctx->comment_preview['name']       = $name;
-                    $_ctx->comment_preview['mail']       = $mail;
-                    $_ctx->comment_preview['site']       = $site;
+                    $this->core->_ctx->comment_preview['content']    = $content;
+                    $this->core->_ctx->comment_preview['rawcontent'] = $_POST['c_content'];
+                    $this->core->_ctx->comment_preview['name']       = $name;
+                    $this->core->_ctx->comment_preview['mail']       = $mail;
+                    $this->core->_ctx->comment_preview['site']       = $site;
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        $core->behaviors->call('publicBeforeCommentPreview', $_ctx->comment_preview);
+                        $this->core->behaviors->call('publicBeforeCommentPreview', $this->core->_ctx->comment_preview);
 
-                        $_ctx->comment_preview['preview'] = true;
+                        $this->core->_ctx->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = $core->con->openCursor($core->prefix . 'comment');
+                        $cur                  = $this->core->con->openCursor($this->core->prefix . 'comment');
                         $cur->comment_author  = $name;
                         $cur->comment_site    = html::clean($site);
                         $cur->comment_email   = html::clean($mail);
                         $cur->comment_content = $content;
-                        $cur->post_id         = $_ctx->posts->post_id;
-                        $cur->comment_status  = $core->blog->settings->system->comments_pub ? 1 : -1;
+                        $cur->post_id         = $this->core->_ctx->posts->post_id;
+                        $cur->comment_status  = $this->core->blog->settings->system->comments_pub ? 1 : -1;
                         $cur->comment_ip      = http::realIP();
 
-                        $redir = $_ctx->posts->getURL();
-                        $redir .= $core->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
+                        $redir = $this->core->_ctx->posts->getURL();
+                        $redir .= $this->core->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
 
                         try {
                             if (!text::isEmail($cur->comment_email)) {
@@ -533,12 +649,12 @@ class UrlHandler extends BaseUrlHandler
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
-                            $core->behaviors->call('publicBeforeCommentCreate', $cur);
+                            $this->core->behaviors->call('publicBeforeCommentCreate', $cur);
                             if ($cur->post_id) {
-                                $comment_id = $core->blog->addComment($cur);
+                                $comment_id = $this->core->blog->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
-                                $core->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
+                                $this->core->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if ($cur->comment_status == 1) {
@@ -547,51 +663,48 @@ class UrlHandler extends BaseUrlHandler
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var($core->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var($this->core->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
-                            $_ctx->form_error = $e->getMessage();
+                            $this->core->_ctx->form_error = $e->getMessage();
                         }
                     }
                 }
 
                 # The entry
-                if ($_ctx->posts->trackbacksActive()) {
-                    header('X-Pingback: ' . $core->blog->url . $core->url->getURLFor('xmlrpc', $core->blog->id));
-                    header('Link: <' . $core->blog->url . $core->url->getURLFor('webmention') . '>; rel="webmention"');
+                if ($this->core->_ctx->posts->trackbacksActive()) {
+                    header('X-Pingback: ' . $this->core->blog->url . $this->core->url->getURLFor('xmlrpc', $this->core->blog->id));
+                    header('Link: <' . $this->core->blog->url . $this->core->url->getURLFor('webmention') . '>; rel="webmention"');
                 }
-                self::serveDocument('post.html');
+                $this->serveDocument('post.html');
             }
         }
     }
 
-    public static function preview($args)
+    public function preview($args)
     {
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             # The specified Preview URL is malformed.
-            self::p404();
+            $this->p404();
         } else {
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
-            if (!$core->auth->checkUser($user_id, null, $user_key)) {
+            if (!$this->core->auth->checkUser($user_id, null, $user_key)) {
                 # The user has no access to the entry.
-                self::p404();
+                $this->p404();
             } else {
-                $_ctx->preview = true;
+                $this->core->_ctx->preview = true;
                 if (defined('DOTCLEAR_ADMIN_URL')) {
-                    $_ctx->xframeoption = DOTCLEAR_ADMIN_URL;
+                    $this->core->_ctx->xframeoption = DOTCLEAR_ADMIN_URL;
                 }
-                self::post($post_url);
+                $this->post($post_url);
             }
         }
     }
 
-    public static function feed($args)
+    public function feed($args)
     {
         $type     = null;
         $comments = false;
@@ -601,30 +714,27 @@ class UrlHandler extends BaseUrlHandler
 
         $mime = 'application/xml';
 
-        $core = static::$core;
-        $_ctx = $core->_ctx;
-
         if (preg_match('!^([a-z]{2}(-[a-z]{2})?)/(.*)$!', $args, $m)) {
             $params = new ArrayObject(['lang' => $m[1]]);
 
             $args = $m[3];
 
-            $core->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
+            $this->core->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
 
-            $_ctx->langs = $core->blog->getLangs($params);
+            $this->core->_ctx->langs = $this->core->blog->getLangs($params);
 
-            if ($_ctx->langs->isEmpty()) {
+            if ($this->core->_ctx->langs->isEmpty()) {
                 # The specified language does not exist.
-                self::p404();
+                $this->p404();
 
                 return;
             }
-            $_ctx->cur_lang = $m[1];
+            $this->core->_ctx->cur_lang = $m[1];
         }
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
             # RSS XSLT stylesheet
-            self::serveDocument('rss2.xsl', 'text/xml');
+            $this->serveDocument('rss2.xsl', 'text/xml');
 
             return;
         } elseif (preg_match('#^(atom|rss2)/comments/([0-9]+)$#', $args, $m)) {
@@ -641,7 +751,7 @@ class UrlHandler extends BaseUrlHandler
             }
         } else {
             # The specified Feed URL is malformed.
-            self::p404();
+            $this->p404();
 
             return;
         }
@@ -651,44 +761,44 @@ class UrlHandler extends BaseUrlHandler
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
-            $core->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
+            $this->core->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
 
-            $_ctx->categories = $core->blog->getCategories($params);
+            $this->core->_ctx->categories = $this->core->blog->getCategories($params);
 
-            if ($_ctx->categories->isEmpty()) {
+            if ($this->core->_ctx->categories->isEmpty()) {
                 # The specified category does no exist.
-                self::p404();
+                $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . $_ctx->categories->cat_title;
+            $subtitle = ' - ' . $this->core->_ctx->categories->cat_title;
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
                 'post_type' => '']);
 
-            $core->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
+            $this->core->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
 
-            $_ctx->posts = $core->blog->getPosts($params);
+            $this->core->_ctx->posts = $this->core->blog->getPosts($params);
 
-            if ($_ctx->posts->isEmpty()) {
+            if ($this->core->_ctx->posts->isEmpty()) {
                 # The specified post does not exist.
-                self::p404();
+                $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . $_ctx->posts->post_title;
+            $subtitle = ' - ' . $this->core->_ctx->posts->post_title;
         }
 
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            $_ctx->nb_comment_per_page = $core->blog->settings->system->nb_comment_per_feed;
+            $this->core->_ctx->nb_comment_per_page = $this->core->blog->settings->system->nb_comment_per_feed;
         } else {
-            $_ctx->nb_entry_per_page = $core->blog->settings->system->nb_post_per_feed;
-            $_ctx->short_feed_items  = $core->blog->settings->system->short_feed_items;
+            $this->core->_ctx->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_feed;
+            $this->core->_ctx->short_feed_items  = $this->core->blog->settings->system->short_feed_items;
         }
         $tpl .= '.xml';
 
@@ -696,23 +806,21 @@ class UrlHandler extends BaseUrlHandler
             $mime = 'application/atom+xml';
         }
 
-        $_ctx->feed_subtitle = $subtitle;
+        $this->core->_ctx->feed_subtitle = $subtitle;
 
-        header('X-Robots-Tag: ' . context::robotsPolicy($core->blog->settings->system->robots_policy, ''));
-        self::serveDocument($tpl, $mime);
+        header('X-Robots-Tag: ' . $this->core->_ctx::robotsPolicy($this->core->blog->settings->system->robots_policy, ''));
+        $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
-            $core->blog->publishScheduledEntries();
+            $this->core->blog->publishScheduledEntries();
         }
     }
 
-    public static function trackback($args)
+    public function trackback($args)
     {
         if (!preg_match('/^[0-9]+$/', $args)) {
             # The specified trackback URL is not an number
-            self::p404();
+            $this->p404();
         } else {
-            $core = static::$core;
-
             // Save locally post_id from args
             $post_id = (integer) $args;
 
@@ -724,16 +832,15 @@ class UrlHandler extends BaseUrlHandler
             $args['type']    = 'trackback';
 
             # --BEHAVIOR-- publicBeforeReceiveTrackback
-            $core->behaviors->call('publicBeforeReceiveTrackback', $core, $args);
+            $this->core->behaviors->call('publicBeforeReceiveTrackback', $this->core, $args);
 
-            $tb = new Trackback($core);
+            $tb = new Trackback($this->core);
             $tb->receiveTrackback($post_id);
         }
     }
 
-    public static function webmention($args)
+    public function webmention($args)
     {
-        $core = static::$core;
         if (!is_array($args)) {
             $args = [];
         }
@@ -741,15 +848,14 @@ class UrlHandler extends BaseUrlHandler
         $args['type'] = 'webmention';
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        $core->behaviors->call('publicBeforeReceiveTrackback', $args);
+        $this->core->behaviors->call('publicBeforeReceiveTrackback', $args);
 
-        $tb = new Trackback($core);
+        $tb = new Trackback($this->core);
         $tb->receiveWebmention();
     }
 
-    public static function rsd($args)
+    public function rsd($args)
     {
-        $core = static::$core;
         http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
 
         header('Content-Type: text/xml; charset=UTF-8');
@@ -759,10 +865,10 @@ class UrlHandler extends BaseUrlHandler
         "<service>\n" .
         "  <engineName>Dotclear</engineName>\n" .
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
-        '  <homePageLink>' . html::escapeHTML($core->blog->url) . "</homePageLink>\n";
+        '  <homePageLink>' . html::escapeHTML($this->core->blog->url) . "</homePageLink>\n";
 
-        if ($core->blog->settings->system->enable_xmlrpc) {
-            $u = sprintf(DOTCLEAR_XMLRPC_URL, $core->blog->url, $core->blog->id); // @phpstan-ignore-line
+        if ($this->core->blog->settings->system->enable_xmlrpc) {
+            $u = sprintf(DOTCLEAR_XMLRPC_URL, $this->core->blog->url, $this->core->blog->id); // @phpstan-ignore-line
 
             echo
                 "  <apis>\n" .
@@ -778,17 +884,15 @@ class UrlHandler extends BaseUrlHandler
             "</rsd>\n";
     }
 
-    public static function xmlrpc($args)
+    public function xmlrpc($args)
     {
-        $core = static::$core;
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
-        $server  = new XmlRpc($core, $blog_id);
+        $server  = new XmlRpc($this->core, $blog_id);
         $server->serve();
     }
 
-    public static function files($args)
+    public function files($args)
     {
-        $core  = static::$core;
         $dirs  = [];
         $args  = Path::clean($args);
         $args  = trim($args);
@@ -796,33 +900,33 @@ class UrlHandler extends BaseUrlHandler
 
         # No files given
         if (empty($args)) {
-            self::p404();
+            $this->p404();
         }
 
         # Disable directory change ".."
-        if (!self::$allow_sub_dir && strpos('..', $args) !== false) {
-            self::p404();
+        if (!$this->allow_sub_dir && strpos('..', $args) !== false) {
+            $this->p404();
         }
 
         # Current Theme dir
         $__parent_theme = null;
-        $__theme = $core->themes->getModule((string) $core->blog->settings->system->theme);
+        $__theme = $this->core->themes->getModule((string) $this->core->blog->settings->system->theme);
         if (!$__theme) {
-            $__theme = $core->themes->getModule('default');
+            $__theme = $this->core->themes->getModule('default');
         # Theme parent
         } elseif ($__theme->parent()) {
-            $__parent_theme = $core->themes->getModule((string) $__theme->parent());
+            $__parent_theme = $this->core->themes->getModule((string) $__theme->parent());
             if (!$__parent_theme) {
-                $__theme = $core->themes->getModule('default');
+                $__theme = $this->core->themes->getModule('default');
                 $__parent_theme = null;
             } else {
             }
         }
         if ($__theme) {
-            $dirs[] = $core::path($__theme->root(), 'files');
+            $dirs[] = $this->core::path($__theme->root(), 'files');
         }
         if ($__parent_theme) {
-            $dirs[] = $core::path($__parent_theme->root(), 'files');
+            $dirs[] = $this->core::path($__parent_theme->root(), 'files');
         }
 
         # Modules dirs
@@ -833,10 +937,10 @@ class UrlHandler extends BaseUrlHandler
             $modf = substr($args, $pos, strlen($args));
 
             # Check class
-            $class = $core::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+            $class = $this->core::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
             if (is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
                 # Get paths and serve file
-                $modules = new $class($core);
+                $modules = new $class($this->core);
                 $dirs    = $modules->getModulesPath();
                 $args    = $modf;
             }
@@ -844,9 +948,9 @@ class UrlHandler extends BaseUrlHandler
 
         # List other available file paths
         $dirs[] = DOTCLEAR_VAR_DIR;
-        $dirs[] = $core::root('Public', 'files');
-        $dirs[] = $core::root('Core', 'files', 'css');
-        $dirs[] = $core::root('Core', 'files', 'js');
+        $dirs[] = $this->core::root('Public', 'files');
+        $dirs[] = $this->core::root('Core', 'files', 'css');
+        $dirs[] = $this->core::root('Core', 'files', 'js');
 
         # Search dirs
         $file = false;
@@ -861,12 +965,12 @@ class UrlHandler extends BaseUrlHandler
 
         # Check file
         if ($file === false || !is_file($file) || !is_readable($file)) {
-            self::p404();
+            $this->p404();
         }
 
         # Check file extension
         if (!in_array(Files::getExtension($file), $types)) {
-            self::p404();
+            $this->p404();
         }
 
         # Set http cache (one week)

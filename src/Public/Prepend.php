@@ -169,8 +169,8 @@ class Prepend extends BasePrepend
         $this->behaviors->call('publicPrepend');
 
         # Prepare the HTTP cache thing
-        $this->url::$mod_files = [__FILE__];//get_included_files();
-        $this->url::$mod_ts    = [$this->blog->upddt];
+        $this->url->mod_files = [__FILE__];
+        $this->url->mod_ts    = [$this->blog->upddt];
 
         $__theme_tpl_path = [
             static::path($__theme->root(), 'tpl')
