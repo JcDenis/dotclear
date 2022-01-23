@@ -20,6 +20,8 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\Core;
+use Dotclear\Database\Record;
+use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -133,5 +135,23 @@ class RsExtDates
         }
 
         return false;
+    }
+
+    /**
+     * Returns date with <var>$format</var> as formatting pattern. If format
+     * is empty, uses <var>date_format</var> blog setting.
+     *
+     * @param   Record  $rs         Invisible parameter
+     * @param   string  $format     The date format pattern
+     *
+     * @return  string              The date.
+     */
+    public static function getDate(Record $rs, string $format = ''): string
+    {
+        if (!$format) {
+            $format = $rs->core->blog->settings->system->date_format;
+        }
+
+        return Dt::dt2str($format, $rs->dt);
     }
 }

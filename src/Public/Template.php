@@ -598,7 +598,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, "dt::dt2str('" . $format . "',\$_ctx->archives->dt)") . '; ?>';
+        return '<?php echo ' . sprintf($f, "\$_ctx->archives->getDate('" . $format . "')") . '; ?>';
     }
 
     /*dtd
