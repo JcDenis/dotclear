@@ -649,7 +649,7 @@ class RestMethods
             throw new AdminException('No list name');
         }
 
-        $sorts = UserPref::getUserFilters();
+        $sorts = $core->userpref->getUserFilters();
 
         if (!isset($sorts[$post['id']])) {
             throw new AdminException('List name invalid');

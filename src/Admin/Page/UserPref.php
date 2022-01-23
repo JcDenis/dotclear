@@ -26,7 +26,6 @@ use Dotclear\Container\User as ContainerUser;
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Notices;
 use Dotclear\Admin\Combos;
-use Dotclear\Admin\UserPref as AdminUserPref;
 use Dotclear\Admin\Menu;
 
 use Dotclear\Html\Form;
@@ -171,10 +170,10 @@ class UserPref extends Page
         }
 
         # Get default colums (admin lists)
-        $this->cols = AdminUserPref::getUserColumns();
+        $this->cols = $this->core->userpref->getUserColumns();
 
         # Get default sortby, order, nbperpage (admin lists)
-        $this->sorts = AdminUserPref::getUserFilters();
+        $this->sorts = $this->core->userpref->getUserFilters();
 
         # Add or update user
         if (isset($_POST['user_name'])) {

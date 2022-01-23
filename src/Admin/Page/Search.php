@@ -21,7 +21,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Userpref;
 use Dotclear\Admin\Action\PostAction;
 use Dotclear\Admin\Catalog\PostCatalog;
 use Dotclear\Admin\Filter\PostFilter;
@@ -76,7 +75,7 @@ class Search extends Page
         }
 
         $page = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
-        $nb = UserPref::getUserFilters('search', 'nb');
+        $nb = $this->core->userpref->getUserFilters('search', 'nb');
         if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
             $nb = (integer) $_GET['nb'];
         }

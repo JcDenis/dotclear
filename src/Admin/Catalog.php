@@ -38,8 +38,8 @@ class Catalog
      */
     public function __construct(Core $core, $rs, $rs_count)
     {
-        $this->core      = &$core;
-        $this->rs        = &$rs;
+        $this->core      = $core;
+        $this->rs        = $rs;
         $this->rs_count  = (int) $rs_count;
         $this->html_prev = __('&#171; prev.');
         $this->html_next = __('next &#187;');
@@ -53,6 +53,6 @@ class Catalog
      */
     public function userColumns($type, $cols)
     {
-        $cols = UserPref::getUserColumns($type, $cols);
+        $cols = $this->core->userpref->getUserColumns($type, $cols);
     }
 }

@@ -18,7 +18,6 @@ namespace Dotclear\Admin;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\UserPref;
 use Dotclear\Admin\Combos;
 use Dotclear\Admin\Filter\DefaultFilter;
 
@@ -57,7 +56,7 @@ class Filter
      */
     public function __construct(Core $core, string $type)
     {
-        $this->core = &$core;
+        $this->core = $core;
         $this->type = $type;
 
         $this->parseOptions();
@@ -72,7 +71,7 @@ class Filter
      */
     public function userOptions(?string $option = null)
     {
-        return UserPref::getUserFilters($this->type, $option);
+        return $this->core->userpref->getUserFilters($this->type, $option);
     }
 
     /**
@@ -80,7 +79,7 @@ class Filter
      */
     protected function parseOptions()
     {
-        $options = UserPref::getUserFilters($this->type);
+        $options = $this->core->userpref->getUserFilters($this->type);
         if (!empty($options)) {
             $this->has_user_pref = true;
         }

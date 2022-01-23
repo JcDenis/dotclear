@@ -46,6 +46,9 @@ class Prepend extends BasePrepend
     /** @var Notices            Notices instance */
     public $notices;
 
+    /** @var UserPref           UserPref instance */
+    public $userpref;
+
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
 
@@ -76,6 +79,7 @@ class Prepend extends BasePrepend
         parent::__construct();
 
         $this->notices = new Notices($this);
+        $this->userpref = new UserPref($this);
 
         # Serve modules file (mf)
         $this->adminServeFile();

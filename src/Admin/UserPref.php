@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Menu
+ * @class Dotclear\Admin\UserPref
  * @brief Admin user preference library
  *
  * Dotclear utility class that provides reuseable user preference
@@ -19,8 +19,6 @@ namespace Dotclear\Admin;
 use ArrayObject;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\StaticCore;
-use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Combos;
 
@@ -30,15 +28,28 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class UserPref
 {
-    use StaticCore;
+    /** @var    Core            Core instance */
+    protected $core;
 
-    /** @var ArrayObject columns preferences */
-    protected static $cols = null;
+    /** @var    ArrayObject     Sorts filters preferences*/
+    protected $sorts = null;
 
-    /** @var ArrayObject sorts filters preferences*/
-    protected static $sorts = null;
+    /**
+     * Constructor
+     *
+     * @param   Core    $core   Core instance
+     */
+    public function __construct(Core $core)
+    {
+        $this->core = $core;
+    }
 
-    public static function getDefaultColumns()
+    /**
+     * Get default columns
+     *
+     * @return  array   The default columns
+     */
+    public function getDefaultColumns(): array
     {
         return ['posts' => [__('Posts'), [
             'date'       => [true, __('Date')],
@@ -49,19 +60,25 @@ class UserPref
         ]]];
     }
 
-    public static function getUserColumns($type = null, $columns = null)
+    /**
+     * Get users columns preferences
+     *
+     * @param   string|null     $type       The columns type
+     * @param   array|null      $columns    The columns list
+     *
+     * @return  array|ArrayObject           The user columns
+     */
+    public function getUserColumns(string $type = null, ?array $columns = null): mixed
     {
-        $core = self::getCore();
-
         # Get default colums (admin lists)
-        $cols = self::getDefaultColumns();
+        $cols = $this->getDefaultColumns();
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        $core->behaviors->call('adminColumnsLists', $cols);
+        $this->core->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
-        $cols_user = @$core->auth->user_prefs->interface->cols;
+        $cols_user = @$this->core->auth->user_prefs->interface->cols;
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -86,11 +103,15 @@ class UserPref
         return $cols;
     }
 
-    public static function getDefaultFilters()
+    /**
+     * Get default filters
+     *
+     * @return  array   The default filters
+     */
+    public function getDefaultFilters(): array
     {
-        $core = self::getCore();
         $users = [null, null, null, null, null];
-        if ($core->auth->isSuperAdmin()) {
+        if ($this->core->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
                 Combos::getUsersSortbyCombo(),
@@ -147,23 +168,24 @@ class UserPref
     /**
      * Get sorts filters users preference for a given type
      *
-     * @param       string      $type   The filter list type
-     * @return      mixed               Filters or typed filter or field value(s)
+     * @param   string|null     $type       The filter list type
+     * @param   string|null     $option     The filter list option
+     *
+     * @return  string|array|ArrayObject    Filters or typed filter or field value(s)
      */
-    public static function getUserFilters($type = null, $option = null)
+    public function getUserFilters(?string $type = null, ?string $option = null): mixed
     {
-        $core = self::getCore();
-        if (self::$sorts === null) {
-            $sorts = self::getDefaultFilters();
+        if ($this->sorts === null) {
+            $sorts = $this->getDefaultFilters();
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            $core->behaviors->call('adminFiltersLists', $sorts);
+            $this->core->behaviors->call('adminFiltersLists', $sorts);
 
-            if ($core->auth->user_prefs->interface === null) {
-                $core->auth->user_prefs->addWorkspace('interface');
+            if ($this->core->auth->user_prefs->interface === null) {
+                $this->core->auth->user_prefs->addWorkspace('interface');
             }
-            $sorts_user = @$core->auth->user_prefs->interface->sorts;
+            $sorts_user = @$this->core->auth->user_prefs->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {
@@ -180,23 +202,23 @@ class UserPref
                     }
                 }
             }
-            self::$sorts = $sorts;
+            $this->sorts = $sorts;
         }
 
         if (null === $type) {
-            return self::$sorts;
-        } elseif (isset(self::$sorts[$type])) {
+            return $this->sorts;
+        } elseif (isset($this->sorts[$type])) {
             if (null === $option) {
-                return self::$sorts[$type];
+                return $this->sorts[$type];
             }
-            if ($option == 'sortby' && null !== self::$sorts[$type][2]) {
-                return self::$sorts[$type][2];
+            if ($option == 'sortby' && null !== $this->sorts[$type][2]) {
+                return $this->sorts[$type][2];
             }
-            if ($option == 'order' && null !== self::$sorts[$type][3]) {
-                return self::$sorts[$type][3];
+            if ($option == 'order' && null !== $this->sorts[$type][3]) {
+                return $this->sorts[$type][3];
             }
-            if ($option == 'nb' && is_array(self::$sorts[$type][4])) {
-                return abs((integer) self::$sorts[$type][4][1]);
+            if ($option == 'nb' && is_array($this->sorts[$type][4])) {
+                return abs((integer) $this->sorts[$type][4][1]);
             }
         }
 

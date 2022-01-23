@@ -110,25 +110,6 @@ class Context
         return $test;
     }
 
-    /**
-    @deprecated since version 2.11 , use tpl_context::global_filters instead
-     */
-    public static function global_filter($str,
-        $encode_xml, $remove_html, $cut_string, $lower_case, $upper_case, $encode_url, $tag = '')
-    {
-        return self::global_filters(
-            $str,
-            [0                => null,
-                'encode_xml'  => $encode_xml,
-                'remove_html' => $remove_html,
-                'cut_string'  => $cut_string,
-                'lower_case'  => $lower_case,
-                'upper_case'  => ($upper_case == 1 ? 1 : 0),
-                'capitalize'  => ($upper_case == 2 ? 1 : 0),
-                'encode_url'  => $encode_url],
-            $tag);
-    }
-
     private static function default_filters($filter, $str, $arg)
     {
         switch ($filter) {
