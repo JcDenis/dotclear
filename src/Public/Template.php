@@ -318,7 +318,7 @@ class Template extends BaseTemplate
             }
         }
 
-        return 'context::global_filters(%s,' . var_export($p, true) . ",'" . addslashes($this->current_tag) . "')";
+        return '$_ctx::global_filters(%s,' . var_export($p, true) . ",'" . addslashes($this->current_tag) . "')";
     }
 
     public static function getOperator($op)
@@ -937,7 +937,7 @@ class Template extends BaseTemplate
     {
         $robots = isset($attr['robots']) ? addslashes($attr['robots']) : '';
 
-        return "<?php echo context::robotsPolicy(\$core->blog->settings->system->robots_policy,'" . $robots . "'); ?>";
+        return "<?php echo \$_ctx::robotsPolicy(\$core->blog->settings->system->robots_policy,'" . $robots . "'); ?>";
     }
 
     /*dtd
@@ -1321,7 +1321,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['category'])) {
             $p .= "\$params['cat_url'] = '" . addslashes($attr['category']) . "';\n";
-            $p .= "context::categoryPostParam(\$params);\n";
+            $p .= "\$_ctx::categoryPostParam(\$params);\n";
         }
 
         if (isset($attr['with_category']) && $attr['with_category']) {
@@ -1937,7 +1937,7 @@ class Template extends BaseTemplate
         $content_only  = !empty($attr['content_only']) ? 1 : 0;
         $cat_only      = !empty($attr['cat_only']) ? 1 : 0;
 
-        return "<?php echo context::EntryFirstImageHelper('" . addslashes($size) . "'," . $with_category . ",'" . addslashes($class) . "'," .
+        return "<?php echo \$_ctx::EntryFirstImageHelper('" . addslashes($size) . "'," . $with_category . ",'" . addslashes($class) . "'," .
             $no_tag . ',' . $content_only . ',' . $cat_only . '); ?>';
     }
 
@@ -2326,7 +2326,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'context::PaginationNbPages()') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$_ctx::PaginationNbPages()') . '; ?>';
     }
 
     /*dtd
@@ -2341,7 +2341,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'context::PaginationPosition(' . $offset . ')') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$_ctx::PaginationPosition(' . $offset . ')') . '; ?>';
     }
 
     /*dtd
@@ -2357,12 +2357,12 @@ class Template extends BaseTemplate
 
         if (isset($attr['start'])) {
             $sign = (bool) $attr['start'] ? '' : '!';
-            $if[] = $sign . 'context::PaginationStart()';
+            $if[] = $sign . '$_ctx::PaginationStart()';
         }
 
         if (isset($attr['end'])) {
             $sign = (bool) $attr['end'] ? '' : '!';
-            $if[] = $sign . 'context::PaginationEnd()';
+            $if[] = $sign . '$_ctx::PaginationEnd()';
         }
 
         $this->core->behaviors->call('tplIfConditions', 'PaginationIf', $attr, $content, $if);
@@ -2389,7 +2389,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'context::PaginationURL(' . $offset . ')') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$_ctx::PaginationURL(' . $offset . ')') . '; ?>';
     }
 
     /* Comments --------------------------------------- */

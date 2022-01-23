@@ -15,8 +15,6 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtPost;
 
-use Dotclear\Public\Context;
-
 use Dotclear\Html\Html;
 
 class RsExtPostPublic extends RsExtPost
@@ -24,11 +22,10 @@ class RsExtPostPublic extends RsExtPost
     public static function getContent($rs, $absolute_urls = false)
     {
         # Not very nice hack but it does the job :)
-        if (isset($GLOBALS['_ctx']) && $GLOBALS['_ctx']->short_feed_items === true) {
-            $_ctx = &$GLOBALS['_ctx'];
+        if (isset($rs->core->_ctx) && $rs->core->_ctx->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
-            $c    = context::remove_html($c);
-            $c    = context::cut_string($c, 350);
+            $c    = $rs->core->_ctx::remove_html($c);
+            $c    = $rs->core->_ctx::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
@@ -38,7 +35,7 @@ class RsExtPostPublic extends RsExtPost
         }
 
         if ($rs->core->blog->settings->system->use_smilies) {
-            return self::smilies(parent::getContent($rs, $absolute_urls), $rs->core->blog);
+            return self::smilies($rs, parent::getContent($rs, $absolute_urls));
         }
 
         return parent::getContent($rs, $absolute_urls);
@@ -47,18 +44,18 @@ class RsExtPostPublic extends RsExtPost
     public static function getExcerpt($rs, $absolute_urls = false)
     {
         if ($rs->core->blog->settings->system->use_smilies) {
-            return self::smilies(parent::getExcerpt($rs, $absolute_urls), $rs->core->blog);
+            return self::smilies($rs, parent::getExcerpt($rs, $absolute_urls));
         }
 
         return parent::getExcerpt($rs, $absolute_urls);
     }
 
-    protected static function smilies($c, $blog)
+    protected static function smilies($rs, $c)
     {
         if (!isset($GLOBALS['__smilies'])) {
-            $GLOBALS['__smilies'] = context::getSmilies($blog);
+            $GLOBALS['__smilies'] = $rs->core->_ctx::getSmilies($rs->core->blog);
         }
 
-        return context::addSmilies($c);
+        return $rs->core->_ctx::addSmilies($c);
     }
 }
