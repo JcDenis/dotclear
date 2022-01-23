@@ -30,7 +30,6 @@ use Dotclear\Core\Media;
 use Dotclear\Core\Blog;
 use Dotclear\Core\Auth;
 use Dotclear\Core\Settings;
-use Dotclear\Core\Notices;
 
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\InsertStatement;
@@ -94,9 +93,6 @@ class Core
     /** @var Behaviors          Behaviors instance */
     public $behaviors;
 
-    /** @var Notices            Notices instance */
-    public $notices;
-
     /** @var array              versions container */
     private $versions   = null;
 
@@ -128,7 +124,6 @@ class Core
         $this->rest      = new RestServer($this);
         $this->meta      = new Meta($this);
         $this->log       = new Log($this);
-        $this->notices   = new Notices($this);
 
         $this->registerTopBehaviors();
     }

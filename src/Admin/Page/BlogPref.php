@@ -256,7 +256,7 @@ class BlogPref extends Page
                 if ($this->core->auth->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $this->blog_settings->system->put('url_scan', $_POST['url_scan']);
                 }
-                Notices::addSuccessNotice(__('Blog has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Blog has been successfully updated.'));
 
                 Http::redirect(sprintf($this->redir, $this->blog_id));
             } catch (Exception $e) {
@@ -416,11 +416,11 @@ class BlogPref extends Page
         }
 
         if (!empty($_GET['add'])) {
-            Notices::success(__('Blog has been successfully created.'));
+            $this->core->notices->success(__('Blog has been successfully created.'));
         }
 
         if (!empty($_GET['upd'])) {
-            Notices::success(__('Blog has been successfully updated.'));
+            $this->core->notices->success(__('Blog has been successfully updated.'));
         }
 
         echo

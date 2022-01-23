@@ -222,7 +222,7 @@ class Post extends Page
                 }
 
                 if (!$this->core->error->flag()) {
-                    Notices::addSuccessNotice(__('All pings sent.'));
+                    $this->core->notices->addSuccessNotice(__('All pings sent.'));
                     $this->core->adminurl->redirect(
                         'admin.post',
                         ['id' => $this->post_id, 'tb' => '1']
@@ -347,7 +347,7 @@ class Post extends Page
 
                     # --BEHAVIOR-- adminAfterPostUpdate
                     $this->core->behaviors->call('adminAfterPostUpdate', $cur, $this->post_id);
-                    Notices::addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
+                    $this->core->notices->addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
                     $this->core->adminurl->redirect(
                         'admin.post',
                         ['id' => $this->post_id]
@@ -367,7 +367,7 @@ class Post extends Page
                     # --BEHAVIOR-- adminAfterPostCreate
                     $this->core->behaviors->call('adminAfterPostCreate', $cur, $return_id);
 
-                    Notices::addSuccessNotice(__('Entry has been successfully created.'));
+                    $this->core->notices->addSuccessNotice(__('Entry has been successfully created.'));
                     $this->core->adminurl->redirect(
                         'admin.post',
                         ['id' => $return_id]
@@ -502,20 +502,20 @@ class Post extends Page
         }
 
         if (!empty($_GET['upd'])) {
-            Notices::success(__('Entry has been successfully updated.'));
+            $this->core->notices->success(__('Entry has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
-            Notices::success(__('Entry has been successfully created.'));
+            $this->core->notices->success(__('Entry has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
-            Notices::success(__('File has been successfully attached.'));
+            $this->core->notices->success(__('File has been successfully attached.'));
         } elseif (!empty($_GET['rmattach'])) {
-            Notices::success(__('Attachment has been successfully removed.'));
+            $this->core->notices->success(__('Attachment has been successfully removed.'));
         }
 
         if (!empty($_GET['creaco'])) {
-            Notices::success(__('Comment has been successfully created.'));
+            $this->core->notices->success(__('Comment has been successfully created.'));
         }
         if (!empty($_GET['tbsent'])) {
-            Notices::success(__('All pings sent.'));
+            $this->core->notices->success(__('All pings sent.'));
         }
 
         # XHTML conversion
@@ -524,7 +524,7 @@ class Post extends Page
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
 
-            Notices::message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
+            $this->core->notices->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
         if ($this->post_id && $this->post->post_status == 1) {

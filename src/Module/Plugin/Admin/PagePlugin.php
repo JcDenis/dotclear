@@ -136,9 +136,7 @@ class PagePlugin extends Page
         }
 
         if ($this->from_configuration) {
-            echo
-                Notices::getNotices() .
-                $this->core->plugins->displayModuleConfiguration();
+            echo $this->core->plugins->displayModuleConfiguration();
 
             return;
         }
@@ -147,7 +145,7 @@ class PagePlugin extends Page
         if ($this->core->auth->isSuperAdmin()) {
             if (!$this->core->error->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    Notices::success(__('Manual checking of plugins update done successfully.'));
+                    $this->core->notices->success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 

@@ -53,7 +53,7 @@ class Categories extends Page
             # Check if category to delete exists
             $category = $this->core->blog->getCategory($cat_id);
             if ($category->isEmpty()) {
-                Notices::addErrorNotice(__('This category does not exist.'));
+                $this->core->notices->addErrorNotice(__('This category does not exist.'));
                 $this->core->adminurl->redirect('admin.categories');
             }
             $name = $category->cat_title;
@@ -62,7 +62,7 @@ class Categories extends Page
             try {
                 # Delete category
                 $this->core->blog->delCategory($cat_id);
-                Notices::addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
+                $this->core->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 $this->core->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -91,7 +91,7 @@ class Categories extends Page
                 if ($mov_cat != $cat_id) {
                     $this->core->blog->changePostsCategory($cat_id, $mov_cat);
                 }
-                Notices::addSuccessNotice(sprintf(
+                $this->core->notices->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
                     Html::escapeHTML($name)
                 ));
@@ -111,7 +111,7 @@ class Categories extends Page
                 }
             }
 
-            Notices::addSuccessNotice(__('Categories have been successfully reordered.'));
+            $this->core->notices->addSuccessNotice(__('Categories have been successfully reordered.'));
             $this->core->adminurl->redirect('admin.categories');
         }
 
@@ -119,7 +119,7 @@ class Categories extends Page
         if (!empty($_POST['reset'])) {
             try {
                 $this->core->blog->resetCategoriesOrder();
-                Notices::addSuccessNotice(__('Categories order has been successfully reset.'));
+                $this->core->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
                 $this->core->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -158,13 +158,13 @@ class Categories extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['del'])) {
-            Notices::success(__('The category has been successfully removed.'));
+            $this->core->notices->success(__('The category has been successfully removed.'));
         }
         if (!empty($_GET['reord'])) {
-            Notices::success(__('Categories have been successfully reordered.'));
+            $this->core->notices->success(__('Categories have been successfully reordered.'));
         }
         if (!empty($_GET['move'])) {
-            Notices::success(__('Entries have been successfully moved to the category you choose.'));
+            $this->core->notices->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
         $categories_combo = Combos::getCategoriesCombo($this->caregories);

@@ -31,7 +31,7 @@ class Config extends AbstractConfig
         $this->core->blog->settings->addNameSpace('LegacyEditor');
         $this->core->blog->settings->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
 
-        Notices::addSuccessNotice(__('The configuration has been updated.'));
+        $this->core->notices->addSuccessNotice(__('The configuration has been updated.'));
         Http::redirect($redir);
     }
 

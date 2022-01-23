@@ -100,7 +100,7 @@ class UserAction extends Page
                     }
                 }
                 if (!$this->core->error->flag()) {
-                    Notices::addSuccessNotice(__('User has been successfully deleted.'));
+                    $this->core->notices->addSuccessNotice(__('User has been successfully deleted.'));
                     Http::redirect($this->redir);
                 }
             }
@@ -131,7 +131,7 @@ class UserAction extends Page
                     $this->core->error->add($e->getMessage());
                 }
                 if (!$this->core->error->flag()) {
-                    Notices::addSuccessNotice(__('User has been successfully updated.'));
+                    $this->core->notices->addSuccessNotice(__('User has been successfully updated.'));
                     Http::redirect($this->redir);
                 }
             }

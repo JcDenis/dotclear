@@ -79,7 +79,7 @@ class DefaultBlogAction
         //$cur->blog_upddt = date('Y-m-d H:i:s');
         $cur->update('WHERE blog_id ' . $core->con->in($ids));
 
-        Notices::addSuccessNotice(__('Selected blogs have been successfully updated.'));
+        $core->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
     }
 
@@ -101,7 +101,7 @@ class DefaultBlogAction
         $ids = [];
         foreach ($ap_ids as $id) {
             if ($id == $core->blog->id) {
-                Notices::addWarningNotice(__('The current blog cannot be deleted.'));
+                $core->notices->addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;
             }
@@ -115,7 +115,7 @@ class DefaultBlogAction
                 $core->delBlog($id);
             }
 
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d blog has been successfully deleted',
                     '%d blogs have been successfully deleted',

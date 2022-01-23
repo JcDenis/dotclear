@@ -123,7 +123,7 @@ class MediaItem extends Page
                 Files::uploadStatus($_FILES['upfile']);
                 $this->core->media->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
 
-                Notices::addSuccessNotice(__('File has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('File has been successfully updated.'));
                 $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -177,7 +177,7 @@ class MediaItem extends Page
             try {
                 $this->core->media->updateFile($this->file, $newFile);
 
-                Notices::addSuccessNotice(__('File has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('File has been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
@@ -191,7 +191,7 @@ class MediaItem extends Page
                 $foo = null;
                 $this->core->media->mediaFireRecreateEvent($this->file);
 
-                Notices::addSuccessNotice(__('Thumbnails have been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
@@ -204,7 +204,7 @@ class MediaItem extends Page
             try {
                 $unzip_dir = $this->core->media->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
 
-                Notices::addSuccessNotice(__('Zip file has been successfully extracted.'));
+                $this->core->notices->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
                 $this->core->adminurl->redirect('admin.media', $this->media_page_url_params);
             } catch (Exception $e) {
@@ -230,7 +230,7 @@ class MediaItem extends Page
                 $this->core->blog->settings->system->put('media_img_default_legend', $_POST['pref_legend']);
             }
 
-            Notices::addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
+            $this->core->notices->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
             $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
         }
 
@@ -272,17 +272,14 @@ class MediaItem extends Page
 
     protected function getPageContent(): void
     {
-        if ($this->popup) {
-            echo Notices::getNotices();
-        }
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
-            Notices::success(__('File has been successfully updated.'));
+            $this->core->notices->success(__('File has been successfully updated.'));
         }
         if (!empty($_GET['thumbupd'])) {
-            Notices::success(__('Thumbnails have been successfully updated.'));
+            $this->core->notices->success(__('Thumbnails have been successfully updated.'));
         }
         if (!empty($_GET['blogprefupd'])) {
-            Notices::success(__('Default media insertion settings have been successfully updated.'));
+            $this->core->notices->success(__('Default media insertion settings have been successfully updated.'));
         }
 
         # Get major file type (first part of mime type)
@@ -461,7 +458,7 @@ class MediaItem extends Page
                 echo
                 '<div class="two-boxes">' .
                 '<h3>' . __('MP3 disposition') . '</h3>';
-                Notices::message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
+                $this->core->notices->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
 
                 $i_align = [
                     'none'   => [__('None'), ($defaults['alignment'] == 'none' ? 1 : 0)],
@@ -482,7 +479,7 @@ class MediaItem extends Page
             } elseif ($file_type[0] == 'video') {
                 $media_type = 'flv';
 
-                Notices::message(__('Please note that you cannot insert video files with visual editor.'), false);
+                $this->core->notices->message(__('Please note that you cannot insert video files with visual editor.'), false);
 
                 echo
                 '<div class="two-boxes">' .

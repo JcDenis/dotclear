@@ -43,6 +43,9 @@ class Prepend extends BasePrepend
 {
     protected $process = 'Admin';
 
+    /** @var Notices            Notices instance */
+    public $notices;
+
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
 
@@ -71,6 +74,8 @@ class Prepend extends BasePrepend
     {
         # Load core prepend and so on
         parent::__construct();
+
+        $this->notices = new Notices($this);
 
         # Serve modules file (mf)
         $this->adminServeFile();

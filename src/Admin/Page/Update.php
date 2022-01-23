@@ -218,7 +218,7 @@ class Update extends Page
 
         if (!$this->core->error->flag()) {
             if (!empty($_GET['nocache'])) {
-                Notices::success(__('Manual checking of update done successfully.'));
+                $this->core->notices->success(__('Manual checking of update done successfully.'));
             }
         }
 

@@ -58,7 +58,7 @@ class Page extends AbstractPage
                     }
                 }
 
-                Notices::addSuccessNotice(__('Preferences successfully updated'));
+                $this->core->notices->addSuccessNotice(__('Preferences successfully updated'));
                 $this->core->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -78,7 +78,7 @@ class Page extends AbstractPage
                     }
                 }
 
-                Notices::addSuccessNotice(__('Preferences successfully updated'));
+                $this->core->notices->addSuccessNotice(__('Preferences successfully updated'));
                 $this->core->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -105,8 +105,6 @@ class Page extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo Notices::getNotices();
-
         echo
         '<div id="local" class="multi-part" title="' . __('User preferences') . '">' .
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';

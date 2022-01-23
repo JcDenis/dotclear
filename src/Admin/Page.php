@@ -588,7 +588,7 @@ abstract class Page
 
     private function pageNotices(): void
     {
-        echo Notices::getNotices();
+        echo $this->core->notices->getNotices();
     }
 
     private function pageContent(): void

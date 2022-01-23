@@ -97,7 +97,7 @@ class DefaultCommentAction
 
         $core->blog->updCommentsStatus($co_ids, $status);
 
-        Notices::addSuccessNotice(__('Selected comments have been successfully updated.'));
+        $core->notices->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
     }
 
@@ -117,7 +117,7 @@ class DefaultCommentAction
         $core->behaviors->call('adminBeforeCommentsDelete', $co_ids);
 
         $core->blog->delComments($co_ids);
-        Notices::addSuccessNotice(__('Selected comments have been successfully deleted.'));
+        $core->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }
 
@@ -137,7 +137,7 @@ class DefaultCommentAction
             $ip_filter->addIP('black', $rs->comment_ip, $global);
         }
 
-        Notices::addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        $core->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
         $ap->redirect(true);
     }
 }

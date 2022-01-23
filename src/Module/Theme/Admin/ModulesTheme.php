@@ -401,7 +401,7 @@ class ModulesTheme extends AbstractModules
                 $this->core->blog->triggerBlog();
 
                 $module = $this->getModule($id);
-                Notices::addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
+                $this->core->notices->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
         } else {
@@ -436,7 +436,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -475,9 +475,9 @@ class ModulesTheme extends AbstractModules
                 }
 
                 if ($failed) {
-                    Notices::addWarningNotice(__('Some themes have not been deactivated.'));
+                    $this->core->notices->addWarningNotice(__('Some themes have not been deactivated.'));
                 } else {
-                    Notices::addSuccessNotice(
+                    $this->core->notices->addSuccessNotice(
                         __('Theme has been successfully deactivated.', 'Themes have been successuflly deactivated.', $count)
                     );
                 }
@@ -504,7 +504,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -548,9 +548,9 @@ class ModulesTheme extends AbstractModules
                 if (!$count && $failed) {
                     throw new Exception(__("You don't have permissions to delete this theme."));
                 } elseif ($failed) {
-                    Notices::addWarningNotice(__('Some themes have not been delete.'));
+                    $this->core->notices->addWarningNotice(__('Some themes have not been delete.'));
                 } else {
-                    Notices::addSuccessNotice(
+                    $this->core->notices->addSuccessNotice(
                         __('Theme has been successfully deleted.', 'Themes have been successuflly deleted.', $count)
                     );
                 }
@@ -585,7 +585,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -620,7 +620,7 @@ class ModulesTheme extends AbstractModules
 
                 $tab = $count && $count == count($list) ? '#themes' : '#update';
 
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Theme has been successfully updated.', 'Themes have been successfully updated.', $count)
                 );
                 Http::redirect($this->getURL() . $tab);
@@ -654,7 +654,7 @@ class ModulesTheme extends AbstractModules
                 # --BEHAVIOR-- themeAfterAdd
                 $this->core->behaviors->call('themeAfterAdd', null);
 
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     $ret_code == 2 ?
                     __('The theme has been successfully updated.') :
                     __('The theme has been successfully installed.')

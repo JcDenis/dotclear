@@ -64,7 +64,7 @@ class BlogDel extends Page
             } else {
                 try {
                     $this->core->delBlog($this->blog_id);
-                    Notices::addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), html::escapeHTML($this->blog_name)));
+                    $this->core->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), html::escapeHTML($this->blog_name)));
 
                     $this->core->adminurl->redirect('admin.blogs');
                 } catch (Exception $e) {

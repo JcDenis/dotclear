@@ -220,7 +220,7 @@ class Page extends AbstractPage
                 $this->core->blog->settings->themes->put('blowup_style', serialize($this->blowup_user));
                 $this->core->blog->triggerBlog();
 
-                Notices::addSuccessNotice(__('Theme configuration has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 $this->core->adminurl->redirect('admin.plugin.BlowUp');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -255,8 +255,6 @@ class Page extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo Notices::getNotices();
-
         echo
         '<p><a class="back" href="' . $this->core->adminurl->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 

@@ -1108,7 +1108,7 @@ trait TraitModulesAdmin
     /**
      * Execute POST action.
      *
-     * @uses    Notice::addSuccessNotice    Set a notice on success through Notice::addSuccessNotice
+     * @uses    Notices::addSuccessNotice    Set a notice on success through Notices::addSuccessNotice
      *
      * @throws  AdminException              Module not find or command failed
      */
@@ -1161,9 +1161,9 @@ trait TraitModulesAdmin
             if (!$count && $failed) {
                 throw new AdminException(__("You don't have permissions to delete this plugin."));
             } elseif ($failed) {
-                Notices::addWarningNotice(__('Some plugins have not been delete.'));
+                $this->core->notices->addWarningNotice(__('Some plugins have not been delete.'));
             } else {
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Plugin has been successfully deleted.', 'Plugins have been successuflly deleted.', $count)
                 );
             }
@@ -1200,7 +1200,7 @@ trait TraitModulesAdmin
                 $count++;
             }
 
-            Notices::addSuccessNotice(
+            $this->core->notices->addSuccessNotice(
                 __('Plugin has been successfully installed.', 'Plugins have been successfully installed.', $count)
             );
             Http::redirect($this->getURL());
@@ -1233,7 +1233,7 @@ trait TraitModulesAdmin
                 $count++;
             }
 
-            Notices::addSuccessNotice(
+            $this->core->notices->addSuccessNotice(
                 __('Plugin has been successfully activated.', 'Plugins have been successuflly activated.', $count)
             );
             Http::redirect($this->getURL());
@@ -1274,9 +1274,9 @@ trait TraitModulesAdmin
             }
 
             if ($failed) {
-                Notices::addWarningNotice(__('Some plugins have not been deactivated.'));
+                $this->core->notices->addWarningNotice(__('Some plugins have not been deactivated.'));
             } else {
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     __('Plugin has been successfully deactivated.', 'Plugins have been successuflly deactivated.', $count)
                 );
             }
@@ -1321,7 +1321,7 @@ trait TraitModulesAdmin
 
             $tab = $count && $count == count($list) ? '#plugins' : '#update';
 
-            Notices::addSuccessNotice(
+            $this->core->notices->addSuccessNotice(
                 __('Plugin has been successfully updated.', 'Plugins have been successfully updated.', $count)
             );
             Http::redirect($this->getURL() . $tab);
@@ -1355,7 +1355,7 @@ trait TraitModulesAdmin
             # --BEHAVIOR-- moduleAfterAdd
             $this->core->behaviors->call('pluginAfterAdd', null);
 
-            Notices::addSuccessNotice(
+            $this->core->notices->addSuccessNotice(
                 $ret_code == 2 ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')

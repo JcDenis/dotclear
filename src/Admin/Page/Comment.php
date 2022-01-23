@@ -79,7 +79,7 @@ class Comment extends Page
                 # --BEHAVIOR-- adminAfterCommentCreate
                 $this->core->behaviors->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
-                Notices::addSuccessNotice(__('Comment has been successfully created.'));
+                $this->core->notices->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
             }
@@ -155,7 +155,7 @@ class Comment extends Page
                     # --BEHAVIOR-- adminAfterCommentUpdate
                     $this->core->behaviors->call('adminAfterCommentUpdate', $cur, $this->comment_id);
 
-                    Notices::addSuccessNotice(__('Comment has been successfully updated.'));
+                    $this->core->notices->addSuccessNotice(__('Comment has been successfully updated.'));
                     $this->core->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
                 } catch (Exception $e) {
                     $this->core->error->add($e->getMessage());
@@ -169,7 +169,7 @@ class Comment extends Page
 
                     $this->core->blog->delComment($this->comment_id);
 
-                    Notices::addSuccessNotice(__('Comment has been successfully deleted.'));
+                    $this->core->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect($this->core->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
                 } catch (Exception $e) {
                     $this->core->error->add($e->getMessage());

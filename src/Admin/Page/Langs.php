@@ -134,9 +134,9 @@ class Langs extends Page
 
                 @unlink($dest);
                 if ($ret_code == 2) {
-                    Notices::addSuccessNotice(__('Language has been successfully upgraded'));
+                    $this->core->notices->addSuccessNotice(__('Language has been successfully upgraded'));
                 } else {
-                    Notices::addSuccessNotice(__('Language has been successfully installed.'));
+                    $this->core->notices->addSuccessNotice(__('Language has been successfully installed.'));
                 }
                 $this->core->adminurl->redirect('admin.langs');
             } catch (Exception $e) {
@@ -162,11 +162,11 @@ class Langs extends Page
     {
 
         if (!empty($_GET['removed'])) {
-            Notices::success(__('Language has been successfully deleted.'));
+            $this->core->notices->success(__('Language has been successfully deleted.'));
         }
 
         if (!empty($_GET['added'])) {
-            Notices::success(($_GET['added'] == 2 ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
+            $this->core->notices->success(($_GET['added'] == 2 ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
         }
 
         # Get languages list on Dotclear.net

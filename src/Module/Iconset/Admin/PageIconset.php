@@ -102,9 +102,7 @@ class PageIconset extends Page
         }
 
         if ($this->from_configuration) {
-            echo
-                Notices::getNotices() .
-                $this->core->iconsets->displayModuleConfiguration();
+            echo $this->core->iconsets->displayModuleConfiguration();
 
             return;
         }
@@ -113,7 +111,7 @@ class PageIconset extends Page
         if ($this->core->auth->isSuperAdmin()) {
             if (!$this->core->error->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    Notices::success(__('Manual checking of modules update done successfully.'));
+                    $this->core->notices->success(__('Manual checking of modules update done successfully.'));
                 }
             }
 

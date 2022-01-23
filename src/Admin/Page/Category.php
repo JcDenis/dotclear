@@ -109,7 +109,7 @@ class Category extends Page
             if ($this->cat_parent != $new_parent) {
                 try {
                     $this->core->blog->setCategoryParent($this->cat_id, $new_parent);
-                    Notices::addSuccessNotice(__('The category has been successfully moved'));
+                    $this->core->notices->addSuccessNotice(__('The category has been successfully moved'));
                     $this->core->adminurl->redirect('admin.categories');
                 } catch (Exception $e) {
                     $this->core->error->add($e->getMessage());
@@ -121,7 +121,7 @@ class Category extends Page
         if ($this->cat_id && isset($_POST['cat_sibling'])) {
             try {
                 $this->core->blog->setCategoryPosition($this->cat_id, (integer) $_POST['cat_sibling'], $_POST['cat_move']);
-                Notices::addSuccessNotice(__('The category has been successfully moved'));
+                $this->core->notices->addSuccessNotice(__('The category has been successfully moved'));
                 $this->core->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -155,7 +155,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminAfterCategoryUpdate
                     $this->core->behaviors->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
 
-                    Notices::addSuccessNotice(__('The category has been successfully updated.'));
+                    $this->core->notices->addSuccessNotice(__('The category has been successfully updated.'));
 
                     $this->core->adminurl->redirect('admin.category', ['id' => $_POST['id']]);
                 }
@@ -169,7 +169,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminAfterCategoryCreate
                     $this->core->behaviors->call('adminAfterCategoryCreate', $cur, $id);
 
-                    Notices::addSuccessNotice(sprintf(__('The category "%s" has been successfully created.'),
+                    $this->core->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully created.'),
                         Html::escapeHTML($cur->cat_title)));
                     $this->core->adminurl->redirect('admin.categories');
                 }
@@ -217,7 +217,7 @@ class Category extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            Notices::success(__('Category has been successfully updated.'));
+            $this->core->notices->success(__('Category has been successfully updated.'));
         }
 
         $blog_settings = new Settings($this->core, $this->core->blog->id);

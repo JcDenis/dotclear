@@ -120,7 +120,7 @@ class DefaultPostAction
         }
         // Set status of remaining entries
         $core->blog->updPostsStatus($posts_ids, $status);
-        Notices::addSuccessNotice(sprintf(
+        $core->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully updated to status : "%s"',
                 '%d entries have been successfully updated to status : "%s"',
@@ -141,7 +141,7 @@ class DefaultPostAction
         $action = $ap->getAction();
         $core->blog->updPostsSelected($posts_ids, $action == 'selected');
         if ($action == 'selected') {
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully marked as selected',
                     '%d entries have been successfully marked as selected',
@@ -150,7 +150,7 @@ class DefaultPostAction
                 count($posts_ids))
             );
         } else {
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully marked as unselected',
                     '%d entries have been successfully marked as unselected',
@@ -178,7 +178,7 @@ class DefaultPostAction
         $core->behaviors->call('adminBeforePostsDelete', $posts_ids);
 
         $core->blog->delPosts($posts_ids);
-        Notices::addSuccessNotice(sprintf(
+        $core->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully deleted',
                 '%d entries have been successfully deleted',
@@ -218,7 +218,7 @@ class DefaultPostAction
 
             $core->blog->updPostsCategory($posts_ids, $new_cat_id);
             $title = $core->blog->getCategory($new_cat_id);
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully moved to category "%s"',
                     '%d entries have been successfully moved to category "%s"',
@@ -285,7 +285,7 @@ class DefaultPostAction
             $cur          = $core->con->openCursor($core->prefix . 'post');
             $cur->user_id = $new_user_id;
             $cur->update('WHERE post_id ' . $core->con->in($posts_ids));
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to user "%s"',
                     '%d entries have been successfully set to user "%s"',
@@ -347,7 +347,7 @@ class DefaultPostAction
             $cur            = $core->con->openCursor($core->prefix . 'post');
             $cur->post_lang = $new_lang;
             $cur->update('WHERE post_id ' . $core->con->in($posts_ids));
-            Notices::addSuccessNotice(sprintf(
+            $core->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to language "%s"',
                     '%d entries have been successfully set to language "%s"',

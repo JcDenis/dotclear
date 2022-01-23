@@ -59,7 +59,7 @@ class Page extends AbstractPage
                     $this->core->blog->triggerBlog();
                 }
 
-                Notices::addSuccessNotice(__('Configuration successfully updated'));
+                $this->core->notices->addSuccessNotice(__('Configuration successfully updated'));
                 $this->core->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -80,7 +80,7 @@ class Page extends AbstractPage
                     $this->core->blog->triggerBlog();
                 }
 
-                Notices::addSuccessNotice(__('Configuration successfully updated'));
+                $this->core->notices->addSuccessNotice(__('Configuration successfully updated'));
                 $this->core->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -107,8 +107,6 @@ class Page extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo Notices::getNotices();
-
         echo
         '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML($this->core->blog->name)) . '">' .
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML($this->core->blog->name)) . '</h3>';

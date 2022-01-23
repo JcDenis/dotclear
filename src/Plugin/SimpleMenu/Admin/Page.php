@@ -162,7 +162,7 @@ class Page extends AbstractPage
                 $this->core->blog->triggerBlog();
 
                 // All done successfully, return to menu items list
-                Notices::addSuccessNotice(__('Configuration successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Configuration successfully updated.'));
                 $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -294,12 +294,12 @@ class Page extends AbstractPage
                                 $this->core->blog->triggerBlog();
 
                                 // All done successfully, return to menu items list
-                                Notices::addSuccessNotice(__('Menu item has been successfully added.'));
+                                $this->core->notices->addSuccessNotice(__('Menu item has been successfully added.'));
                                 $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
                             } else {
                                 $this->sm_step              = 3;
                                 $this->sm_item_select_label = $this->sm_item_label;
-                                Notices::addErrorNotice(__('Label and URL of menu item are mandatory.'));
+                                $this->core->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (Exception $e) {
                             $this->core->error->add($e->getMessage());
@@ -333,7 +333,7 @@ class Page extends AbstractPage
                             $this->core->blog->triggerBlog();
 
                             // All done successfully, return to menu items list
-                            Notices::addSuccessNotice(__('Menu items have been successfully removed.'));
+                            $this->core->notices->addSuccessNotice(__('Menu items have been successfully removed.'));
                             $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
                         } else {
                             throw new ModuleException(__('No menu items selected.'));
@@ -399,7 +399,7 @@ class Page extends AbstractPage
                         $this->core->blog->triggerBlog();
 
                         // All done successfully, return to menu items list
-                        Notices::addSuccessNotice(__('Menu items have been successfully updated.'));
+                        $this->core->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
                         $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
                     } catch (Exception $e) {
                         $this->core->error->add($e->getMessage());
@@ -465,8 +465,6 @@ class Page extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo Notices::getNotices();
-
         if ($this->sm_step) {
             // Formulaire d'ajout d'un item
             switch ($this->sm_step) {

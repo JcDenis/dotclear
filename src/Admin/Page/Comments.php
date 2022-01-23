@@ -112,9 +112,9 @@ class Comments extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            Notices::success(__('Selected comments have been successfully updated.'));
+            $this->core->notices->success(__('Selected comments have been successfully updated.'));
         } elseif (!empty($_GET['del'])) {
-            Notices::success(__('Selected comments have been successfully deleted.'));
+            $this->core->notices->success(__('Selected comments have been successfully deleted.'));
         }
 
         if ($this->core->error->flag()) {
@@ -128,7 +128,7 @@ class Comments extends Page
         }
 
         if (isset($_SESSION['comments_del_spam'])) {
-            Notices::message(__('Spam comments have been successfully deleted.'));
+            $this->core->notices->message(__('Spam comments have been successfully deleted.'));
             unset($_SESSION['comments_del_spam']);
         }
 

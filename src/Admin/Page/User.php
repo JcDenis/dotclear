@@ -150,7 +150,7 @@ class User extends Page
                         $this->core->session->destroy();
                     }
 
-                    Notices::addSuccessNotice(__('User has been successfully updated.'));
+                    $this->core->notices->addSuccessNotice(__('User has been successfully updated.'));
                     $this->core->adminurl->redirect('admin.user', ['id' => $new_id]);
                 }
                 # Add user
@@ -181,8 +181,8 @@ class User extends Page
                     # --BEHAVIOR-- adminAfterUserCreate
                     $this->core->behaviors->call('adminAfterUserCreate', $cur, $new_id);
 
-                    Notices::addSuccessNotice(__('User has been successfully created.'));
-                    Notices::addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
+                    $this->core->notices->addSuccessNotice(__('User has been successfully created.'));
+                    $this->core->notices->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
                     if (!empty($_POST['saveplus'])) {
                         $this->core->adminurl->redirect('admin.user');
                     } else {
@@ -222,11 +222,11 @@ class User extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            Notices::success(__('User has been successfully updated.'));
+            $this->core->notices->success(__('User has been successfully updated.'));
         }
 
         if (!empty($_GET['add'])) {
-            Notices::success(__('User has been successfully created.'));
+            $this->core->notices->success(__('User has been successfully created.'));
         }
 
         $formaters_combo = Combos::getFormatersCombo();

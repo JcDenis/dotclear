@@ -196,7 +196,7 @@ class Page extends AbstractPage
                 $this->core->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
                 $this->core->blog->triggerBlog();
 
-                Notices::addSuccessNotice(__('Sidebars and their widgets have been saved.'));
+                $this->core->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
                 $this->core->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -208,7 +208,7 @@ class Page extends AbstractPage
                 $this->core->blog->settings->widgets->put('widgets_custom', '');
                 $this->core->blog->triggerBlog();
 
-                Notices::addSuccessNotice(__('Sidebars have been resetting.'));
+                $this->core->notices->addSuccessNotice(__('Sidebars have been resetting.'));
                 $this->core->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -231,8 +231,6 @@ class Page extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo Notices::getNotices();
-
         # All widgets
         echo
         '<form id="listWidgets" action="' . $this->core->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .

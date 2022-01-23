@@ -230,7 +230,7 @@ class UserPref extends Page
                 # --BEHAVIOR-- adminAfterUserUpdate
                 $this->core->behaviors->call('adminAfterUserProfileUpdate', $cur, $this->core->auth->userID());
 
-                Notices::addSuccessNotice(__('Personal information has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Personal information has been successfully updated.'));
 
                 $this->core->adminurl->redirect('admin.user.pref');
             } catch (Exception $e) {
@@ -333,7 +333,7 @@ class UserPref extends Page
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
                 $this->core->behaviors->call('adminAfterUserOptionsUpdate', $cur, $this->core->auth->userID());
 
-                Notices::addSuccessNotice(__('Personal options has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
                 $this->core->adminurl->redirect('admin.user.pref', [], '#user-options');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -360,7 +360,7 @@ class UserPref extends Page
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
                 $this->core->behaviors->call('adminAfterDashboardOptionsUpdate', $this->core->auth->userID());
 
-                Notices::addSuccessNotice(__('Dashboard options has been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -382,7 +382,7 @@ class UserPref extends Page
                 $this->core->favs->setFavoriteIDs($user_favs, false);
 
                 if (!$this->core->error->flag()) {
-                    Notices::addSuccessNotice(__('Favorites have been successfully added.'));
+                    $this->core->notices->addSuccessNotice(__('Favorites have been successfully added.'));
                     $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
@@ -407,7 +407,7 @@ class UserPref extends Page
                 }
                 $this->core->favs->setFavoriteIDs(array_keys($user_fav_ids), false);
                 if (!$this->core->error->flag()) {
-                    Notices::addSuccessNotice(__('Favorites have been successfully removed.'));
+                    $this->core->notices->addSuccessNotice(__('Favorites have been successfully removed.'));
                     $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
@@ -433,7 +433,7 @@ class UserPref extends Page
             }
             $this->core->favs->setFavoriteIDs($order, false);
             if (!$this->core->error->flag()) {
-                Notices::addSuccessNotice(__('Favorites have been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Favorites have been successfully updated.'));
                 $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
@@ -444,7 +444,7 @@ class UserPref extends Page
             $this->core->favs->setFavoriteIDs($user_favs, true);
 
             if (!$this->core->error->flag()) {
-                Notices::addSuccessNotice(__('Default favorites have been successfully updated.'));
+                $this->core->notices->addSuccessNotice(__('Default favorites have been successfully updated.'));
                 $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
@@ -457,7 +457,7 @@ class UserPref extends Page
             $this->core->auth->user_prefs->dashboard->drop('boxes_contents_order');
 
             if (!$this->core->error->flag()) {
-                Notices::addSuccessNotice(__('Dashboard items order have been successfully reset.'));
+                $this->core->notices->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
                 $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }

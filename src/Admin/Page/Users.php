@@ -108,10 +108,10 @@ class Users extends Page
         }
 
         if (!empty($_GET['del'])) {
-            Notices::message(__('User has been successfully removed.'));
+            $this->core->notices->message(__('User has been successfully removed.'));
         }
         if (!empty($_GET['upd'])) {
-            Notices::message(__('The permissions have been successfully updated.'));
+            $this->core->notices->message(__('The permissions have been successfully updated.'));
         }
 
         $combo_action = [

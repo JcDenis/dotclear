@@ -548,7 +548,7 @@ abstract class AbstractModules
                 __('The following modules have been disabled :'),
                 join('', $reason)
             );
-            Notices::addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            $this->core->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 

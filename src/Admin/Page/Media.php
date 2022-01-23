@@ -165,14 +165,14 @@ class Media extends Page
             if (array_filter($this->getDirs('files'), function ($i) use ($nd) {return ($i->basename === $nd);})
                 || array_filter($this->getDirs('dirs'), function ($i) use ($nd) {return ($i->basename === $nd);})
             ) {
-                Notices::addWarningNotice(sprintf(
+                $this->core->notices->addWarningNotice(sprintf(
                     __('Directory or file "%s" already exists.'),
                     Html::escapeHTML($nd)
                 ));
             } else {
                 try {
                     $this->core->media->makeDir($_POST['newdir']);
-                    Notices::addSuccessNotice(sprintf(
+                    $this->core->notices->addSuccessNotice(sprintf(
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
                     ));
@@ -227,7 +227,7 @@ class Media extends Page
 
                 $this->core->media->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
 
-                Notices::addSuccessNotice(__('Files have been successfully uploaded.'));
+                $this->core->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
                 $this->core->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -240,7 +240,7 @@ class Media extends Page
                 foreach ($_POST['medias'] as $media) {
                     $this->core->media->removeItem(rawurldecode($media));
                 }
-                Notices::addSuccessNotice(
+                $this->core->notices->addSuccessNotice(
                     sprintf(__('Successfully delete one media.',
                         'Successfully delete %d medias.',
                         count($_POST['medias'])
@@ -272,7 +272,7 @@ class Media extends Page
                     $this->updateLast($this->filter->d . '/' . Path::clean($_POST['remove']), true);
                     $this->updateFav($this->filter->d . '/' . Path::clean($_POST['remove']), true);
                 }
-                Notices::addSuccessNotice($msg);
+                $this->core->notices->addSuccessNotice($msg);
                 $this->core->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
                 $this->core->error->add($e->getMessage());
@@ -284,7 +284,7 @@ class Media extends Page
             try {
                 $this->core->media->rebuild($this->filter->d);
 
-                Notices::success(sprintf(
+                $this->core->notices->success(sprintf(
                     __('Directory "%s" has been successfully rebuilt.'),
                     Html::escapeHTML($this->filter->d))
                 );
@@ -331,12 +331,8 @@ class Media extends Page
             retunr;
         }
 
-        if ($this->filter->popup) {
-            echo Notices::getNotices();
-        }
-
         if (!$this->mediaWritable() && !$this->core->error->flag()) {
-            Notice::warning(__('You do not have sufficient permissions to write to this folder.'));
+            $this->core->notices->warning(__('You do not have sufficient permissions to write to this folder.'));
         }
 
         if (!$this->getDirs()) {
