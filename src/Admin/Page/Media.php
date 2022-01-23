@@ -152,11 +152,11 @@ class Media extends Page
         # User last and fav dirs
         if ($this->showLast()) {
             if (!empty($_GET['fav'])) {
-                if ($this->updateFav(rtrim($this->filter->d, '/'), $_GET['fav'] == 'n')) {
+                if ($this->updateFav(rtrim((string) $this->filter->d, '/'), $_GET['fav'] == 'n')) {
                     $this->core->adminurl->redirect('admin.media', $this->filter->values());
                 }
             }
-            $this->updateLast(rtrim($this->filter->d, '/'));
+            $this->updateLast(rtrim((string) $this->filter->d, '/'));
         }
 
         # New directory
@@ -355,9 +355,9 @@ class Media extends Page
                 $ld_params['d'] = $ld;
                 $ld_params['q'] = ''; // Reset search
                 $last_folders_item .= '<option value="' . urldecode($this->core->adminurl->get('admin.media', $ld_params)) . '"' .
-                    ($ld == rtrim($this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
+                    ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                     '/' . $ld . '</option>' . "\n";
-                if ($ld == rtrim($this->filter->d, '/')) {
+                if ($ld == rtrim((string) $this->filter->d, '/')) {
                     // Current directory is a favorite → button will un-fav
                     $ld_params['fav'] = 'n';
                     $fav_url          = urldecode($this->core->adminurl->get('admin.media', $ld_params));
@@ -378,9 +378,9 @@ class Media extends Page
                     $ld_params['d'] = $ld;
                     $ld_params['q'] = ''; // Reset search
                     $last_folders_item .= '<option value="' . urldecode($this->core->adminurl->get('admin.media', $ld_params)) . '"' .
-                        ($ld == rtrim($this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
+                        ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                         '/' . $ld . '</option>' . "\n";
-                    if ($ld == rtrim($this->filter->d, '/')) {
+                    if ($ld == rtrim((string) $this->filter->d, '/')) {
                         // Current directory is not a favorite → button will fav
                         $ld_params['fav'] = 'y';
                         $fav_url          = urldecode($this->core->adminurl->get('admin.media', $ld_params));

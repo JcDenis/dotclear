@@ -125,7 +125,7 @@ class UrlHandler
     protected function getPageNumber(&$args)
     {
         if (preg_match('#(^|/)page/([0-9]+)$#', $args, $m)) {
-            $n = (integer) $m[2];
+            $n = (int) $m[2];
             if ($n > 0) {
                 $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
@@ -166,12 +166,14 @@ class UrlHandler
         header('Content-Type: ' . $this->core->_ctx->content_type . '; charset=UTF-8');
 
         // Additional headers
-        $headers = new ArrayObject;
+        $headers = new ArrayObject();
         if ($this->core->blog->settings->system->prevents_clickjacking) {
             if ($this->core->_ctx->exists('xframeoption')) {
                 $url    = parse_url($this->core->_ctx->xframeoption);
-                $header = sprintf('X-Frame-Options: %s',
-                    is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN');
+                $header = sprintf(
+                    'X-Frame-Options: %s',
+                    is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
+                );
             } else {
                 // Prevents Clickjacking as far as possible
                 $header = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
@@ -734,6 +736,7 @@ class UrlHandler
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
             # RSS XSLT stylesheet
+            http::$cache_max_age = 60 * 60;
             $this->serveDocument('rss2.xsl', 'text/xml');
 
             return;
@@ -741,7 +744,7 @@ class UrlHandler
             # Post comments feed
             $type     = $m[1];
             $comments = true;
-            $post_id  = (integer) $m[2];
+            $post_id  = (int) $m[2];
         } elseif (preg_match('#^(?:category/(.+)/)?(atom|rss2)(/comments)?$#', $args, $m)) {
             # All posts or comments feed
             $type     = $m[2];
@@ -822,7 +825,7 @@ class UrlHandler
             $this->p404();
         } else {
             // Save locally post_id from args
-            $post_id = (integer) $args;
+            $post_id = (int) $args;
 
             if (!is_array($args)) {
                 $args = [];
@@ -896,7 +899,7 @@ class UrlHandler
         $dirs  = [];
         $args  = Path::clean($args);
         $args  = trim($args);
-        $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot'];
+        $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt'];];
 
         # No files given
         if (empty($args)) {

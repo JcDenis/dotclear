@@ -119,7 +119,7 @@ class Auth extends Page
             $user_id = substr($_COOKIE['dc_admin'], 40);
             $user_id = @unpack('a32', @pack('H*', $user_id));
             if (is_array($this->user_id)) {
-                $this->user_id  = trim($user_id[1]);
+                $this->user_id  = trim((string) $user_id[1]);
                 $this->user_key = substr($_COOKIE['dc_admin'], 0, 40);
                 $this->user_pwd = null;
             } else {
@@ -230,11 +230,11 @@ class Auth extends Page
                 $user_id = substr($data['cookie_admin'], 40);
                 $user_id = @unpack('a32', @pack('H*', $user_id));
                 if (is_array($user_id)) {
-                    $this->user_id    = trim($data['user_id']);
+                    $this->user_id    = trim((string) $data['user_id']);
                     $this->user_key   = substr($data['cookie_admin'], 0, 40);
                     $check_user = $this->core->auth->checkUser($this->user_id, null, $this->user_key) === true;
                 } else {
-                    $this->user_id = trim($user_id);  // @phpstan-ignore-line
+                    $this->user_id = trim((string) $user_id);  // @phpstan-ignore-line
                 }
             }
 
