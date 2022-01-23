@@ -270,7 +270,7 @@ class Combos
 
     public function getPostsSortbyCombo()
     {
-        $sortby_combo = [
+        $sortby_combo = new ArrayObject([
             __('Date')                 => 'post_dt',
             __('Title')                => 'post_title',
             __('Category')             => 'cat_title',
@@ -279,16 +279,16 @@ class Combos
             __('Selected')             => 'post_selected',
             __('Number of comments')   => 'nb_comment',
             __('Number of trackbacks') => 'nb_trackback'
-        ];
+        ]);
         # --BEHAVIOR-- adminPostsSortbyCombo
-        $this->core->behaviors->call('adminPostsSortbyCombo', [& $sortby_combo]);
+        $this->core->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
 
-        return $sortby_combo;
+        return $sortby_combo->getArrayCopy();
     }
 
     public function getCommentsSortbyCombo()
     {
-        $sortby_combo = [
+        $sortby_combo = new ArrayObject([
             __('Date')        => 'comment_dt',
             __('Entry title') => 'post_title',
             __('Entry date')  => 'post_dt',
@@ -296,41 +296,41 @@ class Combos
             __('Status')      => 'comment_status',
             __('IP')          => 'comment_ip',
             __('Spam filter') => 'comment_spam_filter'
-        ];
+        ]);
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        $this->core->behaviors->call('adminCommentsSortbyCombo', [& $sortby_combo]);
+        $this->core->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
 
-        return $sortby_combo;
+        return $sortby_combo->getArrayCopy();
     }
 
     public function getBlogsSortbyCombo()
     {
-        $sortby_combo = [
+        $sortby_combo = new ArrayObject([
             __('Last update') => 'blog_upddt',
             __('Blog name')   => 'UPPER(blog_name)',
             __('Blog ID')     => 'B.blog_id',
             __('Status')      => 'blog_status'
-        ];
+        ]);
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        $this->core->behaviors->call('adminBlogsSortbyCombo', [& $sortby_combo]);
+        $this->core->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
 
-        return $sortby_combo;
+        return $sortby_combo->getArrayCopy();
     }
 
     public function getUsersSortbyCombo()
     {
-        $sortby_combo = [];
+        $sortby_combo = new ArrayObject([]);
         if ($this->core->auth->isSuperAdmin()) {
-            $sortby_combo = [
+            $sortby_combo = new ArrayObject([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
                 __('First Name')        => 'user_firstname',
                 __('Display name')      => 'user_displayname',
                 __('Number of entries') => 'nb_post'
-            ];
+            ]);
             # --BEHAVIOR-- adminUsersSortbyCombo
-            $this->core->behaviors->call('adminUsersSortbyCombo', [& $sortby_combo]);
+            $this->core->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
         }
-        return $sortby_combo;
+        return $sortby_combo->getArrayCopy();
     }
 }
