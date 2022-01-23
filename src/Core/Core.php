@@ -444,6 +444,13 @@ class Core
             return call_user_func($this->formaters[$editor][$formater], $str);
         }
 
+        // Fallback with another editor if possible
+        foreach ($this->formaters as $editor => $formaters) {
+            if (array_key_exists($name, $formaters)) {
+                return call_user_func($this->formaters[$editor][$name], $str);
+            }
+        }
+
         return $str;
     }
     //@}
@@ -1334,7 +1341,7 @@ class Core
      */
     private function initWiki(): void
     {
-        $this->wiki2xhtml = new Wiki2xhtml;
+        $this->wiki2xhtml = new Wiki2xhtml();
     }
 
     /**
@@ -1733,7 +1740,7 @@ class Core
 
         while ($rs->fetch()) {
             $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
-            $cur->update('WHERE comment_id = ' . (integer) $rs->comment_id);
+            $cur->update('WHERE comment_id = ' . (int) $rs->comment_id);
             $cur->clean();
         }
 
