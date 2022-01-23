@@ -214,6 +214,7 @@ class Prepend extends Core
         $this->url->register('preview', 'preview', '^preview/(.+)$', [$c, 'preview']);
         $this->url->register('category', 'category', '^category/(.+)$', [$c, 'category']);
         $this->url->register('archive', 'archive', '^archive(/.+)?$', [$c, 'archive']);
+        $this->url->register('files', 'files', '^files/(.+)?$', [$c, 'files']);
 
         $this->url->register('feed', 'feed', '^feed/(.+)$', [$c, 'feed']);
         $this->url->register('trackback', 'trackback', '^trackback/(.+)$', [$c, 'trackback']);

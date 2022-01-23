@@ -823,7 +823,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '$core->blog->getQmarkURL()."tf="') . '; ?>';
+        return '<?php echo ' . sprintf($f, '$core->blog->getQmarkURL()."files/"') . '; ?>';
     }
 
     /*dtd

@@ -26,6 +26,8 @@ use Dotclear\Public\Context;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
+use Dotclear\File\Files;
+use Dotclear\File\Path;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\UrlHandler as BaseUrlHandler;
 
@@ -39,6 +41,8 @@ class UrlHandler extends BaseUrlHandler
 
     public static $mod_files = [];
     public static $mod_ts = [];
+
+    public static $allow_sub_dir = false;
 
     public $args;
 
@@ -780,5 +784,100 @@ class UrlHandler extends BaseUrlHandler
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
         $server  = new XmlRpc($core, $blog_id);
         $server->serve();
+    }
+
+    public static function files($args)
+    {
+        $core  = static::$core;
+        $dirs  = [];
+        $args  = Path::clean($args);
+        $args  = trim($args);
+        $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot'];
+
+        # No files given
+        if (empty($args)) {
+            self::p404();
+        }
+
+        # Disable directory change ".."
+        if (!self::$allow_sub_dir && strpos('..', $args) !== false) {
+            self::p404();
+        }
+
+        # Current Theme dir
+        $__parent_theme = null;
+        $__theme = $core->themes->getModule((string) $core->blog->settings->system->theme);
+        if (!$__theme) {
+            $__theme = $core->themes->getModule('default');
+        # Theme parent
+        } elseif ($__theme->parent()) {
+            $__parent_theme = $core->themes->getModule((string) $__theme->parent());
+            if (!$__parent_theme) {
+                $__theme = $core->themes->getModule('default');
+                $__parent_theme = null;
+            } else {
+            }
+        }
+        if ($__theme) {
+            $dirs[] = $core::path($__theme->root(), 'files');
+        }
+        if ($__parent_theme) {
+            $dirs[] = $core::path($__parent_theme->root(), 'files');
+        }
+
+        # Modules dirs
+        $pos = strpos($args, '/');
+        if ($pos) {
+            # Sanitize modules type
+            $type = ucfirst(strtolower(substr($args, 0, $pos)));
+            $modf = substr($args, $pos, strlen($args));
+
+            # Check class
+            $class = $core::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+            if (is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
+                # Get paths and serve file
+                $modules = new $class($core);
+                $dirs    = $modules->getModulesPath();
+                $args    = $modf;
+            }
+        }
+
+        # List other available file paths
+        $dirs[] = DOTCLEAR_VAR_DIR;
+        $dirs[] = $core::root('Public', 'files');
+        $dirs[] = $core::root('Core', 'files', 'css');
+        $dirs[] = $core::root('Core', 'files', 'js');
+
+        # Search dirs
+        $file = false;
+        foreach ($dirs as $dir) {
+            $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $args]));
+
+            if ($file !== false) {
+                break;
+            }
+        }
+        unset($dirs);
+
+        # Check file
+        if ($file === false || !is_file($file) || !is_readable($file)) {
+            self::p404();
+        }
+
+        # Check file extension
+        if (!in_array(Files::getExtension($file), $types)) {
+            self::p404();
+        }
+
+        # Set http cache (one week)
+        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
+        Http::cache(array_merge([$file], get_included_files()));
+
+        # Send file to output
+        header('Content-Type: ' . Files::getMimeType($file));
+        // Content-length is not mandatory and must be the exact size of content transfered AFTER possible compression (gzip, deflate, …)
+        //header('Content-Length: '.filesize($file));
+        readfile($file);
+        exit;
     }
 }

@@ -48,6 +48,9 @@ class Prepend extends BasePrepend
 
     public function __construct(string $blog_id = null)
     {
+        # Serve core files
+        $this->publicServeFile();
+
         # Load Core Prepend
         parent::__construct();
 
@@ -189,9 +192,6 @@ class Prepend extends BasePrepend
         }
         $this->url->mode = (string) $this->blog->settings->system->url_scan;
 
-        # Serve modules file (mf)
-        $this->publicServeFile();
-
         $GLOBALS['core'] = $this;
         context::setCore($this);
         $GLOBALS['_ctx'] = $this->_ctx;
@@ -235,68 +235,6 @@ throw $e;
             exit;
         }
 
-        $path = [];
-        $get = '';
-
-        # Serve modules file
-        if (!empty($_GET['mf'])) {
-            # Extract modules class name from url
-            $pos = strpos($_GET['mf'], '/');
-            if (!$pos) {
-                static::error(__('Failed to load file'), __('File handler not found'), 20);
-            }
-
-            # Sanitize modules type
-            $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
-            $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
-
-            # Check class
-            $class = static::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
-            if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-                static::error(__('Failed to load file'), __('File handler not found'), 20);
-            }
-
-            # Get paths and serve file
-            $modules = new $class($this);
-            $paths   = $modules->getModulesPath();
-
-            $get = 'mf';
-        }
-
-        # Special Theme file
-        if (!empty($_GET['tf'])) {
-            # Theme
-            $__parent_theme = null;
-            $__theme = $this->themes->getModule((string) $this->blog->settings->system->theme);
-            if (!$__theme) {
-                $__theme = $this->themes->getModule('default');
-            # Theme parent
-            } elseif ($__theme->parent()) {
-                $__parent_theme = $this->themes->getModule((string) $__theme->parent());
-                if (!$__parent_theme) {
-                    $__theme = $this->themes->getModule('default');
-                    $__parent_theme = null;
-                } else {
-                }
-            }
-            if ($__theme) {
-                $paths[] = static::path($__theme->root(), 'files');
-            }
-            if ($__parent_theme) {
-                $paths[] = static::path($__parent_theme->root(), 'files');
-            }
-
-            $get = 'tf';
-        }
-
-        if (!$get) {
-            return;
-        }
-
-        $paths[] = static::root('Public', 'files');
-        $paths[] = static::root('Core', 'files', 'css');
-        $paths[] = static::root('Core', 'files', 'js');
-        Utils::fileServer($paths, $get);
-        exit;
+        # other files will be served from url handler
     }
 }
