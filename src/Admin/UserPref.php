@@ -63,12 +63,12 @@ class UserPref
     /**
      * Get users columns preferences
      *
-     * @param   string|null     $type       The columns type
-     * @param   array|null      $columns    The columns list
+     * @param   string              $type       The columns type
+     * @param   array|ArrayObject   $columns    The columns list
      *
-     * @return  array|ArrayObject           The user columns
+     * @return  array|ArrayObject               The user columns
      */
-    public function getUserColumns(string $type = null, ?array $columns = null): mixed
+    public function getUserColumns(string $type = null, array|ArrayObject $columns = null): array|ArrayObject
     {
         # Get default colums (admin lists)
         $cols = $this->getDefaultColumns();
