@@ -17,8 +17,6 @@ use ArrayObject;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
-use Dotclear\Core\StaticCore;
-
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Html\Html;
@@ -32,28 +30,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
-    use StaticCore;
-
-    /**
-     * Static function that returns user's common name given to his
-     * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
-     * <var>user_displayname</var>.
-     *
-     * @deprecated use Dotclear\Container\User::getUserCN();
-     *
-     * @param      string       $user_id           The user identifier
-     * @param      string|null  $user_name         The user name
-     * @param      string|null  $user_firstname    The user firstname
-     * @param      string|null  $user_displayname  The user displayname
-     *
-     * @return     string  The user cn.
-     */
-    public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
-    {
-        DeprecatedException::throw();
-
-        return ContainerUser::getUserCN($user_id, $user_name, $user_firstname, $user_displayname);
-    }
+    protected static $lexical_lang = '';
 
     /**
      * Cleanup a list of IDs
@@ -135,45 +112,6 @@ class Utils
         return '<script src="' . $escaped_src . '"></script>' . "\n";
     }
 
-    /**
-     * return a list of javascript variables définitions code
-     *
-     * @deprecated 2.15 use Utils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     *
-     * @param      array  $vars   The variables
-     *
-     * @return     string  javascript code (inside <script… ></script>)
-     */
-    public static function jsVars(array $vars): string
-    {
-        DeprecatedException::throw();
-
-        $ret = '<script>' . "\n";
-        foreach ($vars as $var => $value) {
-            $ret .= 'var ' . $var . ' = ' . (is_string($value) ? '"' . Html::escapeJS($value) . '"' : $value) . ';' . "\n";
-        }
-        $ret .= "</script>\n";
-
-        return $ret;
-    }
-
-    /**
-     * return a javascript variable definition line code
-     *
-     * @deprecated 2.15 use Utils::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     *
-     * @param      string  $n      variable name
-     * @param      mixed   $v      value
-     *
-     * @return     string  javascript code
-     */
-    public static function jsVar(string $n, mixed $v): string
-    {
-        DeprecatedException::throw();
-
-        return Utils::jsVars([$n => $v]);
-    }
-
     public static function jsJson(string $id, mixed $vars): string
     {
         // Use echo Utils::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
@@ -233,24 +171,17 @@ class Utils
 
     public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
     {
-        try {
-            $core = self::getCore();
-        } catch (CoreException $e) {
-            $ns = 'lang';
+        if ($ns != 'lang' && self::$lexical_lang == '') {
+            self::$lexical_lang = $lang;
         }
 
         // Switch to appropriate locale depending on $ns
         switch ($ns) {
             case 'admin':
-                // Set locale with user prefs
-                $user_language = $core->auth->getInfo('user_lang');
-                setlocale(LC_COLLATE, $user_language);
-
-                break;
             case 'public':
-                // Set locale with blog params
-                $blog_language = $core->blog->settings->system->lang;
-                setlocale(LC_COLLATE, $blog_language);
+                // Set locale with blog params (public) or user prefs (admin)
+                // see Dotclear\Admin|Public\Prepend
+                setlocale(LC_COLLATE, self::$lexical_lang);
 
                 break;
             case 'lang':
