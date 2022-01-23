@@ -26,8 +26,6 @@ use Dotclear\Core\Utils;
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Combos;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Utils\Dt;
 use Dotclear\Html\Html;
@@ -110,7 +108,7 @@ class BlogPref extends Page
             ];
 
             # Status combo
-            $status_combo = Combos::getBlogStatusescombo();
+            $status_combo = $this->core->combos->getBlogStatusescombo();
 
             $cur            = $this->core->con->openCursor($this->core->prefix . 'blog');
             $cur->blog_id   = $_POST['blog_id'];
@@ -309,10 +307,10 @@ class BlogPref extends Page
         }
 
         # Language codes
-        $lang_combo = Combos::getAdminLangsCombo();
+        $lang_combo = $this->core->combos->getAdminLangsCombo();
 
         # Status combo
-        $status_combo = Combos::getBlogStatusescombo();
+        $status_combo = $this->core->combos->getBlogStatusescombo();
 
         # Date format combo
         $now                = time();

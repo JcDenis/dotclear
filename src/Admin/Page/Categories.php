@@ -19,8 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Database\Record;
 
@@ -167,7 +165,7 @@ class Categories extends Page
             $this->core->notices->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
-        $categories_combo = Combos::getCategoriesCombo($this->caregories);
+        $categories_combo = $this->core->combos->getCategoriesCombo($this->caregories);
 
         echo
         '<p class="top-add"><a class="button add" href="' . $this->core->adminurl->get('admin.category') . '">' . __('New category') . '</a></p>';

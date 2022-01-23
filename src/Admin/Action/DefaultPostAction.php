@@ -19,8 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Action;
-use Dotclear\Admin\Combos;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Utils\L10n;
 use Dotclear\Html\Form;
@@ -230,7 +228,7 @@ class DefaultPostAction
 
             $ap->redirect(true);
         } else {
-            $categories_combo = Combos::getCategoriesCombo(
+            $categories_combo = $this->core->combos->getCategoriesCombo(
                 $core->blog->getCategories()
             );
 

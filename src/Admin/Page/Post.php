@@ -23,8 +23,6 @@ use Dotclear\Core\Media;
 use Dotclear\Core\Trackback;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Action\CommentAction;
 
 use Dotclear\Html\Form;
@@ -484,14 +482,14 @@ class Post extends Page
 
     protected function getPageContent(): void
     {
-        $categories_combo = Combos::getCategoriesCombo(
+        $categories_combo = $this->core->combos->getCategoriesCombo(
             $this->core->blog->getCategories()
         );
 
-        $status_combo = Combos::getPostStatusesCombo();
+        $status_combo = $this->core->combos->getPostStatusesCombo();
 
         $rs         = $this->core->blog->getLangs(['order' => 'asc']);
-        $lang_combo = Combos::getLangsCombo($rs, true);
+        $lang_combo = $this->core->combos->getLangsCombo($rs, true);
 
         $this->core_formaters    = $this->core->getFormaters();
         $available_formats = ['' => ''];

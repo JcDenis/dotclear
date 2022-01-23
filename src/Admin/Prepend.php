@@ -49,6 +49,9 @@ class Prepend extends BasePrepend
     /** @var UserPref           UserPref instance */
     public $userpref;
 
+    /** @var Combos             Combos instance */
+    public $combos;
+
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
 
@@ -78,7 +81,8 @@ class Prepend extends BasePrepend
         # Load core prepend and so on
         parent::__construct();
 
-        $this->notices = new Notices($this);
+        $this->notices  = new Notices($this);
+        $this->combos   = new Combos($this);
         $this->userpref = new UserPref($this);
 
         # Serve modules file (mf)

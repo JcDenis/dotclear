@@ -19,7 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -65,7 +64,7 @@ class LinkPopup extends Page
 */
         # Languages combo
         $rs         = $this->core->blog->getLangs(['order' => 'asc']);
-        $lang_combo = Combos::getLangsCombo($rs, true);
+        $lang_combo = $this->core->combos->getLangsCombo($rs, true);
 
         echo
         '<h2 class="page-title">' . __('Add a link') . '</h2>' .

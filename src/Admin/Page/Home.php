@@ -22,7 +22,6 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -327,7 +326,7 @@ class Home extends Page
         if ($this->core->auth->user_prefs->dashboard->quickentry) {
             if ($this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
                 # Getting categories
-                $categories_combo = Combos::getCategoriesCombo(
+                $categories_combo = $this->core->combos->getCategoriesCombo(
                     $this->core->blog->getCategories([])
                 );
 

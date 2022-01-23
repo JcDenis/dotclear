@@ -19,8 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -220,7 +218,7 @@ class Comment extends Page
         }
 
         # Status combo
-        $status_combo = Combos::getCommentStatusesCombo();
+        $status_combo = $this->core->combos->getCommentStatusesCombo();
 
         $comment_mailto = '';
         if ($this->comment_email) {

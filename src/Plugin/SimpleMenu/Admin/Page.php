@@ -20,8 +20,6 @@ use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractPage;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -61,14 +59,14 @@ class Page extends AbstractPage
         # Liste des catégories
         $categories_label = [];
         $rs               = $this->core->blog->getCategories(['post_type' => 'post']);
-        $this->sm_categories_combo = Combos::getCategoriesCombo($rs, false, true);
+        $this->sm_categories_combo = $this->core->combos->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
             $categories_label[$rs->cat_url] = html::escapeHTML($rs->cat_title);
         }
 
         # Liste des langues utilisées
-        $this->sm_langs_combo = Combos::getLangscombo(
+        $this->sm_langs_combo = $this->core->combos->getLangscombo(
             $this->core->blog->getLangs(['order' => 'asc'])
         );
 
@@ -76,7 +74,7 @@ class Page extends AbstractPage
         $rs           = $this->core->blog->getDates(['type' => 'month']);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
-            Combos::getDatesCombo($rs)
+            $this->core->combos->getDatesCombo($rs)
         );
 
         $first_year = $last_year = 0;

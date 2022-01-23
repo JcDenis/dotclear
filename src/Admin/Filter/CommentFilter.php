@@ -21,7 +21,6 @@ use Dotclear\Core\Core;
 
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -94,7 +93,7 @@ class CommentFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                Combos::getCommentStatusesCombo()
+                $this->core->combos->getCommentStatusesCombo()
             ))
             ->prime(true);
     }

@@ -20,8 +20,6 @@ use ArrayObject;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Admin\Combos;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -114,7 +112,7 @@ class UserPref
         if ($this->core->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
-                Combos::getUsersSortbyCombo(),
+                $this->core->combos->getUsersSortbyCombo(),
                 'user_id',
                 'asc',
                 [__('users per page'), 30]
@@ -124,21 +122,21 @@ class UserPref
         return [
             'posts' => [
                 __('Posts'),
-                Combos::getPostsSortbyCombo(),
+                $this->core->combos->getPostsSortbyCombo(),
                 'post_dt',
                 'desc',
                 [__('entries per page'), 30]
             ],
             'comments' => [
                 __('Comments'),
-                Combos::getCommentsSortbyCombo(),
+                $this->core->combos->getCommentsSortbyCombo(),
                 'comment_dt',
                 'desc',
                 [__('comments per page'), 30]
             ],
             'blogs' => [
                 __('Blogs'),
-                Combos::getBlogsSortbyCombo(),
+                $this->core->combos->getBlogsSortbyCombo(),
                 'blog_upddt',
                 'desc',
                 [__('blogs per page'), 30]

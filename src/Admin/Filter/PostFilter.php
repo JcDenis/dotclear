@@ -25,7 +25,6 @@ use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Filter\DefaultFilter;
 
 use Dotclear\Html\Html;
@@ -87,7 +86,7 @@ class PostFilter extends Filter
             return null;
         }
 
-        $combo = Combos::getUsersCombo($users);
+        $combo = $this->core->combos->getUsersCombo($users);
         Utils::lexicalKeySort($combo);
 
         return (new DefaultFilter('user_id'))
@@ -146,7 +145,7 @@ class PostFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                Combos::getPostStatusesCombo()
+                $this->core->combos->getPostStatusesCombo()
             ))
             ->prime(true);
     }
@@ -258,7 +257,7 @@ class PostFilter extends Filter
             ->title(__('Month:'))
             ->options(array_merge(
                 ['-' => ''],
-                Combos::getDatesCombo($dates)
+                $this->core->combos->getDatesCombo($dates)
             ));
     }
 
@@ -295,7 +294,7 @@ class PostFilter extends Filter
             ->title(__('Lang:'))
             ->options(array_merge(
                 ['-' => ''],
-                Combos::getLangsCombo($langs, false)
+                $this->core->combos->getLangsCombo($langs, false)
             ));
     }
 

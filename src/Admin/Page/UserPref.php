@@ -24,8 +24,6 @@ use Dotclear\Core\Utils;
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Menu;
 
 use Dotclear\Html\Form;
@@ -497,10 +495,10 @@ class UserPref extends Page
 
     protected function getPageContent(): void
     {
-        $editors_combo = Combos::getEditorsCombo();
+        $editors_combo = $this->core->combos->getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
-        $iconsets_combo = Combos::getIconsetCombo();
+        $iconsets_combo = $this->core->combos->getIconsetCombo();
 
         # Themes
         $theme_combo = [
@@ -578,7 +576,7 @@ class UserPref extends Page
         '<p class="form-note info" id="sanitize_urls">' . __('Invalid URLs will be automatically removed from list.') . '</p>' .
 
         '<p><label for="user_lang">' . __('Language for my interface:') . '</label>' .
-        Form::combo('user_lang', Combos::getAdminLangsCombo(), $this->container->getlang(), 'l10n') . '</p>' .
+        Form::combo('user_lang', $this->core->combos->getAdminLangsCombo(), $this->container->getlang(), 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
         Form::combo('user_tz', Dt::getZones(true, true), $this->container->getTZ()) . '</p>';
@@ -736,7 +734,7 @@ class UserPref extends Page
             if (null !== $sort_data[3]) {
                 echo
                 '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
-                Form::combo('sorts_' . $sort_type . '_order', Combos::getOrderCombo(), $sort_data[3]) . '</p>';
+                Form::combo('sorts_' . $sort_type . '_order', $this->core->combos->getOrderCombo(), $sort_data[3]) . '</p>';
             }
             if (is_array($sort_data[4])) {
                 echo
@@ -770,7 +768,7 @@ class UserPref extends Page
 
         echo
         '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
-        Form::combo('user_post_status', Combos::getPostStatusesCombo(), $this->container->getPostStatus()) . '</p>' .
+        Form::combo('user_post_status', $this->core->combos->getPostStatusesCombo(), $this->container->getPostStatus()) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
         Form::number('user_edit_size', 10, 999, (string) $this->container->getOption('edit_size')) . '</p>' .

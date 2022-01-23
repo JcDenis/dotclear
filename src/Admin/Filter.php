@@ -18,7 +18,6 @@ namespace Dotclear\Admin;
 use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Filter\DefaultFilter;
 
 use Dotclear\Html\Html;
@@ -98,10 +97,10 @@ class Filter
         }
         if (!empty($options[3])) {
             $this->filters['order'] = new DefaultFilter('order', $this->userOptions('order'));
-            $this->filters['order']->options(Combos::getOrderCombo());
+            $this->filters['order']->options($this->core->combos->getOrderCombo());
 
             if (!empty($_GET['order'])
-                && in_array($_GET['order'], Combos::getOrderCombo(), true)
+                && in_array($_GET['order'], $this->core->combos->getOrderCombo(), true)
                 && $_GET['order'] != $this->userOptions('order')
             ) {
                 $this->show(true);

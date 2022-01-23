@@ -19,7 +19,6 @@ use ArrayObject;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Admin\Combos;
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 use Dotclear\Admin\Filter\DefaultFilter;
@@ -58,7 +57,7 @@ class BlogFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                Combos::getBlogStatusesCombo()
+                $this->core->combos->getBlogStatusesCombo()
             ))
             ->prime(true);
     }

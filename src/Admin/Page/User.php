@@ -24,8 +24,6 @@ use Dotclear\Core\Prefs;
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
-use Dotclear\Admin\Combos;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -229,7 +227,7 @@ class User extends Page
             $this->core->notices->success(__('User has been successfully created.'));
         }
 
-        $formaters_combo = Combos::getFormatersCombo();
+        $formaters_combo = $this->core->combos->getFormatersCombo();
 
         echo
         '<form action="' . $this->core->adminurl->get('admin.user') . '" method="post" id="user-form">' .
@@ -352,7 +350,7 @@ class User extends Page
         '<h3>' . __('Options') . '</h3>' .
         '<h4>' . __('Interface') . '</h4>' .
         '<p><label for="user_lang">' . __('Language:') . '</label> ' .
-        Form::combo('user_lang', Combos::getAdminLangsCombo(), $this->container->getLang(), 'l10n') .
+        Form::combo('user_lang', $this->core->combos->getAdminLangsCombo(), $this->container->getLang(), 'l10n') .
         '</p>' .
 
         '<p><label for="user_tz">' . __('Timezone:') . '</label> ' .
@@ -368,7 +366,7 @@ class User extends Page
         ) .
 
         '<p><label for="user_post_status">' . __('Default entry status:') . '</label> ' .
-        Form::combo('user_post_status', Combos::getPostStatusesCombo(), $this->container->getPostStatus()) .
+        Form::combo('user_post_status', $this->core->combos->getPostStatusesCombo(), $this->container->getPostStatus()) .
         '</p>' .
 
         '<p><label for="user_edit_size">' . __('Entry edit field height:') . '</label> ' .
