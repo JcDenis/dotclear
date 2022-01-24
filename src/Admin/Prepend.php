@@ -387,19 +387,17 @@ class Prepend extends BasePrepend
 
     private function adminLoadMenu(): void
     {
-        Menu::$iconset = @$this->auth->user_prefs->interface->iconset;
-
         $this->favs    = new Favorites($this);
 
         # Menus creation
         $this->menu              = new ArrayObject();
-        $this->menu['Dashboard'] = new Menu('dashboard-menu', '');
+        $this->menu['Dashboard'] = new Menu($this, 'dashboard-menu', '');
         if (!$this->auth->user_prefs->interface->nofavmenu) {
             $this->favs->appendMenuTitle($this->menu);
         }
-        $this->menu['Blog']    = new Menu('blog-menu', 'Blog');
-        $this->menu['System']  = new Menu('system-menu', 'System');
-        $this->menu['Plugins'] = new Menu('plugins-menu', 'Plugins');
+        $this->menu['Blog']    = new Menu($this, 'blog-menu', 'Blog');
+        $this->menu['System']  = new Menu($this, 'system-menu', 'System');
+        $this->menu['Plugins'] = new Menu($this, 'plugins-menu', 'Plugins');
     }
 
     private function adminAddMenu()

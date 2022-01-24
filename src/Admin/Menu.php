@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 use Dotclear\File\Files;
@@ -25,6 +26,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 class Menu
 {
     private $id;
+    protected $core;
     protected $itemSpace;
     protected $pinned;
     protected $items;
@@ -34,17 +36,28 @@ class Menu
     /**
      * Constructs a new instance.
      *
+     * @param   Core    $core       Core instance
      * @param   string  $id         The identifier
      * @param   string  $title      The title
      * @param   string  $itemSpace  The item space
      */
-    public function __construct(string $id, string $title, string $itemSpace = '')
+    public function __construct(Core $core, string $id, string $title, string $itemSpace = '')
     {
+        $this->core      = $core;
         $this->id        = $id;
         $this->title     = $title;
         $this->itemSpace = $itemSpace;
         $this->pinned    = [];
         $this->items     = [];
+
+        if (!self::$iconset) {
+            self::$iconset   = (string) @$this->core->auth->user_prefs->interface->iconset;
+        }
+    }
+
+    public static function setIconset(string $iconset): void
+    {
+        self::$iconset = $iconset;
     }
 
     /**
@@ -160,7 +173,7 @@ class Menu
             $ahtml = '';
         }
 
-        $img = self::IconURL($img);
+        $img = $this->getIconURL($img);
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
@@ -174,13 +187,13 @@ class Menu
     /**
      * Parse icon path and url from Iconset
      *
-     * This can't call Iconset as modules are not loaded yet.
+     * This can't call "Iconset" nor behaviors as modules are not loaded yet.
      *
      * @param   string  $img    Image path
      *
      * @return  string          New image path
      */
-    public static function IconURL(string $img): string
+    public function getIconURL(string $img): string
     {
         if (!empty(self::$iconset) && !empty($img)) {
 

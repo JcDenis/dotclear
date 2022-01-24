@@ -495,6 +495,7 @@ class UserPref extends Page
 
     protected function getPageContent(): void
     {
+        $fake_menu = new Menu($this->core, '', '');
         $editors_combo = $this->core->combos->getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
@@ -831,7 +832,7 @@ class UserPref extends Page
 
                 $count++;
                 echo '<li id="fu-' . $id . '">' . '<label for="fuk-' . $id . '">' .
-                '<img src="' . Menu::iconURL($fav['small-icon']) . '" alt="" /> ' . '<span class="zoom"><img src="' . Menu::iconURL($fav['large-icon']) . '" alt="" /></span>' .
+                '<img src="' . $fake_menu->getIconURL($fav['small-icon']) . '" alt="" /> ' . '<span class="zoom"><img src="' . $fake_menu->getIconURL($fav['large-icon']) . '" alt="" /></span>' .
                 Form::number(['order[' . $id . ']'], [
                     'min'        => 1,
                     'max'        => count($user_fav),
@@ -905,8 +906,8 @@ class UserPref extends Page
 
             $count++;
             echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' .
-            '<img src="' . Menu::iconURL($fav['small-icon']) . '" alt="" /> ' .
-            '<span class="zoom"><img src="' . Menu::iconURL($fav['large-icon']) . '" alt="" /></span>' .
+            '<img src="' . $fake_menu->getIconURL($fav['small-icon']) . '" alt="" /> ' .
+            '<span class="zoom"><img src="' . $fake_menu->getIconURL($fav['large-icon']) . '" alt="" /></span>' .
             Form::checkbox(['append[]', 'fak-' . $k], $k) .
                 $fav['title'] . '</label>' .
                 (isset($default_fav_ids[$k]) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .

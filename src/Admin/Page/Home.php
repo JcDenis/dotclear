@@ -314,10 +314,11 @@ class Home extends Page
         # Compose main area
         $__dashboard_main = [];
         if (!$this->core->auth->user_prefs->dashboard->nofavicons) {
+            $fake_menu = new Menu($this->core,'','');
             # Dashboard icons
             $dashboardIcons = '<div id="icons">';
             foreach ($__dashboard_icons as $i) {
-                $dashboardIcons .= '<p><a href="' . $i[1] . '"><img src="' . Menu::IconURL($i[2]) . '" alt="" />' .
+                $dashboardIcons .= '<p><a href="' . $i[1] . '"><img src="' . $fake_menu->getIconURL($i[2]) . '" alt="" />' .
                     '<br /><span class="db-icon-title">' . $i[0] . '</span></a></p>';
             }
             $dashboardIcons .= '</div>';
