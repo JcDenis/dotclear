@@ -52,7 +52,7 @@ class Prepend extends BasePrepend
         $this->con->begin();
 
         try {
-            $changes = Upgrade::dotclearUpgrade();
+            $changes = Upgrade::dotclearUpgrade($this);
         } catch (Exception $e) {
             $this->con->rollback();
 

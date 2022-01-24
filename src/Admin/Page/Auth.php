@@ -155,7 +155,7 @@ class Auth extends Page
         }
         if (empty($get) && empty($_POST)) {
             try {
-                if (($changes = Upgrade::dotclearUpgrade()) !== false) {
+                if (($changes = Upgrade::dotclearUpgrade($this->core) !== false) {
                     $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
             } catch (Exception $e) {
