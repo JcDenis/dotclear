@@ -138,11 +138,11 @@ class UrlHandler
 
     protected function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
     {
-        if ($this->core->_ctx->nb_entry_per_page === null) {
-            $this->core->_ctx->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_page;
+        if ($this->core->context->nb_entry_per_page === null) {
+            $this->core->context->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_page;
         }
-        if ($this->core->_ctx->nb_entry_first_page === null) {
-            $this->core->_ctx->nb_entry_first_page = $this->core->_ctx->nb_entry_per_page;
+        if ($this->core->context->nb_entry_first_page === null) {
+            $this->core->context->nb_entry_first_page = $this->core->context->nb_entry_per_page;
         }
 
         $tpl_file = $this->core->tpl->getFilePath($tpl);
@@ -151,25 +151,25 @@ class UrlHandler
         }
 
 
-        $this->core->_ctx->current_tpl  = $tpl;
-        $this->core->_ctx->content_type = $content_type;
-        $this->core->_ctx->http_cache   = $http_cache;
-        $this->core->_ctx->http_etag    = $http_etag;
+        $this->core->context->current_tpl  = $tpl;
+        $this->core->context->content_type = $content_type;
+        $this->core->context->http_cache   = $http_cache;
+        $this->core->context->http_etag    = $http_etag;
 
-        $this->core->behaviors->call('urlHandlerBeforeGetData', $this->core->_ctx);
+        $this->core->behaviors->call('urlHandlerBeforeGetData', $this->core->context);
 
-        if ($this->core->_ctx->http_cache) {
+        if ($this->core->context->http_cache) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
             http::cache($this->mod_files, $this->mod_ts);
         }
 
-        header('Content-Type: ' . $this->core->_ctx->content_type . '; charset=UTF-8');
+        header('Content-Type: ' . $this->core->context->content_type . '; charset=UTF-8');
 
         // Additional headers
         $headers = new ArrayObject();
         if ($this->core->blog->settings->system->prevents_clickjacking) {
-            if ($this->core->_ctx->exists('xframeoption')) {
-                $url    = parse_url($this->core->_ctx->xframeoption);
+            if ($this->core->context->exists('xframeoption')) {
+                $url    = parse_url($this->core->context->xframeoption);
                 $header = sprintf(
                     'X-Frame-Options: %s',
                     is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
@@ -193,16 +193,16 @@ class UrlHandler
         }
 
         $result                 = new ArrayObject();
-        $result['content']      = $this->core->tpl->getData($this->core->_ctx->current_tpl);
-        $result['content_type'] = $this->core->_ctx->content_type;
-        $result['tpl']          = $this->core->_ctx->current_tpl;
+        $result['content']      = $this->core->tpl->getData($this->core->context->current_tpl);
+        $result['content_type'] = $this->core->context->content_type;
+        $result['tpl']          = $this->core->context->current_tpl;
         $result['blogupddt']    = $this->core->blog->upddt;
         $result['headers']      = $headers;
 
         # --BEHAVIOR-- urlHandlerServeDocument
         $this->core->behaviors->call('urlHandlerServeDocument', $result);
 
-        if ($this->core->_ctx->http_cache && $this->core->_ctx->http_etag) {
+        if ($this->core->context->http_cache && $this->core->context->http_etag) {
             http::etag($result['content'], http::getSelfURI());
         }
         echo $result['content'];
@@ -373,10 +373,10 @@ class UrlHandler
         header('Content-Type: text/html; charset=UTF-8');
         http::head(404, 'Not Found');
         $this->core->url->type    = '404';
-        $this->core->_ctx->current_tpl  = '404.html';
-        $this->core->_ctx->content_type = 'text/html';
+        $this->core->context->current_tpl  = '404.html';
+        $this->core->context->content_type = 'text/html';
 
-        echo $this->core->tpl->getData($this->core->_ctx->current_tpl);
+        echo $this->core->tpl->getData($this->core->context->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
         $this->core->behaviors->call('publicAfterDocument');
@@ -404,7 +404,7 @@ class UrlHandler
 
             if (empty($_GET['q'])) {
                 if ($this->core->blog->settings->system->nb_post_for_home !== null) {
-                    $this->core->_ctx->nb_entry_first_page = $this->core->blog->settings->system->nb_post_for_home;
+                    $this->core->context->nb_entry_first_page = $this->core->blog->settings->system->nb_post_for_home;
                 }
                 $this->serveDocument('home.html');
                 $this->core->blog->publishScheduledEntries();
@@ -454,16 +454,16 @@ class UrlHandler
 
         $this->core->behaviors->call('publicLangBeforeGetLangs', $params, $args);
 
-        $this->core->_ctx->langs = $this->core->blog->getLangs($params);
+        $this->core->context->langs = $this->core->blog->getLangs($params);
 
-        if ($this->core->_ctx->langs->isEmpty()) {
+        if ($this->core->context->langs->isEmpty()) {
             # The specified language does not exist.
             $this->p404();
         } else {
             if ($n) {
                 $GLOBALS['_page_number'] = $n;
             }
-            $this->core->_ctx->cur_lang = $args;
+            $this->core->context->cur_lang = $args;
             $this->home(null);
         }
     }
@@ -483,9 +483,9 @@ class UrlHandler
 
             $this->core->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
 
-            $this->core->_ctx->categories = $this->core->blog->getCategories($params);
+            $this->core->context->categories = $this->core->blog->getCategories($params);
 
-            if ($this->core->_ctx->categories->isEmpty()) {
+            if ($this->core->context->categories->isEmpty()) {
                 # The specified category does no exist.
                 $this->p404();
             } else {
@@ -510,9 +510,9 @@ class UrlHandler
 
             $this->core->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
 
-            $this->core->_ctx->archives = $this->core->blog->getDates($params->getArrayCopy());
+            $this->core->context->archives = $this->core->blog->getDates($params->getArrayCopy());
 
-            if ($this->core->_ctx->archives->isEmpty()) {
+            if ($this->core->context->archives->isEmpty()) {
                 # There is no entries for the specified period.
                 $this->p404();
             } else {
@@ -537,28 +537,28 @@ class UrlHandler
 
             $this->core->behaviors->call('publicPostBeforeGetPosts', $params, $args);
 
-            $this->core->_ctx->posts = $this->core->blog->getPosts($params);
+            $this->core->context->posts = $this->core->blog->getPosts($params);
 
-            $this->core->_ctx->comment_preview               = new ArrayObject();
-            $this->core->_ctx->comment_preview['content']    = '';
-            $this->core->_ctx->comment_preview['rawcontent'] = '';
-            $this->core->_ctx->comment_preview['name']       = '';
-            $this->core->_ctx->comment_preview['mail']       = '';
-            $this->core->_ctx->comment_preview['site']       = '';
-            $this->core->_ctx->comment_preview['preview']    = false;
-            $this->core->_ctx->comment_preview['remember']   = false;
+            $this->core->context->comment_preview               = new ArrayObject();
+            $this->core->context->comment_preview['content']    = '';
+            $this->core->context->comment_preview['rawcontent'] = '';
+            $this->core->context->comment_preview['name']       = '';
+            $this->core->context->comment_preview['mail']       = '';
+            $this->core->context->comment_preview['site']       = '';
+            $this->core->context->comment_preview['preview']    = false;
+            $this->core->context->comment_preview['remember']   = false;
 
             $this->core->blog->withoutPassword(true);
 
-            if ($this->core->_ctx->posts->isEmpty()) {
+            if ($this->core->context->posts->isEmpty()) {
                 # The specified entry does not exist.
                 $this->p404();
             } else {
-                $post_id       = $this->core->_ctx->posts->post_id;
-                $post_password = $this->core->_ctx->posts->post_password;
+                $post_id       = $this->core->context->posts->post_id;
+                $post_password = $this->core->context->posts->post_password;
 
                 # Password protected entry
-                if ($post_password != '' && !$this->core->_ctx->preview) {
+                if ($post_password != '' && !$this->core->context->preview) {
                     # Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -585,7 +585,7 @@ class UrlHandler
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && $this->core->_ctx->posts->commentsActive();
+                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && $this->core->context->posts->commentsActive();
 
                 # Posting a comment
                 if ($post_comment) {
@@ -620,17 +620,17 @@ class UrlHandler
                         $content = $this->core->HTMLfilter($content);
                     }
 
-                    $this->core->_ctx->comment_preview['content']    = $content;
-                    $this->core->_ctx->comment_preview['rawcontent'] = $_POST['c_content'];
-                    $this->core->_ctx->comment_preview['name']       = $name;
-                    $this->core->_ctx->comment_preview['mail']       = $mail;
-                    $this->core->_ctx->comment_preview['site']       = $site;
+                    $this->core->context->comment_preview['content']    = $content;
+                    $this->core->context->comment_preview['rawcontent'] = $_POST['c_content'];
+                    $this->core->context->comment_preview['name']       = $name;
+                    $this->core->context->comment_preview['mail']       = $mail;
+                    $this->core->context->comment_preview['site']       = $site;
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        $this->core->behaviors->call('publicBeforeCommentPreview', $this->core->_ctx->comment_preview);
+                        $this->core->behaviors->call('publicBeforeCommentPreview', $this->core->context->comment_preview);
 
-                        $this->core->_ctx->comment_preview['preview'] = true;
+                        $this->core->context->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
                         $cur                  = $this->core->con->openCursor($this->core->prefix . 'comment');
@@ -638,11 +638,11 @@ class UrlHandler
                         $cur->comment_site    = html::clean($site);
                         $cur->comment_email   = html::clean($mail);
                         $cur->comment_content = $content;
-                        $cur->post_id         = $this->core->_ctx->posts->post_id;
+                        $cur->post_id         = $this->core->context->posts->post_id;
                         $cur->comment_status  = $this->core->blog->settings->system->comments_pub ? 1 : -1;
                         $cur->comment_ip      = http::realIP();
 
-                        $redir = $this->core->_ctx->posts->getURL();
+                        $redir = $this->core->context->posts->getURL();
                         $redir .= $this->core->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
 
                         try {
@@ -669,13 +669,13 @@ class UrlHandler
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
-                            $this->core->_ctx->form_error = $e->getMessage();
+                            $this->core->context->form_error = $e->getMessage();
                         }
                     }
                 }
 
                 # The entry
-                if ($this->core->_ctx->posts->trackbacksActive()) {
+                if ($this->core->context->posts->trackbacksActive()) {
                     header('X-Pingback: ' . $this->core->blog->url . $this->core->url->getURLFor('xmlrpc', $this->core->blog->id));
                     header('Link: <' . $this->core->blog->url . $this->core->url->getURLFor('webmention') . '>; rel="webmention"');
                 }
@@ -697,9 +697,9 @@ class UrlHandler
                 # The user has no access to the entry.
                 $this->p404();
             } else {
-                $this->core->_ctx->preview = true;
+                $this->core->context->preview = true;
                 if (defined('DOTCLEAR_ADMIN_URL')) {
-                    $this->core->_ctx->xframeoption = DOTCLEAR_ADMIN_URL;
+                    $this->core->context->xframeoption = DOTCLEAR_ADMIN_URL;
                 }
                 $this->post($post_url);
             }
@@ -723,15 +723,15 @@ class UrlHandler
 
             $this->core->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
 
-            $this->core->_ctx->langs = $this->core->blog->getLangs($params);
+            $this->core->context->langs = $this->core->blog->getLangs($params);
 
-            if ($this->core->_ctx->langs->isEmpty()) {
+            if ($this->core->context->langs->isEmpty()) {
                 # The specified language does not exist.
                 $this->p404();
 
                 return;
             }
-            $this->core->_ctx->cur_lang = $m[1];
+            $this->core->context->cur_lang = $m[1];
         }
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
@@ -766,16 +766,16 @@ class UrlHandler
 
             $this->core->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
 
-            $this->core->_ctx->categories = $this->core->blog->getCategories($params);
+            $this->core->context->categories = $this->core->blog->getCategories($params);
 
-            if ($this->core->_ctx->categories->isEmpty()) {
+            if ($this->core->context->categories->isEmpty()) {
                 # The specified category does no exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . $this->core->_ctx->categories->cat_title;
+            $subtitle = ' - ' . $this->core->context->categories->cat_title;
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
@@ -783,25 +783,25 @@ class UrlHandler
 
             $this->core->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
 
-            $this->core->_ctx->posts = $this->core->blog->getPosts($params);
+            $this->core->context->posts = $this->core->blog->getPosts($params);
 
-            if ($this->core->_ctx->posts->isEmpty()) {
+            if ($this->core->context->posts->isEmpty()) {
                 # The specified post does not exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . $this->core->_ctx->posts->post_title;
+            $subtitle = ' - ' . $this->core->context->posts->post_title;
         }
 
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            $this->core->_ctx->nb_comment_per_page = $this->core->blog->settings->system->nb_comment_per_feed;
+            $this->core->context->nb_comment_per_page = $this->core->blog->settings->system->nb_comment_per_feed;
         } else {
-            $this->core->_ctx->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_feed;
-            $this->core->_ctx->short_feed_items  = $this->core->blog->settings->system->short_feed_items;
+            $this->core->context->nb_entry_per_page = $this->core->blog->settings->system->nb_post_per_feed;
+            $this->core->context->short_feed_items  = $this->core->blog->settings->system->short_feed_items;
         }
         $tpl .= '.xml';
 
@@ -809,9 +809,9 @@ class UrlHandler
             $mime = 'application/atom+xml';
         }
 
-        $this->core->_ctx->feed_subtitle = $subtitle;
+        $this->core->context->feed_subtitle = $subtitle;
 
-        header('X-Robots-Tag: ' . $this->core->_ctx::robotsPolicy($this->core->blog->settings->system->robots_policy, ''));
+        header('X-Robots-Tag: ' . $this->core->context::robotsPolicy($this->core->blog->settings->system->robots_policy, ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
             $this->core->blog->publishScheduledEntries();

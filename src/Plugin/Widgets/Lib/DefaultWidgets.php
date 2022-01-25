@@ -15,11 +15,10 @@ namespace Dotclear\Plugin\Widgets\Lib;
 
 use Dotclear\Core\StaticCore;
 
-use Dotclear\Dtaabase\Record;
+use Dotclear\Database\Record;
 use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Feed\Reader;
-
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -101,7 +100,7 @@ class DefaultWidgets
     public static function categories($w)
     {
         $core = static::getCore();
-        $_ctx = $core->_ctx;
+        $context = $core->context;
 
         if ($w->offline) {
             return;
@@ -121,8 +120,8 @@ class DefaultWidgets
         $ref_level = $level = $rs->level - 1;
         while ($rs->fetch()) {
             $class = '';
-            if (($core->url->type == 'category' && $_ctx->categories instanceof record && $_ctx->categories->cat_id == $rs->cat_id)
-                || ($core->url->type == 'post' && $_ctx->posts instanceof record && $_ctx->posts->cat_id == $rs->cat_id)) {
+            if (($core->url->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
+                || ($core->url->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
                 $class = ' class="category-current"';
             }
 
@@ -153,7 +152,7 @@ class DefaultWidgets
     public static function bestof($w)
     {
         $core = static::getCore();
-        $_ctx = $core->_ctx;
+        $context = $core->context;
 
         if ($w->offline) {
             return;
@@ -180,7 +179,7 @@ class DefaultWidgets
 
         while ($rs->fetch()) {
             $class = '';
-            if ($core->url->type == 'post' && $_ctx->posts instanceof record && $_ctx->posts->post_id == $rs->post_id) {
+            if ($core->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . html::escapeHTML($rs->post_title) . '</a></li> ';
@@ -194,7 +193,7 @@ class DefaultWidgets
     public static function langs($w)
     {
         $core = static::getCore();
-        $_ctx = $core->_ctx;
+        $context = $core->context;
 
         if ($w->offline) {
             return;
@@ -215,7 +214,7 @@ class DefaultWidgets
             '<ul>';
 
         while ($rs->fetch()) {
-            $l = ($_ctx->cur_lang == $rs->post_lang) ? '<strong>%s</strong>' : '%s';
+            $l = ($context->cur_lang == $rs->post_lang) ? '<strong>%s</strong>' : '%s';
 
             $lang_name = $langs[$rs->post_lang] ?? $rs->post_lang;
 
@@ -235,7 +234,7 @@ class DefaultWidgets
     public static function subscribe($w)
     {
         $core = static::getCore();
-        $_ctx = $core->_ctx;
+        $context = $core->context;
 
         if ($w->offline) {
             return;
@@ -247,8 +246,8 @@ class DefaultWidgets
 
         $type = ($w->type == 'atom' || $w->type == 'rss2') ? $w->type : 'rss2';
         $mime = $type == 'rss2' ? 'application/rss+xml' : 'application/atom+xml';
-        if ($_ctx->exists('cur_lang')) {
-            $type = $_ctx->cur_lang . '/' . $type;
+        if ($context->exists('cur_lang')) {
+            $type = $context->cur_lang . '/' . $type;
         }
 
         $p_title = __('This blog\'s entries %s feed');
@@ -350,7 +349,7 @@ class DefaultWidgets
     public static function lastposts($w)
     {
         $core = static::getCore();
-        $_ctx = $core->_ctx;
+        $context = $core->context;
 
         if ($w->offline) {
             return;
@@ -390,7 +389,7 @@ class DefaultWidgets
 
         while ($rs->fetch()) {
             $class = '';
-            if ($core->url->type == 'post' && $_ctx->posts instanceof record && $_ctx->posts->post_id == $rs->post_id) {
+            if ($core->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .

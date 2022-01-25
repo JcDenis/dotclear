@@ -14,7 +14,7 @@ namespace Dotclear\Public;
 
 use Dotclear\Exception;
 
-use Dotclear\Core\StaticCore;
+use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 
 use Dotclear\Database\Record;
@@ -24,9 +24,13 @@ use Dotclear\Html\Html;
 
 class Context
 {
-    use StaticCore;
-
+    public $core;
     public $stack = [];
+
+    public function __construct(Core $core)
+    {
+        $this->core = $core;
+    }
 
     public function __set($name, $var)
     {
@@ -110,42 +114,40 @@ class Context
         return $test;
     }
 
-    private static function default_filters($filter, $str, $arg)
+    private function default_filters($filter, $str, $arg)
     {
         switch ($filter) {
             case 'strip_tags':
-                return self::strip_tags($str);
+                return $this->strip_tags($str);
 
             case 'remove_html':
-                return preg_replace('/\s+/', ' ', self::remove_html($str));
+                return preg_replace('/\s+/', ' ', $this->remove_html($str));
 
             case 'encode_xml':
             case 'encode_html':
-                return self::encode_xml($str);
+                return $this->encode_xml($str);
 
             case 'cut_string':
-                return self::cut_string($str, (integer) $arg);
+                return $this->cut_string($str, (integer) $arg);
 
             case 'lower_case':
-                return self::lower_case($str);
+                return $this->lower_case($str);
 
             case 'capitalize':
-                return self::capitalize($str);
+                return $this->capitalize($str);
 
             case 'upper_case':
-                return self::upper_case($str);
+                return $this->upper_case($str);
 
             case 'encode_url':
-                return self::encode_url($str);
+                return $this->encode_url($str);
         }
 
         return $str;
     }
 
-    public static function global_filters($str, $args, $tag = '')
+    public function global_filters($str, $args, $tag = '')
     {
-        $core = self::getCore();
-
         $filters = [
             'strip_tags',                             // Removes HTML tags (mono line)
             'remove_html',                            // Removes HTML tags
@@ -158,12 +160,12 @@ class Context
         $args[0] = &$str;
 
         # --BEHAVIOR-- publicBeforeContentFilter
-        $res = $core->behaviors->call('publicBeforeContentFilter', $tag, $args);
+        $res = $this->core->behaviors->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             # --BEHAVIOR-- publicContentFilter
-            switch ($core->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
+            switch ($this->core->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -172,34 +174,34 @@ class Context
                     // 3rd party filter applied and should continue
                     // Apply default filter
                     if (isset($args[$filter]) && $args[$filter]) {
-                        $str = self::default_filters($filter, $str, $args[$filter]);
+                        $str = $this->default_filters($filter, $str, $args[$filter]);
                     }
             }
         }
 
         # --BEHAVIOR-- publicAfterContentFilter
-        $res = $core->behaviors->call('publicAfterContentFilter', $tag, $args);
+        $res = $this->core->behaviors->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;
     }
 
-    public static function encode_url($str)
+    public function encode_url($str)
     {
         return urlencode($str);
     }
 
-    public static function cut_string($str, $l)
+    public function cut_string($str, $l)
     {
         return text::cutString($str, $l);
     }
 
-    public static function encode_xml($str)
+    public function encode_xml($str)
     {
         return html::escapeHTML($str);
     }
 
-    public static function remove_isolated_figcaption($str)
+    public function remove_isolated_figcaption($str)
     {
         // When using remove_html() or stript_tags(), we may have remaining figcaption's text without any image/audio media
         // This function will remove those cases from string
@@ -213,31 +215,31 @@ class Context
         return $str;
     }
 
-    public static function remove_html($str)
+    public function remove_html($str)
     {
-        $str = self::remove_isolated_figcaption($str);
+        $str = $this->remove_isolated_figcaption($str);
 
         return html::decodeEntities(html::clean($str));
     }
 
-    public static function strip_tags($str)
+    public function strip_tags($str)
     {
-        $str = self::remove_isolated_figcaption($str);
+        $str = $this->remove_isolated_figcaption($str);
 
         return trim(preg_replace('/ {2,}/', ' ', str_replace(["\r", "\n", "\t"], ' ', html::clean($str))));
     }
 
-    public static function lower_case($str)
+    public function lower_case($str)
     {
         return mb_strtolower($str);
     }
 
-    public static function upper_case($str)
+    public function upper_case($str)
     {
         return mb_strtoupper($str);
     }
 
-    public static function capitalize($str)
+    public function capitalize($str)
     {
         if ($str != '') {
             $str[0] = mb_strtoupper($str[0]);
@@ -246,7 +248,7 @@ class Context
         return $str;
     }
 
-    public static function categoryPostParam(&$p)
+    public function categoryPostParam(&$p)
     {
         $not = substr($p['cat_url'], 0, 1) == '!';
         if ($not) {
@@ -259,36 +261,32 @@ class Context
             if ($not) {
                 $v .= ' ?not';
             }
-            if ($GLOBALS['_ctx']->exists('categories') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $GLOBALS['_ctx']->categories->cat_url, $v);
-            } elseif ($GLOBALS['_ctx']->exists('posts') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $GLOBALS['_ctx']->posts->cat_url, $v);
+            if ($this->exists('categories') && preg_match('/#self/', $v)) {
+                $v = preg_replace('/#self/', $this->categories->cat_url, $v);
+            } elseif ($this->exists('posts') && preg_match('/#self/', $v)) {
+                $v = preg_replace('/#self/', $this->posts->cat_url, $v);
             }
         }
     }
 
     # Static methods for pagination
-    public static function PaginationNbPages()
+    public function PaginationNbPages()
     {
-        global $_ctx;
-
-        $core = self::getCore();
-
-        if ($_ctx->pagination === null) {
+        if ($this->pagination === null) {
             return false;
         }
 
-        $nb_posts = $_ctx->pagination->f(0);
-        if (($core->url->type == 'default') || ($core->url->type == 'default-page')) {
-            $nb_pages = ceil(($nb_posts - $_ctx->nb_entry_first_page) / $_ctx->nb_entry_per_page + 1);
+        $nb_posts = $this->pagination->f(0);
+        if (($this->core->url->type == 'default') || ($this->core->url->type == 'default-page')) {
+            $nb_pages = ceil(($nb_posts - $this->nb_entry_first_page) / $this->nb_entry_per_page + 1);
         } else {
-            $nb_pages = ceil($nb_posts / $_ctx->nb_entry_per_page);
+            $nb_pages = ceil($nb_posts / $this->nb_entry_per_page);
         }
 
         return $nb_pages;
     }
 
-    public static function PaginationPosition($offset = 0)
+    public function PaginationPosition($offset = 0)
     {
         if (isset($GLOBALS['_page_number'])) {
             $p = (integer) $GLOBALS['_page_number'];
@@ -298,7 +296,7 @@ class Context
 
         $p = $p + $offset;
 
-        $n = self::PaginationNbPages();
+        $n = $this->PaginationNbPages();
         if (!$n) {
             return $p;
         }
@@ -310,35 +308,33 @@ class Context
         return $p;
     }
 
-    public static function PaginationStart()
+    public function PaginationStart()
     {
         if (isset($GLOBALS['_page_number'])) {
-            return self::PaginationPosition() == 1;
+            return $this->PaginationPosition() == 1;
         }
 
         return true;
     }
 
-    public static function PaginationEnd()
+    public function PaginationEnd()
     {
         if (isset($GLOBALS['_page_number'])) {
-            return self::PaginationPosition() == self::PaginationNbPages();
+            return $this->PaginationPosition() == $this->PaginationNbPages();
         }
 
         return false;
     }
 
-    public static function PaginationURL($offset = 0)
+    public function PaginationURL($offset = 0)
     {
-        $core = self::getCore();
-
         $args = $_SERVER['URL_REQUEST_PART'];
 
-        $n = self::PaginationPosition($offset);
+        $n = $this->PaginationPosition($offset);
 
         $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
-        $url = $core->blog->url . $args;
+        $url = $this->core->blog->url . $args;
 
         if ($n > 1) {
             $url = preg_replace('#/$#', '', $url);
@@ -355,7 +351,7 @@ class Context
     }
 
     # Robots policy
-    public static function robotsPolicy($base, $over)
+    public function robotsPolicy($base, $over)
     {
         $pol  = ['INDEX' => 'INDEX', 'FOLLOW' => 'FOLLOW', 'ARCHIVE' => 'ARCHIVE'];
         $base = array_flip(preg_split('/\s*,\s*/', $base));
@@ -378,7 +374,7 @@ class Context
     }
 
     # Smilies static methods
-    public static function getSmilies($blog)
+    public function getSmilies($blog)
     {
         $path = [];
         if (isset($GLOBALS['__theme'])) {
@@ -397,14 +393,14 @@ class Context
             if (file_exists(sprintf($definition, $t))) {
                 $base_url = sprintf($base_url, $t);
 
-                return self::smiliesDefinition(sprintf($definition, $t), $base_url);
+                return $this->smiliesDefinition(sprintf($definition, $t), $base_url);
             }
         }
 
         return false;
     }
 
-    public static function smiliesDefinition($f, $url)
+    public function smiliesDefinition($f, $url)
     {
         $def = file($f);
 
@@ -422,7 +418,7 @@ class Context
         return $res;
     }
 
-    public static function addSmilies($str)
+    public function addSmilies($str)
     {
         if (!isset($GLOBALS['__smilies']) || !is_array($GLOBALS['__smilies'])) {
             return $str;
@@ -430,7 +426,7 @@ class Context
 
         # Process part adapted from SmartyPants engine (J. Gruber et al.) :
 
-        $tokens = self::tokenizeHTML($str);
+        $tokens = $this->tokenizeHTML($str);
         $result = '';
         $in_pre = 0; # Keep track of when we're inside <pre> or <code> tags.
 
@@ -453,7 +449,7 @@ class Context
         return $result;
     }
 
-    private static function tokenizeHTML($str)
+    private function tokenizeHTML($str)
     {
         # Function from SmartyPants engine (J. Gruber et al.)
         #
@@ -492,21 +488,17 @@ class Context
     }
 
     # First post image helpers
-    public static function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
+    public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
-        global $_ctx;
-
-        $core = self::getCore();
-
         try {
-            $media = new Media($core);
+            $media = new Media($this->core);
             $sizes = implode('|', array_keys($media->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = $core->blog->settings->system->public_url;
-            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', $core->blog->url);
-            $p_root = $core->blog->public_path;
+            $p_url  = $this->core->blog->settings->system->public_url;
+            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', $this->core->blog->url);
+            $p_root = $this->core->blog->public_path;
 
             $pattern = '(?:' . preg_quote($p_site, '/') . ')?' . preg_quote($p_url, '/');
             $pattern = sprintf('/<img.+?src="%s(.*?\.(?:jpg|jpeg|gif|png|svg|webp))"[^>]+/msui', $pattern);
@@ -515,11 +507,11 @@ class Context
             $alt = '';
 
             # We first look in post content
-            if (!$cat_only && $_ctx->posts) {
-                $subject = ($content_only ? '' : $_ctx->posts->post_excerpt_xhtml) . $_ctx->posts->post_content_xhtml;
+            if (!$cat_only && $this->posts) {
+                $subject = ($content_only ? '' : $this->posts->post_excerpt_xhtml) . $this->posts->post_content_xhtml;
                 if (preg_match_all($pattern, $subject, $m) > 0) {
                     foreach ($m[1] as $i => $img) {
-                        if (($src = self::ContentFirstImageLookup($p_root, $img, $size)) !== false) {
+                        if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
                             $dirname = str_replace('\\', '/', dirname($img));
                             $src     = $p_url . ($dirname != '/' ? $dirname : '') . '/' . $src;
                             if (preg_match('/alt="([^"]+)"/', $m[0][$i], $malt)) {
@@ -533,10 +525,10 @@ class Context
             }
 
             # No src, look in category description if available
-            if (!$src && $with_category && $_ctx->posts->cat_desc) {
-                if (preg_match_all($pattern, $_ctx->posts->cat_desc, $m) > 0) {
+            if (!$src && $with_category && $this->posts->cat_desc) {
+                if (preg_match_all($pattern, $this->posts->cat_desc, $m) > 0) {
                     foreach ($m[1] as $i => $img) {
-                        if (($src = self::ContentFirstImageLookup($p_root, $img, $size)) !== false) {
+                        if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
                             $dirname = str_replace('\\', '/', dirname($img));
                             $src     = $p_url . ($dirname != '/' ? $dirname : '') . '/' . $src;
                             if (preg_match('/alt="([^"]+)"/', $m[0][$i], $malt)) {
@@ -557,14 +549,12 @@ class Context
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
         } catch (Exception $e) {
-            $core->error->add($e->getMessage());
+            $this->core->error->add($e->getMessage());
         }
     }
 
-    private static function ContentFirstImageLookup($root, $img, $size)
+    private function ContentFirstImageLookup($root, $img, $size)
     {
-        $core = self::getCore();
-
         # Image extensions
         $formats = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'wepb'];
 
@@ -575,7 +565,7 @@ class Context
         $res = false;
 
         try {
-            $media = new Media($core);
+            $media = new Media($this->core);
             $sizes = implode('|', array_keys($media->thumb_sizes));
             if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
                 $base = $m[1];
@@ -607,7 +597,7 @@ class Context
                 }
             }
         } catch (Exception $e) {
-            $core->error->add($e->getMessage());
+            $this->core->error->add($e->getMessage());
         }
 
         if ($res) {

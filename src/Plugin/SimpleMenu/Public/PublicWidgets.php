@@ -56,7 +56,6 @@ class PublicWidgets
     public static function simpleMenuWidget($w)
     {
         $core = self::getCore();
-        $_ctx = $core->_ctx;
 
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 

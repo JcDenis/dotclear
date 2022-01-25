@@ -22,10 +22,10 @@ class RsExtPostPublic extends RsExtPost
     public static function getContent($rs, $absolute_urls = false)
     {
         # Not very nice hack but it does the job :)
-        if (isset($rs->core->_ctx) && $rs->core->_ctx->short_feed_items === true) {
+        if (isset($rs->core->context) && $rs->core->context->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
-            $c    = $rs->core->_ctx::remove_html($c);
-            $c    = $rs->core->_ctx::cut_string($c, 350);
+            $c    = $rs->core->context::remove_html($c);
+            $c    = $rs->core->context::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
@@ -53,9 +53,9 @@ class RsExtPostPublic extends RsExtPost
     protected static function smilies($rs, $c)
     {
         if (!isset($GLOBALS['__smilies'])) {
-            $GLOBALS['__smilies'] = $rs->core->_ctx::getSmilies($rs->core->blog);
+            $GLOBALS['__smilies'] = $rs->core->context::getSmilies($rs->core->blog);
         }
 
-        return $rs->core->_ctx::addSmilies($c);
+        return $rs->core->context::addSmilies($c);
     }
 }

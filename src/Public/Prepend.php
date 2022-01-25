@@ -43,8 +43,7 @@ class Prepend extends BasePrepend
     public $themes = null;
 
     public $tpl;
-
-    public $_ctx;
+    public $context;
 
     public function __construct(string $blog_id = null)
     {
@@ -89,7 +88,7 @@ class Prepend extends BasePrepend
         }
 
         # Create template context
-        $this->_ctx = new Context();
+        $this->context = new Context($this);
 
         try {
             $this->tpl = new Template(DOTCLEAR_CACHE_DIR, '$core->tpl', $this);
@@ -191,10 +190,6 @@ class Prepend extends BasePrepend
             $this->tpl->setPath($__theme_tpl_path, $this->tpl->getPath());
         }
         $this->url->mode = (string) $this->blog->settings->system->url_scan;
-
-        $GLOBALS['core'] = $this;
-        context::setCore($this);
-        $GLOBALS['_ctx'] = $this->_ctx;
 
         try {
             # --BEHAVIOR-- publicBeforeDocument

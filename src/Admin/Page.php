@@ -71,10 +71,10 @@ abstract class Page
     /** @var string                 Handler name that calls page */
     protected $handler;
 
-    /** @var Core                    Core instance */
+    /** @var Core                   Core instance */
     protected $core;
 
-    /** @var Core                   Core instance */
+    /** @var Action                 Action instance */
     protected $action;
 
     /** @var Filter                 Filter instance */
