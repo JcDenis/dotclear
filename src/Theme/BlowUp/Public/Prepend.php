@@ -37,7 +37,8 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorPublicHeadContent($core)
     {
-        $url = BlowupConfig::publicCssUrlHelper();
+        $config = new BlowUpConfig($core);
+        $url = $config->publicCssUrlHelper();
         if ($url) {
             echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';
         }

@@ -20,7 +20,6 @@ use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\StaticCore;
 use Dotclear\Core\Media;
 
 use Dotclear\File\Path;
@@ -28,7 +27,12 @@ use Dotclear\File\Files;
 
 class ConfigTheme
 {
-    use StaticCore;
+    protected $core;
+
+    public function __construct(Core $core)
+    {
+        $this->core = $core;
+    }
 
     /**
      * Compute contrast ratio between two colors
@@ -38,16 +42,16 @@ class ConfigTheme
      *
      * @return float             computed ratio
      */
-    public static function computeContrastRatio($color, $background)
+    public function computeContrastRatio($color, $background)
     {
         // Compute contrast ratio between two colors
 
-        $color = self::adjustColor($color);
+        $color = $this->adjustColor($color);
         if (($color == '') || (strlen($color) != 7)) {
             return 0;
         }
 
-        $background = self::adjustColor($background);
+        $background = $this->adjustColor($background);
         if (($background == '') || (strlen($background) != 7)) {
             return 0;
         }
@@ -74,7 +78,7 @@ class ConfigTheme
      *
      * @return string         WCAG contrast ratio level (AAA, AA or <nothing>)
      */
-    public static function contrastRatioLevel($ratio, $size, $bold = false)
+    public function contrastRatioLevel($ratio, $size, $bold = false)
     {
         if ($size == '') {
             return '';
@@ -139,11 +143,11 @@ class ConfigTheme
      *
      * @return string              contrast ratio including WCAG level
      */
-    public static function contrastRatio($color, $background, $size = '', $bold = false)
+    public function contrastRatio($color, $background, $size = '', $bold = false)
     {
         if (($color != '') && ($background != '')) {
-            $ratio = self::computeContrastRatio($color, $background);
-            $level = self::contrastRatioLevel($ratio, $size, $bold);
+            $ratio = $this->computeContrastRatio($color, $background);
+            $level = $this->contrastRatioLevel($ratio, $size, $bold);
 
             return
             sprintf(__('ratio %.1f'), $ratio) .
@@ -160,7 +164,7 @@ class ConfigTheme
      *
      * @return mixed    checked font size
      */
-    public static function adjustFontSize($s)
+    public function adjustFontSize($s)
     {
         if ($s) {
             if (preg_match('/^([0-9.]+)\s*(%|pt|px|em|ex|rem|ch)?$/', $s, $m)) {
@@ -182,7 +186,7 @@ class ConfigTheme
      *
      * @return mixed    checked position
      */
-    public static function adjustPosition($p)
+    public function adjustPosition($p)
     {
         if (!$p) {
             return '';
@@ -203,7 +207,7 @@ class ConfigTheme
      *
      * @return string    checked CSS color
      */
-    public static function adjustColor($c)
+    public function adjustColor($c)
     {
         if (!$c) {
             return '';
@@ -231,7 +235,7 @@ class ConfigTheme
      *
      * @return string      checked CSS
      */
-    public static function cleanCSS($css)
+    public function cleanCSS($css)
     {
         // TODO ?
         return $css;
@@ -244,11 +248,9 @@ class ConfigTheme
      *
      * @return string         real path of CSS
      */
-    public static function cssPath($folder)
+    public function cssPath($folder)
     {
-        $core = self::getCore();
-
-        return path::real($core->blog->public_path) . '/' . $folder;
+        return path::real($this->core->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -258,11 +260,9 @@ class ConfigTheme
      *
      * @return string         CSS URL
      */
-    public static function cssURL($folder)
+    public function cssURL($folder)
     {
-        $core = self::getCore();
-
-        return $core->blog->settings->system->public_url . '/' . $folder;
+        return $this->core->blog->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -273,22 +273,20 @@ class ConfigTheme
      *
      * @return boolean          true if CSS folder exists and may be written, else false
      */
-    public static function canWriteCss($folder, $create = false)
+    public function canWriteCss($folder, $create = false)
     {
-        $core = self::getCore();
-
-        $public = path::real($core->blog->public_path);
-        $css    = self::cssPath($folder);
+        $public = path::real($this->core->blog->public_path);
+        $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
-            $core->error->add(__('The \'public\' directory does not exist.'));
+            $this->core->error->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
 
         if (!is_dir($css)) {
             if (!is_writable($public)) {
-                $core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -300,7 +298,7 @@ class ConfigTheme
         }
 
         if (!is_writable($css)) {
-            $core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }
@@ -316,7 +314,7 @@ class ConfigTheme
      * @param  string $prop     property
      * @param  string $value    value
      */
-    public static function prop(&$css, $selector, $prop, $value)
+    public function prop(&$css, $selector, $prop, $value)
     {
         if ($value) {
             $css[$selector][$prop] = $value;
@@ -332,11 +330,11 @@ class ConfigTheme
      * @param  boolean $value   false for default, true if image should be set
      * @param  string $image    image filename
      */
-    public static function backgroundImg($folder, &$css, $selector, $value, $image)
+    public function backgroundImg($folder, &$css, $selector, $value, $image)
     {
-        $file = self::imagesPath($folder) . '/' . $image;
+        $file = $this->imagesPath($folder) . '/' . $image;
         if ($value && file_exists($file)) {
-            $css[$selector]['background-image'] = 'url(' . self::imagesURL($folder) . '/' . $image . ')';
+            $css[$selector]['background-image'] = 'url(' . $this->imagesURL($folder) . '/' . $image . ')';
         }
     }
 
@@ -347,9 +345,9 @@ class ConfigTheme
      * @param  string $theme  CSS filename
      * @param  string $css    CSS file content
      */
-    public static function writeCss($folder, $theme, $css)
+    public function writeCss($folder, $theme, $css)
     {
-        file_put_contents(self::cssPath($folder) . '/' . $theme . '.css', $css);
+        file_put_contents($this->cssPath($folder) . '/' . $theme . '.css', $css);
     }
 
     /**
@@ -358,9 +356,9 @@ class ConfigTheme
      * @param  string $folder CSS folder
      * @param  string $theme  CSS filename to be removed
      */
-    public static function dropCss($folder, $theme)
+    public function dropCss($folder, $theme)
     {
-        $file = path::real(self::cssPath($folder) . '/' . $theme . '.css');
+        $file = path::real($this->cssPath($folder) . '/' . $theme . '.css');
         if (!$file) {
             return;
         }
@@ -376,12 +374,11 @@ class ConfigTheme
      *
      * @return mixed         CSS file URL
      */
-    public static function publicCssUrlHelper($folder)
+    public function publicCssUrlHelper($folder)
     {
-        $core = self::getCore();
-        $theme = $core->blog->settings->system->theme;
-        $url   = self::cssURL($folder);
-        $path  = self::cssPath($folder);
+        $theme = $this->core->blog->settings->system->theme;
+        $url   = $this->cssURL($folder);
+        $path  = $this->cssPath($folder);
 
         if (file_exists($path . '/' . $theme . '.css')) {
             return $url . '/' . $theme . '.css';
@@ -395,11 +392,9 @@ class ConfigTheme
      *
      * @return string         real path of folder
      */
-    public static function imagesPath($folder)
+    public function imagesPath($folder)
     {
-        $core = self::getCore();
-
-        return path::real($core->blog->public_path) . '/' . $folder;
+        return path::real($this->core->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -409,11 +404,9 @@ class ConfigTheme
      *
      * @return string         URL of images folder
      */
-    public static function imagesURL($folder)
+    public function imagesURL($folder)
     {
-        $core = self::getCore();
-
-        return $core->blog->settings->system->public_url . '/' . $folder;
+        return $this->core->blog->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -424,29 +417,27 @@ class ConfigTheme
      *
      * @return boolean          true if folder exists and may be written
      */
-    public static function canWriteImages($folder, $create = false)
+    public function canWriteImages($folder, $create = false)
     {
-        $core = self::getCore();
-
-        $public = path::real($core->blog->public_path);
-        $imgs   = self::imagesPath($folder);
+        $public = path::real($this->core->blog->public_path);
+        $imgs   = $this->imagesPath($folder);
 
         if (!function_exists('imagecreatetruecolor') || !function_exists('imagepng') || !function_exists('imagecreatefrompng')) {
-            $core->error->add(__('At least one of the following functions is not available: ' .
+            $this->core->error->add(__('At least one of the following functions is not available: ' .
                 'imagecreatetruecolor, imagepng & imagecreatefrompng.'));
 
             return false;
         }
 
         if (!is_dir($public)) {
-            $core->error->add(__('The \'public\' directory does not exist.'));
+            $this->core->error->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
 
         if (!is_dir($imgs)) {
             if (!is_writable($public)) {
-                $core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -458,7 +449,7 @@ class ConfigTheme
         }
 
         if (!is_writable($imgs)) {
-            $core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }
@@ -475,9 +466,9 @@ class ConfigTheme
      *
      * @return string         full pathname of uploaded image
      */
-    public static function uploadImage($folder, $f, $width = 0)
+    public function uploadImage($folder, $f, $width = 0)
     {
-        if (!self::canWriteImages($folder, true)) {
+        if (!$this->canWriteImages($folder, true)) {
             throw new ModuleException(__('Unable to create images.'));
         }
 
@@ -488,7 +479,7 @@ class ConfigTheme
             throw new ModuleException(__('Invalid file type.'));
         }
 
-        $dest = self::imagesPath($folder) . '/uploaded' . ($type == 'image/png' ? '.png' : '.jpg');
+        $dest = $this->imagesPath($folder) . '/uploaded' . ($type == 'image/png' ? '.png' : '.jpg');
 
         if (@move_uploaded_file($f['tmp_name'], $dest) === false) {
             throw new ModuleException(__('An error occurred while writing the file.'));
@@ -510,23 +501,22 @@ class ConfigTheme
      * @param  string $folder images folder
      * @param  string $img    image filename
      */
-    public static function dropImage($folder, $img)
+    public function dropImage($folder, $img)
     {
         if ($folder) {
-            $img = path::real(self::imagesPath($folder) . '/' . $img);
+            $img = path::real($this->imagesPath($folder) . '/' . $img);
         }
         if (!$img) {
             return;
         }
 
-        $core = self::getCore();
         if (is_writable(dirname($img))) {
             // Delete thumbnails if any
             try {
-                $media = new Media($core);
+                $media = new Media($this->core);
                 $media->imageThumbRemove($img);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                $this->core->error->add($e->getMessage());
             }
             // Delete image
             @unlink($img);

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Theme\BlowUp\Lib;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\StaticCore;
 
 use Dotclear\Exception\ModuleException;
 
@@ -24,12 +23,10 @@ use Dotclear\File\Files;
 
 class BlowupConfig
 {
-    use StaticCore;
+    protected $css_folder = 'blowup-css';
+    protected $img_folder = 'blowup-images';
 
-    protected static $css_folder = 'blowup-css';
-    protected static $img_folder = 'blowup-images';
-
-    protected static $fonts = [
+    protected $fonts = [
         'sans-serif' => [
             'ss1' => 'Arial, Helvetica, sans-serif',
             'ss2' => 'Verdana,Geneva, Arial, Helvetica, sans-serif',
@@ -50,10 +47,10 @@ class BlowupConfig
         ]
     ];
 
-    protected static $fonts_combo = [];
-    protected static $fonts_list  = [];
+    protected $fonts_combo = [];
+    protected $fonts_list  = [];
 
-    public static $top_images = [
+    public $top_images = [
         'default'        => 'Default',
         'blank'          => 'Blank',
         'light-trails-1' => 'Light Trails 1',
@@ -72,104 +69,96 @@ class BlowupConfig
         'typo'           => 'Typo'
     ];
 
-    public static function setCore(Core $core): void
+    public $utils;
+
+    public function __construct(Core $core)
     {
-        ConfigTheme::setCore($core);
-        static::$core = $core;
+        $this->core = $core;
+        $this->utils = new ConfigTheme($core);
     }
 
-    public static function fontsList()
+    public function fontsList()
     {
-        if (empty(self::$fonts_combo)) {
-            self::$fonts_combo[__('default')] = '';
-            foreach (self::$fonts as $family => $g) {
+        if (empty($this->fonts_combo)) {
+            $this->fonts_combo[__('default')] = '';
+            foreach ($this->fonts as $family => $g) {
                 $fonts = [];
                 foreach ($g as $code => $font) {
                     $fonts[str_replace('"', '', $font)] = $code;
                 }
-                self::$fonts_combo[$family] = $fonts;
+                $this->fonts_combo[$family] = $fonts;
             }
         }
 
-        return self::$fonts_combo;
+        return $this->fonts_combo;
     }
 
-    public static function fontDef($c)
+    public function fontDef($c)
     {
-        if (empty(self::$fonts_list)) {
-            foreach (self::$fonts as $family => $g) {
+        if (empty($this->fonts_list)) {
+            foreach ($this->fonts as $family => $g) {
                 foreach ($g as $code => $font) {
-                    self::$fonts_list[$code] = $font;
+                    $this->fonts_list[$code] = $font;
                 }
             }
         }
 
-        return self::$fonts_list[$c] ?? null;
+        return $this->fonts_list[$c] ?? null;
     }
 
-    public static function cssPath()
+    public function canWriteCss($create = false)
     {
-        return ConfigTheme::cssPath(self::$css_folder);
+        return $this->utils->canWriteCss($this->css_folder, $create);
     }
 
-    public static function cssURL()
+    protected function backgroundImg(&$css, $selector, $value, $image)
     {
-        return ConfigTheme::cssURL(self::$css_folder);
+        $this->utils->backgroundImg($this->img_folder, $css, $selector, $value, $image);
     }
 
-    public static function canWriteCss($create = false)
+    private function writeCss($theme, $css)
     {
-        return ConfigTheme::canWriteCss(self::$css_folder, $create);
+        $this->utils->writeCSS($this->css_folder, $theme, $css);
     }
 
-    protected static function backgroundImg(&$css, $selector, $value, $image)
+    public function dropCss($theme)
     {
-        ConfigTheme::backgroundImg(self::$img_folder, $css, $selector, $value, $image);
+        $this->utils->dropCss($this->css_folder, $theme);
     }
 
-    private static function writeCss($theme, $css)
+    public function publicCssUrlHelper()
     {
-        ConfigTheme::writeCSS(self::$css_folder, $theme, $css);
+        return $this->utils->publicCssUrlHelper($this->css_folder);
     }
 
-    public static function dropCss($theme)
+    public function imagesPath()
     {
-        ConfigTheme::dropCss(self::$css_folder, $theme);
+        return $this->utils->imagesPath($this->img_folder);
     }
 
-    public static function publicCssUrlHelper()
+    public function imagesURL()
     {
-        return ConfigTheme::publicCssUrlHelper(self::$css_folder);
+        return $this->utils->imagesURL($this->img_folder);
     }
 
-    public static function imagesPath()
+    public function canWriteImages($create = false)
     {
-        return ConfigTheme::imagesPath(self::$img_folder);
+        return $this->utils->canWriteImages($this->img_folder, $create);
     }
 
-    public static function imagesURL()
+    public function uploadImage($f)
     {
-        return ConfigTheme::imagesURL(self::$img_folder);
+        return $this->utils->uploadImage($this->img_folder, $f, 800);
     }
 
-    public static function canWriteImages($create = false)
+    public function dropImage($img)
     {
-        return ConfigTheme::canWriteImages(self::$img_folder, $create);
+        $this->utils->dropImage($this->img_folder, $img);
     }
 
-    public static function uploadImage($f)
+    public function createCss($s)
     {
-        return ConfigTheme::uploadImage(self::$img_folder, $f, 800);
-    }
-
-    public static function dropImage($img)
-    {
-        ConfigTheme::dropImage(self::$img_folder, $img);
-    }
-
-    public static function createCss($s)
-    {
-        $core = self::getCore();
+        $this->core = $this->getCore();
 
         if ($s === null) {
             return;
@@ -187,19 +176,19 @@ class BlowupConfig
 
         /* Properties
         ---------------------------------------------- */
-        ConfigTheme::prop($css, 'body', 'background-color', $s['body_bg_c']);
+        $this->utils->prop($css, 'body', 'background-color', $s['body_bg_c']);
 
-        ConfigTheme::prop($css, 'body', 'color', $s['body_txt_c']);
-        ConfigTheme::prop($css, '.post-tags li a:link, .post-tags li a:visited, .post-info-co a:link, .post-info-co a:visited', 'color', $s['body_txt_c']);
-        ConfigTheme::prop($css, '#page', 'font-size', $s['body_txt_s']);
-        ConfigTheme::prop($css, 'body', 'font-family', self::fontDef($s['body_txt_f']));
+        $this->utils->prop($css, 'body', 'color', $s['body_txt_c']);
+        $this->utils->prop($css, '.post-tags li a:link, .post-tags li a:visited, .post-info-co a:link, .post-info-co a:visited', 'color', $s['body_txt_c']);
+        $this->utils->prop($css, '#page', 'font-size', $s['body_txt_s']);
+        $this->utils->prop($css, 'body', 'font-family', $this->fontDef($s['body_txt_f']));
 
-        ConfigTheme::prop($css, '.post-content, .post-excerpt, #comments dd, #pings dd, dd.comment-preview', 'line-height', $s['body_line_height']);
+        $this->utils->prop($css, '.post-content, .post-excerpt, #comments dd, #pings dd, dd.comment-preview', 'line-height', $s['body_line_height']);
 
         if (!$s['blog_title_hide']) {
-            ConfigTheme::prop($css, '#top h1 a', 'color', $s['blog_title_c']);
-            ConfigTheme::prop($css, '#top h1', 'font-size', $s['blog_title_s']);
-            ConfigTheme::prop($css, '#top h1', 'font-family', self::fontDef($s['blog_title_f']));
+            $this->utils->prop($css, '#top h1 a', 'color', $s['blog_title_c']);
+            $this->utils->prop($css, '#top h1', 'font-size', $s['blog_title_s']);
+            $this->utils->prop($css, '#top h1', 'font-family', $this->fontDef($s['blog_title_f']));
 
             if ($s['blog_title_a'] == 'right' || $s['blog_title_a'] == 'left') {
                 $css['#top h1'][$s['blog_title_a']] = '0px';
@@ -215,87 +204,87 @@ class BlowupConfig
                 }
             }
         } else {
-            ConfigTheme::prop($css, '#top h1 span', 'text-indent', '-5000px');
-            ConfigTheme::prop($css, '#top h1', 'top', '0px');
+            $this->utils->prop($css, '#top h1 span', 'text-indent', '-5000px');
+            $this->utils->prop($css, '#top h1', 'top', '0px');
             $css['#top h1 a'] = [
                 'display' => 'block',
                 'height'  => $s['top_height'] ? ($s['top_height'] - 10) . 'px' : '120px',
                 'width'   => '800px'
             ];
         }
-        ConfigTheme::prop($css, '#top', 'height', $s['top_height']);
+        $this->utils->prop($css, '#top', 'height', $s['top_height']);
 
-        ConfigTheme::prop($css, '.day-date', 'color', $s['date_title_c']);
-        ConfigTheme::prop($css, '.day-date', 'font-family', self::fontDef($s['date_title_f']));
-        ConfigTheme::prop($css, '.day-date', 'font-size', $s['date_title_s']);
+        $this->utils->prop($css, '.day-date', 'color', $s['date_title_c']);
+        $this->utils->prop($css, '.day-date', 'font-family', $this->fontDef($s['date_title_f']));
+        $this->utils->prop($css, '.day-date', 'font-size', $s['date_title_s']);
 
-        ConfigTheme::prop($css, 'a', 'color', $s['body_link_c']);
-        ConfigTheme::prop($css, 'a:visited', 'color', $s['body_link_v_c']);
-        ConfigTheme::prop($css, 'a:hover, a:focus, a:active', 'color', $s['body_link_f_c']);
+        $this->utils->prop($css, 'a', 'color', $s['body_link_c']);
+        $this->utils->prop($css, 'a:visited', 'color', $s['body_link_v_c']);
+        $this->utils->prop($css, 'a:hover, a:focus, a:active', 'color', $s['body_link_f_c']);
 
-        ConfigTheme::prop($css, '#comment-form input, #comment-form textarea', 'color', $s['body_link_c']);
-        ConfigTheme::prop($css, '#comment-form input.preview', 'color', $s['body_link_c']);
-        ConfigTheme::prop($css, '#comment-form input.preview:hover', 'background', $s['body_link_f_c']);
-        ConfigTheme::prop($css, '#comment-form input.preview:hover', 'border-color', $s['body_link_f_c']);
-        ConfigTheme::prop($css, '#comment-form input.submit', 'color', $s['body_link_c']);
-        ConfigTheme::prop($css, '#comment-form input.submit:hover', 'background', $s['body_link_f_c']);
-        ConfigTheme::prop($css, '#comment-form input.submit:hover', 'border-color', $s['body_link_f_c']);
+        $this->utils->prop($css, '#comment-form input, #comment-form textarea', 'color', $s['body_link_c']);
+        $this->utils->prop($css, '#comment-form input.preview', 'color', $s['body_link_c']);
+        $this->utils->prop($css, '#comment-form input.preview:hover', 'background', $s['body_link_f_c']);
+        $this->utils->prop($css, '#comment-form input.preview:hover', 'border-color', $s['body_link_f_c']);
+        $this->utils->prop($css, '#comment-form input.submit', 'color', $s['body_link_c']);
+        $this->utils->prop($css, '#comment-form input.submit:hover', 'background', $s['body_link_f_c']);
+        $this->utils->prop($css, '#comment-form input.submit:hover', 'border-color', $s['body_link_f_c']);
 
-        ConfigTheme::prop($css, '#sidebar', 'font-family', self::fontDef($s['sidebar_text_f']));
-        ConfigTheme::prop($css, '#sidebar', 'font-size', $s['sidebar_text_s']);
-        ConfigTheme::prop($css, '#sidebar', 'color', $s['sidebar_text_c']);
+        $this->utils->prop($css, '#sidebar', 'font-family', $this->fontDef($s['sidebar_text_f']));
+        $this->utils->prop($css, '#sidebar', 'font-size', $s['sidebar_text_s']);
+        $this->utils->prop($css, '#sidebar', 'color', $s['sidebar_text_c']);
 
-        ConfigTheme::prop($css, '#sidebar h2', 'font-family', self::fontDef($s['sidebar_title_f']));
-        ConfigTheme::prop($css, '#sidebar h2', 'font-size', $s['sidebar_title_s']);
-        ConfigTheme::prop($css, '#sidebar h2', 'color', $s['sidebar_title_c']);
+        $this->utils->prop($css, '#sidebar h2', 'font-family', $this->fontDef($s['sidebar_title_f']));
+        $this->utils->prop($css, '#sidebar h2', 'font-size', $s['sidebar_title_s']);
+        $this->utils->prop($css, '#sidebar h2', 'color', $s['sidebar_title_c']);
 
-        ConfigTheme::prop($css, '#sidebar h3', 'font-family', self::fontDef($s['sidebar_title2_f']));
-        ConfigTheme::prop($css, '#sidebar h3', 'font-size', $s['sidebar_title2_s']);
-        ConfigTheme::prop($css, '#sidebar h3', 'color', $s['sidebar_title2_c']);
+        $this->utils->prop($css, '#sidebar h3', 'font-family', $this->fontDef($s['sidebar_title2_f']));
+        $this->utils->prop($css, '#sidebar h3', 'font-size', $s['sidebar_title2_s']);
+        $this->utils->prop($css, '#sidebar h3', 'color', $s['sidebar_title2_c']);
 
-        ConfigTheme::prop($css, '#sidebar ul', 'border-top-color', $s['sidebar_line_c']);
-        ConfigTheme::prop($css, '#sidebar li', 'border-bottom-color', $s['sidebar_line_c']);
-        ConfigTheme::prop($css, '#topnav ul', 'border-bottom-color', $s['sidebar_line_c']);
+        $this->utils->prop($css, '#sidebar ul', 'border-top-color', $s['sidebar_line_c']);
+        $this->utils->prop($css, '#sidebar li', 'border-bottom-color', $s['sidebar_line_c']);
+        $this->utils->prop($css, '#topnav ul', 'border-bottom-color', $s['sidebar_line_c']);
 
-        ConfigTheme::prop($css, '#sidebar li a', 'color', $s['sidebar_link_c']);
-        ConfigTheme::prop($css, '#sidebar li a:visited', 'color', $s['sidebar_link_v_c']);
-        ConfigTheme::prop($css, '#sidebar li a:hover, #sidebar li a:focus, #sidebar li a:active', 'color', $s['sidebar_link_f_c']);
-        ConfigTheme::prop($css, '#search input', 'color', $s['sidebar_link_c']);
-        ConfigTheme::prop($css, '#search .submit', 'color', $s['sidebar_link_c']);
-        ConfigTheme::prop($css, '#search .submit:hover', 'background', $s['sidebar_link_f_c']);
-        ConfigTheme::prop($css, '#search .submit:hover', 'border-color', $s['sidebar_link_f_c']);
+        $this->utils->prop($css, '#sidebar li a', 'color', $s['sidebar_link_c']);
+        $this->utils->prop($css, '#sidebar li a:visited', 'color', $s['sidebar_link_v_c']);
+        $this->utils->prop($css, '#sidebar li a:hover, #sidebar li a:focus, #sidebar li a:active', 'color', $s['sidebar_link_f_c']);
+        $this->utils->prop($css, '#search input', 'color', $s['sidebar_link_c']);
+        $this->utils->prop($css, '#search .submit', 'color', $s['sidebar_link_c']);
+        $this->utils->prop($css, '#search .submit:hover', 'background', $s['sidebar_link_f_c']);
+        $this->utils->prop($css, '#search .submit:hover', 'border-color', $s['sidebar_link_f_c']);
 
-        ConfigTheme::prop($css, '.post-title', 'color', $s['post_title_c']);
-        ConfigTheme::prop($css, '.post-title a, .post-title a:visited', 'color', $s['post_title_c']);
-        ConfigTheme::prop($css, '.post-title', 'font-family', self::fontDef($s['post_title_f']));
-        ConfigTheme::prop($css, '.post-title', 'font-size', $s['post_title_s']);
+        $this->utils->prop($css, '.post-title', 'color', $s['post_title_c']);
+        $this->utils->prop($css, '.post-title a, .post-title a:visited', 'color', $s['post_title_c']);
+        $this->utils->prop($css, '.post-title', 'font-family', $this->fontDef($s['post_title_f']));
+        $this->utils->prop($css, '.post-title', 'font-size', $s['post_title_s']);
 
-        ConfigTheme::prop($css, '#comments dd', 'background-color', $s['post_comment_bg_c']);
-        ConfigTheme::prop($css, '#comments dd', 'color', $s['post_comment_c']);
-        ConfigTheme::prop($css, '#comments dd.me', 'background-color', $s['post_commentmy_bg_c']);
-        ConfigTheme::prop($css, '#comments dd.me', 'color', $s['post_commentmy_c']);
+        $this->utils->prop($css, '#comments dd', 'background-color', $s['post_comment_bg_c']);
+        $this->utils->prop($css, '#comments dd', 'color', $s['post_comment_c']);
+        $this->utils->prop($css, '#comments dd.me', 'background-color', $s['post_commentmy_bg_c']);
+        $this->utils->prop($css, '#comments dd.me', 'color', $s['post_commentmy_c']);
 
-        ConfigTheme::prop($css, '#prelude, #prelude a', 'color', $s['prelude_c']);
+        $this->utils->prop($css, '#prelude, #prelude a', 'color', $s['prelude_c']);
 
-        ConfigTheme::prop($css, '#footer p', 'background-color', $s['footer_bg_c']);
-        ConfigTheme::prop($css, '#footer p', 'color', $s['footer_c']);
-        ConfigTheme::prop($css, '#footer p', 'font-size', $s['footer_s']);
-        ConfigTheme::prop($css, '#footer p', 'font-family', self::fontDef($s['footer_f']));
-        ConfigTheme::prop($css, '#footer p a', 'color', $s['footer_l_c']);
+        $this->utils->prop($css, '#footer p', 'background-color', $s['footer_bg_c']);
+        $this->utils->prop($css, '#footer p', 'color', $s['footer_c']);
+        $this->utils->prop($css, '#footer p', 'font-size', $s['footer_s']);
+        $this->utils->prop($css, '#footer p', 'font-family', $this->fontDef($s['footer_f']));
+        $this->utils->prop($css, '#footer p a', 'color', $s['footer_l_c']);
 
         /* Images
         ------------------------------------------------------ */
-        self::backgroundImg($css, 'body', $s['body_bg_c'], 'body-bg.png');
-        self::backgroundImg($css, 'body', $s['body_bg_g'] != 'light', 'body-bg.png');
-        self::backgroundImg($css, 'body', $s['prelude_c'], 'body-bg.png');
-        self::backgroundImg($css, '#top', $s['body_bg_c'], 'page-t.png');
-        self::backgroundImg($css, '#top', $s['body_bg_g'] != 'light', 'page-t.png');
-        self::backgroundImg($css, '#top', $s['uploaded'] || $s['top_image'], 'page-t.png');
-        self::backgroundImg($css, '#footer', $s['body_bg_c'], 'page-b.png');
-        self::backgroundImg($css, '#comments dt', $s['post_comment_bg_c'], 'comment-t.png');
-        self::backgroundImg($css, '#comments dd', $s['post_comment_bg_c'], 'comment-b.png');
-        self::backgroundImg($css, '#comments dt.me', $s['post_commentmy_bg_c'], 'commentmy-t.png');
-        self::backgroundImg($css, '#comments dd.me', $s['post_commentmy_bg_c'], 'commentmy-b.png');
+        $this->backgroundImg($css, 'body', $s['body_bg_c'], 'body-bg.png');
+        $this->backgroundImg($css, 'body', $s['body_bg_g'] != 'light', 'body-bg.png');
+        $this->backgroundImg($css, 'body', $s['prelude_c'], 'body-bg.png');
+        $this->backgroundImg($css, '#top', $s['body_bg_c'], 'page-t.png');
+        $this->backgroundImg($css, '#top', $s['body_bg_g'] != 'light', 'page-t.png');
+        $this->backgroundImg($css, '#top', $s['uploaded'] || $s['top_image'], 'page-t.png');
+        $this->backgroundImg($css, '#footer', $s['body_bg_c'], 'page-b.png');
+        $this->backgroundImg($css, '#comments dt', $s['post_comment_bg_c'], 'comment-t.png');
+        $this->backgroundImg($css, '#comments dd', $s['post_comment_bg_c'], 'comment-b.png');
+        $this->backgroundImg($css, '#comments dt.me', $s['post_commentmy_bg_c'], 'commentmy-t.png');
+        $this->backgroundImg($css, '#comments dd.me', $s['post_commentmy_bg_c'], 'commentmy-b.png');
 
         $res = '';
         foreach ($css as $selector => $values) {
@@ -310,20 +299,20 @@ class BlowupConfig
 
         $res .= $s['extra_css'];
 
-        if (!self::canWriteCss(true)) {
+        if (!$this->canWriteCss(true)) {
             throw new ModuleException(__('Unable to create css file.'));
         }
 
         # erase old css file
-        self::dropCss($core->blog->settings->system->theme);
+        $this->dropCss($this->core->blog->settings->system->theme);
 
         # create new css file into public blowup-css subdirectory
-        self::writeCss($core->blog->settings->system->theme, $res);
+        $this->writeCss($this->core->blog->settings->system->theme, $res);
 
         return $res;
     }
 
-    public static function createImages(&$config, $uploaded)
+    public function createImages(&$config, $uploaded)
     {
         $body_color       = $config['body_bg_c'];
         $prelude_color    = $config['prelude_c'];
@@ -334,14 +323,14 @@ class BlowupConfig
 
         $config['top_height'] = null;
 
-        if ($top_image != 'custom' && !isset(self::$top_images[$top_image])) {
+        if ($top_image != 'custom' && !isset($this->top_images[$top_image])) {
             $top_image = 'default';
         }
         if ($uploaded && !is_file($uploaded)) {
             $uploaded = null;
         }
 
-        if (!self::canWriteImages(true)) {
+        if (!$this->canWriteImages(true)) {
             throw new ModuleException(__('Unable to create images.'));
         }
 
@@ -367,15 +356,15 @@ class BlowupConfig
         $default_bg      = '#e0e0e0';
         $default_prelude = '#ededed';
 
-        self::dropImage(basename($body_bg));
-        self::dropImage('page-t.png');
-        self::dropImage(basename($page_b));
-        self::dropImage(basename($comment_t));
-        self::dropImage(basename($comment_b));
+        $this->dropImage(basename($body_bg));
+        $this->dropImage('page-t.png');
+        $this->dropImage(basename($page_b));
+        $this->dropImage(basename($comment_t));
+        $this->dropImage(basename($comment_b));
 
-        $body_color    = ConfigTheme::adjustColor($body_color);
-        $prelude_color = ConfigTheme::adjustColor($prelude_color);
-        $comment_color = ConfigTheme::adjustColor($comment_color);
+        $body_color    = $this->utils->adjustColor($body_color);
+        $prelude_color = $this->utils->adjustColor($prelude_color);
+        $comment_color = $this->utils->adjustColor($comment_color);
 
         $d_body_bg = false;
 
@@ -408,7 +397,7 @@ class BlowupConfig
             imagefill($s_prelude, 0, 0, $fill);
             imagecopy($d_body_bg, $s_prelude, 0, 0, 0, 0, 50, 30);
 
-            imagepng($d_body_bg, self::imagesPath() . '/' . basename($body_bg));
+            imagepng($d_body_bg, $this->imagesPath() . '/' . basename($body_bg));
         }
 
         if ($top_image || $body_color || $gradient != 'light') {
@@ -459,7 +448,7 @@ class BlowupConfig
 
             $config['top_height'] = ($size) . 'px';
 
-            imagepng($d_page_t, self::imagesPath() . '/page-t.png');
+            imagepng($d_page_t, $this->imagesPath() . '/page-t.png');
 
             imagedestroy($d_body_bg);
             imagedestroy($d_page_t);
@@ -474,21 +463,21 @@ class BlowupConfig
             imagealphablending($s_page_b, true);
             imagecopy($d_page_b, $s_page_b, 0, 0, 0, 0, 800, 160);
 
-            imagepng($d_page_b, self::imagesPath() . '/' . basename($page_b));
+            imagepng($d_page_b, $this->imagesPath() . '/' . basename($page_b));
 
             imagedestroy($d_page_b);
             imagedestroy($s_page_b);
         }
 
         if ($comment_color) {
-            self::commentImages($comment_color, $comment_t, $comment_b, basename($comment_t), basename($comment_b));
+            $this->commentImages($comment_color, $comment_t, $comment_b, basename($comment_t), basename($comment_b));
         }
         if ($comment_color_my) {
-            self::commentImages($comment_color_my, $comment_t, $comment_b, 'commentmy-t.png', 'commentmy-b.png');
+            $this->commentImages($comment_color_my, $comment_t, $comment_b, 'commentmy-t.png', 'commentmy-b.png');
         }
     }
 
-    protected static function commentImages($comment_color, $comment_t, $comment_b, $dest_t, $dest_b)
+    protected function commentImages($comment_color, $comment_t, $comment_b, $dest_t, $dest_b)
     {
         $comment_color = sscanf($comment_color, '#%2X%2X%2X');
 
@@ -500,7 +489,7 @@ class BlowupConfig
         imagealphablending($s_comment_t, true);
         imagecopy($d_comment_t, $s_comment_t, 0, 0, 0, 0, 500, 25);
 
-        imagepng($d_comment_t, self::imagesPath() . '/' . $dest_t);
+        imagepng($d_comment_t, $this->imagesPath() . '/' . $dest_t);
         imagedestroy($d_comment_t);
         imagedestroy($s_comment_t);
 
@@ -512,7 +501,7 @@ class BlowupConfig
         imagealphablending($s_comment_b, true);
         imagecopy($d_comment_b, $s_comment_b, 0, 0, 0, 0, 500, 7);
 
-        imagepng($d_comment_b, self::imagesPath() . '/' . $dest_b);
+        imagepng($d_comment_b, $this->imagesPath() . '/' . $dest_b);
         imagedestroy($d_comment_b);
         imagedestroy($s_comment_b);
     }

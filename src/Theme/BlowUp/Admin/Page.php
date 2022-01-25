@@ -18,7 +18,6 @@ use Dotclear\Exception;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Admin\Notices;
 
-use Dotclear\Module\Theme\Admin\ConfigTheme;
 use Dotclear\Theme\BlowUp\Lib\BlowupConfig;
 
 use Dotclear\Html\Form;
@@ -95,12 +94,14 @@ class Page extends AbstractPage
         'extra_css' => null
     ];
 
+    protected $blowup_config;
+
     protected function getPermissions(): string|null|false
     {
         return 'admin';
     }
 
-    private static function blowupGradientTypesCombo()
+    private function blowupGradientTypesCombo()
     {
         return [
             __('Light linear gradient')  => 'light',
@@ -110,16 +111,16 @@ class Page extends AbstractPage
         ];
     }
 
-    private static function blowupTopImagesCombo()
+    private function blowupTopImagesCombo()
     {
-        return array_merge([__('Custom...') => 'custom'], array_flip(BlowupConfig::$top_images));
+        return array_merge([__('Custom...') => 'custom'], array_flip($this->blowup_config->top_images));
     }
 
     protected function getPagePrepend(): ?bool
     {
-        BlowupConfig::setCore($this->core);
+        $this->blowup_config = new BlowupConfig($this->core);
 
-        $this->blowup_can_write_images = BlowupConfig::canWriteImages();
+        $this->blowup_can_write_images = $this->blowup_config->canWriteImages();
 
         if ($this->core->error->flag()) {
             $this->blowup_notices = $this->core->error->toHTML();
@@ -135,9 +136,9 @@ class Page extends AbstractPage
         if (!empty($_POST)) {
             try {
                 $this->blowup_user['body_txt_f']       = $_POST['body_txt_f'];
-                $this->blowup_user['body_txt_s']       = ConfigTheme::adjustFontSize($_POST['body_txt_s']);
-                $this->blowup_user['body_txt_c']       = ConfigTheme::adjustColor($_POST['body_txt_c']);
-                $this->blowup_user['body_line_height'] = ConfigTheme::adjustFontSize($_POST['body_line_height']);
+                $this->blowup_user['body_txt_s']       = $this->blowup_config->utils->adjustFontSize($_POST['body_txt_s']);
+                $this->blowup_user['body_txt_c']       = $this->blowup_config->utils->adjustColor($_POST['body_txt_c']);
+                $this->blowup_user['body_line_height'] = $this->blowup_config->utils->adjustFontSize($_POST['body_line_height']);
 
                 $this->blowup_user['blog_title_hide'] = (integer) !empty($_POST['blog_title_hide']);
                 $update_blog_title              = !$this->blowup_user['blog_title_hide'] && (
@@ -146,74 +147,74 @@ class Page extends AbstractPage
 
                 if ($update_blog_title) {
                     $this->blowup_user['blog_title_f'] = $_POST['blog_title_f'];
-                    $this->blowup_user['blog_title_s'] = ConfigTheme::adjustFontSize($_POST['blog_title_s']);
-                    $this->blowup_user['blog_title_c'] = ConfigTheme::adjustColor($_POST['blog_title_c']);
+                    $this->blowup_user['blog_title_s'] = $this->blowup_config->utils->adjustFontSize($_POST['blog_title_s']);
+                    $this->blowup_user['blog_title_c'] = $this->blowup_config->utils->adjustColor($_POST['blog_title_c']);
                     $this->blowup_user['blog_title_a'] = preg_match('/^(left|center|right)$/', ($_POST['blog_title_a'] ?? '')) ? $_POST['blog_title_a'] : null;
-                    $this->blowup_user['blog_title_p'] = ConfigTheme::adjustPosition($_POST['blog_title_p']);
+                    $this->blowup_user['blog_title_p'] = $this->blowup_config->utils->adjustPosition($_POST['blog_title_p']);
                 }
 
-                $this->blowup_user['body_link_c']   = ConfigTheme::adjustColor($_POST['body_link_c']);
-                $this->blowup_user['body_link_f_c'] = ConfigTheme::adjustColor($_POST['body_link_f_c']);
-                $this->blowup_user['body_link_v_c'] = ConfigTheme::adjustColor($_POST['body_link_v_c']);
+                $this->blowup_user['body_link_c']   = $this->blowup_config->utils->adjustColor($_POST['body_link_c']);
+                $this->blowup_user['body_link_f_c'] = $this->blowup_config->utils->adjustColor($_POST['body_link_f_c']);
+                $this->blowup_user['body_link_v_c'] = $this->blowup_config->utils->adjustColor($_POST['body_link_v_c']);
 
                 $this->blowup_user['sidebar_text_f']   = ($_POST['sidebar_text_f'] ?? null);
-                $this->blowup_user['sidebar_text_s']   = ConfigTheme::adjustFontSize($_POST['sidebar_text_s']);
-                $this->blowup_user['sidebar_text_c']   = ConfigTheme::adjustColor($_POST['sidebar_text_c']);
+                $this->blowup_user['sidebar_text_s']   = $this->blowup_config->utils->adjustFontSize($_POST['sidebar_text_s']);
+                $this->blowup_user['sidebar_text_c']   = $this->blowup_config->utils->adjustColor($_POST['sidebar_text_c']);
                 $this->blowup_user['sidebar_title_f']  = ($_POST['sidebar_title_f'] ?? null);
-                $this->blowup_user['sidebar_title_s']  = ConfigTheme::adjustFontSize($_POST['sidebar_title_s']);
-                $this->blowup_user['sidebar_title_c']  = ConfigTheme::adjustColor($_POST['sidebar_title_c']);
+                $this->blowup_user['sidebar_title_s']  = $this->blowup_config->utils->adjustFontSize($_POST['sidebar_title_s']);
+                $this->blowup_user['sidebar_title_c']  = $this->blowup_config->utils->adjustColor($_POST['sidebar_title_c']);
                 $this->blowup_user['sidebar_title2_f'] = ($_POST['sidebar_title2_f'] ?? null);
-                $this->blowup_user['sidebar_title2_s'] = ConfigTheme::adjustFontSize($_POST['sidebar_title2_s']);
-                $this->blowup_user['sidebar_title2_c'] = ConfigTheme::adjustColor($_POST['sidebar_title2_c']);
-                $this->blowup_user['sidebar_line_c']   = ConfigTheme::adjustColor($_POST['sidebar_line_c']);
-                $this->blowup_user['sidebar_link_c']   = ConfigTheme::adjustColor($_POST['sidebar_link_c']);
-                $this->blowup_user['sidebar_link_f_c'] = ConfigTheme::adjustColor($_POST['sidebar_link_f_c']);
-                $this->blowup_user['sidebar_link_v_c'] = ConfigTheme::adjustColor($_POST['sidebar_link_v_c']);
+                $this->blowup_user['sidebar_title2_s'] = $this->blowup_config->utils->adjustFontSize($_POST['sidebar_title2_s']);
+                $this->blowup_user['sidebar_title2_c'] = $this->blowup_config->utils->adjustColor($_POST['sidebar_title2_c']);
+                $this->blowup_user['sidebar_line_c']   = $this->blowup_config->utils->adjustColor($_POST['sidebar_line_c']);
+                $this->blowup_user['sidebar_link_c']   = $this->blowup_config->utils->adjustColor($_POST['sidebar_link_c']);
+                $this->blowup_user['sidebar_link_f_c'] = $this->blowup_config->utils->adjustColor($_POST['sidebar_link_f_c']);
+                $this->blowup_user['sidebar_link_v_c'] = $this->blowup_config->utils->adjustColor($_POST['sidebar_link_v_c']);
 
                 $this->blowup_user['sidebar_position'] = ($_POST['sidebar_position'] ?? '') == 'left' ? 'left' : null;
 
                 $this->blowup_user['date_title_f'] = ($_POST['date_title_f'] ?? null);
-                $this->blowup_user['date_title_s'] = ConfigTheme::adjustFontSize($_POST['date_title_s']);
-                $this->blowup_user['date_title_c'] = ConfigTheme::adjustColor($_POST['date_title_c']);
+                $this->blowup_user['date_title_s'] = $this->blowup_config->utils->adjustFontSize($_POST['date_title_s']);
+                $this->blowup_user['date_title_c'] = $this->blowup_config->utils->adjustColor($_POST['date_title_c']);
 
                 $this->blowup_user['post_title_f']     = ($_POST['post_title_f'] ?? null);
-                $this->blowup_user['post_title_s']     = ConfigTheme::adjustFontSize($_POST['post_title_s']);
-                $this->blowup_user['post_title_c']     = ConfigTheme::adjustColor($_POST['post_title_c']);
-                $this->blowup_user['post_comment_c']   = ConfigTheme::adjustColor($_POST['post_comment_c']);
-                $this->blowup_user['post_commentmy_c'] = ConfigTheme::adjustColor($_POST['post_commentmy_c']);
+                $this->blowup_user['post_title_s']     = $this->blowup_config->utils->adjustFontSize($_POST['post_title_s']);
+                $this->blowup_user['post_title_c']     = $this->blowup_config->utils->adjustColor($_POST['post_title_c']);
+                $this->blowup_user['post_comment_c']   = $this->blowup_config->utils->adjustColor($_POST['post_comment_c']);
+                $this->blowup_user['post_commentmy_c'] = $this->blowup_config->utils->adjustColor($_POST['post_commentmy_c']);
 
                 $this->blowup_user['footer_f']    = ($_POST['footer_f'] ?? null);
-                $this->blowup_user['footer_s']    = ConfigTheme::adjustFontSize($_POST['footer_s']);
-                $this->blowup_user['footer_c']    = ConfigTheme::adjustColor($_POST['footer_c']);
-                $this->blowup_user['footer_l_c']  = ConfigTheme::adjustColor($_POST['footer_l_c']);
-                $this->blowup_user['footer_bg_c'] = ConfigTheme::adjustColor($_POST['footer_bg_c']);
+                $this->blowup_user['footer_s']    = $this->blowup_config->utils->adjustFontSize($_POST['footer_s']);
+                $this->blowup_user['footer_c']    = $this->blowup_config->utils->adjustColor($_POST['footer_c']);
+                $this->blowup_user['footer_l_c']  = $this->blowup_config->utils->adjustColor($_POST['footer_l_c']);
+                $this->blowup_user['footer_bg_c'] = $this->blowup_config->utils->adjustColor($_POST['footer_bg_c']);
 
-                $this->blowup_user['extra_css'] = ConfigTheme::cleanCSS($_POST['extra_css']);
+                $this->blowup_user['extra_css'] = $this->blowup_config->utils->cleanCSS($_POST['extra_css']);
 
                 if ($this->blowup_can_write_images) {
                     $uploaded = null;
-                    if ($this->blowup_user['uploaded'] && is_file(BlowupConfig::imagesPath() . '/' . $this->blowup_user['uploaded'])) {
-                        $uploaded = BlowupConfig::imagesPath() . '/' . $this->blowup_user['uploaded'];
+                    if ($this->blowup_user['uploaded'] && is_file($this->blowup_config->imagesPath() . '/' . $this->blowup_user['uploaded'])) {
+                        $uploaded = $this->blowup_config->imagesPath() . '/' . $this->blowup_user['uploaded'];
                     }
 
                     if (!empty($_FILES['upfile']) && !empty($_FILES['upfile']['name'])) {
                         files::uploadStatus($_FILES['upfile']);
-                        $uploaded                = BlowupConfig::uploadImage($_FILES['upfile']);
+                        $uploaded                = $this->blowup_config->uploadImage($_FILES['upfile']);
                         $this->blowup_user['uploaded'] = basename($uploaded);
                     }
 
                     $this->blowup_user['top_image'] = in_array(($_POST['top_image'] ?? ''), self::blowupTopImagesCombo()) ? $_POST['top_image'] : 'default';
 
-                    $this->blowup_user['body_bg_c']           = ConfigTheme::adjustColor($_POST['body_bg_c']);
-                    $this->blowup_user['body_bg_g']           = in_array(($_POST['body_bg_g'] ?? ''), self::blowupGradientTypesCombo()) ? $_POST['body_bg_g'] : '';
-                    $this->blowup_user['post_comment_bg_c']   = ConfigTheme::adjustColor($_POST['post_comment_bg_c']);
-                    $this->blowup_user['post_commentmy_bg_c'] = ConfigTheme::adjustColor($_POST['post_commentmy_bg_c']);
-                    $this->blowup_user['prelude_c']           = ConfigTheme::adjustColor($_POST['prelude_c']);
-                    BlowupConfig::createImages($this->blowup_user, $uploaded);
+                    $this->blowup_user['body_bg_c']           = $this->blowup_config->utils->adjustColor($_POST['body_bg_c']);
+                    $this->blowup_user['body_bg_g']           = in_array(($_POST['body_bg_g'] ?? ''), $this->blowupGradientTypesCombo()) ? $_POST['body_bg_g'] : '';
+                    $this->blowup_user['post_comment_bg_c']   = $this->blowup_config->utils->adjustColor($_POST['post_comment_bg_c']);
+                    $this->blowup_user['post_commentmy_bg_c'] = $this->blowup_config->utils->adjustColor($_POST['post_commentmy_bg_c']);
+                    $this->blowup_user['prelude_c']           = $this->blowup_config->utils->adjustColor($_POST['prelude_c']);
+                    $this->blowup_config->createImages($this->blowup_user, $uploaded);
                 }
 
-                if (BlowupConfig::canWriteCss()) {
-                    BlowupConfig::createCss($this->blowup_user);
+                if ($this->blowup_config->canWriteCss()) {
+                    $this->blowup_config->createCss($this->blowup_user);
                 }
 
                 $this->core->blog->settings->addNamespace('themes');
@@ -234,7 +235,7 @@ class Page extends AbstractPage
             ->setPageHelp('BlowupConfig')
             ->setPageHead(
                 static::jsJson('blowup', [
-                    'blowup_public_url' => BlowupConfig::imagesURL(),
+                    'blowup_public_url' => $this->blowup_config->imagesURL(),
                     'msg'               => [
                         'predefined_styles'      => __('Predefined styles'),
                         'apply_code'             => __('Apply code'),
@@ -279,7 +280,7 @@ class Page extends AbstractPage
 
         echo
         '<p class="field"><label for="body_txt_f">' . __('Main text font:') . '</label> ' .
-        form::combo('body_txt_f', BlowupConfig::fontsList(), $this->blowup_user['body_txt_f']) . '</p>' .
+        form::combo('body_txt_f', $this->blowup_config->fontsList(), $this->blowup_user['body_txt_f']) . '</p>' .
 
         '<p class="field"><label for="body_txt_s">' . __('Main text font size:') . '</label> ' .
         form::field('body_txt_s', 7, 7, $this->blowup_user['body_txt_s']) . '</p>' .
@@ -313,7 +314,7 @@ class Page extends AbstractPage
         form::checkbox('blog_title_hide', 1, $this->blowup_user['blog_title_hide']) . '</p>' .
 
         '<p class="field"><label for="blog_title_f">' . __('Main title font:') . '</label> ' .
-        form::combo('blog_title_f', BlowupConfig::fontsList(), $this->blowup_user['blog_title_f']) . '</p>' .
+        form::combo('blog_title_f', $this->blowup_config->fontsList(), $this->blowup_user['blog_title_f']) . '</p>' .
 
         '<p class="field"><label for="blog_title_s">' . __('Main title font size:') . '</label> ' .
         form::field('blog_title_s', 7, 7, $this->blowup_user['blog_title_s']) . '</p>' .
@@ -329,7 +330,7 @@ class Page extends AbstractPage
 
         if ($this->blowup_can_write_images) {
             if ($this->blowup_user['top_image'] == 'custom' && $this->blowup_user['uploaded']) {
-                $preview_image = http::concatURL($this->core->blog->url, BlowupConfig::imagesURL() . '/page-t.png');
+                $preview_image = http::concatURL($this->core->blog->url, $this->blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?mf=Theme/BlowUp/files/alpha-img/page-t/' . $this->blowup_user['top_image'] . '.png';
             }
@@ -337,7 +338,7 @@ class Page extends AbstractPage
             echo
             '<h5 class="pretty-title">' . __('Top image') . '</h5>' .
             '<p class="field"><label for="top_image">' . __('Top image') . '</label> ' .
-            form::combo('top_image', self::blowupTopImagesCombo(), ($this->blowup_user['top_image'] ?: 'default')) . '</p>' .
+            form::combo('top_image', $this->blowupTopImagesCombo(), ($this->blowup_user['top_image'] ?: 'default')) . '</p>' .
             '<p>' . __('Choose "Custom..." to upload your own image.') . '</p>' .
 
             '<p id="uploader"><label for="upfile">' . __('Add your image:') . '</label> ' .
@@ -357,7 +358,7 @@ class Page extends AbstractPage
         form::combo('sidebar_position', [__('right') => 'right', __('left') => 'left'], $this->blowup_user['sidebar_position']) . '</p>' .
 
         '<p class="field"><label for="sidebar_text_f">' . __('Sidebar text font:') . '</label> ' .
-        form::combo('sidebar_text_f', BlowupConfig::fontsList(), $this->blowup_user['sidebar_text_f']) . '</p>' .
+        form::combo('sidebar_text_f', $this->blowup_config->fontsList(), $this->blowup_user['sidebar_text_f']) . '</p>' .
 
         '<p class="field"><label for="sidebar_text_s">' . __('Sidebar text font size:') . '</label> ' .
         form::field('sidebar_text_s', 7, 7, $this->blowup_user['sidebar_text_s']) . '</p>' .
@@ -366,7 +367,7 @@ class Page extends AbstractPage
         form::color('sidebar_text_c', ['default' => $this->blowup_user['sidebar_text_c']]) . '</p>' .
 
         '<p class="field"><label for="sidebar_title_f">' . __('Sidebar titles font:') . '</label> ' .
-        form::combo('sidebar_title_f', BlowupConfig::fontsList(), $this->blowup_user['sidebar_title_f']) . '</p>' .
+        form::combo('sidebar_title_f', $this->blowup_config->fontsList(), $this->blowup_user['sidebar_title_f']) . '</p>' .
 
         '<p class="field"><label for="sidebar_title_s">' . __('Sidebar titles font size:') . '</label> ' .
         form::field('sidebar_title_s', 7, 7, $this->blowup_user['sidebar_title_s']) . '</p>' .
@@ -375,7 +376,7 @@ class Page extends AbstractPage
         form::color('sidebar_title_c', ['default' => $this->blowup_user['sidebar_title_c']]) . '</p>' .
 
         '<p class="field"><label for="sidebar_title2_f">' . __('Sidebar 2nd level titles font:') . '</label> ' .
-        form::combo('sidebar_title2_f', BlowupConfig::fontsList(), $this->blowup_user['sidebar_title2_f']) . '</p>' .
+        form::combo('sidebar_title2_f', $this->blowup_config->fontsList(), $this->blowup_user['sidebar_title2_f']) . '</p>' .
 
         '<p class="field"><label for="sidebar_title2_s">' . __('Sidebar 2nd level titles font size:') . '</label> ' .
         form::field('sidebar_title2_s', 7, 7, $this->blowup_user['sidebar_title2_s']) . '</p>' .
@@ -397,7 +398,7 @@ class Page extends AbstractPage
 
         '<h4 class="border-top">' . __('Entries') . '</h4>' .
         '<p class="field"><label for="date_title_f">' . __('Date title font:') . '</label> ' .
-        form::combo('date_title_f', BlowupConfig::fontsList(), $this->blowup_user['date_title_f']) . '</p>' .
+        form::combo('date_title_f', $this->blowup_config->fontsList(), $this->blowup_user['date_title_f']) . '</p>' .
 
         '<p class="field"><label for="date_title_s">' . __('Date title font size:') . '</label> ' .
         form::field('date_title_s', 7, 7, $this->blowup_user['date_title_s']) . '</p>' .
@@ -406,7 +407,7 @@ class Page extends AbstractPage
         form::color('date_title_c', ['default' => $this->blowup_user['date_title_c']]) . '</p>' .
 
         '<p class="field"><label for="post_title_f">' . __('Entry title font:') . '</label> ' .
-        form::combo('post_title_f', BlowupConfig::fontsList(), $this->blowup_user['post_title_f']) . '</p>' .
+        form::combo('post_title_f', $this->blowup_config->fontsList(), $this->blowup_user['post_title_f']) . '</p>' .
 
         '<p class="field"><label for="post_title_s">' . __('Entry title font size:') . '</label> ' .
         form::field('post_title_s', 7, 7, $this->blowup_user['post_title_s']) . '</p>' .
@@ -436,7 +437,7 @@ class Page extends AbstractPage
 
         '<h4 class="border-top">' . __('Footer') . '</h4>' .
         '<p class="field"><label for="footer_f">' . __('Footer font:') . '</label> ' .
-        form::combo('footer_f', BlowupConfig::fontsList(), $this->blowup_user['footer_f']) . '</p>' .
+        form::combo('footer_f', $this->blowup_config->fontsList(), $this->blowup_user['footer_f']) . '</p>' .
 
         '<p class="field"><label for="footer_s">' . __('Footer font size:') . '</label> ' .
         form::field('footer_s', 7, 7, $this->blowup_user['footer_s']) . '</p>' .
