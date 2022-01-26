@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Template;
 
+use Dotclear\Exception;
+
 use Dotclear\File\Path;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
