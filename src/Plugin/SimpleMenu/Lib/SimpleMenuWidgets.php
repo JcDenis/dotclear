@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\SimpleMenu\Public\PublicWidgets
+ * @class Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\SimpleMenu\Public;
+namespace Dotclear\Plugin\SimpleMenu\Lib;
 
 use ArrayObject;
 
 use Dotclear\Core\Core;
+use Dotclear\Plugin\Widgets\Lib\Widgets;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
@@ -24,17 +25,41 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class PublicWidgets
+class SimpleMenuWidgets
 {
+    public static $widgets;
     protected $core;
 
     public function __construct(Core $core)
     {
         $this->core = $core;
+        $core->behaviors->add('initWidgets', [$this, 'initWidgets']);
+        if (!empty($core->tpl)) {
+            $core->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
+        }
+        self::$widgets = $this;
+    }
+
+    public function initWidgets(Core $core, Widgets $w): void
+    {
+        $w
+            ->create('simplemenu', __('Simple menu'), [$this, 'simpleMenuWidget'], null, 'List of simple menu items')
+            ->addTitle(__('Menu'))
+            ->setting('description', __('Item description'), 0, 'combo',
+                [
+                    __('Displayed in link')                   => 0, // span
+                    __('Used as link title')                  => 1, // title
+                    __('Displayed in link and used as title') => 2, // both
+                    __('Not displayed nor used')              => 3 // none
+                ])
+            ->addHomeOnly()
+            ->addContentOnly()
+            ->addClass()
+            ->addOffline();
     }
 
     # Template function
-    public static function simpleMenu($attr)
+    public function simpleMenu($attr)
     {
         if (!(boolean) $this->core->blog->settings->system->simpleMenu_active) {
             return '';
@@ -48,7 +73,7 @@ class PublicWidgets
             $description = '';
         }
 
-        return '<?php echo ' . __NAMESPACE__ .'\\Prepend::$widgets->displayMenu(' .
+        return '<?php echo ' . __CLASS__ . '::$widgets->displayMenu(' .
         "'" . addslashes($class) . "'," .
         "'" . addslashes($id) . "'," .
         "'" . addslashes($description) . "'" .

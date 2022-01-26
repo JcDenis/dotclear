@@ -16,9 +16,7 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Plugin\SimpleMenu\Lib\TraitPrependSimpleMenu;
-use Dotclear\Plugin\SimpleMenu\Public\PublicWidgets;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
+use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
 use Dotclear\Core\Core;
 
@@ -30,7 +28,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Prepend extends AbstractPrepend
 {
-    use TraitPrependAdmin, TraitPrependSimpleMenu;
+    use TraitPrependAdmin;
 
     public static function checkModule(Core $core): bool
     {
@@ -49,10 +47,11 @@ class Prepend extends AbstractPrepend
         );
 
         # Add Plugin Admin behaviors
-        self::$widgets = new PublicWidgets($core);
-        $core->behaviors->add('initWidgets', [__CLASS__, 'initWidgets']);
         $core->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
         $core->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);
+
+        # Widgets
+        new SimpleMenuWidgets($core);
     }
 
     public static function installModule(Core $core): ?bool

@@ -16,8 +16,7 @@ namespace Dotclear\Plugin\SimpleMenu\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
-use Dotclear\Plugin\SimpleMenu\Lib\TraitPrependSimpleMenu;
-use Dotclear\Plugin\SimpleMenu\Public\PublicWidgets;
+use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
 use Dotclear\Core\Core;
 
@@ -27,12 +26,11 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Prepend extends AbstractPrepend
 {
-    use TraitPrependPublic, TraitPrependSimpleMenu;
+    use TraitPrependPublic;
 
     public static function loadModule(Core $core): void
     {
-        self::$widgets = new PublicWidgets($core);
-        $core->behaviors->add('initWidgets', [__CLASS__, 'initWidgets']);
-        $core->tpl->addValue('SimpleMenu', [self::$widgets, 'simpleMenu']);
+        # Widgets
+        new SimpleMenuWidgets($core);
     }
 }
