@@ -51,7 +51,9 @@ class Prepend extends AbstractPrepend
         $core->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);
 
         # Widgets
-        new SimpleMenuWidgets($core);
+        if ($core->adminurl->called() == 'admin.plugin.Widgets') {
+            new SimpleMenuWidgets($core);
+        }
     }
 
     public static function installModule(Core $core): ?bool
