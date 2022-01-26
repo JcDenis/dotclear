@@ -31,8 +31,8 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(Core $core): void
     {
-        PublicWidgets::setCore($core);
+        self::$widgets = new PublicWidgets($core);
         $core->behaviors->add('initWidgets', [__CLASS__, 'initWidgets']);
-        $core->tpl->addValue('SimpleMenu', [__NAMESPACE__ . '\\PublicWidgets', 'simpleMenu']);
+        $core->tpl->addValue('SimpleMenu', [self::$widgets, 'simpleMenu']);
     }
 }

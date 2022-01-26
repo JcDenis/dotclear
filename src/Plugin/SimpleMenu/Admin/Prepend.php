@@ -17,6 +17,7 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 use Dotclear\Plugin\SimpleMenu\Lib\TraitPrependSimpleMenu;
+use Dotclear\Plugin\SimpleMenu\Public\PublicWidgets;
 use Dotclear\Plugin\Widgets\Lib\Widgets;
 
 use Dotclear\Core\Core;
@@ -48,6 +49,7 @@ class Prepend extends AbstractPrepend
         );
 
         # Add Plugin Admin behaviors
+        self::$widgets = new PublicWidgets($core);
         $core->behaviors->add('initWidgets', [__CLASS__, 'initWidgets']);
         $core->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
         $core->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);

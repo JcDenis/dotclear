@@ -22,10 +22,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 trait TraitPrependSimpleMenu
 {
+    public static $widgets;
+
     public static function initWidgets(Core $core, Widgets $w): void
     {
         $w
-            ->create('simplemenu', __('Simple menu'), ['Dotclear\Plugin\SimpleMenu\Public\PublicWidgets', 'simpleMenuWidget'], null, 'List of simple menu items')
+            ->create('simplemenu', __('Simple menu'), [self::$widgets, 'simpleMenuWidget'], null, 'List of simple menu items')
             ->addTitle(__('Menu'))
             ->setting('description', __('Item description'), 0, 'combo',
                 [
