@@ -14,12 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
-use Dotclear\Exception\AdminException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Catalog;
 use Dotclear\Admin\Filter\DefaultFilter;

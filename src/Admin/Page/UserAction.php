@@ -16,10 +16,7 @@ namespace Dotclear\Admin\Page;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Network\Http;
 use Dotclear\Html\Form;

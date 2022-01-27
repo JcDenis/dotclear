@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Blog
- * @brief Dotclear admin blog page
+ * @class Dotclear\Admin\Page\BlogDel
+ * @brief Dotclear admin blog deletion page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -14,12 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
-use Dotclear\Exception\AdminException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -64,7 +60,7 @@ class BlogDel extends Page
             } else {
                 try {
                     $this->core->delBlog($this->blog_id);
-                    $this->core->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), html::escapeHTML($this->blog_name)));
+                    $this->core->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
                     $this->core->adminurl->redirect('admin.blogs');
                 } catch (Exception $e) {
@@ -102,10 +98,10 @@ class BlogDel extends Page
         '<form action="' . $this->core->adminurl->get('admin.blog.del') . '" method="post">' .
         '<div>' . $this->core->formNonce() . '</div>' .
         '<p><label for="pwd">' . __('Your password:') . '</label> ' .
-        form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
+        Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
         '<p><input type="submit" class="delete" name="del" value="' . __('Delete this blog') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        form::hidden('blog_id', $this->blog_id) . '</p>' .
+        Form::hidden('blog_id', $this->blog_id) . '</p>' .
             '</form>';
     }
 }

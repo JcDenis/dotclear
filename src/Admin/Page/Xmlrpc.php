@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Xmlrpc as CoreXmlrpc;
 
 use Dotclear\Admin\Page;

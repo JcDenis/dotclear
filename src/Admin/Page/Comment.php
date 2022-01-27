@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Page\Comment
- * @brief Dotclear admin blog page
+ * @brief Dotclear admin comment page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
 

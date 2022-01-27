@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Catalog;
 use Dotclear\Admin\Catalog\PostMiniCatalog;

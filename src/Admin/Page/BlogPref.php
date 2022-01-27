@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Blog
- * @brief Dotclear admin blog page
+ * @class Dotclear\Admin\Page\BlogPref
+ * @brief Dotclear admin blog preference page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -12,8 +12,6 @@
 declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
-
-use ArrayObject;
 
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;

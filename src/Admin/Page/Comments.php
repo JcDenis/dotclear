@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Page\Comments
- * @brief Dotclear admin posts list page
+ * @brief Dotclear admin comments list page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -14,12 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception;
-use Dotclear\Exception\AdminException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Catalog;

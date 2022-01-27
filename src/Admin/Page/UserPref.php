@@ -18,7 +18,6 @@ use ArrayObject;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 use Dotclear\Container\User as ContainerUser;

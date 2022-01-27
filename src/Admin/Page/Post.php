@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Page\Post
- * @brief Dotclear admin blog page
+ * @brief Dotclear admin post page
  *
  * @package Dotclear
  * @subpackage Admin
@@ -18,7 +18,6 @@ use ArrayObject;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 use Dotclear\Core\Trackback;
 
