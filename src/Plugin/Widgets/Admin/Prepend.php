@@ -36,8 +36,6 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(Core $core): void
     {
-        //self::loadWidgetsStack($core);
-
         # Add Plugin Admin Page sidebar menu item
         $core->menu['Blog']->addItem(
             __('Presentation widgets'),
