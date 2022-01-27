@@ -234,6 +234,49 @@ class MediaItem extends Page
             $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
         }
 
+        # Save media insertion settings for the folder
+        if (!empty($_POST['save_folder_prefs'])) {
+            $prefs = [];
+            if (!empty($_POST['pref_src'])) {
+                if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
+                    $s = 'o';
+                }
+                $prefs['size'] = $s;
+            }
+            if (!empty($_POST['pref_alignment'])) {
+                $prefs['alignment'] = $_POST['pref_alignment'];
+            }
+            if (!empty($_POST['pref_insertion'])) {
+                $prefs['link'] = ($_POST['pref_insertion'] == 'link');
+            }
+            if (!empty($_POST['pref_legend'])) {
+                $prefs['legend'] = $_POST['pref_legend'];
+            }
+
+            $local = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
+            if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
+                $this->core->notices->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
+            }
+            $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+        }
+
+        # Delete media insertion settings for the folder (.mediadef and .mediadef.json)
+        if (!empty($_POST['remove_folder_prefs'])) {
+            $local      = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+            $local_json = $local . '.json';
+            $result     = false;
+            if (file_exists($local) && unlink($local)) {
+                $result = true;
+            }
+            if (file_exists($local_json) && unlink($local_json)) {
+                $result = true;
+            }
+            if ($result) {
+                $this->core->notices->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
+            }
+            $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+        }
+
         # Page setup
         $this->setPageHead(static::jsModal() . static::jsLoad('js/_media_item.js'));
         if ($this->popup && !empty($plugin_id)) {
@@ -534,7 +577,21 @@ class MediaItem extends Page
                 '<div class="border-top">' .
                 '<form id="save_settings" action="' . $this->core->adminurl->getBase('admin.media.item') . '" method="post">' .
                 '<p>' . __('Make current settings as default') . ' ' .
-                '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('OK') . '" />' .
+                '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
+                '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
+
+                $local = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+                if (!file_exists($local)) {
+                    $local .= '.json';
+                }
+                if (file_exists($local)) {
+                    echo
+                    '</p>' .
+                    '<p>' . __('Settings exist for this folder:') . ' ' .
+                    '<input class="delete" type="submit" name="remove_folder_prefs" value="' . __('Remove them') . '" /> ';
+                }
+
+                echo
                 Form::hidden(['pref_src'], '') .
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
