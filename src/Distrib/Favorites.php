@@ -106,8 +106,8 @@ class Favorites
             'help' => [
                 'title'      => __('Global help'),
                 'url'        => $core->adminurl->get('admin.help'),
-                'small-icon' => 'images/menu/help.png',
-                'large-icon' => 'images/menu/help-b.png']
+                'small-icon' => 'images/menu/help.svg',
+                'large-icon' => 'images/menu/help.svg']
         ]);
         if (DOTCLEAR_PLUGIN_DIR) {
             $favs->register('plugins', [
