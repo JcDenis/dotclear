@@ -23,6 +23,7 @@ use Dotclear\Module\AbstractModules;
 use Dotclear\Module\AbstractDefine;
 
 use Dotclear\Admin\Notices;
+use Dotclear\Admin\Menu;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -633,7 +634,7 @@ trait TraitModulesAdmin
                 }
                 if (file_exists($module->root() . '/icon-dark.svg')) {
                     $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.svg'];
-                } elseif (file_exists($module['root'] . '/icon-dark.png')) {
+                } elseif (file_exists($module->root() . '/icon-dark.png')) {
                     $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.png'];
                 }
 
