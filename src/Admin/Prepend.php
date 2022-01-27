@@ -494,18 +494,11 @@ class Prepend extends BasePrepend
                 $e->getMessage(),
                 404
             );
-/*
         } catch (Exception $e) {
-            if (!DOTCLEAR_MODE_DEV) {
-                static::error(
-                    'Dotclear error',
-                    $e->getMessage(),
-                    20
-                );
-            } else {
-                throw new Exception($e->getMessage());
+            if (DOTCLEAR_MODE_DEV) {
+                throw $e;
             }
-//*/
+            static::error('Dotclear error', $e->getMessage(), 20);
         }
 
         # Process page
@@ -515,6 +508,9 @@ class Prepend extends BasePrepend
             ob_end_flush();
         } catch (Exception $e) {
             ob_end_clean();
+            if (DOTCLEAR_MODE_DEV) {
+                throw $e;
+            }
             static::error(__('Failed to load page'), $e->getMessage(), 20);
         }
     }
