@@ -170,7 +170,7 @@ jsToolBar.prototype.elements.img_select = {
   accesskey: 'm',
   fn: {},
   fncall: {},
-  open_url: 'media.php?popup=1&plugin_id=LegacyEditor',
+  open_url: '?handler=admin.media&popup=1&plugin_id=LegacyEditor',
   data: {},
   popup() {
     window.the_toolbar = this;
