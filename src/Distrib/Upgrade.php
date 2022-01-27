@@ -43,7 +43,7 @@ class Upgrade
         $this->core = $core;
     }
 
-    public function dotclearUpgrade(Core $core): bool
+    public static function dotclearUpgrade(Core $core): bool
     {
         $upgrade = new Upgrade($core);
 
@@ -73,7 +73,7 @@ class Upgrade
 
                 /* Some other upgrades
                 ------------------------------------ */
-                $cleanup_sessions = $this->growUp($this->core, $version);
+                $cleanup_sessions = $this->growUp($version);
 
                 # Drop content from session table if changes or if needed
                 if ($changes != 0 || $cleanup_sessions) {
@@ -97,7 +97,7 @@ class Upgrade
         return false;
     }
 
-    public static function growUp(Core $this->core, ?string $version): bool
+    public function growUp(?string $version): bool
     {
         if ($version === null) {
             return false;
