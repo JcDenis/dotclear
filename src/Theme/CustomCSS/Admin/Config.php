@@ -66,7 +66,7 @@ class Config extends AbstractConfig
 
     private function customcssConf()
     {
-        L10n::set(Core::path(dirname(__FILE__), '..',  'locales', $this->core->_lang, 'main'));
+        L10n::set(Core::path(__DIR__, '..',  'locales', $this->core->_lang, 'main'));
         $this->customcss_file = Path::real($this->core->blog->public_path) . '/custom_style.css';
 
         if (!is_file($this->customcss_file) && !is_writable(dirname($this->customcss_file))) {

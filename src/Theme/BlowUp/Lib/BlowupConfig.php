@@ -335,9 +335,9 @@ class BlowupConfig
         }
 
         $body_fill = [
-            'light'  => dirname(__FILE__) . '/alpha-img/gradient-l.png',
-            'medium' => dirname(__FILE__) . '/alpha-img/gradient-m.png',
-            'dark'   => dirname(__FILE__) . '/alpha-img/gradient-d.png'
+            'light'  => __DIR__ . '/alpha-img/gradient-l.png',
+            'medium' => __DIR__ . '/alpha-img/gradient-m.png',
+            'dark'   => __DIR__ . '/alpha-img/gradient-d.png'
         ];
 
         $body_g = $body_fill[$gradient] ?? false;
@@ -345,14 +345,14 @@ class BlowupConfig
         if ($top_image == 'custom' && $uploaded) {
             $page_t = $uploaded;
         } else {
-            $page_t = dirname(__FILE__) . '/alpha-img/page-t/' . $top_image . '.png';
+            $page_t = __DIR__ . '/alpha-img/page-t/' . $top_image . '.png';
         }
 
-        $body_bg         = dirname(__FILE__) . '/alpha-img/body-bg.png';
-        $page_t_mask     = dirname(__FILE__) . '/alpha-img/page-t/image-mask.png';
-        $page_b          = dirname(__FILE__) . '/alpha-img/page-b.png';
-        $comment_t       = dirname(__FILE__) . '/alpha-img/comment-t.png';
-        $comment_b       = dirname(__FILE__) . '/alpha-img/comment-b.png';
+        $body_bg         = __DIR__ . '/alpha-img/body-bg.png';
+        $page_t_mask     = __DIR__ . '/alpha-img/page-t/image-mask.png';
+        $page_b          = __DIR__ . '/alpha-img/page-b.png';
+        $comment_t       = __DIR__ . '/alpha-img/comment-t.png';
+        $comment_b       = __DIR__ . '/alpha-img/comment-b.png';
         $default_bg      = '#e0e0e0';
         $default_prelude = '#ededed';
 

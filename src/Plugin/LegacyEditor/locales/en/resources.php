@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$__resources['help']['LegacyEditor'] = dirname(__FILE__) . '/help/legacy_editor.html';
+$__resources['help']['LegacyEditor'] = __DIR__ . '/help/legacy_editor.html';

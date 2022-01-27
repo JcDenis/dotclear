@@ -11,7 +11,7 @@
  */
 
 try {
-    require_once implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), '..', 'Process.php']);
+    require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'Process.php']);
     new Dotclear('Distrib');
     exit(0);
 } catch (Exception $e) {

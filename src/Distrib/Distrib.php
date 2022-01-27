@@ -27,7 +27,7 @@ class Distrib
 {
     public static function getConfigFile(): string
     {
-        $file = implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'config.php.distrib']);
+        $file = implode(DIRECTORY_SEPARATOR, [__DIR__, 'config.php.distrib']);
         if (!is_file($file)) {
             throw new Exception(sprintf(__('File %s does not exist.'), $file));
         }

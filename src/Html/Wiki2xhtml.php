@@ -232,7 +232,7 @@ class Wiki2xhtml
             '%(?<![\[\|])(http://|https://|ftp://|news:)([^"\s\)!]+)%msu'
         );
 
-        $this->setOpt('acronyms_file', dirname(__FILE__) . '/acronyms.txt');
+        $this->setOpt('acronyms_file', __DIR__ . '/acronyms.txt');
 
         $this->setOpt('img_style_left', 'float:left; margin: 0 1em 1em 0;');
         $this->setOpt('img_style_center', 'display:block; margin:0 auto;');

@@ -8,5 +8,5 @@
  */
 
 if (!isset($__resources['help']['ductile'])) {
-    $__resources['help']['ductile'] = dirname(__FILE__) . '/help/help.html';
+    $__resources['help']['ductile'] = __DIR__ . '/help/help.html';
 }

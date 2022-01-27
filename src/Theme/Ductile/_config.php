@@ -12,22 +12,22 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return;
 }
 
-l10n::set(dirname(__FILE__) . '/locales/' . $_lang . '/admin');
+l10n::set(__DIR__ . '/locales/' . $_lang . '/admin');
 
 if (preg_match('#^http(s)?://#', $core->blog->settings->system->themes_url)) {
     $img_url = http::concatURL($core->blog->settings->system->themes_url, '/' . $core->blog->settings->system->theme . '/img/');
 } else {
     $img_url = http::concatURL($core->blog->url, $core->blog->settings->system->themes_url . '/' . $core->blog->settings->system->theme . '/img/');
 }
-$img_path = dirname(__FILE__) . '/img/';
+$img_path = __DIR__ . '/img/';
 
-$tpl_path = dirname(__FILE__) . '/tpl/';
+$tpl_path = __DIR__ . '/tpl/';
 
 $standalone_config = (boolean) $core->themes->moduleInfo($core->blog->settings->system->theme, 'standalone_config');
 
 // Load contextual help
-if (file_exists(dirname(__FILE__) . '/locales/' . $_lang . '/resources.php')) {
-    require dirname(__FILE__) . '/locales/' . $_lang . '/resources.php';
+if (file_exists(__DIR__ . '/locales/' . $_lang . '/resources.php')) {
+    require __DIR__ . '/locales/' . $_lang . '/resources.php';
 }
 
 $list_types = [

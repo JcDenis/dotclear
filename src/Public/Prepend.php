@@ -175,7 +175,7 @@ class Prepend extends BasePrepend
         }
         $tplset = $__theme->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = static::path(dirname(__FILE__), 'Template', $tplset);
+            $tplset_dir = static::path(__DIR__, 'Template', $tplset);
             if (is_dir($tplset_dir)) {
                 $this->tpl->setPath($__theme_tpl_path, $tplset_dir, $this->tpl->getPath());
             } else {

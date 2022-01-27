@@ -1844,7 +1844,7 @@ class Core
     public static function root(string ...$args): string
     {
         if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
+            define('DOTCLEAR_ROOT_DIR', __DIR__);
         }
 
         return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));

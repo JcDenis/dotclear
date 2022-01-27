@@ -42,7 +42,7 @@ Class Dotclear
 
         # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', dirname(__FILE__));
+            define('DOTCLEAR_ROOT_DIR', __DIR__);
         }
 
         # Dotclear autoloader (once)

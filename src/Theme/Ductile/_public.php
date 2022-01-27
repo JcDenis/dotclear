@@ -14,7 +14,7 @@ if (!defined('DC_RC_PATH')) {
     return;
 }
 
-\l10n::set(dirname(__FILE__) . '/locales/' . $_lang . '/main');
+\l10n::set(__DIR__ . '/locales/' . $_lang . '/main');
 
 # Behaviors
 $core->addBehavior('publicHeadContent', [__NAMESPACE__ . '\tplDuctileTheme', 'publicHeadContent']);
@@ -112,7 +112,7 @@ class tplDuctileTheme
     {
         global $core;
 
-        $tpl_path   = dirname(__FILE__) . '/tpl/';
+        $tpl_path   = __DIR__ . '/tpl/';
         $list_types = ['title', 'short', 'full'];
 
         // Get all _entry-*.html in tpl folder of theme

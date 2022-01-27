@@ -42,6 +42,6 @@ class Prepend extends AbstractPrepend
 
     public static function adminIconsetCombo(Core $core, ArrayObject $iconsets)
     {
-        $iconsets['Legacy'] = Path::real(Core::path(dirname(__FILE__), '..'));
+        $iconsets['Legacy'] = Path::real(Core::path(__DIR__, '..'));
     }
 }

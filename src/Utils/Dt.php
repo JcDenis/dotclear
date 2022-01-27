@@ -290,10 +290,10 @@ class Dt
     {
         if (is_null(self::$timezones)) {
             // Read timezones from file
-            if (!is_readable($f = dirname(__FILE__) . '/tz.dat')) {
+            if (!is_readable($f = __DIR__ . '/tz.dat')) {
                 return [];
             }
-            $tz  = file(dirname(__FILE__) . '/tz.dat');
+            $tz  = file(__DIR__ . '/tz.dat');
             $res = [];
             foreach ($tz as $v) {
                 $v = trim($v);
