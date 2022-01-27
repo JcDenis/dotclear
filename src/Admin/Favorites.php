@@ -313,8 +313,7 @@ class Favorites
      */
     public function appendMenuTitle($menu)
     {
-        $menu['Favorites']        = new Menu($this->core, 'favorites-menu', 'My favorites');
-        $menu['Favorites']->title = __('My favorites');
+        $menu['Favorites'] = new Menu($this->core, 'favorites-menu', __('My favorites'));
     }
 
     /**

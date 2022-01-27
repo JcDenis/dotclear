@@ -30,7 +30,7 @@ class Menu
     protected $itemSpace;
     protected $pinned;
     protected $items;
-    public $title;
+    protected $title;
     public static $iconset;
 
     /**

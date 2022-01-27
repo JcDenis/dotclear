@@ -395,9 +395,9 @@ class Prepend extends BasePrepend
         if (!$this->auth->user_prefs->interface->nofavmenu) {
             $this->favs->appendMenuTitle($this->menu);
         }
-        $this->menu['Blog']    = new Menu($this, 'blog-menu', 'Blog');
-        $this->menu['System']  = new Menu($this, 'system-menu', 'System');
-        $this->menu['Plugins'] = new Menu($this, 'plugins-menu', 'Plugins');
+        $this->menu['Blog']    = new Menu($this, 'blog-menu', __('Blog'));
+        $this->menu['System']  = new Menu($this, 'system-menu', __('System settings'));
+        $this->menu['Plugins'] = new Menu($this, 'plugins-menu', __('Miscellaneous'));
     }
 
     private function adminAddMenu()
@@ -407,11 +407,6 @@ class Prepend extends BasePrepend
         if (!$this->auth->user_prefs->interface->nofavmenu) {
             $this->favs->appendMenu($this->menu);
         }
-
-        # Set menu titles
-        $this->menu['System']->title  = __('System settings');
-        $this->menu['Blog']->title    = __('Blog');
-        $this->menu['Plugins']->title = __('Plugins');
 
         # add fefault items to menu
         $this->addMenuItem('Blog', __('Blog settings'), 'admin.blog.pref', ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
@@ -472,11 +467,11 @@ class Prepend extends BasePrepend
             }
         }
 
-
-            $this->adminurl->register('admin.blog.theme', Core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme'));
-            $this->addMenuItem('Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png', $this->auth->check('admin', $this->blog->id));
-            $this->themes = new ModulesTheme($this);
-            $this->themes->loadModules($this->_lang);
+        # Themes
+        $this->adminurl->register('admin.blog.theme', Core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme'));
+        $this->addMenuItem('Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png', $this->auth->check('admin', $this->blog->id));
+        $this->themes = new ModulesTheme($this);
+        $this->themes->loadModules($this->_lang);
     }
 
     private function adminLoadPage(?string $handler = null): void
