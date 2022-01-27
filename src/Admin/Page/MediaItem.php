@@ -264,14 +264,7 @@ class MediaItem extends Page
         if (!empty($_POST['remove_folder_prefs'])) {
             $local      = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
-            $result     = false;
-            if (file_exists($local) && unlink($local)) {
-                $result = true;
-            }
-            if (file_exists($local_json) && unlink($local_json)) {
-                $result = true;
-            }
-            if ($result) {
+            if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
                 $this->core->notices->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
             }
             $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
