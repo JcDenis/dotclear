@@ -16,6 +16,7 @@ namespace Dotclear\Core;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Utils\Text;
+use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -83,7 +84,7 @@ class Meta
      *
      * @return     array   The meta array.
      */
-    public function getMetaArray($str)
+    public function getMetaArray(string $str): array
     {
         $meta = @unserialize($str);
 
@@ -103,7 +104,7 @@ class Meta
      *
      * @return     string  The comma-separated list of meta.
      */
-    public function getMetaStr($str, $type)
+    public function getMetaStr(string $str, string $type): string
     {
         $meta = $this->getMetaArray($str);
 
@@ -123,7 +124,7 @@ class Meta
      *
      * @return     StaticRecord  The meta recordset.
      */
-    public function getMetaRecordset($str, $type)
+    public function getMetaRecordset(string $str, string $type): Record
     {
         $meta = $this->getMetaArray($str);
         $data = [];

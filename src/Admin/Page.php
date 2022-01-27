@@ -728,7 +728,7 @@ abstract class Page
 
         $figure = <<<EOT
 
-                ¯\_(ツ)_/¯
+                (╯°□°)╯︵ ┻━┻
 
             EOT;
 
