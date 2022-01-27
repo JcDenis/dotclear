@@ -1047,24 +1047,13 @@ abstract class Page
         $js = [
             'nonce' => $this->core->getNonce(),
 
-            'img_plus_src' => '?df=images/expand.png',
+            'img_plus_src' => '?df=images/expand.svg',
             'img_plus_txt' => '▶',
             'img_plus_alt' => __('uncover'),
 
-            'img_minus_src' => '?df=images/hide.png',
+            'img_minus_src' => '?df=images/hide.svg',
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
-
-            'img_menu_on'  => '?df=images/menu_on.png',
-            'img_menu_off' => '?df=images/menu_off.png',
-
-            'img_plus_theme_src' => '?df=images/plus-theme.png',
-            'img_plus_theme_txt' => '▶',
-            'img_plus_theme_alt' => __('uncover'),
-
-            'img_minus_theme_src' => '?df=images/minus-theme.png',
-            'img_minus_theme_txt' => '▼',
-            'img_minus_theme_alt' => __('hide'),
 
             'adblocker_check' => (
                 (
