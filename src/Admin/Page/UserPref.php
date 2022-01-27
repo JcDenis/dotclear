@@ -831,8 +831,12 @@ class UserPref extends Page
                 }
 
                 $count++;
-                echo '<li id="fu-' . $id . '">' . '<label for="fuk-' . $id . '">' .
-                '<img src="' . $fake_menu->getIconURL($fav['small-icon']) . '" alt="" /> ' . '<span class="zoom"><img src="' . $fake_menu->getIconURL($fav['large-icon']) . '" alt="" /></span>' .
+                $icon = $fake_menu->getIconTheme($fav['small-icon']);
+                $zoom = $fake_menu->getIconTheme($fav['large-icon'], false);
+                if ($zoom !== '') {
+                    $icon .= ' <span class="zoom">' . $zoom . '</span>';
+                }
+                echo '<li id="fu-' . $id . '">' . '<label for="fuk-' . $id . '">' . $icon .
                 Form::number(['order[' . $id . ']'], [
                     'min'        => 1,
                     'max'        => count($user_fav),
@@ -905,9 +909,12 @@ class UserPref extends Page
             }
 
             $count++;
-            echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' .
-            '<img src="' . $fake_menu->getIconURL($fav['small-icon']) . '" alt="" /> ' .
-            '<span class="zoom"><img src="' . $fake_menu->getIconURL($fav['large-icon']) . '" alt="" /></span>' .
+            $icon = $fake_menu->getIconTheme($fav['small-icon']);
+            $zoom = $fake_menu->getIconTheme($fav['large-icon'], false);
+            if ($zoom !== '') {
+                $icon .= ' <span class="zoom">' . $zoom . '</span>';
+            }
+            echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' . $icon .
             Form::checkbox(['append[]', 'fak-' . $k], $k) .
                 $fav['title'] . '</label>' .
                 (isset($default_fav_ids[$k]) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .

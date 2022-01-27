@@ -15,6 +15,7 @@
 - [ ] remove or include to core a maximum of clearbricks class/methods
 - [ ] add two standard URL formaters for files for admin and public (query string vs path info)
 - [ ] change signature of Combos behaviors (to ArrayObject)
+- [ ] update all scss files
 
 ### Idea
 

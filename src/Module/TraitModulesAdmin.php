@@ -631,9 +631,17 @@ trait TraitModulesAdmin
                 } else {
                     $icon = 'images/module.png';
                 }
+                if (file_exists($module->root() . '/icon-dark.svg')) {
+                    $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.svg'];
+                } elseif (file_exists($module['root'] . '/icon-dark.png')) {
+                    $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.png'];
+                }
+
+                $fake_menu = new Menu($this->core,'','');
+
                 echo
                 '<td class="module-icon nowrap">' .
-                sprintf('<img alt="%1$s" title="%1$s" src="%2$s" />', Html::escapeHTML($id), $icon) .
+                $fake_menu->getIconTheme($icon, false, html::escapeHTML($id), html::escapeHTML($id)) .
                 '</td>';
             }
 

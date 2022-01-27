@@ -78,8 +78,8 @@ class Favorites
             'blog_pref' => [
                 'title'       => __('Blog settings'),
                 'url'         => $core->adminurl->get('admin.blog.pref'),
-                'small-icon'  => 'images/menu/blog-pref.png',
-                'large-icon'  => 'images/menu/blog-pref-b.png',
+                'small-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
+                'large-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
                 'permissions' => 'admin'],
             'blog_theme' => [
                 'title'       => __('Blog appearance'),

@@ -318,7 +318,7 @@ class Home extends Page
             # Dashboard icons
             $dashboardIcons = '<div id="icons">';
             foreach ($__dashboard_icons as $i) {
-                $dashboardIcons .= '<p><a href="' . $i[1] . '"><img src="' . $fake_menu->getIconURL($i[2]) . '" alt="" />' .
+                $dashboardIcons .= '<p><a href="' . $i[1] . '">' . $fake_menu->getIconTheme($i[2]) .
                     '<br /><span class="db-icon-title">' . $i[0] . '</span></a></p>';
             }
             $dashboardIcons .= '</div>';

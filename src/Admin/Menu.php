@@ -63,14 +63,14 @@ class Menu
     /**
      * Adds an item.
      *
-     * @param      string  $title   The title
-     * @param      string  $url     The url
-     * @param      string  $img     The image
-     * @param      mixed   $active  The active flag
-     * @param      bool    $show    The show flag
-     * @param      mixed   $id      The identifier
-     * @param      mixed   $class   The class
-     * @param      bool    $pinned  The pinned flag
+     * @param      string           $title   The title
+     * @param      string           $url     The url
+     * @param      string|array     $img     The image
+     * @param      mixed            $active  The active flag
+     * @param      bool             $show    The show flag
+     * @param      mixed            $id      The identifier
+     * @param      mixed            $class   The class
+     * @param      bool             $pinned  The pinned flag
      */
     public function addItem($title, $url, $img, $active, $show = true, $id = null, $class = null, $pinned = false)
     {
@@ -87,14 +87,14 @@ class Menu
     /**
      * Prepends an item.
      *
-     * @param      string  $title   The title
-     * @param      string  $url     The url
-     * @param      string  $img     The image
-     * @param      mixed   $active  The active flag
-     * @param      bool    $show    The show flag
-     * @param      mixed   $id      The identifier
-     * @param      mixed   $class   The class
-     * @param      bool    $pinned  The pinned flag
+     * @param      string           $title   The title
+     * @param      string           $url     The url
+     * @param      string|array     $img     The image
+     * @param      mixed            $active  The active flag
+     * @param      bool             $show    The show flag
+     * @param      mixed            $id      The identifier
+     * @param      mixed            $class   The class
+     * @param      bool             $pinned  The pinned flag
      */
     public function prependItem($title, $url, $img, $active, $show = true, $id = null, $class = null, $pinned = false)
     {
@@ -154,12 +154,12 @@ class Menu
     /**
      * Get a menu item HTML code
      *
-     * @param      string  $title   The title
-     * @param      mixed   $url     The url
-     * @param      string  $img     The image
-     * @param      mixed   $active  The active flag
-     * @param      mixed   $id      The identifier
-     * @param      mixed   $class   The class
+     * @param      string           $title   The title
+     * @param      mixed            $url     The url
+     * @param      string|array     $img     The image
+     * @param      mixed            $active  The active flag
+     * @param      mixed            $id      The identifier
+     * @param      mixed            $class   The class
      *
      * @return     string  ( description_of_the_return_value )
      */
@@ -173,15 +173,36 @@ class Menu
             $ahtml = '';
         }
 
-        $img = $this->getIconURL($img);
-
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
-            (($id) ? ' id="' . $id . '"' : '') .
-            (($img) ? ' style="background-image: url(' . $img . ');"' : '') .
-            '>' .
-
+            '>' . $this->getIconTheme($img) .
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
+    }
+
+    public function geticonTheme($img, $fallback = true, $alt = '', $title = '')
+    {
+        $unknown_img = 'images/menu/no-icon.svg';
+        $dark_img    = '';
+        if (is_array($img)) {
+            $light_img = $img[0] ?: ($fallback ? $unknown_img : '');   // Fallback to no icon if necessary
+            if (isset($img[1]) && $img[1] !== '') {
+                $dark_img = $img[1];
+            }
+        } else {
+            $light_img = $img ?: ($fallback ? $unknown_img : '');  // Fallback to no icon if necessary
+        }
+
+        $title = $title !== '' ? ' title="' . $title . '"' : '';
+        if ($light_img !== '' && $dark_img !== '') {
+            $icon = '<img src="' . $this->getIconURL($light_img) . '" class="light-only" alt="' . $alt . '"' . $title . ' />' .
+            '<img src="' . $this->getIconURL($dark_img) . '" class="dark-only" alt="' . $alt . '"' . $title . ' />';
+        } elseif ($light_img !== '') {
+            $icon = '<img src="' . $this->getIconURL($light_img) . '" class="" alt="' . $alt . '"' . $title . ' />';
+        } else {
+            $icon = '';
+        }
+
+        return $icon;
     }
 
     /**
@@ -193,7 +214,7 @@ class Menu
      *
      * @return  string          New image path
      */
-    public function getIconURL(string $img): string
+    public function getIconURL(string|array $img): string
     {
         if (!empty(self::$iconset) && !empty($img)) {
 

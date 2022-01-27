@@ -414,7 +414,7 @@ class Prepend extends BasePrepend
         $this->menu['Plugins']->title = __('Plugins');
 
         # add fefault items to menu
-        $this->addMenuItem('Blog', __('Blog settings'), 'admin.blog.pref', 'images/menu/blog-pref.png',
+        $this->addMenuItem('Blog', __('Blog settings'), 'admin.blog.pref', ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
             $this->auth->check('admin', $this->blog->id));
         $this->addMenuItem('Blog', __('Media manager'), 'admin.media', 'images/menu/media.png',
             $this->auth->check('media,media_admin', $this->blog->id));
