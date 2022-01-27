@@ -248,7 +248,7 @@ class Notices
         $res = '';
 
         # Return error messages if any
-        if ($this->core->error->flag() && !$this->$error_displayed) {
+        if ($this->core->error->flag() && !$this->error_displayed) {
 
             # --BEHAVIOR-- adminPageNotificationError, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
             $notice_error = $this->core->behaviors->call('adminPageNotificationError', $this->core->error);
