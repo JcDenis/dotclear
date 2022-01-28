@@ -166,11 +166,13 @@ class Menus extends ArrayObject
                             }
                         }
                     }
+                    /*
                     # Not in iconset nor in Dotclear
                     $icon = Path::real(Core::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }
+                    //*/
                 }
             }
         }
