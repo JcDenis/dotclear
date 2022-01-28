@@ -222,6 +222,7 @@ class Menu
      * Parse icon path and url from Iconset
      *
      * This can't call "Iconset" nor behaviors as modules are not loaded yet.
+     * This use self::$iconset that content full path to iconset icons.
      *
      * @param   string  $img    Image path
      *
@@ -241,12 +242,12 @@ class Menu
                 if ($name !== '' && $ext !== '') {
                     $icon = Path::real(self::$iconset . '/files/' . $name . $ext, true);
                     if ($icon !== false) {
-                        // Find same (name and extension)
+                        # Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
                             return '?mf=Iconset/' . $module . '/files/' . $name . $ext;
                         }
                     }
-                    // Look for other extensions
+                    # Look for other extensions
                     foreach ($allow_types as $ext) {
                         $icon = Path::real(self::$iconset . '/files/' . $name . '.' . $ext, true);
                         if ($icon !== false) {
@@ -254,6 +255,11 @@ class Menu
                                 return '?mf=Iconset/' . $module . '/files/' . $name . '.' . $ext;
                             }
                         }
+                    }
+                    # Not in iconset nor in Dotclear
+                    $icon = Path::real(Core::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
+                    if ($icon === false || !is_file($icon) || !is_readable($icon)) {
+                        $img = 'images/menu/no-icon.svg';
                     }
                 }
             }
