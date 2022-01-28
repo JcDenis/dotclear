@@ -154,14 +154,14 @@ class Menu
     /**
      * Get a menu item HTML code
      *
-     * @param      string           $title   The title
-     * @param      mixed            $url     The url
-     * @param      string|array     $img     The image
-     * @param      mixed            $active  The active flag
-     * @param      mixed            $id      The identifier
-     * @param      mixed            $class   The class
+     * @param   string          $title   The title
+     * @param   mixed           $url     The url
+     * @param   string|array    $img     The image
+     * @param   mixed           $active  The active flag
+     * @param   mixed           $id      The identifier
+     * @param   mixed            $class   The class
      *
-     * @return     string  ( description_of_the_return_value )
+     * @return  string
      */
     protected function itemDef($title, $url, $img, $active, $id = null, $class = null)
     {
@@ -179,7 +179,17 @@ class Menu
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
     }
 
-    public function geticonTheme($img, $fallback = true, $alt = '', $title = '')
+    /**
+     * Compose HTML icon markup for favorites, menu, … depending on theme (light, dark)
+     *
+     * @param   mixed   $img        string (default) or array (0 : light, 1 : dark)
+     * @param   bool    $fallback   use fallback image if none given
+     * @param   string  $alt        alt attribute
+     * @param   string  $title      title attribute
+     *
+     * @return  string
+     */
+    public function getIconTheme($img, $fallback = true, $alt = '', $title = '', $class = '')
     {
         $unknown_img = 'images/menu/no-icon.svg';
         $dark_img    = '';
@@ -194,10 +204,13 @@ class Menu
 
         $title = $title !== '' ? ' title="' . $title . '"' : '';
         if ($light_img !== '' && $dark_img !== '') {
-            $icon = '<img src="' . $this->getIconURL($light_img) . '" class="light-only" alt="' . $alt . '"' . $title . ' />' .
-            '<img src="' . $this->getIconURL($dark_img) . '" class="dark-only" alt="' . $alt . '"' . $title . ' />';
+            $icon = '<img src="' . $this->getIconURL($light_img) .
+            '" class="light-only' . ($class !== '' ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
+                '<img src="' . $this->getIconURL($dark_img) .
+            '" class="dark-only' . ($class !== '' ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } elseif ($light_img !== '') {
-            $icon = '<img src="' . $this->getIconURL($light_img) . '" class="" alt="' . $alt . '"' . $title . ' />';
+            $icon = '<img src="' . $this->getIconURL($light_img) .
+            '" class="' . ($class !== '' ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } else {
             $icon = '';
         }
@@ -216,20 +229,30 @@ class Menu
      */
     public function getIconURL(string|array $img): string
     {
+        $allow_types = ['svg', 'png', 'webp', 'jpg', 'jpeg', 'gif'];
         if (!empty(self::$iconset) && !empty($img)) {
 
             # Extract module name from path
             $split  = explode('/', self::$iconset);
             $module = array_pop($split);
-
-            $icon = false;
-            if ((preg_match('/^images\/menu\/(.+)$/', $img, $m)) || (preg_match('/\?mf=(.+)$/', $img, $m))) {
-                if ($m[1]) {
-                    $icon = Path::real(self::$iconset . '/files/' . $m[1], false);
+            if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?mf=(.+)(\..*)$/', $img, $m))) {
+                $name = $m[1] ?? '';
+                $ext  = $m[2] ?? '';
+                if ($name !== '' && $ext !== '') {
+                    $icon = Path::real(self::$iconset . '/files/' . $name . $ext, true);
                     if ($icon !== false) {
-                        $allow_types = ['svg', 'png', 'jpg', 'jpeg', 'gif'];
+                        // Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return '?mf=Iconset/' . $module . '/files/' . $m[1];
+                            return '?mf=Iconset/' . $module . '/files/' . $name . $ext;
+                        }
+                    }
+                    // Look for other extensions
+                    foreach ($allow_types as $ext) {
+                        $icon = Path::real(self::$iconset . '/files/' . $name . '.' . $ext, true);
+                        if ($icon !== false) {
+                            if (is_file($icon) && is_readable($icon)) {
+                                return '?mf=Iconset/' . $module . '/files/' . $name . '.' . $ext;
+                            }
                         }
                     }
                 }
