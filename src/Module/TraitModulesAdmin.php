@@ -93,6 +93,9 @@ trait TraitModulesAdmin
     /** @var    bool    Sort order asc */
     protected $sort_asc   = true;
 
+    /** Register module on admin url/menu/favs,... */
+    abstract protected function register(): void;
+
     /** Get store url */
     abstract public function getStoreURL(): string;
 
@@ -128,6 +131,8 @@ trait TraitModulesAdmin
         } elseif ($define->permissions() && !$this->core->auth->check($define->permissions(), $this->core->blog->id)) {
             return false;
         }
+
+        $this->register();
 
         return true;
     }
@@ -638,11 +643,9 @@ trait TraitModulesAdmin
                     $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.png'];
                 }
 
-                $fake_menu = new Menu($this->core,'','');
-
                 echo
                 '<td class="module-icon nowrap">' .
-                $fake_menu->getIconTheme($icon, false, html::escapeHTML($id), html::escapeHTML($id)) .
+                $this->core->menu->getIconTheme($icon, false, html::escapeHTML($id), html::escapeHTML($id)) .
                 '</td>';
             }
 

@@ -20,6 +20,27 @@ class ModulesIconset extends AbstractModules
 {
     use TraitModulesAdmin, TraitModulesIconset;
 
+    protected function register(): void
+    {
+        $this->core->adminurl->register(
+            'admin.iconset',
+            $this->core::ns('Dotclear', 'Module', 'Iconset', 'Admin', 'PageIconset')
+        );
+        $this->core->menu->register(
+            'System',
+            __('Iconset management'),
+            'admin.iconset',
+            'images/menu/iconset.png',
+            $this->core->auth->isSuperAdmin()
+        );
+        $this->core->favs->register('iconsets', [
+            'title'      => __('Iconsets management'),
+            'url'        => $this->core->adminurl->get('admin.iconset'),
+            'small-icon' => 'images/menu/iconset.png',
+            'large-icon' => 'images/menu/iconset-b.png'
+        ]);
+    }
+
     public function getModulesURL(array $param = []): string
     {
         return $this->core->adminurl->get('admin.iconset', $param);

@@ -494,7 +494,6 @@ class UserPref extends Page
 
     protected function getPageContent(): void
     {
-        $fake_menu = new Menu($this->core, '', '');
         $editors_combo = $this->core->combos->getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
@@ -830,8 +829,8 @@ class UserPref extends Page
                 }
 
                 $count++;
-                $icon = $fake_menu->getIconTheme($fav['small-icon']);
-                $zoom = $fake_menu->getIconTheme($fav['large-icon'], false);
+                $icon = $this->core->menu->getIconTheme($fav['small-icon']);
+                $zoom = $this->core->menu->getIconTheme($fav['large-icon'], false);
                 if ($zoom !== '') {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
@@ -908,8 +907,8 @@ class UserPref extends Page
             }
 
             $count++;
-            $icon = $fake_menu->getIconTheme($fav['small-icon']);
-            $zoom = $fake_menu->getIconTheme($fav['large-icon'], false);
+            $icon = $this->core->menu->getIconTheme($fav['small-icon']);
+            $zoom = $this->core->menu->getIconTheme($fav['large-icon'], false);
             if ($zoom !== '') {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }

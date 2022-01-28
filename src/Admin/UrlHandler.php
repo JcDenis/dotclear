@@ -210,4 +210,48 @@ class UrlHandler
     {
         return $this->urls;
     }
+
+    public function setup()
+    {
+        $this->initDefaultURLs();
+        $this->core->behaviors->call('adminURLs', $this);
+    }
+
+    protected function initDefaultURLs()
+    {
+        $d = 'Dotclear\\Admin\\Page\\';
+
+        $this->registerMultiple(
+            ['admin.home', $d . 'Home'],
+            ['admin.auth', $d . 'Auth'],
+            ['admin.posts', $d . 'Posts'],
+            ['admin.posts.popup', $d . 'PostsPopup'],
+            ['admin.post', $d . 'Post'],
+            ['admin.post.media', $d . 'PostMedia'],
+            ['admin.blogs', $d . 'Blogs'],
+            ['admin.blog', $d . 'Blog'],
+            ['admin.blog.pref', $d . 'BlogPref'],
+            ['admin.blog.del', $d . 'BlogDel'],
+            ['admin.categories', $d . 'Categories'],
+            ['admin.category', $d . 'Category'],
+            ['admin.comments', $d . 'Comments'],
+            ['admin.comment', $d . 'Comment'],
+            ['admin.help', $d . 'Help'],
+            ['admin.help.charte', $d . 'Charte'],
+            ['admin.langs', $d .'Langs'],
+            ['admin.link.popup', $d .'LinkPopup'],
+            ['admin.media', $d . 'Media'],
+            ['admin.media.item', $d . 'MediaItem'],
+            ['admin.search', $d . 'Search'],
+            ['admin.users', $d . 'Users'],
+            ['admin.user', $d . 'User'],
+            ['admin.user.pref', $d . 'UserPref'],
+            ['admin.user.actions', $d . 'UserAction'],
+            ['admin.update', $d . 'Update'],
+            ['admin.services', $d . 'Services'],
+            ['admin.xmlrpc', $d . 'Xmlrpc'],
+            ['admin.cspreport', $d . 'CspReport']
+        );
+
+    }
 }

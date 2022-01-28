@@ -30,6 +30,28 @@ class ModulesTheme extends AbstractModules
 {
     use TraitModulesAdmin, TraitModulesTheme;
 
+    protected function register(): void
+    {
+        $this->core->adminurl->register(
+            'admin.blog.theme',
+            $this->core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme')
+        );
+        $this->core->menu->register(
+            'Blog',
+            __('Blog appearance'),
+            'admin.blog.theme',
+            'images/menu/themes.png',
+            $this->core->auth->check('admin', $this->core->blog->id)
+        );
+        $this->core->favs->register('blog_theme', [
+            'title'       => __('Blog appearance'),
+            'url'         => $this->core->adminurl->get('admin.blog.theme'),
+            'small-icon'  => 'images/menu/themes.png',
+            'large-icon'  => 'images/menu/blog-theme-b.png',
+            'permissions' => 'admin'
+        ]);
+    }
+
     public function getModulesURL(array $param = []): string
     {
         return $this->core->adminurl->get('admin.blog.theme', $param);

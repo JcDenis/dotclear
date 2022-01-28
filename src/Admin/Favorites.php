@@ -20,8 +20,6 @@ use Dotclear\Core\Core;
 use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
-use Dotclear\Distrib\Favorites as BaseFavorites;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -84,7 +82,7 @@ class Favorites
      */
     public function setup()
     {
-        BaseFavorites::initDefaultFavorites($this->core, $this);
+        $this->initDefaultFavorites();
         $this->legacyFavorites();
         $this->core->behaviors->call('adminDashboardFavorites', $this);
         $this->setUserPrefs();
@@ -313,7 +311,7 @@ class Favorites
      */
     public function appendMenuTitle($menu)
     {
-        $menu['Favorites'] = new Menu($this->core, 'favorites-menu', __('My favorites'));
+        $menu->add('Favorites', 'favorites-menu', __('My favorites'));
     }
 
     /**
@@ -414,5 +412,125 @@ class Favorites
     public function exists($id)
     {
         return isset($this->fav_defs[$id]);
+    }
+
+    /**
+     * Initializes the default favorites.
+     */
+    protected function initDefaultFavorites()
+    {
+        $this->registerMultiple([
+            'prefs' => [
+                'title'      => __('My preferences'),
+                'url'        => $this->core->adminurl->get('admin.user.pref'),
+                'small-icon' => 'images/menu/user-pref.png',
+                'large-icon' => 'images/menu/user-pref-b.png'],
+            'new_post' => [
+                'title'       => __('New post'),
+                'url'         => $this->core->adminurl->get('admin.post'),
+                'small-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+                'large-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+                'permissions' => 'usage,contentadmin',
+                'active_cb'   => [__CLASS__, 'cbNewpostActive']],
+            'posts' => [
+                'title'        => __('Posts'),
+                'url'          => $this->core->adminurl->get('admin.posts'),
+                'small-icon'   => 'images/menu/entries.png',
+                'large-icon'   => 'images/menu/entries-b.png',
+                'permissions'  => 'usage,contentadmin',
+                'dashboard_cb' => [__CLASS__, 'cbPostsDashboard']],
+            'comments' => [
+                'title'        => __('Comments'),
+                'url'          => $this->core->adminurl->get('admin.comments'),
+                'small-icon'   => 'images/menu/comments.png',
+                'large-icon'   => 'images/menu/comments-b.png',
+                'permissions'  => 'usage,contentadmin',
+                'dashboard_cb' => [__CLASS__, 'cbCommentsDashboard']],
+            'search' => [
+                'title'       => __('Search'),
+                'url'         => $this->core->adminurl->get('admin.search'),
+                'small-icon'  => ['images/menu/search.svg','images/menu/search-dark.svg'],
+                'large-icon'  => ['images/menu/search.svg','images/menu/search-dark.svg'],
+                'permissions' => 'usage,contentadmin'],
+            'categories' => [
+                'title'       => __('Categories'),
+                'url'         => $this->core->adminurl->get('admin.categories'),
+                'small-icon'  => 'images/menu/categories.png',
+                'large-icon'  => 'images/menu/categories-b.png',
+                'permissions' => 'categories'],
+            'media' => [
+                'title'       => __('Media manager'),
+                'url'         => $this->core->adminurl->get('admin.media'),
+                'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                'large-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                'permissions' => 'media,media_admin'],
+            'blog_pref' => [
+                'title'       => __('Blog settings'),
+                'url'         => $this->core->adminurl->get('admin.blog.pref'),
+                'small-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
+                'large-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
+                'permissions' => 'admin'],
+            'blogs' => [
+                'title'       => __('Blogs'),
+                'url'         => $this->core->adminurl->get('admin.blogs'),
+                'small-icon'  => 'images/menu/blogs.png',
+                'large-icon'  => 'images/menu/blogs-b.png',
+                'permissions' => 'usage,contentadmin'],
+            'users' => [
+                'title'      => __('Users'),
+                'url'        => $this->core->adminurl->get('admin.users'),
+                'small-icon' => 'images/menu/users.png',
+                'large-icon' => 'images/menu/users-b.png'],
+            'langs' => [
+                'title'      => __('Languages'),
+                'url'        => $this->core->adminurl->get('admin.langs'),
+                'small-icon' => 'images/menu/langs.png',
+                'large-icon' => 'images/menu/langs-b.png'],
+            'help' => [
+                'title'      => __('Global help'),
+                'url'        => $this->core->adminurl->get('admin.help'),
+                'small-icon' => 'images/menu/help.svg',
+                'large-icon' => 'images/menu/help.svg']
+        ]);
+    }
+
+    /**
+     * Helper for posts icon on dashboard
+     *
+     * @param      dcCore  $core   The core
+     * @param      mixed   $v      { parameter_description }
+     */
+    public static function cbPostsDashboard($core, $v)
+    {
+        $post_count  = (int) $core->blog->getPosts([], true)->f(0);
+        $str_entries = __('%d post', '%d posts', $post_count);
+        $v['title']  = sprintf($str_entries, $post_count);
+    }
+
+    /**
+     * Helper for new post active menu
+     *
+     * Take account of post edition (if id is set)
+     *
+     * @param  string   $request_uri    The URI
+     * @param  array    $request_params The params
+     * @return boolean                  Active
+     */
+    public static function cbNewpostActive($request_uri, $request_params)
+    {
+        return 'post.php' == $request_uri && !isset($request_params['id']);
+    }
+
+    /**
+     * Helper for comments icon on dashboard
+     *
+     * @param      dcCore  $core   The core
+     * @param      mixed   $v      { parameter_description }
+     */
+    public static function cbCommentsDashboard($core, $v)
+    {
+        $comment_count = (int) $core->blog->getComments([], true)->f(0);
+        $str_comments  = __('%d comment', '%d comments', $comment_count);
+        $v['title']    = sprintf($str_comments, $comment_count);
     }
 }

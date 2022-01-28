@@ -26,6 +26,9 @@ use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Module\Iconset\Admin\ModulesIconset;
 use Dotclear\Module\Theme\Admin\ModulesTheme;
 
+use Dotclear\Admin\UrlHandler;
+Use Dotclear\Admin\Favorites;
+Use Dotclear\Admin\Menus;
 Use Dotclear\Admin\Notices;
 Use Dotclear\Admin\Combos;
 Use Dotclear\Admin\UserPref;
@@ -190,42 +193,13 @@ class Prepend extends BasePrepend
         exit;
     }
 
+    /**
+     * Load admin urls
+     */
     private function adminLoadURL(): void
     {
-        $d = 'Dotclear\\Admin\\Page\\';
         $this->adminurl = new UrlHandler($this, defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '');
-
-        $this->adminurl->registerMultiple(
-            ['admin.home', $d . 'Home'],
-            ['admin.auth', $d . 'Auth'],
-            ['admin.posts', $d . 'Posts'],
-            ['admin.posts.popup', $d . 'PostsPopup'],
-            ['admin.post', $d . 'Post'],
-            ['admin.post.media', $d . 'PostMedia'],
-            ['admin.blogs', $d . 'Blogs'],
-            ['admin.blog', $d . 'Blog'],
-            ['admin.blog.pref', $d . 'BlogPref'],
-            ['admin.blog.del', $d . 'BlogDel'],
-            ['admin.categories', $d . 'Categories'],
-            ['admin.category', $d . 'Category'],
-            ['admin.comments', $d . 'Comments'],
-            ['admin.comment', $d . 'Comment'],
-            ['admin.help', $d . 'Help'],
-            ['admin.help.charte', $d . 'Charte'],
-            ['admin.langs', $d .'Langs'],
-            ['admin.link.popup', $d .'LinkPopup'],
-            ['admin.media', $d . 'Media'],
-            ['admin.media.item', $d . 'MediaItem'],
-            ['admin.search', $d . 'Search'],
-            ['admin.users', $d . 'Users'],
-            ['admin.user', $d . 'User'],
-            ['admin.user.pref', $d . 'UserPref'],
-            ['admin.user.actions', $d . 'UserAction'],
-            ['admin.update', $d . 'Update'],
-            ['admin.services', $d . 'Services'],
-            ['admin.xmlrpc', $d . 'Xmlrpc'],
-            ['admin.cspreport', $d . 'CspReport']
-        );
+        $this->adminurl->setup();
     }
 
     private function adminLoadSession(): bool
@@ -385,21 +359,18 @@ class Prepend extends BasePrepend
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
     }
 
+    /**
+     * Load admin menu and favorites instances
+     */
     private function adminLoadMenu(): void
     {
-        $this->favs    = new Favorites($this);
-
-        # Menus creation
-        $this->menu              = new ArrayObject();
-        $this->menu['Dashboard'] = new Menu($this, 'dashboard-menu', '');
-        if (!$this->auth->user_prefs->interface->nofavmenu) {
-            $this->favs->appendMenuTitle($this->menu);
-        }
-        $this->menu['Blog']    = new Menu($this, 'blog-menu', __('Blog'));
-        $this->menu['System']  = new Menu($this, 'system-menu', __('System settings'));
-        $this->menu['Plugins'] = new Menu($this, 'plugins-menu', __('Miscellaneous'));
+        $this->favs = new Favorites($this);
+        $this->menu = new Menus($this);
     }
 
+    /**
+     * Populate admin menu and favorites
+     */
     private function adminAddMenu()
     {
         $this->favs->setup();
@@ -408,129 +379,32 @@ class Prepend extends BasePrepend
             $this->favs->appendMenu($this->menu);
         }
 
-        # add fefault items to menu
-        $this->addMenuItem(
-            'Blog',
-            __('Blog settings'),
-            'admin.blog.pref',
-            ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            $this->auth->check('admin', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('Media manager'),
-            'admin.media',
-            ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-            $this->auth->check('media,media_admin', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('Categories'),
-            'admin.categories',
-            'images/menu/categories.png',
-            $this->auth->check('categories', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('Search'),
-            'admin.search',
-            ['images/menu/search.svg','images/menu/search-dark.svg'],
-            $this->auth->check('usage,contentadmin', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('Comments'),
-            'admin.comments',
-            'images/menu/comments.png',
-            $this->auth->check('usage,contentadmin', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('Posts'),
-            'admin.posts',
-            'images/menu/entries.png',
-            $this->auth->check('usage,contentadmin', $this->blog->id)
-        );
-        $this->addMenuItem(
-            'Blog',
-            __('New post'),
-            'admin.post',
-             ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            $this->auth->check('usage,contentadmin', $this->blog->id),
-            true,
-            true
-        );
-
-        $this->addMenuItem(
-            'System',
-            __('Update'),
-            'admin.update', 'images/menu/update.png',
-            $this->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
-        );
-        $this->addMenuItem(
-            'System',
-            __('Languages'),
-            'admin.langs', 'images/menu/langs.png',
-            $this->auth->isSuperAdmin()
-        );
-        $this->addMenuItem(
-            'System',
-            __('Users'),
-            'admin.users', 'images/menu/users.png',
-            $this->auth->isSuperAdmin()
-        );
-        $this->addMenuItem(
-            'System',
-            __('Blogs'),
-            'admin.blogs', 'images/menu/blogs.png',
-            $this->auth->isSuperAdmin() || $this->auth->check('usage,contentadmin', $this->blog->id) && $this->auth->getBlogCount() > 1
-        );
+        $this->menu->setup();
     }
 
-    private function addMenuItem($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
-    {
-        $url     = $this->adminurl->get($adminurl);
-        $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
-        $this->menu[$section]->prependItem(
-            $desc,
-            $url,
-            $icon,
-            preg_match($pattern, $_SERVER['REQUEST_URI']),
-            $perm,
-            null,
-            null,
-            $pinned
-        );
-    }
-
+    /**
+     * Load modules instances and children
+     */
     private function adminLoadModules()
     {
         # Iconsets
         if ('' != DOTCLEAR_ICONSET_DIR) {
-            $this->adminurl->register('admin.iconset', Core::ns('Dotclear', 'Module', 'Iconset', 'Admin', 'PageIconset'));
-            $this->addMenuItem('System', __('Iconset management'), 'admin.iconset', 'images/menu/modules.png', $this->auth->isSuperAdmin());
-
             $this->iconsets = new ModulesIconset($this);
             $this->iconsets->loadModules();
         }
 
         # Plugins
         if ('' != DOTCLEAR_PLUGIN_DIR) {
-            $this->adminurl->register('admin.plugins', Core::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin'));
-            $this->addMenuItem('System', __('Plugins management'), 'admin.plugins', 'images/menu/plugins.png', $this->auth->isSuperAdmin());
-
             $this->plugins = new ModulesPlugin($this);
             $this->plugins->loadModules($this->_lang);
 
-            # Load loang resources for each plugins
+            # Load lang resources for each plugins
             foreach($this->plugins->getModules() as $module) {
                 $this->adminLoadResources($module->root() . '/locales', false);
             }
         }
 
         # Themes
-        $this->adminurl->register('admin.blog.theme', Core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme'));
-        $this->addMenuItem('Blog', __('Blog appearance'), 'admin.blog.theme', 'images/menu/themes.png', $this->auth->check('admin', $this->blog->id));
         $this->themes = new ModulesTheme($this);
         $this->themes->loadModules($this->_lang);
     }
