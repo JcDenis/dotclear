@@ -52,6 +52,8 @@ class UrlHandler
     {
         $this->core = $core;
         $this->mode = $mode;
+
+        $this->initDefaulthandlers();
     }
 
     protected function getHomeType()
@@ -986,5 +988,24 @@ class UrlHandler
         //header('Content-Length: '.filesize($file));
         readfile($file);
         exit;
+    }
+
+    public function initDefaultHandlers()
+    {
+        $this->registerDefault([$this, 'home']);
+        $this->registerError([$this, 'default404']);
+        $this->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$this, 'lang']);
+        $this->register('posts', 'posts', '^posts(/.+)?$', [$this, 'home']);
+        $this->register('post', 'post', '^post/(.+)$', [$this, 'post']);
+        $this->register('preview', 'preview', '^preview/(.+)$', [$this, 'preview']);
+        $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
+        $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
+        $this->register('files', 'files', '^files/(.+)?$', [$this, 'files']);
+
+        $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
+        $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
+        $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
+        $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
+        $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
     }
 }

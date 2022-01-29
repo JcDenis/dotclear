@@ -159,7 +159,15 @@ class Prepend extends Core
         try {
             parent::__construct();
         } catch (Exception $e) {
-            static::errorL10n();
+            # Loading locales for detected language
+            $dlang = Http::getAcceptLanguages();
+            foreach ($dlang as $l) {
+                if ($l == 'en' || l10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
+                    L10n::lang($l);
+
+                    break;
+                }
+            }
             if (!in_array($this->process, ['Admin', 'Install'])) {
                 static::error(
                     __('Site temporarily unavailable'),
@@ -203,24 +211,6 @@ class Prepend extends Core
             echo $e->getMessage();
             exit;
         }
-
-        # Register Core Urls
-        $c = static::ns(__NAMESPACE__, 'UrlHandler');
-        $this->url->registerDefault([$c, 'home']);
-        $this->url->registerError([$c, 'default404']);
-        $this->url->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$c, 'lang']);
-        $this->url->register('posts', 'posts', '^posts(/.+)?$', [$c, 'home']);
-        $this->url->register('post', 'post', '^post/(.+)$', [$c, 'post']);
-        $this->url->register('preview', 'preview', '^preview/(.+)$', [$c, 'preview']);
-        $this->url->register('category', 'category', '^category/(.+)$', [$c, 'category']);
-        $this->url->register('archive', 'archive', '^archive(/.+)?$', [$c, 'archive']);
-        $this->url->register('files', 'files', '^files/(.+)?$', [$c, 'files']);
-
-        $this->url->register('feed', 'feed', '^feed/(.+)$', [$c, 'feed']);
-        $this->url->register('trackback', 'trackback', '^trackback/(.+)$', [$c, 'trackback']);
-        $this->url->register('webmention', 'webmention', '^webmention(/.+)?$', [$c, 'webmention']);
-        $this->url->register('rsd', 'rsd', '^rsd$', [$c, 'rsd']);
-        $this->url->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$c, 'xmlrpc']);
 
         # Register Core post types
         $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
@@ -292,18 +282,5 @@ class Prepend extends Core
             include static::root('core_error.php');
         }
         exit;
-    }
-
-    protected static function errorL10n(): void
-    {
-        # Loading locales for detected language
-        $dlang = Http::getAcceptLanguages();
-        foreach ($dlang as $l) {
-            if ($l == 'en' || l10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
-                L10n::lang($l);
-
-                break;
-            }
-        }
     }
 }
