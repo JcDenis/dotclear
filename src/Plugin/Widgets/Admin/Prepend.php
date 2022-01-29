@@ -13,11 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
+use ArrayObject;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 use Dotclear\Plugin\Widgets\Lib\Widgets;
+
+use Dotclear\Admin\Favorites;
 
 use Dotclear\Core\Core;
 
@@ -50,7 +54,7 @@ class Prepend extends AbstractPrepend
         $core->behaviors->add('adminRteFlags', [__CLASS__, 'behaviorAdminRteFlags']);
 
         # Load widgets
-        WidgetsStack::initWidgets($core);
+        new WidgetsStack($core);
     }
 
     public static function installModule(Core $core): ?bool
@@ -76,7 +80,7 @@ class Prepend extends AbstractPrepend
         return true;
     }
 
-    public static function behaviorAdminDashboardFavorites($core, $favs)
+    public static function behaviorAdminDashboardFavorites(Core $core, Favorites $favs): void
     {
         $favs->register('Widgets', [
             'title'      => __('Presentation widgets'),
@@ -86,7 +90,7 @@ class Prepend extends AbstractPrepend
         ]);
     }
 
-    public static function behaviorAdminRteFlags($core, $rte)
+    public static function behaviorAdminRteFlags(Core $core, ArrayObject $rte): void
     {
         $rte['widgets_text'] = [true, __('Widget\'s textareas')];
     }

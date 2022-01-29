@@ -43,7 +43,7 @@ class WidgetExt extends Widget
 
     public function checkHomeOnly($type, $alt_not_home = 1, $alt_home = 0)
     {
-        global $core;
+        $core = static::getCore();
 
         /* @phpstan-ignore-next-line */
         if (($this->homeonly == self::HOME_ONLY && !$core->url->isHome($type) && $alt_not_home) || ($this->homeonly == self::EXCEPT_HOME && ($core->url->isHome($type) || $alt_home))) {

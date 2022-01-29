@@ -17,7 +17,6 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
-use Dotclear\Plugin\Widgets\Public\PublicWidgets;
 
 use Dotclear\Core\Core;
 
@@ -32,11 +31,6 @@ class Prepend extends AbstractPrepend
     public static function loadModule(Core $core): void
     {
         # Load widgets
-        WidgetsStack::initWidgets($core);
-        PublicWidgets::setCore($core);
-
-        $core->tpl->addValue('Widgets', [__NAMESPACE__ . '\\PublicWidgets', 'tplWidgets']);
-        $core->tpl->addBlock('Widget', [__NAMESPACE__ . '\\PublicWidgets', 'tplWidget']);
-        $core->tpl->addBlock('IfWidgets', [__NAMESPACE__ . '\\PublicWidgets', 'tplIfWidgets']);
+        new WidgetsStack($core);
     }
 }
