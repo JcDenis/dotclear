@@ -822,7 +822,7 @@ class UserPref extends Page
         $user_fav = $this->core->favs->getFavoriteIDs(false);
         foreach ($user_fav as $id) {
             $fav = $this->core->favs->getFavorite($id);
-            if ($fav != false) {
+            if (!empty($fav)) {
                 // User favorites only
                 if ($count == 0) {
                     echo '<ul class="fav-list">';

@@ -30,14 +30,14 @@ class ModulesIconset extends AbstractModules
             'System',
             __('Iconset management'),
             'admin.iconset',
-            'images/menu/iconset.png',
+            'images/menu/no-icon.svg',
             $this->core->auth->isSuperAdmin()
         );
         $this->core->favs->register('iconsets', [
             'title'      => __('Iconsets management'),
             'url'        => $this->core->adminurl->get('admin.iconset'),
-            'small-icon' => 'images/menu/iconset.png',
-            'large-icon' => 'images/menu/iconset-b.png'
+            'small-icon' => 'images/menu/no-icon.svg',
+            'large-icon' => 'images/menu/no-icon.svg'
         ]);
     }
 

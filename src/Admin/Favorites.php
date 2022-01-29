@@ -17,8 +17,7 @@ use ArrayObject;
 
 use Dotclear\Core\Core;
 
-use Dotclear\Html\Form;
-use Dotclear\Network\Http;
+use Dotclear\Admin\Menus;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -26,32 +25,48 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Favorites
 {
-    /** @var Core dotclear core instance */
+    /** @var    Core    Core instance */
     protected $core;
 
-    /** @var ArrayObject list of favorite definitions  */
+    /** @var    ArrayObject     list of favorite definitions  */
     protected $fav_defs;
 
-    /** @var Workspace current favorite landing workspace */
+    /** @var    Workspace   current favorite landing workspace */
     protected $ws;
 
-    /** @var array list of user-defined favorite ids */
+    /** @var    array   list of user-defined favorite ids */
     protected $local_prefs;
 
-    /** @var array list of globally-defined favorite ids */
+    /** @var    array   list of globally-defined favorite ids */
     protected $global_prefs;
 
-    /** @var array list of user preferences (either one of the 2 above, or not!) */
+    /** @var    array   list of user preferences (either one of the 2 above, or not!) */
     protected $user_prefs;
+
+    /** @var    array  Default favorites values */
+    protected $default_favorites = [
+        # favorite title (localized)
+        'title'        => '',
+        # favorite URL
+        'url'          => '',
+        # favorite small icon (for menu)
+        'small-icon'   => 'images/menu/no-icon.svg',
+        # favorite large icon (for dashboard)
+        'large-icon'   => 'images/menu/no-icon.svg',
+        # (optional) comma-separated list of permissions for thie fav, if not set : no restriction
+        'permissions'  => '',
+        # (optional) callback to modify title if dynamic, if not set : title is taken as is
+        'dashboard_cb' => '',
+        #  (optional) callback to tell whether current page matches favorite or not, for complex pages
+        'active_cb'    => '',
+    ];
 
     /**
      * Class constructor
      *
-     * @param dcCore   $core   dotclear core
-     *
-     * @access public
+     * @param   Core    $core   Core instance
      */
-    public function __construct($core)
+    public function __construct(Core $core)
     {
         $this->core       = $core;
         $this->fav_defs   = new ArrayObject();
@@ -75,74 +90,73 @@ class Favorites
     }
 
     /**
-     * setup - sets up favorites, fetch user favorites (against his permissions)
-     *            This method is to be called after loading plugins
+     * Sets up favorites
      *
-     * @access public
+     * Fetch user favorites (against his permissions)
+     * This method is to be called after loading plugins
      */
-    public function setup()
+    public function setup(): void
     {
         $this->initDefaultFavorites();
-        $this->legacyFavorites();
         $this->core->behaviors->call('adminDashboardFavorites', $this);
         $this->setUserPrefs();
     }
 
     /**
-     * getFavorite - retrieves a favorite (complete description) from its id.
+     * Get Favorite
      *
-     * @param mixed  $p   the favorite id, or an array having 1 key 'name' set to id, ther keys are merged to favorite.
+     * Retrieves a favorite (complete description) from its id.
      *
-     * @access public
+     * @param   string|array    $p  The favorite id, or an array having 1 key 'name' set to id, ther keys are merged to favorite.
      *
-     * @return mixed    array the favorite, false if not found (or not permitted)
+     * @return  array               The favorite
      */
-    public function getFavorite($p)
+    public function getFavorite(string|array $p): array
     {
         if (is_array($p)) {
             $fname = $p['name'];
             if (!isset($this->fav_defs[$fname])) {
-                return false;
+                return [];
             }
             $fattr = $p;
             unset($fattr['name']);
             $fattr = array_merge($this->fav_defs[$fname], $fattr);
         } else {
             if (!isset($this->fav_defs[$p])) {
-                return false;
+                return [];
             }
             $fattr = $this->fav_defs[$p];
         }
         $fattr = array_merge(['id' => null, 'class' => null], $fattr);
         if (isset($fattr['permissions'])) {
             if (is_bool($fattr['permissions']) && !$fattr['permissions']) {
-                return false;
+                return [];
             }
             if (!$this->core->auth->check($fattr['permissions'], $this->core->blog->id)) {
-                return false;
+                return [];
             }
         } elseif (!$this->core->auth->isSuperAdmin()) {
-            return false;
+            return [];
         }
 
         return $fattr;
     }
 
     /**
-     * getFavorites - retrieves a list of favorites.
+     * Get Favorites
      *
-     * @param array  $ids   an array of ids, as defined in getFavorite.
+     * Retrieves a list of favorites.
      *
-     * @access public
+     * @param   array   $ids    An array of ids, as defined in getFavorite.
      *
-     * @return array array of favorites, can be empty if ids are not found (or not permitted)
+     * @return  array           The favorites, can be empty if ids are not found (or not permitted)
      */
-    public function getFavorites($ids)
+    public function getFavorites(array $ids): array
     {
         $prefs = [];
         foreach ($ids as $id) {
             $f = $this->getFavorite($id);
-            if ($f !== false) {
+            if (!empty($f)) {
                 $prefs[$id] = $f;
             }
         }
@@ -151,22 +165,23 @@ class Favorites
     }
 
     /**
-     * setUserPrefs - get user favorites from settings. These are complete favorites, not ids only
-     *                 returned favorites are the first non-empty list from :
-     *                 * user-defined favorites
-     *                 * globally-defined favorites
-     *                 * a failback list "new post" (shall never be empty)
-     *                This method is called by ::setup()
+     * Set user prefs
      *
-     * @access protected
+     * Get user favorites from settings.
+     * These are complete favorites, not ids only
+     * returned favorites are the first non-empty list from :
+     *    * user-defined favorites
+     *    * globally-defined favorites
+     *    * a failback list "new post" (shall never be empty)
+     * This method is called by ::setup()
      */
-    protected function setUserPrefs()
+    protected function setUserPrefs(): void
     {
         $this->user_prefs = $this->getFavorites($this->local_prefs);
-        if (!count($this->user_prefs)) {
+        if (empty($this->user_prefs)) {
             $this->user_prefs = $this->getFavorites($this->global_prefs);
         }
-        if (!count($this->user_prefs)) {
+        if (empty($this->user_prefs)) {
             $this->user_prefs = $this->getFavorites(['new_post']);
         }
         $uri = explode('?', $_SERVER['REQUEST_URI']);
@@ -176,7 +191,7 @@ class Favorites
         foreach ($this->user_prefs as $k => &$v) {
             // duplicate request URI on each loop as it takes previous pref value ?!
             $u = $uri;
-            if (isset($v['active_cb']) && is_callable($v['active_cb'])) {
+            if (!empty($v['active_cb']) && is_callable($v['active_cb'])) {
                 // Use callback if defined to match whether favorite is active or not
                 $v['active'] = call_user_func($v['active_cb'], $u[0], $_REQUEST);
             } else {
@@ -200,11 +215,11 @@ class Favorites
     }
 
     /**
-     * migrateFavorites - migrate dc < 2.6 favorites to new format
+     * Migrate Favorites
      *
-     * @access protected
+     * Migrate dc < 2.6 favorites to new format
      */
-    protected function migrateFavorites()
+    protected function migrateFavorites(): void
     {
         $fav_ws             = $this->core->auth->user_prefs->addWorkspace('favorites');
         $this->local_prefs  = [];
@@ -225,104 +240,81 @@ class Favorites
     }
 
     /**
-     * legacyFavorites - handle legacy favorites using adminDashboardFavs behavior
+     * Get user favorites
      *
-     * @access protected
+     * Returns favorites that correspond to current user
+     * (may be local, global, or failback favorites)
+     *
+     * @return  array   Array of favorites (enriched)
      */
-    protected function legacyFavorites()
-    {
-        $f = new ArrayObject();
-        $this->core->behaviors->call('adminDashboardFavs', $f);
-        foreach ($f as $k => $v) {
-            $fav = [
-                'title'       => __($v[1]),
-                'url'         => $v[2],
-                'small-icon'  => $v[3],
-                'large-icon'  => $v[4],
-                'permissions' => $v[5],
-                'id'          => $v[6],
-                'class'       => $v[7]
-            ];
-            $this->register($v[0], $fav);
-        }
-    }
-
-    /**
-     * getUserFavorites - returns favorites that correspond to current user
-     *   (may be local, global, or failback favorites)
-     *
-     * @access public
-     *
-     * @return array array of favorites (enriched)
-     */
-    public function getUserFavorites()
+    public function getUserFavorites(): array
     {
         return $this->user_prefs;
     }
 
     /**
-     * getFavoriteIDs - returns user-defined or global favorites ids list
-     *                    shall not be called outside preferences.php...
+     * Get Favorite IDs
      *
-     * @param boolean  $global   if true, retrieve global favs, user favs otherwise
+     * Returns user-defined or global favorites ids list
+     * shall not be called outside Admin\Page\UserPrefs
      *
-     * @access public
+     * @param   bool    $global     If true, retrieve global favs, user favs otherwise
      *
-     * @return array array of favorites ids (only ids, not enriched)
+     * @return  array               Array of favorites ids (only ids, not enriched)
      */
-    public function getFavoriteIDs($global = false)
+    public function getFavoriteIDs(bool $global = false): array
     {
         return $global ? $this->global_prefs : $this->local_prefs;
     }
 
     /**
-     * setFavoriteIDs - stores user-defined or global favorites ids list
-     *                    shall not be called outside preferences.php...
+     * Set Favorite IDs
      *
-     * @param array  $ids   list of fav ids
-     * @param boolean  $global   if true, retrieve global favs, user favs otherwise
+     * Stores user-defined or global favorites ids list
+     * shall not be called outside Admin\Page\UserPrefs
      *
-     * @access public
+     * @param   array   $ids        List of fav ids
+     * @param   bool    $global     If true, retrieve global favs, user favs otherwise
      */
-    public function setFavoriteIDs($ids, $global = false)
+    public function setFavoriteIDs(array $ids, bool $global = false): void
     {
         $this->ws->put('favorites', $ids, 'array', null, true, $global);
     }
 
     /**
-     * getAvailableFavoritesIDs - returns all available fav ids
+     * Get Available Favorites IDs
      *
-     * @access public
+     * Returns all available fav ids
      *
-     * @return array array of favorites ids (only ids, not enriched)
+     * @return  array   Array of favorites ids (only ids, not enriched)
      */
-    public function getAvailableFavoritesIDs()
+    public function getAvailableFavoritesIDs(): array
     {
         return array_keys($this->fav_defs->getArrayCopy()); // @phpstan-ignore-line
     }
 
     /**
-     * appendMenuTitle - adds favorites section title to sidebar menu
-     *                    shall not be called outside admin/prepend.php...
+     * Append Menu Title
      *
-     * @param array|ArrayObject  $menu   admin menu
+     * Adds favorites section title to sidebar menu
+     * shall not be called outside Admin\Prepend...
      *
-     * @access public
+     * @param   Menus   $menu   Menus instance
      */
-    public function appendMenuTitle($menu)
+    public function appendMenuTitle(Menus $menu): void
     {
         $menu->add('Favorites', 'favorites-menu', __('My favorites'));
     }
 
     /**
-     * appendMenu - adds favorites items title to sidebar menu
-     *                    shall not be called outside admin/prepend.php...
+     * Append Menu
      *
-     * @param array|ArrayObject  $menu   admin menu
+     * Adds favorites items title to sidebar menu
+     * shall not be called outside Admin\Prepend...
      *
-     * @access public
+     * @param   Menus   $menu   Menus instance
      */
-    public function appendMenu($menu)
+    public function appendMenu(Menus $menu): void
     {
         foreach ($this->user_prefs as $k => $v) {
             $menu['Favorites']->addItem(
@@ -339,17 +331,17 @@ class Favorites
     }
 
     /**
-     * appendDashboardIcons - adds favorites icons to index page
-     *                    shall not be called outside admin/index.php...
+     * Append Dashboard Icons
      *
-     * @param array  $icons   dashboard icon list to enrich
+     * Adds favorites icons to index page
+     * shall not be called outside Admin\Page\Home
      *
-     * @access public
+     * @param   ArrayObject     $icons  Dashboard icon list to enrich
      */
-    public function appendDashboardIcons($icons)
+    public function appendDashboardIcons(ArrayObject $icons): void
     {
         foreach ($this->user_prefs as $k => $v) {
-            if (isset($v['dashboard_cb']) && is_callable($v['dashboard_cb'])) {
+            if (!empty($v['dashboard_cb']) && is_callable($v['dashboard_cb'])) {
                 $v = new ArrayObject($v);
                 call_user_func($v['dashboard_cb'], $this->core, $v);
             }
@@ -359,39 +351,34 @@ class Favorites
     }
 
     /**
-     * register - registers a new favorite definition
+     * Register
      *
-     * @param string  $id   favorite id
-     * @param array  $data favorite information. Array keys are :
-     *    'title' => favorite title (localized)
-     *    'url' => favorite URL,
-     *    'small-icon' => favorite small icon (for menu)
-     *    'large-icon' => favorite large icon (for dashboard)
-     *    'permissions' => (optional) comma-separated list of permissions for thie fav, if not set : no restriction
-     *    'dashboard_cb' => (optional) callback to modify title if dynamic, if not set : title is taken as is
-     *    'active_cb' => (optional) callback to tell whether current page matches favorite or not, for complex pages
+     * Registers a new favorite definition
      *
-     * @access public
+     * @param   string  $id     Favorite id
+     * @param   array   $data   Favorite information. @see self::$default_favorites
      *
-     * @return dcFavorites instance
+     * @return Favorites instance
      */
-    public function register($id, $data)
+    public function register(string $id, array $data): Favorites
     {
-        $this->fav_defs[$id] = $data;
+        $this->fav_defs[$id] = array_merge($this->default_favorites, $data);
 
         return $this;
     }
 
     /**
-     * registerMultiple - registers a list of favorites definition
+     * Register Multiple
      *
-     * @param array $data an array defining all favorites key is the id, value is the data.
-     *                see register method for data format
-     * @access public
+     * Registers a list of favorites definition
      *
-     * @return dcFavorites instance
+     * @see self::register()
+     *
+     * @param   array   $data an array defining all favorites key is the id, value is the data.
+     *
+     * @return Favorites instance
      */
-    public function registerMultiple($data)
+    public function registerMultiple(array $data): Favorites
     {
         foreach ($data as $k => $v) {
             $this->register($k, $v);
@@ -401,15 +388,15 @@ class Favorites
     }
 
     /**
-     * exists - tells whether a fav definition exists or not
+     * Exists
      *
-     * @param string $id : the fav id to test
+     * Tells whether a fav definition exists or not
      *
-     * @access public
+     * @param   string  $id     The fav id to test
      *
-     * @return bool true if the fav definition exists, false otherwise
+     * @return  bool            true if the fav definition exists, false otherwise
      */
-    public function exists($id)
+    public function exists(string $id): bool
     {
         return isset($this->fav_defs[$id]);
     }
@@ -417,7 +404,7 @@ class Favorites
     /**
      * Initializes the default favorites.
      */
-    protected function initDefaultFavorites()
+    protected function initDefaultFavorites(): void
     {
         $this->registerMultiple([
             'prefs' => [
@@ -497,10 +484,10 @@ class Favorites
     /**
      * Helper for posts icon on dashboard
      *
-     * @param      dcCore  $core   The core
-     * @param      mixed   $v      { parameter_description }
+     * @param   Core            $core   Core instance
+     * @param   ArrayObject     $v      Favicon object
      */
-    public static function cbPostsDashboard($core, $v)
+    public static function cbPostsDashboard(Core $core, ArrayObject $v): void
     {
         $post_count  = (int) $core->blog->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
@@ -512,11 +499,11 @@ class Favorites
      *
      * Take account of post edition (if id is set)
      *
-     * @param  string   $request_uri    The URI
-     * @param  array    $request_params The params
-     * @return boolean                  Active
+     * @param   string      $request_uri        The URI
+     * @param   array       $request_params     The params
+     * @return  boolean                         Active
      */
-    public static function cbNewpostActive($request_uri, $request_params)
+    public static function cbNewpostActive(string $request_uri, array $request_params): bool
     {
         return 'post.php' == $request_uri && !isset($request_params['id']);
     }
@@ -524,10 +511,10 @@ class Favorites
     /**
      * Helper for comments icon on dashboard
      *
-     * @param      dcCore  $core   The core
-     * @param      mixed   $v      { parameter_description }
+     * @param   Core            $core   The core
+     * @param   ArrayObject     $v      Favicon object
      */
-    public static function cbCommentsDashboard($core, $v)
+    public static function cbCommentsDashboard(Core $core, ArrayObject $v): void
     {
         $comment_count = (int) $core->blog->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);
