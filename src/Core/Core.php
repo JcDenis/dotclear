@@ -18,7 +18,6 @@ use Closure;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\StaticCore;
 use Dotclear\Core\Behaviors;
 use Dotclear\Core\Error;
 use Dotclear\Core\UrlHandler;
@@ -113,7 +112,6 @@ class Core
     public function __construct()
     {
         static::startStatistics();
-        StaticCore::setCore($this);
 
         $this->error     = new Error();
         $this->behaviors = new Behaviors($this);
