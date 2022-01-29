@@ -468,9 +468,7 @@ class Core
      */
     public static function addTopBehavior(string $behavior, string|array $callback): void
     {
-        $top = self::$top_behaviors;
-        $top[] = [$behavior, $callback];
-        self::$top_behaviors = $top;
+        array_push(self::$top_behaviors, [$behavior, $callback]);
     }
 
     /**
@@ -478,10 +476,8 @@ class Core
      */
     protected function registerTopBehaviors(): void
     {
-        if (is_array(self::$top_behaviors) && !empty(self::$top_behaviors)) {
-            foreach (self::$top_behaviors as $behavior) {
-                $this->behaviors->add($behavior[0], $behavior[1]);
-            }
+        foreach (self::$top_behaviors as $behavior) {
+            $this->behaviors->add($behavior[0], $behavior[1]);
         }
     }
     //@}
@@ -592,13 +588,11 @@ class Core
      */
     public function setVersion(string $module, string $version): void
     {
-        $cur_version = $this->getVersion($module);
-
         $cur          = $this->con->openCursor($this->prefix . 'version');
-        $cur->module  = (string) $module;
-        $cur->version = (string) $version;
+        $cur->module  = $module;
+        $cur->version = $version;
 
-        if ($cur_version === null) {
+        if ($this->getVersion($module) === null) {
             $cur->insert();
         } else {
             $cur->update("WHERE module='" . $this->con->escape($module) . "'");
