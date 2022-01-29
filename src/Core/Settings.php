@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Settings
  * @brief Dotclear core settings class
  *
  * @package Dotclear
@@ -15,43 +16,62 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+use Dotclear\Core\Settingspace;
+
+use Dotclear\Database\Connection;
+use Dotclear\Database\Record;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 class Settings
 {
-    protected $core;    ///< <b>core</b> Dotclear core object
-    protected $con;     ///< <b>connection</b> Database connection object
-    protected $table;   ///< <b>string</b> Settings table name
-    protected $blog_id; ///< <b>string</b> Blog ID
+    /** @var    Core    Core instacne */
+    protected $core;
 
-    protected $namespaces = []; ///< <b>array</b> Associative namespaces array
+    /** @var    Connection  Connection instance */
+    protected $con;
 
-    protected $ns; ///< <b>string</b> Current namespace
+    /** @var    string  Setting table name */
+    protected $table;
+
+    /** @var    string  Blog ID */
+    protected $blog_id;
+
+    /** @var    array   Associative namespaces array */
+    protected $namespaces = [];
+
+    /** @var    string  Current namespace */
+    protected $ns;
 
     protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
 
     /**
-     * Object constructor. Retrieves blog settings and puts them in $namespaces
+     * Constructor.
+     *
+     * Retrieves blog settings and puts them in $namespaces
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param      dcCore   $core     The core
-     * @param      mixed    $blog_id  The blog identifier
+     * @param   Core            $core       The core
+     * @param   string|null     $blog_id    The blog identifier
      */
-    public function __construct(Core $core, $blog_id)
+    public function __construct(Core $core, ?string $blog_id)
     {
-        $this->core    = &$core;
-        $this->con     = &$core->con;
+        $this->core    = $core;
+        $this->con     = $core->con;
         $this->table   = $core->prefix . 'setting';
-        $this->blog_id = &$blog_id;
+        $this->blog_id = $blog_id;
         $this->loadSettings();
     }
 
     /**
-    Retrieves all namespaces (and their settings) from database, with one query.
+     * Retrieves all namespaces
+     *
+     * (and their settings) from database, with one query.
      */
-    private function loadSettings()
+    private function loadSettings(): void
     {
         $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
         'setting_type, setting_label, setting_ns ' .
@@ -80,21 +100,23 @@ class Settings
                 // at very first time
                 $rs->movePrev();
             }
-            $this->namespaces[$ns] = new Nspace($this->core, $this->blog_id, $ns, $rs);
+            $this->namespaces[$ns] = new Settingspace($this->core, $this->blog_id, $ns, $rs);
         } while (!$rs->isStart());
     }
 
     /**
-     * Create a new namespace. If the namespace already exists, return it without modification.
+     * Create a new namespace.
      *
-     * @param      string  $ns     Namespace name
+     * If the namespace already exists, return it without modification.
      *
-     * @return     Nspace
+     * @param   string  $ns     Namespace name
+     *
+     * @return  Settingspace
      */
-    public function addNamespace($ns)
+    public function addNamespace(string $ns): Settingspace
     {
         if (!$this->exists($ns)) {
-            $this->namespaces[$ns] = new Nspace($this->core, $this->blog_id, $ns);
+            $this->namespaces[$ns] = new Settingspace($this->core, $this->blog_id, $ns);
         }
 
         return $this->namespaces[$ns];
@@ -103,14 +125,14 @@ class Settings
     /**
      * Rename a namespace.
      *
-     * @param      string     $oldNs  The old ns
-     * @param      string     $newNs  The new ns
+     * @param   string  $oldNs  The old ns
+     * @param   string  $newNs  The new ns
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     bool      return true if no error, else false
+     * @return  bool            Return true if no error, else false
      */
-    public function renNamespace($oldNs, $newNs)
+    public function renNamespace(string $oldNs, string $newNs): bool
     {
         if (!$this->exists($oldNs) || $this->exists($newNs)) {
             return false;
@@ -136,11 +158,11 @@ class Settings
     /**
      * Delete a whole namespace with all settings pertaining to it.
      *
-     * @param      string  $ns     Namespace name
+     * @param   string  $ns     Namespace name
      *
-     * @return     bool
+     * @return  bool
      */
-    public function delNamespace($ns)
+    public function delNamespace(string $ns): bool
     {
         if (!$this->exists($ns)) {
             return false;
@@ -160,25 +182,25 @@ class Settings
     /**
      * Returns full namespace with all settings pertaining to it.
      *
-     * @param      string  $ns     Namespace name
+     * @param   string  $ns     Namespace name
      *
-     * @return     Nspace
+     * @return  Settingspace|null
      */
-    public function get($ns)
+    public function get(string $ns): ?Settingspace
     {
-        return ($this->namespaces[$ns] ?? null);
+        return $this->namespaces[$ns] ?? null;
     }
 
     /**
      * Magic __get method.
      *
-     * @copydoc ::get
+     * @see self::get()
      *
-     * @param      string  $n      namespace name
+     * @param   string  $n  Namespace name
      *
-     * @return     Nspace
+     * @return  Settingspace|null
      */
-    public function __get($n)
+    public function __get(string $n): ?Settingspace
     {
         return $this->get($n);
     }
@@ -186,11 +208,11 @@ class Settings
     /**
      * Check if a namespace exists
      *
-     * @param      string  $ns     Namespace name
+     * @param   string  $ns     Namespace name
      *
-     * @return     boolean
+     * @return  bool
      */
-    public function exists($ns)
+    public function exists(string $ns): bool
     {
         return array_key_exists($ns, $this->namespaces);
     }
@@ -198,26 +220,26 @@ class Settings
     /**
      * Dumps namespaces.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpNamespaces()
+    public function dumpNamespaces(): array
     {
         return $this->namespaces;
     }
 
     /**
      * Returns a list of settings matching given criteria, for any blog.
+     *
      * <b>$params</b> is an array taking the following
      * optionnal parameters:
-     *
      * - ns : retrieve setting from given namespace
      * - id : retrieve only settings corresponding to the given id
      *
-     * @param      array   $params  The parameters
+     * @param   array   $params     The parameters
      *
-     * @return     record  The global settings.
+     * @return  Record              The global settings.
      */
-    public function getGlobalSettings($params = [])
+    public function getGlobalSettings(array $params = []): Record
     {
         $strReq = 'SELECT * from ' . $this->table . ' ';
         $where  = [];
@@ -245,9 +267,9 @@ class Settings
     /**
      * Updates a setting from a given record.
      *
-     * @param      record  $rs     The setting to update
+     * @param   Record  $rs     The setting to update
      */
-    public function updateSetting($rs)
+    public function updateSetting(Record $rs): void
     {
         $cur                = $this->con->openCursor($this->table);
         $cur->setting_id    = $rs->setting_id;
@@ -267,11 +289,11 @@ class Settings
     /**
      * Drops a setting from a given record.
      *
-     * @param      record  $rs     The setting to drop
+     * @param   Record  $rs     The setting to drop
      *
-     * @return     int  Number of deleted records (0 if setting does not exist)
+     * @return  int             Number of deleted records (0 if setting does not exist)
      */
-    public function dropSetting($rs)
+    public function dropSetting(Record $rs): int
     {
         $strReq = 'DELETE FROM ' . $this->table . ' ';
         if ($rs->blog_id == null) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class  Dotclear\Core\
+ * @class  Dotclear\Core\Settingspace
  * @brief Dotclear core nspace (namespace) class
  *
  * @package Dotclear
@@ -19,37 +19,52 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Core\Core;
 
 use Dotclear\Database\Connection;
+use Dotclear\Database\Record;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Nspace
+class Settingspace
 {
-    protected $con;     ///< <b>connection</b> Database connection object
-    protected $table;   ///< <b>string</b> Settings table name
-    protected $blog_id; ///< <b>string</b> Blog ID
+    /** @var    Connection  Database connection object */
+    protected $con;
 
-    protected $global_settings = []; ///< <b>array</b> Global settings array
-    protected $local_settings  = []; ///< <b>array</b> Local settings array
-    protected $settings        = []; ///< <b>array</b> Associative settings array
-    protected $ns;                   ///< <b>string</b> Current namespace
+    /** @var    string     Settings table name */
+    protected $table;
+
+    /** @var    string     Blog ID*/
+    protected $blog_id;
+
+    /** @var    array       Global settings array */
+    protected $global_settings = [];
+
+    /** @var    array       Local settings array */
+    protected $local_settings = [];
+
+    /** @var    array       Associative settings array */
+    protected $settings = [];
+
+    /** @var    string      Current namespace */
+    protected $ns;
 
     protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
     protected const NS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
 
     /**
-     * Object constructor. Retrieves blog settings and puts them in $settings
+     * Constructor.
+     *
+     * Retrieves blog settings and puts them in $settings
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param      dcCore     $core     The core
-     * @param      string     $blog_id  The blog identifier
-     * @param      string     $name     The namespace ID
-     * @param      mixed      $rs
+     * @param   Core            $core       The core
+     * @param   string          $blog_id    The blog identifier
+     * @param   string          $name       The namespace ID
+     * @param   Record|null     $rs
      *
-     * @throws     CoreException  (description)
+     * @throws     CoreException
      */
-    public function __construct(Core $core, $blog_id, $name, $rs = null)
+    public function __construct(Core $core, string $blog_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
@@ -59,12 +74,12 @@ class Nspace
 
         $this->con     = $core->con;
         $this->table   = $core->prefix . 'setting';
-        $this->blog_id = &$blog_id;
+        $this->blog_id = $blog_id;
 
         $this->getSettings($rs);
     }
 
-    private function getSettings($rs = null)
+    private function getSettings(Record $rs = null): bool
     {
         if ($rs == null) {
             $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
@@ -124,12 +139,12 @@ class Nspace
     /**
      * Returns true if a setting exist, else false
      *
-     * @param      string   $id      The identifier
-     * @param      boolean  $global  The global
+     * @param   string  $id         The identifier
+     * @param   bool    $global     The global
      *
-     * @return     boolean
+     * @return  bool
      */
-    public function settingExists($id, $global = false)
+    public function settingExists(string $id, bool $global = false): bool
     {
         $array = $global ? 'global' : 'local';
 
@@ -139,67 +154,66 @@ class Nspace
     /**
      * Returns setting value if exists.
      *
-     * @param      string  $n      Setting name
+     * @param   string  $n  Setting name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function get($n)
+    public function get(string $n): mixed
     {
-        if (isset($this->settings[$n]) && isset($this->settings[$n]['value'])) {
-            return $this->settings[$n]['value'];
-        }
+        return isset($this->settings[$n]) && isset($this->settings[$n]['value']) ?
+                $this->settings[$n]['value'] : null;
     }
 
     /**
      * Returns global setting value if exists.
      *
-     * @param      string  $n      Setting name
+     * @param   string  $n   Setting name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function getGlobal($n)
+    public function getGlobal(string $n): mixed
     {
-        if (isset($this->global_settings[$n]) && isset($this->global_settings[$n]['value'])) {
-            return $this->global_settings[$n]['value'];
-        }
+        return isset($this->global_settings[$n]) && isset($this->global_settings[$n]['value']) ?
+            $this->global_settings[$n]['value'] : null;
     }
 
     /**
      * Returns local setting value if exists.
      *
-     * @param      string  $n      Setting name
+     * @param   string  $n   Setting name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function getLocal($n)
+    public function getLocal(string $n): mixed
     {
-        if (isset($this->local_settings[$n]) && isset($this->local_settings[$n]['value'])) {
-            return $this->local_settings[$n]['value'];
-        }
+        return isset($this->local_settings[$n]) && isset($this->local_settings[$n]['value']) ?
+            $this->local_settings[$n]['value'] : null;
     }
 
     /**
      * Magic __get method.
      *
-     * @copydoc ::get
+     * @see self::get()
      *
-     * @param      string  $n      Setting name
+     * @param   string  $n  Setting name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function __get($n)
+    public function __get(string $n): mixed
     {
         return $this->get($n);
     }
 
     /**
-     * Sets a setting in $settings property. This sets the setting for script
+     * Sets a setting in $settings property.
+     *
+     * This sets the setting for script
      * execution time only and if setting exists.
      *
-     * @param      string  $n      The setting name
-     * @param      mixed   $v      The setting value
+     * @param   string  $n  The setting name
+     * @param   mixed   $v  The setting value
      */
-    public function set($n, $v)
+    public function set(string $n, mixed $v): void
     {
         if (isset($this->settings[$n])) {
             $this->settings[$n]['value'] = $v;
@@ -209,12 +223,12 @@ class Nspace
     /**
      * Magic __set method.
      *
-     * @copydoc ::set
+     * @see self::set()
      *
-     * @param      string  $n      The setting name
-     * @param      mixed   $v      The setting value
+     * @param   string  $n  The setting name
+     * @param   mixed   $v  The setting value
      */
-    public function __set($n, $v)
+    public function __set(string $n, mixed $v): void
     {
         $this->set($n, $v);
     }
@@ -228,16 +242,16 @@ class Nspace
      * $value_change allow you to not change setting. Useful if you need to change
      * a setting label or type and don't want to change its value.
      *
-     * @param      string     $id            The setting identifier
-     * @param      mixed      $value         The setting value
-     * @param      string     $type          The setting type
-     * @param      string     $label         The setting label
-     * @param      bool       $value_change  Change setting value or not
-     * @param      bool       $global        Setting is global
+     * @param   string  $id             The setting identifier
+     * @param   mixed   $value          The setting value
+     * @param   string  $type           The setting type
+     * @param   string  $label          The setting label
+     * @param   bool    $value_change   Change setting value or not
+     * @param   bool    $global         Setting is global
      *
      * @throws     CoreException
      */
-    public function put($id, $value, $type = null, $label = null, $value_change = true, $global = false)
+    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, bool $value_change = true, bool $global = false): void
     {
         if (!preg_match(self::NS_ID_SCHEMA, $id)) {
             throw new CoreException(sprintf(__('%s is not a valid setting id'), $id));
@@ -324,14 +338,14 @@ class Nspace
     /**
      * Rename an existing setting in a Namespace
      *
-     * @param      string     $oldId  The old setting identifier
-     * @param      string     $newId  The new setting identifier
+     * @param   string  $oldId  The old setting identifier
+     * @param   string  $newId  The new setting identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     bool
+     * @return  bool
      */
-    public function rename($oldId, $newId)
+    public function rename(string $oldId, string $newId): bool
     {
         if (!$this->ns) {
             throw new CoreException(__('No namespace specified'));
@@ -362,11 +376,11 @@ class Nspace
     /**
      * Removes an existing setting in a Namespace.
      *
-     * @param      string     $id     The setting identifier
+     * @param   string  $id     The setting identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function drop($id)
+    public function drop(string $id): void
     {
         if (!$this->ns) {
             throw new CoreException(__('No namespace specified'));
@@ -389,12 +403,12 @@ class Nspace
     /**
      * Removes every existing specific setting in a namespace
      *
-     * @param      string     $id      Setting ID
-     * @param      boolean    $global  Remove global setting too
+     * @param  string   $id         Setting ID
+     * @param  bool     $global     Remove global setting too
      *
-     * @throws     CoreException
+     * @throws CoreException
      */
-    public function dropEvery($id, $global = false)
+    public function dropEvery(string $id, bool $global = false): void
     {
         if (!$this->ns) {
             throw new CoreException(__('No namespace specified'));
@@ -412,11 +426,11 @@ class Nspace
     /**
      * Removes all existing settings in a Namespace.
      *
-     * @param      bool       $force_global  Force global pref drop
+     * @param   bool    $force_global   Force global pref drop
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function dropAll($force_global = false)
+    public function dropAll(bool $force_global = false): void
     {
         if (!$this->ns) {
             throw new CoreException(__('No namespace specified'));
@@ -447,9 +461,9 @@ class Nspace
     /**
      * Dumps a namespace.
      *
-     * @return     string
+     * @return  string
      */
-    public function dumpNamespace()
+    public function dumpNamespace(): string
     {
         return $this->ns;
     }
@@ -457,9 +471,9 @@ class Nspace
     /**
      * Dumps settings.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpSettings()
+    public function dumpSettings(): array
     {
         return $this->settings;
     }
@@ -467,9 +481,9 @@ class Nspace
     /**
      * Dumps local settings.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpLocalSettings()
+    public function dumpLocalSettings(): array
     {
         return $this->local_settings;
     }
@@ -477,9 +491,9 @@ class Nspace
     /**
      * Dumps global settings.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpGlobalSettings()
+    public function dumpGlobalSettings(): array
     {
         return $this->global_settings;
     }
