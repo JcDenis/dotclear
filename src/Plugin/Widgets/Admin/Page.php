@@ -47,15 +47,16 @@ class Page extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
+        $widgets = new Widgets($this->core);
         # Loading navigation, extra widgets and custom widgets
         if ($this->core->blog->settings->widgets->widgets_nav) {
-            $this->widgets_nav = Widgets::load($this->core->blog->settings->widgets->widgets_nav);
+            $this->widgets_nav = $widgets->load($this->core->blog->settings->widgets->widgets_nav);
         }
         if ($this->core->blog->settings->widgets->widgets_extra) {
-            $this->widgets_extra = Widgets::load($this->core->blog->settings->widgets->widgets_extra);
+            $this->widgets_extra = $widgets->load($this->core->blog->settings->widgets->widgets_extra);
         }
         if ($this->core->blog->settings->widgets->widgets_custom) {
-            $this->widgets_custom = Widgets::load($this->core->blog->settings->widgets->widgets_custom);
+            $this->widgets_custom = $widgets->load($this->core->blog->settings->widgets->widgets_custom);
         }
 
         # Adding widgets to sidebars
@@ -78,13 +79,13 @@ class Page extends AbstractPage
             # Append widgets
             if (!empty($addw)) {
                 if (!($this->widgets_nav instanceof Widgets)) {
-                    $this->widgets_nav = new Widgets;
+                    $this->widgets_nav = new Widgets($this->core);
                 }
                 if (!($this->widgets_extra instanceof Widgets)) {
-                    $this->widgets_extra = new Widgets();
+                    $this->widgets_extra = new Widgets($this->core);
                 }
                 if (!($this->widgets_custom instanceof Widgets)) {
-                    $this->widgets_custom = new Widgets();
+                    $this->widgets_custom = new Widgets($this->core);
                 }
 
                 foreach ($addw as $k => $v) {
@@ -187,9 +188,9 @@ class Page extends AbstractPage
                     $_POST['w']['custom'] = [];
                 }
 
-                $this->widgets_nav    = Widgets::loadArray($_POST['w']['nav'], WidgetsStack::$__widgets);
-                $this->widgets_extra  = Widgets::loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
-                $this->widgets_custom = Widgets::loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
+                $this->widgets_nav    = $widgets->loadArray($_POST['w']['nav'], WidgetsStack::$__widgets);
+                $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
+                $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
 
                 $this->core->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
                 $this->core->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
