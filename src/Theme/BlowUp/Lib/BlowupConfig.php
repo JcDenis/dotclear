@@ -158,8 +158,6 @@ class BlowupConfig
 
     public function createCss($s)
     {
-        $this->core = $this->getCore();
-
         if ($s === null) {
             return;
         }
