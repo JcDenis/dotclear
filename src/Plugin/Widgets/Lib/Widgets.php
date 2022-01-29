@@ -17,6 +17,7 @@ use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 use Dotclear\Plugin\Widgets\Lib\WidgetsExt;
 use Dotclear\Plugin\Widgets\Lib\Widget;
 
+use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -26,8 +27,14 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class Widgets
 {
     private $__widgets = [];
+    protected $core;
 
-    public static function load($s)
+    public function __construct(Core $core)
+    {
+        $this->core = $core;
+    }
+
+    public function load($s)
     {
         $o = @unserialize(base64_decode($s));
 
@@ -35,7 +42,7 @@ class Widgets
             return $o;
         }
 
-        return self::loadArray($o, WidgetsStack::$__widgets);
+        return $this->loadArray($o, WidgetsStack::$__widgets);
     }
 
     public function store()
@@ -50,7 +57,7 @@ class Widgets
 
     public function create($id, $name, $callback, $append_callback = null, $desc = '')
     {
-        $this->__widgets[$id]                  = new WidgetExt($id, $name, $callback, $desc);
+        $this->__widgets[$id]                  = new WidgetExt($this->core, $id, $name, $callback, $desc);
         $this->__widgets[$id]->append_callback = $append_callback;
 
         return $this->__widgets[$id];
@@ -98,7 +105,7 @@ class Widgets
         }
     }
 
-    public static function loadArray($A, $widgets)
+    public function loadArray($A, $widgets)
     {
         if (!($widgets instanceof self)) {
             return false;
@@ -106,7 +113,7 @@ class Widgets
 
         uasort($A, ['self', 'arraySort']);
 
-        $result = new self();
+        $result = new Widgets($this->core);
         foreach ($A as $v) {
             if ($widgets->{$v['id']} != null) {
                 $w = clone $widgets->{$v['id']};

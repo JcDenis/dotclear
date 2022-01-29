@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Lib;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\StaticCore;
+
 use Dotclear\Plugin\Widgets\Lib\Widgets;
 use Dotclear\Plugin\Widgets\Lib\Widget;
 
@@ -445,9 +445,7 @@ class WidgetsStack
     //@{
     public function initWidgets()
     {
-        Widget::setCore($this->core);
-
-        $__widgets = new Widgets();
+        $__widgets = new Widgets($this->core);
 
         $__widgets
             ->create('search', __('Search engine'), [$this, 'search'], null, 'Search engine form')
@@ -554,7 +552,7 @@ class WidgetsStack
         # --BEHAVIOR-- initWidgets
         $this->core->behaviors->call('initWidgets', $__widgets);
 
-        $__default_widgets = ['nav' => new Widgets(), 'extra' => new Widgets(), 'custom' => new Widgets()];
+        $__default_widgets = ['nav' => new Widgets($this->core), 'extra' => new Widgets($this->core), 'custom' => new Widgets($this->core)];
 
         $__default_widgets['nav']->append($__widgets->search);
         $__default_widgets['nav']->append($__widgets->bestof);
@@ -600,10 +598,11 @@ class WidgetsStack
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
-            $widgets = self::defaultWidgets($type);
+            $widgets = $this->defaultWidgets($type);
         } else {
             // Otherwise, load widgets
-            $widgets = Widgets::load($widgets);
+            $w = new Widgets($this->core);
+            $widgets = $w->load($widgets);
         }
 
         if ($widgets->isEmpty()) {
@@ -651,10 +650,11 @@ class WidgetsStack
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
-            $widgets = self::defaultWidgets($type);
+            $widgets = $this->defaultWidgets($type);
         } else {
             // Otherwise, load widgets
-            $widgets = Widgets::load($widgets);
+            $w = new Widgets($this->core);
+            $widgets = $w->load($widgets);
         }
 
         return (!$widgets->isEmpty());
@@ -662,7 +662,7 @@ class WidgetsStack
 
     private function defaultWidgets($type)
     {
-        $w = new Widgets();
+        $w = new Widgets($this->core);
 
         if (isset(self::$__default_widgets[$type])) {
             $w = self::$__default_widgets[$type];
