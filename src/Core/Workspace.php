@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Workspace
  * @brief Dotclear core workspace class
  *
  * @package Dotclear
@@ -15,36 +16,55 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+
+use Dotclear\Database\Connection;
+use Dotclear\Database\Record;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 class Workspace
 {
-    protected $con;     ///< <b>connection</b> Database connection object
-    protected $table;   ///< <b>string</b> Preferences table name
-    protected $user_id; ///< <b>string</b> User ID
+    /** @var    Connection  Database connection object */
+    protected $con;
 
-    protected $global_prefs = []; ///< <b>array</b> Global prefs array
-    protected $local_prefs  = []; ///< <b>array</b> Local prefs array
-    protected $prefs        = []; ///< <b>array</b> Associative prefs array
-    protected $ws;                ///< <b>string</b> Current workspace
+    /** @var    string      Preferences table name */
+    protected $table;
+
+    /** @var    string      User ID */
+    protected $user_id;
+
+    /** @var    array       Global prefs array */
+    protected $global_prefs = [];
+
+    /** @var    array       Local prefs array */
+    protected $local_prefs = [];
+
+    /** @var    array       Associative prefs array */
+    protected $prefs = [];
+
+    /** @var    string      Current workspace */
+    protected $ws;
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
     protected const WS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
 
     /**
-     * Object constructor. Retrieves user prefs and puts them in $prefs
+     * Constructor.
+     *
+     * Retrieves user prefs and puts them in $prefs
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param      Core     $core     The core
-     * @param      string     $user_id  The user identifier
-     * @param      string     $name     The name
-     * @param      mixed      $rs       The recordset
+     * @param   Core            $core       The core
+     * @param   string          $user_id    The user identifier
+     * @param   string          $name       The name
+     * @param   Record|null     $rs         The recordset
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function __construct(Core &$core, $user_id, $name, $rs = null)
+    public function __construct(Core $core, string $user_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;
@@ -52,9 +72,9 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->con     = &$core->con;
+        $this->con     = $core->con;
         $this->table   = $core->prefix . 'pref';
-        $this->user_id = &$user_id;
+        $this->user_id = $user_id;
 
         try {
             $this->getPrefs($rs);
@@ -65,7 +85,7 @@ class Workspace
         }
     }
 
-    private function getPrefs($rs = null)
+    private function getPrefs(?Record $rs = null): bool
     {
         if ($rs == null) {
             $strReq = 'SELECT user_id, pref_id, pref_value, ' .
@@ -125,12 +145,12 @@ class Workspace
     /**
      * Returns true if a pref exist, else false
      *
-     * @param      string   $id      The identifier
-     * @param      boolean  $global  The global
+     * @param   string  $id         The identifier
+     * @param   bool    $global     The global
      *
-     * @return     boolean
+     * @return  bool
      */
-    public function prefExists($id, $global = false)
+    public function prefExists(string $id, bool $global = false): bool
     {
         $array = $global ? 'global' : 'local';
 
@@ -140,69 +160,66 @@ class Workspace
     /**
      * Returns pref value if exists.
      *
-     * @param      string  $n      Pref name
+     * @param   string  $n  Pref name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function get($n)
+    public function get(string $n): mixed
     {
-        if (isset($this->prefs[$n]) && isset($this->prefs[$n]['value'])) {
-            return $this->prefs[$n]['value'];
-        }
+        return isset($this->prefs[$n]) && isset($this->prefs[$n]['value']) ?
+            $this->prefs[$n]['value'] : null;
     }
 
     /**
      * Returns global pref value if exists.
      *
-     * @param      string  $n      Pref name
+     * @param   string  $n  Pref name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function getGlobal($n)
+    public function getGlobal(string $n): mixed
     {
-        if (isset($this->global_prefs[$n]) && isset($this->global_prefs[$n]['value'])) {
-            return $this->global_prefs[$n]['value'];
-        }
+        return isset($this->global_prefs[$n]) && isset($this->global_prefs[$n]['value']) ?
+            $this->global_prefs[$n]['value'] : null;
     }
 
     /**
      * Returns local pref value if exists.
      *
-     * @param      string  $n      Pref name
+     * @param   string  $n  Pref name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function getLocal($n)
+    public function getLocal(string $n): mixed
     {
-        if (isset($this->local_prefs[$n]) && isset($this->local_prefs[$n]['value'])) {
-            return $this->local_prefs[$n]['value'];
-        }
+        return isset($this->local_prefs[$n]) && isset($this->local_prefs[$n]['value']) ?
+            $this->local_prefs[$n]['value'] : null;
     }
-    /**
 
-     */
     /**
      * Magic __get method.
      *
-     * @copydoc ::get
+     * @see self::get()
      *
-     * @param      string  $n      Pref name
+     * @param   string  $n  Pref name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function __get($n)
+    public function __get(string $n): mixed
     {
         return $this->get($n);
     }
 
     /**
-     * Sets a pref in $prefs property. This sets the pref for script
+     * Sets a pref in $prefs property.
+     *
+     * This sets the pref for script
      * execution time only and if pref exists.
      *
-     * @param      string  $n      The pref name
-     * @param      mixed   $v      The pref value
+     * @param   string  $n  The pref name
+     * @param   mixed   $v  The pref value
      */
-    public function set($n, $v)
+    public function set(string $n, mixed $v): void
     {
         if (isset($this->prefs[$n])) {
             $this->prefs[$n]['value'] = $v;
@@ -212,12 +229,12 @@ class Workspace
     /**
      * Magic __set method.
      *
-     * @copydoc ::set
+     * @see self::set()
      *
-     * @param      string  $n      The pref name
-     * @param      mixed   $v      The pref value
+     * @param   string  $n  The pref name
+     * @param   mixed   $v  The pref value
      */
-    public function __set($n, $v)
+    public function __set(string $n, mixed $v): void
     {
         $this->set($n, $v);
     }
@@ -231,16 +248,16 @@ class Workspace
      * $value_change allow you to not change pref. Useful if you need to change
      * a pref label or type and don't want to change its value.
      *
-     * @param      string     $id            The pref identifier
-     * @param      mixed      $value         The pref value
-     * @param      string     $type          The pref type
-     * @param      string     $label         The pref label
-     * @param      bool       $value_change  Change pref value or not
-     * @param      bool       $global        Pref is global
+     * @param   string  $id             The pref identifier
+     * @param   mixed   $value          The pref value
+     * @param   string  $type           The pref type
+     * @param   string  $label          The pref label
+     * @param   bool    $value_change   Change pref value or not
+     * @param   bool    $global         Pref is global
      *
      * @throws     CoreException
      */
-    public function put($id, $value, $type = null, $label = null, $value_change = true, $global = false)
+    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, bool $value_change = true, bool $global = false): void
     {
         if (!preg_match(self::WS_ID_SCHEMA, $id)) {
             throw new CoreException(sprintf(__('%s is not a valid pref id'), $id));
@@ -327,14 +344,14 @@ class Workspace
     /**
      * Rename an existing pref in a Workspace
      *
-     * @param      string     $oldId  The old identifier
-     * @param      string     $newId  The new identifier
+     * @param   string  $oldId  The old identifier
+     * @param   string  $newId  The new identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     bool       false is error, true if renamed
+     * @return  bool            false is error, true if renamed
      */
-    public function rename($oldId, $newId)
+    public function rename(string $oldId, string $newId): bool
     {
         if (!$this->ws) {
             throw new CoreException(__('No workspace specified'));
@@ -365,12 +382,12 @@ class Workspace
     /**
      * Removes an existing pref. Workspace
      *
-     * @param      string     $id            The pref identifier
-     * @param      bool       $force_global  Force global pref drop
+     * @param   string  $id             The pref identifier
+     * @param   bool    $force_global   Force global pref drop
      *
-     * @throws     CoreException  (description)
+     * @throws  CoreException
      */
-    public function drop($id, $force_global = false)
+    public function drop(string $id, bool $force_global = false): void
     {
         if (!$this->ws) {
             throw new CoreException(__('No workspace specified'));
@@ -405,10 +422,10 @@ class Workspace
     /**
      * Removes every existing specific pref. in a workspace
      *
-     * @param      string     $id      Pref ID
-     * @param      boolean    $global  Remove global pref too
+     * @param   string  $id         Pref ID
+     * @param   bool    $global     Remove global pref too
      */
-    public function dropEvery($id, $global = false)
+    public function dropEvery(string $id, bool $global = false): void
     {
         if (!$this->ws) {
             throw new CoreException(__('No workspace specified'));
@@ -426,11 +443,11 @@ class Workspace
     /**
      * Removes all existing pref. in a Workspace
      *
-     * @param      bool       $force_global  Remove global prefs too
+     * @param   bool    $force_global   Remove global prefs too
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function dropAll($force_global = false)
+    public function dropAll(bool $force_global = false): void
     {
         if (!$this->ws) {
             throw new CoreException(__('No workspace specified'));
@@ -461,9 +478,9 @@ class Workspace
     /**
      * Dumps a workspace.
      *
-     * @return     string
+     * @return  string
      */
-    public function dumpWorkspace()
+    public function dumpWorkspace(): string
     {
         return $this->ws;
     }
@@ -471,9 +488,9 @@ class Workspace
     /**
      * Dumps preferences.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpPrefs()
+    public function dumpPrefs(): array
     {
         return $this->prefs;
     }
@@ -481,9 +498,9 @@ class Workspace
     /**
      * Dumps local preferences.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpLocalPrefs()
+    public function dumpLocalPrefs(): array
     {
         return $this->local_prefs;
     }
@@ -491,9 +508,9 @@ class Workspace
     /**
      * Dumps global preferences.
      *
-     * @return     array
+     * @return  array
      */
-    public function dumpGlobalPrefs()
+    public function dumpGlobalPrefs(): array
     {
         return $this->global_prefs;
     }
