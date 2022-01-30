@@ -433,12 +433,13 @@ h6 {
   --subcat-line-border: #dbdbdb;
   --cat-post-counter: #323232;
   --media-folder-background: transparent;
-  --media-folder-border: #ececec;
+  --media-folder-border: #c9c9c9;
   --media-folderup-border: transparent;
   --media-folder-link: #676e78;
-  --media-item-border: #dbdbdb;
+  --media-item-border: #3a539b;
   --media-item-border-private: #c44d58;
   --media-files-border: #dbdbdb;
+  --media-item-active-background: #f3f3f3;
   --upload-color: #556f0f;
   --upload-filemsg-color: #fff;
   --upload-progress-color: #fff;
@@ -703,6 +704,7 @@ h6 {
   --media-item-border: #dadbde;
   --media-item-border-private: #c44d58;
   --media-files-border: #dadbde;
+  --media-item-active-background: #3a3d41;
   --upload-color: #556f0f;
   --upload-filemsg-color: #fff;
   --upload-progress-color: #fff;
@@ -968,6 +970,7 @@ h6 {
     --media-item-border: #dadbde;
     --media-item-border-private: #c44d58;
     --media-files-border: #dadbde;
+    --media-item-active-background: #3a3d41;
     --upload-color: #556f0f;
     --upload-filemsg-color: #fff;
     --upload-progress-color: #fff;
@@ -3416,10 +3419,11 @@ span.media-file-mode {
   margin: 9px;
   padding: 10px 12px 6px;
   width: 320px;
-  display: inline-block;
-  vertical-align: top;
+  min-width: 320px;
   min-height: 140px;
   word-wrap: break-word; }
+  .media-item:hover, .media-item:active {
+    background: var(--media-item-active-background); }
   .media-item p {
     margin: 0 0 0.5em; }
   .media-item object {
@@ -3479,16 +3483,26 @@ li.media-action {
   li.media-action input {
     border: none; }
 
+td.media-action {
+  padding: 0.4em 0 0.4em 0.5em; }
+
 #entry-sidebar .media-item {
   width: 100%;
   min-height: 0;
   padding: 4px;
   margin: 0.33em 0; }
 
-.folders-group .media-item {
-  min-height: 70px; }
-  .folders-group .media-item p {
-    margin-bottom: 0; }
+.folders-group {
+  display: flex;
+  flex-wrap: wrap; }
+  .folders-group .media-item {
+    min-height: 70px; }
+    .folders-group .media-item p {
+      margin-bottom: 0; }
+
+div.media-items-bloc {
+  display: flex;
+  flex-wrap: wrap; }
 
 .media-folder {
   background: var(--media-folder-background);
@@ -3496,7 +3510,6 @@ li.media-action {
   border-left-width: 8px; }
   .media-folder .media-link {
     font-size: 1.125em;
-    margin-left: 2em;
     color: var(--media-folder-link);
     border-bottom: none; }
 
