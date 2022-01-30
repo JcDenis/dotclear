@@ -24,9 +24,9 @@ trait TraitModulesTheme
     public function getModulesPath(): array
     {
         $paths = explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
-        if($this->core->blog !== null) {
-            $this->core->blog->settings->addNamespace('system');
-            if ('' != ($blog_path = $this->core->blog->settings->system->themes_path)) {
+        if(dcCore()->blog !== null) {
+            dcCore()->blog->settings->addNamespace('system');
+            if ('' != ($blog_path = dcCore()->blog->settings->system->themes_path)) {
                 array_unshift($paths, Path::fullFromRoot($blog_path, DOTCLEAR_OTHER_DIR));
             }
         }
@@ -36,7 +36,7 @@ trait TraitModulesTheme
 
     public function getStoreURL(): string
     {
-        return (string) $this->core->blog->settings->system->store_theme_url;
+        return (string) dcCore()->blog->settings->system->store_theme_url;
     }
 
     public function useStoreCache(): bool

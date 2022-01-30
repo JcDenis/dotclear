@@ -15,20 +15,10 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 
-use Dotclear\Core\Core;
-
 class Behaviors
 {
-    /** @var Core  core instance */
-    private $core;
-
     /** @var array Registered behavoirs */
     private $behaviors = [];
-
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
 
     /**
      * Adds a new behavior to behaviors stack. <var>$callback</var> must be a valid
@@ -100,9 +90,6 @@ class Behaviors
     {
         if (isset($this->behaviors[$behavior])) {
             $res = '';
-            # add core instance to every call
-            array_unshift($args, $this->core);
-
             foreach ($this->behaviors[$behavior] as $callback) {
                 $this->trace($callback, $args);
                 $ret = call_user_func_array($callback, $args);

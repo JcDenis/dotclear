@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -22,13 +20,13 @@ if (!defined('DOTCLEAR_PROCESS')) {
 trait TraitPrependPublic
 {
     # Module check is not used on Public process
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
     # Module check is not used on Public process
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
         return null;
     }

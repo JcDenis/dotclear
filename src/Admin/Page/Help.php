@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
 
 use Dotclear\Html\Html;
@@ -44,7 +42,7 @@ class Help extends Page
 
         if ($this->help_title != '') {
             $this->setPageBreadcrumb([
-                __('Global help')       => $this->core->adminurl->get('admin.help'),
+                __('Global help')       => dcCore()->adminurl->get('admin.help'),
                 $this->help_title => ''
             ]);
         } else {
@@ -64,12 +62,12 @@ class Help extends Page
         echo $this->help_content;
 
         # Prevents global help link display
-        $this->core->__resources['ctxhelp'] = true;
+        dcCore()->__resources['ctxhelp'] = true;
     }
 
     private function getHelpContent(...$args): void
     {
-        if (empty($args) || empty($this->core->resources['help'])) {
+        if (empty($args) || empty(dcCore()->resources['help'])) {
             return;
         }
 
@@ -80,10 +78,10 @@ class Help extends Page
                 continue;
             }
 
-            if (!isset($this->core->resources['help'][$v])) {
+            if (!isset(dcCore()->resources['help'][$v])) {
                 continue;
             }
-            $f = $this->core->resources['help'][$v];
+            $f = dcCore()->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }

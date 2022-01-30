@@ -25,7 +25,7 @@ class Prepend extends BasePrepend
 {
     protected $process = 'Distrib';
 
-    public function __construct()
+    public function process()
     {
         if (PHP_SAPI != 'cli') {
             throw new DistribException('Not in CLI mode');
@@ -46,13 +46,13 @@ class Prepend extends BasePrepend
         $_SERVER['DC_RC_PATH'] = $dc_conf;
         unset($dc_conf);
 
-        parent::__construct();
+        parent::process();
 
         echo "Starting upgrade process\n";
         $this->con->begin();
 
         try {
-            $changes = Upgrade::dotclearUpgrade($this);
+            $changes = Upgrade::dotclearUpgrade();
         } catch (Exception $e) {
             $this->con->rollback();
 
@@ -63,4 +63,3 @@ class Prepend extends BasePrepend
         exit(0);
     }
 }
-?>

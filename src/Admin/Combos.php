@@ -18,8 +18,6 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Utils\L10n;
@@ -33,14 +31,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Combos
 {
-    /** @var    Core    Core instance */
-    protected $core;
-
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
-
     /**
      * Returns an hierarchical categories combo from a category record
      *
@@ -76,7 +66,7 @@ class Combos
     public function getPostStatusesCombo()
     {
         $status_combo = [];
-        foreach ($this->core->blog->getAllPostStatus() as $k => $v) {
+        foreach (dcCore()->blog->getAllPostStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -183,7 +173,7 @@ class Combos
     public function getEditorsCombo()
     {
         $editors_combo = [];
-        foreach ($this->core->getEditors() as $v) {
+        foreach (dcCore()->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -201,11 +191,11 @@ class Combos
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
-            foreach ($this->core->getFormaters($editor_id) as $formater) {
+            foreach (dcCore()->getFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach ($this->core->getFormaters() as $editor => $formaters) {
+            foreach (dcCore()->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }
@@ -225,7 +215,7 @@ class Combos
         $iconsets_combo = new ArrayObject([__('Default') => '']);
 
         # --BEHAVIOR-- adminPostsSortbyCombo
-        $this->core->behaviors->call('adminIconsetCombo', $iconsets_combo);
+        dcCore()->behaviors->call('adminIconsetCombo', $iconsets_combo);
 
         return $iconsets_combo->getArrayCopy();
     }
@@ -238,7 +228,7 @@ class Combos
     public function getBlogStatusesCombo()
     {
         $status_combo = [];
-        foreach ($this->core->getAllBlogStatus() as $k => $v) {
+        foreach (dcCore()->getAllBlogStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -253,7 +243,7 @@ class Combos
     public function getCommentStatusesCombo()
     {
         $status_combo = [];
-        foreach ($this->core->blog->getAllCommentStatus() as $k => $v) {
+        foreach (dcCore()->blog->getAllCommentStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -281,7 +271,7 @@ class Combos
             __('Number of trackbacks') => 'nb_trackback'
         ]);
         # --BEHAVIOR-- adminPostsSortbyCombo
-        $this->core->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
+        dcCore()->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -298,7 +288,7 @@ class Combos
             __('Spam filter') => 'comment_spam_filter'
         ]);
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        $this->core->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
+        dcCore()->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -312,7 +302,7 @@ class Combos
             __('Status')      => 'blog_status'
         ]);
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        $this->core->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
+        dcCore()->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -320,7 +310,7 @@ class Combos
     public function getUsersSortbyCombo()
     {
         $sortby_combo = new ArrayObject([]);
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             $sortby_combo = new ArrayObject([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
@@ -329,7 +319,7 @@ class Combos
                 __('Number of entries') => 'nb_post'
             ]);
             # --BEHAVIOR-- adminUsersSortbyCombo
-            $this->core->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
+            dcCore()->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
         }
         return $sortby_combo->getArrayCopy();
     }

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Lib;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 
@@ -30,7 +28,6 @@ class Widget
     private $public_callback = null;
     public $append_callback  = null;
     private $settings        = [];
-    protected $core;
 
     public function serialize($order)
     {
@@ -45,9 +42,8 @@ class Widget
         return $values;
     }
 
-    public function __construct(Core $core, $id, $name, $callback, $desc = '')
+    public function __construct($id, $name, $callback, $desc = '')
     {
-        $this->core            = $core;
         $this->public_callback = $callback;
         $this->id              = $id;
         $this->name            = $name;
@@ -103,7 +99,7 @@ class Widget
             return '';
         }
 
-        $theme = $this->core->themes->getModule((string) $this->core->blog->settings->system->theme);
+        $theme = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
         if (!$theme) {
             return;
         }
@@ -130,7 +126,7 @@ class Widget
             return '';
         }
 
-        $theme = $this->core->themes->getModule((string) $this->core->blog->settings->system->theme);
+        $theme = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
         if (!$theme) {
             return;
         }
@@ -248,7 +244,7 @@ class Widget
                 form::field([$iname, $wfid], 20, 255, [
                     'default'    => html::escapeHTML((string) $s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                    'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
                 '</p>';
 
@@ -258,7 +254,7 @@ class Widget
                 form::textarea([$iname, $wfid], 30, 8, [
                     'default'    => html::escapeHTML($s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                    'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
                 '</p>';
 

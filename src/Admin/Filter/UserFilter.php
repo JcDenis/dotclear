@@ -17,8 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 
@@ -28,9 +26,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class UserFilter extends Filter
 {
-    public function __construct(Core $core)
+    public function __construct()
     {
-        parent::__construct($core, 'users');
+        parent::__construct('users');
 
         $filters = new arrayObject([
             Filters::getPageFilter(),
@@ -38,7 +36,7 @@ class UserFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminUserFilter
-        $core->behaviors->call('adminUserFilter', $core, $filters);
+        dcCore()->behaviors->call('adminUserFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

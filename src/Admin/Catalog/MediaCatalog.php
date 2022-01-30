@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 
 use Dotclear\Admin\Pager;
@@ -69,7 +68,7 @@ class MediaCatalog extends Catalog
 
             $group = ['dirs' => [], 'files' => []];
             for ($i = $pager->index_start, $j = 0; $i <= $pager->index_end; $i++, $j++) {
-                $group[$items[$i]->d ? 'dirs' : 'files'][] = $this->mediaLine($this->core, $filters, $items[$i], $j, $query, $page_adminurl);
+                $group[$items[$i]->d ? 'dirs' : 'files'][] = $this->mediaLine($filters, $items[$i], $j, $query, $page_adminurl);
             }
 
             if ($filters->file_mode == 'list') {
@@ -102,7 +101,7 @@ class MediaCatalog extends Catalog
         }
     }
 
-    public static function mediaLine($core, $filters, $f, $i, $query = false, $page_adminurl = 'admin.media')
+    public static function mediaLine($filters, $f, $i, $query = false, $page_adminurl = 'admin.media')
     {
         $fname = $f->basename;
         $file  = $query ? $f->relname : $f->basename;
@@ -112,7 +111,7 @@ class MediaCatalog extends Catalog
 
         if ($f->d) {
             // Folder
-            $link = $core->adminurl->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
+            $link = dcCore()->adminurl->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
             if ($f->parent) {
                 $fname = '..';
                 $class .= ' media-folder-up';
@@ -123,9 +122,9 @@ class MediaCatalog extends Catalog
             // Item
             $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
 
-            $core->behaviors->call('adminMediaURLParams', $params);
+            dcCore()->behaviors->call('adminMediaURLParams', $params);
 
-            $link = $core->adminurl->get('admin.media.item', (array) $params);
+            $link = dcCore()->adminurl->get('admin.media.item', (array) $params);
             if ($f->media_priv) {
                 $class .= ' media-private';
             }
@@ -152,7 +151,7 @@ class MediaCatalog extends Catalog
                 if ($filters->post_id) {
                     // Media attachment button
                     $act .= '<a class="attach-media" title="' . __('Attach this file to entry') . '" href="' .
-                    $core->adminurl->get(
+                    dcCore()->adminurl->get(
                         'admin.post.media',
                         ['media_id' => $f->media_id, 'post_id' => $filters->post_id, 'attach' => 1, 'link_type' => $filters->link_type]
                     ) .
@@ -176,7 +175,7 @@ class MediaCatalog extends Catalog
                 }
             } else {
                 $act .= '<a class="media-remove" ' .
-                'href="' . $core->adminurl->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
+                'href="' . dcCore()->adminurl->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
                 '<img src="?df=images/trash.png" alt="' . __('Delete') . '" title="' . __('delete') . '" /></a>';
             }
         }

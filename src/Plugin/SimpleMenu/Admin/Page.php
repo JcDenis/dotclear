@@ -58,23 +58,23 @@ class Page extends AbstractPage
     {
         # Liste des catégories
         $categories_label = [];
-        $rs               = $this->core->blog->getCategories(['post_type' => 'post']);
-        $this->sm_categories_combo = $this->core->combos->getCategoriesCombo($rs, false, true);
+        $rs               = dcCore()->blog->getCategories(['post_type' => 'post']);
+        $this->sm_categories_combo = dcCore()->combos->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
             $categories_label[$rs->cat_url] = html::escapeHTML($rs->cat_title);
         }
 
         # Liste des langues utilisées
-        $this->sm_langs_combo = $this->core->combos->getLangscombo(
-            $this->core->blog->getLangs(['order' => 'asc'])
+        $this->sm_langs_combo = dcCore()->combos->getLangscombo(
+            dcCore()->blog->getLangs(['order' => 'asc'])
         );
 
         # Liste des mois d'archive
-        $rs           = $this->core->blog->getDates(['type' => 'month']);
+        $rs           = dcCore()->blog->getDates(['type' => 'month']);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
-            $this->core->combos->getDatesCombo($rs)
+            dcCore()->combos->getDatesCombo($rs)
         );
 
         $first_year = $last_year = 0;
@@ -91,7 +91,7 @@ class Page extends AbstractPage
 
         # Liste des pages -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs = $this->core->blog->getPosts(['post_type' => 'page']);
+            $rs = dcCore()->blog->getPosts(['post_type' => 'page']);
             while ($rs->fetch()) {
                 $this->sm_pages_combo[$rs->post_title] = $rs->getURL();
             }
@@ -101,7 +101,7 @@ class Page extends AbstractPage
 
         # Liste des tags -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs                         = $this->core->meta->getMetadata(['meta_type' => 'tag']);
+            $rs                         = dcCore()->meta->getMetadata(['meta_type' => 'tag']);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
                 $this->sm_tags_combo[$rs->meta_id] = $rs->meta_id;
@@ -114,7 +114,7 @@ class Page extends AbstractPage
         $this->sm_items         = new ArrayObject();
         $this->sm_items['home'] = new ArrayObject([__('Home'), false]);
 
-        if ($this->core->blog->settings->system->static_home) {
+        if (dcCore()->blog->settings->system->static_home) {
             $this->sm_items['posts'] = new ArrayObject([__('Posts'), false]);
         }
 
@@ -127,12 +127,12 @@ class Page extends AbstractPage
         if (count($this->sm_months_combo) > 1) {
             $this->sm_items['archive'] = new ArrayObject([__('Archive'), true]);
         }
-        if ($this->core->plugins->hasModule('pages')) {
+        if (dcCore()->plugins->hasModule('pages')) {
             if (count($this->sm_pages_combo)) {
                 $this->sm_items['pages'] = new ArrayObject([__('Page'), true]);
             }
         }
-        if ($this->core->plugins->hasModule('tags')) {
+        if (dcCore()->plugins->hasModule('tags')) {
             if (count($this->sm_tags_combo) > 1) {
                 $this->sm_items['tags'] = new ArrayObject([__('Tags'), true]);
             }
@@ -140,12 +140,12 @@ class Page extends AbstractPage
 
         # --BEHAVIOR-- adminSimpleMenuAddType
         # Should add an item to $this->sm_items[<id>] as an [<label>,<optional step (true or false)>]
-        $this->core->behaviors->call('adminSimpleMenuAddType', $this->sm_items);
+        dcCore()->behaviors->call('adminSimpleMenuAddType', $this->sm_items);
 
         $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
 
         # Lecture menu existant
-        $menu = $this->core->blog->settings->system->get('simpleMenu');
+        $menu = dcCore()->blog->settings->system->get('simpleMenu');
         if (is_array($menu)) {
             $this->sm_menu = $menu;
         }
@@ -156,14 +156,14 @@ class Page extends AbstractPage
         if (!empty($_POST['saveconfig'])) {
             try {
                 $menu_active = (empty($_POST['active'])) ? false : true;
-                $this->core->blog->settings->system->put('simpleMenu_active', $menu_active, 'boolean');
-                $this->core->blog->triggerBlog();
+                dcCore()->blog->settings->system->put('simpleMenu_active', $menu_active, 'boolean');
+                dcCore()->blog->triggerBlog();
 
                 // All done successfully, return to menu items list
-                $this->core->notices->addSuccessNotice(__('Configuration successfully updated.'));
-                $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
+                dcCore()->notices->addSuccessNotice(__('Configuration successfully updated.'));
+                dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         } else {
             # Récupération paramètres postés
@@ -202,31 +202,31 @@ class Page extends AbstractPage
                         $this->sm_item_select_label = '';
                         $this->sm_item_label        = __('Label');
                         $this->sm_item_descr        = __('Description');
-                        $this->sm_item_url          = html::stripHostURL($this->core->blog->url);
+                        $this->sm_item_url          = html::stripHostURL(dcCore()->blog->url);
                         switch ($this->sm_item_type) {
                             case 'home':
                                 $this->sm_item_label = __('Home');
-                                $this->sm_item_descr = $this->core->blog->settings->system->static_home ? __('Home page') : __('Recent posts');
+                                $this->sm_item_descr = dcCore()->blog->settings->system->static_home ? __('Home page') : __('Recent posts');
 
                                 break;
                             case 'posts':
                                 $this->sm_item_label = __('Posts');
                                 $this->sm_item_descr = __('Recent posts');
-                                $this->sm_item_url .= $this->core->url->getURLFor('posts');
+                                $this->sm_item_url .= dcCore()->url->getURLFor('posts');
 
                                 break;
                             case 'lang':
                                 $this->sm_item_select_label = array_search($this->sm_item_select, $this->sm_langs_combo);
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = sprintf(__('Switch to %s language'), $this->sm_item_select_label);
-                                $this->sm_item_url .= $this->core->url->getURLFor('lang', $this->sm_item_select);
+                                $this->sm_item_url .= dcCore()->url->getURLFor('lang', $this->sm_item_select);
 
                                 break;
                             case 'category':
                                 $this->sm_item_select_label = $categories_label[$this->sm_item_select];
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = __('Recent Posts from this category');
-                                $this->sm_item_url .= $this->core->url->getURLFor('category', $this->sm_item_select);
+                                $this->sm_item_url .= dcCore()->url->getURLFor('category', $this->sm_item_select);
 
                                 break;
                             case 'archive':
@@ -234,11 +234,11 @@ class Page extends AbstractPage
                                 if ($this->sm_item_select == '-') {
                                     $this->sm_item_label = __('Archives');
                                     $this->sm_item_descr = $first_year . ($first_year != $last_year ? ' - ' . $last_year : '');
-                                    $this->sm_item_url .= $this->core->url->getURLFor('archive');
+                                    $this->sm_item_url .= dcCore()->url->getURLFor('archive');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Posts from %s'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= $this->core->url->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
+                                    $this->sm_item_url .= dcCore()->url->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
                                 }
 
                                 break;
@@ -254,11 +254,11 @@ class Page extends AbstractPage
                                 if ($this->sm_item_select == '-') {
                                     $this->sm_item_label = __('All tags');
                                     $this->sm_item_descr = '';
-                                    $this->sm_item_url .= $this->core->url->getURLFor('tags');
+                                    $this->sm_item_url .= dcCore()->url->getURLFor('tags');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Recent posts for %s tag'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= $this->core->url->getURLFor('tag', $this->sm_item_select);
+                                    $this->sm_item_url .= dcCore()->url->getURLFor('tag', $this->sm_item_select);
                                 }
 
                                 break;
@@ -268,7 +268,7 @@ class Page extends AbstractPage
                                 # --BEHAVIOR-- adminSimpleMenuBeforeEdit
                                 # Should modify if necessary $this->sm_item_label, $this->sm_item_descr and $this->sm_item_url
                                 # Should set if necessary $this->sm_item_select_label (displayed on further admin step only)
-                                $this->core->behaviors->call('adminSimpleMenuBeforeEdit', $this->sm_item_type, $this->sm_item_select,
+                                dcCore()->behaviors->call('adminSimpleMenuBeforeEdit', $this->sm_item_type, $this->sm_item_select,
                                     [& $this->sm_item_label, &$this->sm_item_descr, &$this->sm_item_url, &$this->sm_item_select_label]);
 
                                 break;
@@ -288,19 +288,19 @@ class Page extends AbstractPage
                                 ];
 
                                 // Save menu in blog settings
-                                $this->core->blog->settings->system->put('simpleMenu', $this->sm_menu);
-                                $this->core->blog->triggerBlog();
+                                dcCore()->blog->settings->system->put('simpleMenu', $this->sm_menu);
+                                dcCore()->blog->triggerBlog();
 
                                 // All done successfully, return to menu items list
-                                $this->core->notices->addSuccessNotice(__('Menu item has been successfully added.'));
-                                $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
+                                dcCore()->notices->addSuccessNotice(__('Menu item has been successfully added.'));
+                                dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
                             } else {
                                 $this->sm_step              = 3;
                                 $this->sm_item_select_label = $this->sm_item_label;
-                                $this->core->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
+                                dcCore()->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (Exception $e) {
-                            $this->core->error->add($e->getMessage());
+                            dcCore()->error->add($e->getMessage());
                         }
 
                         break;
@@ -327,17 +327,17 @@ class Page extends AbstractPage
                             }
                             $this->sm_menu = $newmenu;
                             // Save menu in blog settings
-                            $this->core->blog->settings->system->put('simpleMenu', $this->sm_menu);
-                            $this->core->blog->triggerBlog();
+                            dcCore()->blog->settings->system->put('simpleMenu', $this->sm_menu);
+                            dcCore()->blog->triggerBlog();
 
                             // All done successfully, return to menu items list
-                            $this->core->notices->addSuccessNotice(__('Menu items have been successfully removed.'));
-                            $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
+                            dcCore()->notices->addSuccessNotice(__('Menu items have been successfully removed.'));
+                            dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
                         } else {
                             throw new ModuleException(__('No menu items selected.'));
                         }
                     } catch (Exception $e) {
-                        $this->core->error->add($e->getMessage());
+                        dcCore()->error->add($e->getMessage());
                     }
                 }
 
@@ -365,8 +365,8 @@ class Page extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        $this->core->auth->user_prefs->addWorkspace('accessibility');
-                        if ($this->core->auth->user_prefs->accessibility->nodragdrop) {
+                        dcCore()->auth->user_prefs->addWorkspace('accessibility');
+                        if (dcCore()->auth->user_prefs->accessibility->nodragdrop) {
                             # Order menu items
                             $order = [];
                             if (empty($_POST['im_order']) && !empty($_POST['order'])) {
@@ -393,14 +393,14 @@ class Page extends AbstractPage
                         }
 
                         // Save menu in blog settings
-                        $this->core->blog->settings->system->put('simpleMenu', $this->sm_menu);
-                        $this->core->blog->triggerBlog();
+                        dcCore()->blog->settings->system->put('simpleMenu', $this->sm_menu);
+                        dcCore()->blog->triggerBlog();
 
                         // All done successfully, return to menu items list
-                        $this->core->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
-                        $this->core->adminurl->redirect('admin.plugin.SimpleMenu');
+                        dcCore()->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
+                        dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
                     } catch (Exception $e) {
-                        $this->core->error->add($e->getMessage());
+                        dcCore()->error->add($e->getMessage());
                     }
                 }
             }
@@ -412,7 +412,7 @@ class Page extends AbstractPage
             ->setPageHelp('simpleMenu')
             ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
-        if (!$this->core->auth->user_prefs->accessibility->nodragdrop) {
+        if (!dcCore()->auth->user_prefs->accessibility->nodragdrop) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
@@ -444,8 +444,8 @@ class Page extends AbstractPage
 
             $this->setPageBreadcrumb(
                 [
-                    html::escapeHTML($this->core->blog->name) => '',
-                    __('Simple menu')                         => $this->core->adminurl->get('admin.plugin.SimpleMenu'),
+                    html::escapeHTML(dcCore()->blog->name) => '',
+                    __('Simple menu')                         => dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
                     __('Add item')                            => '',
                     $step_label                               => ''
                 ],
@@ -453,7 +453,7 @@ class Page extends AbstractPage
             );
         } else {
             $this->setPageBreadcrumb([
-                html::escapeHTML($this->core->blog->name) => '',
+                html::escapeHTML(dcCore()->blog->name) => '',
                 __('Simple menu')                         => ''
             ]);
         }
@@ -472,10 +472,10 @@ class Page extends AbstractPage
                         $items_combo[$v[0]] = $k;
                     }
                     // Selection du type d'item
-                    echo '<form id="additem" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
+                    echo '<form id="additem" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
                     echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
-                    echo '<p>' . $this->core->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
+                    echo '<p>' . dcCore()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -483,7 +483,7 @@ class Page extends AbstractPage
                 case 2:
                     if ($this->sm_items[$this->sm_item_type][1]) {
                         // Choix à faire
-                        echo '<form id="additem" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=3" method="post">';
+                        echo '<form id="additem" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=3" method="post">';
                         echo '<fieldset><legend>' . $this->sm_item_type_label . '</legend>';
                         switch ($this->sm_item_type) {
                             case 'lang':
@@ -515,10 +515,10 @@ class Page extends AbstractPage
                                 echo
                                 # --BEHAVIOR-- adminSimpleMenuSelect
                                 # Optional step once $this->sm_item_type known : should provide a field using 'item_select' as id
-                                $this->core->behaviors->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
+                                dcCore()->behaviors->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
                         }
                         echo form::hidden('item_type', $this->sm_item_type);
-                        echo '<p>' . $this->core->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
+                        echo '<p>' . dcCore()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
                         echo '</fieldset>';
                         echo '</form>';
 
@@ -526,20 +526,20 @@ class Page extends AbstractPage
                     }
                 case 3:
                     // Libellé et description
-                    echo '<form id="additem" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=4" method="post">';
+                    echo '<form id="additem" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=4" method="post">';
                     echo '<fieldset><legend>' . $this->sm_item_type_label . ($this->sm_item_select_label != '' ? ' (' . $this->sm_item_select_label . ')' : '') . '</legend>';
                     echo '<p class="field"><label for="item_label" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('Label of item menu:') . '</label>' .
                     form::field('item_label', 20, 255, [
                         'default'    => $this->sm_item_label,
-                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                     ]) .
                         '</p>';
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Description of item menu:') . '</label>' . form::field('item_descr', 30, 255,
                         [
                             'default'    => $this->sm_item_descr,
-                            'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</p>';
                     echo '<p class="field"><label for="item_url" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('URL of item menu:') . '</label>' .
@@ -551,7 +551,7 @@ class Page extends AbstractPage
                     echo form::hidden('item_type', $this->sm_item_type) . form::hidden('item_select', $this->sm_item_select);
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Open URL on a new tab') . ':</label>' . form::checkbox('item_targetBlank', 'blank') . '</p>';
-                    echo '<p>' . $this->core->formNonce() . '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
+                    echo '<p>' . dcCore()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -561,10 +561,10 @@ class Page extends AbstractPage
 
         // Formulaire d'activation
         if (!$this->sm_step) {
-            echo '<form id="settings" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">' .
-            '<p>' . form::checkbox('active', 1, (boolean) $this->core->blog->settings->system->simpleMenu_active) .
+            echo '<form id="settings" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">' .
+            '<p>' . form::checkbox('active', 1, (boolean) dcCore()->blog->settings->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
-            '<p>' . $this->core->formNonce() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
+            '<p>' . dcCore()->formNonce() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
@@ -572,14 +572,14 @@ class Page extends AbstractPage
 
         // Liste des items
         if (!$this->sm_step) {
-            echo '<form id="menuitemsappend" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
-            echo '<p class="top-add">' . $this->core->formNonce() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
+            echo '<form id="menuitemsappend" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
+            echo '<p class="top-add">' . dcCore()->formNonce() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }
 
         if (count($this->sm_menu)) {
             if (!$this->sm_step) {
-                echo '<form id="menuitems" action="' . $this->core->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">';
+                echo '<form id="menuitems" action="' . dcCore()->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">';
             }
             // Entête table
             echo
@@ -628,12 +628,12 @@ class Page extends AbstractPage
                     echo '<td class="nowrap" scope="row">' . form::field(['items_label[]', 'iml-' . $i], null, 255,
                         [
                             'default'    => html::escapeHTML($m['label']),
-                            'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_descr[]', 'imd-' . $i], 30, 255,
                         [
                             'default'    => html::escapeHTML($m['descr']),
-                            'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_url[]', 'imu-' . $i], 30, 255, html::escapeHTML($m['url'])) . '</td>';
                     echo '<td class="nowrap">' . form::checkbox('items_targetBlank' . $i, 'blank', $targetBlank) . '</td>';
@@ -649,7 +649,7 @@ class Page extends AbstractPage
                 '</table></div>';
             if (!$this->sm_step) {
                 echo '<div class="two-cols">';
-                echo '<p class="col">' . form::hidden('im_order', '') . $this->core->formNonce();
+                echo '<p class="col">' . form::hidden('im_order', '') . dcCore()->formNonce();
                 echo '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>';
                 echo '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .

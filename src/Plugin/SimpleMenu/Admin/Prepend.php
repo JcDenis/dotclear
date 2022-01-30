@@ -18,8 +18,6 @@ use Dotclear\Module\TraitPrependAdmin;
 
 use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -30,59 +28,59 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
         # Add Plugin Admin Page sidebar menu item
-        $core->menu['Blog']->addItem(
+        dcCore()->menu['Blog']->addItem(
             __('Simple menu'),
-            $core->adminurl->get('admin.plugin.SimpleMenu'),
+            dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
             '?mf=Plugin/SimpleMenu/icon.png',
-            $core->adminurl->called() == 'admin.plugin.SimpleMenu',
-            $core->auth->check('usage,contentadmin', $core->blog->id)
+            dcCore()->adminurl->called() == 'admin.plugin.SimpleMenu',
+            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
 
         # Add Plugin Admin behaviors
-        $core->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
-        $core->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);
+        dcCore()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
+        dcCore()->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);
 
         # Widgets
-        if ($core->adminurl->called() == 'admin.plugin.Widgets') {
-            new SimpleMenuWidgets($core);
+        if (dcCore()->adminurl->called() == 'admin.plugin.Widgets') {
+            new SimpleMenuWidgets();
         }
     }
 
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
         # Menu par défaut
-        $blog_url     = html::stripHostURL($core->blog->url);
+        $blog_url     = html::stripHostURL(dcCore()->blog->url);
         $menu_default = [
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
-            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . $core->url->getURLFor('archive'), 'targetBlank' => false]
+            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dcCore()->url->getURLFor('archive'), 'targetBlank' => false]
         ];
-        $core->blog->settings->system->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
-        $core->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);
+        dcCore()->blog->settings->system->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
+        dcCore()->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);
 
         return true;
     }
 
-    public static function behaviorAdminDashboardIcons($core, $icons)
+    public static function behaviorAdminDashboardIcons($icons)
     {
         $icons['simpleMenu'] = new ArrayObject([__('Simple menu'),
-            $core->adminurl->get('admin.plugin.SimpleMenu'),
+            dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
             '?mf=Plugin/SimpleMenu/icon.png'
         ]);
     }
 
-    public static function behaviorAdminDashboardFavorites($core, $favs)
+    public static function behaviorAdminDashboardFavorites($favs)
     {
         $favs->register('simpleMenu', [
             'title'       => __('Simple menu'),
-            'url'         => $core->adminurl->get('admin.plugin.SimpleMenu'),
+            'url'         => dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
             'small-icon'  => '?mf=Plugin/SimpleMenu/icon-small.png',
             'large-icon'  => '?mf=Plugin/SimpleMenu/icon.png',
             'permissions' => 'usage,contentadmin'

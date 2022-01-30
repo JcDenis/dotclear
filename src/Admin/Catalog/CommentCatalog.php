@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Pager;
 use Dotclear\Admin\Catalog;
 
@@ -81,34 +79,34 @@ class CommentCatalog extends Catalog
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = (int) $this->core->blog->getComments(['comment_status' => 1], true)->f(0);
-                $nb_spam        = (int) $this->core->blog->getComments(['comment_status' => -2], true)->f(0);
-                $nb_pending     = (int) $this->core->blog->getComments(['comment_status' => -1], true)->f(0);
-                $nb_unpublished = (int) $this->core->blog->getComments(['comment_status' => 0], true)->f(0);
+                $nb_published   = (int) dcCore()->blog->getComments(['comment_status' => 1], true)->f(0);
+                $nb_spam        = (int) dcCore()->blog->getComments(['comment_status' => -2], true)->f(0);
+                $nb_pending     = (int) dcCore()->blog->getComments(['comment_status' => -1], true)->f(0);
+                $nb_unpublished = (int) dcCore()->blog->getComments(['comment_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?
                     sprintf(
                         __(', <a href="%s">published</a> (1)', ', <a href="%s">published</a> (%s)', $nb_published),
-                        $this->core->adminurl->get('admin.comments', ['status' => 1]),
+                        dcCore()->adminurl->get('admin.comments', ['status' => 1]),
                         $nb_published
                     ) : '') .
                     ($nb_spam ?
                     sprintf(
                         __(', <a href="%s">spam</a> (1)', ', <a href="%s">spam</a> (%s)', $nb_spam),
-                        $this->core->adminurl->get('admin.comments', ['status' => -2]),
+                        dcCore()->adminurl->get('admin.comments', ['status' => -2]),
                         $nb_spam
                     ) : '') .
                     ($nb_pending ?
                     sprintf(
                         __(', <a href="%s">pending</a> (1)', ', <a href="%s">pending</a> (%s)', $nb_pending),
-                        $this->core->adminurl->get('admin.comments', ['status' => -1]),
+                        dcCore()->adminurl->get('admin.comments', ['status' => -1]),
                         $nb_pending
                     ) : '') .
                     ($nb_unpublished ?
                     sprintf(
                         __(', <a href="%s">unpublished</a> (1)', ', <a href="%s">unpublished</a> (%s)', $nb_unpublished),
-                        $this->core->adminurl->get('admin.comments', ['status' => 0]),
+                        dcCore()->adminurl->get('admin.comments', ['status' => 0]),
                         $nb_unpublished
                     ) : '') .
                     '</caption>';
@@ -127,7 +125,7 @@ class CommentCatalog extends Catalog
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new ArrayObject($cols);
-            $this->core->behaviors->call('adminCommentListHeader', $this->core, $this->rs, $cols);
+            dcCore()->behaviors->call('adminCommentListHeader', $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -176,7 +174,7 @@ class CommentCatalog extends Catalog
     {
         global $author, $status, $sortby, $order, $nb;
 
-        $author_url = $this->core->adminurl->get('admin.comments', [
+        $author_url = dcCore()->adminurl->get('admin.comments', [
             'nb'     => $nb,
             'status' => $status,
             'sortby' => $sortby,
@@ -184,12 +182,12 @@ class CommentCatalog extends Catalog
             'author' => $this->rs->comment_author,
         ]);
 
-        $post_url = $this->core->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
+        $post_url = dcCore()->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
 
-        $comment_url = $this->core->adminurl->get('admin.comment', ['id' => $this->rs->comment_id]);
+        $comment_url = dcCore()->adminurl->get('admin.comment', ['id' => $this->rs->comment_id]);
 
-        $comment_dt = Dt::dt2str($this->core->blog->settings->system->date_format . ' - ' .
-            $this->core->blog->settings->system->time_format, $this->rs->comment_dt);
+        $comment_dt = Dt::dt2str(dcCore()->blog->settings->system->date_format . ' - ' .
+            dcCore()->blog->settings->system->time_format, $this->rs->comment_dt);
 
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
@@ -254,7 +252,7 @@ class CommentCatalog extends Catalog
                 }
             }
             $cols['ip'] = '<td class="nowrap"><a href="' .
-            $this->core->adminurl->get('admin.comments', ['ip' => $this->rs->comment_ip]) . '">' .
+            dcCore()->adminurl->get('admin.comments', ['ip' => $this->rs->comment_ip]) . '">' .
             $this->rs->comment_ip . '</a></td>';
             $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
         }
@@ -262,7 +260,7 @@ class CommentCatalog extends Catalog
             ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
-        $this->core->behaviors->call('adminCommentListValue', $this->core, $this->rs, $cols);
+        dcCore()->behaviors->call('adminCommentListValue', $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

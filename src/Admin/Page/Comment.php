@@ -53,33 +53,33 @@ class Comment extends Page
         # Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
-                $rs = $this->core->blog->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
+                $rs = dcCore()->blog->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
 
                 if ($rs->isEmpty()) {
                     throw new AdminException(__('Entry does not exist.'));
                 }
 
-                $cur = $this->core->con->openCursor($this->core->prefix . 'comment');
+                $cur = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
 
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);
                 $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = $this->core->HTMLfilter($_POST['comment_content']);
+                $cur->comment_content = dcCore()->HTMLfilter($_POST['comment_content']);
                 $cur->post_id         = (integer) $_POST['post_id'];
 
                 # --BEHAVIOR-- adminBeforeCommentCreate
-                $this->core->behaviors->call('adminBeforeCommentCreate', $cur);
+                dcCore()->behaviors->call('adminBeforeCommentCreate', $cur);
 
-                $this->comment_id = $this->core->blog->addComment($cur);
+                $this->comment_id = dcCore()->blog->addComment($cur);
 
                 # --BEHAVIOR-- adminAfterCommentCreate
-                $this->core->behaviors->call('adminAfterCommentCreate', $cur, $this->comment_id);
+                dcCore()->behaviors->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
-                $this->core->notices->addSuccessNotice(__('Comment has been successfully created.'));
+                dcCore()->notices->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
-            Http::redirect($this->core->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
+            Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
         }
 
         $rs         = null;
@@ -91,7 +91,7 @@ class Comment extends Page
             $params['comment_id'] = $_REQUEST['id'];
 
             try {
-                $rs = $this->core->blog->getComments($params);
+                $rs = dcCore()->blog->getComments($params);
                 if (!$rs->isEmpty()) {
                     $this->comment_id          = $rs->comment_id;
                     $post_id             = $rs->post_id;
@@ -107,36 +107,36 @@ class Comment extends Page
                     $this->comment_trackback   = (boolean) $rs->comment_trackback;
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
-        if (!$this->comment_id && !$this->core->error->flag()) {
-            $this->core->error->add(__('No comments'));
+        if (!$this->comment_id && !dcCore()->error->flag()) {
+            dcCore()->error->add(__('No comments'));
         }
 
         $this->can_edit = $this->can_delete = $this->can_publish = false;
-        if (!$this->core->error->flag() && isset($rs)) {
-            $this->can_edit = $this->can_delete = $this->can_publish = $this->core->auth->check('contentadmin', $this->core->blog->id);
+        if (!dcCore()->error->flag() && isset($rs)) {
+            $this->can_edit = $this->can_delete = $this->can_publish = dcCore()->auth->check('contentadmin', dcCore()->blog->id);
 
-            if (!$this->core->auth->check('contentadmin', $this->core->blog->id) && $this->core->auth->userID() == $rs->user_id) {
+            if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id) && dcCore()->auth->userID() == $rs->user_id) {
                 $this->can_edit = true;
-                if ($this->core->auth->check('delete', $this->core->blog->id)) {
+                if (dcCore()->auth->check('delete', dcCore()->blog->id)) {
                     $this->can_delete = true;
                 }
-                if ($this->core->auth->check('publish', $this->core->blog->id)) {
+                if (dcCore()->auth->check('publish', dcCore()->blog->id)) {
                     $this->can_publish = true;
                 }
             }
 
             # update comment
             if (!empty($_POST['update']) && $this->can_edit) {
-                $cur = $this->core->con->openCursor($this->core->prefix . 'comment');
+                $cur = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
 
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);
                 $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = $this->core->HTMLfilter($_POST['comment_content']);
+                $cur->comment_content = dcCore()->HTMLfilter($_POST['comment_content']);
 
                 if (isset($_POST['comment_status'])) {
                     $cur->comment_status = (integer) $_POST['comment_status'];
@@ -144,36 +144,36 @@ class Comment extends Page
 
                 try {
                     # --BEHAVIOR-- adminBeforeCommentUpdate
-                    $this->core->behaviors->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
+                    dcCore()->behaviors->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
-                    $this->core->blog->updComment($this->comment_id, $cur);
+                    dcCore()->blog->updComment($this->comment_id, $cur);
 
                     # --BEHAVIOR-- adminAfterCommentUpdate
-                    $this->core->behaviors->call('adminAfterCommentUpdate', $cur, $this->comment_id);
+                    dcCore()->behaviors->call('adminAfterCommentUpdate', $cur, $this->comment_id);
 
-                    $this->core->notices->addSuccessNotice(__('Comment has been successfully updated.'));
-                    $this->core->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
+                    dcCore()->notices->addSuccessNotice(__('Comment has been successfully updated.'));
+                    dcCore()->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
                 } catch (Exception $e) {
-                    $this->core->error->add($e->getMessage());
+                    dcCore()->error->add($e->getMessage());
                 }
             }
 
             if (!empty($_POST['delete']) && $this->can_delete) {
                 try {
                     # --BEHAVIOR-- adminBeforeCommentDelete
-                    $this->core->behaviors->call('adminBeforeCommentDelete', $this->comment_id);
+                    dcCore()->behaviors->call('adminBeforeCommentDelete', $this->comment_id);
 
-                    $this->core->blog->delComment($this->comment_id);
+                    dcCore()->blog->delComment($this->comment_id);
 
-                    $this->core->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect($this->core->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
+                    dcCore()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
+                    Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
                 } catch (Exception $e) {
-                    $this->core->error->add($e->getMessage());
+                    dcCore()->error->add($e->getMessage());
                 }
             }
 
             if (!$this->can_edit) {
-                $this->core->error->add(__("You can't edit this comment."));
+                dcCore()->error->add(__("You can't edit this comment."));
             }
         }
 
@@ -182,7 +182,7 @@ class Comment extends Page
         }
 
         # Page setup
-        $comment_editor = $this->core->auth->getOption('editor');
+        $comment_editor = dcCore()->auth->getOption('editor');
 
         $this
             ->setPageTitle(__('Edit comment'))
@@ -190,15 +190,15 @@ class Comment extends Page
             ->setPageHead(
                 static::jsConfirmClose('comment-form') .
                 static::jsLoad('js/_comment.js') .
-                $this->core->behaviors->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
+                dcCore()->behaviors->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
                 # --BEHAVIOR-- adminCommentHeaders
-                $this->core->behaviors->call('adminCommentHeaders')
+                dcCore()->behaviors->call('adminCommentHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML($this->core->blog->name) => '',
-                Html::escapeHTML($post_title)       => $this->core->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
-                __('Edit comment')                  => ''
+                Html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML($post_title)          => dcCore()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
+                __('Edit comment')                     => ''
             ])
         ;
 
@@ -216,27 +216,27 @@ class Comment extends Page
         }
 
         # Status combo
-        $status_combo = $this->core->combos->getCommentStatusesCombo();
+        $status_combo = dcCore()->combos->getCommentStatusesCombo();
 
         $comment_mailto = '';
         if ($this->comment_email) {
             $comment_mailto = '<a href="mailto:' . Html::escapeHTML($this->comment_email)
-            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), $this->core->blog->name))
+            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), dcCore()->blog->name))
             . '&amp;body='
             . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->post_url))
             . '">' . __('Send an e-mail') . '</a>';
         }
 
         echo
-        '<form action="' . $this->core->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
+        '<form action="' . dcCore()->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
-        $show_ip = $this->core->auth->check('contentadmin', $this->core->blog->id);
+        $show_ip = dcCore()->auth->check('contentadmin', dcCore()->blog->id);
         if ($show_ip) {
             echo
             '<p>' . __('IP address:') . ' ' .
-            '<a href="' . $this->core->adminurl->get('admin.comments', ['ip' => $this->comment_ip]) . '">' . $this->comment_ip . '</a></p>';
+            '<a href="' . dcCore()->adminurl->get('admin.comments', ['ip' => $this->comment_ip]) . '">' . $this->comment_ip . '</a></p>';
         }
 
         echo
@@ -267,18 +267,18 @@ class Comment extends Page
         '</p>' .
 
         # --BEHAVIOR-- adminAfterCommentDesc
-        //!$this->core->behaviors->call('adminAfterCommentDesc', $rs) .
+        //!dcCore()->behaviors->call('adminAfterCommentDesc', $rs) .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
         Form::textarea('comment_content', 50, 10,
             [
                 'default'    => Html::escapeHTML($this->comment_content),
-                'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"'
+                'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
             ]) .
         '</p>' .
 
         '<p>' . Form::hidden('id', $this->comment_id) .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 

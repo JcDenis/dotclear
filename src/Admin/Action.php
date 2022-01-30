@@ -18,8 +18,6 @@ use ArrayObject;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
 
 use Dotclear\Database\Record;
@@ -74,7 +72,6 @@ abstract class Action extends Page
     /**
      * Class constructor
      *
-     * @param Core      $core           dotclear core
      * @param string    $uri            form uri
      * @param array     $redirect_args  redirect arguments
      *
@@ -82,11 +79,10 @@ abstract class Action extends Page
      *
      * @return mixed Value.
      */
-    public function __construct(Core $core, string $uri, array $redirect_args = [])
+    public function __construct(string $uri, array $redirect_args = [])
     {
-        parent::__construct($core);
+        parent::__construct();
 
-        $this->core            = $core;
         $this->actions         = new ArrayObject();
         $this->combo           = [];
         $this->uri             = $uri;
@@ -356,7 +352,7 @@ abstract class Action extends Page
                 foreach ($this->actions as $k => $v) {
                     if ($this->from['action'] == $k) {
                         $performed = true;
-                        call_user_func($v, $this->core, $this, $this->from);
+                        call_user_func($v, $this, $this->from);
                     }
                 }
                 if ($performed) {

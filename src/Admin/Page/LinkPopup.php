@@ -40,7 +40,7 @@ class LinkPopup extends Page
             ->setPageType('popup')
             ->setPageHead(
                 static::jsLoad('js/_popup_link.js') .
-                $this->core->behaviors->call('adminPopupLink', $plugin_id)
+                dcCore()->behaviors->call('adminPopupLink', $plugin_id)
             )
         ;
 
@@ -52,16 +52,10 @@ class LinkPopup extends Page
         $href      = !empty($_GET['href']) ? $_GET['href'] : '';
         $hreflang  = !empty($_GET['hreflang']) ? $_GET['hreflang'] : '';
         $title     = !empty($_GET['title']) ? $_GET['title'] : '';
-/*
-        if ($this->core->themes === null) {
-            # -- Loading themes, may be useful for some configurable theme --
-            $this->core->themeInstance();
-            $this->core->themes->loadModules($this->core->blog->themes_path, null);
-        }
-*/
+
         # Languages combo
-        $rs         = $this->core->blog->getLangs(['order' => 'asc']);
-        $lang_combo = $this->core->combos->getLangsCombo($rs, true);
+        $rs         = dcCore()->blog->getLangs(['order' => 'asc']);
+        $lang_combo = dcCore()->combos->getLangsCombo($rs, true);
 
         echo
         '<h2 class="page-title">' . __('Add a link') . '</h2>' .

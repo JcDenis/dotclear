@@ -49,7 +49,7 @@ class RsExtBlog
     public static function getISO8601Date(Record $rs, string $tz = ''): string
     {
         if (!$tz) {
-            $tz = $rs->core->blog->settings->system->blog_timezone;
+            $tz = dcCore()->blog->settings->system->blog_timezone;
         }
         return Dt::iso8601($rs->getTS(), $tz);
     }
@@ -65,7 +65,7 @@ class RsExtBlog
     public static function getRFC822Date(Record $rs, string $tz = ''): string
     {
         if (!$tz) {
-            $tz = $rs->core->blog->settings->system->blog_timezone;
+            $tz = dcCore()->blog->settings->system->blog_timezone;
         }
 
         return Dt::rfc822($rs->getTS(), $tz);
@@ -83,7 +83,7 @@ class RsExtBlog
     public static function getDate(Record $rs, string $format = ''): string
     {
         if (!$format) {
-            $format = $rs->core->blog->settings->system->date_format;
+            $format = dcCore()->blog->settings->system->date_format;
         }
 
         return Dt::dt2str($format, $rs->blog_upddt);
@@ -101,7 +101,7 @@ class RsExtBlog
     public static function getTime(Record $rs, string $format): string
     {
         if (!$format) {
-            $format = $rs->core->blog->settings->system->time_format;
+            $format = dcCore()->blog->settings->system->time_format;
         }
 
         return Dt::dt2str($format, $rs->blog_upddt);

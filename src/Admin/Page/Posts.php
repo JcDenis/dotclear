@@ -40,12 +40,12 @@ class Posts extends Page
 
     protected function getActionInstance(): ?Action
     {
-        return new PostAction($this->core, $this->core->adminurl->get('admin.posts'));
+        return new PostAction(dcCore()->adminurl->get('admin.posts'));
     }
 
     protected function getFilterInstance(): ?Filter
     {
-        return new PostFilter($this->core);
+        return new PostFilter();
     }
 
     protected function getCatalogInstance(): ?Catalog
@@ -61,18 +61,18 @@ class Posts extends Page
             'user_id'    => 'P.user_id'];
 
         # --BEHAVIOR-- adminPostsSortbyLexCombo
-        $this->core->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
+        dcCore()->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            $this->core->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dcCore()->con->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params['no_content'] = true;
 
-        $posts     = $this->core->blog->getPosts($params);
-        $counter   = $this->core->blog->getPosts($params, true);
+        $posts     = dcCore()->blog->getPosts($params);
+        $counter   = dcCore()->blog->getPosts($params, true);
 
-        return new PostCatalog($this->core, $posts, $counter->f(0));
+        return new PostCatalog($posts, $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool
@@ -84,7 +84,7 @@ class Posts extends Page
             static::jsLoad('js/_posts_list.js')
         );
         $this->setPageBreadcrumb([
-            Html::escapeHTML($this->core->blog->name) => '',
+            Html::escapeHTML(dcCore()->blog->name) => '',
             __('Posts')                               => ''
         ]);
 
@@ -98,15 +98,15 @@ class Posts extends Page
         } elseif (!empty($_GET['del'])) {
             static::success(__('Selected entries have been successfully deleted.'));
         }
-        if (!$this->core->error->flag()) {
-            echo '<p class="top-add"><a class="button add" href="' . $this->core->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
+        if (!dcCore()->error->flag()) {
+            echo '<p class="top-add"><a class="button add" href="' . dcCore()->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             # filters
             $this->filter->display('admin.posts');
 
             # Show posts
             $this->catalog->display($this->filter->page, $this->filter->nb,
-                '<form action="' . $this->core->adminurl->get('admin.posts') . '" method="post" id="form-entries">' .
+                '<form action="' . dcCore()->adminurl->get('admin.posts') . '" method="post" id="form-entries">' .
 
                 '%s' .
 
@@ -116,8 +116,8 @@ class Posts extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                $this->core->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
-                $this->core->formNonce() .
+                dcCore()->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
+                dcCore()->formNonce() .
                 '</div>' .
                 '</form>',
                 $this->filter->show()

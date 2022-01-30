@@ -17,8 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 use Dotclear\Admin\Filter\DefaultFilter;
@@ -29,9 +27,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class CommentFilter extends Filter
 {
-    public function __construct(Core $core)
+    public function __construct()
     {
-        parent::__construct($core, 'comments');
+        parent::__construct('comments');
 
         $filters = new ArrayObject([
             Filters::getPageFilter(),
@@ -44,7 +42,7 @@ class CommentFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminCommentFilter
-        $core->behaviors->call('adminCommentFilter', $core, $filters);
+        dcCore()->behaviors->call('adminCommentFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -93,7 +91,7 @@ class CommentFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                $this->core->combos->getCommentStatusesCombo()
+                dcCore()->combos->getCommentStatusesCombo()
             ))
             ->prime(true);
     }
@@ -103,7 +101,7 @@ class CommentFilter extends Filter
      */
     public function getCommentIpFilter(): ?DefaultFilter
     {
-        if (!$this->core->auth->check('contentadmin', $this->core->blog->id)) {
+        if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id)) {
             return null;
         }
 

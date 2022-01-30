@@ -22,20 +22,20 @@ class ModulesPlugin extends AbstractModules
 
     protected function register(): void
     {
-        $this->core->adminurl->register(
+        dcCore()->adminurl->register(
             'admin.plugins',
-            $this->core::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin')
+            dcCore()::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin')
         );
-        $this->core->menu->register(
+        dcCore()->menu->register(
             'System',
             __('Plugins management'),
             'admin.plugins',
             'images/menu/plugins.png',
-            $this->core->auth->isSuperAdmin()
+            dcCore()->auth->isSuperAdmin()
         );
-        $this->core->favs->register('plugins', [
+        dcCore()->favs->register('plugins', [
             'title'      => __('Plugins management'),
-            'url'        => $this->core->adminurl->get('admin.plugins'),
+            'url'        => dcCore()->adminurl->get('admin.plugins'),
             'small-icon' => 'images/menu/plugins.png',
             'large-icon' => 'images/menu/plugins-b.png'
         ]);
@@ -43,11 +43,11 @@ class ModulesPlugin extends AbstractModules
 
     public function getModulesURL(array $param = []): string
     {
-        return $this->core->adminurl->get('admin.plugins', $param);
+        return dcCore()->adminurl->get('admin.plugins', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return $this->core->adminurl->get('admin.plugin.' . $id, $param);
+        return dcCore()->adminurl->get('admin.plugin.' . $id, $param);
     }
 }

@@ -212,14 +212,11 @@ class Reader extends NetHttp
 
                 try {
                     Files::makeDir(dirname($cached_file), true);
+                    if (Files::putContent($cached_file, serialize($feed))) {
+                        Files::inheritChmod($cached_file);
+                    }
                 } catch (Exception $e) {
                     return $feed;
-                }
-
-                if (($fp = @fopen($cached_file, 'wb'))) {
-                    fwrite($fp, serialize($feed));
-                    fclose($fp);
-                    Files::inheritChmod($cached_file);
                 }
 
                 return $feed;

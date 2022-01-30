@@ -16,8 +16,6 @@ namespace Dotclear\Admin\Action;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Action;
 
 use Dotclear\Utils\L10n;
@@ -26,9 +24,9 @@ use Dotclear\Html\Html;
 
 class DefaultPostAction
 {
-    public static function PostAction(Core $core, Action $ap)
+    public static function PostAction(Action $ap)
     {
-        if ($core->auth->check('publish,contentadmin', $core->blog->id)) {
+        if (dcCore()->auth->check('publish,contentadmin', dcCore()->blog->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -58,14 +56,14 @@ class DefaultPostAction
             ]],
             [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostLang']
         );
-        if ($core->auth->check('admin', $core->blog->id)) {
+        if (dcCore()->auth->check('admin', dcCore()->blog->id)) {
             $ap->addAction(
                 [__('Change') => [
                     __('Change author') => 'author']],
                 [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostAuthor']
             );
         }
-        if ($core->auth->check('delete,contentadmin', $core->blog->id)) {
+        if (dcCore()->auth->check('delete,contentadmin', dcCore()->blog->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
@@ -74,7 +72,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostStatus(Core $core, Action $ap, $post)
+    public static function doChangePostStatus(Action $ap, $post)
     {
         switch ($ap->getAction()) {
             case 'unpublish':
@@ -117,29 +115,29 @@ class DefaultPostAction
             throw new AdminException(__('Published entries cannot be set to scheduled'));
         }
         // Set status of remaining entries
-        $core->blog->updPostsStatus($posts_ids, $status);
-        $core->notices->addSuccessNotice(sprintf(
+        dcCore()->blog->updPostsStatus($posts_ids, $status);
+        dcCore()->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully updated to status : "%s"',
                 '%d entries have been successfully updated to status : "%s"',
                 count($posts_ids)
             ),
             count($posts_ids),
-            $core->blog->getPostStatus($status))
+            dcCore()->blog->getPostStatus($status))
         );
         $ap->redirect(true);
     }
 
-    public static function doUpdateSelectedPost(Core $core, Action $ap, $post)
+    public static function doUpdateSelectedPost(Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
             throw new AdminException(__('No entry selected'));
         }
         $action = $ap->getAction();
-        $core->blog->updPostsSelected($posts_ids, $action == 'selected');
+        dcCore()->blog->updPostsSelected($posts_ids, $action == 'selected');
         if ($action == 'selected') {
-            $core->notices->addSuccessNotice(sprintf(
+            dcCore()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully marked as selected',
                     '%d entries have been successfully marked as selected',
@@ -148,7 +146,7 @@ class DefaultPostAction
                 count($posts_ids))
             );
         } else {
-            $core->notices->addSuccessNotice(sprintf(
+            dcCore()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully marked as unselected',
                     '%d entries have been successfully marked as unselected',
@@ -160,7 +158,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doDeletePost(Core $core, Action $ap, $post)
+    public static function doDeletePost(Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -169,14 +167,14 @@ class DefaultPostAction
         // Backward compatibility
         foreach ($posts_ids as $post_id) {
             # --BEHAVIOR-- adminBeforePostDelete
-            $core->behaviors->call('adminBeforePostDelete', (integer) $post_id);
+            dcCore()->behaviors->call('adminBeforePostDelete', (integer) $post_id);
         }
 
         # --BEHAVIOR-- adminBeforePostsDelete
-        $core->behaviors->call('adminBeforePostsDelete', $posts_ids);
+        dcCore()->behaviors->call('adminBeforePostsDelete', $posts_ids);
 
-        $core->blog->delPosts($posts_ids);
-        $core->notices->addSuccessNotice(sprintf(
+        dcCore()->blog->delPosts($posts_ids);
+        dcCore()->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully deleted',
                 '%d entries have been successfully deleted',
@@ -188,7 +186,7 @@ class DefaultPostAction
         $ap->redirect(false);
     }
 
-    public static function doChangePostCategory(Core $core, Action $ap, $post)
+    public static function doChangePostCategory(Action $ap, $post)
     {
         if (isset($post['new_cat_id'])) {
             $posts_ids = $ap->getIDs();
@@ -196,9 +194,9 @@ class DefaultPostAction
                 throw new AdminException(__('No entry selected'));
             }
             $new_cat_id = (int) $post['new_cat_id'];
-            if (!empty($post['new_cat_title']) && $core->auth->check('categories', $core->blog->id)) {
+            if (!empty($post['new_cat_title']) && dcCore()->auth->check('categories', dcCore()->blog->id)) {
                 //to do: check for duplicate category and throw clean Exception
-                $cur_cat            = $core->con->openCursor($core->prefix . 'category');
+                $cur_cat            = dcCore()->con->openCursor(dcCore()->prefix . 'category');
                 $cur_cat->cat_title = $post['new_cat_title'];
                 $cur_cat->cat_url   = '';
                 $title              = $cur_cat->cat_title;
@@ -206,17 +204,17 @@ class DefaultPostAction
                 $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                $core->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+                dcCore()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $new_cat_id = $core->blog->addCategory($cur_cat, (integer) $parent_cat);
+                $new_cat_id = dcCore()->blog->addCategory($cur_cat, (integer) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                $core->behaviors->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
+                dcCore()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
             }
 
-            $core->blog->updPostsCategory($posts_ids, $new_cat_id);
-            $title = $core->blog->getCategory($new_cat_id);
-            $core->notices->addSuccessNotice(sprintf(
+            dcCore()->blog->updPostsCategory($posts_ids, $new_cat_id);
+            $title = dcCore()->blog->getCategory($new_cat_id);
+            dcCore()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully moved to category "%s"',
                     '%d entries have been successfully moved to category "%s"',
@@ -229,11 +227,11 @@ class DefaultPostAction
             $ap->redirect(true);
         } else {
             $categories_combo = $this->core->combos->getCategoriesCombo(
-                $core->blog->getCategories()
+                dcCore()->blog->getCategories()
             );
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML($core->blog->name)      => '',
+                Html::escapeHTML(dcCore()->blog->name)      => '',
                 $ap->getCallerTitle()                    => $ap->getRedirection(true),
                 __('Change category for this selection') => ''
             ]);
@@ -245,7 +243,7 @@ class DefaultPostAction
                 Form::combo(['new_cat_id'], $categories_combo)
             );
 
-            if ($core->auth->check('categories', $core->blog->id)) {
+            if (dcCore()->auth->check('categories', dcCore()->blog->id)) {
 
                 $ap->setPageContent(
                     '</p><div>' .
@@ -259,7 +257,7 @@ class DefaultPostAction
             }
 
             $ap->setPageContent(
-                $core->formNonce() .
+                dcCore()->formNonce() .
                 $ap->getHiddenFields() .
                 Form::hidden(['action'], 'category') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
@@ -268,22 +266,22 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostAuthor(Core $core, Action $ap, $post)
+    public static function doChangePostAuthor(Action $ap, $post)
     {
-        if (isset($post['new_auth_id']) && $core->auth->check('admin', $core->blog->id)) {
+        if (isset($post['new_auth_id']) && dcCore()->auth->check('admin', dcCore()->blog->id)) {
             $new_user_id = $post['new_auth_id'];
             $posts_ids   = $ap->getIDs();
             if (empty($posts_ids)) {
                 throw new AdminException(__('No entry selected'));
             }
-            if ($core->getUser($new_user_id)->isEmpty()) {
+            if (dcCore()->getUser($new_user_id)->isEmpty()) {
                 throw new AdminException(__('This user does not exist'));
             }
 
-            $cur          = $core->con->openCursor($core->prefix . 'post');
+            $cur          = dcCore()->con->openCursor(dcCore()->prefix . 'post');
             $cur->user_id = $new_user_id;
-            $cur->update('WHERE post_id ' . $core->con->in($posts_ids));
-            $core->notices->addSuccessNotice(sprintf(
+            $cur->update('WHERE post_id ' . dcCore()->con->in($posts_ids));
+            dcCore()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to user "%s"',
                     '%d entries have been successfully set to user "%s"',
@@ -296,12 +294,12 @@ class DefaultPostAction
             $ap->redirect(true);
         } else {
             $usersList = [];
-            if ($core->auth->check('admin', $core->blog->id)) {
+            if (dcCore()->auth->check('admin', dcCore()->blog->id)) {
                 $params = [
                     'limit' => 100,
                     'order' => 'nb_post DESC'
                 ];
-                $rs       = $core->getUsers($params);
+                $rs       = dcCore()->getUsers($params);
                 $rsStatic = $rs->toStatic();
                 $rsStatic->extend('Dotclear\\Core\\RsExt\\rsExtUser');
                 $rsStatic = $rsStatic->toExtStatic();
@@ -312,7 +310,7 @@ class DefaultPostAction
             }
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML($core->blog->name)    => '',
+                Html::escapeHTML(dcCore()->blog->name)    => '',
                 $ap->getCallerTitle()                  => $ap->getRedirection(true),
                 __('Change author for this selection') => ''
             ]);
@@ -326,7 +324,7 @@ class DefaultPostAction
                 '<p><label for="new_auth_id" class="classic">' . __('New author (author ID):') . '</label> ' .
                 Form::field('new_auth_id', 20, 255) .
 
-                $core->formNonce() . $ap->getHiddenFields() .
+                dcCore()->formNonce() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'author') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'
@@ -334,7 +332,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostLang(Core $core, Action $ap, $post)
+    public static function doChangePostLang(Action $ap, $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -342,10 +340,10 @@ class DefaultPostAction
         }
         if (isset($post['new_lang'])) {
             $new_lang       = $post['new_lang'];
-            $cur            = $core->con->openCursor($core->prefix . 'post');
+            $cur            = dcCore()->con->openCursor(dcCore()->prefix . 'post');
             $cur->post_lang = $new_lang;
-            $cur->update('WHERE post_id ' . $core->con->in($posts_ids));
-            $core->notices->addSuccessNotice(sprintf(
+            $cur->update('WHERE post_id ' . dcCore()->con->in($posts_ids));
+            dcCore()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to language "%s"',
                     '%d entries have been successfully set to language "%s"',
@@ -356,7 +354,7 @@ class DefaultPostAction
             );
             $ap->redirect(true);
         } else {
-            $rs         = $core->blog->getLangs(['order' => 'asc']);
+            $rs         = dcCore()->blog->getLangs(['order' => 'asc']);
             $all_langs  = L10n::getISOcodes(false, true);
             $lang_combo = ['' => '', __('Most used') => [], __('Available') => l10n::getISOcodes(true, true)];
             while ($rs->fetch()) {
@@ -370,7 +368,7 @@ class DefaultPostAction
             unset($all_langs, $rs);
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML($core->blog->name)      => '',
+                Html::escapeHTML(dcCore()->blog->name)      => '',
                 $ap->getCallerTitle()                    => $ap->getRedirection(true),
                 __('Change language for this selection') => ''
             ]);
@@ -381,7 +379,7 @@ class DefaultPostAction
                 '<p><label for="new_lang" class="classic">' . __('Entry language:') . '</label> ' .
                 Form::combo('new_lang', $lang_combo) .
 
-                $core->formNonce() . $ap->getHiddenFields() .
+                dcCore()->formNonce() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'lang') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'

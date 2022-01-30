@@ -15,8 +15,6 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -25,18 +23,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class RestServer
 {
-    /** @var Core       Core instance */
-    public $core;
-
     /**
      * Constructs a new instance.
-     *
-     * @param Core  $core   The core
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
         $this->rsp = new XmlTag('rsp');
-        $this->core = $core;
     }
 
     /**
@@ -69,7 +61,7 @@ class RestServer
     protected function callFunction(string $name, array $get, array $post)
     {
         if (isset($this->functions[$name])) {
-            return call_user_func($this->functions[$name], $this->core, $get, $post);
+            return call_user_func($this->functions[$name], $get, $post);
         }
     }
 

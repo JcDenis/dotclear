@@ -16,8 +16,6 @@ namespace Dotclear\Admin\Action;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Action\DefaultBlogAction;
 
@@ -26,16 +24,16 @@ use Dotclear\Html\Form;
 
 class BlogAction extends Action
 {
-    public function __construct(Core $core, string $uri, array $redirect_args = [])
+    public function __construct(string $uri, array $redirect_args = [])
     {
-        parent::__construct($core, $uri, $redirect_args);
+        parent::__construct($uri, $redirect_args);
 
         # Action setup
         $this->redirect_fields = ['status', 'sortby', 'order', 'page', 'nb'];
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        $this->core->behaviors->call('adminBlogsActionsPage', $this);
+        dcCore()->behaviors->call('adminBlogsActionsPage', $this);
 
         # Page setup
         $this
@@ -43,8 +41,8 @@ class BlogAction extends Action
             ->setPageType($this->in_plugin ? 'plugin' : null)
             ->setPageHead(static::jsLoad('js/_blogs_actions.js'))
             ->setPageBreadcrumb([
-                Html::escapeHTML($this->core->blog->name) => '',
-                __('Blogs')                               => $this->core->adminurl->get('admin.blogs'),
+                Html::escapeHTML(dcCore()->blog->name) => '',
+                __('Blogs')                               => dcCore()->adminurl->get('admin.blogs'),
                 __('Blogs actions')                       => ''
             ]);
     }
@@ -53,12 +51,12 @@ class BlogAction extends Action
     {
         // We could have added a behavior here, but we want default action
         // to be setup first
-        DefaultBlogAction::BlogsAction($this->core, $this);
+        DefaultBlogAction::BlogsAction($this);
     }
 
     public function error(Exception $e)
     {
-        $this->core->error->add($e->getMessage());
+        dcCore()->error->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
     }
 
@@ -90,7 +88,7 @@ class BlogAction extends Action
             $params['blog_id'] = $from['blogs'];
         }
 
-        $bl = $this->core->getBlogs($params);
+        $bl = dcCore()->getBlogs($params);
         while ($bl->fetch()) {
             $this->entries[$bl->blog_id] = [
                 'blog' => $bl->blog_id,

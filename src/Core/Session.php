@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Session
  * @brief Dotclear core session class
  *
  * @package Dotclear
@@ -53,7 +54,7 @@ class Session
         ?string $ttl = null,
         bool $transient = false
     ) {
-        $this->con           = &$con;
+        $this->con           = $con;
         $this->table         = $table;
         $this->cookie_name   = $cookie_name;
         $this->cookie_path   = is_null($cookie_path) ? '/' : $cookie_path;

@@ -18,6 +18,7 @@ use Closure;
 
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\SingleTon;
 use Dotclear\Core\Behaviors;
 use Dotclear\Core\Error;
 use Dotclear\Core\UrlHandler;
@@ -31,9 +32,7 @@ use Dotclear\Core\Auth;
 use Dotclear\Core\Settings;
 
 use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\InsertStatement;
-use Dotclear\Core\Sql\UpdateStatement;
-use Dotclear\Core\Sql\deleteStatement;
+use Dotclear\Core\Sql\DeleteStatement;
 
 use Dotclear\Container\User as ContainerUser;
 
@@ -51,7 +50,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Core
+class Core extends SingleTon
 {
     /** @var Connection         Connetion instance */
     public $con;
@@ -109,19 +108,19 @@ class Core
      *
      * @param   string  $process    public/admin/install/...
      */
-    public function __construct()
+    public function process()
     {
         static::startStatistics();
 
         $this->error     = new Error();
-        $this->behaviors = new Behaviors($this);
+        $this->behaviors = new Behaviors();
         $this->con       = $this->conInstance();
         $this->auth      = $this->authInstance();
         $this->session   = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
-        $this->url       = new UrlHandler($this);
-        $this->rest      = new RestServer($this);
-        $this->meta      = new Meta($this);
-        $this->log       = new Log($this);
+        $this->url       = new UrlHandler();
+        $this->rest      = new RestServer();
+        $this->meta      = new Meta();
+        $this->log       = new Log();
 
         $this->registerTopBehaviors();
     }
@@ -242,7 +241,7 @@ class Core
             throw new CoreException('Authentication class ' . $class . ' does not inherit ' . __NAMESPACE__ . '\\Auth.');
         }
 
-        return new $class($this);
+        return new $class();
     }
     //@}
 
@@ -251,13 +250,17 @@ class Core
     /**
      * Instanciate media manager into Core
      *
-     * @param  bool     $reload     Force to reload instance
+     * @param   bool    $reload     Force to reload instance
+     *
+     * @return  Media               Media instance
      */
-    public function mediaInstance(bool $reload = false): void
+    public function mediaInstance(bool $reload = false): Media
     {
         if (!($this->media instanceof Media) || $reload) {
-            $this->media = new Media($this);
+            $this->media = new Media();
         }
+
+        return $this->media;
     }
     //@}
 
@@ -270,7 +273,7 @@ class Core
      */
     public function setBlog(string $blog_id): void
     {
-        $this->blog = new Blog($this, $blog_id);
+        $this->blog = new Blog($blog_id);
     }
 
     /**
@@ -563,7 +566,7 @@ class Core
     {
         # Fetch versions if needed
         if (!is_array($this->versions)) {
-            $sql = new SelectStatement($this, 'CoreCoreGetVersion');
+            $sql = new SelectStatement('CoreCoreGetVersion');
             $sql
                 ->columns(['module', 'version'])
                 ->from($this->prefix . 'version');
@@ -606,7 +609,7 @@ class Core
      */
     public function delVersion(string $module): void
     {
-        $sql = new DeleteStatement($this->core, 'CoreCoreDelVersion');
+        $sql = new DeleteStatement('CoreCoreDelVersion');
         $sql->from($this->prefix . 'version')
             ->where("module = '" . $this->con->escape($module) . "'")
             ->delete();
@@ -709,8 +712,7 @@ class Core
         if (!$count_only && !empty($params['limit'])) {
             $strReq .= $this->con->limit($params['limit']);
         }
-        $rs       = $this->con->select($strReq);
-        $rs->core = $this;
+        $rs = $this->con->select($strReq);
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
 
         return $rs;
@@ -785,7 +787,7 @@ class Core
         );
 
         while ($rs->fetch()) {
-            $b = new Blog($this, $rs->blog_id);
+            $b = new Blog($rs->blog_id);
             $b->triggerBlog();
             unset($b);
         }
@@ -1158,8 +1160,6 @@ class Core
         $strReq = sprintf($strReq, $join, $where);
 
         $rs = $this->con->select($strReq);
-
-        $rs->core = $this;
         $rs->extend('Dotclear\\Core\\RsExt\\rsExtBlog');
 
         return $rs;
@@ -1654,7 +1654,7 @@ class Core
             ];
         }
 
-        $settings = new Settings($this, null);
+        $settings = new Settings(null);
         $settings->addNamespace('system');
 
         foreach ($defaults as $v) {
@@ -1769,8 +1769,8 @@ class Core
      */
     public static function emptyTemplatesCache(): void
     {
-        if (is_dir(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'))) {
-            Files::deltree(self::path(DOTCLEAR_CACHE_DIR, 'cbtpl'));
+        if (is_dir(static::path(DOTCLEAR_CACHE_DIR, 'cbtpl'))) {
+            Files::deltree(static::path(DOTCLEAR_CACHE_DIR, 'cbtpl'));
         }
     }
 
@@ -1822,48 +1822,6 @@ class Core
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
 
         return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
-    }
-
-    /**
-     * Join folder function
-     *
-     * Starting from Dotclear root directory
-     *
-     * @param  string   $args   One argument per folder
-     *
-     * @return string   Directory
-     */
-    public static function root(string ...$args): string
-    {
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', __DIR__);
-        }
-
-        return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
-    }
-
-    /**
-     * Join folder function
-     *
-     * @param  string   $args   One argument per folder
-     *
-     * @return string   Directory
-     */
-    public static function path(string ...$args): string
-    {
-        return implode(DIRECTORY_SEPARATOR, $args);
-    }
-
-    /**
-     * Join sub namespace function
-     *
-     * @param  string   $args   One argument per sub namespace
-     *
-     * @return string   Namespace
-     */
-    public static function ns(string ...$args): string
-    {
-        return implode('\\', $args);
     }
     //@}
 }

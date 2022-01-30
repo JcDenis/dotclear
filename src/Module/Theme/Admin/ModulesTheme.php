@@ -12,10 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
-use Dotclear\Core\Core;
-
-use Dotclear\Admin\Notices;
-
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Theme\TraitModulesTheme;
@@ -32,20 +28,20 @@ class ModulesTheme extends AbstractModules
 
     protected function register(): void
     {
-        $this->core->adminurl->register(
+        dcCore()->adminurl->register(
             'admin.blog.theme',
-            $this->core::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme')
+            dcCore()::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme')
         );
-        $this->core->menu->register(
+        dcCore()->menu->register(
             'Blog',
             __('Blog appearance'),
             'admin.blog.theme',
             'images/menu/themes.png',
-            $this->core->auth->check('admin', $this->core->blog->id)
+            dcCore()->auth->check('admin', dcCore()->blog->id)
         );
-        $this->core->favs->register('blog_theme', [
+        dcCore()->favs->register('blog_theme', [
             'title'       => __('Blog appearance'),
-            'url'         => $this->core->adminurl->get('admin.blog.theme'),
+            'url'         => dcCore()->adminurl->get('admin.blog.theme'),
             'small-icon'  => 'images/menu/themes.png',
             'large-icon'  => 'images/menu/blog-theme-b.png',
             'permissions' => 'admin'
@@ -54,12 +50,12 @@ class ModulesTheme extends AbstractModules
 
     public function getModulesURL(array $param = []): string
     {
-        return $this->core->adminurl->get('admin.blog.theme', $param);
+        return dcCore()->adminurl->get('admin.blog.theme', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return $this->core->adminurl->get('admin.blog.theme', array_merge(['id' => $id], $param));
+        return dcCore()->adminurl->get('admin.blog.theme', array_merge(['id' => $id], $param));
     }
 
     public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): AbstractModules
@@ -88,7 +84,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            $current = $this->core->blog->settings->system->theme == $id && $this->hasModule($id);
+            $current = dcCore()->blog->settings->system->theme == $id && $this->hasModule($id);
             $distrib = $this->isDistributedModule($id) ? ' dc-box' : '';
             $line    = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
 
@@ -105,7 +101,7 @@ class ModulesTheme extends AbstractModules
                     Html::escapeHTML($module->name());
                 }
 
-                $line .= $this->core->formNonce() .
+                $line .= dcCore()->formNonce() .
                     '</h4>';
             }
 
@@ -212,14 +208,14 @@ class ModulesTheme extends AbstractModules
                 # _GET actions
                 foreach($this->getModulesPath() as $psstyle) {
                     if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
-                        $line .= '<p><a href="' . $this->core->blog->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                        $line .= '<p><a href="' . dcCore()->blog->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
                         break;
                     }
                 }
 
                 $line .= '<div class="current-actions">';
 
-                $config_class = Core::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
+                $config_class = dcCore()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
                 if (is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {
@@ -229,7 +225,7 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= $this->core->behaviors->call('adminCurrentThemeDetails', $module);
+                $line .= dcCore()->behaviors->call('adminCurrentThemeDetails', $module);
 
                 $line .= '</div>';
             }
@@ -256,7 +252,7 @@ class ModulesTheme extends AbstractModules
         if (!$count && $this->getSearch() === null) {
             echo
             '<p class="message">' . __('No themes matched your search.') . '</p>';
-        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && $this->core->auth->isSuperAdmin()) {
+        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && dcCore()->auth->isSuperAdmin()) {
             $buttons = $this->getGlobalActions($actions, in_array('checkbox', $cols));
 
             if (!empty($buttons)) {
@@ -278,8 +274,8 @@ class ModulesTheme extends AbstractModules
     {
         $submits = [];
 
-        $this->core->blog->settings->addNamespace('system');
-        if ($id != $this->core->blog->settings->system->theme) {
+        dcCore()->blog->settings->addNamespace('system');
+        if ($id != dcCore()->blog->settings->system->theme) {
 
             # Select theme to use on curent blog
             if (in_array('select', $actions)) {
@@ -298,7 +294,7 @@ class ModulesTheme extends AbstractModules
 
                 # Deactivate
                 case 'activate':
-                    if ($this->core->auth->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
+                    if (dcCore()->auth->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
 
@@ -306,7 +302,7 @@ class ModulesTheme extends AbstractModules
 
                 # Activate
                 case 'deactivate':
-                    if ($this->core->auth->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
+                    if (dcCore()->auth->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
                         $submits[] = '<input type="submit" name="deactivate[' . Html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
                     }
 
@@ -314,7 +310,7 @@ class ModulesTheme extends AbstractModules
 
                 # Delete
                 case 'delete':
-                    if ($this->core->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
+                    if (dcCore()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
                         $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && defined('DOTCLEAR_MODE_DEV') && DOTCLEAR_MODE_DEV ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
@@ -323,7 +319,7 @@ class ModulesTheme extends AbstractModules
 
                 # Clone
                 case 'clone':
-                    if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dcCore()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" class="button clone" name="clone[' . Html::escapeHTML($id) . ']" value="' . __('Clone') . '" />';
                     }
 
@@ -331,7 +327,7 @@ class ModulesTheme extends AbstractModules
 
                 # Install (from store)
                 case 'install':
-                    if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dcCore()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="install[' . Html::escapeHTML($id) . ']" value="' . __('Install') . '" />';
                     }
 
@@ -339,7 +335,7 @@ class ModulesTheme extends AbstractModules
 
                 # Update (from store)
                 case 'update':
-                    if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dcCore()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update[' . Html::escapeHTML($id) . ']" value="' . __('Update') . '" />';
                     }
 
@@ -349,7 +345,7 @@ class ModulesTheme extends AbstractModules
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = $this->core->behaviors->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = dcCore()->behaviors->call('adminModulesListGetActions', $this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -372,12 +368,12 @@ class ModulesTheme extends AbstractModules
                 # Update (from store)
                 case 'update':
 
-                    if ($this->core->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dcCore()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update" value="' . (
                             $with_selection ?
                             __('Update selected themes') :
                             __('Update all themes from this list')
-                        ) . '" />' . $this->core->formNonce();
+                        ) . '" />' . dcCore()->formNonce();
                     }
 
                     break;
@@ -386,7 +382,7 @@ class ModulesTheme extends AbstractModules
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = $this->core->behaviors->call('adminModulesListGetGlobalActions', $this);
+                    $tmp = dcCore()->behaviors->call('adminModulesListGetGlobalActions', $this);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -418,12 +414,12 @@ class ModulesTheme extends AbstractModules
                     throw new Exception(__('No such theme.'));
                 }
 
-                $this->core->blog->settings->addNamespace('system');
-                $this->core->blog->settings->system->put('theme', $id);
-                $this->core->blog->triggerBlog();
+                dcCore()->blog->settings->addNamespace('system');
+                dcCore()->blog->settings->system->put('theme', $id);
+                dcCore()->blog->triggerBlog();
 
                 $module = $this->getModule($id);
-                $this->core->notices->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
+                dcCore()->notices->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
         } else {
@@ -431,7 +427,7 @@ class ModulesTheme extends AbstractModules
                 return;
             }
 
-            if ($this->core->auth->isSuperAdmin() && !empty($_POST['activate'])) {
+            if (dcCore()->auth->isSuperAdmin() && !empty($_POST['activate'])) {
                 if (is_array($_POST['activate'])) {
                     $modules = array_keys($_POST['activate']);
                 }
@@ -448,21 +444,21 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeActivate
-                    $this->core->behaviors->call('themeBeforeActivate', $id);
+                    dcCore()->behaviors->call('themeBeforeActivate', $id);
 
                     $this->activateModule($id);
 
                     # --BEHAVIOR-- themeAfterActivate
-                    $this->core->behaviors->call('themeAfterActivate', $id);
+                    dcCore()->behaviors->call('themeAfterActivate', $id);
 
                     $count++;
                 }
 
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
+            } elseif (dcCore()->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
                 if (is_array($_POST['deactivate'])) {
                     $modules = array_keys($_POST['deactivate']);
                 }
@@ -486,25 +482,25 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeDeactivate
-                    $this->core->behaviors->call('themeBeforeDeactivate', $module);
+                    dcCore()->behaviors->call('themeBeforeDeactivate', $module);
 
                     $this->deactivateModule($id);
 
                     # --BEHAVIOR-- themeAfterDeactivate
-                    $this->core->behaviors->call('themeAfterDeactivate', $module);
+                    dcCore()->behaviors->call('themeAfterDeactivate', $module);
 
                     $count++;
                 }
 
                 if ($failed) {
-                    $this->core->notices->addWarningNotice(__('Some themes have not been deactivated.'));
+                    dcCore()->notices->addWarningNotice(__('Some themes have not been deactivated.'));
                 } else {
-                    $this->core->notices->addSuccessNotice(
+                    dcCore()->notices->addSuccessNotice(
                         __('Theme has been successfully deactivated.', 'Themes have been successuflly deactivated.', $count)
                     );
                 }
                 Http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['clone'])) {
+            } elseif (dcCore()->auth->isSuperAdmin() && !empty($_POST['clone'])) {
                 if (is_array($_POST['clone'])) {
                     $modules = array_keys($_POST['clone']);
                 }
@@ -516,21 +512,21 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeClone
-                    $this->core->behaviors->call('themeBeforeClone', $id);
+                    dcCore()->behaviors->call('themeBeforeClone', $id);
 
                     $this->cloneModule($id);
 
                     # --BEHAVIOR-- themeAfterClone
-                    $this->core->behaviors->call('themeAfterClone', $id);
+                    dcCore()->behaviors->call('themeAfterClone', $id);
 
                     $count++;
                 }
 
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['delete'])) {
+            } elseif (dcCore()->auth->isSuperAdmin() && !empty($_POST['delete'])) {
                 if (is_array($_POST['delete'])) {
                     $modules = array_keys($_POST['delete']);
                 }
@@ -554,12 +550,12 @@ class ModulesTheme extends AbstractModules
                         }
 
                         # --BEHAVIOR-- themeBeforeDelete
-                        $this->core->behaviors->call('themeBeforeDelete', $module);
+                        dcCore()->behaviors->call('themeBeforeDelete', $module);
 
                         $this->deleteModule($id);
 
                         # --BEHAVIOR-- themeAfterDelete
-                        $this->core->behaviors->call('themeAfterDelete', $module);
+                        dcCore()->behaviors->call('themeAfterDelete', $module);
                     } else {
                         $this->deleteModule($id, true);
                     }
@@ -570,14 +566,14 @@ class ModulesTheme extends AbstractModules
                 if (!$count && $failed) {
                     throw new Exception(__("You don't have permissions to delete this theme."));
                 } elseif ($failed) {
-                    $this->core->notices->addWarningNotice(__('Some themes have not been delete.'));
+                    dcCore()->notices->addWarningNotice(__('Some themes have not been delete.'));
                 } else {
-                    $this->core->notices->addSuccessNotice(
+                    dcCore()->notices->addSuccessNotice(
                         __('Theme has been successfully deleted.', 'Themes have been successuflly deleted.', $count)
                     );
                 }
                 Http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['install'])) {
+            } elseif (dcCore()->auth->isSuperAdmin() && !empty($_POST['install'])) {
                 if (is_array($_POST['install'])) {
                     $modules = array_keys($_POST['install']);
                 }
@@ -597,21 +593,21 @@ class ModulesTheme extends AbstractModules
                     $dest = $this->getPath() . '/' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeAdd
-                    $this->core->behaviors->call('themeBeforeAdd', $module);
+                    dcCore()->behaviors->call('themeBeforeAdd', $module);
 
                     $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterAdd
-                    $this->core->behaviors->call('themeAfterAdd', $module);
+                    dcCore()->behaviors->call('themeAfterAdd', $module);
 
                     $count++;
                 }
 
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif ($this->core->auth->isSuperAdmin() && !empty($_POST['update'])) {
+            } elseif (dcCore()->auth->isSuperAdmin() && !empty($_POST['update'])) {
                 if (is_array($_POST['update'])) {
                     $modules = array_keys($_POST['update']);
                 }
@@ -630,19 +626,19 @@ class ModulesTheme extends AbstractModules
                     $dest = $module->root() . '/../' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeUpdate
-                    $this->core->behaviors->call('themeBeforeUpdate', $module);
+                    dcCore()->behaviors->call('themeBeforeUpdate', $module);
 
                     $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterUpdate
-                    $this->core->behaviors->call('themeAfterUpdate', $module);
+                    dcCore()->behaviors->call('themeAfterUpdate', $module);
 
                     $count++;
                 }
 
                 $tab = $count && $count == count($list) ? '#themes' : '#update';
 
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     __('Theme has been successfully updated.', 'Themes have been successfully updated.', $count)
                 );
                 Http::redirect($this->getURL() . $tab);
@@ -651,7 +647,7 @@ class ModulesTheme extends AbstractModules
             # Manual actions
             elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
                 || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
-                if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dcCore()->auth->checkPassword($_POST['your_pwd'])) {
                     throw new Exception(__('Password verification failed'));
                 }
 
@@ -669,14 +665,14 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- themeBeforeAdd
-                $this->core->behaviors->call('themeBeforeAdd', null);
+                dcCore()->behaviors->call('themeBeforeAdd', null);
 
                 $ret_code = $this->store->install($dest);
 
                 # --BEHAVIOR-- themeAfterAdd
-                $this->core->behaviors->call('themeAfterAdd', null);
+                dcCore()->behaviors->call('themeAfterAdd', null);
 
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     $ret_code == 2 ?
                     __('The theme has been successfully updated.') :
                     __('The theme has been successfully installed.')
@@ -685,7 +681,7 @@ class ModulesTheme extends AbstractModules
             } else {
 
                 # --BEHAVIOR-- adminModulesListDoActions
-                $this->core->behaviors->call('adminModulesListDoActions', $this, $modules, 'theme');
+                dcCore()->behaviors->call('adminModulesListDoActions', $this, $modules, 'theme');
             }
         }
     }

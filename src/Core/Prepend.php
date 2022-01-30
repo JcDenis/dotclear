@@ -15,6 +15,8 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
+use Dotclear\Core\Core;
+
 use Dotclear\Distrib\Distrib;
 
 use Dotclear\Database\Schema;
@@ -43,7 +45,7 @@ class Prepend extends Core
      *
      * @param  string $process public/admin/install/...
      */
-    public function __construct()
+    public function process()
     {
         # Add autoloader (for modules)
         if (!$this->autoloader) {
@@ -157,7 +159,7 @@ class Prepend extends Core
         define('DOTCLEAR_PROCESS', $this->process);
 
         try {
-            parent::__construct();
+            parent::process();
         } catch (Exception $e) {
             # Loading locales for detected language
             $dlang = Http::getAcceptLanguages();

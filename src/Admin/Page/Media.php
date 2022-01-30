@@ -67,46 +67,40 @@ class Media extends Page
     protected function getFilterInstance(): ?Filter
     {
         # AdminMedia extends MediaFilter
-        return new MediaFilter($this->core);
+        return new MediaFilter();
     }
 
     protected function getCatalogInstance(): ?Catalog
     {
         // try to load core media and themes
         try {
-            $this->core->mediaInstance();
-            $this->core->media->setFileSort($this->filter->sortby . '-' . $this->filter->order);
+            dcCore()->mediaInstance();
+            dcCore()->media->setFileSort($this->filter->sortby . '-' . $this->filter->order);
 
             if ($this->filter->q != '') {
-                $this->media_has_query = $this->core->media->searchMedia($this->filter->q);
+                $this->media_has_query = dcCore()->media->searchMedia($this->filter->q);
             }
             if (!$this->media_has_query) {
                 $try_d = $this->filter->d;
                 // Reset current dir
                 $this->filter->d = null;
                 // Change directory (may cause an exception if directory doesn't exist)
-                $this->core->media->chdir($try_d);
+                dcCore()->media->chdir($try_d);
                 // Restore current dir variable
                 $this->filter->d = $try_d;
-                $this->core->media->getDir();
+                dcCore()->media->getDir();
             } else {
                 $this->filter->d = null;
-                $this->core->media->chdir('');
+                dcCore()->media->chdir('');
             }
-            $this->media_writable = $this->core->media->writable();
-            $this->media_dir      = &$this->core->media->dir;
-/*
-            # Loading themes, may be useful for some configurable theme
-            if ($this->core->themes === null) {
-                $this->core->themeInstance();
-                $this->core->themes->loadModules($this->core->blog->themes_path, null);
-            }
-*/
+            $this->media_writable = dcCore()->media->writable();
+            $this->media_dir      = &dcCore()->media->dir;
+
             $rs = $this->getDirsRecord();
 
-            return new MediaCatalog($this->core, $rs, $rs->count());
+            return new MediaCatalog($rs, $rs->count());
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         return null;
@@ -116,32 +110,32 @@ class Media extends Page
     {
         $this->filter->add('handler', 'admin.media');
 
-        $this->media_uploader = $this->core->auth->user_prefs->interface->enhanceduploader;
+        $this->media_uploader = dcCore()->auth->user_prefs->interface->enhanceduploader;
 
 
         # Zip download
-        if (!empty($_GET['zipdl']) && $this->core->auth->check('media_admin', $this->core->blog->id)) {
+        if (!empty($_GET['zipdl']) && dcCore()->auth->check('media_admin', dcCore()->blog->id)) {
             try {
-                if (strpos(realpath($this->core->media->root . '/' . $this->filter->d), realpath($this->core->media->root)) === 0) {
+                if (strpos(realpath(dcCore()->media->root . '/' . $this->filter->d), realpath(dcCore()->media->root)) === 0) {
                     // Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-                    $zip->addDirectory($this->core->media->root . '/' . $this->filter->d, '', true);
+                    $zip->addDirectory(dcCore()->media->root . '/' . $this->filter->d, '', true);
 
-                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . $this->core->blog->id . '-' . ($this->filter->d ?: 'media') . '.zip');
+                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dcCore()->blog->id . '-' . ($this->filter->d ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
                     unset($zip);
                     exit;
                 }
                 $this->filter->d = null;
-                $this->core->media->chdir($this->filter->d);
+                dcCore()->media->chdir($this->filter->d);
 
                 throw new Exception(__('Not a valid directory'));
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -149,7 +143,7 @@ class Media extends Page
         if ($this->showLast()) {
             if (!empty($_GET['fav'])) {
                 if ($this->updateFav(rtrim((string) $this->filter->d, '/'), $_GET['fav'] == 'n')) {
-                    $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                    dcCore()->adminurl->redirect('admin.media', $this->filter->values());
                 }
             }
             $this->updateLast(rtrim((string) $this->filter->d, '/'));
@@ -161,20 +155,20 @@ class Media extends Page
             if (array_filter($this->getDirs('files'), function ($i) use ($nd) {return ($i->basename === $nd);})
                 || array_filter($this->getDirs('dirs'), function ($i) use ($nd) {return ($i->basename === $nd);})
             ) {
-                $this->core->notices->addWarningNotice(sprintf(
+                dcCore()->notices->addWarningNotice(sprintf(
                     __('Directory or file "%s" already exists.'),
                     Html::escapeHTML($nd)
                 ));
             } else {
                 try {
-                    $this->core->media->makeDir($_POST['newdir']);
-                    $this->core->notices->addSuccessNotice(sprintf(
+                    dcCore()->media->makeDir($_POST['newdir']);
+                    dcCore()->notices->addSuccessNotice(sprintf(
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
                     ));
-                    $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                    dcCore()->adminurl->redirect('admin.media', $this->filter->values());
                 } catch (Exception $e) {
-                    $this->core->error->add($e->getMessage());
+                    dcCore()->error->add($e->getMessage());
                 }
             }
         }
@@ -197,7 +191,7 @@ class Media extends Page
 
                 try {
                     Files::uploadStatus($upfile);
-                    $new_file_id = $this->core->media->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
+                    $new_file_id = dcCore()->media->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
 
                     $message['files'][] = [
                         'name' => $upfile['name'],
@@ -221,12 +215,12 @@ class Media extends Page
                 $f_title   = (isset($_POST['upfiletitle']) ? Html::escapeHTML($_POST['upfiletitle']) : '');
                 $f_private = ($_POST['upfilepriv'] ?? false);
 
-                $this->core->media->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
+                dcCore()->media->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
 
-                $this->core->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
-                $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                dcCore()->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
+                dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -234,9 +228,9 @@ class Media extends Page
         if ($this->getDirs() && !empty($_POST['medias']) && !empty($_POST['delete_medias'])) {
             try {
                 foreach ($_POST['medias'] as $media) {
-                    $this->core->media->removeItem(rawurldecode($media));
+                    dcCore()->media->removeItem(rawurldecode($media));
                 }
-                $this->core->notices->addSuccessNotice(
+                dcCore()->notices->addSuccessNotice(
                     sprintf(__('Successfully delete one media.',
                         'Successfully delete %d medias.',
                         count($_POST['medias'])
@@ -244,9 +238,9 @@ class Media extends Page
                         count($_POST['medias'])
                     )
                 );
-                $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -256,37 +250,37 @@ class Media extends Page
             $forget          = false;
 
             try {
-                if (is_dir(Path::real($this->core->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
+                if (is_dir(Path::real(dcCore()->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
                     $msg = __('Directory has been successfully removed.');
                     # Remove dir from recents/favs if necessary
                     $forget = true;
                 } else {
                     $msg = __('File has been successfully removed.');
                 }
-                $this->core->media->removeItem($_POST['remove']);
+                dcCore()->media->removeItem($_POST['remove']);
                 if ($forget) {
                     $this->updateLast($this->filter->d . '/' . Path::clean($_POST['remove']), true);
                     $this->updateFav($this->filter->d . '/' . Path::clean($_POST['remove']), true);
                 }
-                $this->core->notices->addSuccessNotice($msg);
-                $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                dcCore()->notices->addSuccessNotice($msg);
+                dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Rebuild directory
-        if ($this->getDirs() && $this->core->auth->isSuperAdmin() && !empty($_POST['rebuild'])) {
+        if ($this->getDirs() && dcCore()->auth->isSuperAdmin() && !empty($_POST['rebuild'])) {
             try {
-                $this->core->media->rebuild($this->filter->d);
+                dcCore()->media->rebuild($this->filter->d);
 
-                $this->core->notices->success(sprintf(
+                dcCore()->notices->success(sprintf(
                     __('Directory "%s" has been successfully rebuilt.'),
                     Html::escapeHTML($this->filter->d))
                 );
-                $this->core->adminurl->redirect('admin.media', $this->filter->values());
+                dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -297,7 +291,7 @@ class Media extends Page
             $this->breadcrumb();
             $this->setPageHead(
                 static::jsModal() .
-                $this->filter->js($this->core->adminurl->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(false, true)), '&')) .
+                $this->filter->js(dcCore()->adminurl->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(false, true)), '&')) .
                 static::jsLoad('js/_media.js') .
                 ($this->mediaWritable() ? static::jsUpload(['d=' . $this->filter->d]) : '')
             );
@@ -314,21 +308,21 @@ class Media extends Page
     {
         if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
             echo
-            '<form action="' . Html::escapeURL($this->core->adminurl->get('admin.media')) . '" method="post">' .
+            '<form action="' . Html::escapeURL(dcCore()->adminurl->get('admin.media')) . '" method="post">' .
             '<p>' . sprintf(__('Are you sure you want to remove %s?'),
                 Html::escapeHTML($_GET['remove'])) . '</p>' .
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
-            $this->core->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
-            $this->core->formNonce() .
+            dcCore()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
+            dcCore()->formNonce() .
             form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
             '</form>';
 
             retunr;
         }
 
-        if (!$this->mediaWritable() && !$this->core->error->flag()) {
-            $this->core->notices->warning(__('You do not have sufficient permissions to write to this folder.'));
+        if (!$this->mediaWritable() && !dcCore()->error->flag()) {
+            dcCore()->notices->warning(__('You do not have sufficient permissions to write to this folder.'));
         }
 
         if (!$this->getDirs()) {
@@ -350,13 +344,13 @@ class Media extends Page
                 $ld_params      = $this->filter->values();
                 $ld_params['d'] = $ld;
                 $ld_params['q'] = ''; // Reset search
-                $last_folders_item .= '<option value="' . urldecode($this->core->adminurl->get('admin.media', $ld_params)) . '"' .
+                $last_folders_item .= '<option value="' . urldecode(dcCore()->adminurl->get('admin.media', $ld_params)) . '"' .
                     ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                     '/' . $ld . '</option>' . "\n";
                 if ($ld == rtrim((string) $this->filter->d, '/')) {
                     // Current directory is a favorite → button will un-fav
                     $ld_params['fav'] = 'n';
-                    $fav_url          = urldecode($this->core->adminurl->get('admin.media', $ld_params));
+                    $fav_url          = urldecode(dcCore()->adminurl->get('admin.media', $ld_params));
                     unset($ld_params['fav']);
                     $fav_img = 'images/fav-on.png';
                     $fav_alt = __('Remove this folder from your favorites');
@@ -373,13 +367,13 @@ class Media extends Page
                     $ld_params      = $this->filter->values();
                     $ld_params['d'] = $ld;
                     $ld_params['q'] = ''; // Reset search
-                    $last_folders_item .= '<option value="' . urldecode($this->core->adminurl->get('admin.media', $ld_params)) . '"' .
+                    $last_folders_item .= '<option value="' . urldecode(dcCore()->adminurl->get('admin.media', $ld_params)) . '"' .
                         ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                         '/' . $ld . '</option>' . "\n";
                     if ($ld == rtrim((string) $this->filter->d, '/')) {
                         // Current directory is not a favorite → button will fav
                         $ld_params['fav'] = 'y';
-                        $fav_url          = urldecode($this->core->adminurl->get('admin.media', $ld_params));
+                        $fav_url          = urldecode(dcCore()->adminurl->get('admin.media', $ld_params));
                         unset($ld_params['fav']);
                         $fav_img = 'images/fav-off.png';
                         $fav_alt = __('Add this folder to your favorites');
@@ -412,7 +406,7 @@ class Media extends Page
         } else {
             if ($this->filter->post_id) {
                 echo '<div class="form-note info"><p>' . sprintf(__('Choose a file to attach to entry %s by clicking on %s'),
-                    '<a href="' . $this->core->getPostAdminURL($this->getPostType(), $this->filter->post_id) . '">' . Html::escapeHTML($this->getPostTitle()) . '</a>',
+                    '<a href="' . dcCore()->getPostAdminURL($this->getPostType(), $this->filter->post_id) . '">' . Html::escapeHTML($this->getPostTitle()) . '</a>',
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />');
                 if ($this->mediaWritable()) {
                     echo ' ' . __('or') . ' ' . sprintf('<a href="#fileupload">%s</a>', __('upload a new file'));
@@ -433,20 +427,20 @@ class Media extends Page
         // add file mode into the filter box
         $this->filter->add((new DefaultFilter('file_mode'))->value($this->filter->file_mode)->html(
             '<p><span class="media-file-mode">' .
-            '<a href="' . $this->core->adminurl->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
+            '<a href="' . dcCore()->adminurl->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
             '<img src="?df=images/grid-' . ($this->filter->file_mode == 'grid' ? 'on' : 'off') . '.png" alt="' . __('Grid display mode') . '" />' .
             '</a>' .
-            '<a href="' . $this->core->adminurl->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'list'])) . '" title="' . __('List display mode') . '">' .
+            '<a href="' . dcCore()->adminurl->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'list'])) . '" title="' . __('List display mode') . '">' .
             '<img src="?df=images/list-' . ($this->filter->file_mode == 'list' ? 'on' : 'off') . '.png" alt="' . __('List display mode') . '" />' .
             '</a>' .
             '</span></p>', false
         ));
 
-        $fmt_form_media = '<form action="' . $this->core->adminurl->get('admin.media') . '" method="post" id="form-medias">' .
+        $fmt_form_media = '<form action="' . dcCore()->adminurl->get('admin.media') . '" method="post" id="form-medias">' .
         '<div class="files-group">%s</div>' .
         '<p class="hidden">' .
-        $this->core->formNonce() .
-        $this->core->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
+        dcCore()->formNonce() .
+        dcCore()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
         '</p>';
 
         if (!$this->filter->popup || $this->filter->select > 1) {
@@ -472,7 +466,7 @@ class Media extends Page
         $form_filters_hidden_fields = array_diff_key($this->filter->values(), ['nb' => '', 'order' => '', 'sortby' => '', 'q' => '']);
 
         // display filter
-        $this->filter->display('admin.media', $this->core->adminurl->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
+        $this->filter->display('admin.media', dcCore()->adminurl->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
 
         // display list
         $this->catalog->display($this->filter, $fmt_form_media, $this->hasQuery());
@@ -492,14 +486,14 @@ class Media extends Page
             # Create directory
             if ($this->mediaWritable()) {
                 echo
-                '<form action="' . Html::escapeURL($this->core->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" class="fieldset">' .
+                '<form action="' . Html::escapeURL(dcCore()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" class="fieldset">' .
                 '<div id="new-dir-f">' .
                 '<h4 class="pretty-title">' . __('Create new directory') . '</h4>' .
-                $this->core->formNonce() .
+                dcCore()->formNonce() .
                 '<p><label for="newdir">' . __('Directory Name:') . '</label>' .
                 form::field('newdir', 35, 255) . '</p>' .
                 '<p><input type="submit" value="' . __('Create') . '" />' .
-                $this->core->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
+                dcCore()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
                     '</p>' .
                     '</div>' .
                     '</form>';
@@ -510,7 +504,7 @@ class Media extends Page
                 echo
                 '<div class="fieldset">' .
                 '<h4 class="pretty-title">' . sprintf(__('Backup content of %s'), ($this->filter->d == '' ? '“' . __('Media manager') . '”' : '“' . $this->filter->d . '”')) . '</h4>' .
-                '<p><a class="button submit" href="' . $this->core->adminurl->get('admin.media',
+                '<p><a class="button submit" href="' . dcCore()->adminurl->get('admin.media',
                     array_merge($this->filter->values(), ['zipdl' => 1])) . '">' . __('Download zip file') . '</a></p>' .
                     '</div>';
             }
@@ -533,9 +527,9 @@ class Media extends Page
             echo
             '<h4>' . __('Add files') . '</h4>' .
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
-            '<form id="fileupload" action="' . Html::escapeURL($this->core->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
+            '<form id="fileupload" action="' . Html::escapeURL(dcCore()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
             '<p>' . form::hidden(['MAX_FILE_SIZE'], DOTCLEAR_MAX_UPLOAD_SIZE) .
-            $this->core->formNonce() . '</p>' .
+            dcCore()->formNonce() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>';
 
             echo
@@ -544,7 +538,7 @@ class Media extends Page
             echo
             '<p><label for="upfile">' . '<span class="add-label one-file">' . __('Choose file') . '</span>' . '</label>' .
             '<button class="button choose_files">' . __('Choose files') . '</button>' .
-            '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL($this->core->adminurl->get('admin.media', $this->filter->values(), '&')) . '" /></p>';
+            '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL(dcCore()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" /></p>';
 
             echo
             '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) DOTCLEAR_MAX_UPLOAD_SIZE) . '</p>';
@@ -557,7 +551,7 @@ class Media extends Page
             if (!$this->showUploader()) {
                 echo
                 '<p class="one-file form-help info">' . __('To send several files at the same time, you can activate the enhanced uploader in') .
-                ' <a href="' . $this->core->adminurl->get('admin.user.pref', ['tab' => 'user-options']) . '">' . __('My preferences') . '</a></p>';
+                ' <a href="' . dcCore()->adminurl->get('admin.user.pref', ['tab' => 'user-options']) . '">' . __('My preferences') . '</a></p>';
             }
 
             echo
@@ -568,7 +562,7 @@ class Media extends Page
 
             echo
             '<p style="clear:both;">' .
-            $this->core->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
+            dcCore()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
                 '</p>' .
                 '</form>' .
                 '</div>' .
@@ -577,12 +571,12 @@ class Media extends Page
 
         # Empty remove form (for javascript actions)
         echo
-        '<form id="media-remove-hide" action="' . Html::escapeURL($this->core->adminurl->get('admin.media', $this->filter->values())) . '" method="post" class="hidden">' .
+        '<form id="media-remove-hide" action="' . Html::escapeURL(dcCore()->adminurl->get('admin.media', $this->filter->values())) . '" method="post" class="hidden">' .
         '<div>' .
         form::hidden('rmyes', 1) .
-        $this->core->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
+        dcCore()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
         form::hidden('remove', '') .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
             '</div>' .
             '</form>';
 
@@ -593,7 +587,7 @@ class Media extends Page
 
         if (!$this->filter->popup) {
             echo '<div class="info"><p>' . sprintf(__('Current settings for medias and images are defined in %s'),
-                '<a href="' . $this->core->adminurl->get('admin.blog.pref') . '#medias-settings">' . __('Blog parameters') . '</a>') . '</p></div>';
+                '<a href="' . dcCore()->adminurl->get('admin.blog.pref') . '#medias-settings">' . __('Blog parameters') . '</a>') . '</p></div>';
 
             # Go back button
             echo '<p><input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /></p>';
@@ -611,7 +605,7 @@ class Media extends Page
     {
         $option = $param = [];
 
-        if (empty($element) && isset($this->core->media)) {
+        if (empty($element) && isset(dcCore()->media)) {
             $param = [
                 'd' => '',
                 'q' => ''
@@ -622,8 +616,8 @@ class Media extends Page
 
                 $element[__('Search:') . ' ' . $this->filter->q . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
-                $bc_url   = $this->core->adminurl->get('admin.media', array_merge($this->filter->values(true), ['d' => '%s']), '&');
-                $bc_media = $this->core->media->breadCrumb($bc_url, '<span class="page-title">%s</span>');
+                $bc_url   = dcCore()->adminurl->get('admin.media', array_merge($this->filter->values(true), ['d' => '%s']), '&');
+                $bc_media = dcCore()->media->breadCrumb($bc_url, '<span class="page-title">%s</span>');
                 if ($bc_media != '') {
                     $element[$bc_media] = '';
                     $option['hl']       = true;
@@ -632,9 +626,9 @@ class Media extends Page
         }
 
         $elements = [
-            html::escapeHTML($this->core->blog->name) => '',
+            html::escapeHTML(dcCore()->blog->name) => '',
             __('Media manager')                       => empty($param) ? '' :
-                $this->core->adminurl->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param)))
+                dcCore()->adminurl->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param)))
         ];
         $options = [
             'home_link' => !$this->filter->popup
@@ -676,7 +670,7 @@ class Media extends Page
         if ($this->media_archivable === null) {
             $rs = $this->getDirsRecord();
 
-            $this->media_archivable = $this->core->auth->check('media_admin', $this->core->blog->id)
+            $this->media_archivable = dcCore()->auth->check('media_admin', dcCore()->blog->id)
                 && !(count($rs) == 0 || (count($rs) == 1 && $rs->__data[0]->parent));
         }
 
@@ -731,7 +725,7 @@ class Media extends Page
      */
     public function mediaLine($file_id)
     {
-        return MediaCatalog::mediaLine($this->core, $this->filter, $this->core->media->getFile($file_id), 1, $this->media_has_query);
+        return MediaCatalog::mediaLine($this->filter, dcCore()->media->getFile($file_id), 1, $this->media_has_query);
     }
 
     /**
@@ -751,7 +745,7 @@ class Media extends Page
      */
     public function showLast()
     {
-        return abs((int) $this->core->auth->user_prefs->interface->media_nb_last_dirs);
+        return abs((int) dcCore()->auth->user_prefs->interface->media_nb_last_dirs);
     }
 
     /**
@@ -762,7 +756,7 @@ class Media extends Page
     public function getLast()
     {
         if ($this->media_last === null) {
-            $m = $this->core->auth->user_prefs->interface->media_last_dirs;
+            $m = dcCore()->auth->user_prefs->interface->media_last_dirs;
             if (!is_array($m)) {
                 $m = [];
             }
@@ -818,7 +812,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_last = $last_dirs;
-            $this->core->auth->user_prefs->interface->put('media_last_dirs', $last_dirs, 'array');
+            dcCore()->auth->user_prefs->interface->put('media_last_dirs', $last_dirs, 'array');
         }
 
         return $done;
@@ -832,7 +826,7 @@ class Media extends Page
     public function getFav()
     {
         if ($this->media_fav === null) {
-            $m = $this->core->auth->user_prefs->interface->media_fav_dirs;
+            $m = dcCore()->auth->user_prefs->interface->media_fav_dirs;
             if (!is_array($m)) {
                 $m = [];
             }
@@ -873,7 +867,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_fav = $fav_dirs;
-            $this->core->auth->user_prefs->interface->put('media_fav_dirs', $fav_dirs, 'array');
+            dcCore()->auth->user_prefs->interface->put('media_fav_dirs', $fav_dirs, 'array');
         }
 
         return $done;

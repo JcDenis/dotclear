@@ -54,35 +54,35 @@ class User extends Page
 
         $this->container = new ContainerUser();
 
-        $this->container->setLang($this->core->auth->getInfo('user_lang'));
-        $this->container->setTZ($this->core->auth->getInfo('user_tz'));
+        $this->container->setLang(dcCore()->auth->getInfo('user_lang'));
+        $this->container->setTZ(dcCore()->auth->getInfo('user_tz'));
 
         # Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = $this->core->getUser($_REQUEST['id']);
+                $rs = dcCore()->getUser($_REQUEST['id']);
 
                 $this->container->fromRecord($rs);
 
-                $user_prefs = new Prefs($this->core, $this->container->getId(), 'profile');
+                $user_prefs = new Prefs($this->container->getId(), 'profile');
                 $user_prefs->addWorkspace('profile');
                 $this->user_profile_mails = $user_prefs->profile->mails;
                 $this->user_profile_urls  = $user_prefs->profile->urls;
 
                 $page_title = $this->container->getId();
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dcCore()->auth->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
-                $cur = $this->core->con->openCursor($this->core->prefix . 'user');
+                $cur = dcCore()->con->openCursor(dcCore()->prefix . 'user');
 
                 $cur->user_id          = $this->container->setId($_POST['user_id']);
                 $cur->user_super       = $this->container->setSuper(!empty($_POST['user_super']));
@@ -95,11 +95,11 @@ class User extends Page
                 $cur->user_tz          = $this->container->setTZ(Html::escapeHTML($_POST['user_tz']));
                 $cur->user_post_status = $this->container->setPostStatus(Html::escapeHTML($_POST['user_post_status']));
 
-                if ($this->container->getId() && $cur->user_id == $this->core->auth->userID() && $this->core->auth->isSuperAdmin()) {
+                if ($this->container->getId() && $cur->user_id == dcCore()->auth->userID() && dcCore()->auth->isSuperAdmin()) {
                     // force super_user to true if current user
                     $cur->user_super = $this->container->setSuper(true);
                 }
-                if ($this->core->auth->allowPassChange()) {
+                if (dcCore()->auth->allowPassChange()) {
                     $cur->user_change_pwd = !empty($_POST['user_change_pwd']) ? 1 : 0;
                 }
 
@@ -122,9 +122,9 @@ class User extends Page
                 # Udate user
                 if ($this->container->getId()) {
                     # --BEHAVIOR-- adminBeforeUserUpdate
-                    $this->core->behaviors->call('adminBeforeUserUpdate', $cur, $this->container->getId());
+                    dcCore()->behaviors->call('adminBeforeUserUpdate', $cur, $this->container->getId());
 
-                    $new_id = $this->core->updUser($this->container->getId(), $cur);
+                    $new_id = dcCore()->updUser($this->container->getId(), $cur);
 
                     # Update profile
                     # Sanitize list of secondary mails and urls if any
@@ -135,31 +135,31 @@ class User extends Page
                     if (!empty($_POST['user_profile_urls'])) {
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
-                    $user_prefs = new Prefs($this->core, $this->container->getId(), 'profile');
+                    $user_prefs = new Prefs($this->container->getId(), 'profile');
                     $user_prefs->addWorkspace('profile');
                     $user_prefs->profile->put('mails', $mails, 'string');
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserUpdate
-                    $this->core->behaviors->call('adminAfterUserUpdate', $cur, $new_id);
+                    dcCore()->behaviors->call('adminAfterUserUpdate', $cur, $new_id);
 
-                    if ($this->container->getId() == $this->core->auth->userID() && $this->container->getId() != $new_id) {
-                        $this->core->session->destroy();
+                    if ($this->container->getId() == dcCore()->auth->userID() && $this->container->getId() != $new_id) {
+                        dcCore()->session->destroy();
                     }
 
-                    $this->core->notices->addSuccessNotice(__('User has been successfully updated.'));
-                    $this->core->adminurl->redirect('admin.user', ['id' => $new_id]);
+                    dcCore()->notices->addSuccessNotice(__('User has been successfully updated.'));
+                    dcCore()->adminurl->redirect('admin.user', ['id' => $new_id]);
                 }
                 # Add user
                 else {
-                    if ($this->core->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
+                    if (dcCore()->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->user_id)));
                     }
 
                     # --BEHAVIOR-- adminBeforeUserCreate
-                    $this->core->behaviors->call('adminBeforeUserCreate', $cur);
+                    dcCore()->behaviors->call('adminBeforeUserCreate', $cur);
 
-                    $new_id = $this->core->addUser($cur);
+                    $new_id = dcCore()->addUser($cur);
 
                     # Update profile
                     # Sanitize list of secondary mails and urls if any
@@ -170,24 +170,24 @@ class User extends Page
                     if (!empty($_POST['user_profile_urls'])) {
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
-                    $user_prefs = new Prefs($this->core, $new_id, 'profile');
+                    $user_prefs = new Prefs($new_id, 'profile');
                     $user_prefs->addWorkspace('profile');
                     $user_prefs->profile->put('mails', $mails, 'string');
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserCreate
-                    $this->core->behaviors->call('adminAfterUserCreate', $cur, $new_id);
+                    dcCore()->behaviors->call('adminAfterUserCreate', $cur, $new_id);
 
-                    $this->core->notices->addSuccessNotice(__('User has been successfully created.'));
-                    $this->core->notices->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
+                    dcCore()->notices->addSuccessNotice(__('User has been successfully created.'));
+                    dcCore()->notices->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
                     if (!empty($_POST['saveplus'])) {
-                        $this->core->adminurl->redirect('admin.user');
+                        dcCore()->adminurl->redirect('admin.user');
                     } else {
-                        $this->core->adminurl->redirect('admin.user', ['id' => $new_id]);
+                        dcCore()->adminurl->redirect('admin.user', ['id' => $new_id]);
                     }
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -204,11 +204,11 @@ class User extends Page
                 ]) .
                 static::jsLoad('js/pwstrength.js') .
                 static::jsLoad('js/_user.js') .
-                $this->core->behaviors->call('adminUserHeaders')
+                dcCore()->behaviors->call('adminUserHeaders')
             )
             ->setPageBreadcrumb([
                 __('System') => '',
-                __('Users')  => $this->core->adminurl->get('admin.users'),
+                __('Users')  => dcCore()->adminurl->get('admin.users'),
                 $page_title  => ''
             ])
         ;
@@ -219,17 +219,17 @@ class User extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            $this->core->notices->success(__('User has been successfully updated.'));
+            dcCore()->notices->success(__('User has been successfully updated.'));
         }
 
         if (!empty($_GET['add'])) {
-            $this->core->notices->success(__('User has been successfully created.'));
+            dcCore()->notices->success(__('User has been successfully created.'));
         }
 
-        $formaters_combo = $this->core->combos->getFormatersCombo();
+        $formaters_combo = dcCore()->combos->getFormatersCombo();
 
         echo
-        '<form action="' . $this->core->adminurl->get('admin.user') . '" method="post" id="user-form">' .
+        '<form action="' . dcCore()->adminurl->get('admin.user') . '" method="post" id="user-form">' .
         '<div class="two-cols">' .
 
         '<div class="col">' .
@@ -244,7 +244,7 @@ class User extends Page
         '</p>' .
         '<p class="form-note info" id="user_id_help">' . __('At least 2 characters using letters, numbers or symbols.') . '</p>';
 
-        if ($this->container->getId() == $this->core->auth->userID()) {
+        if ($this->container->getId() == dcCore()->auth->userID()) {
             echo
             '<p class="warning" id="user_id_warning">' . __('Warning:') . ' ' .
             __('If you change your username, you will have to log in again.') . '</p>';
@@ -272,14 +272,14 @@ class User extends Page
                 'autocomplete' => 'new-password']) .
             '</p>';
 
-        if ($this->core->auth->allowPassChange()) {
+        if (dcCore()->auth->allowPassChange()) {
             echo
             '<p><label for="user_change_pwd" class="classic">' .
             Form::checkbox('user_change_pwd', '1', $this->container->getChangePwd()) . ' ' .
             __('Password change required to connect') . '</label></p>';
         }
 
-        $super_disabled = $this->container->getSuper() && $this->container->getId() == $this->core->auth->userID();
+        $super_disabled = $this->container->getSuper() && $this->container->getId() == dcCore()->auth->userID();
 
         echo
         '<p><label for="user_super" class="classic">' .
@@ -349,7 +349,7 @@ class User extends Page
         '<h3>' . __('Options') . '</h3>' .
         '<h4>' . __('Interface') . '</h4>' .
         '<p><label for="user_lang">' . __('Language:') . '</label> ' .
-        Form::combo('user_lang', $this->core->combos->getAdminLangsCombo(), $this->container->getLang(), 'l10n') .
+        Form::combo('user_lang', dcCore()->combos->getAdminLangsCombo(), $this->container->getLang(), 'l10n') .
         '</p>' .
 
         '<p><label for="user_tz">' . __('Timezone:') . '</label> ' .
@@ -365,7 +365,7 @@ class User extends Page
         ) .
 
         '<p><label for="user_post_status">' . __('Default entry status:') . '</label> ' .
-        Form::combo('user_post_status', $this->core->combos->getPostStatusesCombo(), $this->container->getPostStatus()) .
+        Form::combo('user_post_status', dcCore()->combos->getPostStatusesCombo(), $this->container->getPostStatus()) .
         '</p>' .
 
         '<p><label for="user_edit_size">' . __('Entry edit field height:') . '</label> ' .
@@ -373,7 +373,7 @@ class User extends Page
             '</p>';
 
         # --BEHAVIOR-- adminUserForm
-        $this->core->behaviors->call('adminUserForm', $rs ?? null);
+        dcCore()->behaviors->call('adminUserForm', $rs ?? null);
 
         echo
             '</div>' .
@@ -392,7 +392,7 @@ class User extends Page
         ($this->container->getId() != '' ? '' : ' <input type="submit" name="saveplus" value="' . __('Save and create another') . '" />') .
         ($this->container->getId() != '' ? Form::hidden('id', $this->container->getId()) : '') .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
             '</p>' .
 
             '</form>';
@@ -406,17 +406,17 @@ class User extends Page
 
         if (!$this->container->getSuper()) {
             echo
-            '<form action="' . $this->core->adminurl->get('admin.user.actions') . '" method="post">' .
+            '<form action="' . dcCore()->adminurl->get('admin.user.actions') . '" method="post">' .
             '<p><input type="submit" value="' . __('Add new permissions') . '" />' .
-            Form::hidden(['redir'], $this->core->adminurl->get('admin.user', ['id' => $this->container->getId()])) .
+            Form::hidden(['redir'], dcCore()->adminurl->get('admin.user', ['id' => $this->container->getId()])) .
             Form::hidden(['action'], 'blogs') .
             Form::hidden(['users[]'], $this->container->getId()) .
-            $this->core->formNonce() .
+            dcCore()->formNonce() .
                 '</p>' .
                 '</form>';
 
-            $permissions = $this->core->getUserPermissions($this->container->getId());
-            $perm_types  = $this->core->auth->getPermissionsTypes();
+            $permissions = dcCore()->getUserPermissions($this->container->getId());
+            $perm_types  = dcCore()->auth->getPermissionsTypes();
 
             if (count($permissions) == 0) {
                 echo '<p>' . __('No permissions so far.') . '</p>';
@@ -424,9 +424,9 @@ class User extends Page
                 foreach ($permissions as $k => $v) {
                     if (count($v['p']) > 0) {
                         echo
-                        '<form action="' . $this->core->adminurl->get('admin.user.actions') . '" method="post" class="perm-block">' .
+                        '<form action="' . dcCore()->adminurl->get('admin.user.actions') . '" method="post" class="perm-block">' .
                         '<p class="blog-perm">' . __('Blog:') . ' <a href="' .
-                        $this->core->adminurl->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
+                        dcCore()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
                         Html::escapeHTML($v['name']) . '</a> (' . Html::escapeHTML($k) . ')</p>';
 
                         echo '<ul class="ul-perm">';
@@ -438,11 +438,11 @@ class User extends Page
                         echo
                         '</ul>' .
                         '<p class="add-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        Form::hidden(['redir'], $this->core->adminurl->get('admin.user', ['id' => $this->container->getId()])) .
+                        Form::hidden(['redir'], dcCore()->adminurl->get('admin.user', ['id' => $this->container->getId()])) .
                         Form::hidden(['action'], 'perms') .
                         Form::hidden(['users[]'], $this->container->getId()) .
                         Form::hidden(['blogs[]'], $k) .
-                        $this->core->formNonce() .
+                        dcCore()->formNonce() .
                             '</p>' .
                             '</form>';
                     }
@@ -456,13 +456,13 @@ class User extends Page
         // Informations (direct links)
         echo '<div class="clear fieldset">' .
         '<h3>' . __('Direct links') . '</h3>';
-        echo '<p><a href="' . $this->core->adminurl->get('admin.posts',
+        echo '<p><a href="' . dcCore()->adminurl->get('admin.posts',
             ['user_id' => $this->container->getId()]
         ) . '">' . __('List of posts') . '</a>';
-        echo '<p><a href="' . $this->core->adminurl->get('admin.comments',
+        echo '<p><a href="' . dcCore()->adminurl->get('admin.comments',
             [
-                'email' => $this->core->auth->getInfo('user_email', $this->container->getId()),
-                'site'  => $this->core->auth->getInfo('user_url', $this->container->getId()),
+                'email' => dcCore()->auth->getInfo('user_email', $this->container->getId()),
+                'site'  => dcCore()->auth->getInfo('user_url', $this->container->getId()),
             ]
         ) . '">' . __('List of comments') . '</a>';
         echo '</div>';

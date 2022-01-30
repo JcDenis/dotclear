@@ -17,8 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 use Dotclear\Admin\Filter\DefaultFilter;
@@ -34,9 +32,9 @@ class MediaFilter extends Filter
     protected $post_type  = '';
     protected $post_title = '';
 
-    public function __construct(Core $core, string $type = 'media')
+    public function __construct(string $type = 'media')
     {
-        parent::__construct($core, $type);
+        parent::__construct($type);
 
         $filters = new ArrayObject([
             Filters::getPageFilter(),
@@ -52,7 +50,7 @@ class MediaFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        $core->behaviors->call('adminMediaFilter', $filters);
+        dcCore()->behaviors->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -68,7 +66,7 @@ class MediaFilter extends Filter
     {
         $values = new ArrayObject($this->values());
 
-        $this->core->behaviors->call('adminMediaURLParams', $values);
+        dcCore()->behaviors->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {
@@ -83,7 +81,7 @@ class MediaFilter extends Filter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = $this->core->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dcCore()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
             if ($post->isEmpty()) {
                 $post_id = null;
             }

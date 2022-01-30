@@ -18,8 +18,6 @@ use Dotclear\Module\TraitPrependPublic;
 
 use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -28,9 +26,9 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
         # Load widgets
-        new WidgetsStack($core);
+        new WidgetsStack();
     }
 }

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Prefs
  * @brief Dotclear core prefs class
  *
  * @package Dotclear
@@ -21,7 +22,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Prefs
 {
-    protected $core;    ///< <b>core</b> Dotclear core object
     protected $con;     ///< <b>connection</b> Database connection object
     protected $table;   ///< <b>string</b> Prefs table name
     protected $user_id; ///< <b>string</b> User ID
@@ -36,21 +36,19 @@ class Prefs
      * Object constructor. Retrieves user prefs and puts them in $workspaces
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param      Core      $core      The core
      * @param      string      $user_id   The user identifier
      * @param      string|null $workspace The workspace to load
      */
-    public function __construct(Core $core, $user_id, $workspace = null)
+    public function __construct($user_id, $workspace = null)
     {
-        $this->core    = &$core;
-        $this->con     = &$core->con;
-        $this->table   = $core->prefix . 'pref';
-        $this->user_id = &$user_id;
+        $this->con     = dcCore()->con;
+        $this->table   = dcCore()->prefix . 'pref';
+        $this->user_id = $user_id;
 
         try {
             $this->loadPrefs($workspace);
         } catch (Exception $e) {
-            if (version_compare($core->getVersion('core'), '2.3', '>')) {
+            if (version_compare(dcCore()->getVersion('core'), '2.3', '>')) {
                 trigger_error(__('Unable to retrieve workspaces:') . ' ' . $this->con->error(), E_USER_ERROR);
             }
         }
@@ -88,7 +86,7 @@ class Prefs
                 // at very first time
                 $rs->movePrev();
             }
-            $this->workspaces[$ws] = new Workspace($this->core, $this->user_id, $ws, $rs);
+            $this->workspaces[$ws] = new Workspace($this->user_id, $ws, $rs);
         } while (!$rs->isStart());
     }
 
@@ -102,7 +100,7 @@ class Prefs
     public function addWorkspace($ws)
     {
         if (!$this->exists($ws)) {
-            $this->workspaces[$ws] = new Workspace($this->core, $this->user_id, $ws);
+            $this->workspaces[$ws] = new Workspace($this->user_id, $ws);
         }
 
         return $this->workspaces[$ws];

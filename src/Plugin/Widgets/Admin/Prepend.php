@@ -23,8 +23,6 @@ use Dotclear\Plugin\Widgets\Lib\Widgets;
 
 use Dotclear\Admin\Favorites;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -33,33 +31,33 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
         # Add Plugin Admin Page sidebar menu item
-        $core->menu['Blog']->addItem(
+        dcCore()->menu['Blog']->addItem(
             __('Presentation widgets'),
-            $core->adminurl->get('admin.plugin.Widgets'),
+            dcCore()->adminurl->get('admin.plugin.Widgets'),
             '?mf=Plugin/Widgets/icon.png',
-            $core->adminurl->called() == 'admin.plugin.Widgets',
-            $core->auth->check('admin', $core->blog->id)
+            dcCore()->adminurl->called() == 'admin.plugin.Widgets',
+            dcCore()->auth->check('admin', dcCore()->blog->id)
         );
 
         # Add Plugin Admin behaviors
-        $core->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
-        $core->behaviors->add('adminRteFlags', [__CLASS__, 'behaviorAdminRteFlags']);
+        dcCore()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
+        dcCore()->behaviors->add('adminRteFlags', [__CLASS__, 'behaviorAdminRteFlags']);
 
         # Load widgets
-        new WidgetsStack($core);
+        new WidgetsStack();
     }
 
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
-        $settings = $core->blog->settings;
+        $settings = dcCore()->blog->settings;
         $settings->addNamespace('widgets');
         if ($settings->widgets->widgets_nav != null) {
             $settings->widgets->put('widgets_nav', Widgets::load($settings->widgets->widgets_nav)->store());
@@ -80,17 +78,17 @@ class Prepend extends AbstractPrepend
         return true;
     }
 
-    public static function behaviorAdminDashboardFavorites(Core $core, Favorites $favs): void
+    public static function behaviorAdminDashboardFavorites(Favorites $favs): void
     {
         $favs->register('Widgets', [
             'title'      => __('Presentation widgets'),
-            'url'        => $core->adminurl->get('admin.plugin.Widgets'),
+            'url'        => dcCore()->adminurl->get('admin.plugin.Widgets'),
             'small-icon' => '?mf=Plugin/Widgets/icon.png',
             'large-icon' => '?mf=Plugin/Widgets/icon-big.png'
         ]);
     }
 
-    public static function behaviorAdminRteFlags(Core $core, ArrayObject $rte): void
+    public static function behaviorAdminRteFlags(ArrayObject $rte): void
     {
         $rte['widgets_text'] = [true, __('Widget\'s textareas')];
     }

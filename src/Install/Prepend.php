@@ -26,7 +26,7 @@ class Prepend extends BasePrepend
 {
     protected $process = 'Install';
 
-    public function __construct()
+    public function process()
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
@@ -36,14 +36,14 @@ class Prepend extends BasePrepend
 
         /* Load parent (or part of) to get some constants */
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
-            parent::__construct();
+            parent::process();
         }
 
         /* No configuration ? start installalation process */
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
-            new Wizard($this);
+            new Wizard();
         } else {
-            new Install($this);
+            new Install();
         }
     }
 }

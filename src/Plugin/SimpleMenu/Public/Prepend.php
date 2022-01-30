@@ -18,8 +18,6 @@ use Dotclear\Module\TraitPrependPublic;
 
 use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -28,9 +26,9 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
         # Widgets
-        new SimpleMenuWidgets($core);
+        new SimpleMenuWidgets();
     }
 }

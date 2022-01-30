@@ -74,7 +74,7 @@ class Update extends Page
         # Hide "update me" message
         if (!empty($_GET['hide_msg'])) {
             $this->updater->setNotify(false);
-            $this->core->adminurl->redirect('admin.home');
+            dcCore()->adminurl->redirect('admin.home');
         }
 
         $this->step = $_GET['step'] ?? '';
@@ -112,17 +112,17 @@ class Update extends Page
                     if (!@unlink(DOTCLEAR_BACKUP_DIR . '/' . $b_file)) {
                         throw new AdminException(sprintf(__('Unable to delete file %s'), Html::escapeHTML($b_file)));
                     }
-                    $this->core->adminurl->redirect('admin.update', ['tab' => 'files']);
+                    dcCore()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
 
                 if (!empty($_POST['b_revert'])) {
                     $zip = new Unzip(DOTCLEAR_BACKUP_DIR . '/' . $b_file);
                     $zip->unzipAll(DOTCLEAR_BACKUP_DIR . '/');
                     @unlink(DOTCLEAR_BACKUP_DIR . '/' . $b_file);
-                    $this->core->adminurl->redirect('admin.update', ['tab' => 'files']);
+                    dcCore()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -134,7 +134,7 @@ class Update extends Page
                 switch ($this->step) {
                     case 'check':
                         $this->updater->checkIntegrity(DOTCLEAR_ROOT_DIR . '/src/digests', DOTCLEAR_ROOT_DIR);
-                        $this->core->adminurl->redirect('admin.update', ['step' => 'download']);
+                        dcCore()->adminurl->redirect('admin.update', ['step' => 'download']);
 
                         break;
                     case 'download':
@@ -142,13 +142,13 @@ class Update extends Page
                         if (!$this->updater->checkDownload($zip_file)) {
                             throw new AdminException(
                                 sprintf(__('Downloaded Dotclear archive seems to be corrupted. ' .
-                                    'Try <a %s>download it</a> again.'), 'href="' . $this->core->adminurl->get('admin.update', ['step' => 'download']) .'"') .
+                                    'Try <a %s>download it</a> again.'), 'href="' . dcCore()->adminurl->get('admin.update', ['step' => 'download']) .'"') .
                                 ' ' .
                                 __('If this problem persists try to ' .
                                     '<a href="https://dotclear.org/download">update manually</a>.')
                             );
                         }
-                        $this->core->adminurl->redirect('admin.update', ['step' => 'backup']);
+                        dcCore()->adminurl->redirect('admin.update', ['step' => 'backup']);
 
                         break;
                     case 'backup':
@@ -159,7 +159,7 @@ class Update extends Page
                             DOTCLEAR_ROOT_DIR . '/src/digests',
                             DOTCLEAR_BACKUP_DIR . '/backup-' . DOTCLEAR_CORE_VERSION . '.zip'
                         );
-                        $this->core->adminurl->redirect('admin.update', ['step' => 'unzip']);
+                        dcCore()->adminurl->redirect('admin.update', ['step' => 'unzip']);
 
                         break;
                     case 'unzip':
@@ -197,9 +197,9 @@ class Update extends Page
                         '</strong></li></ul>';
                 }
 
-                $this->core->error->add($msg);
+                dcCore()->error->add($msg);
 
-                $this->core->behaviors->call('adminDCUpdateException', $e);
+                dcCore()->behaviors->call('adminDCUpdateException', $e);
             }
         }
 
@@ -214,9 +214,9 @@ class Update extends Page
             return;
         }
 
-        if (!$this->core->error->flag()) {
+        if (!dcCore()->error->flag()) {
             if (!empty($_GET['nocache'])) {
-                $this->core->notices->success(__('Manual checking of update done successfully.'));
+                dcCore()->notices->success(__('Manual checking of update done successfully.'));
             }
         }
 
@@ -235,7 +235,7 @@ class Update extends Page
             }
             if (empty($this->new_version)) {
                 echo '<p><strong>' . __('No newer Dotclear version available.') . '</strong></p>' .
-                '<form action="' . $this->core->adminurl->get('admin.update', [], '&') . '" method="get">' .
+                '<form action="' . dcCore()->adminurl->get('admin.update', [], '&') . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update Dotclear') . '" /></p>' .
                     '</form>';
@@ -254,7 +254,7 @@ class Update extends Page
                     echo
                     '<p>' . __('To upgrade your Dotclear installation simply click on the following button. ' .
                         'A backup file of your current installation will be created in your root directory.') . '</p>' .
-                    '<form action="' . $this->core->adminurl->get('admin.update', [], '&')  . '" method="get">' .
+                    '<form action="' . dcCore()->adminurl->get('admin.update', [], '&')  . '" method="get">' .
                     '<p><input type="hidden" name="step" value="check" />' .
                     '<input type="submit" value="' . __('Update Dotclear') . '" /></p>' .
                         '</form>';
@@ -270,7 +270,7 @@ class Update extends Page
                 '<p>' . __('The following files are backups of previously updates. ' .
                     'You can revert your previous installation or delete theses files.') . '</p>';
 
-                echo '<form action="' . $this->core->adminurl->get('admin.update', [], '&')  . '" method="post">';
+                echo '<form action="' . dcCore()->adminurl->get('admin.update', [], '&')  . '" method="post">';
                 foreach ($this->archives as $v) {
                     echo
                     '<p><label class="classic">' . Form::radio(['backup_file'], Html::escapeHTML($v)) . ' ' .
@@ -284,16 +284,16 @@ class Update extends Page
                 '</p>' .
                 '<p><input type="submit" class="delete" name="b_del" value="' . __('Delete selected file') . '" /> ' .
                 '<input type="submit" name="b_revert" value="' . __('Revert to selected file') . '" />' .
-                $this->core->formNonce() . '</p>' .
+                dcCore()->formNonce() . '</p>' .
                     '</form>';
 
                 echo '</div>';
             }
-        } elseif ($this->step == 'unzip' && !$this->core->error->flag()) {
+        } elseif ($this->step == 'unzip' && !dcCore()->error->flag()) {
             echo
             '<p class="message">' .
             __("Congratulations, you're one click away from the end of the update.") .
-            ' <strong><a href="' . $this->core->adminurl->get('admin.home', ['logout' => 1], '&') . '" class="button submit">' . __('Finish the update.') . '</a></strong>' .
+            ' <strong><a href="' . dcCore()->adminurl->get('admin.home', ['logout' => 1], '&') . '" class="button submit">' . __('Finish the update.') . '</a></strong>' .
                 '</p>';
         }
     }

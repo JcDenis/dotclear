@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -22,7 +20,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 trait TraitPrependAdmin
 {
     # Install module is optionnal on Admin process
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
         return null;
     }

@@ -16,8 +16,6 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 
@@ -57,14 +55,13 @@ class Workspace
      * Retrieves user prefs and puts them in $prefs
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param   Core            $core       The core
      * @param   string          $user_id    The user identifier
      * @param   string          $name       The name
      * @param   Record|null     $rs         The recordset
      *
      * @throws  CoreException
      */
-    public function __construct(Core $core, string $user_id, string $name, ?Record $rs = null)
+    public function __construct(string $user_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;
@@ -72,14 +69,14 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->con     = $core->con;
-        $this->table   = $core->prefix . 'pref';
+        $this->con     = dcCore()->con;
+        $this->table   = dcCore()->prefix . 'pref';
         $this->user_id = $user_id;
 
         try {
             $this->getPrefs($rs);
         } catch (Exception $e) {
-            if (version_compare($core->getVersion('core'), '2.3', '>')) {
+            if (version_compare(dcCore()->getVersion('core'), '2.3', '>')) {
                 trigger_error(__('Unable to retrieve prefs:') . ' ' . $this->con->error(), E_USER_ERROR);
             }
         }

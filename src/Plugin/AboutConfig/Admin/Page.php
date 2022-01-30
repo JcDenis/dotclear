@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -37,11 +36,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gs_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+            dcCore()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+            dcCore()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
             exit;
         }
 
@@ -49,20 +48,20 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ns => $s) {
-                    $this->core->blog->settings->addNamespace($ns);
+                    dcCore()->blog->settings->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        $this->core->blog->settings->$ns->put($k, $v);
+                        dcCore()->blog->settings->$ns->put($k, $v);
                     }
-                    $this->core->blog->triggerBlog();
+                    dcCore()->blog->triggerBlog();
                 }
 
-                $this->core->notices->addSuccessNotice(__('Configuration successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.AboutConfig');
+                dcCore()->notices->addSuccessNotice(__('Configuration successfully updated'));
+                dcCore()->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -70,20 +69,20 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ns => $s) {
-                    $this->core->blog->settings->addNamespace($ns);
+                    dcCore()->blog->settings->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        $this->core->blog->settings->$ns->put($k, $v, null, null, true, true);
+                        dcCore()->blog->settings->$ns->put($k, $v, null, null, true, true);
                     }
-                    $this->core->blog->triggerBlog();
+                    dcCore()->blog->triggerBlog();
                 }
 
-                $this->core->notices->addSuccessNotice(__('Configuration successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
+                dcCore()->notices->addSuccessNotice(__('Configuration successfully updated'));
+                dcCore()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -97,7 +96,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                              => '',
-                Html::escapeHTML($this->core->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('about:config')                        => ''
             ])
         ;
@@ -108,11 +107,11 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         echo
-        '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML($this->core->blog->name)) . '">' .
-        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML($this->core->blog->name)) . '</h3>';
+        '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(dcCore()->blog->name)) . '">' .
+        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dcCore()->blog->name)) . '</h3>';
 
         $settings = [];
-        foreach ($this->core->blog->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dcCore()->blog->settings->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -135,7 +134,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach ($this->core->blog->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dcCore()->blog->settings->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -158,12 +157,12 @@ class Page extends AbstractPage
     private function settingMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . $this->core->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
+        '<form action="' . dcCore()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'s_submit" />' .
-        $this->core->formNonce() . '</p></form>';
+        dcCore()->formNonce() . '</p></form>';
     }
 
     private function settingTable(array $prefs, bool $global): void
@@ -180,7 +179,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . $this->core->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
+        echo '<form action="' . dcCore()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -194,7 +193,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        $this->core->formNonce() . '</p>' .
+        dcCore()->formNonce() . '</p>' .
         '</form>';
     }
 

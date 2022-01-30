@@ -18,8 +18,6 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Core\Core;
-
 use Dotclear\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -30,18 +28,18 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
-        $core->behaviors->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
+        dcCore()->behaviors->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
     }
 
-    public static function adminIconsetCombo(Core $core, ArrayObject $iconsets)
+    public static function adminIconsetCombo(ArrayObject $iconsets)
     {
-        $iconsets['Thomas Daveluy'] = Path::real(Core::path(__DIR__, '..'));
+        $iconsets['Thomas Daveluy'] = Path::real(dcCore()::path(__DIR__, '..'));
     }
 }

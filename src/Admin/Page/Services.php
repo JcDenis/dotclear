@@ -51,9 +51,9 @@ class Services extends Page
     protected function getPagePrepend(): ?bool
     {
         foreach($this->rest_default_methods as $method) {
-            $this->core->rest->addFunction($method, [$this->rest_default_class, $method]);
+            dcCore()->rest->addFunction($method, [$this->rest_default_class, $method]);
         }
-        $this->core->rest->serve();
+        dcCore()->rest->serve();
 
         return null;
     }

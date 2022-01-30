@@ -1,6 +1,6 @@
 <?php
 /**
- * @class  Dotclear\Core\Settingspace
+ * @class Dotclear\Core\Settingspace
  * @brief Dotclear core nspace (namespace) class
  *
  * @package Dotclear
@@ -15,8 +15,6 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
@@ -57,14 +55,13 @@ class Settingspace
      * Retrieves blog settings and puts them in $settings
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param   Core            $core       The core
      * @param   string          $blog_id    The blog identifier
      * @param   string          $name       The namespace ID
      * @param   Record|null     $rs
      *
      * @throws     CoreException
      */
-    public function __construct(Core $core, string $blog_id, string $name, ?Record $rs = null)
+    public function __construct(string $blog_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
@@ -72,8 +69,8 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->con     = $core->con;
-        $this->table   = $core->prefix . 'setting';
+        $this->con     = dcCore()->con;
+        $this->table   = dcCore()->prefix . 'setting';
         $this->blog_id = $blog_id;
 
         $this->getSettings($rs);

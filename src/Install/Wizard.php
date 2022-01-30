@@ -15,8 +15,6 @@ namespace Dotclear\Install;
 use Dotclear\Exception\InstallException;
 use Dotclear\Exception\DatabaseException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Distrib\Distrib;
 
 use Dotclear\Database\Connection;
@@ -36,13 +34,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
 
 class Wizard
 {
-    /** @var Core Core instance */
-    protected $core;
-
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core = $core;
-
         $root_url = preg_replace(
             ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'],
             '',
@@ -53,7 +46,7 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set($core::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
+            L10n::set(dcCore()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {

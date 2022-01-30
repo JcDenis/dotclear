@@ -46,7 +46,7 @@ class PostsPopup extends Page
         $this->page      = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
         $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
 
-        $post_types = $this->core->getPostTypes();
+        $post_types = dcCore()->getPostTypes();
         foreach ($post_types as $k => $v) {
             $this->type_combo[__($k)] = (string) $k;
         }
@@ -68,28 +68,20 @@ class PostsPopup extends Page
         }
 
         return new PostMiniCatalog(
-            $this->core,
-            $this->core->blog->getPosts($params),
-            $this->core->blog->getPosts($params, true)->f(0)
+            dcCore()->blog->getPosts($params),
+            dcCore()->blog->getPosts($params, true)->f(0)
         );
     }
 
     protected function getPagePrepend(): ?bool
     {
-/*
-        if ($this->core->themes === null) {
-            # -- Loading themes, may be useful for some configurable theme --
-            $this->core->themeInstance();
-            $this->core->themes->loadModules($this->core->blog->themes_path, null);
-        }
-*/
         $this
             ->setPageTitle(__('Add a link to an entry')
             ->setPageType('popup')
             ->setPageHead(
                 static::jsLoad('js/_posts_list.js') .
                 static::jsLoad('js/_popup_posts.js') .
-                $this->core->behaviors->call('adminPopupPosts', $this->plugin_id)
+                dcCore()->behaviors->call('adminPopupPosts', $this->plugin_id)
             )
         ;
 
@@ -101,13 +93,13 @@ class PostsPopup extends Page
         echo
         '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>' .
 
-        '<form action="' . $this->core->adminurl->get('admin.posts.popup') . '" method="get">' .
+        '<form action="' . dcCore()->adminurl->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="type" class="classic">' . __('Entry type:') . '</label> ' . Form::combo('type', $this->type_combo, $this->type) . '' .
         '<noscript><div><input type="submit" value="' . __('Ok') . '" /></div></noscript>' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) . '</p>' .
         '</form>' .
 
-       '<form action="' . $this->core->adminurl->get('admin.posts.popup') . '" method="get">' .
+       '<form action="' . dcCore()->adminurl->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="q" class="classic">' . __('Search entry:') . '</label> ' . Form::field('q', 30, 255, Html::escapeHTML($this->q)) .
         ' <input type="submit" value="' . __('Search') . '" />' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) .

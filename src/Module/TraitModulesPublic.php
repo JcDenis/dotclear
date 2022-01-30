@@ -16,18 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Core;
-use Dotclear\Core\Store;
-
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\AbstractDefine;
-
-use Dotclear\Admin\Notices;
-
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

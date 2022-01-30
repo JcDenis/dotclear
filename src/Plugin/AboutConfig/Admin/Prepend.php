@@ -16,8 +16,6 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -26,20 +24,20 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
         # Add Plugin Admin Page sidebar menu item
-        $core->menu['System']->addItem(
+        dcCore()->menu['System']->addItem(
             'about:config',
-            $core->adminurl->get('admin.plugin.AboutConfig'),
+            dcCore()->adminurl->get('admin.plugin.AboutConfig'),
             '?mf=Plugin/AboutConfig/icon.png',
-            $core->adminurl->called() == 'admin.plugin.AboutConfig',
-            $core->auth->isSuperAdmin()
+            dcCore()->adminurl->called() == 'admin.plugin.AboutConfig',
+            dcCore()->auth->isSuperAdmin()
         );
     }
 }

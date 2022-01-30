@@ -26,7 +26,7 @@ trait TraitModulesPlugin
 
     public function getStoreURL(): string
     {
-        return (string) $this->core->blog->settings->system->store_plugin_url;
+        return (string) dcCore()->blog->settings->system->store_plugin_url;
     }
 
     public function useStoreCache(): bool

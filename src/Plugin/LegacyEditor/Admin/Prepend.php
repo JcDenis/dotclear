@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Core\Core;
 use Dotclear\Html\wiki2xhtml;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -27,34 +26,34 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
-        $self_ns = $core->blog->settings->addNamespace('LegacyEditor');
+        $self_ns = dcCore()->blog->settings->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            if (!($core->wiki2xhtml instanceof wiki2xhtml)) {
-                $core->initWikiPost();
+            if (!(dcCore()->wiki2xhtml instanceof wiki2xhtml)) {
+                dcCore()->initWikiPost();
             }
 
-            $core->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            $core->addEditorFormater('LegacyEditor', 'wiki', [$core->wiki2xhtml, 'transform']);
+            dcCore()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+            dcCore()->addEditorFormater('LegacyEditor', 'wiki', [dcCore()->wiki2xhtml, 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
-            $core->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
-            $core->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-            $core->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
-            $core->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
+            dcCore()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
+            dcCore()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
+            dcCore()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
+            dcCore()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
     }
 
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
-        $settings = $core->blog->settings;
+        $settings = dcCore()->blog->settings;
         $settings->addNamespace('LegacyEditor');
         $settings->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 

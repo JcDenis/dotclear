@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -17,12 +15,11 @@ class TruncateStatement extends SqlStatement
     /**
      * Class constructor
      *
-     * @param Core    $core   Core instance
      * @param mixed     $ctx    optional context
      */
-    public function __construct(Core &$core, $ctx = null)
+    public function __construct($ctx = null)
     {
-        parent::__construct($core, $ctx);
+        parent::__construct($ctx);
     }
 
     /**
@@ -33,7 +30,7 @@ class TruncateStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeInsertStatement
-        $this->core->behaviors->call('coreBeforeTruncateStatement', $this);
+        dcCore()->behaviors->call('coreBeforeTruncateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -51,7 +48,7 @@ class TruncateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertInsertStatement
-        $this->core->behaviors->call('coreAfterTruncateStatement', $this, $query);
+        dcCore()->behaviors->call('coreAfterTruncateStatement', $this, $query);
 
         return $query;
     }

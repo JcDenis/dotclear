@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Filter\DefaultFilter;
 
@@ -32,9 +30,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Filter
 {
-    /** @var Core core instance */
-    protected $core;
-
     /** @var string Filter form type (main id) */
     protected $type;
 
@@ -50,12 +45,10 @@ class Filter
     /**
      * Constructs a new instance.
      *
-     * @param Core $core  core instance
      * @param string $type  The filter form main id
      */
-    public function __construct(Core $core, string $type)
+    public function __construct(string $type)
     {
-        $this->core = $core;
         $this->type = $type;
 
         $this->parseOptions();
@@ -70,7 +63,7 @@ class Filter
      */
     public function userOptions(?string $option = null)
     {
-        return $this->core->userpref->getUserFilters($this->type, $option);
+        return dcCore()->userpref->getUserFilters($this->type, $option);
     }
 
     /**
@@ -78,7 +71,7 @@ class Filter
      */
     protected function parseOptions()
     {
-        $options = $this->core->userpref->getUserFilters($this->type);
+        $options = dcCore()->userpref->getUserFilters($this->type);
         if (!empty($options)) {
             $this->has_user_pref = true;
         }
@@ -97,10 +90,10 @@ class Filter
         }
         if (!empty($options[3])) {
             $this->filters['order'] = new DefaultFilter('order', $this->userOptions('order'));
-            $this->filters['order']->options($this->core->combos->getOrderCombo());
+            $this->filters['order']->options(dcCore()->combos->getOrderCombo());
 
             if (!empty($_GET['order'])
-                && in_array($_GET['order'], $this->core->combos->getOrderCombo(), true)
+                && in_array($_GET['order'], dcCore()->combos->getOrderCombo(), true)
                 && $_GET['order'] != $this->userOptions('order')
             ) {
                 $this->show(true);
@@ -306,13 +299,13 @@ class Filter
             'show_filters'      => $this->show(),
             'filter_posts_list' => __('Show filters and display options'),
             'cancel_the_filter' => __('Cancel filters and display options'),
-            'filter_reset_url'  => $reset_url ?? $this->core->adminurl->get($this->core->adminurl->called()),
+            'filter_reset_url'  => $reset_url ?? dcCore()->adminurl->get(dcCore()->adminurl->called()),
         ];
 
         //return $var . Page::jsFilterControl($this->show());
         return
             Page::jsJson('filter_controls', $js) .
-            Page::jsJson('filter_options', ['auto_filter' => $this->core->auth->user_prefs->interface->auto_filter]) .
+            Page::jsJson('filter_options', ['auto_filter' => dcCore()->auth->user_prefs->interface->auto_filter]) .
             Page::jsLoad('js/filter-controls.js');
 
     }
@@ -332,7 +325,7 @@ class Filter
         }
 
         echo
-        '<form action="' . $this->core->adminurl->get($adminurl) . $tab . '" method="get" id="filters-form">' .
+        '<form action="' . dcCore()->adminurl->get($adminurl) . $tab . '" method="get" id="filters-form">' .
         '<h3 class="out-of-screen-if-js">' . __('Show filters and display options') . '</h3>' .
 
         '<div class="table">';

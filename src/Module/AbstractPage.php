@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 
 if (!defined('DOTCLEAR_PROCESS')) {

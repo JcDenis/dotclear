@@ -16,7 +16,6 @@ namespace Dotclear\Admin\Page;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
@@ -47,11 +46,11 @@ class BlogPref extends Page
     private $blog_settings = null;
     private $blog_url      = '';
 
-    public function __construct(Core $core, string $handler = 'admin.home', bool $standalone = true)
+    public function __construct(string $handler = 'admin.home', bool $standalone = true)
     {
         $this->standalone = $standalone;
 
-        parent::__construct($core, $handler);
+        parent::__construct($handler);
     }
 
     protected function getPermissions(): string|null|false
@@ -63,21 +62,21 @@ class BlogPref extends Page
     {
         # Blog params
         if ($this->standalone) {
-            $this->blog_id       = $this->core->blog->id;
-            $this->blog_status   = $this->core->blog->status;
-            $this->blog_name     = $this->core->blog->name;
-            $this->blog_desc     = $this->core->blog->desc;
-            $this->blog_settings = $this->core->blog->settings;
-            $this->blog_url      = $this->core->blog->url;
+            $this->blog_id       = dcCore()->blog->id;
+            $this->blog_status   = dcCore()->blog->status;
+            $this->blog_name     = dcCore()->blog->name;
+            $this->blog_desc     = dcCore()->blog->desc;
+            $this->blog_settings = dcCore()->blog->settings;
+            $this->blog_url      = dcCore()->blog->url;
 
-            $this->action = $this->core->adminurl->get('admin.blog.pref');
-            $this->redir  = $this->core->adminurl->get('admin.blog.pref');
+            $this->action = dcCore()->adminurl->get('admin.blog.pref');
+            $this->redir  = dcCore()->adminurl->get('admin.blog.pref');
         } else {
             try {
                 if (empty($_REQUEST['id'])) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = $this->core->getBlog($_REQUEST['id']);
+                $rs = dcCore()->getBlog($_REQUEST['id']);
 
                 if (!$rs) {
                     throw new AdminException(__('No such blog.'));
@@ -87,18 +86,18 @@ class BlogPref extends Page
                 $this->blog_status   = $rs->blog_status;
                 $this->blog_name     = $rs->blog_name;
                 $this->blog_desc     = $rs->blog_desc;
-                $this->blog_settings = new Settings($this->core, $this->blog_id);
+                $this->blog_settings = new Settings($this->blog_id);
                 $this->blog_url      = $rs->blog_url;
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
 
-            $this->action = $this->core->adminurl->get('admin.blog');
-            $this->redir  = $this->core->adminurl->get('admin.blog', ['id' => '%s'], '&', true);
+            $this->action = dcCore()->adminurl->get('admin.blog');
+            $this->redir  = dcCore()->adminurl->get('admin.blog', ['id' => '%s'], '&', true);
         }
 
         # Update a blog
-        if ($this->blog_id && !empty($_POST) && $this->core->auth->check('admin', $this->blog_id)) {
+        if ($this->blog_id && !empty($_POST) && dcCore()->auth->check('admin', $this->blog_id)) {
             # URL scan modes
             $url_scan_combo = [
                 'PATH_INFO'    => 'path_info',
@@ -106,15 +105,15 @@ class BlogPref extends Page
             ];
 
             # Status combo
-            $status_combo = $this->core->combos->getBlogStatusescombo();
+            $status_combo = dcCore()->combos->getBlogStatusescombo();
 
-            $cur            = $this->core->con->openCursor($this->core->prefix . 'blog');
+            $cur            = dcCore()->con->openCursor(dcCore()->prefix . 'blog');
             $cur->blog_id   = $_POST['blog_id'];
             $cur->blog_url  = preg_replace('/\?+$/', '?', $_POST['blog_url']);
             $cur->blog_name = $_POST['blog_name'];
             $cur->blog_desc = $_POST['blog_desc'];
 
-            if ($this->core->auth->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
+            if (dcCore()->auth->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
                 $cur->blog_status = (int) $_POST['blog_status'];
             }
 
@@ -165,7 +164,7 @@ class BlogPref extends Page
 
             try {
                 if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
-                    $rs = $this->core->getBlog($cur->blog_id);
+                    $rs = dcCore()->getBlog($cur->blog_id);
 
                     if ($rs) {
                         throw new AdminException(__('This blog ID is already used.'));
@@ -173,24 +172,24 @@ class BlogPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeBlogUpdate
-                $this->core->behaviors->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
+                dcCore()->behaviors->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
 
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_POST['lang'])) {
                     throw new AdminException(__('Invalid language code'));
                 }
 
-                $this->core->updBlog($this->blog_id, $cur);
+                dcCore()->updBlog($this->blog_id, $cur);
 
                 # --BEHAVIOR-- adminAfterBlogUpdate
-                $this->core->behaviors->call('adminAfterBlogUpdate', $cur, $this->blog_id);
+                dcCore()->behaviors->call('adminAfterBlogUpdate', $cur, $this->blog_id);
 
                 if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
-                    if ($this->blog_id == $this->core->blog->id) {
-                        $this->core->setBlog($cur->blog_id);
+                    if ($this->blog_id == dcCore()->blog->id) {
+                        dcCore()->setBlog($cur->blog_id);
                         $_SESSION['sess_blog_id'] = $cur->blog_id;
-                        $this->blog_settings            = $this->core->blog->settings;
+                        $this->blog_settings            = dcCore()->blog->settings;
                     } else {
-                        $this->blog_settings = new Settings($this->core, $cur->blog_id);
+                        $this->blog_settings = new Settings($cur->blog_id);
                     }
 
                     $this->blog_id = $cur->blog_id;
@@ -247,23 +246,23 @@ class BlogPref extends Page
                 $this->blog_settings->system->put('static_home_url', $_POST['static_home_url']);
 
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                $this->core->behaviors->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
+                dcCore()->behaviors->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
-                if ($this->core->auth->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
+                if (dcCore()->auth->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $this->blog_settings->system->put('url_scan', $_POST['url_scan']);
                 }
-                $this->core->notices->addSuccessNotice(__('Blog has been successfully updated.'));
+                dcCore()->notices->addSuccessNotice(__('Blog has been successfully updated.'));
 
                 Http::redirect(sprintf($this->redir, $this->blog_id));
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Page setup
-        $desc_editor = $this->core->auth->getOption('editor');
+        $desc_editor = dcCore()->auth->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @$this->core->auth->user_prefs->interface->rte_flags;
+        $rte_flags   = @dcCore()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -277,11 +276,11 @@ class BlogPref extends Page
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.')
                 ]) .
                 static::jsConfirmClose('blog-form') .
-                ($rte_flag ? $this->core->behaviors->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+                ($rte_flag ? dcCore()->behaviors->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
                 static::jsLoad('js/_blog_pref.js') .
 
                 # --BEHAVIOR-- adminBlogPreferencesHeaders
-                $this->core->behaviors->call('adminBlogPreferencesHeaders') .
+                dcCore()->behaviors->call('adminBlogPreferencesHeaders') .
 
                 static::jsPageTabs()
             )
@@ -289,8 +288,8 @@ class BlogPref extends Page
                 Html::escapeHTML($this->blog_name) => '',
                 __('Blog settings')                   => ''
             ] : [
-                __('System')                                                        => '',
-                __('Blogs')                                                         => $this->core->adminurl->get('admin.blogs'),
+                __('System')                                                     => '',
+                __('Blogs')                                                      => dcCore()->adminurl->get('admin.blogs'),
                 __('Blog settings') . ' : ' . Html::escapeHTML($this->blog_name) => ''
             ]);
 
@@ -305,10 +304,10 @@ class BlogPref extends Page
         }
 
         # Language codes
-        $lang_combo = $this->core->combos->getAdminLangsCombo();
+        $lang_combo = dcCore()->combos->getAdminLangsCombo();
 
         # Status combo
-        $status_combo = $this->core->combos->getBlogStatusescombo();
+        $status_combo = dcCore()->combos->getBlogStatusescombo();
 
         # Date format combo
         $now                = time();
@@ -365,13 +364,13 @@ class BlogPref extends Page
         $img_default_size_combo = [];
 
         try {
-            $media                                  = new Media($this->core);
+            $media                                  = dcCore()->mediaInstance();
             $img_default_size_combo[__('original')] = 'o';
             foreach ($media->thumb_sizes as $code => $size) {
                 $img_default_size_combo[__($size[2])] = $code;
             }
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         # Image default alignment combo
@@ -397,7 +396,7 @@ class BlogPref extends Page
         ];
 
         # jQuery available versions
-        $jquery_root           = $this->core::root('Core', 'files', 'js', 'jquery');
+        $jquery_root           = dcCore()::root('Core', 'files', 'js', 'jquery');
         $jquery_versions_combo = [__('Default') . ' (' . DOTCLEAR_JQUERY_DEFAULT . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (($d = @dir($jquery_root)) !== false) {
@@ -412,11 +411,11 @@ class BlogPref extends Page
         }
 
         if (!empty($_GET['add'])) {
-            $this->core->notices->success(__('Blog has been successfully created.'));
+            dcCore()->notices->success(__('Blog has been successfully created.'));
         }
 
         if (!empty($_GET['upd'])) {
-            $this->core->notices->success(__('Blog has been successfully updated.'));
+            dcCore()->notices->success(__('Blog has been successfully updated.'));
         }
 
         echo
@@ -426,7 +425,7 @@ class BlogPref extends Page
 
         echo
         '<div class="fieldset"><h4>' . __('Blog details') . '</h4>' .
-        $this->core->formNonce();
+        dcCore()->formNonce();
 
         echo
         '<p><label for="blog_name" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog name:') . '</label>' .
@@ -445,7 +444,7 @@ class BlogPref extends Page
                 'extra_html' => 'lang="' . $this->blog_settings->system->lang . '" spellcheck="true"'
             ]) . '</p>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             echo
             '<p><label for="blog_status">' . __('Blog status:') . '</label>' .
             Form::combo('blog_status', $status_combo, $this->blog_status) . '</p>';
@@ -714,7 +713,7 @@ class BlogPref extends Page
 
         echo '<div id="advanced-pref"><h3>' . __('Advanced parameters') . '</h3>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             echo '<div class="fieldset"><h4>' . __('Blog details') . '</h4>';
             echo
             '<p><label for="blog_id" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label>' .
@@ -737,7 +736,7 @@ class BlogPref extends Page
 
             try {
                 # Test URL of blog by testing it's ATOM feed
-                $file    = $this->blog_url . $this->core->url->getURLFor('feed', 'atom');
+                $file    = $this->blog_url . dcCore()->url->getURLFor('feed', 'atom');
                 $path    = '';
                 $status  = '404';
                 $content = '';
@@ -768,7 +767,7 @@ class BlogPref extends Page
                     }
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
             echo '</div>';
         }
@@ -779,7 +778,7 @@ class BlogPref extends Page
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->system->post_url_format), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . $this->core->blog->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dcCore()->blog->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
@@ -796,10 +795,10 @@ class BlogPref extends Page
             '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(DOTCLEAR_XMLRPC_URL, $this->core->blog->url, $this->core->blog->id) . // @phpstan-ignore-line
+            sprintf(DOTCLEAR_XMLRPC_URL, dcCore()->blog->url, dcCore()->blog->id) . // @phpstan-ignore-line
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
-            '<li>' . __('User name:') . ' <strong><code>' . $this->core->auth->userID() . '</code></strong></li>' .
+            '<li>' . __('User name:') . ' <strong><code>' . dcCore()->auth->userID() . '</code></strong></li>' .
             '<li>' . __('Password:') . ' <strong><code>&lt;' . __('your password') . '&gt;</code></strong></li>' .
             '<li>' . __('Blog ID:') . ' <strong><code>1</code></strong></li>' .
                 '</ul>';
@@ -850,7 +849,7 @@ class BlogPref extends Page
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
         # --BEHAVIOR-- adminBlogPreferencesForm
-        $this->core->behaviors->call('adminBlogPreferencesForm', $this->core, $this->blog_settings);
+        dcCore()->behaviors->call('adminBlogPreferencesForm', $this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins
 
@@ -861,15 +860,15 @@ class BlogPref extends Page
             '</p>' .
             '</form>';
 
-        if ($this->core->auth->isSuperAdmin() && $this->blog_id != $this->core->blog->id) {
+        if (dcCore()->auth->isSuperAdmin() && $this->blog_id != dcCore()->blog->id) {
             echo
-            '<form action="' . $this->core->adminurl->get('admin.blog.del') . '" method="post">' .
+            '<form action="' . dcCore()->adminurl->get('admin.blog.del') . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
             Form::hidden(['blog_id'], $this->blog_id) .
-            $this->core->formNonce() . '</p>' .
+            dcCore()->formNonce() . '</p>' .
                 '</form>';
         } else {
-            if ($this->blog_id == $this->core->blog->id) {
+            if ($this->blog_id == dcCore()->blog->id) {
                 echo '<p class="message">' . __('The current blog cannot be deleted.') . '</p>';
             } else {
                 echo '<p class="message">' . __('Only superadmin can delete a blog.') . '</p>';
@@ -881,8 +880,8 @@ class BlogPref extends Page
         #
         # Users on the blog (with permissions)
 
-        $blog_users = $this->core->getBlogPermissions($this->blog_id, $this->core->auth->isSuperAdmin());
-        $perm_types = $this->core->auth->getPermissionsTypes();
+        $blog_users = dcCore()->getBlogPermissions($this->blog_id, dcCore()->auth->isSuperAdmin());
+        $perm_types = dcCore()->auth->getPermissionsTypes();
 
         echo
         '<div class="multi-part" id="users" title="' . __('Users') . '">' .
@@ -891,8 +890,8 @@ class BlogPref extends Page
         if (empty($blog_users)) {
             echo '<p>' . __('No users') . '</p>';
         } else {
-            if ($this->core->auth->isSuperAdmin()) {
-                $user_url_p = '<a href="' . $this->core->adminurl->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
+            if (dcCore()->auth->isSuperAdmin()) {
+                $user_url_p = '<a href="' . dcCore()->adminurl->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
             } else {
                 $user_url_p = '%1$s';
             }
@@ -900,10 +899,10 @@ class BlogPref extends Page
             # Sort users list on user_id key
             Utils::lexicalKeySort($blog_users);
 
-            $post_type       = $this->core->getPostTypes();
-            $current_blog_id = $this->core->blog->id;
-            if ($this->blog_id != $this->core->blog->id) {
-                $this->core->setBlog($this->blog_id);
+            $post_type       = dcCore()->getPostTypes();
+            $current_blog_id = dcCore()->blog->id;
+            if ($this->blog_id != dcCore()->blog->id) {
+                dcCore()->setBlog($this->blog_id);
             }
 
             echo '<div>';
@@ -916,7 +915,7 @@ class BlogPref extends Page
                         $k, $v['name'], $v['firstname'], $v['displayname']
                     )) . ')</h4>';
 
-                    if ($this->core->auth->isSuperAdmin()) {
+                    if (dcCore()->auth->isSuperAdmin()) {
                         echo
                         '<p>' . __('Email:') . ' ' .
                             ($v['email'] != '' ? '<a href="mailto:' . $v['email'] . '">' . $v['email'] . '</a>' : __('(none)')) .
@@ -931,7 +930,7 @@ class BlogPref extends Page
                             'post_type' => $type,
                             'user_id'   => $k
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), $this->core->blog->getPosts($params, true)->f(0)) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dcCore()->blog->getPosts($params, true)->f(0)) . '</li>';
                     }
                     echo
                         '</ul>';
@@ -959,15 +958,15 @@ class BlogPref extends Page
                     echo
                         '</ul>';
 
-                    if (!$v['super'] && $this->core->auth->isSuperAdmin()) {
+                    if (!$v['super'] && dcCore()->auth->isSuperAdmin()) {
                         echo
-                        '<form action="' . $this->core->adminurl->get('admin.user.actions') . '" method="post">' .
+                        '<form action="' . dcCore()->adminurl->get('admin.user.actions') . '" method="post">' .
                         '<p class="change-user-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        Form::hidden(['redir'], $this->core->adminurl->get('admin.blog.pref', ['id' => $k], '&')) .
+                        Form::hidden(['redir'], dcCore()->adminurl->get('admin.blog.pref', ['id' => $k], '&')) .
                         Form::hidden(['action'], 'perms') .
                         Form::hidden(['users[]'], $k) .
                         Form::hidden(['blogs[]'], $this->blog_id) .
-                        $this->core->formNonce() .
+                        dcCore()->formNonce() .
                             '</p>' .
                             '</form>';
                     }
@@ -975,8 +974,8 @@ class BlogPref extends Page
                 }
             }
             echo '</div>';
-            if ($current_blog_id != $this->core->blog->id) {
-                $this->core->setBlog($current_blog_id);
+            if ($current_blog_id != dcCore()->blog->id) {
+                dcCore()->setBlog($current_blog_id);
             }
         }
 

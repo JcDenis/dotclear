@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\UserPref\Admin;
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -37,11 +36,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gp_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+            dcCore()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            $this->core->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+            dcCore()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
             exit;
         }
 
@@ -49,19 +48,19 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ws => $s) {
-                    $this->core->auth->user_prefs->addWorkspace($ws);
+                    dcCore()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        $this->core->auth->user_prefs->$ws->put($k, $v);
+                        dcCore()->auth->user_prefs->$ws->put($k, $v);
                     }
                 }
 
-                $this->core->notices->addSuccessNotice(__('Preferences successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.UserPref');
+                dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                dcCore()->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -69,19 +68,19 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
-                    $this->core->auth->user_prefs->addWorkspace($ws);
+                    dcCore()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        $this->core->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
+                        dcCore()->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
                     }
                 }
 
-                $this->core->notices->addSuccessNotice(__('Preferences successfully updated'));
-                $this->core->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
+                dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                dcCore()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -95,7 +94,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
-                Html::escapeHTML($this->core->auth->userID()) => '',
+                Html::escapeHTML(dcCore()->auth->userID()) => '',
                 __('user:preferences')                        => ''
             ])
         ;
@@ -110,7 +109,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach ($this->core->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dcCore()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -133,7 +132,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach ($this->core->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dcCore()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -156,12 +155,12 @@ class Page extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . $this->core->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
+        '<form action="' . dcCore()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
-        $this->core->formNonce() . '</p></form>';
+        dcCore()->formNonce() . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -178,7 +177,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . $this->core->adminurl->get('admin.plugin.UserPref') . '" method="post">';
+        echo '<form action="' . dcCore()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -192,7 +191,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        $this->core->formNonce() . '</p>' .
+        dcCore()->formNonce() . '</p>' .
         '</form>';
     }
 

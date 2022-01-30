@@ -83,41 +83,41 @@ class UserPref extends Page
 
         $this->container = new ContainerUser();
 
-        $this->container->fromRecord($this->core->getUser($this->core->auth->userID()));
+        $this->container->fromRecord(dcCore()->getUser(dcCore()->auth->userID()));
 
         if (empty($this->container->getOption('editor'))) {
             $this->container->setOption('editor', []);
         }
 
-        $this->user_profile_mails = $this->core->auth->user_prefs->profile->mails;
-        $this->user_profile_urls  = $this->core->auth->user_prefs->profile->urls;
+        $this->user_profile_mails = dcCore()->auth->user_prefs->profile->mails;
+        $this->user_profile_urls  = dcCore()->auth->user_prefs->profile->urls;
 
-        $this->user_dm_doclinks   = $this->core->auth->user_prefs->dashboard->doclinks;
-        $this->user_dm_dcnews     = $this->core->auth->user_prefs->dashboard->dcnews;
-        $this->user_dm_quickentry = $this->core->auth->user_prefs->dashboard->quickentry;
-        $this->user_dm_nofavicons = $this->core->auth->user_prefs->dashboard->nofavicons;
+        $this->user_dm_doclinks   = dcCore()->auth->user_prefs->dashboard->doclinks;
+        $this->user_dm_dcnews     = dcCore()->auth->user_prefs->dashboard->dcnews;
+        $this->user_dm_quickentry = dcCore()->auth->user_prefs->dashboard->quickentry;
+        $this->user_dm_nofavicons = dcCore()->auth->user_prefs->dashboard->nofavicons;
         $this->user_dm_nodcupdate = false;
-        if ($this->core->auth->isSuperAdmin()) {
-            $this->user_dm_nodcupdate = $this->core->auth->user_prefs->dashboard->nodcupdate;
+        if (dcCore()->auth->isSuperAdmin()) {
+            $this->user_dm_nodcupdate = dcCore()->auth->user_prefs->dashboard->nodcupdate;
         }
 
-        $this->user_acc_nodragdrop = $this->core->auth->user_prefs->accessibility->nodragdrop;
+        $this->user_acc_nodragdrop = dcCore()->auth->user_prefs->accessibility->nodragdrop;
 
-        $this->user_ui_theme            = $this->core->auth->user_prefs->interface->theme;
-        $this->user_ui_enhanceduploader = $this->core->auth->user_prefs->interface->enhanceduploader;
-        $this->user_ui_blank_preview    = $this->core->auth->user_prefs->interface->blank_preview;
-        $this->user_ui_hidemoreinfo     = $this->core->auth->user_prefs->interface->hidemoreinfo;
-        $this->user_ui_hidehelpbutton   = $this->core->auth->user_prefs->interface->hidehelpbutton;
-        $this->user_ui_showajaxloader   = $this->core->auth->user_prefs->interface->showajaxloader;
-        $this->user_ui_htmlfontsize     = $this->core->auth->user_prefs->interface->htmlfontsize;
+        $this->user_ui_theme            = dcCore()->auth->user_prefs->interface->theme;
+        $this->user_ui_enhanceduploader = dcCore()->auth->user_prefs->interface->enhanceduploader;
+        $this->user_ui_blank_preview    = dcCore()->auth->user_prefs->interface->blank_preview;
+        $this->user_ui_hidemoreinfo     = dcCore()->auth->user_prefs->interface->hidemoreinfo;
+        $this->user_ui_hidehelpbutton   = dcCore()->auth->user_prefs->interface->hidehelpbutton;
+        $this->user_ui_showajaxloader   = dcCore()->auth->user_prefs->interface->showajaxloader;
+        $this->user_ui_htmlfontsize     = dcCore()->auth->user_prefs->interface->htmlfontsize;
         $this->user_ui_hide_std_favicon = false;
-        if ($this->core->auth->isSuperAdmin()) {
-            $this->user_ui_hide_std_favicon = $this->core->auth->user_prefs->interface->hide_std_favicon;
+        if (dcCore()->auth->isSuperAdmin()) {
+            $this->user_ui_hide_std_favicon = dcCore()->auth->user_prefs->interface->hide_std_favicon;
         }
-        $this->user_ui_iconset            = @$this->core->auth->user_prefs->interface->iconset;
-        $this->user_ui_nofavmenu          = $this->core->auth->user_prefs->interface->nofavmenu;
-        $this->user_ui_media_nb_last_dirs = $this->core->auth->user_prefs->interface->media_nb_last_dirs;
-        $this->user_ui_nocheckadblocker   = $this->core->auth->user_prefs->interface->nocheckadblocker;
+        $this->user_ui_iconset            = @dcCore()->auth->user_prefs->interface->iconset;
+        $this->user_ui_nofavmenu          = dcCore()->auth->user_prefs->interface->nofavmenu;
+        $this->user_ui_media_nb_last_dirs = dcCore()->auth->user_prefs->interface->media_nb_last_dirs;
+        $this->user_ui_nocheckadblocker   = dcCore()->auth->user_prefs->interface->nocheckadblocker;
 
         $default_tab = !empty($_GET['tab']) ? Html::escapeHTML($_GET['tab']) : 'user-profile';
 
@@ -131,7 +131,7 @@ class UserPref extends Page
         }
 
         # Format by editors
-        $formaters         = $this->core->getFormaters();
+        $formaters         = dcCore()->getFormaters();
         $this->format_by_editors = [];
         foreach ($formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -155,9 +155,9 @@ class UserPref extends Page
             'cat_descr'  => [true, __('Category description')],
         ];
         $this->rte = new ArrayObject($rte);
-        $this->core->behaviors->call('adminRteFlags', $this->rte);
+        dcCore()->behaviors->call('adminRteFlags', $this->rte);
         # Load user settings
-        $rte_flags = @$this->core->auth->user_prefs->interface->rte_flags;
+        $rte_flags = @dcCore()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags)) {
             foreach ($rte_flags as $fk => $fv) {
                 if (isset($this->rte[$fk])) {
@@ -167,21 +167,21 @@ class UserPref extends Page
         }
 
         # Get default colums (admin lists)
-        $this->cols = $this->core->userpref->getUserColumns();
+        $this->cols = dcCore()->userpref->getUserColumns();
 
         # Get default sortby, order, nbperpage (admin lists)
-        $this->sorts = $this->core->userpref->getUserFilters();
+        $this->sorts = dcCore()->userpref->getUserFilters();
 
         # Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                $pwd_check = !empty($_POST['cur_pwd']) && $this->core->auth->checkPassword($_POST['cur_pwd']);
+                $pwd_check = !empty($_POST['cur_pwd']) && dcCore()->auth->checkPassword($_POST['cur_pwd']);
 
-                if ($this->core->auth->allowPassChange() && !$pwd_check && $this->container->getEmail() != $_POST['user_email']) {
+                if (dcCore()->auth->allowPassChange() && !$pwd_check && $this->container->getEmail() != $_POST['user_email']) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
-                $cur = $this->core->con->openCursor($this->core->prefix . 'user');
+                $cur = dcCore()->con->openCursor(dcCore()->prefix . 'user');
 
                 $cur->user_name        = $this->container->setName($_POST['user_name']);
                 $cur->user_firstname   = $this->container->setFirstname($_POST['user_firstname']);
@@ -193,7 +193,7 @@ class UserPref extends Page
 
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
-                if ($this->core->auth->allowPassChange() && !empty($_POST['new_pwd'])) {
+                if (dcCore()->auth->allowPassChange() && !empty($_POST['new_pwd'])) {
                     if (!$pwd_check) {
                         throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                     }
@@ -206,10 +206,10 @@ class UserPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeUserUpdate
-                $this->core->behaviors->call('adminBeforeUserProfileUpdate', $cur, $this->core->auth->userID());
+                dcCore()->behaviors->call('adminBeforeUserProfileUpdate', $cur, dcCore()->auth->userID());
 
                 # Udate user
-                $this->core->updUser($this->core->auth->userID(), $cur);
+                dcCore()->updUser(dcCore()->auth->userID(), $cur);
 
                 # Update profile
                 # Sanitize list of secondary mails and urls if any
@@ -220,24 +220,24 @@ class UserPref extends Page
                 if (!empty($_POST['user_profile_urls'])) {
                     $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                 }
-                $this->core->auth->user_prefs->profile->put('mails', $mails, 'string');
-                $this->core->auth->user_prefs->profile->put('urls', $urls, 'string');
+                dcCore()->auth->user_prefs->profile->put('mails', $mails, 'string');
+                dcCore()->auth->user_prefs->profile->put('urls', $urls, 'string');
 
                 # --BEHAVIOR-- adminAfterUserUpdate
-                $this->core->behaviors->call('adminAfterUserProfileUpdate', $cur, $this->core->auth->userID());
+                dcCore()->behaviors->call('adminAfterUserProfileUpdate', $cur, dcCore()->auth->userID());
 
-                $this->core->notices->addSuccessNotice(__('Personal information has been successfully updated.'));
+                dcCore()->notices->addSuccessNotice(__('Personal information has been successfully updated.'));
 
-                $this->core->adminurl->redirect('admin.user.pref');
+                dcCore()->adminurl->redirect('admin.user.pref');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Update user options
         if (isset($_POST['user_options_submit'])) {
             try {
-                $cur = $this->core->con->openCursor($this->core->prefix . 'user');
+                $cur = dcCore()->con->openCursor(dcCore()->prefix . 'user');
 
                 $cur->user_name        = $this->container->getName();
                 $cur->user_firstname   = $this->container->getFirstname();
@@ -260,25 +260,25 @@ class UserPref extends Page
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                $this->core->behaviors->call('adminBeforeUserOptionsUpdate', $cur, $this->core->auth->userID());
+                dcCore()->behaviors->call('adminBeforeUserOptionsUpdate', $cur, dcCore()->auth->userID());
 
                 # Update user prefs
-                $this->core->auth->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('theme', $_POST['user_ui_theme'], 'string');
-                $this->core->auth->user_prefs->interface->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
-                $this->core->auth->user_prefs->interface->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
-                if ($this->core->auth->isSuperAdmin()) {
+                dcCore()->auth->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('theme', $_POST['user_ui_theme'], 'string');
+                dcCore()->auth->user_prefs->interface->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
+                if (dcCore()->auth->isSuperAdmin()) {
                     # Applied to all users
-                    $this->core->auth->user_prefs->interface->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
+                    dcCore()->auth->user_prefs->interface->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
                 }
-                $this->core->auth->user_prefs->interface->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
-                $this->core->auth->user_prefs->interface->put('media_last_dirs', [], 'array', null, false);
-                $this->core->auth->user_prefs->interface->put('media_fav_dirs', [], 'array', null, false);
-                $this->core->auth->user_prefs->interface->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
+                dcCore()->auth->user_prefs->interface->put('media_last_dirs', [], 'array', null, false);
+                dcCore()->auth->user_prefs->interface->put('media_fav_dirs', [], 'array', null, false);
+                dcCore()->auth->user_prefs->interface->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
 
                 # Update user columns (lists)
                 $cu = [];
@@ -291,7 +291,7 @@ class UserPref extends Page
                         $cu[$col_type] = $ct;
                     }
                 }
-                $this->core->auth->user_prefs->interface->put('cols', $cu, 'array');
+                dcCore()->auth->user_prefs->interface->put('cols', $cu, 'array');
 
                 # Update user lists options
                 $su = [];
@@ -312,27 +312,27 @@ class UserPref extends Page
                         $su[$sort_type][2] = isset($_POST[$k]) ? abs((int) $_POST[$k]) : $sort_data[4][1];
                     }
                 }
-                $this->core->auth->user_prefs->interface->put('sorts', $su, 'array');
+                dcCore()->auth->user_prefs->interface->put('sorts', $su, 'array');
                 // All filters
-                $this->core->auth->user_prefs->interface->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
 
                 # Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
                     $rf[$rk] = isset($_POST['rte_flags']) && in_array($rk, $_POST['rte_flags'], true) ? true : false;
                 }
-                $this->core->auth->user_prefs->interface->put('rte_flags', $rf, 'array');
+                dcCore()->auth->user_prefs->interface->put('rte_flags', $rf, 'array');
 
                 # Update user
-                $this->core->updUser($this->core->auth->userID(), $cur);
+                dcCore()->updUser(dcCore()->auth->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                $this->core->behaviors->call('adminAfterUserOptionsUpdate', $cur, $this->core->auth->userID());
+                dcCore()->behaviors->call('adminAfterUserOptionsUpdate', $cur, dcCore()->auth->userID());
 
-                $this->core->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
-                $this->core->adminurl->redirect('admin.user.pref', [], '#user-options');
+                dcCore()->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
+                dcCore()->adminurl->redirect('admin.user.pref', [], '#user-options');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -340,26 +340,26 @@ class UserPref extends Page
         if (isset($_POST['db-options'])) {
             try {
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                $this->core->behaviors->call('adminBeforeDashboardOptionsUpdate', $this->core->auth->userID());
+                dcCore()->behaviors->call('adminBeforeDashboardOptionsUpdate', dcCore()->auth->userID());
 
                 # Update user prefs
-                $this->core->auth->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
-                $this->core->auth->user_prefs->dashboard->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
-                $this->core->auth->user_prefs->dashboard->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
-                $this->core->auth->user_prefs->dashboard->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
-                if ($this->core->auth->isSuperAdmin()) {
-                    $this->core->auth->user_prefs->dashboard->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
+                dcCore()->auth->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
+                dcCore()->auth->user_prefs->dashboard->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
+                dcCore()->auth->user_prefs->dashboard->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
+                dcCore()->auth->user_prefs->dashboard->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
+                if (dcCore()->auth->isSuperAdmin()) {
+                    dcCore()->auth->user_prefs->dashboard->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
                 }
-                $this->core->auth->user_prefs->interface->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
-                $this->core->auth->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
+                dcCore()->auth->user_prefs->interface->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
+                dcCore()->auth->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                $this->core->behaviors->call('adminAfterDashboardOptionsUpdate', $this->core->auth->userID());
+                dcCore()->behaviors->call('adminAfterDashboardOptionsUpdate', dcCore()->auth->userID());
 
-                $this->core->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
-                $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+                dcCore()->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
+                dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -369,20 +369,20 @@ class UserPref extends Page
                 if (empty($_POST['append'])) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_favs = $this->core->favs->getFavoriteIDs(false);
+                $user_favs = dcCore()->favs->getFavoriteIDs(false);
                 foreach ($_POST['append'] as $k => $v) {
-                    if ($this->core->favs->exists($v)) {
+                    if (dcCore()->favs->exists($v)) {
                         $user_favs[] = $v;
                     }
                 }
-                $this->core->favs->setFavoriteIDs($user_favs, false);
+                dcCore()->favs->setFavoriteIDs($user_favs, false);
 
-                if (!$this->core->error->flag()) {
-                    $this->core->notices->addSuccessNotice(__('Favorites have been successfully added.'));
-                    $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+                if (!dcCore()->error->flag()) {
+                    dcCore()->notices->addSuccessNotice(__('Favorites have been successfully added.'));
+                    dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -393,7 +393,7 @@ class UserPref extends Page
                     throw new AdminException(__('No favorite selected'));
                 }
                 $user_fav_ids = [];
-                foreach ($this->core->favs->getFavoriteIDs(false) as $v) {
+                foreach (dcCore()->favs->getFavoriteIDs(false) as $v) {
                     $user_fav_ids[$v] = true;
                 }
                 foreach ($_POST['remove'] as $v) {
@@ -401,13 +401,13 @@ class UserPref extends Page
                         unset($user_fav_ids[$v]);
                     }
                 }
-                $this->core->favs->setFavoriteIDs(array_keys($user_fav_ids), false);
-                if (!$this->core->error->flag()) {
-                    $this->core->notices->addSuccessNotice(__('Favorites have been successfully removed.'));
-                    $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+                dcCore()->favs->setFavoriteIDs(array_keys($user_fav_ids), false);
+                if (!dcCore()->error->flag()) {
+                    dcCore()->notices->addSuccessNotice(__('Favorites have been successfully removed.'));
+                    dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -423,38 +423,38 @@ class UserPref extends Page
 
         if (!empty($_POST['saveorder']) && !empty($order)) {
             foreach ($order as $k => $v) {
-                if (!$this->core->favs->exists($v)) {
+                if (!dcCore()->favs->exists($v)) {
                     unset($order[$k]);
                 }
             }
-            $this->core->favs->setFavoriteIDs($order, false);
-            if (!$this->core->error->flag()) {
-                $this->core->notices->addSuccessNotice(__('Favorites have been successfully updated.'));
-                $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+            dcCore()->favs->setFavoriteIDs($order, false);
+            if (!dcCore()->error->flag()) {
+                dcCore()->notices->addSuccessNotice(__('Favorites have been successfully updated.'));
+                dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
         # Replace default favorites by current set (super admin only)
-        if (!empty($_POST['replace']) && $this->core->auth->isSuperAdmin()) {
-            $user_favs = $this->core->favs->getFavoriteIDs(false);
-            $this->core->favs->setFavoriteIDs($user_favs, true);
+        if (!empty($_POST['replace']) && dcCore()->auth->isSuperAdmin()) {
+            $user_favs = dcCore()->favs->getFavoriteIDs(false);
+            dcCore()->favs->setFavoriteIDs($user_favs, true);
 
-            if (!$this->core->error->flag()) {
-                $this->core->notices->addSuccessNotice(__('Default favorites have been successfully updated.'));
-                $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+            if (!dcCore()->error->flag()) {
+                dcCore()->notices->addSuccessNotice(__('Default favorites have been successfully updated.'));
+                dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
         # Reset dashboard items order
         if (!empty($_POST['resetorder'])) {
-            $this->core->auth->user_prefs->dashboard->drop('main_order');
-            $this->core->auth->user_prefs->dashboard->drop('boxes_order');
-            $this->core->auth->user_prefs->dashboard->drop('boxes_items_order');
-            $this->core->auth->user_prefs->dashboard->drop('boxes_contents_order');
+            dcCore()->auth->user_prefs->dashboard->drop('main_order');
+            dcCore()->auth->user_prefs->dashboard->drop('boxes_order');
+            dcCore()->auth->user_prefs->dashboard->drop('boxes_items_order');
+            dcCore()->auth->user_prefs->dashboard->drop('boxes_contents_order');
 
-            if (!$this->core->error->flag()) {
-                $this->core->notices->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
-                $this->core->adminurl->redirect('admin.user.pref', [], '#user-favorites');
+            if (!dcCore()->error->flag()) {
+                dcCore()->notices->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
+                dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
@@ -481,10 +481,10 @@ class UserPref extends Page
                 static::jsConfirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
                 # --BEHAVIOR-- adminPreferencesHeaders
-                $this->core->behaviors->call('adminPreferencesHeaders')
+                dcCore()->behaviors->call('adminPreferencesHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML($this->core->auth->userID()) => '',
+                Html::escapeHTML(dcCore()->auth->userID()) => '',
                 $page_title                                   => '',
             ])
         ;
@@ -494,10 +494,10 @@ class UserPref extends Page
 
     protected function getPageContent(): void
     {
-        $editors_combo = $this->core->combos->getEditorsCombo();
+        $editors_combo = dcCore()->combos->getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
-        $iconsets_combo = $this->core->combos->getIconsetCombo();
+        $iconsets_combo = dcCore()->combos->getIconsetCombo();
 
         # Themes
         $theme_combo = [
@@ -515,14 +515,14 @@ class UserPref extends Page
             __('Largest')  => '87.5%',
         ];
 
-        $auto_filter = $this->core->auth->user_prefs->interface->auto_filter;
+        $auto_filter = dcCore()->auth->user_prefs->interface->auto_filter;
 
         # User profile
         echo '<div class="multi-part" id="user-profile" title="' . __('My profile') . '">';
 
         echo
         '<h3>' . __('My profile') . '</h3>' .
-        '<form action="' . $this->core->adminurl->get('admin.user.pref') . '" method="post" id="user-form">' .
+        '<form action="' . dcCore()->adminurl->get('admin.user.pref') . '" method="post" id="user-form">' .
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
         Form::field('user_name', 20, 255, [
@@ -575,12 +575,12 @@ class UserPref extends Page
         '<p class="form-note info" id="sanitize_urls">' . __('Invalid URLs will be automatically removed from list.') . '</p>' .
 
         '<p><label for="user_lang">' . __('Language for my interface:') . '</label>' .
-        Form::combo('user_lang', $this->core->combos->getAdminLangsCombo(), $this->container->getlang(), 'l10n') . '</p>' .
+        Form::combo('user_lang', dcCore()->combos->getAdminLangsCombo(), $this->container->getlang(), 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
         Form::combo('user_tz', Dt::getZones(true, true), $this->container->getTZ()) . '</p>';
 
-        if ($this->core->auth->allowPassChange()) {
+        if (dcCore()->auth->allowPassChange()) {
             echo
             '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
 
@@ -621,7 +621,7 @@ class UserPref extends Page
 
         echo
         '<p class="clear vertical-separator">' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -633,7 +633,7 @@ class UserPref extends Page
         echo '<div class="multi-part" id="user-options" title="' . __('My options') . '">';
 
         echo
-        '<form action="' . $this->core->adminurl->get('admin.user.pref') . '#user-options" method="post" id="opts-forms">' .
+        '<form action="' . dcCore()->adminurl->get('admin.user.pref') . '#user-options" method="post" id="opts-forms">' .
         '<h3>' . __('My options') . '</h3>';
 
         echo
@@ -676,7 +676,7 @@ class UserPref extends Page
         Form::number('user_ui_media_nb_last_dirs', 0, 999, (string) $this->user_ui_media_nb_last_dirs, '', '', false, 'aria-describedby="user_ui_media_nb_last_dirs_help"') . '</p>' .
         '<p class="clear form-note" id="user_ui_media_nb_last_dirs_help">' . __('Leave empty to ignore, displayed only if Javascript is enabled in your browser.') . '</p>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             echo
             '<p><label for="user_ui_hide_std_favicon" class="classic">' .
             Form::checkbox('user_ui_hide_std_favicon', 1, $this->user_ui_hide_std_favicon, '', '', false, 'aria-describedby="user_ui_hide_std_favicon_help"') . ' ' .
@@ -733,7 +733,7 @@ class UserPref extends Page
             if (null !== $sort_data[3]) {
                 echo
                 '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
-                Form::combo('sorts_' . $sort_type . '_order', $this->core->combos->getOrderCombo(), $sort_data[3]) . '</p>';
+                Form::combo('sorts_' . $sort_type . '_order', dcCore()->combos->getOrderCombo(), $sort_data[3]) . '</p>';
             }
             if (is_array($sort_data[4])) {
                 echo
@@ -767,7 +767,7 @@ class UserPref extends Page
 
         echo
         '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
-        Form::combo('user_post_status', $this->core->combos->getPostStatusesCombo(), $this->container->getPostStatus()) . '</p>' .
+        Form::combo('user_post_status', dcCore()->combos->getPostStatusesCombo(), $this->container->getPostStatus()) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
         Form::number('user_edit_size', 10, 999, (string) $this->container->getOption('edit_size')) . '</p>' .
@@ -797,11 +797,11 @@ class UserPref extends Page
         '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         # --BEHAVIOR-- adminPreferencesForm
-        $this->core->behaviors->call('adminPreferencesForm');
+        dcCore()->behaviors->call('adminPreferencesForm');
 
         echo
         '<p class="clear vertical-separator">' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input name="user_options_submit" type="submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -814,14 +814,14 @@ class UserPref extends Page
         echo '<h3>' . __('My dashboard') . '</h3>';
 
         # Favorites
-        echo '<form action="' . $this->core->adminurl->get('admin.user.pref') . '" method="post" id="favs-form" class="two-boxes odd">';
+        echo '<form action="' . dcCore()->adminurl->get('admin.user.pref') . '" method="post" id="favs-form" class="two-boxes odd">';
 
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
 
         $count    = 0;
-        $user_fav = $this->core->favs->getFavoriteIDs(false);
+        $user_fav = dcCore()->favs->getFavoriteIDs(false);
         foreach ($user_fav as $id) {
-            $fav = $this->core->favs->getFavorite($id);
+            $fav = dcCore()->favs->getFavorite($id);
             if (!empty($fav)) {
                 // User favorites only
                 if ($count == 0) {
@@ -829,8 +829,8 @@ class UserPref extends Page
                 }
 
                 $count++;
-                $icon = $this->core->menu->getIconTheme($fav['small-icon']);
-                $zoom = $this->core->menu->getIconTheme($fav['large-icon'], false);
+                $icon = dcCore()->menu->getIconTheme($fav['small-icon']);
+                $zoom = dcCore()->menu->getIconTheme($fav['large-icon'], false);
                 if ($zoom !== '') {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
@@ -855,7 +855,7 @@ class UserPref extends Page
             echo
             '<div class="clear">' .
             '<p>' . Form::hidden('favs_order', '') .
-            $this->core->formNonce() .
+            dcCore()->formNonce() .
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" /> ' .
 
             '<input type="submit" class="delete" name="removeaction" ' .
@@ -864,7 +864,7 @@ class UserPref extends Page
                 __('Are you sure you want to remove selected favorites?')
             ) . '\');" /></p>' .
 
-                ($this->core->auth->isSuperAdmin() ?
+                (dcCore()->auth->isSuperAdmin() ?
                 '<div class="info">' .
                 '<p>' . __('If you are a super administrator, you may define this set of favorites to be used by default on all blogs of this installation.') . '</p>' .
                 '<p><input class="reset" type="submit" name="replace" value="' . __('Define as default favorites') . '" />' . '</p>' .
@@ -878,9 +878,9 @@ class UserPref extends Page
             '<p>' . __('Currently no personal favorites.') . '</p>';
         }
 
-        $avail_fav       = $this->core->favs->getFavorites($this->core->favs->getAvailableFavoritesIDs());
+        $avail_fav       = dcCore()->favs->getFavorites(dcCore()->favs->getAvailableFavoritesIDs());
         $default_fav_ids = [];
-        foreach ($this->core->favs->getFavoriteIDs(true) as $v) {
+        foreach (dcCore()->favs->getFavoriteIDs(true) as $v) {
             $default_fav_ids[$v] = true;
         }
         echo '</div>'; # /box my-fav
@@ -907,8 +907,8 @@ class UserPref extends Page
             }
 
             $count++;
-            $icon = $this->core->menu->getIconTheme($fav['small-icon']);
-            $zoom = $this->core->menu->getIconTheme($fav['large-icon'], false);
+            $icon = dcCore()->menu->getIconTheme($fav['small-icon']);
+            $zoom = dcCore()->menu->getIconTheme($fav['large-icon'], false);
             if ($zoom !== '') {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }
@@ -924,7 +924,7 @@ class UserPref extends Page
 
         echo
         '<p>' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>';
         echo '</div>'; # /available favorites
 
@@ -932,7 +932,7 @@ class UserPref extends Page
 
         # Dashboard items
         echo
-        '<form action="' . $this->core->adminurl->get('admin.user.pref') . '" method="post" id="db-forms" class="two-boxes even">' .
+        '<form action="' . dcCore()->adminurl->get('admin.user.pref') . '" method="post" id="db-forms" class="two-boxes even">' .
 
         '<div class="fieldset">' .
         '<h4>' . __('Menu') . '</h4>' .
@@ -974,7 +974,7 @@ class UserPref extends Page
         Form::checkbox('user_dm_quickentry', 1, $this->user_dm_quickentry) . ' ' .
         __('Display quick entry form') . '</label></p>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             echo
             '<p><label for="user_dm_nodcupdate" class="classic">' .
             Form::checkbox('user_dm_nodcupdate', 1, $this->user_dm_nodcupdate) . ' ' .
@@ -984,23 +984,23 @@ class UserPref extends Page
         echo '</div>';
 
         # --BEHAVIOR-- adminDashboardOptionsForm
-        $this->core->behaviors->call('adminDashboardOptionsForm', $this->core);
+        dcCore()->behaviors->call('adminDashboardOptionsForm', dcCore());
 
         echo
         '<p>' .
         Form::hidden('db-options', '-') .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
 
         # Dashboard items order (reset)
-        echo '<form action="' . $this->core->adminurl->get('admin.user.pref') . '" method="post" id="order-reset" class="two-boxes even">';
+        echo '<form action="' . dcCore()->adminurl->get('admin.user.pref') . '" method="post" id="order-reset" class="two-boxes even">';
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
         echo
         '<p>' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>';
         echo '</div>';
         echo '</form>';

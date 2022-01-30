@@ -19,7 +19,6 @@ namespace Dotclear\Module\Theme\Admin;
 use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 
 use Dotclear\File\Path;
@@ -27,13 +26,6 @@ use Dotclear\File\Files;
 
 class ConfigTheme
 {
-    protected $core;
-
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
-
     /**
      * Compute contrast ratio between two colors
      *
@@ -250,7 +242,7 @@ class ConfigTheme
      */
     public function cssPath($folder)
     {
-        return path::real($this->core->blog->public_path) . '/' . $folder;
+        return path::real(dcCore()->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -262,7 +254,7 @@ class ConfigTheme
      */
     public function cssURL($folder)
     {
-        return $this->core->blog->settings->system->public_url . '/' . $folder;
+        return dcCore()->blog->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -275,18 +267,18 @@ class ConfigTheme
      */
     public function canWriteCss($folder, $create = false)
     {
-        $public = path::real($this->core->blog->public_path);
+        $public = path::real(dcCore()->blog->public_path);
         $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
-            $this->core->error->add(__('The \'public\' directory does not exist.'));
+            dcCore()->error->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
 
         if (!is_dir($css)) {
             if (!is_writable($public)) {
-                $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                dcCore()->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -298,7 +290,7 @@ class ConfigTheme
         }
 
         if (!is_writable($css)) {
-            $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            dcCore()->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }
@@ -376,7 +368,7 @@ class ConfigTheme
      */
     public function publicCssUrlHelper($folder)
     {
-        $theme = $this->core->blog->settings->system->theme;
+        $theme = dcCore()->blog->settings->system->theme;
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 
@@ -394,7 +386,7 @@ class ConfigTheme
      */
     public function imagesPath($folder)
     {
-        return path::real($this->core->blog->public_path) . '/' . $folder;
+        return path::real(dcCore()->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -406,7 +398,7 @@ class ConfigTheme
      */
     public function imagesURL($folder)
     {
-        return $this->core->blog->settings->system->public_url . '/' . $folder;
+        return dcCore()->blog->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -419,25 +411,25 @@ class ConfigTheme
      */
     public function canWriteImages($folder, $create = false)
     {
-        $public = path::real($this->core->blog->public_path);
+        $public = path::real(dcCore()->blog->public_path);
         $imgs   = $this->imagesPath($folder);
 
         if (!function_exists('imagecreatetruecolor') || !function_exists('imagepng') || !function_exists('imagecreatefrompng')) {
-            $this->core->error->add(__('At least one of the following functions is not available: ' .
+            dcCore()->error->add(__('At least one of the following functions is not available: ' .
                 'imagecreatetruecolor, imagepng & imagecreatefrompng.'));
 
             return false;
         }
 
         if (!is_dir($public)) {
-            $this->core->error->add(__('The \'public\' directory does not exist.'));
+            dcCore()->error->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
 
         if (!is_dir($imgs)) {
             if (!is_writable($public)) {
-                $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                dcCore()->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -449,7 +441,7 @@ class ConfigTheme
         }
 
         if (!is_writable($imgs)) {
-            $this->core->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            dcCore()->error->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }
@@ -513,10 +505,9 @@ class ConfigTheme
         if (is_writable(dirname($img))) {
             // Delete thumbnails if any
             try {
-                $media = new Media($this->core);
-                $media->imageThumbRemove($img);
+                dcCore()->mediaInstance()->imageThumbRemove($img);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
             // Delete image
             @unlink($img);

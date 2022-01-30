@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\SimpleMenu\Lib;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
 use Dotclear\Plugin\Widgets\Lib\Widgets;
 
 use Dotclear\Html\Html;
@@ -28,19 +27,17 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class SimpleMenuWidgets
 {
     public static $widgets;
-    protected $core;
 
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core = $core;
-        $core->behaviors->add('initWidgets', [$this, 'initWidgets']);
-        if (!empty($core->tpl)) {
-            $core->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
+        dcCore()->behaviors->add('initWidgets', [$this, 'initWidgets']);
+        if (!empty(dcCore()->tpl)) {
+            dcCore()->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
         self::$widgets = $this;
     }
 
-    public function initWidgets(Core $core, Widgets $w): void
+    public function initWidgets(Widgets $w): void
     {
         $w
             ->create('simplemenu', __('Simple menu'), [$this, 'simpleMenuWidget'], null, 'List of simple menu items')
@@ -61,7 +58,7 @@ class SimpleMenuWidgets
     # Template function
     public function simpleMenu($attr)
     {
-        if (!(boolean) $this->core->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dcCore()->blog->settings->system->simpleMenu_active) {
             return '';
         }
 
@@ -85,7 +82,7 @@ class SimpleMenuWidgets
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!(boolean) $this->core->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dcCore()->blog->settings->system->simpleMenu_active) {
             return;
         }
 
@@ -93,7 +90,7 @@ class SimpleMenuWidgets
             return;
         }
 
-        if (($w->homeonly == 1 && !$this->core->url->isHome($core->url->type)) || ($w->homeonly == 2 && $this->core->url->isHome($this->core->url->type))) {
+        if (($w->homeonly == 1 && !dcCore()->url->isHome(dcCore()->url->type)) || ($w->homeonly == 2 && dcCore()->url->isHome(dcCore()->url->type))) {
             return;
         }
 
@@ -114,18 +111,18 @@ class SimpleMenuWidgets
     {
         $ret = '';
 
-        if (!(boolean) $this->core->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dcCore()->blog->settings->system->simpleMenu_active) {
             return $ret;
         }
 
-        $menu = $this->core->blog->settings->system->simpleMenu;
+        $menu = dcCore()->blog->settings->system->simpleMenu;
         if (is_array($menu)) {
             // Current relative URL
             $url     = $_SERVER['REQUEST_URI'];
             $abs_url = http::getHost() . $url;
 
             // Home recognition var
-            $home_url       = html::stripHostURL($this->core->blog->url);
+            $home_url       = html::stripHostURL(dcCore()->blog->url);
             $home_directory = dirname($home_url);
             if ($home_directory != '/') {
                 $home_directory = $home_directory . '/';
@@ -183,7 +180,7 @@ class SimpleMenuWidgets
                 ]);
 
                 # --BEHAVIOR-- publicSimpleMenuItem
-                $this->core->behaviors->call('publicSimpleMenuItem', $i, $item);
+                dcCore()->behaviors->call('publicSimpleMenuItem', $i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
                     ($item['active'] ? ' active' : '') .

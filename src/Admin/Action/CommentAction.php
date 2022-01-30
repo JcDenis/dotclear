@@ -16,8 +16,6 @@ namespace Dotclear\Admin\Action;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Action\DefaultCommentAction;
 
@@ -26,9 +24,9 @@ use Dotclear\Html\Form;
 
 class CommentAction extends Action
 {
-    public function __construct(Core $core, $uri, $redirect_args = [])
+    public function __construct($uri, $redirect_args = [])
     {
-        parent::__construct($core, $uri, $redirect_args);
+        parent::__construct($uri, $redirect_args);
 
         $this->redirect_fields = ['type', 'author', 'status',
             'sortby', 'ip', 'order', 'page', 'nb', 'section'];
@@ -41,8 +39,8 @@ class CommentAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            html::escapeHTML($this->core->blog->name) => '',
-            __('Comments')                            => $this->core->adminurl->get('admin.comments'),
+            html::escapeHTML(dcCore()->blog->name) => '',
+            __('Comments')                            => dcCore()->adminurl->get('admin.comments'),
             __('Comments actions')                    => ''
         ]);
     }
@@ -51,13 +49,13 @@ class CommentAction extends Action
     {
         // We could have added a behavior here, but we want default action
         // to be setup first
-        DefaultCommentAction::CommentAction($this->core, $this);
-        $this->core->behaviors->call('adminCommentsActionsPage', $this);
+        DefaultCommentAction::CommentAction($this);
+        dcCore()->behaviors->call('adminCommentsActionsPage', $this);
     }
 
     public function error(AdminException $e)
     {
-        $this->core->error->add($e->getMessage());
+        dcCore()->error->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 
@@ -106,7 +104,7 @@ class CommentAction extends Action
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $params['no_content'] = true;
         }
-        $co = $this->core->blog->getComments($params);
+        $co = dcCore()->blog->getComments($params);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

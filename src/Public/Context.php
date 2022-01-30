@@ -14,7 +14,6 @@ namespace Dotclear\Public;
 
 use Dotclear\Exception;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 
 use Dotclear\Database\Record;
@@ -24,13 +23,7 @@ use Dotclear\Html\Html;
 
 class Context
 {
-    public $core;
     public $stack = [];
-
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
 
     public function __set($name, $var)
     {
@@ -160,12 +153,12 @@ class Context
         $args[0] = &$str;
 
         # --BEHAVIOR-- publicBeforeContentFilter
-        $res = $this->core->behaviors->call('publicBeforeContentFilter', $tag, $args);
+        $res = dcCore()->behaviors->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             # --BEHAVIOR-- publicContentFilter
-            switch ($this->core->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
+            switch (dcCore()->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -180,7 +173,7 @@ class Context
         }
 
         # --BEHAVIOR-- publicAfterContentFilter
-        $res = $this->core->behaviors->call('publicAfterContentFilter', $tag, $args);
+        $res = dcCore()->behaviors->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;
@@ -277,7 +270,7 @@ class Context
         }
 
         $nb_posts = $this->pagination->f(0);
-        if (($this->core->url->type == 'default') || ($this->core->url->type == 'default-page')) {
+        if ((dcCore()->url->type == 'default') || (dcCore()->url->type == 'default-page')) {
             $nb_pages = ceil(($nb_posts - $this->nb_entry_first_page) / $this->nb_entry_per_page + 1);
         } else {
             $nb_pages = ceil($nb_posts / $this->nb_entry_per_page);
@@ -334,7 +327,7 @@ class Context
 
         $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
-        $url = $this->core->blog->url . $args;
+        $url = dcCore()->blog->url . $args;
 
         if ($n > 1) {
             $url = preg_replace('#/$#', '', $url);
@@ -491,14 +484,14 @@ class Context
     public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
         try {
-            $media = new Media($this->core);
+            $media = dcCore()->mediaInstance();
             $sizes = implode('|', array_keys($media->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = $this->core->blog->settings->system->public_url;
-            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', $this->core->blog->url);
-            $p_root = $this->core->blog->public_path;
+            $p_url  = dcCore()->blog->settings->system->public_url;
+            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dcCore()->blog->url);
+            $p_root = dcCore()->blog->public_path;
 
             $pattern = '(?:' . preg_quote($p_site, '/') . ')?' . preg_quote($p_url, '/');
             $pattern = sprintf('/<img.+?src="%s(.*?\.(?:jpg|jpeg|gif|png|svg|webp))"[^>]+/msui', $pattern);
@@ -549,7 +542,7 @@ class Context
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
     }
 
@@ -565,7 +558,7 @@ class Context
         $res = false;
 
         try {
-            $media = new Media($this->core);
+            $media = dcCore()->mediaInstance();
             $sizes = implode('|', array_keys($media->thumb_sizes));
             if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
                 $base = $m[1];
@@ -597,7 +590,7 @@ class Context
                 }
             }
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         if ($res) {

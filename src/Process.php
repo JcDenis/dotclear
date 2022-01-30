@@ -57,6 +57,9 @@ Class Dotclear
         require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'DotclearLegacy.php']);
         //*/
 
+        # Singleton class (must be required here to be know by fonction dcCore())
+        require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Core', 'SingleTon.php']);
+
         # Find process (Admin|Public|Install|...)
         $class = implode('\\', [__CLASS__, ucfirst(strtolower($process)), 'Prepend']);
         if (!is_subclass_of($class, __CLASS__ . '\\Core\\Core')) {
@@ -66,7 +69,7 @@ Class Dotclear
         # Execute Process
         ob_end_clean();
         ob_start();
-        new $class($blog_id);
+        $class::coreInstance($blog_id);
         ob_end_flush();
     }
 
@@ -81,4 +84,14 @@ Class Dotclear
         $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
         new static($process, $blog_id);
     }
+}
+
+/**
+ * Singleton Dotclear Core
+ *
+ * @return  Singleton   The core instance
+ */
+function dcCore()
+{
+    return Dotclear\Core\SingleTon::coreInstance();
 }

@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -19,14 +17,13 @@ class JoinStatement extends SqlStatement
     /**
      * Class constructor
      *
-     * @param Core    $core   Core instance
      * @param mixed     $ctx    optional context
      */
-    public function __construct(Core &$core, $ctx = null)
+    public function __construct($ctx = null)
     {
         $this->type = null;
 
-        parent::__construct($core, $ctx);
+        parent::__construct($ctx);
     }
 
     /**
@@ -50,7 +47,7 @@ class JoinStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeDeleteStatement
-        $this->core->behaviors->call('coreBeforeJoinStatement', $this);
+        dcCore()->behaviors->call('coreBeforeJoinStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -88,7 +85,7 @@ class JoinStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        $this->core->behaviors->call('coreAfterJoinStatement', $this, $query);
+        dcCore()->behaviors->call('coreAfterJoinStatement', $this, $query);
 
         return $query;
     }

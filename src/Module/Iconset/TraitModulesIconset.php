@@ -26,7 +26,7 @@ trait TraitModulesIconset
 
     public function getStoreURL(): string
     {
-        return (string) $this->core->blog->settings->system->store_iconset_url;
+        return (string) dcCore()->blog->settings->system->store_iconset_url;
     }
 
     public function useStoreCache(): bool

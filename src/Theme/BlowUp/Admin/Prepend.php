@@ -15,9 +15,6 @@ namespace Dotclear\Theme\BlowUp\Admin;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
-use Dotclear\Admin\Notices;
 use Dotclear\Admin\Page;
 
 use Dotclear\Module\AbstractPrepend;
@@ -32,28 +29,28 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(Core $core): bool
+    public static function checkModule(): bool
     {
         return true;
     }
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
-        $core->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
+        dcCore()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
     }
 
-    public static function installModule(Core $core): ?bool
+    public static function installModule(): ?bool
     {
-        $core->blog->settings->addNamespace('themes');
-        $core->blog->settings->themes->put('blowup_style', '', 'string', 'Blow Up  custom style', false);
+        dcCore()->blog->settings->addNamespace('themes');
+        dcCore()->blog->settings->themes->put('blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;
     }
 
-    public static function behaviorAdminCurrentThemeDetails(Core $core, AbstractDefine $module): string
+    public static function behaviorAdminCurrentThemeDetails(AbstractDefine $module): string
     {
-        return $module->id() == 'BlowUp' && $core->auth->check('admin', $core->blog->id) ?
-            '<p><a href="' . $core->adminurl->get('admin.plugin.BlowUp') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+        return $module->id() == 'BlowUp' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
+            '<p><a href="' . dcCore()->adminurl->get('admin.plugin.BlowUp') . '" class="button submit">' . __('Configure theme') . '</a></p>'
             : '';
     }
 }

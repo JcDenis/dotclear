@@ -42,11 +42,11 @@ class tplDuctileTheme
 
         $nb_other = $nb_first = 0;
 
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_entries_counts');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_counts');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                switch ($GLOBALS['core']->url->type) {
+                switch (dcCore()->url->type) {
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
@@ -58,9 +58,9 @@ class tplDuctileTheme
 
                         break;
                     default:
-                        if (isset($s[$GLOBALS['core']->url->type])) {
+                        if (isset($s[dcCore()->url->type])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (integer) $s[$GLOBALS['core']->url->type];
+                            $nb_first = $nb_other = (integer) $s[dcCore()->url->type];
                         }
 
                         break;
@@ -150,12 +150,12 @@ class tplDuctileTheme
 
     public static function ductileEntriesListHelper($default)
     {
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_entries_lists');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_lists');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                if (isset($s[$GLOBALS['core']->url->type])) {
-                    $model = $s[$GLOBALS['core']->url->type];
+                if (isset($s[dcCore()->url->type])) {
+                    $model = $s[dcCore()->url->type];
 
                     return $model;
                 }
@@ -172,9 +172,9 @@ class tplDuctileTheme
 
     public static function ductileLogoSrcHelper()
     {
-        $img_url = $GLOBALS['core']->blog->settings->system->themes_url . '/' . $GLOBALS['core']->blog->settings->system->theme . '/img/logo.png';
+        $img_url = dcCore()->blog->settings->system->themes_url . '/' . dcCore()->blog->settings->system->theme . '/img/logo.png';
 
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_style');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
         if ($s === null) {
             // no settings yet, return default logo
             return $img_url;
@@ -193,7 +193,7 @@ class tplDuctileTheme
                         $img_url = $s['logo_src'];
                     } else {
                         // relative URL (base = img folder of ductile theme)
-                        $img_url = $GLOBALS['core']->blog->settings->system->themes_url . '/' . $GLOBALS['core']->blog->settings->system->theme . '/img/' . $s['logo_src'];
+                        $img_url = dcCore()->blog->settings->system->themes_url . '/' . dcCore()->blog->settings->system->theme . '/img/' . $s['logo_src'];
                     }
                 }
             }
@@ -204,7 +204,7 @@ class tplDuctileTheme
 
     public static function IfPreviewIsNotMandatory($attr, $content)
     {
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_style');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -299,7 +299,7 @@ class tplDuctileTheme
 
     public static function ductileWebfontHelper()
     {
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_style');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
 
         if ($s === null) {
             return;
@@ -370,7 +370,7 @@ class tplDuctileTheme
 
     public static function ductileStyleHelper()
     {
-        $s = $GLOBALS['core']->blog->settings->themes->get($GLOBALS['core']->blog->settings->system->theme . '_style');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
 
         if ($s === null) {
             return;

@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Pager;
 use Dotclear\Admin\Catalog;
 
@@ -66,7 +64,7 @@ class UserCatalog extends Catalog
             ];
 
             $cols = new \ArrayObject($cols);
-            $this->core->behaviors->call('adminUserListHeader', $this->core, $this->rs, $cols);
+            dcCore()->behaviors->call('adminUserListHeader', $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -109,9 +107,9 @@ class UserCatalog extends Catalog
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $p = $this->core->getUserPermissions($this->rs->user_id);
+        $p = dcCore()->getUserPermissions($this->rs->user_id);
 
-        if (isset($p[$this->core->blog->id]['p']['admin'])) {
+        if (isset($p[dcCore()->blog->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
         if ($this->rs->user_super) {
@@ -124,18 +122,18 @@ class UserCatalog extends Catalog
             'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], (int) $this->rs->nb_post) .
             Form::checkbox(['users[]'], $this->rs->user_id) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
-            $this->core->adminurl->get('admin.user', ['id' => $this->rs->user_id]) . '">' .
+            dcCore()->adminurl->get('admin.user', ['id' => $this->rs->user_id]) . '">' .
             $this->rs->user_id . '</a>&nbsp;' . $img_status . '</td>',
             'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_firstname) . '</td>',
             'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_name) . '</td>',
             'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_displayname) . '</td>',
             'entries'      => '<td class="nowrap count"><a href="' .
-            $this->core->adminurl->get('admin.posts', ['user_id' => $this->rs->user_id]) . '">' .
+            dcCore()->adminurl->get('admin.posts', ['user_id' => $this->rs->user_id]) . '">' .
             $this->rs->nb_post . '</a></td>',
         ];
 
         $cols = new \ArrayObject($cols);
-        $this->core->behaviors->call('adminUserListValue', $this->core, $this->rs, $cols);
+        dcCore()->behaviors->call('adminUserListValue', $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

@@ -18,7 +18,6 @@ use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractDefine;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Error;
 
 use Dotclear\Html\Html;
@@ -34,9 +33,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 abstract class AbstractModules
 {
-    /** @var    Core    Core instance */
-    public $core;
-
     /** @var    Error   Error instance */
     public $error;
 
@@ -64,11 +60,10 @@ abstract class AbstractModules
     /** @var    array           Loading process, modules to disable */
     private $to_disable = [];
 
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core      = $core;
-        $this->error               = new Error();
-        $this->safe_mode           = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
+        $this->error     = new Error();
+        $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
     }
 
     /**
@@ -131,7 +126,7 @@ abstract class AbstractModules
 
             # Loop through current modules root path
             while (($this->id = $handle->read()) !== false) {
-                $entry_path = Core::path($root, $this->id);
+                $entry_path = dcCore()::path($root, $this->id);
 
                 # Check dir
                 if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
@@ -147,7 +142,7 @@ abstract class AbstractModules
 
                     # Add module namespace
                     if ($entry_enabled) {
-                        $this->core->autoloader->addNamespace(Core::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
+                        dcCore()->autoloader->addNamespace(dcCore()::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
                     # Save module in disabled list
                     } else {
                         $this->disabled_mode       = false;
@@ -171,12 +166,12 @@ abstract class AbstractModules
         # Load modules stuff
         foreach ($this->modules_enabled as $id => $module) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+            $class = dcCore()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
-                if (true !== $class::checkModule($this->core)) {
+                if (true !== $class::checkModule()) {
                     continue;
                 }
             }
@@ -186,15 +181,15 @@ abstract class AbstractModules
 
             # Auto register main module Admin Page URL if exists
             if (DOTCLEAR_PROCESS == 'Admin') {
-                $page = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
+                $page = dcCore()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
                 if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
-                    $this->core->adminurl->register('admin.plugin.' . $id, $page);
+                    dcCore()->adminurl->register('admin.plugin.' . $id, $page);
                 }
             }
 
             # Load others stuff from module
             if ($has_prepend) {
-                $class::loadModule($this->core);
+                $class::loadModule();
             }
 
             //! todo: here or elsewhere, load module 'parent' Prepend
@@ -207,7 +202,7 @@ abstract class AbstractModules
         # Include module Define file
         ob_start();
         try {
-            $class = Core::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
+            $class = dcCore()::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
             $define = new $class($id, $dir . '/Define.php');
         } catch (ModuleException) {
             ob_end_clean();
@@ -496,22 +491,22 @@ abstract class AbstractModules
         }
 
         # Check module version in db
-        if (version_compare((string) $this->core->getVersion($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
+        if (version_compare((string) dcCore()->getVersion($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
             return null;
         }
 
         # Search module install class
-        $class = Core::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+        $class = dcCore()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
             return null;
         }
 
         try {
             # Do module installation
-            $i = $class::installModule($this->core);
+            $i = $class::installModule();
 
             # Update module version in db
-            $this->core->setVersion($id, $this->modules_enabled[$id]->version());
+            dcCore()->setVersion($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
         } catch (Exception $e) {
@@ -548,7 +543,7 @@ abstract class AbstractModules
                 __('The following modules have been disabled :'),
                 join('', $reason)
             );
-            $this->core->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            dcCore()->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 

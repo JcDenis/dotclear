@@ -17,7 +17,6 @@ use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 use Dotclear\Plugin\Widgets\Lib\WidgetsExt;
 use Dotclear\Plugin\Widgets\Lib\Widget;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -27,12 +26,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class Widgets
 {
     private $__widgets = [];
-    protected $core;
-
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
 
     public function load($s)
     {
@@ -57,7 +50,7 @@ class Widgets
 
     public function create($id, $name, $callback, $append_callback = null, $desc = '')
     {
-        $this->__widgets[$id]                  = new WidgetExt($this->core, $id, $name, $callback, $desc);
+        $this->__widgets[$id]                  = new WidgetExt($id, $name, $callback, $desc);
         $this->__widgets[$id]->append_callback = $append_callback;
 
         return $this->__widgets[$id];
@@ -113,7 +106,7 @@ class Widgets
 
         uasort($A, ['self', 'arraySort']);
 
-        $result = new Widgets($this->core);
+        $result = new Widgets();
         foreach ($A as $v) {
             if ($widgets->{$v['id']} != null) {
                 $w = clone $widgets->{$v['id']};

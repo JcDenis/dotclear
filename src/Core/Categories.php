@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Database\NestedTree;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -27,20 +25,16 @@ class Categories extends NestedTree
     protected $f_right = 'cat_rgt';
     protected $f_id    = 'cat_id';
 
-    protected $core;
     protected $blog_id;
 
     /**
      * Constructs a new instance.
-     *
-     * @param      Core  $core   The core
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core          = &$core;
-        $this->con           = &$core->con;
-        $this->blog_id       = $core->blog->id;
-        $this->table         = $core->prefix . 'category';
+        $this->con           = dcCore()->con;
+        $this->blog_id       = dcCore()->blog->id;
+        $this->table         = dcCore()->prefix . 'category';
         $this->add_condition = ['blog_id' => "'" . $this->con->escape($this->blog_id) . "'"];
     }
 

@@ -15,10 +15,6 @@ namespace Dotclear\Theme\CustomCSS\Admin;
 
 use Dotclear\Exception\ModuleException;
 
-use Dotclear\Core\Core;
-
-use Dotclear\Admin\Notices;
-
 use Dotclear\Module\AbstractConfig;
 
 use Dotclear\Html\Form;
@@ -50,7 +46,7 @@ class Config extends AbstractConfig
             fwrite($fp, $post['css']);
             fclose($fp);
 
-            $this->core->notices->addSuccessNotice(__('Style sheet upgraded.'));
+            dcCore()->notices->addSuccessNotice(__('Style sheet upgraded.'));
             Http::redirect($redir);
         }
     }
@@ -66,8 +62,8 @@ class Config extends AbstractConfig
 
     private function customcssConf()
     {
-        L10n::set(Core::path(__DIR__, '..',  'locales', $this->core->_lang, 'main'));
-        $this->customcss_file = Path::real($this->core->blog->public_path) . '/custom_style.css';
+        L10n::set(dcCore()::path(__DIR__, '..',  'locales', dcCore()->_lang, 'main'));
+        $this->customcss_file = Path::real(dcCore()->blog->public_path) . '/custom_style.css';
 
         if (!is_file($this->customcss_file) && !is_writable(dirname($this->customcss_file))) {
             throw new ModuleException(

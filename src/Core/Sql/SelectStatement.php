@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -25,10 +23,9 @@ class SelectStatement extends SqlStatement
     /**
      * Class constructor
      *
-     * @param Core    $core   Core instance
      * @param mixed     $ctx    optional context
      */
-    public function __construct(Core &$core, $ctx = null)
+    public function __construct($ctx = null)
     {
         $this->join = $this->having = $this->order = $this->group = [];
 
@@ -36,7 +33,7 @@ class SelectStatement extends SqlStatement
         $this->offset   = null;
         $this->distinct = false;
 
-        parent::__construct($core, $ctx);
+        parent::__construct($ctx);
     }
 
     /**
@@ -190,7 +187,7 @@ class SelectStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeSelectStatement
-        $this->core->behaviors->call('coreBeforeSelectStatement', $this);
+        dcCore()->behaviors->call('coreBeforeSelectStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -262,7 +259,7 @@ class SelectStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        $this->core->behaviors->call('coreAfterSelectStatement', $this, $query);
+        dcCore()->behaviors->call('coreAfterSelectStatement', $this, $query);
 
         return $query;
     }

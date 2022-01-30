@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\UserPref;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -23,7 +21,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Catalog
 {
-    protected $core;
     protected $rs;
     protected $rs_count;
     protected $html_prev;
@@ -32,13 +29,11 @@ class Catalog
     /**
      * Constructs a new instance.
      *
-     * @param      Core  $core      The core
      * @param      record  $rs        The record
      * @param      mixed   $rs_count  The rs count
      */
-    public function __construct(Core $core, $rs, $rs_count)
+    public function __construct($rs, $rs_count)
     {
-        $this->core      = $core;
         $this->rs        = $rs;
         $this->rs_count  = (int) $rs_count;
         $this->html_prev = __('&#171; prev.');
@@ -53,6 +48,6 @@ class Catalog
      */
     public function userColumns($type, $cols)
     {
-        $cols = $this->core->userpref->getUserColumns($type, $cols);
+        $cols = dcCore()->userpref->getUserColumns($type, $cols);
     }
 }

@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Pager;
 use Dotclear\Admin\Catalog;
 
@@ -54,7 +52,7 @@ class PostMiniCatalog extends Catalog
             ];
 
             $cols = new ArrayObject($cols);
-            $this->core->behaviors->call('adminPostMiniListHeader', $this->core, $this->rs, $cols);
+            dcCore()->behaviors->call('adminPostMiniListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -135,7 +133,7 @@ class PostMiniCatalog extends Catalog
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            $this->core->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
+            dcCore()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
             'title="' . Html::escapeHTML($this->rs->getURL()) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
@@ -144,7 +142,7 @@ class PostMiniCatalog extends Catalog
         ];
 
         $cols = new ArrayObject($cols);
-        $this->core->behaviors->call('adminPostMiniListValue', $this->core, $this->rs, $cols);
+        dcCore()->behaviors->call('adminPostMiniListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

@@ -19,8 +19,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

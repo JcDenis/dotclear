@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Pager;
 use Dotclear\Admin\Catalog;
 
@@ -58,7 +56,7 @@ class BlogCatalog extends Catalog
 
             $cols = [
                 'blog' => '<th' .
-                ($this->core->auth->isSuperAdmin() ? ' colspan="2"' : '') .
+                (dcCore()->auth->isSuperAdmin() ? ' colspan="2"' : '') .
                 ' scope="col" abbr="comm" class="first nowrap">' . __('Blog id') . '</th>',
                 'name'   => '<th scope="col" abbr="name">' . __('Blog name') . '</th>',
                 'url'    => '<th scope="col" class="nowrap">' . __('URL') . '</th>',
@@ -68,7 +66,7 @@ class BlogCatalog extends Catalog
             ];
 
             $cols = new ArrayObject($cols);
-            $this->core->behaviors->call('adminBlogListHeader', $this->core, $this->rs, $cols);
+            dcCore()->behaviors->call('adminBlogListHeader', $this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -124,19 +122,19 @@ class BlogCatalog extends Catalog
         $blog_id = Html::escapeHTML($this->rs->blog_id);
 
         $cols = [
-            'check' => ($this->core->auth->isSuperAdmin() ?
+            'check' => (dcCore()->auth->isSuperAdmin() ?
                 '<td class="nowrap">' .
                 Form::checkbox(['blogs[]'], $this->rs->blog_id, $checked) .
                 '</td>' : ''),
             'blog' => '<td class="nowrap">' .
-            ($this->core->auth->isSuperAdmin() ?
-                '<a href="' . $this->core->adminurl->get('admin.blog', ['id' => $blog_id]) . '"  ' .
+            (dcCore()->auth->isSuperAdmin() ?
+                '<a href="' . dcCore()->adminurl->get('admin.blog', ['id' => $blog_id]) . '"  ' .
                 'title="' . sprintf(__('Edit blog settings for %s'), $blog_id) . '">' .
                 '<img src="?df=images/edit-mini.png" alt="' . __('Edit blog settings') . '" /> ' . $blog_id . '</a> ' :
                 $blog_id . ' ') .
             '</td>',
             'name' => '<td class="maximal">' .
-            '<a href="' . $this->core->adminurl->get('admin.home', ['switchblog' => $this->rs->blog_id]) . '" ' .
+            '<a href="' . dcCore()->adminurl->get('admin.home', ['switchblog' => $this->rs->blog_id]) . '" ' .
             'title="' . sprintf(__('Switch to blog %s'), $this->rs->blog_id) . '">' .
             Html::escapeHTML($this->rs->blog_name) . '</a>' .
             '</td>',
@@ -145,22 +143,22 @@ class BlogCatalog extends Catalog
             Html::escapeHTML($this->rs->blog_url) . '">' . Html::escapeHTML($this->rs->blog_url) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            $this->core->countBlogPosts($this->rs->blog_id) .
+            dcCore()->countBlogPosts($this->rs->blog_id) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset($this->core->auth->getInfo('user_tz'))) .
+            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset(dcCore()->auth->getInfo('user_tz'))) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
                 '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
                 ($this->rs->blog_status == 1 ? 'check-on' : ($this->rs->blog_status == 0 ? 'check-off' : 'check-wrn')),
-                $this->core->getBlogStatus((int) $this->rs->blog_status)
+                dcCore()->getBlogStatus((int) $this->rs->blog_status)
             ) .
             '</td>',
         ];
 
         $cols = new ArrayObject($cols);
-        $this->core->behaviors->call('adminBlogListValue', $this->core, $this->rs, $cols);
+        dcCore()->behaviors->call('adminBlogListValue', $this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

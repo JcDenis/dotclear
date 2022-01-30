@@ -20,7 +20,6 @@ use Dotclear\Exception\CoreException;
 
 use Dotclear\Container\User as ContainerUser;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 use Dotclear\Core\Trackback;
 
@@ -40,7 +39,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class XmlRpc extends xmlrpcIntrospectionServer
 {
-    public $core;
     private $blog_id;
     private $blog_loaded    = false;
     private $debug          = false;
@@ -48,11 +46,10 @@ class XmlRpc extends xmlrpcIntrospectionServer
     private $trace_args     = true;
     private $trace_response = true;
 
-    public function __construct(Core $core, $blog_id)
+    public function __construct($blog_id)
     {
         parent::__construct();
 
-        $this->core    = &$core;
         $this->blog_id = $blog_id;
 
         # Blogger methods
@@ -291,7 +288,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     --------------------------------------------------- */
     private function setUser($user_id, $pwd)
     {
-        if (empty($pwd) || $this->core->auth->checkUser($user_id, $pwd) !== true) {
+        if (empty($pwd) || dcCore()->auth->checkUser($user_id, $pwd) !== true) {
             throw new CoreException('Login error');
         }
 
@@ -308,24 +305,24 @@ class XmlRpc extends xmlrpcIntrospectionServer
             return true;
         }
 
-        $this->core->setBlog($this->blog_id);
+        dcCore()->setBlog($this->blog_id);
         $this->blog_loaded = true;
 
-        if (!$this->core->blog->id) {
-            $this->core->blog = null;
+        if (!dcCore()->blog->id) {
+            dcCore()->blog = null;
 
             throw new CoreException('Blog does not exist.');
         }
 
-        if (!$bypass && (!$this->core->blog->settings->system->enable_xmlrpc || !$this->core->auth->check('usage,contentadmin', $this->core->blog->id))) {
-            $this->core->blog = null;
+        if (!$bypass && (!dcCore()->blog->settings->system->enable_xmlrpc || !dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id))) {
+            dcCore()->blog = null;
 
             throw new CoreException('Not enough permissions on this blog.');
         }
 /*
 //!
-        foreach ($this->core->plugins->getModules() as $id => $m) {
-            $this->core->plugins->loadNsFile($id, 'xmlrpc');
+        foreach (dcCore()->plugins->getModules() as $id => $m) {
+            dcCore()->plugins->loadNsFile($id, 'xmlrpc');
         }
 */
         return true;
@@ -335,7 +332,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     {
         $this->setUser($user, $pwd);
         $this->setBlog();
-        $rs = $this->core->blog->getPosts([
+        $rs = dcCore()->blog->getPosts([
             'post_id'   => (integer) $post_id,
             'post_type' => $post_type
         ]);
@@ -349,7 +346,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
     private function getCatID($cat_url)
     {
-        $rs = $this->core->blog->getCategories(['cat_url' => $cat_url]);
+        $rs = dcCore()->blog->getCategories(['cat_url' => $cat_url]);
 
         return $rs->isEmpty() ? null : $rs->cat_id;
     }
@@ -376,17 +373,17 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $title = Text::cutString(Html::clean($content), 25) . '...';
         }
 
-        $excerpt_xhtml = $this->core->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
-        $content_xhtml = $this->core->callEditorFormater('LegacyEditor', 'xhtml', $content);
+        $excerpt_xhtml = dcCore()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
+        $content_xhtml = dcCore()->callEditorFormater('LegacyEditor', 'xhtml', $content);
 
         if (empty($content)) {
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = $this->core->con->openCursor($this->core->prefix . 'post');
+        $cur = dcCore()->con->openCursor(dcCore()->prefix . 'post');
 
-        $cur->user_id            = $this->core->auth->userID();
-        $cur->post_lang          = $this->core->auth->getInfo('user_lang');
+        $cur->user_id            = dcCore()->auth->userID();
+        $cur->post_lang          = dcCore()->auth->getInfo('user_lang');
         $cur->post_title         = trim($title);
         $cur->post_content       = $content;
         $cur->post_excerpt       = $excerpt;
@@ -428,20 +425,20 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         if ($cur->post_type == 'post') {
             # --BEHAVIOR-- xmlrpcBeforeNewPost
-            $this->core->behaviors->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
+            dcCore()->behaviors->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
-            $post_id = $this->core->blog->addPost($cur);
+            $post_id = dcCore()->blog->addPost($cur);
 
             # --BEHAVIOR-- xmlrpcAfterNewPost
-            $this->core->behaviors->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dcCore()->behaviors->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ($cur->post_type == 'page') {
             if (isset($struct['wp_page_order'])) {
                 $cur->post_position = (integer) $struct['wp_page_order'];
             }
 
-            $this->core->blog->settings->system->post_url_format = '{t}';
+            dcCore()->blog->settings->system->post_url_format = '{t}';
 
-            $post_id = $this->core->blog->addPost($cur);
+            $post_id = dcCore()->blog->addPost($cur);
         } else {
             throw new CoreException('Invalid post type', 401);
         }
@@ -475,14 +472,14 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $title = Text::cutString(Html::clean($content), 25) . '...';
         }
 
-        $excerpt_xhtml = $this->core->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
-        $content_xhtml = $this->core->callEditorFormater('LegacyEditor', 'xhtml', $content);
+        $excerpt_xhtml = dcCore()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
+        $content_xhtml = dcCore()->callEditorFormater('LegacyEditor', 'xhtml', $content);
 
         if (empty($content)) {
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = $this->core->con->openCursor($this->core->prefix . 'post');
+        $cur = dcCore()->con->openCursor(dcCore()->prefix . 'post');
 
         $cur->post_type          = $post_type;
         $cur->post_title         = trim($title);
@@ -524,20 +521,20 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         if ($cur->post_type == 'post') {
             # --BEHAVIOR-- xmlrpcBeforeEditPost
-            $this->core->behaviors->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dcCore()->behaviors->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
 
-            $this->core->blog->updPost($post_id, $cur);
+            dcCore()->blog->updPost($post_id, $cur);
 
             # --BEHAVIOR-- xmlrpcAfterEditPost
-            $this->core->behaviors->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dcCore()->behaviors->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ($cur->post_type == 'page') {
             if (isset($struct['wp_page_order'])) {
                 $cur->post_position = (integer) $struct['wp_page_order'];
             }
 
-            $this->core->blog->settings->system->post_url_format = '{t}';
+            dcCore()->blog->settings->system->post_url_format = '{t}';
 
-            $this->core->blog->updPost($post_id, $cur);
+            dcCore()->blog->updPost($post_id, $cur);
         } else {
             throw new CoreException('Invalid post type', 401);
         }
@@ -581,7 +578,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         }
 
         # --BEHAVIOR-- xmlrpcGetPostInfo
-        $this->core->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$res]);
+        dcCore()->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$res]);
 
         return $res;
     }
@@ -591,7 +588,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $post_id = (integer) $post_id;
 
         $this->getPostRS($post_id, $user, $pwd);
-        $this->core->blog->delPost($post_id);
+        dcCore()->blog->delPost($post_id);
 
         return true;
     }
@@ -610,7 +607,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $params          = [];
         $params['limit'] = $nb_post;
 
-        $posts = $this->core->blog->getPosts($params);
+        $posts = dcCore()->blog->getPosts($params);
 
         $res = [];
         while ($posts->fetch()) {
@@ -644,7 +641,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             }
 
             # --BEHAVIOR-- xmlrpcGetPostInfo
-            $this->core->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$tres]);
+            dcCore()->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$tres]);
 
             $res[] = $tres;
         }
@@ -658,9 +655,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setBlog();
 
         return [[
-            'url'      => $this->core->blog->url,
+            'url'      => dcCore()->blog->url,
             'blogid'   => '1',
-            'blogName' => $this->core->blog->name
+            'blogName' => dcCore()->blog->name
         ]];
     }
 
@@ -669,12 +666,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
 
         return [
-            'userid'    => $this->core->auth->userID(),
-            'firstname' => $this->core->auth->getInfo('user_firstname'),
-            'lastname'  => $this->core->auth->getInfo('user_name'),
-            'nickname'  => $this->core->auth->getInfo('user_displayname'),
-            'email'     => $this->core->auth->getInfo('user_email'),
-            'url'       => $this->core->auth->getInfo('user_url')
+            'userid'    => dcCore()->auth->userID(),
+            'firstname' => dcCore()->auth->getInfo('user_firstname'),
+            'lastname'  => dcCore()->auth->getInfo('user_name'),
+            'nickname'  => dcCore()->auth->getInfo('user_displayname'),
+            'email'     => dcCore()->auth->getInfo('user_email'),
+            'url'       => dcCore()->auth->getInfo('user_url')
         ];
     }
 
@@ -682,7 +679,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     {
         $this->setUser($user, $pwd);
         $this->setBlog();
-        $rs = $this->core->blog->getCategories();
+        $rs = dcCore()->blog->getCategories();
 
         $res = [];
 
@@ -710,10 +707,10 @@ class XmlRpc extends xmlrpcIntrospectionServer
                 'parentId'     => $parent,
                 'description'  => $rs->cat_title,
                 'categoryName' => $rs->cat_url,
-                'htmlUrl'      => $this->core->blog->url .
-                $this->core->url->getURLFor('category', $rs->cat_url),
-                'rssUrl' => $this->core->blog->url .
-                $this->core->url->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
+                'htmlUrl'      => dcCore()->blog->url .
+                dcCore()->url->getURLFor('category', $rs->cat_url),
+                'rssUrl' => dcCore()->blog->url .
+                dcCore()->url->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
             ];
 
             $stack[] = $rs->cat_url;
@@ -763,7 +760,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $cat_id = $this->getCatID($cat_id);
         }
 
-        $this->core->blog->updPostCategory($post_id, (integer) $cat_id);
+        dcCore()->blog->updPostCategory($post_id, (integer) $cat_id);
 
         return true;
     }
@@ -775,12 +772,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->getPostRS($post_id, $user, $pwd);
 
         # --BEHAVIOR-- xmlrpcBeforePublishPost
-        $this->core->behaviors->call('xmlrpcBeforePublishPost', $this, $post_id);
+        dcCore()->behaviors->call('xmlrpcBeforePublishPost', $this, $post_id);
 
-        $this->core->blog->updPostStatus($post_id, 1);
+        dcCore()->blog->updPostStatus($post_id, 1);
 
         # --BEHAVIOR-- xmlrpcAfterPublishPost
-        $this->core->behaviors->call('xmlrpcAfterPublishPost', $this, $post_id);
+        dcCore()->behaviors->call('xmlrpcAfterPublishPost', $this, $post_id);
 
         return true;
     }
@@ -801,12 +798,10 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $media = new Media($this->core);
-
+        $media     = dcCore()->mediaInstance();
         $dir_name  = Path::clean(dirname($file_name));
         $file_name = basename($file_name);
-
-        $dir_name = preg_replace('!^/!', '', $dir_name);
+        $dir_name  = preg_replace('!^/!', '', $dir_name);
         if ($dir_name != '') {
             $dir = explode('/', $dir_name);
             $cwd = './';
@@ -868,8 +863,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
     private function translateWpOptions($options = [])
     {
         $timezone = 0;
-        if ($this->core->blog->settings->system->blog_timezone) {
-            $timezone = Dt::getTimeOffset($this->core->blog->settings->system->blog_timezone) / 3600;
+        if (dcCore()->blog->settings->system->blog_timezone) {
+            $timezone = Dt::getTimeOffset(dcCore()->blog->settings->system->blog_timezone) / 3600;
         }
 
         $res = [
@@ -886,7 +881,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'blog_url' => [
                 'desc'     => 'Blog URL',
                 'readonly' => true,
-                'value'    => $this->core->blog->url
+                'value'    => dcCore()->blog->url
             ],
             'time_zone' => [
                 'desc'     => 'Time Zone',
@@ -896,22 +891,22 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'blog_title' => [
                 'desc'     => 'Blog Title',
                 'readonly' => false,
-                'value'    => $this->core->blog->name
+                'value'    => dcCore()->blog->name
             ],
             'blog_tagline' => [
                 'desc'     => 'Blog Tagline',
                 'readonly' => false,
-                'value'    => $this->core->blog->desc
+                'value'    => dcCore()->blog->desc
             ],
             'date_format' => [
                 'desc'     => 'Date Format',
                 'readonly' => false,
-                'value'    => $this->core->blog->settings->system->date_format
+                'value'    => dcCore()->blog->settings->system->date_format
             ],
             'time_format' => [
                 'desc'     => 'Time Format',
                 'readonly' => false,
-                'value'    => $this->core->blog->settings->system->time_format
+                'value'    => dcCore()->blog->settings->system->time_format
             ]
         ];
 
@@ -959,11 +954,11 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
     private function checkPagesPermission()
     {
-        if (!$this->core->plugins->moduleExists('pages')) {
+        if (!dcCore()->plugins->moduleExists('pages')) {
             throw new CoreException('Pages management is not available on this blog.');
         }
 
-        if (!$this->core->auth->check('pages,contentadmin', $this->core->blog->id)) {
+        if (!dcCore()->auth->check('pages,contentadmin', dcCore()->blog->id)) {
             throw new CoreException('Not enough permissions to edit pages.', 401);
         }
     }
@@ -986,7 +981,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $params['limit'] = $limit;
         }
 
-        $posts = $this->core->blog->getPosts($params);
+        $posts = dcCore()->blog->getPosts($params);
 
         $res = [];
         while ($posts->fetch()) {
@@ -1018,7 +1013,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             ];
 
             # --BEHAVIOR-- xmlrpcGetPageInfo
-            $this->core->behaviors->call('xmlrpcGetPageInfo', $this, [&$tres]);
+            dcCore()->behaviors->call('xmlrpcGetPageInfo', $this, [&$tres]);
 
             $res[] = $tres;
         }
@@ -1057,7 +1052,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $page_id = (integer) $page_id;
 
         $this->getPostRS($page_id, $user, $pwd, 'page');
-        $this->core->blog->delPost($page_id);
+        dcCore()->blog->delPost($page_id);
 
         return true;
     }
@@ -1067,7 +1062,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $rs  = $this->core->getBlogPermissions($this->core->blog->id);
+        $rs  = dcCore()->getBlogPermissions(dcCore()->blog->id);
         $res = [];
 
         foreach ($rs as $k => $v) {
@@ -1086,15 +1081,15 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $tags = $this->core->meta->getMetadata(['meta_type' => 'tag']);
-        $tags = $this->core->meta->computeMetaStats($tags);
+        $tags = dcCore()->meta->getMetadata(['meta_type' => 'tag']);
+        $tags = dcCore()->meta->computeMetaStats($tags);
         $tags->sort('meta_id_lower', 'asc');
 
         $res = [];
-        $url = $this->core->blog->url .
-        $this->core->url->getURLFor('tag', '%s');
-        $f_url = $this->core->blog->url .
-        $this->core->url->getURLFor('tag_feed', '%s');
+        $url = dcCore()->blog->url .
+        dcCore()->url->getURLFor('tag', '%s');
+        $f_url = dcCore()->blog->url .
+        dcCore()->url->getURLFor('tag_feed', '%s');
         while ($tags->fetch()) {
             $res[] = [
                 'tag_id'   => $tags->meta_id,
@@ -1118,7 +1113,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('You mus give a category name.');
         }
 
-        $cur            = $this->core->con->openCursor($this->core->prefix . 'category');
+        $cur            = dcCore()->con->openCursor(dcCore()->prefix . 'category');
         $cur->cat_title = $struct['name'];
 
         if (!empty($struct['slug'])) {
@@ -1133,8 +1128,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $parent = !empty($struct['category_parent']) ? (integer) $struct['category_parent'] : 0;
 
-        $id = $this->core->blog->addCategory($cur, $parent);
-        $rs = $this->core->blog->getCategory($id);
+        $id = dcCore()->blog->addCategory($cur, $parent);
+        $rs = dcCore()->blog->getCategory($id);
 
         return $rs->cat_url;
     }
@@ -1144,14 +1139,14 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $c = $this->core->blog->getCategories(['cat_url' => $cat_id]);
+        $c = dcCore()->blog->getCategories(['cat_url' => $cat_id]);
         if ($c->isEmpty()) {
             throw new CoreException(__('This category does not exist.'));
         }
         $cat_id = $c->cat_id;
         unset($c);
 
-        $this->core->blog->delCategory((integer) $cat_id);
+        dcCore()->blog->delCategory((integer) $cat_id);
 
         return true;
     }
@@ -1162,12 +1157,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setBlog();
 
         $strReq = 'SELECT cat_id, cat_title, cat_url ' .
-        'FROM ' . $this->core->prefix . 'category ' .
-        "WHERE blog_id = '" . $this->core->con->escape($this->core->blog->id) . "' " .
-        "AND LOWER(cat_title) LIKE LOWER('%" . $this->core->con->escape($category) . "%') " .
-            ($limit > 0 ? $this->core->con->limit($limit) : '');
+        'FROM ' . dcCore()->prefix . 'category ' .
+        "WHERE blog_id = '" . dcCore()->con->escape(dcCore()->blog->id) . "' " .
+        "AND LOWER(cat_title) LIKE LOWER('%" . dcCore()->con->escape($category) . "%') " .
+            ($limit > 0 ? dcCore()->con->limit($limit) : '');
 
-        $rs = $this->core->con->select($strReq);
+        $rs = dcCore()->con->select($strReq);
 
         $res = [];
         while ($rs->fetch()) {
@@ -1191,7 +1186,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'spam'                => 0,
             'total'               => 0
         ];
-        $rs = $this->core->blog->getComments(['post_id' => $post_id]);
+        $rs = dcCore()->blog->getComments(['post_id' => $post_id]);
 
         while ($rs->fetch()) {
             $res['total']++;
@@ -1230,7 +1225,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $limit           = !empty($struct['number']) ? (integer) $struct['number'] : 10;
         $params['limit'] = [$offset, $limit];
 
-        $rs  = $this->core->blog->getComments($params);
+        $rs  = dcCore()->blog->getComments($params);
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
@@ -1267,21 +1262,21 @@ class XmlRpc extends xmlrpcIntrospectionServer
         } else {
             $p['post_url'] = $post_id;
         }
-        $rs = $this->core->blog->getPosts($p);
+        $rs = dcCore()->blog->getPosts($p);
         if ($rs->isEmpty()) {
             throw new CoreException('Sorry, no such post.', 404);
         }
 
-        $cur = $this->core->con->openCursor($this->core->prefix . 'comment');
+        $cur = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
 
-        $cur->comment_author = $this->core->auth->getInfo('user_cn');
-        $cur->comment_email  = $this->core->auth->getInfo('user_email');
-        $cur->comment_site   = $this->core->auth->getInfo('user_url');
+        $cur->comment_author = dcCore()->auth->getInfo('user_cn');
+        $cur->comment_email  = dcCore()->auth->getInfo('user_email');
+        $cur->comment_site   = dcCore()->auth->getInfo('user_url');
 
         $cur->comment_content = $struct['content'];
         $cur->post_id         = (integer) $post_id;
 
-        $id = $this->core->blog->addComment($cur);
+        $id = dcCore()->blog->addComment($cur);
 
         return $id;
     }
@@ -1291,7 +1286,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $cur = $this->core->con->openCursor($this->core->prefix . 'comment');
+        $cur = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
 
         if (isset($struct['status'])) {
             $cur->comment_status = $this->translateWpCommentstatus($struct['status']);
@@ -1322,7 +1317,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $cur->comment_email = $struct['author_email'];
         }
 
-        $this->core->blog->updComment($comment_id, $cur);
+        dcCore()->blog->updComment($comment_id, $cur);
 
         return true;
     }
@@ -1332,7 +1327,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $this->core->blog->delComment($comment_id);
+        dcCore()->blog->delComment($comment_id);
 
         return true;
     }
@@ -1556,7 +1551,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($username, $password);
         $this->setBlog();
 
-        if (!$this->core->auth->check('admin', $this->core->blog->id)) {
+        if (!dcCore()->auth->check('admin', dcCore()->blog->id)) {
             throw new CoreException('Not enough permissions to edit options.', 401);
         }
 
@@ -1564,9 +1559,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $done         = [];
         $blog_changes = false;
-        $cur          = $this->core->con->openCursor($this->core->prefix . 'blog');
+        $cur          = dcCore()->con->openCursor(dcCore()->prefix . 'blog');
 
-        $this->core->blog->settings->addNamespace('system');
+        dcCore()->blog->settings->addNamespace('system');
 
         foreach ($options as $name => $value) {
             if (!isset($opt[$name]) || $opt[$name]['readonly']) {
@@ -1587,12 +1582,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
                     break;
                 case 'date_format':
-                    $this->core->blog->settings->system->put('date_format', $value);
+                    dcCore()->blog->settings->system->put('date_format', $value);
                     $done[] = $name;
 
                     break;
                 case 'time_format':
-                    $this->core->blog->settings->system->put('time_format', $value);
+                    dcCore()->blog->settings->system->put('time_format', $value);
                     $done[] = $name;
 
                     break;
@@ -1600,8 +1595,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
         }
 
         if ($blog_changes) {
-            $this->core->updBlog($this->core->blog->id, $cur);
-            $this->core->setBlog($this->core->blog->id);
+            dcCore()->updBlog(dcCore()->blog->id, $cur);
+            dcCore()->setBlog(dcCore()->blog->id);
         }
 
         return $this->translateWpOptions($done);
@@ -1667,9 +1662,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setBlog(true);
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        $this->core->behaviors->call('publicBeforeReceiveTrackback', $this->core, $args);
+        dcCore()->behaviors->call('publicBeforeReceiveTrackback', $args);
 
-        $tb = new Trackback($this->core);
+        $tb = new Trackback();
 
         return $tb->receivePingback($from_url, $to_url);
     }

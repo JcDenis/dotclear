@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Page;
 
 class BlogPref
@@ -26,14 +24,14 @@ class BlogPref
      *
      * @return     mixed
      */
-    public static function adminPopupPosts(Core $core, $editor = '')
+    public static function adminPopupPosts($editor = '')
     {
         if (empty($editor) || $editor != 'admin.blog_pref') {
             return;
         }
 
         $res = Page::jsJson('admin.blog_pref', [
-            'base_url' => $core->blog->url
+            'base_url' => dcCore()->blog->url
         ]) .
         Page::jsLoad('js/_blog_pref_popup_posts.js');
 

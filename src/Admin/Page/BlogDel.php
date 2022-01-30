@@ -40,13 +40,13 @@ class BlogDel extends Page
         $rs = null;
         if (!empty($_POST['blog_id'])) {
             try {
-                $rs = $this->core->getBlog($_POST['blog_id']);
+                $rs = dcCore()->getBlog($_POST['blog_id']);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
 
             if ($rs->isEmpty()) {
-                $this->core->error->add(__('No such blog ID'));
+                dcCore()->error->add(__('No such blog ID'));
             } else {
                 $this->blog_id   = $rs->blog_id;
                 $this->blog_name = $rs->blog_name;
@@ -54,17 +54,17 @@ class BlogDel extends Page
         }
 
         # Delete the blog
-        if (!$this->core->error->flag() && $this->blog_id && !empty($_POST['del'])) {
-            if (!$this->core->auth->checkPassword($_POST['pwd'])) {
-                $this->core->error->add(__('Password verification failed'));
+        if (!dcCore()->error->flag() && $this->blog_id && !empty($_POST['del'])) {
+            if (!dcCore()->auth->checkPassword($_POST['pwd'])) {
+                dcCore()->error->add(__('Password verification failed'));
             } else {
                 try {
-                    $this->core->delBlog($this->blog_id);
-                    $this->core->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
+                    dcCore()->delBlog($this->blog_id);
+                    dcCore()->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
-                    $this->core->adminurl->redirect('admin.blogs');
+                    dcCore()->adminurl->redirect('admin.blogs');
                 } catch (Exception $e) {
-                    $this->core->error->add($e->getMessage());
+                    dcCore()->error->add($e->getMessage());
                 }
             }
         }
@@ -74,7 +74,7 @@ class BlogDel extends Page
             ->setPageTitle(__('Delete a blog'))
             ->setPageBreadcrumb([
                 __('System')        => '',
-                __('Blogs')         => $this->core->adminurl->get('admin.blogs'),
+                __('Blogs')         => dcCore()->adminurl->get('admin.blogs'),
                 __('Delete a blog') => ''
             ])
         ;
@@ -84,7 +84,7 @@ class BlogDel extends Page
 
     protected function getPageContent(): void
     {
-        if ($this->core->error->flag()) {
+        if (dcCore()->error->flag()) {
             return;
         }
 
@@ -95,8 +95,8 @@ class BlogDel extends Page
         '<p>' . __('Please give your password to confirm the blog deletion.') . '</p>';
 
         echo
-        '<form action="' . $this->core->adminurl->get('admin.blog.del') . '" method="post">' .
-        '<div>' . $this->core->formNonce() . '</div>' .
+        '<form action="' . dcCore()->adminurl->get('admin.blog.del') . '" method="post">' .
+        '<div>' . dcCore()->formNonce() . '</div>' .
         '<p><label for="pwd">' . __('Your password:') . '</label> ' .
         Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
         '<p><input type="submit" class="delete" name="del" value="' . __('Delete this blog') . '" />' .

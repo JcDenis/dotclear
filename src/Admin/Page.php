@@ -18,7 +18,6 @@ use ArrayObject;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 use Dotclear\Admin\Action;
@@ -71,9 +70,6 @@ abstract class Page
     /** @var string                 Handler name that calls page */
     protected $handler;
 
-    /** @var Core                   Core instance */
-    protected $core;
-
     /** @var Action                 Action instance */
     protected $action;
 
@@ -92,9 +88,8 @@ abstract class Page
     /** @var array                  Misc options for page content */
     protected $options = [];
 
-    public function __construct(Core $core, string $handler = 'admin.home')
+    public function __construct(string $handler = 'admin.home')
     {
-        $this->core    = $core;
         $this->handler = $handler;
 
         # Check user permissions
@@ -164,27 +159,27 @@ abstract class Page
         }
 
         # Super Admin
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             return;
         }
 
         # Has required permissions
-        if (is_string($permissions) && $this->core->blog && $this->core->auth->check($this->getPermissions(), $this->core->blog->id)) {
+        if (is_string($permissions) && dcCore()->blog && dcCore()->auth->check($this->getPermissions(), dcCore()->blog->id)) {
             return;
         }
 
         # Check if dashboard is not the current page and if it is granted for the user
-        if (!$this->isHome && $this->core->blog && $this->core->auth->check('usage,contentadmin', $this->core->blog->id)) {
+        if (!$this->isHome && dcCore()->blog && dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)) {
             # Go back to the dashboard
-            $this->core->adminurl->redirect('admin.home');
+            dcCore()->adminurl->redirect('admin.home');
         }
 
         # Not enought permissions
         if (session_id()) {
-            $this->core->session->destroy();
+            dcCore()->session->destroy();
         }
         # Go to auth page
-        $this->core->adminurl->redirect('admin.auth');
+        dcCore()->adminurl->redirect('admin.auth');
     }
 
     /**
@@ -211,7 +206,7 @@ abstract class Page
                 $this->catalog = $catalog_class;
             }
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
     }
 
@@ -219,16 +214,16 @@ abstract class Page
     {
         if (!empty($this->workspaces)) {
             foreach($this->workspaces as $ws) {
-                $this->core->auth->user_prefs->addWorkspace($ws);
+                dcCore()->auth->user_prefs->addWorkspace($ws);
             }
         }
     }
 
     private function pageNamespaces(): void
     {
-        if (!empty($this->namespaces) && $this->core->blog->id) {
+        if (!empty($this->namespaces) && dcCore()->blog->id) {
             foreach($this->namespaces as $ns) {
-                $this->core->blog->settings->addNamespace($ns);
+                dcCore()->blog->settings->addNamespace($ns);
             }
         }
     }
@@ -271,22 +266,22 @@ abstract class Page
         $js   = [];
 
         # List of user's blogs
-        if ($this->core->auth->getBlogCount() == 1 || $this->core->auth->getBlogCount() > 20) {
-            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML($this->core->blog->url) . '">' .
-            Html::escapeHTML($this->core->blog->name) . '</strong>';
+        if (dcCore()->auth->getBlogCount() == 1 || dcCore()->auth->getBlogCount() > 20) {
+            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dcCore()->blog->url) . '">' .
+            Html::escapeHTML(dcCore()->blog->name) . '</strong>';
 
-            if ($this->core->auth->getBlogCount() > 20) {
-                $blog_box .= ' - <a href="' . $this->core->adminurl->get('admin.blogs') . '">' . __('Change blog') . '</a>';
+            if (dcCore()->auth->getBlogCount() > 20) {
+                $blog_box .= ' - <a href="' . dcCore()->adminurl->get('admin.blogs') . '">' . __('Change blog') . '</a>';
             }
             $blog_box .= '</p>';
         } else {
-            $rs_blogs = $this->core->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
+            $rs_blogs = dcCore()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            $this->core->formNonce() . Form::combo('switchblog', $blogs, $this->core->blog->id) .
+            dcCore()->formNonce() . Form::combo('switchblog', $blogs, dcCore()->blog->id) .
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
@@ -313,42 +308,42 @@ abstract class Page
         $headers['floc'] = 'Permissions-Policy: interest-cohort=()';
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!$safe_mode && $this->core->blog->settings->system->csp_admin_on) {
+        if (!$safe_mode && dcCore()->blog->settings->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject([]);
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = $this->core->con->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
-            $csp_suffix = $this->core->con->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_prefix = dcCore()->con->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_suffix = dcCore()->con->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = $this->core->blog->settings->system->csp_admin_default ?:
+            $csp['default-src'] = dcCore()->blog->settings->system->csp_admin_default ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = $this->core->blog->settings->system->csp_admin_script ?:
+            $csp['script-src'] = dcCore()->blog->settings->system->csp_admin_script ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = $this->core->blog->settings->system->csp_admin_style ?:
+            $csp['style-src'] = dcCore()->blog->settings->system->csp_admin_style ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = $this->core->blog->settings->system->csp_admin_img ?:
+            $csp['img-src'] = dcCore()->blog->settings->system->csp_admin_img ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             # Cope with blog post preview (via public URL in iframe)
-            if (!is_null($this->core->blog->host)) {
-                $csp['default-src'] .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
-                $csp['script-src']  .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
-                $csp['style-src']   .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
+            if (!is_null(dcCore()->blog->host)) {
+                $csp['default-src'] .= ' ' . parse_url(dcCore()->blog->host, PHP_URL_HOST);
+                $csp['script-src']  .= ' ' . parse_url(dcCore()->blog->host, PHP_URL_HOST);
+                $csp['style-src']   .= ' ' . parse_url(dcCore()->blog->host, PHP_URL_HOST);
             }
             # Cope with media display in media manager (via public URL)
-            if (!is_null($this->core->media)) {
-                $csp['img-src'] .= ' ' . parse_url($this->core->media->root_url, PHP_URL_HOST);
-            } elseif (!is_null($this->core->blog->host)) {
+            if (!is_null(dcCore()->media)) {
+                $csp['img-src'] .= ' ' . parse_url(dcCore()->media->root_url, PHP_URL_HOST);
+            } elseif (!is_null(dcCore()->blog->host)) {
                 // Let's try with the blog URL
-                $csp['img-src'] .= ' ' . parse_url($this->core->blog->host, PHP_URL_HOST);
+                $csp['img-src'] .= ' ' . parse_url(dcCore()->blog->host, PHP_URL_HOST);
             }
             # Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
             # --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
-            $this->core->behaviors->call('adminPageHTTPHeaderCSP', $csp);
+            dcCore()->behaviors->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -359,54 +354,54 @@ abstract class Page
             }
             if (count($directives)) {
                 $directives[]   = 'report-uri ' . DOTCLEAR_ADMIN_URL . '?handler=admin.cspreport';
-                $report_only    = ($this->core->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
+                $report_only    = (dcCore()->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
 
         # --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
-        $this->core->behaviors->call('adminPageHTTPHeaders', $headers);
+        dcCore()->behaviors->call('adminPageHTTPHeaders', $headers);
 
         foreach ($headers as $key => $value) {
             header($value);
         }
 
-        $data_theme = $this->core->auth->user_prefs->interface->theme;
+        $data_theme = dcCore()->auth->user_prefs->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . $this->core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . dcCore()->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n";
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dcCore()->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (L10n::getLanguageTextDirection($this->core->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection(dcCore()->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        $this->core->auth->user_prefs->addWorkspace('interface');
-        if (!$this->core->auth->user_prefs->interface->hide_std_favicon) {
+        dcCore()->auth->user_prefs->addWorkspace('interface');
+        if (!dcCore()->auth->user_prefs->interface->hide_std_favicon) {
             echo
                 '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if ($this->core->auth->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = $this->core->auth->user_prefs->interface->htmlfontsize;
+        if (dcCore()->auth->user_prefs->interface->htmlfontsize) {
+            $js['htmlFontSize'] = dcCore()->auth->user_prefs->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) $this->core->auth->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) $this->core->auth->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) dcCore()->auth->user_prefs->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) dcCore()->auth->user_prefs->interface->showajaxloader;
 
-        $this->core->auth->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
+        dcCore()->auth->user_prefs->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) dcCore()->auth->user_prefs->accessibility->nodragdrop;
 
         $js['debug'] = !!DOTCLEAR_MODE_DEBUG;  // @phpstan-ignore-line
 
-        $js['showIp'] = $this->core->blog && $this->core->blog->id ? $this->core->auth->check('contentadmin', $this->core->blog->id) : false;
+        $js['showIp'] = dcCore()->blog && dcCore()->blog->id ? dcCore()->auth->check('contentadmin', dcCore()->blog->id) : false;
 
         // Set some JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -417,7 +412,7 @@ abstract class Page
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
-        $this->core->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        dcCore()->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
         "</head>\n" .
@@ -434,19 +429,19 @@ abstract class Page
         '<li><a href="#help">' . __('Go to help') . '</a></li>' .
         '</ul>' . "\n" .
         '<header id="header" role="banner">' .
-        '<h1><a href="' . $this->core->adminurl->get('admin.home') . '"><span class="hidden">' . DOTCLEAR_VENDOR_NAME . '</span></a></h1>' . "\n";
+        '<h1><a href="' . dcCore()->adminurl->get('admin.home') . '"><span class="hidden">' . DOTCLEAR_VENDOR_NAME . '</span></a></h1>' . "\n";
 
         echo
-        '<form action="' . $this->core->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
+        '<form action="' . dcCore()->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
         $blog_box .
-        '<p><a href="' . $this->core->blog->url . '" class="outgoing" title="' . __('Go to site') .
+        '<p><a href="' . dcCore()->blog->url . '" class="outgoing" title="' . __('Go to site') .
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
         '<ul id="top-info-user">' .
-        '<li><a class="' . (preg_match('"' . preg_quote($this->core->adminurl->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . $this->core->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
-        '<li><a class="smallscreen' . (preg_match('"' . preg_quote($this->core->adminurl->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
-        '" href="' . $this->core->adminurl->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
-        '<li><a href="' . $this->core->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), $this->core->auth->userID()) .
+        '<li><a class="' . (preg_match('"' . preg_quote(dcCore()->adminurl->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . dcCore()->adminurl->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
+        '<li><a class="smallscreen' . (preg_match('"' . preg_quote(dcCore()->adminurl->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
+        '" href="' . dcCore()->adminurl->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
+        '<li><a href="' . dcCore()->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), dcCore()->auth->userID()) .
             '</span><img src="?df=images/logout.png" alt="" /></a></li>' .
             '</ul>' .
             '</header>'; // end header
@@ -495,33 +490,33 @@ abstract class Page
         # Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = $this->core->auth->user_prefs->interface->theme;
+        $data_theme = dcCore()->auth->user_prefs->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . $this->core->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . dcCore()->auth->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML($this->core->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dcCore()->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
-        if (L10n::getLanguageTextDirection($this->core->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection(dcCore()->_lang) == 'rtl') {
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        $this->core->auth->user_prefs->addWorkspace('interface');
-        if ($this->core->auth->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = $this->core->auth->user_prefs->interface->htmlfontsize;
+        dcCore()->auth->user_prefs->addWorkspace('interface');
+        if (dcCore()->auth->user_prefs->interface->htmlfontsize) {
+            $js['htmlFontSize'] = dcCore()->auth->user_prefs->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) $this->core->auth->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) $this->core->auth->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) dcCore()->auth->user_prefs->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) dcCore()->auth->user_prefs->interface->showajaxloader;
 
-        $this->core->auth->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) $this->core->auth->user_prefs->accessibility->nodragdrop;
+        dcCore()->auth->user_prefs->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) dcCore()->auth->user_prefs->accessibility->nodragdrop;
 
         $js['debug'] = !!DOTCLEAR_MODE_DEBUG;  // @phpstan-ignore-line
 
@@ -534,7 +529,7 @@ abstract class Page
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
-        $this->core->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        dcCore()->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
             "</head>\n" .
@@ -567,7 +562,7 @@ abstract class Page
         $hl_pos         = $options['hl_pos']    ?? -1;
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
-            '<a class="go_home" href="' . $this->core->adminurl->get('admin.home') . '"><img src="?df=style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
+            '<a class="go_home" href="' . dcCore()->adminurl->get('admin.home') . '"><img src="?df=style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
             '<img src="?df=style/dashboard-alt.png" alt="" />');
         $index = 0;
         if ($hl_pos < 0) {
@@ -588,7 +583,7 @@ abstract class Page
 
     private function pageNotices(): void
     {
-        echo $this->core->notices->getNotices();
+        echo dcCore()->notices->getNotices();
     }
 
     private function pageContent(): void
@@ -601,24 +596,24 @@ abstract class Page
      */
     private function pageHelp(): void
     {
-        if (!$this->core->auth->user_prefs) {
+        if (!dcCore()->auth->user_prefs) {
             return;
         }
-        $this->core->auth->user_prefs->addWorkspace('interface');
-        if ($this->core->auth->user_prefs->interface->hidehelpbutton) {
+        dcCore()->auth->user_prefs->addWorkspace('interface');
+        if (dcCore()->auth->user_prefs->interface->hidehelpbutton) {
             return;
         }
 
         $args = new ArrayObject($this->page_help);
 
         # --BEHAVIOR-- adminPageHelpBlock, ArrayObject
-        $this->core->behaviors->call('adminPageHelpBlock', $args);
+        dcCore()->behaviors->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
         };
 
-        if (empty($this->core->resources['help'])) {
+        if (empty(dcCore()->resources['help'])) {
             return;
         }
 
@@ -630,10 +625,10 @@ abstract class Page
                 continue;
             }
 
-            if (!isset($this->core->resources['help'][$v])) {
+            if (!isset(dcCore()->resources['help'][$v])) {
                 continue;
             }
-            $f = $this->core->resources['help'][$v];
+            $f = dcCore()->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }
@@ -651,7 +646,7 @@ abstract class Page
         }
 
         // Set contextual help global flag
-        $this->core->resources['ctxhelp'] = true;
+        dcCore()->resources['ctxhelp'] = true;
 
         echo
         '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
@@ -659,7 +654,7 @@ abstract class Page
         '</div>' .
         '<div id="helplink"><hr />' .
         '<p>' .
-        sprintf(__('See also %s'), sprintf('<a href="' . $this->core->adminurl->get('admin.help') . '">%s</a>', __('the global help'))) .
+        sprintf(__('See also %s'), sprintf('<a href="' . dcCore()->adminurl->get('admin.help') . '">%s</a>', __('the global help'))) .
             '.</p>' .
             '</div></div>';
     }
@@ -688,10 +683,10 @@ abstract class Page
 
     private function pageClose(): void
     {
-        if (!$this->core->resources['ctxhelp'] && !$this->core->auth->user_prefs->interface->hidehelpbutton) {
+        if (!dcCore()->resources['ctxhelp'] && !dcCore()->auth->user_prefs->interface->hidehelpbutton) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
-                $this->core->adminurl->get('admin.help'),
+                dcCore()->adminurl->get('admin.help'),
                  __('Global help')
             );
         }
@@ -702,19 +697,19 @@ abstract class Page
 
         '<nav id="main-menu" role="navigation">' . "\n" .
 
-        '<form id="search-menu" action="' . $this->core->adminurl->get('admin.search') . '" method="get" role="search">' .
+        '<form id="search-menu" action="' . dcCore()->adminurl->get('admin.search') . '" method="get" role="search">' .
         '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . Form::field('qx', 30, 255, '') .
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach ($this->core->menu as $k => $v) {
-            echo $this->core->menu[$k]->draw();
+        foreach (dcCore()->menu as $k => $v) {
+            echo dcCore()->menu[$k]->draw();
         }
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_CORE_VERSION);
 
         # --BEHAVIOR-- adminPageFooter, string
-        $textAlt = $this->core->behaviors->call('adminPageFooter', $text);
+        $textAlt = dcCore()->behaviors->call('adminPageFooter', $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }
@@ -786,9 +781,9 @@ abstract class Page
         xdebug.profiler_output_name = timestamp
          */
         }
-        $res.= '<p>Core elapsed time: ' . $this->core->getElapsedTime() . ' | Core consumed memory: ' . $this->core->getConsumedMemory() . '</p>';
+        $res.= '<p>Core elapsed time: ' . dcCore()->getElapsedTime() . ' | Core consumed memory: ' . dcCore()->getConsumedMemory() . '</p>';
 
-        $loaded_files = \Dotclear\Utils\Autoloader::getLoadedFiles();
+        $loaded_files = dcCore()->autoloader::getLoadedFiles();
         $res .= '<p>Autoloader provided files : ' . count($loaded_files) . '</p>'; //<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
@@ -1040,12 +1035,12 @@ abstract class Page
      */
     public function jsCommon(): string
     {
-        if ($this->core->auth->user_prefs) {
-            $this->core->auth->user_prefs->addWorkspace('interface');
+        if (dcCore()->auth->user_prefs) {
+            dcCore()->auth->user_prefs->addWorkspace('interface');
         }
 
         $js = [
-            'nonce' => $this->core->getNonce(),
+            'nonce' => dcCore()->getNonce(),
 
             'img_plus_src' => '?df=images/expand.svg',
             'img_plus_txt' => '▶',
@@ -1058,7 +1053,7 @@ abstract class Page
             'adblocker_check' => (
                 (
                     !defined('DOTCLEAR_ADBLOCKER_CHECK') || DOTCLEAR_ADBLOCKER_CHECK === true
-                ) && $this->core->auth->user_prefs !== null && $this->core->auth->user_prefs->interface->nocheckadblocker !== true
+                ) && dcCore()->auth->user_prefs !== null && dcCore()->auth->user_prefs->interface->nocheckadblocker !== true
             ),
         ];
 
@@ -1133,7 +1128,7 @@ abstract class Page
         (
             DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
-                'mute' => (empty($this->core->blog) || $this->core->blog->settings->system->jquery_migrate_mute),
+                'mute' => (empty(dcCore()->blog) || dcCore()->blog->settings->system->jquery_migrate_mute),
             ]) .
             self::jsLoad('js/jquery-mute.js') .
             self::jsLoad('js/jquery/jquery-migrate.js') :
@@ -1157,8 +1152,8 @@ abstract class Page
     public function jsToggles(): string
     {
         $js = [];
-        if ($this->core->auth->user_prefs->toggles) {
-            $unfolded_sections = explode(',', $this->core->auth->user_prefs->toggles->unfolded_sections);
+        if (dcCore()->auth->user_prefs->toggles) {
+            $unfolded_sections = explode(',', dcCore()->auth->user_prefs->toggles->unfolded_sections);
             foreach ($unfolded_sections as $k => &$v) {
                 if ($v !== '') {
                     $js[$unfolded_sections[$k]] = true;
@@ -1188,7 +1183,7 @@ abstract class Page
 
         return
         self::jsJson('filter_controls', $js) .
-        self::jsJson('filter_options', ['auto_filter' => $this->core->auth->user_prefs->interface->auto_filter]) .
+        self::jsJson('filter_options', ['auto_filter' => dcCore()->auth->user_prefs->interface->auto_filter]) .
         self::jsLoad('js/filter-controls.js');
     }
 
@@ -1209,7 +1204,7 @@ abstract class Page
         $params = array_merge($params, [
             'sess_id=' . session_id(),
             'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . $this->core->getNonce(),
+            'xd_check=' . dcCore()->getNonce(),
         ]);
 
         $js_msg = [
@@ -1495,7 +1490,7 @@ abstract class Page
     public function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = $this->core::root('Admin', 'files', 'js', 'codemirror', 'theme');
+        $themes_root = dcCore()::root('Admin', 'files', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (($d = @dir($themes_root)) !== false) {
                 while (($entry = $d->read()) !== false) {

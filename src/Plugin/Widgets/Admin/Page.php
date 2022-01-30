@@ -18,7 +18,6 @@ use stdClass;
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 use Dotclear\Plugin\Widgets\Lib\Widgets;
@@ -47,16 +46,16 @@ class Page extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $widgets = new Widgets($this->core);
+        $widgets = new Widgets();
         # Loading navigation, extra widgets and custom widgets
-        if ($this->core->blog->settings->widgets->widgets_nav) {
-            $this->widgets_nav = $widgets->load($this->core->blog->settings->widgets->widgets_nav);
+        if (dcCore()->blog->settings->widgets->widgets_nav) {
+            $this->widgets_nav = $widgets->load(dcCore()->blog->settings->widgets->widgets_nav);
         }
-        if ($this->core->blog->settings->widgets->widgets_extra) {
-            $this->widgets_extra = $widgets->load($this->core->blog->settings->widgets->widgets_extra);
+        if (dcCore()->blog->settings->widgets->widgets_extra) {
+            $this->widgets_extra = $widgets->load(dcCore()->blog->settings->widgets->widgets_extra);
         }
-        if ($this->core->blog->settings->widgets->widgets_custom) {
-            $this->widgets_custom = $widgets->load($this->core->blog->settings->widgets->widgets_custom);
+        if (dcCore()->blog->settings->widgets->widgets_custom) {
+            $this->widgets_custom = $widgets->load(dcCore()->blog->settings->widgets->widgets_custom);
         }
 
         # Adding widgets to sidebars
@@ -79,13 +78,13 @@ class Page extends AbstractPage
             # Append widgets
             if (!empty($addw)) {
                 if (!($this->widgets_nav instanceof Widgets)) {
-                    $this->widgets_nav = new Widgets($this->core);
+                    $this->widgets_nav = new Widgets();
                 }
                 if (!($this->widgets_extra instanceof Widgets)) {
-                    $this->widgets_extra = new Widgets($this->core);
+                    $this->widgets_extra = new Widgets();
                 }
                 if (!($this->widgets_custom instanceof Widgets)) {
-                    $this->widgets_custom = new Widgets($this->core);
+                    $this->widgets_custom = new Widgets();
                 }
 
                 foreach ($addw as $k => $v) {
@@ -108,13 +107,13 @@ class Page extends AbstractPage
                 }
 
                 try {
-                    $this->core->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
-                    $this->core->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
-                    $this->core->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
-                    $this->core->blog->triggerBlog();
-                    $this->core->adminurl->redirect('admin.plugin.Widgets');
+                    dcCore()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
+                    dcCore()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
+                    dcCore()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
+                    dcCore()->blog->triggerBlog();
+                    dcCore()->adminurl->redirect('admin.plugin.Widgets');
                 } catch (Exception $e) {
-                    $this->core->error->add($e->getMessage());
+                    dcCore()->error->add($e->getMessage());
                 }
             }
         }
@@ -192,27 +191,27 @@ class Page extends AbstractPage
                 $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
                 $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
 
-                $this->core->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
-                $this->core->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
-                $this->core->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
-                $this->core->blog->triggerBlog();
+                dcCore()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
+                dcCore()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
+                dcCore()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
+                dcCore()->blog->triggerBlog();
 
-                $this->core->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
-                $this->core->adminurl->redirect('admin.plugin.Widgets');
+                dcCore()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
+                dcCore()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
-                $this->core->blog->settings->widgets->put('widgets_nav', '');
-                $this->core->blog->settings->widgets->put('widgets_extra', '');
-                $this->core->blog->settings->widgets->put('widgets_custom', '');
-                $this->core->blog->triggerBlog();
+                dcCore()->blog->settings->widgets->put('widgets_nav', '');
+                dcCore()->blog->settings->widgets->put('widgets_extra', '');
+                dcCore()->blog->settings->widgets->put('widgets_custom', '');
+                dcCore()->blog->triggerBlog();
 
-                $this->core->notices->addSuccessNotice(__('Sidebars have been resetting.'));
-                $this->core->adminurl->redirect('admin.plugin.Widgets');
+                dcCore()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
+                dcCore()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -222,7 +221,7 @@ class Page extends AbstractPage
             ->setPageHead(self::widgetsHead())
             ->setPageHelp('widgets', self::widgetsHelp())
             ->setPageBreadcrumb([
-                html::escapeHTML($this->core->blog->name) => '',
+                html::escapeHTML(dcCore()->blog->name) => '',
                 __('Widgets')                             => ''
             ])
         ;
@@ -234,7 +233,7 @@ class Page extends AbstractPage
     {
         # All widgets
         echo
-        '<form id="listWidgets" action="' . $this->core->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
+        '<form id="listWidgets" action="' . dcCore()->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
@@ -260,11 +259,11 @@ class Page extends AbstractPage
 
         echo
         '</ul>' .
-        '<p>' . $this->core->formNonce() . '</p>' .
+        '<p>' . dcCore()->formNonce() . '</p>' .
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" /></p>' .
             '</form>';
 
-        echo '<form id="sidebarsWidgets" action="' . $this->core->adminurl->get('admin.plugin.Widgets') . '" method="post">';
+        echo '<form id="sidebarsWidgets" action="' . dcCore()->adminurl->get('admin.plugin.Widgets') . '" method="post">';
         # Nav sidebar
         echo
         '<div id="sidebarNav" class="widgets fieldset">' .
@@ -285,7 +284,7 @@ class Page extends AbstractPage
 
         echo
         '<p id="sidebarsControl">' .
-        $this->core->formNonce() .
+        dcCore()->formNonce() .
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .
@@ -296,13 +295,13 @@ class Page extends AbstractPage
     private function widgetsHead(): string
     {
 
-        $widget_editor = $this->core->auth->getOption('editor');
+        $widget_editor = dcCore()->auth->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @$this->core->auth->user_prefs->interface->rte_flags;
+        $rte_flags     = @dcCore()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = $this->core->auth->user_prefs->accessibility->nodragdrop;
+        $user_dm_nodragdrop = dcCore()->auth->user_prefs->accessibility->nodragdrop;
 
         return
         static::cssLoad('?mf=Plugin/Widgets/files/style.css') .
@@ -314,7 +313,7 @@ class Page extends AbstractPage
         ]) .
         static::jsLoad('?mf=Plugin/Widgets/files/js/widgets.js') .
         (!$user_dm_nodragdrop ? static::jsLoad('?mf=Plugin/Widgets/files/js/dragdrop.js') : '') .
-        ($rte_flag ? (string) $this->core->behaviors->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
+        ($rte_flag ? (string) dcCore()->behaviors->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         static::jsConfirmClose('sidebarsWidgets');
     }
 

@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Pager;
 use Dotclear\Admin\Catalog;
 
@@ -60,34 +58,34 @@ class PostCatalog extends Catalog
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = (int) $this->core->blog->getPosts(['post_status' => 1], true)->f(0);
-                $nb_pending     = (int) $this->core->blog->getPosts(['post_status' => -2], true)->f(0);
-                $nb_programmed  = (int) $this->core->blog->getPosts(['post_status' => -1], true)->f(0);
-                $nb_unpublished = (int) $this->core->blog->getPosts(['post_status' => 0], true)->f(0);
+                $nb_published   = (int) dcCore()->blog->getPosts(['post_status' => 1], true)->f(0);
+                $nb_pending     = (int) dcCore()->blog->getPosts(['post_status' => -2], true)->f(0);
+                $nb_programmed  = (int) dcCore()->blog->getPosts(['post_status' => -1], true)->f(0);
+                $nb_unpublished = (int) dcCore()->blog->getPosts(['post_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .
                     ($nb_published ?
                     sprintf(
                         __(', <a href="%s">published</a> (1)', ', <a href="%s">published</a> (%s)', $nb_published),
-                        $this->core->adminurl->get('admin.posts', ['status' => 1]),
+                        dcCore()->adminurl->get('admin.posts', ['status' => 1]),
                         $nb_published
                     ) : '') .
                     ($nb_pending ?
                     sprintf(
                         __(', <a href="%s">pending</a> (1)', ', <a href="%s">pending</a> (%s)', $nb_pending),
-                        $this->core->adminurl->get('admin.posts', ['status' => -2]),
+                        dcCore()->adminurl->get('admin.posts', ['status' => -2]),
                         $nb_pending
                     ) : '') .
                     ($nb_programmed ?
                     sprintf(
                         __(', <a href="%s">programmed</a> (1)', ', <a href="%s">programmed</a> (%s)', $nb_programmed),
-                        $this->core->adminurl->get('admin.posts', ['status' => -1]),
+                        dcCore()->adminurl->get('admin.posts', ['status' => -1]),
                         $nb_programmed
                     ) : '') .
                     ($nb_unpublished ?
                     sprintf(
                         __(', <a href="%s">unpublished</a> (1)', ', <a href="%s">unpublished</a> (%s)', $nb_unpublished),
-                        $this->core->adminurl->get('admin.posts', ['status' => 0]),
+                        dcCore()->adminurl->get('admin.posts', ['status' => 0]),
                         $nb_unpublished
                     ) : '') .
                     '</caption>';
@@ -105,7 +103,7 @@ class PostCatalog extends Catalog
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
             $cols = new ArrayObject($cols);
-            $this->core->behaviors->call('adminPostListHeader', $this->core, $this->rs, $cols);
+            dcCore()->behaviors->call('adminPostListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -155,8 +153,8 @@ class PostCatalog extends Catalog
      */
     private function postLine($checked)
     {
-        if ($this->core->auth->check('categories', $this->core->blog->id)) {
-            $cat_link = '<a href="' . $this->core->adminurl->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
+        if (dcCore()->auth->check('categories', dcCore()->blog->id)) {
+            $cat_link = '<a href="' . dcCore()->adminurl->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
         } else {
             $cat_link = '%2$s';
         }
@@ -229,7 +227,7 @@ class PostCatalog extends Catalog
             ) .
             '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            $this->core->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
+            dcCore()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date'       => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
             'category'   => '<td class="nowrap">' . $cat_title . '</td>',
@@ -239,7 +237,7 @@ class PostCatalog extends Catalog
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
         $cols = new ArrayObject($cols);
-        $this->core->behaviors->call('adminPostListValue', $this->rs, $cols);
+        dcCore()->behaviors->call('adminPostListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

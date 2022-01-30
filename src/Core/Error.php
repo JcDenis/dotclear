@@ -1,6 +1,6 @@
 <?php
 /**
- * @class  Dotclear\Core\Error
+ * @class Dotclear\Core\Error
  * @brief Dotclear core error class
  *
  * @package Dotclear

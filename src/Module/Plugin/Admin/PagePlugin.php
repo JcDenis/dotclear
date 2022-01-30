@@ -16,7 +16,6 @@ namespace Dotclear\Module\Plugin\Admin;
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
 
@@ -42,27 +41,27 @@ class PagePlugin extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if ($this->core->plugins->disableModulesDependencies($this->core->adminurl->get('admin.plugins'))) {
+        if (dcCore()->plugins->disableModulesDependencies(dcCore()->adminurl->get('admin.plugins'))) {
             exit;
         }
 
         # Module configuration
-        if ($this->core->plugins->loadModuleConfiguration()) {
+        if (dcCore()->plugins->loadModuleConfiguration()) {
 
-            $this->core->plugins->parseModuleConfiguration();
+            dcCore()->plugins->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Plugins management'));
             $this->setPageHelp('core_plugins_conf');
 
             # --BEHAVIOR-- pluginsToolsHeaders
-            $head = $this->core->behaviors->call('pluginsToolsHeaders', true);
+            $head = dcCore()->behaviors->call('pluginsToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML($this->core->blog->name)                            => '',
-                __('Plugins management')                                             => $this->core->plugins->getURL('', false),
+                Html::escapeHTML(dcCore()->blog->name)                            => '',
+                __('Plugins management')                                             => dcCore()->plugins->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>' => ''
             ]);
 
@@ -74,15 +73,15 @@ class PagePlugin extends Page
 
             # -- Execute actions --
             try {
-                $this->core->plugins->doActions();
+                dcCore()->plugins->doActions();
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
 
             # -- Plugin install --
             $this->modules_install = null;
-            if (!$this->core->error->flag()) {
-                $this->modules_install = $this->core->plugins->installModules();
+            if (!dcCore()->error->flag()) {
+                $this->modules_install = dcCore()->plugins->installModules();
             }
 
             # Page setup
@@ -94,7 +93,7 @@ class PagePlugin extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) $this->core->behaviors->call('pluginsToolsHeaders', false)
+                    (string) dcCore()->behaviors->call('pluginsToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                     __('System')             => '',
@@ -114,7 +113,7 @@ class PagePlugin extends Page
             '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', $this->core->plugins->getSettingsUrls($this->core, $k, true));
+                $info = implode(' - ', dcCore()->plugins->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -136,21 +135,21 @@ class PagePlugin extends Page
         }
 
         if ($this->from_configuration) {
-            echo $this->core->plugins->displayModuleConfiguration();
+            echo dcCore()->plugins->displayModuleConfiguration();
 
             return;
         }
 
         # -- Display modules lists --
-        if ($this->core->auth->isSuperAdmin()) {
-            if (!$this->core->error->flag()) {
+        if (dcCore()->auth->isSuperAdmin()) {
+            if (!dcCore()->error->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    $this->core->notices->success(__('Manual checking of plugins update done successfully.'));
+                    dcCore()->notices->success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = $this->core->plugins->store->get(true);
+            $modules = dcCore()->plugins->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
@@ -160,7 +159,7 @@ class PagePlugin extends Page
                     count($modules)
                 ) . '</p>';
 
-                $this->core->plugins
+                dcCore()->plugins
                     ->setList('plugin-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -179,10 +178,10 @@ class PagePlugin extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . $this->core->plugins->getURL('', false) . '" method="get">' .
+                '<form action="' . dcCore()->plugins->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
-                Form::hidden('handler', $this->core->adminurl->called()) .
+                Form::hidden('handler', dcCore()->adminurl->called()) .
                     '</form>';
             }
         }
@@ -191,13 +190,13 @@ class PagePlugin extends Page
         '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         # Activated modules
-        $modules = $this->core->plugins->getModules();
+        $modules = dcCore()->plugins->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . ($this->core->auth->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
+            '<h3>' . (dcCore()->auth->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            $this->core->plugins
+            dcCore()->plugins
                 ->setList('plugin-activate')
                 ->setTab('plugins')
                 ->setData($modules)
@@ -208,14 +207,14 @@ class PagePlugin extends Page
         }
 
         # Deactivated modules
-        if ($this->core->auth->isSuperAdmin()) {
-            $modules = $this->core->plugins->getDisabledModules();
+        if (dcCore()->auth->isSuperAdmin()) {
+            $modules = dcCore()->plugins->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                $this->core->plugins
+                dcCore()->plugins
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
                     ->setData($modules)
@@ -229,18 +228,18 @@ class PagePlugin extends Page
         echo
             '</div>';
 
-        if ($this->core->auth->isSuperAdmin() && $this->core->plugins->isWritablePath()) {
+        if (dcCore()->auth->isSuperAdmin() && dcCore()->plugins->isWritablePath()) {
 
             # New modules from repo
-            $search  = $this->core->plugins->getSearch();
-            $modules = $search ? $this->core->plugins->store->search($search) : $this->core->plugins->store->get();
+            $search  = dcCore()->plugins->getSearch();
+            $modules = $search ? dcCore()->plugins->store->search($search) : dcCore()->plugins->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                $this->core->plugins
+                dcCore()->plugins
                     ->setList('plugin-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -268,17 +267,17 @@ class PagePlugin extends Page
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            $this->core->plugins->displayManualForm();
+            dcCore()->plugins->displayManualForm();
 
             echo
                 '</div>';
         }
 
         # --BEHAVIOR-- pluginsToolsTabs
-        $this->core->behaviors->call('pluginsToolsTabs');
+        dcCore()->behaviors->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
-        if ($this->core->auth->isSuperAdmin() && !$this->core->plugins->isWritablePath()) {
+        if (dcCore()->auth->isSuperAdmin() && !dcCore()->plugins->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }

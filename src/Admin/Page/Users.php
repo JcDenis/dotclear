@@ -42,7 +42,7 @@ class Users extends Page
 
     protected function getFilterInstance(): ?Filter
     {
-        return new UserFilter($this->core);
+        return new UserFilter();
     }
 
     protected function getCatalogInstance(): ?Catalog
@@ -58,19 +58,19 @@ class Users extends Page
             'user_displayname' => 'user_displayname'];
 
         # --BEHAVIOR-- adminUsersSortbyLexCombo
-        $this->core->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        dcCore()->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            $this->core->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dcCore()->con->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetUsers
-        $this->core->behaviors->call('adminGetUsers', $params);
+        dcCore()->behaviors->call('adminGetUsers', $params);
 
-        $rs       = $this->core->getUsers($params);
-        $counter  = $this->core->getUsers($params, true);
+        $rs       = dcCore()->getUsers($params);
+        $counter  = dcCore()->getUsers($params, true);
         $rsStatic = $rs->toStatic();
         if ($this->filter->sortby != 'nb_post') {
             // Sort user list using lexical order if necessary
@@ -79,7 +79,7 @@ class Users extends Page
             $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
 
-        return new UserCatalog($this->core, $rsStatic, $counter->f(0));
+        return new UserCatalog($rsStatic, $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool
@@ -99,15 +99,15 @@ class Users extends Page
 
     protected function getPageContent(): void
     {
-        if ($this->core->error->flag()) {
+        if (dcCore()->error->flag()) {
             return;
         }
 
         if (!empty($_GET['del'])) {
-            $this->core->notices->message(__('User has been successfully removed.'));
+            dcCore()->notices->message(__('User has been successfully removed.'));
         }
         if (!empty($_GET['upd'])) {
-            $this->core->notices->message(__('The permissions have been successfully updated.'));
+            dcCore()->notices->message(__('The permissions have been successfully updated.'));
         }
 
         $combo_action = [
@@ -116,9 +116,9 @@ class Users extends Page
         ];
 
         # --BEHAVIOR-- adminUsersActionsCombo
-        $this->core->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
+        dcCore()->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
 
-        echo '<p class="top-add"><strong><a class="button add" href="' . $this->core->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
+        echo '<p class="top-add"><strong><a class="button add" href="' . dcCore()->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
         $this->filter->display('admin.users');
 
@@ -126,7 +126,7 @@ class Users extends Page
         $this->catalog->display(
             $this->filter->page,
             $this->filter->nb,
-            '<form action="' . $this->core->adminurl->get('admin.users') . '" method="post" id="form-users">' .
+            '<form action="' . dcCore()->adminurl->get('admin.users') . '" method="post" id="form-users">' .
 
             '%s' .
 
@@ -138,10 +138,10 @@ class Users extends Page
             Form::combo('action', $combo_action) .
             '</label> ' .
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-            $this->core->formNonce() .
+            dcCore()->formNonce() .
             '</p>' .
             '</div>' .
-            $this->core->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
+            dcCore()->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
             '</form>',
             $this->filter->show()
         );

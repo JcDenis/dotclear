@@ -49,7 +49,7 @@ class MediaItem extends Page
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = $this->core->blog->getPosts(['post_id' => $post_id]);
+            $post = dcCore()->blog->getPosts(['post_id' => $post_id]);
             if ($post->isEmpty()) {
                 $post_id = null;
             }
@@ -74,61 +74,54 @@ class MediaItem extends Page
             $this->page_url_params['id'] = $this->id;
         }
 
-        $this->core_media_writable = false;
+        $core_media_writable = false;
 
         $this->dirs_combo = [];
 
         try {
-            $this->core->mediaInstance();
+            dcCore()->mediaInstance();
 
             if ($this->id) {
-                $this->file = $this->core->media->getFile($this->id);
+                $this->file = dcCore()->media->getFile($this->id);
             }
 
             if ($this->file === null) {
                 throw new AdminException(__('Not a valid file'));
             }
 
-            $this->core->media->chdir(dirname($this->file->relname));
-            $this->core_media_writable = $this->core->media->writable();
+            dcCore()->media->chdir(dirname($this->file->relname));
+            $core_media_writable = dcCore()->media->writable();
 
             # Prepare directories combo box
-            foreach ($this->core->media->getDBDirs() as $v) {
+            foreach (dcCore()->media->getDBDirs() as $v) {
                 $this->dirs_combo['/' . $v] = $v;
             }
             # Add parent and direct childs directories if any
-            $this->core->media->getFSDir();
-            foreach ($this->core->media->dir['dirs'] as $k => $v) {
+            dcCore()->media->getFSDir();
+            foreach (dcCore()->media->dir['dirs'] as $k => $v) {
                 $this->dirs_combo['/' . $v->relname] = $v->relname;
             }
             ksort($this->dirs_combo);
-/*
-//!
-            if ($this->core->themes === null) {
-                # -- Loading themes, may be useful for some configurable theme --
-                $this->core->themeInstance();
-                $this->core->themes->loadModules($this->core->blog->themes_path, null);
-            }
-*/
+
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         # Upload a new file
-        if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->core_media_writable) {
+        if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $core_media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                $this->core->media->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
+                dcCore()->media->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
 
-                $this->core->notices->addSuccessNotice(__('File has been successfully updated.'));
-                $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+                dcCore()->notices->addSuccessNotice(__('File has been successfully updated.'));
+                dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Update file
-        if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $this->core_media_writable) {
+        if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $core_media_writable) {
             $newFile = clone $this->file;
 
             $newFile->basename = $_POST['media_file'];
@@ -172,40 +165,40 @@ class MediaItem extends Page
             }
 
             try {
-                $this->core->media->updateFile($this->file, $newFile);
+                dcCore()->media->updateFile($this->file, $newFile);
 
-                $this->core->notices->addSuccessNotice(__('File has been successfully updated.'));
+                dcCore()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
-                $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+                dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Update thumbnails
-        if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $this->core_media_writable) {
+        if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $core_media_writable) {
             try {
                 $foo = null;
-                $this->core->media->mediaFireRecreateEvent($this->file);
+                dcCore()->media->mediaFireRecreateEvent($this->file);
 
-                $this->core->notices->addSuccessNotice(__('Thumbnails have been successfully updated.'));
+                dcCore()->notices->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
-                $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+                dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
         # Unzip file
-        if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $this->core_media_writable) {
+        if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $core_media_writable) {
             try {
-                $unzip_dir = $this->core->media->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
+                $unzip_dir = dcCore()->media->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
 
-                $this->core->notices->addSuccessNotice(__('Zip file has been successfully extracted.'));
+                dcCore()->notices->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
-                $this->core->adminurl->redirect('admin.media', $this->media_page_url_params);
+                dcCore()->adminurl->redirect('admin.media', $this->media_page_url_params);
             } catch (Exception $e) {
-                $this->core->error->add($e->getMessage());
+                dcCore()->error->add($e->getMessage());
             }
         }
 
@@ -215,20 +208,20 @@ class MediaItem extends Page
                 if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
                     $s = 'o';
                 }
-                $this->core->blog->settings->system->put('media_img_default_size', $s);
+                dcCore()->blog->settings->system->put('media_img_default_size', $s);
             }
             if (!empty($_POST['pref_alignment'])) {
-                $this->core->blog->settings->system->put('media_img_default_alignment', $_POST['pref_alignment']);
+                dcCore()->blog->settings->system->put('media_img_default_alignment', $_POST['pref_alignment']);
             }
             if (!empty($_POST['pref_insertion'])) {
-                $this->core->blog->settings->system->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
+                dcCore()->blog->settings->system->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
             }
             if (!empty($_POST['pref_legend'])) {
-                $this->core->blog->settings->system->put('media_img_default_legend', $_POST['pref_legend']);
+                dcCore()->blog->settings->system->put('media_img_default_legend', $_POST['pref_legend']);
             }
 
-            $this->core->notices->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
-            $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+            dcCore()->notices->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
+            dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
         }
 
         # Save media insertion settings for the folder
@@ -250,40 +243,40 @@ class MediaItem extends Page
                 $prefs['legend'] = $_POST['pref_legend'];
             }
 
-            $local = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
+            $local = dcCore()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
             if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
-                $this->core->notices->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
+                dcCore()->notices->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
             }
-            $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+            dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
         }
 
         # Delete media insertion settings for the folder (.mediadef and .mediadef.json)
         if (!empty($_POST['remove_folder_prefs'])) {
-            $local      = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+            $local      = dcCore()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
-                $this->core->notices->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
+                dcCore()->notices->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
             }
-            $this->core->adminurl->redirect('admin.media.item', $this->page_url_params);
+            dcCore()->adminurl->redirect('admin.media.item', $this->page_url_params);
         }
 
         # Page setup
         $this->setPageHead(static::jsModal() . static::jsLoad('js/_media_item.js'));
         if ($this->popup && !empty($plugin_id)) {
-            $this->setPageHead($this->core->behaviors->call('adminPopupMedia', $plugin_id));
+            $this->setPageHead(dcCore()->behaviors->call('adminPopupMedia', $plugin_id));
         }
 
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
-        $breadcrumb       = $this->core->media->breadCrumb($this->core->adminurl->get('admin.media', $temp_params, '&amp;', true)) .
+        $breadcrumb       = dcCore()->media->breadCrumb(dcCore()->adminurl->get('admin.media', $temp_params, '&amp;', true)) .
             ($this->file === null ? '' : '<span class="page-title">' . $this->file->basename . '</span>');
         $temp_params['d'] = '';
-        $home_url         = $this->core->adminurl->get('admin.media', $temp_params);
+        $home_url         = dcCore()->adminurl->get('admin.media', $temp_params);
 
         $this->setPageTitle(__('Media manager'));
         $this->setPageBreadcrumb(
             [
-                Html::escapeHTML($this->core->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Media manager')                 => $home_url,
                 $breadcrumb                         => '',
             ],
@@ -306,13 +299,13 @@ class MediaItem extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
-            $this->core->notices->success(__('File has been successfully updated.'));
+            dcCore()->notices->success(__('File has been successfully updated.'));
         }
         if (!empty($_GET['thumbupd'])) {
-            $this->core->notices->success(__('Thumbnails have been successfully updated.'));
+            dcCore()->notices->success(__('Thumbnails have been successfully updated.'));
         }
         if (!empty($_GET['blogprefupd'])) {
-            $this->core->notices->success(__('Default media insertion settings have been successfully updated.'));
+            dcCore()->notices->success(__('Default media insertion settings have been successfully updated.'));
         }
 
         # Get major file type (first part of mime type)
@@ -338,9 +331,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    $this->core->blog->settings->system->media_img_title_pattern,
-                    $this->core->blog->settings->system->media_img_use_dto_first,
-                    $this->core->blog->settings->system->media_img_no_date_alone
+                    dcCore()->blog->settings->system->media_img_title_pattern,
+                    dcCore()->blog->settings->system->media_img_use_dto_first,
+                    dcCore()->blog->settings->system->media_img_no_date_alone
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -355,7 +348,7 @@ class MediaItem extends Page
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    $this->core->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dcCore()->media->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -402,9 +395,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    $this->core->blog->settings->system->media_img_title_pattern,
-                    $this->core->blog->settings->system->media_img_use_dto_first,
-                    $this->core->blog->settings->system->media_img_no_date_alone
+                    dcCore()->blog->settings->system->media_img_title_pattern,
+                    dcCore()->blog->settings->system->media_img_use_dto_first,
+                    dcCore()->blog->settings->system->media_img_no_date_alone
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -419,7 +412,7 @@ class MediaItem extends Page
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    $this->core->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dcCore()->media->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -491,7 +484,7 @@ class MediaItem extends Page
                 echo
                 '<div class="two-boxes">' .
                 '<h3>' . __('MP3 disposition') . '</h3>';
-                $this->core->notices->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
+                dcCore()->notices->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
 
                 $i_align = [
                     'none'   => [__('None'), ($defaults['alignment'] == 'none' ? 1 : 0)],
@@ -512,15 +505,15 @@ class MediaItem extends Page
             } elseif ($file_type[0] == 'video') {
                 $media_type = 'flv';
 
-                $this->core->notices->message(__('Please note that you cannot insert video files with visual editor.'), false);
+                dcCore()->notices->message(__('Please note that you cannot insert video files with visual editor.'), false);
 
                 echo
                 '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
-                Form::number('video_w', 0, 9999, $this->core->blog->settings->system->media_video_width) . '  ' .
+                Form::number('video_w', 0, 9999, dcCore()->blog->settings->system->media_video_width) . '  ' .
                 '<label for="video_h" class="classic">' . __('Height:') . '</label> ' .
-                Form::number('video_h', 0, 9999, $this->core->blog->settings->system->media_video_height) .
+                Form::number('video_h', 0, 9999, dcCore()->blog->settings->system->media_video_height) .
                     '</p>' .
                     '</div>';
 
@@ -565,12 +558,12 @@ class MediaItem extends Page
             if ($media_type != 'default') {
                 echo
                 '<div class="border-top">' .
-                '<form id="save_settings" action="' . $this->core->adminurl->getBase('admin.media.item') . '" method="post">' .
+                '<form id="save_settings" action="' . dcCore()->adminurl->getBase('admin.media.item') . '" method="post">' .
                 '<p>' . __('Make current settings as default') . ' ' .
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
 
-                $local = $this->core->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+                $local = dcCore()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -586,8 +579,8 @@ class MediaItem extends Page
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
-                $this->core->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                $this->core->formNonce() . '</p>' .
+                dcCore()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
+                dcCore()->formNonce() . '</p>' .
                     '</form>' . '</div>';
             }
 
@@ -610,7 +603,7 @@ class MediaItem extends Page
         if ($this->file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
-            if (!isset($this->core->media->thumb_sizes[$thumb_size]) && $thumb_size != 'o') {
+            if (!isset(dcCore()->media->thumb_sizes[$thumb_size]) && $thumb_size != 'o') {
                 $thumb_size = 's';
             }
 
@@ -630,12 +623,12 @@ class MediaItem extends Page
             echo '<p>' . __('Available sizes:') . ' ';
             foreach (array_reverse($this->file->media_thumb) as $s => $v) {
                 $strong_link = ($s == $thumb_size) ? '<strong>%s</strong>' : '%s';
-                printf($strong_link, '<a href="' . $this->core->adminurl->get('admin.media.item', array_merge(
+                printf($strong_link, '<a href="' . dcCore()->adminurl->get('admin.media.item', array_merge(
                     $this->page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
-                )) . '">' . $this->core->media->thumb_sizes[$s][2] . '</a> | ');
+                )) . '">' . dcCore()->media->thumb_sizes[$s][2] . '</a> | ');
             }
-            echo '<a href="' . $this->core->adminurl->get('admin.media.item', array_merge($this->page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
+            echo '<a href="' . dcCore()->adminurl->get('admin.media.item', array_merge($this->page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
 
             if ($thumb_size != 'o' && isset($this->file->media_thumb[$thumb_size])) {
@@ -643,7 +636,7 @@ class MediaItem extends Page
                 $alpha      = ($p['extension'] == 'png') || ($p['extension'] == 'PNG');
                 $alpha      = strtolower($p['extension']) === 'png';
                 $webp       = strtolower($p['extension']) === 'webp';
-                $thumb_tp   = ($alpha ? $this->core->media->thumb_tp_alpha : ($webp ? $this->core->media->thumb_tp_webp : $this->core->media->thumb_tp));
+                $thumb_tp   = ($alpha ? dcCore()->media->thumb_tp_alpha : ($webp ? dcCore()->media->thumb_tp_webp : dcCore()->media->thumb_tp));
                 $thumb      = sprintf($thumb_tp, $p['dirname'], $p['base'], '%s');
                 $thumb_file = sprintf($thumb, $thumb_size);
                 $T          = getimagesize($thumb_file);
@@ -687,36 +680,36 @@ class MediaItem extends Page
 
         if (empty($_GET['find_posts'])) {
             echo
-            '<p><a class="button" href="' . $this->core->adminurl->get('admin.media.item', array_merge($this->page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
+            '<p><a class="button" href="' . dcCore()->adminurl->get('admin.media.item', array_merge($this->page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
             __('Show entries containing this media') . '</a></p>';
         } else {
             echo '<h3>' . __('Entries containing this media') . '</h3>';
             $params = [
                 'post_type' => '',
-                'from'      => 'LEFT OUTER JOIN ' . $this->core->prefix . 'post_media PM ON P.post_id = PM.post_id ',
+                'from'      => 'LEFT OUTER JOIN ' . dcCore()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
                 'PM.media_id = ' . (int) $this->id . ' ' .
-                "OR post_content_xhtml LIKE '%" . $this->core->con->escape($this->file->relname) . "%' " .
-                "OR post_excerpt_xhtml LIKE '%" . $this->core->con->escape($this->file->relname) . "%' ",
+                "OR post_content_xhtml LIKE '%" . dcCore()->con->escape($this->file->relname) . "%' " .
+                "OR post_excerpt_xhtml LIKE '%" . dcCore()->con->escape($this->file->relname) . "%' ",
             ];
 
             if ($this->file->media_image) {
                 # We look for thumbnails too
-                if (preg_match('#^http(s)?://#', $this->core->blog->settings->system->public_url)) {
-                    $media_root = $this->core->blog->settings->system->public_url;
+                if (preg_match('#^http(s)?://#', dcCore()->blog->settings->system->public_url)) {
+                    $media_root = dcCore()->blog->settings->system->public_url;
                 } else {
-                    $media_root = $this->core->blog->host . Path::clean($this->core->blog->settings->system->public_url) . '/';
+                    $media_root = dcCore()->blog->host . Path::clean(dcCore()->blog->settings->system->public_url) . '/';
                 }
                 foreach ($this->file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
-                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . $this->core->con->escape($v) . "%' ";
-                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . $this->core->con->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . dcCore()->con->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . dcCore()->con->escape($v) . "%' ";
                 }
             }
 
             $params['sql'] .= ') ';
 
-            $rs = $this->core->blog->getPosts($params);
+            $rs = dcCore()->blog->getPosts($params);
 
             if ($rs->isEmpty()) {
                 echo '<p>' . __('No entry seems contain this media.') . '</p>';
@@ -743,7 +736,7 @@ class MediaItem extends Page
 
                             break;
                     }
-                    echo '<li>' . $img_status . ' ' . '<a href="' . $this->core->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
+                    echo '<li>' . $img_status . ' ' . '<a href="' . dcCore()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
                     $rs->post_title . '</a>' .
                     ($rs->post_type != 'post' ? ' (' . Html::escapeHTML($rs->post_type) . ')' : '') .
                     ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->post_dt) . '</li>';
@@ -774,15 +767,15 @@ class MediaItem extends Page
 
         echo '<h3>' . __('Updates and modifications') . '</h3>';
 
-        if ($this->file->editable && $this->core_media_writable) {
+        if ($this->file->editable && $core_media_writable) {
             if ($this->file->media_type == 'image') {
                 echo
-                '<form class="clear fieldset" action="' . $this->core->adminurl->get('admin.media.item') . '" method="post">' .
+                '<form class="clear fieldset" action="' . dcCore()->adminurl->get('admin.media.item') . '" method="post">' .
                 '<h4>' . __('Update thumbnails') . '</h4>' .
                 '<p class="more-info">' . __('This will create or update thumbnails for this image.') . '</p>' .
                 '<p><input type="submit" name="thumbs" value="' . __('Update thumbnails') . '" />' .
-                $this->core->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                $this->core->formNonce() . '</p>' .
+                dcCore()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
+                dcCore()->formNonce() . '</p>' .
                     '</form>';
             }
 
@@ -793,7 +786,7 @@ class MediaItem extends Page
                 ];
 
                 echo
-                '<form class="clear fieldset" id="file-unzip" action="' . $this->core->adminurl->get('admin.media.item') . '" method="post">' .
+                '<form class="clear fieldset" id="file-unzip" action="' . dcCore()->adminurl->get('admin.media.item') . '" method="post">' .
                 '<h4>' . __('Extract archive') . '</h4>' .
                 '<ul>' .
                 '<li><strong>' . __('Extract in a new directory') . '</strong> : ' .
@@ -804,13 +797,13 @@ class MediaItem extends Page
                 '<p><label for="inflate_mode" class="classic">' . __('Extract mode:') . '</label> ' .
                 Form::combo('inflate_mode', $inflate_combo, 'new') .
                 '<input type="submit" name="unzip" value="' . __('Extract') . '" />' .
-                $this->core->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                $this->core->formNonce() . '</p>' .
+                dcCore()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
+                dcCore()->formNonce() . '</p>' .
                     '</form>';
             }
 
             echo
-            '<form class="clear fieldset" action="' . $this->core->adminurl->get('admin.media.item') . '" method="post">' .
+            '<form class="clear fieldset" action="' . dcCore()->adminurl->get('admin.media.item') . '" method="post">' .
             '<h4>' . __('Change media properties') . '</h4>' .
             '<p><label for="media_file">' . __('File name:') . '</label>' .
             Form::field('media_file', 30, 255, Html::escapeHTML($this->file->basename)) . '</p>' .
@@ -821,7 +814,7 @@ class MediaItem extends Page
                 255,
                 [
                     'default'    => Html::escapeHTML($this->file->media_title),
-                    'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>';
             if ($this->file->type == 'image/jpeg' || $this->file->type == 'image/webp') {
@@ -833,7 +826,7 @@ class MediaItem extends Page
                     255,
                     [
                         'default'    => Html::escapeHTML((string) $this->getImageDescription($this->file, '')),
-                        'extra_html' => 'lang="' . $this->core->auth->getInfo('user_lang') . '" spellcheck="true"',
+                        'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"',
                     ]
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
@@ -846,12 +839,12 @@ class MediaItem extends Page
             '<p><label for="media_path">' . __('New directory:') . '</label>' .
             Form::combo('media_path', $this->dirs_combo, dirname($this->file->relname)) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            $this->core->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-            $this->core->formNonce() . '</p>' .
+            dcCore()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
+            dcCore()->formNonce() . '</p>' .
                 '</form>';
 
             echo
-            '<form class="clear fieldset" action="' . $this->core->adminurl->get('admin.media.item') . '" method="post" enctype="multipart/form-data">' .
+            '<form class="clear fieldset" action="' . dcCore()->adminurl->get('admin.media.item') . '" method="post" enctype="multipart/form-data">' .
             '<h4>' . __('Change file') . '</h4>' .
             '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) DOTCLEAR_MAX_UPLOAD_SIZE) . '</div>' .
             '<p><label for="upfile">' . __('Choose a file:') .
@@ -859,23 +852,23 @@ class MediaItem extends Page
             '<input type="file" id="upfile" name="upfile" size="35" />' .
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .
-            $this->core->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-            $this->core->formNonce() . '</p>' .
+            dcCore()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
+            dcCore()->formNonce() . '</p>' .
                 '</form>';
 
             if ($this->file->del) {
                 echo
-                '<form id="delete-form" method="post" action="' . $this->core->adminurl->get('admin.media') . '">' .
+                '<form id="delete-form" method="post" action="' . dcCore()->adminurl->get('admin.media') . '">' .
                 '<p><input name="delete" type="submit" class="delete" value="' . __('Delete this media') . '" />' .
                 Form::hidden('remove', rawurlencode($this->file->basename)) .
                 Form::hidden('rmyes', 1) .
-                $this->core->adminurl->getHiddenFormFields('admin.media', $this->media_page_url_params) .
-                $this->core->formNonce() . '</p>' .
+                dcCore()->adminurl->getHiddenFormFields('admin.media', $this->media_page_url_params) .
+                dcCore()->formNonce() . '</p>' .
                     '</form>';
             }
 
             # --BEHAVIOR-- adminMediaItemForm
-            $this->core->behaviors->call('adminMediaItemForm', $this->file);
+            dcCore()->behaviors->call('adminMediaItemForm', $this->file);
         }
 
         echo
@@ -948,15 +941,15 @@ class MediaItem extends Page
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => (string) $this->core->blog->settings->system->media_img_default_size ?: 'm',
-            'alignment' => (string) $this->core->blog->settings->system->media_img_default_alignment ?: 'none',
-            'link'      => (bool) $this->core->blog->settings->system->media_img_default_link,
-            'legend'    => (string) $this->core->blog->settings->system->media_img_default_legend ?: 'legend',
+            'size'      => (string) dcCore()->blog->settings->system->media_img_default_size ?: 'm',
+            'alignment' => (string) dcCore()->blog->settings->system->media_img_default_alignment ?: 'none',
+            'link'      => (bool) dcCore()->blog->settings->system->media_img_default_link,
+            'legend'    => (string) dcCore()->blog->settings->system->media_img_default_legend ?: 'legend',
             'mediadef'  => false,
         ];
 
         try {
-            $local = $this->core->media->root . '/' . dirname($file->relname) . '/' . '.mediadef';
+            $local = dcCore()->media->root . '/' . dirname($file->relname) . '/' . '.mediadef';
             if (!file_exists($local)) {
                 $local .= '.json';
             }

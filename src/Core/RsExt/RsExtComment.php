@@ -44,7 +44,7 @@ class RsExtComment
     public static function getDate($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = $rs->core->blog->settings->system->date_format;
+            $format = dcCore()->blog->settings->system->date_format;
         }
 
         if ($type == 'upddt') {
@@ -67,7 +67,7 @@ class RsExtComment
     public static function getTime($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = $rs->core->blog->settings->system->time_format;
+            $format = dcCore()->blog->settings->system->time_format;
         }
 
         if ($type == 'upddt') {
@@ -141,7 +141,7 @@ class RsExtComment
     {
         $res = $rs->comment_content;
 
-        if ($rs->core->blog->settings->system->comments_nofollow) {
+        if (dcCore()->blog->settings->system->comments_nofollow) {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'noFollowURL'], $res);
         } else {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'UgcURL'], $res);
@@ -195,7 +195,7 @@ class RsExtComment
      */
     public static function getPostURL($rs)
     {
-        return $rs->core->blog->url . $rs->core->getPostPublicURL(
+        return dcCore()->blog->url . dcCore()->getPostPublicURL(
             $rs->post_type, Html::sanitizeURL($rs->post_url)
         );
     }
@@ -216,7 +216,7 @@ class RsExtComment
         }
 
         $rel = 'ugc';
-        if ($rs->core->blog->settings->system->comments_nofollow) {
+        if (dcCore()->blog->settings->system->comments_nofollow) {
             $rel .= ' nofollow';
         }
 
@@ -276,7 +276,7 @@ class RsExtComment
      */
     public static function getFeedID($rs)
     {
-        return 'urn:md5:' . md5($rs->core->blog->uid . $rs->comment_id);
+        return 'urn:md5:' . md5(dcCore()->blog->uid . $rs->comment_id);
     }
 
     /**
@@ -288,7 +288,7 @@ class RsExtComment
      */
     public static function isMe($rs)
     {
-        $user_prefs = new Prefs($rs->core, $rs->user_id, 'profile');
+        $user_prefs = new Prefs($rs->user_id, 'profile');
         $user_prefs->addWorkspace('profile');
         $user_profile_mails = $user_prefs->profile->mails ?
             array_map('trim', explode(',', $user_prefs->profile->mails)) :

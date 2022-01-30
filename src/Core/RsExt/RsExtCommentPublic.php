@@ -19,14 +19,14 @@ class rsExtCommentPublic extends rsExtComment
 {
     public static function getContent($rs, $absolute_urls = false)
     {
-        if (isset($rs->core->context) && $rs->core->blog->settings->system->use_smilies) {
+        if (isset(dcCore()->context) && dcCore()->blog->settings->system->use_smilies) {
             $c = parent::getContent($rs, $absolute_urls);
 
             if (!isset($GLOBALS['__smilies'])) {
-                $GLOBALS['__smilies'] = $rs->core->context::getSmilies($rs->core->blog);
+                $GLOBALS['__smilies'] = dcCore()->context::getSmilies(dcCore()->blog);
             }
 
-            return $rs->core->context::addSmilies($c);
+            return dcCore()->context::addSmilies($c);
         }
 
         return parent::getContent($rs, $absolute_urls);

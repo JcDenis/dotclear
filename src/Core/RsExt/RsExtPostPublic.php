@@ -22,10 +22,10 @@ class RsExtPostPublic extends RsExtPost
     public static function getContent($rs, $absolute_urls = false)
     {
         # Not very nice hack but it does the job :)
-        if (isset($rs->core->context) && $rs->core->context->short_feed_items === true) {
+        if (isset(dcCore()->context) && dcCore()->context->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
-            $c    = $rs->core->context::remove_html($c);
-            $c    = $rs->core->context::cut_string($c, 350);
+            $c    = dcCore()->context::remove_html($c);
+            $c    = dcCore()->context::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
@@ -34,7 +34,7 @@ class RsExtPostPublic extends RsExtPost
             return $c;
         }
 
-        if ($rs->core->blog->settings->system->use_smilies) {
+        if (dcCore()->blog->settings->system->use_smilies) {
             return self::smilies($rs, parent::getContent($rs, $absolute_urls));
         }
 
@@ -43,7 +43,7 @@ class RsExtPostPublic extends RsExtPost
 
     public static function getExcerpt($rs, $absolute_urls = false)
     {
-        if ($rs->core->blog->settings->system->use_smilies) {
+        if (dcCore()->blog->settings->system->use_smilies) {
             return self::smilies($rs, parent::getExcerpt($rs, $absolute_urls));
         }
 
@@ -53,9 +53,9 @@ class RsExtPostPublic extends RsExtPost
     protected static function smilies($rs, $c)
     {
         if (!isset($GLOBALS['__smilies'])) {
-            $GLOBALS['__smilies'] = $rs->core->context::getSmilies($rs->core->blog);
+            $GLOBALS['__smilies'] = dcCore()->context::getSmilies(dcCore()->blog);
         }
 
-        return $rs->core->context::addSmilies($c);
+        return dcCore()->context::addSmilies($c);
     }
 }

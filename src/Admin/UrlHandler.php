@@ -18,8 +18,6 @@ use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Exception\DeprecatedException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
@@ -29,20 +27,15 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class UrlHandler
 {
-    /** @var Core Core instance */
-    protected $core;
     protected $root_url;
     protected $urls;
 
     /**
      * Constructs a new instance.
-     *
-     * @param      Core  $core   The core
      */
-    public function __construct(Core $core, $root_url = '')
+    public function __construct()
     {
-        $this->core = $core;
-        $this->root_url = $root_url;
+        $this->root_url = defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '';
         $this->urls = new ArrayObject();
     }
 
@@ -214,7 +207,7 @@ class UrlHandler
     public function setup()
     {
         $this->initDefaultURLs();
-        $this->core->behaviors->call('adminURLs', $this);
+        dcCore()->behaviors->call('adminURLs', $this);
     }
 
     protected function initDefaultURLs()

@@ -15,16 +15,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 
 class PostMedia
 {
-    /** @var Core           Core instance */
-    protected $core;
-
     /** @var Connection     Connection instance */
     protected $con;
 
@@ -33,14 +28,11 @@ class PostMedia
 
     /**
      * Constructs a new instance.
-     *
-     * @param      Core  $core   The core
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core  = $core;
-        $this->con   = $core->con;
-        $this->table = $this->core->prefix . 'post_media';
+        $this->con   = dcCore()->con;
+        $this->table = dcCore()->prefix . 'post_media';
     }
 
     /**
@@ -59,7 +51,7 @@ class PostMedia
             $strReq .= implode(', ', $params['columns']) . ', ';
         }
 
-        $strReq .= 'FROM ' . $this->core->prefix . 'media M ' .
+        $strReq .= 'FROM ' . dcCore()->prefix . 'media M ' .
         'INNER JOIN ' . $this->table . ' PM ON (M.media_id = PM.media_id) ';
 
         if (!empty($params['from'])) {
@@ -117,7 +109,7 @@ class PostMedia
         $cur->link_type = $link_type;
 
         $cur->insert();
-        $this->core->blog->triggerBlog();
+        dcCore()->blog->triggerBlog();
     }
 
     /**
@@ -139,6 +131,6 @@ class PostMedia
             $strReq .= "AND link_type = '" . $this->con->escape($link_type) . "'";
         }
         $this->con->execute($strReq);
-        $this->core->blog->triggerBlog();
+        dcCore()->blog->triggerBlog();
     }
 }

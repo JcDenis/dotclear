@@ -19,7 +19,6 @@ use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Prepend as BasePrepend;
-use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
 
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
@@ -79,14 +78,14 @@ class Prepend extends BasePrepend
     /** @var array      help resources container */
     public $resources = [];
 
-    public function __construct()
+    public function process()
     {
         # Load core prepend and so on
-        parent::__construct();
+        parent::process();
 
-        $this->notices  = new Notices($this);
-        $this->combos   = new Combos($this);
-        $this->userpref = new UserPref($this);
+        $this->notices  = new Notices();
+        $this->combos   = new Combos();
+        $this->userpref = new UserPref();
 
         # Serve modules file (mf)
         $this->adminServeFile();
@@ -97,7 +96,8 @@ class Prepend extends BasePrepend
         header('Pragma: no-cache'); # HTTP/1.0
 
         # Register default admin URLs
-        $this->adminLoadURL();
+        $this->adminurl = new UrlHandler();
+        $this->adminurl->setup();
 
         # csp report do not need extra stuff
         if ($this->adminurl->called() == 'admin.cspreport') {
@@ -117,13 +117,18 @@ class Prepend extends BasePrepend
             $this->adminLoadResources(DOTCLEAR_L10N_DIR);
 
             # Load sidebar menu
-            $this->adminLoadMenu();
+            $this->favs = new Favorites();
+            $this->menu = new Menus();
 
             # Load modules (plugins, iconset) (and there Admin Prepend class)
             $this->adminLoadModules();
 
             # Add default top menus
-            $this->adminAddMenu();
+            $this->favs->setup();
+            if (!$this->auth->user_prefs->interface->nofavmenu) {
+                $this->favs->appendMenu($this->menu);
+            }
+            $this->menu->setup();
 
             # Set jquery stuff
             if (empty($this->blog->settings->system->jquery_migrate_mute)) {
@@ -179,7 +184,7 @@ class Prepend extends BasePrepend
         $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
 
         # Check class
-        $class = Core::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
+        $class = dcCore()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
             static::error(__('Failed to load file'), __('File handler not found'), 20);
         }
@@ -191,15 +196,6 @@ class Prepend extends BasePrepend
         $paths[] = static::root('Core', 'files', 'css');
         Utils::fileServer($paths, 'mf');
         exit;
-    }
-
-    /**
-     * Load admin urls
-     */
-    private function adminLoadURL(): void
-    {
-        $this->adminurl = new UrlHandler($this, defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '');
-        $this->adminurl->setup();
     }
 
     private function adminLoadSession(): bool
@@ -360,42 +356,19 @@ class Prepend extends BasePrepend
     }
 
     /**
-     * Load admin menu and favorites instances
-     */
-    private function adminLoadMenu(): void
-    {
-        $this->favs = new Favorites($this);
-        $this->menu = new Menus($this);
-    }
-
-    /**
-     * Populate admin menu and favorites
-     */
-    private function adminAddMenu()
-    {
-        $this->favs->setup();
-
-        if (!$this->auth->user_prefs->interface->nofavmenu) {
-            $this->favs->appendMenu($this->menu);
-        }
-
-        $this->menu->setup();
-    }
-
-    /**
      * Load modules instances and children
      */
     private function adminLoadModules()
     {
         # Iconsets
         if ('' != DOTCLEAR_ICONSET_DIR) {
-            $this->iconsets = new ModulesIconset($this);
+            $this->iconsets = new ModulesIconset();
             $this->iconsets->loadModules();
         }
 
         # Plugins
         if ('' != DOTCLEAR_PLUGIN_DIR) {
-            $this->plugins = new ModulesPlugin($this);
+            $this->plugins = new ModulesPlugin();
             $this->plugins->loadModules($this->_lang);
 
             # Load lang resources for each plugins
@@ -405,7 +378,7 @@ class Prepend extends BasePrepend
         }
 
         # Themes
-        $this->themes = new ModulesTheme($this);
+        $this->themes = new ModulesTheme();
         $this->themes->loadModules($this->_lang);
     }
 
@@ -422,7 +395,7 @@ class Prepend extends BasePrepend
             if (!is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
                 throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler));
             }
-            $page = new $class($this, $handler);
+            $page = new $class($handler);
         } catch (AdminException $e) {
             static::error(
                 __('Unknow URL'),

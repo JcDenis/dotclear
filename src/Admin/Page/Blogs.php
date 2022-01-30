@@ -41,12 +41,12 @@ class Blogs extends Page
 
     protected function getActionInstance(): ?Action
     {
-        return $this->core->auth->isSuperAdmin() ? new BlogAction($this->core, $this->core->adminurl->get('admin.blogs')) : null;
+        return dcCore()->auth->isSuperAdmin() ? new BlogAction(dcCore()->adminurl->get('admin.blogs')) : null;
     }
 
     protected function getFilterInstance(): ?Filter
     {
-        return new BlogFilter($this->core);
+        return new BlogFilter(dcCore());
     }
 
     protected function getCatalogInstance(): ?Catalog
@@ -55,10 +55,10 @@ class Blogs extends Page
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetBlogs, ArrayObject
-        $this->core->behaviors->call('adminGetBlogs', $params);
+        dcCore()->behaviors->call('adminGetBlogs', $params);
 
-        $counter  = $this->core->getBlogs($params, true);
-        $rs       = $this->core->getBlogs($params);
+        $counter  = dcCore()->getBlogs($params, true);
+        $rs       = dcCore()->getBlogs($params);
         $nb_blog  = $counter->f(0);
         $rsStatic = $rs->toStatic();
         if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {
@@ -68,7 +68,7 @@ class Blogs extends Page
             $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
         }
 
-        return new BlogCatalog($this->core, $rs, $counter->f(0));
+        return new BlogCatalog($rs, $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool
@@ -91,38 +91,38 @@ class Blogs extends Page
 
     protected function getPageContent(): void
     {
-        if ($this->core->error->flag()) {
+        if (dcCore()->error->flag()) {
             return;
         }
 
-        if ($this->core->auth->isSuperAdmin()) {
-            echo '<p class="top-add"><a class="button add" href="' . $this->core->adminurl->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
+        if (dcCore()->auth->isSuperAdmin()) {
+            echo '<p class="top-add"><a class="button add" href="' . dcCore()->adminurl->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
         $this->filter->display('admin.blogs');
 
         # Show blogs
         $this->catalog->display($this->filter->page, $this->filter->nb,
-            ($this->core->auth->isSuperAdmin() ?
-                '<form action="' . $this->core->adminurl->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
+            (dcCore()->auth->isSuperAdmin() ?
+                '<form action="' . dcCore()->adminurl->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
 
             '%s' .
 
-            ($this->core->auth->isSuperAdmin() ?
+            (dcCore()->auth->isSuperAdmin() ?
                 '<div class="two-cols clearfix">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected blogs action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo(),
                     ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']) .
-                $this->core->formNonce() .
+                dcCore()->formNonce() .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
 
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                $this->core->adminurl->getHiddenFormFields('admin.blogs', $this->filter->values(true)) .
+                dcCore()->adminurl->getHiddenFormFields('admin.blogs', $this->filter->values(true)) .
                 '</form>' : ''),
             $this->filter->show()
         );

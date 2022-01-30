@@ -1,6 +1,7 @@
 <?php
 /**
- * @brief Dotclear\Core\Update
+ * @class Dotclear\Core\Update
+ * @brief Dotclear core update
  *
  * @package Dotclear
  * @subpackage Core

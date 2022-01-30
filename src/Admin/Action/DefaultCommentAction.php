@@ -16,17 +16,15 @@ namespace Dotclear\Admin\Action;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Notices;
 use Dotclear\Admin\Page;
 
 class DefaultCommentAction
 {
-    public static function CommentAction(Core $core, Action $ap)
+    public static function CommentAction(Action $ap)
     {
-        if ($core->auth->check('publish,contentadmin', $core->blog->id)) {
+        if (dcCore()->auth->check('publish,contentadmin', dcCore()->blog->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -38,7 +36,7 @@ class DefaultCommentAction
             );
         }
 
-        if ($core->auth->check('delete,contentadmin', $core->blog->id)) {
+        if (dcCore()->auth->check('delete,contentadmin', dcCore()->blog->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
@@ -48,8 +46,8 @@ class DefaultCommentAction
 /*
 //!
         $ip_filter_active = true;
-        if ($core->blog->settings->antispam->antispam_filters !== null) {
-            $filters_opt = $core->blog->settings->antispam->antispam_filters;
+        if (dcCore()->blog->settings->antispam->antispam_filters !== null) {
+            $filters_opt = dcCore()->blog->settings->antispam->antispam_filters;
             if (is_array($filters_opt)) {
                 $ip_filter_active = isset($filters_opt['dcFilterIP']) && is_array($filters_opt['dcFilterIP']) && $filters_opt['dcFilterIP'][0] == 1;
             }
@@ -57,7 +55,7 @@ class DefaultCommentAction
 
         if ($ip_filter_active) {
             $blocklist_actions = [__('Blocklist IP') => 'blocklist'];
-            if ($core->auth->isSuperAdmin()) {
+            if (dcCore()->auth->isSuperAdmin()) {
                 $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
             }
 
@@ -69,7 +67,7 @@ class DefaultCommentAction
 */
     }
 
-    public static function doChangeCommentStatus(Core $core, Action $ap, $post)
+    public static function doChangeCommentStatus(Action $ap, $post)
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -95,13 +93,13 @@ class DefaultCommentAction
                 break;
         }
 
-        $core->blog->updCommentsStatus($co_ids, $status);
+        dcCore()->blog->updCommentsStatus($co_ids, $status);
 
-        $core->notices->addSuccessNotice(__('Selected comments have been successfully updated.'));
+        dcCore()->notices->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
     }
 
-    public static function doDeleteComment(Core $core, Action $ap, $post)
+    public static function doDeleteComment(Action $ap, $post)
     {
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {
@@ -110,18 +108,18 @@ class DefaultCommentAction
         // Backward compatibility
         foreach ($co_ids as $comment_id) {
             # --BEHAVIOR-- adminBeforeCommentDelete
-            $core->behaviors->call('adminBeforeCommentDelete', $comment_id);
+            dcCore()->behaviors->call('adminBeforeCommentDelete', $comment_id);
         }
 
         # --BEHAVIOR-- adminBeforeCommentsDelete
-        $core->behaviors->call('adminBeforeCommentsDelete', $co_ids);
+        dcCore()->behaviors->call('adminBeforeCommentsDelete', $co_ids);
 
-        $core->blog->delComments($co_ids);
-        $core->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));
+        dcCore()->blog->delComments($co_ids);
+        dcCore()->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }
 
-    public static function doBlocklistIP(Core $core, Action $ap, $post)
+    public static function doBlocklistIP(Action $ap, $post)
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -129,15 +127,15 @@ class DefaultCommentAction
             throw new AdminException(__('No comment selected'));
         }
 
-        $global = !empty($action) && $action == 'blocklist_global' && $core->auth->isSuperAdmin();
+        $global = !empty($action) && $action == 'blocklist_global' && dcCore()->auth->isSuperAdmin();
 //!
-        $ip_filter = new FilterIP($core);
+        $ip_filter = new FilterIP();
         $rs        = $ap->getRS();
         while ($rs->fetch()) {
             $ip_filter->addIP('black', $rs->comment_ip, $global);
         }
 
-        $core->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        dcCore()->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
         $ap->redirect(true);
     }
 }

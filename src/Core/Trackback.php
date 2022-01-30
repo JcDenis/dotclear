@@ -19,8 +19,6 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Network\Http;
 use Dotclear\Network\Xmlrpc\Client as XmlrpcClient;
 use Dotclear\Network\NetHttp\NetHttp;
@@ -33,18 +31,14 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Trackback
 {
-    public $core;  ///< <b>dcCore</b> dcCore instance
     public $table; ///< <b>string</b> done pings table name
 
     /**
      * Object constructor
-     *
-     * @param    Core $core  Core instance
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core  = &$core;
-        $this->table = $this->core->prefix . 'ping';
+        $this->table = dcCore()->prefix . 'ping';
     }
 
     /// @name Send
@@ -62,7 +56,7 @@ class Trackback
         'FROM ' . $this->table . ' ' .
         'WHERE post_id = ' . (integer) $post_id;
 
-        return $this->core->con->select($strReq);
+        return dcCore()->con->select($strReq);
     }
 
     /**
@@ -80,7 +74,7 @@ class Trackback
      */
     public function ping($url, $post_id, $post_title, $post_excerpt, $post_url)
     {
-        if ($this->core->blog === null) {
+        if (dcCore()->blog === null) {
             return false;
         }
 
@@ -89,9 +83,9 @@ class Trackback
         # Check for previously done trackback
         $strReq = 'SELECT post_id, ping_url FROM ' . $this->table . ' ' .
         'WHERE post_id = ' . $post_id . ' ' .
-        "AND ping_url = '" . $this->core->con->escape($url) . "' ";
+        "AND ping_url = '" . dcCore()->con->escape($url) . "' ";
 
-        $rs = $this->core->con->select($strReq);
+        $rs = dcCore()->con->select($strReq);
 
         if (!$rs->isEmpty()) {
             throw new CoreException(sprintf(__('%s has still been pinged'), $url));
@@ -130,7 +124,7 @@ class Trackback
                 'title'     => $post_title,
                 'excerpt'   => $post_excerpt,
                 'url'       => $post_url,
-                'blog_name' => trim(Html::escapeHTML(Html::clean($this->core->blog->name)))
+                'blog_name' => trim(Html::escapeHTML(Html::clean(dcCore()->blog->name)))
                 //,'__debug' => false
             ];
 
@@ -172,7 +166,7 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
-        $cur           = $this->core->con->openCursor($this->table);
+        $cur           = dcCore()->con->openCursor($this->table);
         $cur->post_id  = $post_id;
         $cur->ping_url = $url;
         $cur->ping_dt  = date('Y-m-d H:i:s');
@@ -215,7 +209,7 @@ class Trackback
         $err = false;
         $msg = '';
 
-        if ($this->core->blog === null) {
+        if (dcCore()->blog === null) {
             $err = true;
             $msg = 'No blog.';
         } elseif ($url == '') {
@@ -227,7 +221,7 @@ class Trackback
         }
 
         if (!$err) {
-            $post = $this->core->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dcCore()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
 
             if ($post->isEmpty()) {
                 $err = true;
@@ -434,7 +428,7 @@ class Trackback
             $this->addBacklink($post_id, $from_url, '', $title, $excerpt, $comment);
 
             # All done, thanks
-            $code = $this->core->blog->settings->system->trackbacks_pub ? 200 : 202;
+            $code = dcCore()->blog->settings->system->trackbacks_pub ? 200 : 202;
             Http::head($code);
 
             return;
@@ -462,7 +456,7 @@ class Trackback
             'comment_trackback' => 1
         ];
 
-        $rs = $this->core->blog->getComments($params, true);
+        $rs = dcCore()->blog->getComments($params, true);
         if ($rs && !$rs->isEmpty()) {
             return ($rs->f(0));
         }
@@ -491,22 +485,22 @@ class Trackback
             '<p><strong>' . ($title ?: $blog_name) . "</strong></p>\n" .
             '<p>' . $excerpt . '</p>';
 
-        $cur                    = $this->core->con->openCursor($this->core->prefix . 'comment');
+        $cur                    = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
         $cur->comment_author    = (string) $blog_name;
         $cur->comment_site      = (string) $url;
         $cur->comment_content   = (string) $comment;
         $cur->post_id           = $post_id;
         $cur->comment_trackback = 1;
-        $cur->comment_status    = $this->core->blog->settings->system->trackbacks_pub ? 1 : -1;
+        $cur->comment_status    = dcCore()->blog->settings->system->trackbacks_pub ? 1 : -1;
         $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate
-        $this->core->behaviors->call('publicBeforeTrackbackCreate', $cur);
+        dcCore()->behaviors->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->post_id) {
-            $comment_id = $this->core->blog->addComment($cur);
+            $comment_id = dcCore()->blog->addComment($cur);
 
             # --BEHAVIOR-- publicAfterTrackbackCreate
-            $this->core->behaviors->call('publicAfterTrackbackCreate', $cur, $comment_id);
+            dcCore()->behaviors->call('publicAfterTrackbackCreate', $cur, $comment_id);
         }
     }
 
@@ -518,10 +512,10 @@ class Trackback
      */
     private function delBacklink($post_id, $url)
     {
-        $this->core->con->execute(
-            'DELETE FROM ' . $this->core->prefix . 'comment ' .
+        dcCore()->con->execute(
+            'DELETE FROM ' . dcCore()->prefix . 'comment ' .
             'WHERE post_id = ' . ((integer) $post_id) . ' ' .
-            "AND comment_site = '" . $this->core->con->escape((string) $url) . "' " .
+            "AND comment_site = '" . dcCore()->con->escape((string) $url) . "' " .
             'AND comment_trackback = 1 '
         );
     }
@@ -572,7 +566,7 @@ class Trackback
      */
     private function getTargetPost($to_url)
     {
-        $reg  = '!^' . preg_quote($this->core->blog->url) . '(.*)!';
+        $reg  = '!^' . preg_quote(dcCore()->blog->url) . '(.*)!';
         $type = $args = $next = '';
 
         # Are you dumb?
@@ -583,7 +577,7 @@ class Trackback
         # Does the targeted URL look like a registered post type?
         $url_part   = $m[1];
         $p_type     = '';
-        $post_types = $this->core->getPostTypes();
+        $post_types = dcCore()->getPostTypes();
         $post_url   = '';
         foreach ($post_types as $k => $v) {
             $reg = '!^' . preg_quote(str_replace('%s', '', $v['public_url'])) . '(.*)!';
@@ -604,7 +598,7 @@ class Trackback
             'post_type' => $p_type,
             'post_url'  => $post_url
         ];
-        $posts = $this->core->blog->getPosts($params);
+        $posts = dcCore()->blog->getPosts($params);
 
         # Missed!
         if ($posts->isEmpty()) {

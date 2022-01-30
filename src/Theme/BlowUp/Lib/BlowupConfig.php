@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\BlowUp\Lib;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\Theme\Admin\ConfigTheme;
@@ -71,10 +69,9 @@ class BlowupConfig
 
     public $utils;
 
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core = $core;
-        $this->utils = new ConfigTheme($core);
+        $this->utils = new ConfigTheme();
     }
 
     public function fontsList()
@@ -302,10 +299,10 @@ class BlowupConfig
         }
 
         # erase old css file
-        $this->dropCss($this->core->blog->settings->system->theme);
+        $this->dropCss(dcCore()->blog->settings->system->theme);
 
         # create new css file into public blowup-css subdirectory
-        $this->writeCss($this->core->blog->settings->system->theme, $res);
+        $this->writeCss(dcCore()->blog->settings->system->theme, $res);
 
         return $res;
     }

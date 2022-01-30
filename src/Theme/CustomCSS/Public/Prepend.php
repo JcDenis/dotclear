@@ -18,8 +18,6 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -28,15 +26,15 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(Core $core): void
+    public static function loadModule(): void
     {
-        if ($core->blog->settings->system->theme == 'CustomCSS') {
-            $core->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        if (dcCore()->blog->settings->system->theme == 'CustomCSS') {
+            dcCore()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
         }
     }
 
-    public static function behaviorPublicHeadContent(Core $core)
+    public static function behaviorPublicHeadContent()
     {
-        echo '<link rel="stylesheet" type="text/css" href="' . $core->blog->settings->system->public_url . '/custom_style.css" media="screen">' . "\n";
+        echo '<link rel="stylesheet" type="text/css" href="' . dcCore()->blog->settings->system->public_url . '/custom_style.css" media="screen">' . "\n";
     }
 }

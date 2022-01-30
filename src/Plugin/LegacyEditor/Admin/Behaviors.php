@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Core\Core;
 use Dotclear\Admin\Page;
 use Dotclear\Utils\l10n;
 
@@ -24,7 +23,7 @@ class Behaviors
     /**
      * adminPostEditor add javascript to the DOM to load legacy editor depending on context
      *
-     * @param      Core    $core     Core instance
+     * @param      Core    dcCore()     Core instance
      * @param      string  $editor   The wanted editor
      * @param      string  $context  The page context (post,page,comment,event,...)
      * @param      array   $tags     The array of ids to inject editor
@@ -32,7 +31,7 @@ class Behaviors
      *
      * @return     mixed
      */
-    public static function adminPostEditor(Core $core, $editor = '', $context = '', array $tags = [], $syntax = '')
+    public static function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -45,12 +44,12 @@ class Behaviors
         ];
 
         return
-        self::jsToolBar($core) .
+        self::jsToolBar() .
         Page::jsJson('legacy_editor_ctx', $js) .
         Page::jsLoad('?mf=Plugin/LegacyEditor/js/_post_editor.js');
     }
 
-    public static function adminPopupMedia(Core $core, $editor = '')
+    public static function adminPopupMedia($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -59,7 +58,7 @@ class Behaviors
         return Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/popup_media.js');
     }
 
-    public static function adminPopupLink(Core $core, $editor = '')
+    public static function adminPopupLink($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -68,7 +67,7 @@ class Behaviors
         return Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/popup_link.js');
     }
 
-    public static function adminPopupPosts(Core $core, $editor = '')
+    public static function adminPopupPosts($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -77,9 +76,9 @@ class Behaviors
         return Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/popup_posts.js');
     }
 
-    protected static function jsToolBar($core)
+    protected static function jsToolBar()
     {
-        $rtl = l10n::getLanguageTextDirection($core->_lang) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = l10n::getLanguageTextDirection(dcCore()->_lang) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;
@@ -100,7 +99,7 @@ class Behaviors
         $js = [
             'dialog_url'            => 'popup.php',
             'iframe_css'            => $css,
-            'base_url'              => $core->blog->host,
+            'base_url'              => dcCore()->blog->host,
             'switcher_visual_title' => __('visual'),
             'switcher_source_title' => __('source'),
             'legend_msg'            => __('You can use the following shortcuts to format your text.'),
@@ -152,9 +151,9 @@ class Behaviors
                 'post_link'    => ['title' => __('Link to an entry')],
                 'removeFormat' => ['title' => __('Remove text formating')],
             ],
-            'toolbar_bottom' => (bool) isset($core->auth) && $core->auth->getOption('toolbar_bottom'),
+            'toolbar_bottom' => (bool) isset(dcCore()->auth) && dcCore()->auth->getOption('toolbar_bottom'),
         ];
-        if (!$core->auth->check('media,media_admin', $core->blog->id)) {
+        if (!dcCore()->auth->check('media,media_admin', dcCore()->blog->id)) {
             $js['elements']['img_select']['disabled'] = true;
         }
 
@@ -162,7 +161,7 @@ class Behaviors
         Page::cssLoad('?mf=Plugin/LegacyEditor/css/jsToolBar/jsToolBar.css') .
         Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/jsToolBar.js');
 
-        if (isset($core->auth) && $core->auth->getOption('enable_wysiwyg')) {
+        if (isset(dcCore()->auth) && dcCore()->auth->getOption('enable_wysiwyg')) {
             $res .= Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/jsToolBar.wysiwyg.js');
         }
 

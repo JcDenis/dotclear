@@ -16,8 +16,6 @@ namespace Dotclear\Admin\Action;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Admin\Action;
 use Dotclear\Admin\Action\DefaultPostAction;
 
@@ -26,9 +24,9 @@ use Dotclear\Html\Form;
 
 class PostAction extends Action
 {
-    public function __construct(Core $core, $uri, $redirect_args = [])
+    public function __construct($uri, $redirect_args = [])
     {
-        parent::__construct($core, $uri, $redirect_args);
+        parent::__construct($uri, $redirect_args);
 
         # Action setup
         $this->redirect_fields = ['user_id', 'cat_id', 'status',
@@ -40,7 +38,7 @@ class PostAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML($this->core->blog->name) => '',
+            Html::escapeHTML(dcCore()->blog->name) => '',
             $this->getCallerTitle()                   => $this->getRedirection(true),
             __('Posts actions')                       => ''
         ]);
@@ -50,13 +48,13 @@ class PostAction extends Action
     {
         // We could have added a behavior here, but we want default action
         // to be setup first
-        DefaultPostAction::PostAction($this->core, $this);
-        $this->core->behaviors->call('adminPostsActionsPage', $this);
+        DefaultPostAction::PostAction($this);
+        dcCore()->behaviors->call('adminPostsActionsPage', $this);
     }
 
     public function error(Exception $e)
     {
-        $this->core->error->add($e->getMessage());
+        dcCore()->error->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
@@ -83,7 +81,7 @@ class PostAction extends Action
             $params['post_type'] = $from['post_type'];
         }
 
-        $posts = $this->core->blog->getPosts($params);
+        $posts = dcCore()->blog->getPosts($params);
         while ($posts->fetch()) {
             $this->entries[$posts->post_id] = $posts->post_title;
         }

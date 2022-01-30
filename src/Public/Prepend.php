@@ -16,7 +16,6 @@ use Dotclear\Exception;
 
 use Dotclear\Core\Prepend as BasePrepend;
 use Dotclear\Core\Utils;
-use Dotclear\Core\Core;
 
 use Dotclear\Database\Record;
 
@@ -45,13 +44,13 @@ class Prepend extends BasePrepend
     public $tpl;
     public $context;
 
-    public function __construct(string $blog_id = null)
+    public function process(string $blog_id = null)
     {
         # Serve core files
         $this->publicServeFile();
 
         # Load Core Prepend
-        parent::__construct();
+        parent::process();
 
         # Add Record extensions
         $this->behaviors->add('coreBlogGetPosts', [__CLASS__, 'behaviorCoreBlogGetPosts']);
@@ -88,10 +87,10 @@ class Prepend extends BasePrepend
         }
 
         # Create template context
-        $this->context = new Context($this);
+        $this->context = new Context();
 
         try {
-            $this->tpl = new Template(DOTCLEAR_CACHE_DIR, '$core->tpl', $this);
+            $this->tpl = new Template(DOTCLEAR_CACHE_DIR, 'dcCore()->tpl');
         } catch (Exception $e) {
             static::error(__('Can\'t create template files.'), $e->getMessage(), 640);
         }
@@ -113,7 +112,7 @@ class Prepend extends BasePrepend
 
         # Load plugins
         try {
-            $this->plugins = new ModulesPlugin($this);
+            $this->plugins = new ModulesPlugin();
             $this->plugins->loadModules($_lang);
 
             # Load loang resources for each plugins
@@ -127,7 +126,7 @@ class Prepend extends BasePrepend
 
         # Load themes
         try {
-            $this->themes = new ModulesTheme($this);
+            $this->themes = new ModulesTheme();
             $this->themes->loadModules($_lang);
         } catch (Exception $e) {
             static::error(__('Can\'t load themes.'), $e->getMessage(), 640);
@@ -206,12 +205,12 @@ throw $e;
     }
 
 
-    public static function behaviorCoreBlogGetPosts(Core $core, Record $rs)
+    public static function behaviorCoreBlogGetPosts(Record $rs)
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
     }
 
-    public static function behaviorCoreBlogGetComments(Core $core, Record $rs)
+    public static function behaviorCoreBlogGetComments(Record $rs)
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
     }

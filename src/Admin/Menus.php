@@ -15,7 +15,6 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
 use Dotclear\Admin\Menu;
 
 use Dotclear\File\Files;
@@ -30,19 +29,17 @@ class Menus extends ArrayObject
     protected $core;
     public static $iconset;
 
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core = $core;
-
         if (!self::$iconset) {
-            self::$iconset   = (string) @$this->core->auth->user_prefs->interface->iconset;
+            self::$iconset   = (string) @dcCore()->auth->user_prefs->interface->iconset;
         }
 
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
-        if (!$this->core->auth->user_prefs->interface->nofavmenu) {
-            $this->core->favs->appendMenuTitle($this);
+        if (!dcCore()->auth->user_prefs->interface->nofavmenu) {
+            dcCore()->favs->appendMenuTitle($this);
         }
         $this->add('Blog', 'blog-menu', __('Blog'));
         $this->add('System', 'system-menu', __('System settings'));
@@ -59,7 +56,7 @@ class Menus extends ArrayObject
      */
     public function add(string $name, string $id, string $title, string $itemSpace = ''): void
     {
-        $this->offsetSet($name, new Menu($this->core, $id, $title, $itemSpace));
+        $this->offsetSet($name, new Menu($id, $title, $itemSpace));
     }
 
     /**
@@ -75,7 +72,7 @@ class Menus extends ArrayObject
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
-        $url     = $this->core->adminurl->get($adminurl);
+        $url     = dcCore()->adminurl->get($adminurl);
         $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
         $this->offsetGet($section)->prependItem(
             $desc,
@@ -168,7 +165,7 @@ class Menus extends ArrayObject
                     }
                     /*
                     # Not in iconset nor in Dotclear
-                    $icon = Path::real(Core::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
+                    $icon = Path::real(dcCore()::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }
@@ -188,7 +185,7 @@ class Menus extends ArrayObject
     public function setup()
     {
         $this->initDefaultMenus();
-        $this->core->behaviors->call('adminMenus', $this);
+        dcCore()->behaviors->call('adminMenus', $this);
     }
 
     protected function initDefaultMenus()
@@ -199,49 +196,49 @@ class Menus extends ArrayObject
             __('Blog settings'),
             'admin.blog.pref',
             ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            $this->core->auth->check('admin', $this->core->blog->id)
+            dcCore()->auth->check('admin', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('Media manager'),
             'admin.media',
             ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-            $this->core->auth->check('media,media_admin', $this->core->blog->id)
+            dcCore()->auth->check('media,media_admin', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('Categories'),
             'admin.categories',
             'images/menu/categories.png',
-            $this->core->auth->check('categories', $this->core->blog->id)
+            dcCore()->auth->check('categories', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('Search'),
             'admin.search',
             ['images/menu/search.svg','images/menu/search-dark.svg'],
-            $this->core->auth->check('usage,contentadmin', $this->core->blog->id)
+            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('Comments'),
             'admin.comments',
             'images/menu/comments.png',
-            $this->core->auth->check('usage,contentadmin', $this->core->blog->id)
+            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('Posts'),
             'admin.posts',
             'images/menu/entries.png',
-            $this->core->auth->check('usage,contentadmin', $this->core->blog->id)
+            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
         $this->register(
             'Blog',
             __('New post'),
             'admin.post',
              ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            $this->core->auth->check('usage,contentadmin', $this->core->blog->id),
+            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id),
             true,
             true
         );
@@ -250,25 +247,25 @@ class Menus extends ArrayObject
             'System',
             __('Update'),
             'admin.update', 'images/menu/update.png',
-            $this->core->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
+            dcCore()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
         );
         $this->register(
             'System',
             __('Languages'),
             'admin.langs', 'images/menu/langs.png',
-            $this->core->auth->isSuperAdmin()
+            dcCore()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Users'),
             'admin.users', 'images/menu/users.png',
-            $this->core->auth->isSuperAdmin()
+            dcCore()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Blogs'),
             'admin.blogs', 'images/menu/blogs.png',
-            $this->core->auth->isSuperAdmin() || $this->core->auth->check('usage,contentadmin', $this->core->blog->id) && $this->core->auth->getBlogCount() > 1
+            dcCore()->auth->isSuperAdmin() || dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id) && dcCore()->auth->getBlogCount() > 1
         );
     }
 }

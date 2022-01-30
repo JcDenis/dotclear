@@ -18,29 +18,14 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
 class UserPref
 {
-    /** @var    Core            Core instance */
-    protected $core;
-
     /** @var    ArrayObject     Sorts filters preferences*/
     protected $sorts = null;
-
-    /**
-     * Constructor
-     *
-     * @param   Core    $core   Core instance
-     */
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
 
     /**
      * Get default columns
@@ -73,10 +58,10 @@ class UserPref
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        $this->core->behaviors->call('adminColumnsLists', $cols);
+        dcCore()->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
-        $cols_user = @$this->core->auth->user_prefs->interface->cols;
+        $cols_user = @dcCore()->auth->user_prefs->interface->cols;
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -109,10 +94,10 @@ class UserPref
     public function getDefaultFilters(): array
     {
         $users = [null, null, null, null, null];
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dcCore()->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
-                $this->core->combos->getUsersSortbyCombo(),
+                dcCore()->combos->getUsersSortbyCombo(),
                 'user_id',
                 'asc',
                 [__('users per page'), 30]
@@ -122,21 +107,21 @@ class UserPref
         return [
             'posts' => [
                 __('Posts'),
-                $this->core->combos->getPostsSortbyCombo(),
+                dcCore()->combos->getPostsSortbyCombo(),
                 'post_dt',
                 'desc',
                 [__('entries per page'), 30]
             ],
             'comments' => [
                 __('Comments'),
-                $this->core->combos->getCommentsSortbyCombo(),
+                dcCore()->combos->getCommentsSortbyCombo(),
                 'comment_dt',
                 'desc',
                 [__('comments per page'), 30]
             ],
             'blogs' => [
                 __('Blogs'),
-                $this->core->combos->getBlogsSortbyCombo(),
+                dcCore()->combos->getBlogsSortbyCombo(),
                 'blog_upddt',
                 'desc',
                 [__('blogs per page'), 30]
@@ -178,12 +163,12 @@ class UserPref
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            $this->core->behaviors->call('adminFiltersLists', $sorts);
+            dcCore()->behaviors->call('adminFiltersLists', $sorts);
 
-            if ($this->core->auth->user_prefs->interface === null) {
-                $this->core->auth->user_prefs->addWorkspace('interface');
+            if (dcCore()->auth->user_prefs->interface === null) {
+                dcCore()->auth->user_prefs->addWorkspace('interface');
             }
-            $sorts_user = @$this->core->auth->user_prefs->interface->sorts;
+            $sorts_user = @dcCore()->auth->user_prefs->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {

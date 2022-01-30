@@ -16,7 +16,6 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Sql\SqlStatement;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
 
@@ -33,9 +32,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Auth
 {
-    /** @var Core           Core instance */
-    protected $core;
-
     /** @var Connection     Connection instance */
     protected $con;
 
@@ -71,17 +67,14 @@ class Auth
 
     /**
      * Class constructor. Takes Core object as single argument.
-     *
-     * @param Core    $core        Core object
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core       = $core;
-        $this->con        = $core->con;
+        $this->con        = dcCore()->con;
         $this->container  = new ContainerUser();
-        $this->blog_table = $core->prefix . 'blog';
-        $this->user_table = $core->prefix . 'user';
-        $this->perm_table = $core->prefix . 'permissions';
+        $this->blog_table = dcCore()->prefix . 'blog';
+        $this->user_table = dcCore()->prefix . 'user';
+        $this->perm_table = dcCore()->prefix . 'permissions';
 
         $this->perm_types = [
             'admin'        => __('administrator'),
@@ -112,7 +105,7 @@ class Auth
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
         # Check user and password
-        $sql = new SelectStatement($this->core, 'coreAuthCheckUser');
+        $sql = new SelectStatement('coreAuthCheckUser');
         $sql
             ->columns([
                 'user_id',
@@ -186,7 +179,7 @@ class Auth
                 $cur           = $this->con->openCursor($this->user_table);
                 $cur->user_pwd = (string) $rs->user_pwd;
 
-                $sql = new UpdateStatement($this->core, 'coreAuthCheckUser');
+                $sql = new UpdateStatement('coreAuthCheckUser');
                 $sql->where('user_id = ' . $sql->quote($rs->user_id));
 
                 $sql->update($cur);
@@ -200,7 +193,7 @@ class Auth
 
         $this->container->fromRecord($rs);
 
-        $this->user_prefs = new Prefs($this->core, $this->container->getId());
+        $this->user_prefs = new Prefs($this->container->getId());
 
         # Get permissions on blogs
         if ($check_blog && ($this->findUserBlog() === false)) {
@@ -267,11 +260,11 @@ class Auth
      */
     public function checkSession(?string $uid = null): bool
     {
-        $this->core->session->start();
+        dcCore()->session->start();
 
         # If session does not exist, logout.
         if (!isset($_SESSION['sess_user_id'])) {
-            $this->core->session->destroy();
+            dcCore()->session->destroy();
 
             return false;
         }
@@ -283,7 +276,7 @@ class Auth
         $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
 
         if (!$user_can_log) {
-            $this->core->session->destroy();
+            dcCore()->session->destroy();
 
             return false;
         }
@@ -411,7 +404,7 @@ class Auth
         }
 
         if ($this->container->getSuper()) {
-            $sql = new SelectStatement($this->core, 'coreAuthGetPermissions');
+            $sql = new SelectStatement('coreAuthGetPermissions');
             $sql
                 ->column('blog_id')
                 ->from($this->blog_table)
@@ -424,7 +417,7 @@ class Auth
             return $this->blogs[$blog_id];
         }
 
-        $sql = new SelectStatement($this->core, 'coreAuthGetPermissions');
+        $sql = new SelectStatement('coreAuthGetPermissions');
         $sql
             ->column('permissions')
             ->from($this->perm_table)
@@ -451,7 +444,7 @@ class Auth
     public function getBlogCount(): int
     {
         if ($this->blog_count === null) {
-            $this->blog_count = $this->core->getBlogs([], true)->f(0);  // @phpstan-ignore-line
+            $this->blog_count = dcCore()->getBlogs([], true)->f(0);  // @phpstan-ignore-line
         }
 
         return (int) $this->blog_count;
@@ -470,7 +463,7 @@ class Auth
             return $blog_id;
         }
 
-        $sql = new SelectStatement($this->core, 'coreAuthFindUserBlog');
+        $sql = new SelectStatement('coreAuthFindUserBlog');
 
         if ($this->container->getSuper()) {
             /* @phpstan-ignore-next-line */
@@ -610,7 +603,7 @@ class Auth
      */
     public function setRecoverKey(string $user_id, string $user_email): string
     {
-        $sql = new SelectStatement($this->core, 'coreAuthSetRecoverKey');
+        $sql = new SelectStatement('coreAuthSetRecoverKey');
         $sql
             ->column('user_id')
             ->from($this->user_table)
@@ -628,7 +621,7 @@ class Auth
         $cur                   = $this->con->openCursor($this->user_table);
         $cur->user_recover_key = $key;
 
-        $sql = new UpdateStatement($this->core, 'coreAuthSetRecoverKey');
+        $sql = new UpdateStatement('coreAuthSetRecoverKey');
         $sql->where('user_id = ' . $sql->quote($user_id));
 
         $sql->update($cur);
@@ -649,7 +642,7 @@ class Auth
      */
     public function recoverUserPassword(string $recover_key): array
     {
-        $sql = new SelectStatement($this->core, 'coreAuthRecoverUserPassword');
+        $sql = new SelectStatement('coreAuthRecoverUserPassword');
         $sql
             ->columns(['user_id', 'user_email'])
             ->from($this->user_table)
@@ -668,7 +661,7 @@ class Auth
         $cur->user_recover_key = null;
         $cur->user_change_pwd  = 1; // User will have to change this temporary password at next login
 
-        $sql = new UpdateStatement($this->core, 'coreAuthRecoverUserPassword');
+        $sql = new UpdateStatement('coreAuthRecoverUserPassword');
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
 
         $sql->update($cur);

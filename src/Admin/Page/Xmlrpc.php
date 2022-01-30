@@ -48,13 +48,10 @@ class Xmlrpc extends Page
         }
 
         # Avoid plugins warnings, set a default blog
-        $this->core->setBlog($blog_id);
-
-        # Loading plugins
-        //!$core->plugins->loadModules(DC_PLUGINS_ROOT);
+        dcCore()->setBlog($blog_id);
 
         # Start XML-RPC server
-        $server = new CoreXmlrpc($this->core, $blog_id);
+        $server = new CoreXmlrpc($blog_id);
         $server->serve();
 
         return null;

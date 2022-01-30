@@ -16,7 +16,6 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\StoreReader;
 
 use Dotclear\Module\AbstractModules;
@@ -30,9 +29,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Store
 {
-    /** @var    Core        Core instance */
-    public $core;
-
     /** @var    Modules     Modules instance */
     public $modules;
 
@@ -63,7 +59,6 @@ class Store
      */
     public function __construct(AbstractModules $modules, string $xml_url, bool $force = false)
     {
-        $this->core       = $modules->core;
         $this->modules    = $modules;
         $this->xml_url    = $xml_url;
         $this->user_agent = sprintf('Dotclear/%s)', DOTCLEAR_CORE_VERSION);
@@ -138,7 +133,7 @@ class Store
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class = Core::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+                $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
                 $updates[$id] = new $class($id, $properties);
 
                 if (!empty($updates[$id]->error->flag())) {
@@ -150,7 +145,7 @@ class Store
         # Convert new modules from array to Define object
         foreach($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class = Core::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+            $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
             $raw_datas[$id] = new $class($id, $properties);
 
             if (!empty($raw_datas[$id]->error->flag())) {

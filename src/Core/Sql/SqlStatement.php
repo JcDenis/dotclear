@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -14,7 +12,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
  */
 class SqlStatement
 {
-    protected $core;
     protected $con;
 
     protected $ctx; // Context (may be useful for behaviour's callback)
@@ -28,13 +25,11 @@ class SqlStatement
     /**
      * Class constructor
      *
-     * @param Core    $core   Core instance
      * @param mixed     $ctx    optional context
      */
-    public function __construct(Core &$core, $ctx = null)
+    public function __construct($ctx = null)
     {
-        $this->core = &$core;
-        $this->con  = &$core->con;
+        $this->con  = dcCore()->con;
         $this->ctx  = $ctx;
 
         $this->columns = $this->from = $this->where = $this->cond = $this->sql = [];

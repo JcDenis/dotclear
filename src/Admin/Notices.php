@@ -16,8 +16,6 @@ namespace Dotclear\Admin;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
-
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 
@@ -32,9 +30,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Notices
 {
-    /** @var Core       Core instance */
-    protected $core;
-
     /** @var string     notices table prefix */
     protected $prefix;
 
@@ -58,13 +53,10 @@ class Notices
 
     /**
      * Class constructor
-     *
-     * @param   Core    $core   Core instance
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core  = $core;
-        $this->table = $core->prefix . $this->table_name;
+        $this->table = dcCore()->prefix . $this->table_name;
     }
 
     /**
@@ -94,7 +86,7 @@ class Notices
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
-        $sql = new SelectStatement($this->core, 'NoticesGet');
+        $sql = new SelectStatement('NoticesGet');
         $sql
             ->from($this->table);
 
@@ -161,11 +153,11 @@ class Notices
      */
     public function add(Cursor $cur): int
     {
-        $this->core->con->writeLock($this->table);
+        dcCore()->con->writeLock($this->table);
 
         try {
             # Get ID
-            $sql = new SelectStatement($this->core, 'NoticesAdd');
+            $sql = new SelectStatement('NoticesAdd');
             $sql
                 ->column($sql->max('notice_id'))
                 ->from($this->table);
@@ -178,18 +170,18 @@ class Notices
             $this->cursor($cur, $cur->notice_id);
 
             # --BEHAVIOR-- coreBeforeNoticeCreate
-            $this->core->behaviors->call('adminBeforeNoticeCreate', $this, $cur);
+            dcCore()->behaviors->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
-            $this->core->con->unlock();
+            dcCore()->con->unlock();
         } catch (Exception $e) {
-            $this->core->con->unlock();
+            dcCore()->con->unlock();
 
             throw $e;
         }
 
         # --BEHAVIOR-- coreAfterNoticeCreate
-        $this->core->behaviors->call('adminAfterNoticeCreate', $this, $cur);
+        dcCore()->behaviors->call('adminAfterNoticeCreate', $this, $cur);
 
         return $cur->notice_id;
     }
@@ -202,7 +194,7 @@ class Notices
      */
     public function del(?int $notice_id, bool $delete_all = false): void
     {
-        $sql = new DeleteStatement($this->core, 'NoticesDel');
+        $sql = new DeleteStatement('NoticesDel');
         $sql
             ->from($this->table);
 
@@ -248,18 +240,18 @@ class Notices
         $res = '';
 
         # Return error messages if any
-        if ($this->core->error->flag() && !$this->error_displayed) {
+        if (dcCore()->error->flag() && !$this->error_displayed) {
 
             # --BEHAVIOR-- adminPageNotificationError, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
-            $notice_error = $this->core->behaviors->call('adminPageNotificationError', $this->core->error);
+            $notice_error = dcCore()->behaviors->call('adminPageNotificationError', dcCore()->error);
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count($this->core->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
-                    $this->core->error->toHTML()
+                    count(dcCore()->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    dcCore()->error->toHTML()
                 );
             }
             $this->error_displayed = true;
@@ -302,7 +294,7 @@ class Notices
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
                     # --BEHAVIOR-- adminPageNotification, array
-                    $notice = $this->core->behaviors->call('adminPageNotification', $notification);
+                    $notice = dcCore()->behaviors->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }
@@ -324,7 +316,7 @@ class Notices
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = $this->core->con->openCursor($this->table());
+        $cur = dcCore()->con->openCursor($this->table());
 
         $cur->notice_type    = $type;
         $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');
@@ -388,8 +380,8 @@ class Notices
         if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), $this->core->auth->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], $this->core->auth->getInfo('user_tz')),
+                Dt::iso8601(strtotime($notification['ts']), dcCore()->auth->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dcCore()->auth->getInfo('user_tz')),
             );
         }
         $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
@@ -416,8 +408,8 @@ class Notices
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), $this->core->auth->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, $this->core->auth->getInfo('user_tz')),
+                    Dt::iso8601(time(), dcCore()->auth->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, dcCore()->auth->getInfo('user_tz')),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

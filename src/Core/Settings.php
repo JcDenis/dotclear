@@ -16,7 +16,6 @@ namespace Dotclear\Core;
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Settingspace;
 
 use Dotclear\Database\Connection;
@@ -28,9 +27,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Settings
 {
-    /** @var    Core    Core instacne */
-    protected $core;
-
     /** @var    Connection  Connection instance */
     protected $con;
 
@@ -54,14 +50,12 @@ class Settings
      * Retrieves blog settings and puts them in $namespaces
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param   Core            $core       The core
      * @param   string|null     $blog_id    The blog identifier
      */
-    public function __construct(Core $core, ?string $blog_id)
+    public function __construct(?string $blog_id)
     {
-        $this->core    = $core;
-        $this->con     = $core->con;
-        $this->table   = $core->prefix . 'setting';
+        $this->con     = dcCore()->con;
+        $this->table   = dcCore()->prefix . 'setting';
         $this->blog_id = $blog_id;
         $this->loadSettings();
     }
@@ -100,7 +94,7 @@ class Settings
                 // at very first time
                 $rs->movePrev();
             }
-            $this->namespaces[$ns] = new Settingspace($this->core, $this->blog_id, $ns, $rs);
+            $this->namespaces[$ns] = new Settingspace($this->blog_id, $ns, $rs);
         } while (!$rs->isStart());
     }
 
@@ -116,7 +110,7 @@ class Settings
     public function addNamespace(string $ns): Settingspace
     {
         if (!$this->exists($ns)) {
-            $this->namespaces[$ns] = new Settingspace($this->core, $this->blog_id, $ns);
+            $this->namespaces[$ns] = new Settingspace($this->blog_id, $ns);
         }
 
         return $this->namespaces[$ns];

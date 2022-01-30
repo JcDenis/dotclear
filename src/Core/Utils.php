@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Core\Utils
  * @brief Dotclear core utils class
  *
  * @package Dotclear
@@ -134,7 +135,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return usort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
+        return usort($arr, [__CLASS__, 'lexicalSortHelper']);
     }
 
     /**
@@ -150,7 +151,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return uasort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
+        return uasort($arr, [__CLASS__, 'lexicalSortHelper']);
     }
 
     /**
@@ -166,7 +167,7 @@ class Utils
             Utils::setLexicalLang($ns, $lang);
         }
 
-        return uksort($arr, ['Dotclear\Core\Utils', 'lexicalSortHelper']);
+        return uksort($arr, [__CLASS__, 'lexicalSortHelper']);
     }
 
     public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class  Dotclear\Core\Log
+ * @class Dotclear\Core\Log
  * @brief Dotclear core log class
  *
  * @package Dotclear
@@ -15,8 +15,6 @@ namespace Dotclear\Core;
 
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
-
-use Dotclear\Core\Core;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
@@ -33,9 +31,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Log
 {
-    /** @var Core       Core instance */
-    protected $core;
-
     /** @var Connetion  Connection instance */
     protected $con;
 
@@ -47,15 +42,12 @@ class Log
 
     /**
      * Constructs a new instance.
-     *
-     * @param      Core  $core   The core
      */
-    public function __construct(Core $core)
+    public function __construct()
     {
-        $this->core       = $core;
-        $this->con        = $core->con;
-        $this->log_table  = $core->prefix . 'log';
-        $this->user_table = $core->prefix . 'user';
+        $this->con        = dcCore()->con;
+        $this->log_table  = dcCore()->prefix . 'log';
+        $this->user_table = dcCore()->prefix . 'user';
     }
 
     /**
@@ -76,7 +68,7 @@ class Log
      */
     public function getLogs(array $params = [], bool $count_only = false): Record
     {
-        $sql = new SelectStatement($this->core, 'dcLogGetLogs');
+        $sql = new SelectStatement('dcLogGetLogs');
 
         if ($count_only) {
             $sql->column('COUNT(log_id)');
@@ -100,7 +92,7 @@ class Log
 
         if (!$count_only) {
             $sql->join(
-                (new JoinStatement($this->core, 'dcLogGetLogs'))
+                (new JoinStatement('dcLogGetLogs'))
                 ->type('LEFT')
                 ->from($this->user_table . ' U')
                 ->on('U.user_id = L.user_id')
@@ -114,7 +106,7 @@ class Log
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
-            $sql->where('L.blog_id = ' . $sql->quote($this->core->blog->id));
+            $sql->where('L.blog_id = ' . $sql->quote(dcCore()->blog->id));
         }
 
         if (!empty($params['user_id'])) {
@@ -140,7 +132,6 @@ class Log
         }
 
         $rs = $sql->select();
-        $rs->core = $this->core;
         $rs->extend('Dotclear\\Core\\RsExt\\rsExtLog');
 
         return $rs;
@@ -159,7 +150,7 @@ class Log
 
         try {
             # Get ID
-            $sql = new SelectStatement($this->core, 'dcLogAddLog');
+            $sql = new SelectStatement('dcLogAddLog');
             $sql
                 ->column('MAX(log_id)')
                 ->from($this->log_table);
@@ -167,13 +158,13 @@ class Log
             $rs = $sql->select();
 
             $cur->log_id  = (int) $rs->f(0) + 1;
-            $cur->blog_id = (string) $this->core->blog->id;
+            $cur->blog_id = (string) dcCore()->blog->id;
             $cur->log_dt  = date('Y-m-d H:i:s');
 
             $this->getLogCursor($cur, $cur->log_id);
 
             # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-            $this->core->behaviors->call('coreBeforeLogCreate', $this, $cur);
+            dcCore()->behaviors->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -184,7 +175,7 @@ class Log
         }
 
         # --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-        $this->core->behaviors->call('coreAfterLogCreate', $this, $cur);
+        dcCore()->behaviors->call('coreAfterLogCreate', $this, $cur);
 
         return (int) $cur->log_id;
     }
@@ -198,11 +189,11 @@ class Log
     public function delLogs(int|array $id, bool $all = false): void
     {
         if ($all) {
-            $sql = new TruncateStatement($this->core, 'dcLogDelLogs');
+            $sql = new TruncateStatement('dcLogDelLogs');
             $sql
                 ->from($this->log_table);
         } else {
-            $sql = new DeleteStatement($this->core, 'dcLogDelLogs');
+            $sql = new DeleteStatement('dcLogDelLogs');
             $sql
                 ->from($this->log_table)
                 ->where('log_id ' . $sql->in($id));

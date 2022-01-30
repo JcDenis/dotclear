@@ -21,7 +21,7 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 // admin part below
 
 # Behaviors
-$GLOBALS['core']->addBehavior('adminPageHTMLHead', [__NAMESPACE__ . '\tplDuctileThemeAdmin', 'adminPageHTMLHead']);
+dcCore()->addBehavior('adminPageHTMLHead', [__NAMESPACE__ . '\tplDuctileThemeAdmin', 'adminPageHTMLHead']);
 
 class tplDuctileThemeAdmin
 {

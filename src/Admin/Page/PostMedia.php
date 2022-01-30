@@ -16,7 +16,6 @@ namespace Dotclear\Admin\Page;
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Media;
 use Dotclear\Core\PostMedia as CorePostMedia;
 
@@ -32,9 +31,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class PostMedia extends Page
 {
-    public function __construct(Core $core)
+    public function __construct()
     {
-        parent::__construct($core);
+        parent::__construct();
 
         $this->check('usage,contentadmin');
 
@@ -45,25 +44,24 @@ class PostMedia extends Page
         if (!$post_id) {
             exit;
         }
-        $rs = $core->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+        $rs = dcCore()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
         if ($rs->isEmpty()) {
             exit;
         }
 
         try {
             if ($post_id && $media_id && !empty($_REQUEST['attach'])) { // @phpstan-ignore-line
-                $pm = new CorePostMedia($core);
+                $pm = new CorePostMedia();
                 $pm->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
-                    echo json_encode(['url' => $core->getPostAdminURL($rs->post_type, $post_id, false)]);
+                    echo json_encode(['url' => dcCore()->getPostAdminURL($rs->post_type, $post_id, false)]);
                     exit();
                 }
-                Http::redirect($core->getPostAdminURL($rs->post_type, $post_id, false));
+                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
-            $core->media = new Media($core);
-            $f           = $core->media->getPostMedia($post_id, $media_id, $link_type);
+            $f = dcCore()->mediaInstance()->getPostMedia($post_id, $media_id, $link_type);
             if (empty($f)) {
                 $post_id = $media_id = null;
 
@@ -71,19 +69,19 @@ class PostMedia extends Page
             }
             $f = $f[0];
         } catch (Exception $e) {
-            $core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         # Remove a media from en
-        if (($post_id && $media_id) || $core->error->flag()) {
+        if (($post_id && $media_id) || dcCore()->error->flag()) {
             if (!empty($_POST['remove'])) {
-                $pm = new CorePostMedia($core);
+                $pm = new CorePostMedia(dcCore());
                 $pm->removePostMedia($post_id, $media_id, $link_type);
 
                 static::addSuccessNotice(__('Attachment has been successfully removed.'));
-                Http::redirect($core->getPostAdminURL($rs->post_type, $post_id, false));
+                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
             } elseif (isset($_POST['post_id'])) {
-                Http::redirect($core->getPostAdminURL($rs->post_type, $post_id, false));
+                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
             if (!empty($_GET['remove'])) {
@@ -92,13 +90,13 @@ class PostMedia extends Page
                 echo '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>';
 
                 echo
-                '<form action="' . $core->adminurl->get('admin.post.media') . '" method="post">' .
+                '<form action="' . dcCore()->adminurl->get('admin.post.media') . '" method="post">' .
                 '<p>' . __('Are you sure you want to remove this attachment?') . '</p>' .
                 '<p><input type="submit" class="reset" value="' . __('Cancel') . '" /> ' .
                 ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
                 Form::hidden('post_id', $post_id) .
                 Form::hidden('media_id', $media_id) .
-                $core->formNonce() . '</p>' .
+                dcCore()->formNonce() . '</p>' .
                     '</form>';
 
                 $this->close();

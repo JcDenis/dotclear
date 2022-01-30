@@ -16,7 +16,6 @@ namespace Dotclear\Module\Iconset\Admin;
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
-use Dotclear\Admin\Notices;
 
 use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;
 
@@ -44,15 +43,15 @@ class PageIconset extends Page
     {
         # -- Execute actions --
         try {
-            $this->core->iconsets->doActions();
+            dcCore()->iconsets->doActions();
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore()->error->add($e->getMessage());
         }
 
         # -- Plugin install --
         $this->modules_install = null;
-        if (!$this->core->error->flag()) {
-            $this->modules_install = $this->core->iconsets->installModules();
+        if (!dcCore()->error->flag()) {
+            $this->modules_install = dcCore()->iconsets->installModules();
         }
 
         # Page setup
@@ -64,7 +63,7 @@ class PageIconset extends Page
                 static::jsPageTabs() .
 
                 # --BEHAVIOR-- modulesToolsHeaders
-                (string) $this->core->behaviors->call('modulesToolsHeaders', false)
+                (string) dcCore()->behaviors->call('modulesToolsHeaders', false)
             )
             ->setPageBreadcrumb([
                 __('System')             => '',
@@ -82,7 +81,7 @@ class PageIconset extends Page
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', $this->core->iconsets->getSettingsUrls($k, true));
+                $info = implode(' - ', dcCore()->iconsets->getSettingsUrls($k, true));
                 echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
 
@@ -102,21 +101,21 @@ class PageIconset extends Page
         }
 
         if ($this->from_configuration) {
-            echo $this->core->iconsets->displayModuleConfiguration();
+            echo dcCore()->iconsets->displayModuleConfiguration();
 
             return;
         }
 
         # -- Display modules lists --
-        if ($this->core->auth->isSuperAdmin()) {
-            if (!$this->core->error->flag()) {
+        if (dcCore()->auth->isSuperAdmin()) {
+            if (!dcCore()->error->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    $this->core->notices->success(__('Manual checking of modules update done successfully.'));
+                    dcCore()->notices->success(__('Manual checking of modules update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = $this->core->iconsets->store->get(true);
+            $modules = dcCore()->iconsets->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
@@ -126,7 +125,7 @@ class PageIconset extends Page
                     count($modules)
                 ) . '</p>';
 
-                $this->core->iconsets
+                dcCore()->iconsets
                     ->setList('module-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -145,10 +144,10 @@ class PageIconset extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . $this->core->iconsets->getURL('', false) . '" method="get">' .
+                '<form action="' . dcCore()->iconsets->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
-                Form::hidden('handler', $this->core->adminurl->called()) .
+                Form::hidden('handler', dcCore()->adminurl->called()) .
                     '</form>';
             }
         }
@@ -157,13 +156,13 @@ class PageIconset extends Page
         '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
 
         # Activated modules
-        $modules = $this->core->iconsets->getModules();
+        $modules = dcCore()->iconsets->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . ($this->core->auth->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
+            '<h3>' . (dcCore()->auth->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
-            $this->core->iconsets
+            dcCore()->iconsets
                 ->setList('module-activate')
                 ->setTab('modules')
                 ->setData($modules)
@@ -174,14 +173,14 @@ class PageIconset extends Page
         }
 
         # Deactivated modules
-        if ($this->core->auth->isSuperAdmin()) {
-            $modules = $this->core->iconsets->getDisabledModules();
+        if (dcCore()->auth->isSuperAdmin()) {
+            $modules = dcCore()->iconsets->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated modules') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated modules are installed but not usable. You can activate them from here.') . '</p>';
 
-                $this->core->iconsets
+                dcCore()->iconsets
                     ->setList('module-deactivate')
                     ->setTab('modules')
                     ->setData($modules)
@@ -195,18 +194,18 @@ class PageIconset extends Page
         echo
             '</div>';
 
-        if ($this->core->auth->isSuperAdmin() && $this->core->iconsets->isWritablePath()) {
+        if (dcCore()->auth->isSuperAdmin() && dcCore()->iconsets->isWritablePath()) {
 
             # New modules from repo
-            $search  = $this->core->iconsets->getSearch();
-            $modules = $search ? $this->core->iconsets->store->search($search) : $this->core->iconsets->store->get();
+            $search  = dcCore()->iconsets->getSearch();
+            $modules = $search ? dcCore()->iconsets->store->search($search) : dcCore()->iconsets->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
                 '<h3>' . __('Add modules from repository') . '</h3>';
 
-                $this->core->iconsets
+                dcCore()->iconsets
                     ->setList('module-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -234,17 +233,17 @@ class PageIconset extends Page
             '<h3>' . __('Add modules from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install modules by uploading or downloading zip files.') . '</p>';
 
-            $this->core->iconsets->displayManualForm();
+            dcCore()->iconsets->displayManualForm();
 
             echo
                 '</div>';
         }
 
         # --BEHAVIOR-- modulesToolsTabs
-        $this->core->behaviors->call('modulesToolsTabs');
+        dcCore()->behaviors->call('modulesToolsTabs');
 
         # -- Notice for super admin --
-        if ($this->core->auth->isSuperAdmin() && !$this->core->iconsets->isWritablePath()) {
+        if (dcCore()->auth->isSuperAdmin() && !dcCore()->iconsets->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }

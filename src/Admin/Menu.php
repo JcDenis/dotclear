@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -23,7 +22,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 class Menu
 {
     private $id;
-    protected $core;
     protected $itemSpace;
     protected $pinned;
     protected $items;
@@ -32,14 +30,12 @@ class Menu
     /**
      * Constructs a new instance.
      *
-     * @param   Core    $core       Core instance
      * @param   string  $id         The identifier
      * @param   string  $title      The title
      * @param   string  $itemSpace  The item space
      */
-    public function __construct(Core $core, string $id, string $title, string $itemSpace = '')
+    public function __construct(string $id, string $title, string $itemSpace = '')
     {
-        $this->core      = $core;
         $this->id        = $id;
         $this->title     = $title;
         $this->itemSpace = $itemSpace;
@@ -167,7 +163,7 @@ class Menu
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
-            '>' . $this->core->menu->getIconTheme($img) .
+            '>' . dcCore()->menu->getIconTheme($img) .
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
     }
 }

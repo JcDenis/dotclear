@@ -16,27 +16,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 abstract class AbstractConfig
 {
-    /** @var    Core    Core instance */
-    protected $core;
-
-    /**
-     * Constructor
-     *
-     * @param   Core    $core   Core instance
-     */
-    public function __construct(Core $core)
-    {
-        $this->core = $core;
-    }
-
     /**
      * Get module configuration permissions
      *
