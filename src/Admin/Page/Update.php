@@ -122,7 +122,7 @@ class Update extends Page
                     dcCore()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -197,7 +197,7 @@ class Update extends Page
                         '</strong></li></ul>';
                 }
 
-                dcCore()->error->add($msg);
+                dcCore()->error($msg);
 
                 dcCore()->behaviors->call('adminDCUpdateException', $e);
             }
@@ -214,7 +214,7 @@ class Update extends Page
             return;
         }
 
-        if (!dcCore()->error->flag()) {
+        if (!dcCore()->error()->flag()) {
             if (!empty($_GET['nocache'])) {
                 dcCore()->notices->success(__('Manual checking of update done successfully.'));
             }
@@ -289,7 +289,7 @@ class Update extends Page
 
                 echo '</div>';
             }
-        } elseif ($this->step == 'unzip' && !dcCore()->error->flag()) {
+        } elseif ($this->step == 'unzip' && !dcCore()->error()->flag()) {
             echo
             '<p class="message">' .
             __("Congratulations, you're one click away from the end of the update.") .

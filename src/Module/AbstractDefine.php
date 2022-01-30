@@ -20,7 +20,7 @@ namespace Dotclear\Module;
 
 use Dotclear\Exception\ModuleException;
 
-use Dotclear\Core\Error;
+use Dotclear\Html\TraitError;
 use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -29,8 +29,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 abstract class AbstractDefine
 {
-    /** @var    Error   Error instance */
-    public $error;
+    use TraitError;
 
     /** @var    array   Module cleaned properties */
     protected $properties = [
@@ -63,8 +62,6 @@ abstract class AbstractDefine
      */
     public function __construct(string $id, string|array $args)
     {
-        $this->error = new Error();
-
         if (is_array($args)) {
             $this->newFromArray($id, $args);
         } else {

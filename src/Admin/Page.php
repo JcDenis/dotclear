@@ -206,7 +206,7 @@ abstract class Page
                 $this->catalog = $catalog_class;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
         }
     }
 

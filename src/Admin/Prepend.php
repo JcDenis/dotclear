@@ -106,100 +106,6 @@ class Prepend extends BasePrepend
         }
 
         # Check user session
-        $this->adminLoadSession();
-
-        # User session exists
-        if (!empty($this->auth->userID()) && $this->blog !== null) {
-
-            $this->auth->user_prefs->addWorkspace('interface');
-
-            # Load resources
-            $this->adminLoadResources(DOTCLEAR_L10N_DIR);
-
-            # Load sidebar menu
-            $this->favs = new Favorites();
-            $this->menu = new Menus();
-
-            # Load modules (plugins, iconset) (and there Admin Prepend class)
-            $this->adminLoadModules();
-
-            # Add default top menus
-            $this->favs->setup();
-            if (!$this->auth->user_prefs->interface->nofavmenu) {
-                $this->favs->appendMenu($this->menu);
-            }
-            $this->menu->setup();
-
-            # Set jquery stuff
-            if (empty($this->blog->settings->system->jquery_migrate_mute)) {
-                $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
-            }
-            if (empty($this->blog->settings->system->jquery_allow_old_version)) {
-                $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
-            }
-
-            # Ensure theme's settings namespace exists
-            $this->blog->settings->addNamespace('themes');
-
-            # add some behaviors
-            $this->behaviors->add('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
-
-        # No user session and not on auth page, go on
-        } elseif ($this->adminurl->called() != 'admin.auth') {
-            $this->adminurl->redirect('admin.auth');
-            exit;
-        }
-
-        # Load requested admin page
-        $this->adminLoadPage();
-    }
-
-    private function adminServeFile(): void
-    {
-        # Serve admin file (css, png, ...)
-        if (!empty($_GET['df'])) {
-            Utils::fileServer([static::root('Admin', 'files')], 'df');
-            exit;
-        }
-
-        # Serve var file
-        if (!empty($_GET['vf'])) {
-            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
-            exit;
-        }
-
-        # Serve modules file
-        if (empty($_GET['mf'])) {
-            return;
-        }
-
-        # Extract modules class name from url
-        $pos = strpos($_GET['mf'], '/');
-        if (!$pos) {
-            static::error(__('Failed to load file'), __('File handler not found'), 20);
-        }
-
-        # Sanitize modules type
-        $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
-        $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
-
-        # Check class
-        $class = dcCore()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
-        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-            static::error(__('Failed to load file'), __('File handler not found'), 20);
-        }
-
-        # Get paths and serve file
-        $modules = new $class($this);
-        $paths   = $modules->getModulesPath();
-        $paths[] = static::root('Core', 'files', 'js');
-        $paths[] = static::root('Core', 'files', 'css');
-        Utils::fileServer($paths, 'mf');
-        exit;
-    }
-
-    private function adminLoadSession(): bool
-    {
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
             $_COOKIE[DOTCLEAR_SESSION_NAME] = DOTCLEAR_AUTH_SESS_ID;
@@ -239,7 +145,7 @@ class Prepend extends BasePrepend
                     exit;
                 }
             } catch (Exception $e) { #DatabaseException?
-                static::error(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
+                static::errorpage(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 
             # Check nonce from POST requests
@@ -299,7 +205,112 @@ class Prepend extends BasePrepend
             }
         }
 
-        return true;
+        # User session exists
+        if (!empty($this->auth->userID()) && $this->blog !== null) {
+
+            $this->auth->user_prefs->addWorkspace('interface');
+
+            # Load resources
+            $this->adminLoadResources(DOTCLEAR_L10N_DIR);
+
+            # Load sidebar menu
+            $this->favs = new Favorites();
+            $this->menu = new Menus();
+
+            # Load Modules Iconsets
+            if ('' != DOTCLEAR_ICONSET_DIR) {
+                $this->iconsets = new ModulesIconset();
+                $this->iconsets->loadModules();
+            }
+
+            # Load Modules Plugins
+            if ('' != DOTCLEAR_PLUGIN_DIR) {
+                $this->plugins = new ModulesPlugin();
+                $this->plugins->loadModules($this->_lang);
+
+                # Load lang resources for each plugins
+                foreach($this->plugins->getModules() as $module) {
+                    $this->adminLoadResources($module->root() . '/locales', false);
+                }
+            }
+
+            # Load Modules Themes
+            $this->themes = new ModulesTheme();
+            $this->themes->loadModules($this->_lang);
+
+            # Add default top menus
+            $this->favs->setup();
+            if (!$this->auth->user_prefs->interface->nofavmenu) {
+                $this->favs->appendMenu($this->menu);
+            }
+            $this->menu->setup();
+
+            # Set jquery stuff
+            if (empty($this->blog->settings->system->jquery_migrate_mute)) {
+                $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+            }
+            if (empty($this->blog->settings->system->jquery_allow_old_version)) {
+                $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+            }
+
+            # Ensure theme's settings namespace exists
+            $this->blog->settings->addNamespace('themes');
+
+            # add some behaviors
+            $this->behaviors->add('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
+
+        # No user session and not on auth page, go on
+        } elseif ($this->adminurl->called() != 'admin.auth') {
+            $this->adminurl->redirect('admin.auth');
+            exit;
+        }
+
+        # Load requested admin page
+        $this->adminLoadPage();
+    }
+
+    private function adminServeFile(): void
+    {
+        # Serve admin file (css, png, ...)
+        if (!empty($_GET['df'])) {
+            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            exit;
+        }
+
+        # Serve var file
+        if (!empty($_GET['vf'])) {
+            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
+            exit;
+        }
+
+        # Serve modules file
+        if (empty($_GET['mf'])) {
+            return;
+        }
+
+        # Extract modules class name from url
+        $pos = strpos($_GET['mf'], '/');
+        if (!$pos) {
+            static::errorpage(__('Failed to load file'), __('File handler not found'), 20);
+        }
+
+        # Sanitize modules type
+        $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
+        $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
+
+        # Check class
+        $class = dcCore()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
+        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
+            static::errorpage(__('Failed to load file'), __('File handler not found'), 20);
+        }
+
+        # Get paths and serve file
+        $modules = new $class($this);
+        $paths   = $modules->getModulesPath();
+        $paths[] = static::root('Core', 'files', 'js');
+        $paths[] = static::root('Core', 'files', 'css');
+        Utils::fileServer($paths, 'mf');
+        exit;
     }
 
     private function adminLoadLocales(): void
@@ -355,33 +366,6 @@ class Prepend extends BasePrepend
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
     }
 
-    /**
-     * Load modules instances and children
-     */
-    private function adminLoadModules()
-    {
-        # Iconsets
-        if ('' != DOTCLEAR_ICONSET_DIR) {
-            $this->iconsets = new ModulesIconset();
-            $this->iconsets->loadModules();
-        }
-
-        # Plugins
-        if ('' != DOTCLEAR_PLUGIN_DIR) {
-            $this->plugins = new ModulesPlugin();
-            $this->plugins->loadModules($this->_lang);
-
-            # Load lang resources for each plugins
-            foreach($this->plugins->getModules() as $module) {
-                $this->adminLoadResources($module->root() . '/locales', false);
-            }
-        }
-
-        # Themes
-        $this->themes = new ModulesTheme();
-        $this->themes->loadModules($this->_lang);
-    }
-
     private function adminLoadPage(?string $handler = null): void
     {
         # no handler, go to admin home page
@@ -397,7 +381,7 @@ class Prepend extends BasePrepend
             }
             $page = new $class($handler);
         } catch (AdminException $e) {
-            static::error(
+            static::errorpage(
                 __('Unknow URL'),
                 $e->getMessage(),
                 404
@@ -406,7 +390,7 @@ class Prepend extends BasePrepend
             if (DOTCLEAR_MODE_DEV) {
                 throw $e;
             }
-            static::error('Dotclear error', $e->getMessage(), 20);
+            static::errorpage('Dotclear error', $e->getMessage(), 20);
         }
 
         # Process page
@@ -419,7 +403,7 @@ class Prepend extends BasePrepend
             if (DOTCLEAR_MODE_DEV) {
                 throw $e;
             }
-            static::error(__('Failed to load page'), $e->getMessage(), 20);
+            static::errorpage(__('Failed to load page'), $e->getMessage(), 20);
         }
     }
 }

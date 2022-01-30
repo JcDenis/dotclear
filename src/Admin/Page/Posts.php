@@ -98,7 +98,7 @@ class Posts extends Page
         } elseif (!empty($_GET['del'])) {
             static::success(__('Selected entries have been successfully deleted.'));
         }
-        if (!dcCore()->error->flag()) {
+        if (!dcCore()->error()->flag()) {
             echo '<p class="top-add"><a class="button add" href="' . dcCore()->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             # filters

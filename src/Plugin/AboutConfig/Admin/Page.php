@@ -61,7 +61,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dcCore()->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -82,7 +82,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dcCore()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

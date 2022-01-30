@@ -113,7 +113,7 @@ class Page extends AbstractPage
                     dcCore()->blog->triggerBlog();
                     dcCore()->adminurl->redirect('admin.plugin.Widgets');
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
         }
@@ -199,7 +199,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
                 dcCore()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
@@ -211,7 +211,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
                 dcCore()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

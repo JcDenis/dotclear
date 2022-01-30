@@ -163,7 +163,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Configuration successfully updated.'));
                 dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         } else {
             # Récupération paramètres postés
@@ -300,7 +300,7 @@ class Page extends AbstractPage
                                 dcCore()->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (Exception $e) {
-                            dcCore()->error->add($e->getMessage());
+                            dcCore()->error($e->getMessage());
                         }
 
                         break;
@@ -337,7 +337,7 @@ class Page extends AbstractPage
                             throw new ModuleException(__('No menu items selected.'));
                         }
                     } catch (Exception $e) {
-                        dcCore()->error->add($e->getMessage());
+                        dcCore()->error($e->getMessage());
                     }
                 }
 
@@ -400,7 +400,7 @@ class Page extends AbstractPage
                         dcCore()->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
                         dcCore()->adminurl->redirect('admin.plugin.SimpleMenu');
                     } catch (Exception $e) {
-                        dcCore()->error->add($e->getMessage());
+                        dcCore()->error($e->getMessage());
                     }
                 }
             }

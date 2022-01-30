@@ -230,7 +230,7 @@ class UserPref extends Page
 
                 dcCore()->adminurl->redirect('admin.user.pref');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -332,7 +332,7 @@ class UserPref extends Page
                 dcCore()->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dcCore()->adminurl->redirect('admin.user.pref', [], '#user-options');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -359,7 +359,7 @@ class UserPref extends Page
                 dcCore()->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -377,12 +377,12 @@ class UserPref extends Page
                 }
                 dcCore()->favs->setFavoriteIDs($user_favs, false);
 
-                if (!dcCore()->error->flag()) {
+                if (!dcCore()->error()->flag()) {
                     dcCore()->notices->addSuccessNotice(__('Favorites have been successfully added.'));
                     dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -402,12 +402,12 @@ class UserPref extends Page
                     }
                 }
                 dcCore()->favs->setFavoriteIDs(array_keys($user_fav_ids), false);
-                if (!dcCore()->error->flag()) {
+                if (!dcCore()->error()->flag()) {
                     dcCore()->notices->addSuccessNotice(__('Favorites have been successfully removed.'));
                     dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -428,7 +428,7 @@ class UserPref extends Page
                 }
             }
             dcCore()->favs->setFavoriteIDs($order, false);
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 dcCore()->notices->addSuccessNotice(__('Favorites have been successfully updated.'));
                 dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
@@ -439,7 +439,7 @@ class UserPref extends Page
             $user_favs = dcCore()->favs->getFavoriteIDs(false);
             dcCore()->favs->setFavoriteIDs($user_favs, true);
 
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 dcCore()->notices->addSuccessNotice(__('Default favorites have been successfully updated.'));
                 dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }
@@ -452,7 +452,7 @@ class UserPref extends Page
             dcCore()->auth->user_prefs->dashboard->drop('boxes_items_order');
             dcCore()->auth->user_prefs->dashboard->drop('boxes_contents_order');
 
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 dcCore()->notices->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
                 dcCore()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             }

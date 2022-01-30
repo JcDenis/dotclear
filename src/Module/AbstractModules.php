@@ -18,8 +18,7 @@ use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractDefine;
 
-use Dotclear\Core\Error;
-
+use Dotclear\Html\TraitError;
 use Dotclear\Html\Html;
 use Dotclear\Utils\L10n;
 use Dotclear\Network\Http;
@@ -33,8 +32,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 abstract class AbstractModules
 {
-    /** @var    Error   Error instance */
-    public $error;
+    use TraitError;
 
     /** @var    bool    Safe mode is active */
     protected $safe_mode;
@@ -62,7 +60,6 @@ abstract class AbstractModules
 
     public function __construct()
     {
-        $this->error     = new Error();
         $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
     }
 
@@ -212,8 +209,8 @@ abstract class AbstractModules
         ob_end_clean();
 
         # Stop on error in module definition
-        if ($define->error->flag()) {
-            call_user_func_array([$this->error, 'add'], $define->error->getErrors());
+        if ($define->error()->flag()) {
+            $this->error($define->error()->getErrors());
 
             return;
         }
@@ -238,7 +235,7 @@ abstract class AbstractModules
                 $this->modules_version[$define->id()] = $define->version();
                 $this->modules_enabled[$this->id]     = $define;
             } else {
-                $this->error->add(sprintf(
+                $this->error(sprintf(
                     __('Module "%s" is installed twice in "%s" and "%s".'),
                     '<strong>' . $define->name() . '</strong>',
                     '<em>' . Path::real($this->modules_enabled[$define->id()]->root()) . '</em>',
@@ -626,7 +623,7 @@ abstract class AbstractModules
         $this->modules_enabled  = [];
         $this->modules_disabled = [];
         $this->modules_version  = [];
-        $this->error->reset();
+        $this->error()->reset();
     }
 
     /**

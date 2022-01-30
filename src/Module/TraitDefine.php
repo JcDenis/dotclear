@@ -242,28 +242,28 @@ trait TraitDefine
         );
 
         if (empty($this->properties['name'])) {
-            $this->error->add(sprintf(
+            $this->error(sprintf(
                 __('Module "%s" has no name.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
         }
 
         if (empty($this->properties['description'])) {
-            $this->error->add(sprintf(
+            $this->error(sprintf(
                 __('Module "%s" has no description.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
         }
 
         if (empty($this->properties['author'])) {
-            $this->error->add(sprintf(
+            $this->error(sprintf(
                 __('Module "%s" has no author.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
         }
 
         if (empty($this->properties['version'])) {
-            $this->error->add(sprintf(
+            $this->error(sprintf(
                 __('Module "%s" has no version.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
@@ -272,7 +272,7 @@ trait TraitDefine
         $this->properties['type'] = ucfirst(strtolower($this->properties['type']));
 
         if ($this->properties['type'] != $this->type) {
-            $this->error->add(sprintf(
+            $this->error(sprintf(
                 __('Module "%s" has type "%s" that mismatch required module type "%s".'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>',
                 '<em>' . Html::escapeHTML($this->properties['type']) . '</em>',

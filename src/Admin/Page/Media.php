@@ -100,7 +100,7 @@ class Media extends Page
 
             return new MediaCatalog($rs, $rs->count());
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
         }
 
         return null;
@@ -135,7 +135,7 @@ class Media extends Page
 
                 throw new Exception(__('Not a valid directory'));
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -168,7 +168,7 @@ class Media extends Page
                     ));
                     dcCore()->adminurl->redirect('admin.media', $this->filter->values());
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
         }
@@ -220,7 +220,7 @@ class Media extends Page
                 dcCore()->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
                 dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -240,7 +240,7 @@ class Media extends Page
                 );
                 dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -265,7 +265,7 @@ class Media extends Page
                 dcCore()->notices->addSuccessNotice($msg);
                 dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -280,7 +280,7 @@ class Media extends Page
                 );
                 dcCore()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -321,7 +321,7 @@ class Media extends Page
             retunr;
         }
 
-        if (!$this->mediaWritable() && !dcCore()->error->flag()) {
+        if (!$this->mediaWritable() && !dcCore()->error()->flag()) {
             dcCore()->notices->warning(__('You do not have sufficient permissions to write to this folder.'));
         }
 

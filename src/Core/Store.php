@@ -136,7 +136,7 @@ class Store
                 $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
                 $updates[$id] = new $class($id, $properties);
 
-                if (!empty($updates[$id]->error->flag())) {
+                if (!empty($updates[$id]->error()->flag())) {
                     unset($updates[$id]);
                 }
             }
@@ -148,7 +148,7 @@ class Store
             $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
             $raw_datas[$id] = new $class($id, $properties);
 
-            if (!empty($raw_datas[$id]->error->flag())) {
+            if (!empty($raw_datas[$id]->error()->flag())) {
                 unset($raw_datas[$id]);
             }
         }

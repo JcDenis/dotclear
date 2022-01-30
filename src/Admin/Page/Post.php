@@ -116,7 +116,7 @@ class Post extends Page
             $this->post = dcCore()->blog->getPosts($params);
 
             if ($this->post->isEmpty()) {
-                dcCore()->error->add(__('This entry does not exist.'));
+                dcCore()->error(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = (int) $this->post->post_id;
@@ -176,7 +176,7 @@ class Post extends Page
                 try {
                     dcCore()->mediaInstance();
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
 
                 # Sanitize trackbacks excerpt
@@ -214,11 +214,11 @@ class Post extends Page
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
-                        dcCore()->error->add($e->getMessage());
+                        dcCore()->error($e->getMessage());
                     }
                 }
 
-                if (!dcCore()->error->flag()) {
+                if (!dcCore()->error()->flag()) {
                     dcCore()->notices->addSuccessNotice(__('All pings sent.'));
                     dcCore()->adminurl->redirect(
                         'admin.post',
@@ -254,7 +254,7 @@ class Post extends Page
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
 
@@ -289,7 +289,7 @@ class Post extends Page
                 dcCore()->blog->delPost($this->post_id);
                 dcCore()->adminurl->redirect('admin.posts');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -350,7 +350,7 @@ class Post extends Page
                         ['id' => $this->post_id]
                     );
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             } else {
                 $cur->user_id = dcCore()->auth->userID();
@@ -370,7 +370,7 @@ class Post extends Page
                         ['id' => $return_id]
                     );
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
         }

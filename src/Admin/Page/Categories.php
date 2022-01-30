@@ -61,7 +61,7 @@ class Categories extends Page
                 dcCore()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 dcCore()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -93,7 +93,7 @@ class Categories extends Page
                 ));
                 dcCore()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -118,7 +118,7 @@ class Categories extends Page
                 dcCore()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
                 dcCore()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

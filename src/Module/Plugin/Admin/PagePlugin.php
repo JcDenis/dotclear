@@ -75,12 +75,12 @@ class PagePlugin extends Page
             try {
                 dcCore()->plugins->doActions();
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
 
             # -- Plugin install --
             $this->modules_install = null;
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 $this->modules_install = dcCore()->plugins->installModules();
             }
 
@@ -142,7 +142,7 @@ class PagePlugin extends Page
 
         # -- Display modules lists --
         if (dcCore()->auth->isSuperAdmin()) {
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
                     dcCore()->notices->success(__('Manual checking of plugins update done successfully.'));
                 }

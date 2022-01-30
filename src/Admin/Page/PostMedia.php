@@ -69,11 +69,11 @@ class PostMedia extends Page
             }
             $f = $f[0];
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
         }
 
         # Remove a media from en
-        if (($post_id && $media_id) || dcCore()->error->flag()) {
+        if (($post_id && $media_id) || dcCore()->error()->flag()) {
             if (!empty($_POST['remove'])) {
                 $pm = new CorePostMedia(dcCore());
                 $pm->removePostMedia($post_id, $media_id, $link_type);

@@ -64,7 +64,7 @@ class Langs extends Page
                 self::addSuccessNotice(__('Language has been successfully deleted.'));
                 dcCore()->adminurl->redirect('admin.langs');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -104,7 +104,7 @@ class Langs extends Page
                 }
                 dcCore()->adminurl->redirect('admin.langs');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -137,7 +137,7 @@ class Langs extends Page
                 }
                 dcCore()->adminurl->redirect('admin.langs');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

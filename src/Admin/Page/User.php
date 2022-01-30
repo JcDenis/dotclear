@@ -71,7 +71,7 @@ class User extends Page
 
                 $page_title = $this->container->getId();
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -187,7 +187,7 @@ class User extends Page
                     }
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

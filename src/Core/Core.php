@@ -18,9 +18,7 @@ use Closure;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\SingleTon;
 use Dotclear\Core\Behaviors;
-use Dotclear\Core\Error;
 use Dotclear\Core\UrlHandler;
 use Dotclear\Core\RestServer;
 use Dotclear\Core\Meta;
@@ -39,27 +37,27 @@ use Dotclear\Container\User as ContainerUser;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Html\TraitError;
 use Dotclear\Html\Form;
-use Dotclear\Utils\Text;
-use Dotclear\File\Files;
 use Dotclear\Html\Html;
 use Dotclear\Html\Wiki2xhtml;
 use Dotclear\Html\HtmlFilter;
+use Dotclear\Utils\Text;
+use Dotclear\File\Files;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Core extends SingleTon
+class Core
 {
+    use TraitError;
+
     /** @var Connection         Connetion instance */
     public $con;
 
     /** @var string             Database table prefix */
     public $prefix;
-
-    /** @var Error              Error instance */
-    public $error;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -103,6 +101,27 @@ class Core extends SingleTon
     /** @var array              posts types container */
     private $post_types = [];
 
+    protected static $instance;
+
+    final protected function __construct()
+    {
+    }
+
+    final protected function __clone()
+    {
+    }
+
+    final public static function coreInstance(?string $blog_id = null): Core
+    {
+        if (null === static::$instance) {
+            # Two stage instanciation (construct then process)
+            static::$instance = new static();
+            static::$instance->process($blog_id);
+        }
+
+        return static::$instance;
+    }
+
     /**
      * Start Dotclear process
      *
@@ -112,7 +131,6 @@ class Core extends SingleTon
     {
         static::startStatistics();
 
-        $this->error     = new Error();
         $this->behaviors = new Behaviors();
         $this->con       = $this->conInstance();
         $this->auth      = $this->authInstance();
@@ -1822,6 +1840,48 @@ class Core extends SingleTon
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
 
         return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
+    }
+
+    /**
+     * Join folder function
+     *
+     * Starting from Dotclear root directory
+     *
+     * @param  string   $args   One argument per folder
+     *
+     * @return string   Directory
+     */
+    public static function root(string ...$args): string
+    {
+        if (!defined('DOTCLEAR_ROOT_DIR')) {
+            define('DOTCLEAR_ROOT_DIR', __DIR__);
+        }
+
+        return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
+    }
+
+    /**
+     * Join folder function
+     *
+     * @param  string   $args   One argument per folder
+     *
+     * @return string   Directory
+     */
+    public static function path(string ...$args): string
+    {
+        return implode(DIRECTORY_SEPARATOR, $args);
+    }
+
+    /**
+     * Join sub namespace function
+     *
+     * @param  string   $args   One argument per sub namespace
+     *
+     * @return string   Namespace
+     */
+    public static function ns(string ...$args): string
+    {
+        return implode('\\', $args);
     }
     //@}
 }

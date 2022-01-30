@@ -114,9 +114,9 @@ class Prepend extends Core
             /* Check length of cryptographic algorithm result and exit if less than 40 characters long */
             if (strlen(Crypt::hmac(DOTCLEAR_MASTER_KEY, DOTCLEAR_VENDOR_NAME, DOTCLEAR_CRYPT_ALGO)) < 40) {
                 if ($this->process != 'Admin') {
-                    static::error('Server error', 'Site temporarily unavailable');
+                    static::errorpage('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::error('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
+                    static::errorpage('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
                 }
                 exit;
             }
@@ -129,9 +129,9 @@ class Prepend extends Core
             if (!is_dir(DOTCLEAR_CACHE_DIR)) {
                 /* Admin must create it */
                 if (!in_array($this->process, ['Admin', 'Install'])) {
-                    static::error('Server error', 'Site temporarily unavailable');
+                    static::errorpage('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::error('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
+                    static::errorpage('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
@@ -144,9 +144,9 @@ class Prepend extends Core
             if (!is_dir(DOTCLEAR_VAR_DIR)) {
                 // Admin must create it
                 if (!in_array($this->process, ['Admin', 'Install'])) {
-                    static::error('Server error', 'Site temporarily unavailable');
+                    static::errorpage('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::error('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
+                    static::errorpage('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
@@ -158,6 +158,7 @@ class Prepend extends Core
         # Define current process for files check
         define('DOTCLEAR_PROCESS', $this->process);
 
+        # Load Core
         try {
             parent::process();
         } catch (Exception $e) {
@@ -170,15 +171,8 @@ class Prepend extends Core
                     break;
                 }
             }
-            if (!in_array($this->process, ['Admin', 'Install'])) {
-                static::error(
-                    __('Site temporarily unavailable'),
-                    __('<p>We apologize for this temporary unavailability.<br />' .
-                        'Thank you for your understanding.</p>'),
-                    20
-                );
-            } else {
-                static::error(
+            if (in_array($this->process, ['Admin', 'Install'])) {
+                static::errorpage(
                     __('Unable to connect to database'),
                     $e->getCode() == 0 ?
                     sprintf(
@@ -198,6 +192,13 @@ class Prepend extends Core
                         (DOTCLEAR_DATABASE_HOST != '' ? DOTCLEAR_DATABASE_HOST : 'localhost')
                     ) :
                     '',
+                    20
+                );
+            } else {
+                static::errorpage(
+                    __('Site temporarily unavailable'),
+                    __('<p>We apologize for this temporary unavailability.<br />' .
+                        'Thank you for your understanding.</p>'),
                     20
                 );
             }
@@ -263,7 +264,7 @@ class Prepend extends Core
         $this->con->close();
     }
 
-    protected static function error(string $summary, string $message, int $code = 0): void
+    protected static function errorpage(string $summary, string $message, int $code = 0): void
     {
         # Error codes
         # 10 : no config file

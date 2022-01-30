@@ -79,7 +79,7 @@ class PageTheme extends Page
 
             # -- Plugin install --
             $this->modules_install = null;
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 $this->modules_install = dcCore()->themes->installModules();
             }
 
@@ -141,7 +141,7 @@ class PageTheme extends Page
 
         # -- Display modules lists --
         if (dcCore()->auth->isSuperAdmin()) {
-            if (!dcCore()->error->flag()) {
+            if (!dcCore()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
                     dcCore()->notices->success(__('Manual checking of themes update done successfully.'));
                 }

@@ -62,18 +62,18 @@ class Prepend extends BasePrepend
         } catch (Exception $e) {
             init_prepend_l10n();
             /* @phpstan-ignore-next-line */
-            static::error(__('Database problem'), DOTCLEAR_MODE_DEBUG ?
+            static::errorpage(__('Database problem'), DOTCLEAR_MODE_DEBUG ?
                 __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                 __('Something went wrong while trying to read the database.'), 620);
         }
 
         if ($this->blog->id == null) {
-            static::error(__('Blog is not defined.'), __('Did you change your Blog ID?'), 630);
+            static::errorpage(__('Blog is not defined.'), __('Did you change your Blog ID?'), 630);
         }
 
         if ((boolean) !$this->blog->status) {
             $this->unsetBlog();
-            static::error(__('Blog is offline.'), __('This blog is offline. Please try again later.'), 670);
+            static::errorpage(__('Blog is offline.'), __('This blog is offline. Please try again later.'), 670);
         }
 
         # Cope with static home page option
@@ -83,7 +83,7 @@ class Prepend extends BasePrepend
         try {
             $this->mediaInstance();
         } catch (Exception $e) {
-            static::error(__('Can\'t load media.'), $e->getMessage(), 640);
+            static::errorpage(__('Can\'t load media.'), $e->getMessage(), 640);
         }
 
         # Create template context
@@ -92,7 +92,7 @@ class Prepend extends BasePrepend
         try {
             $this->tpl = new Template(DOTCLEAR_CACHE_DIR, 'dcCore()->tpl');
         } catch (Exception $e) {
-            static::error(__('Can\'t create template files.'), $e->getMessage(), 640);
+            static::errorpage(__('Can\'t create template files.'), $e->getMessage(), 640);
         }
 
         # Load locales
@@ -121,7 +121,7 @@ class Prepend extends BasePrepend
                 $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'public');
             }
         } catch (Exception $e) {
-            static::error(__('Can\'t load plugins.'), $e->getMessage(), 640);
+            static::errorpage(__('Can\'t load plugins.'), $e->getMessage(), 640);
         }
 
         # Load themes
@@ -129,7 +129,7 @@ class Prepend extends BasePrepend
             $this->themes = new ModulesTheme();
             $this->themes->loadModules($_lang);
         } catch (Exception $e) {
-            static::error(__('Can\'t load themes.'), $e->getMessage(), 640);
+            static::errorpage(__('Can\'t load themes.'), $e->getMessage(), 640);
         }
 
         # Load current theme definition
@@ -151,7 +151,7 @@ class Prepend extends BasePrepend
 
         # If theme doesn't exist, stop everything
         if (!$__theme) {
-            static::error(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
+            static::errorpage(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
                     'path in your blog configuration. Please check theme_path value in ' .
                     'about:config module or reinstall default theme. (' . $__theme . ')'), 650);
         }
@@ -200,7 +200,7 @@ class Prepend extends BasePrepend
             $this->behaviors->call('publicAfterDocument');
         } catch (Exception $e) {
 throw $e;
-//            static::error($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
+//            static::errorpage($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
         }
     }
 

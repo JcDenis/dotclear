@@ -118,7 +118,7 @@ class Search extends Page
         '</div>' .
         '</form>';
 
-        if ($this->args['q'] && !dcCore()->error->flag()) {
+        if ($this->args['q'] && !dcCore()->error()->flag()) {
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
@@ -166,7 +166,7 @@ class Search extends Page
                 return;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
         }
     }
 
@@ -219,7 +219,7 @@ class Search extends Page
                 return;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
         }
     }
 

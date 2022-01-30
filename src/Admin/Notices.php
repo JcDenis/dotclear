@@ -240,18 +240,18 @@ class Notices
         $res = '';
 
         # Return error messages if any
-        if (dcCore()->error->flag() && !$this->error_displayed) {
+        if (dcCore()->error()->flag() && !$this->error_displayed) {
 
-            # --BEHAVIOR-- adminPageNotificationError, Dotclear\Core\Error //duplicate as core is now passed to behaviors?
-            $notice_error = dcCore()->behaviors->call('adminPageNotificationError', dcCore()->error);
+            # --BEHAVIOR-- adminPageNotificationError
+            $notice_error = dcCore()->behaviors->call('adminPageNotificationError');
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count(dcCore()->error->getErrors()) > 1 ? __('Errors:') : __('Error:'),
-                    dcCore()->error->toHTML()
+                    count(dcCore()->error()->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    dcCore()->error()->toHTML()
                 );
             }
             $this->error_displayed = true;

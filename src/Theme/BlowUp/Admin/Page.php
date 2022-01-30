@@ -121,9 +121,9 @@ class Page extends AbstractPage
 
         $this->blowup_can_write_images = $this->blowup_config->canWriteImages();
 
-        if (dcCore()->error->flag()) {
-            $this->blowup_notices = dcCore()->error->toHTML();
-            dcCore()->error->reset();
+        if (dcCore()->error()->flag()) {
+            $this->blowup_notices = dcCore()->error()->toHTML();
+            dcCore()->error()->reset();
         }
 
         $blowup_style = (string) dcCore()->blog->settings->themes->blowup_style;
@@ -223,7 +223,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 dcCore()->adminurl->redirect('admin.plugin.BlowUp');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

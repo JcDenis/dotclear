@@ -60,7 +60,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dcCore()->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -80,7 +80,7 @@ class Page extends AbstractPage
                 dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dcCore()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

@@ -74,7 +74,7 @@ class UserAction extends Page
             }
 
             if (empty($this->users)) {
-                dcCore()->error->add(__('No blog or user given.'));
+                dcCore()->error(__('No blog or user given.'));
             }
 
             # --BEHAVIOR-- adminUsersActions
@@ -93,10 +93,10 @@ class UserAction extends Page
 
                         dcCore()->delUser($u);
                     } catch (Exception $e) {
-                        dcCore()->error->add($e->getMessage());
+                        dcCore()->error($e->getMessage());
                     }
                 }
-                if (!dcCore()->error->flag()) {
+                if (!dcCore()->error()->flag()) {
                     dcCore()->notices->addSuccessNotice(__('User has been successfully deleted.'));
                     Http::redirect($this->redir);
                 }
@@ -125,9 +125,9 @@ class UserAction extends Page
                         }
                     }
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
-                if (!dcCore()->error->flag()) {
+                if (!dcCore()->error()->flag()) {
                     dcCore()->notices->addSuccessNotice(__('User has been successfully updated.'));
                     Http::redirect($this->redir);
                 }

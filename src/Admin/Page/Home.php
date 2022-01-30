@@ -43,7 +43,7 @@ class Home extends Page
                 dcCore()->setUserDefaultBlog(dcCore()->auth->userID(), dcCore()->blog->id);
                 dcCore()->adminurl->redirect('admin.home');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -270,10 +270,10 @@ class Home extends Page
 
             # Errors modules notifications
             if (dcCore()->auth->isSuperAdmin()) {
-                if (dcCore()->plugins->error->flag()) {
+                if (dcCore()->plugins->error()->flag()) {
                     echo
                     '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
-                    '<ul><li>' . implode("</li>\n<li>", dcCore()->plugins->error->getErrors()) . '</li></ul></div>';
+                    '<ul><li>' . implode("</li>\n<li>", dcCore()->plugins->error()->getErrors()) . '</li></ul></div>';
                 }
             }
         }

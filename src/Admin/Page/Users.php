@@ -99,7 +99,7 @@ class Users extends Page
 
     protected function getPageContent(): void
     {
-        if (dcCore()->error->flag()) {
+        if (dcCore()->error()->flag()) {
             return;
         }
 

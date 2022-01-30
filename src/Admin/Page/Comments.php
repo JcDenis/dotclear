@@ -86,7 +86,7 @@ class Comments extends Page
                 $_SESSION['comments_del_spam'] = true;
                 dcCore()->adminurl->redirect('admin.comments');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -112,7 +112,7 @@ class Comments extends Page
             dcCore()->notices->success(__('Selected comments have been successfully deleted.'));
         }
 
-        if (dcCore()->error->flag()) {
+        if (dcCore()->error()->flag()) {
             return;
         }
 

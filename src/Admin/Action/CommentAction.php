@@ -55,7 +55,7 @@ class CommentAction extends Action
 
     public function error(AdminException $e)
     {
-        dcCore()->error->add($e->getMessage());
+        dcCore()->error($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 

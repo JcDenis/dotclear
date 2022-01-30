@@ -52,10 +52,10 @@ class Category extends Page
             try {
                 $rs = dcCore()->blog->getCategory((int) $_REQUEST['id']);
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
 
-            if (!dcCore()->error->flag() && !$rs->isEmpty()) {
+            if (!dcCore()->error()->flag() && !$rs->isEmpty()) {
                 $this->cat_id    = (int) $rs->cat_id;
                 $this->cat_title = $rs->cat_title;
                 $this->cat_url   = $rs->cat_url;
@@ -108,7 +108,7 @@ class Category extends Page
                     dcCore()->notices->addSuccessNotice(__('The category has been successfully moved'));
                     dcCore()->adminurl->redirect('admin.categories');
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
         }
@@ -120,7 +120,7 @@ class Category extends Page
                 dcCore()->notices->addSuccessNotice(__('The category has been successfully moved'));
                 dcCore()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
@@ -170,7 +170,7 @@ class Category extends Page
                     dcCore()->adminurl->redirect('admin.categories');
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 

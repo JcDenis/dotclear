@@ -77,7 +77,7 @@ class Comment extends Page
 
                 dcCore()->notices->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
             Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
         }
@@ -107,16 +107,16 @@ class Comment extends Page
                     $this->comment_trackback   = (boolean) $rs->comment_trackback;
                 }
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
         }
 
-        if (!$this->comment_id && !dcCore()->error->flag()) {
-            dcCore()->error->add(__('No comments'));
+        if (!$this->comment_id && !dcCore()->error()->flag()) {
+            dcCore()->error(__('No comments'));
         }
 
         $this->can_edit = $this->can_delete = $this->can_publish = false;
-        if (!dcCore()->error->flag() && isset($rs)) {
+        if (!dcCore()->error()->flag() && isset($rs)) {
             $this->can_edit = $this->can_delete = $this->can_publish = dcCore()->auth->check('contentadmin', dcCore()->blog->id);
 
             if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id) && dcCore()->auth->userID() == $rs->user_id) {
@@ -154,7 +154,7 @@ class Comment extends Page
                     dcCore()->notices->addSuccessNotice(__('Comment has been successfully updated.'));
                     dcCore()->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
 
@@ -168,12 +168,12 @@ class Comment extends Page
                     dcCore()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
 
             if (!$this->can_edit) {
-                dcCore()->error->add(__("You can't edit this comment."));
+                dcCore()->error(__("You can't edit this comment."));
             }
         }
 

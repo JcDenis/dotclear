@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Error
- * @brief Dotclear core error class
+ * @class Dotclear\Html\Error
+ * @brief Dotclear error class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
+if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 

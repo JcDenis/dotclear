@@ -80,7 +80,7 @@ class PostFilter extends Filter
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
 
             return null;
         }
@@ -111,7 +111,7 @@ class PostFilter extends Filter
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
 
             return null;
         }
@@ -245,7 +245,7 @@ class PostFilter extends Filter
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
 
             return null;
         }
@@ -283,7 +283,7 @@ class PostFilter extends Filter
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error->add($e->getMessage());
+            dcCore()->error($e->getMessage());
 
             return null;
         }

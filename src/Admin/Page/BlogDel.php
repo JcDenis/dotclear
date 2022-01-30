@@ -42,11 +42,11 @@ class BlogDel extends Page
             try {
                 $rs = dcCore()->getBlog($_POST['blog_id']);
             } catch (Exception $e) {
-                dcCore()->error->add($e->getMessage());
+                dcCore()->error($e->getMessage());
             }
 
             if ($rs->isEmpty()) {
-                dcCore()->error->add(__('No such blog ID'));
+                dcCore()->error(__('No such blog ID'));
             } else {
                 $this->blog_id   = $rs->blog_id;
                 $this->blog_name = $rs->blog_name;
@@ -54,9 +54,9 @@ class BlogDel extends Page
         }
 
         # Delete the blog
-        if (!dcCore()->error->flag() && $this->blog_id && !empty($_POST['del'])) {
+        if (!dcCore()->error()->flag() && $this->blog_id && !empty($_POST['del'])) {
             if (!dcCore()->auth->checkPassword($_POST['pwd'])) {
-                dcCore()->error->add(__('Password verification failed'));
+                dcCore()->error(__('Password verification failed'));
             } else {
                 try {
                     dcCore()->delBlog($this->blog_id);
@@ -64,7 +64,7 @@ class BlogDel extends Page
 
                     dcCore()->adminurl->redirect('admin.blogs');
                 } catch (Exception $e) {
-                    dcCore()->error->add($e->getMessage());
+                    dcCore()->error($e->getMessage());
                 }
             }
         }
@@ -84,7 +84,7 @@ class BlogDel extends Page
 
     protected function getPageContent(): void
     {
-        if (dcCore()->error->flag()) {
+        if (dcCore()->error()->flag()) {
             return;
         }
 
