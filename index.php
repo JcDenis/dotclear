@@ -25,6 +25,6 @@ if (isset($_SERVER['DC_BLOG_ID'])) {
     $blog = 'default';
 }
 
-require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'src', 'Process.php']);
+require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'src', 'Dotclear.php']);
 
 Dotclear::Public($blog);
