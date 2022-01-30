@@ -26,7 +26,7 @@ use Dotclear\File\Files;
 use Dotclear\File\Path;
 use Dotclear\File\Zip\Unzip;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
