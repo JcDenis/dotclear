@@ -230,7 +230,7 @@ class Menus extends ArrayObject
             'Blog',
             __('Posts'),
             'admin.posts',
-            'images/menu/entries.png',
+            ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
             dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
         $this->register(
