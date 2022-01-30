@@ -105,17 +105,34 @@ class Core
     protected static $instance;
 
     /**
-     * Disabled children constructor
+     * Disabled children constructor and direct instance
      */
     final protected function __construct()
     {
     }
 
-    /**
-     * Disable clone, for singleton
+    /*
+     * @throws CoreException
      */
-    final protected function __clone()
+    final public function __clone()
     {
+        throw new CoreException('Core instance can not be cloned.');
+    }
+
+    /**
+     * @throws CoreException
+     */
+    final public function __sleep()
+    {
+        throw new CoreException('Core instance can not be serialized.');
+    }
+
+    /**
+     * @throws CoreException
+     */
+    final public function __wakeup()
+    {
+        throw new CoreException('Core instance can not be deserialized.');
     }
 
     /**
