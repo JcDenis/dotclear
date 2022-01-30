@@ -101,16 +101,29 @@ class Core
     /** @var array              posts types container */
     private $post_types = [];
 
+    /** @var Core               Core singleton instance */
     protected static $instance;
 
+    /**
+     * Disabled children constructor
+     */
     final protected function __construct()
     {
     }
 
+    /**
+     * Disable clone, for singleton
+     */
     final protected function __clone()
     {
     }
 
+    /**
+     * Get core unique instance
+     *
+     * @param   string|null     $blog_id    Blog ID on first process call
+     * @return  Core                        Core (Process) instance
+     */
     final public static function coreInstance(?string $blog_id = null): Core
     {
         if (null === static::$instance) {

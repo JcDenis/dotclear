@@ -24,6 +24,12 @@ trait TraitError
     /** @var    Error   Error instance */
     private $error;
 
+    /**
+     * Get Error instance
+     *
+     * @param   string|null     $msg    Error message
+     * @return  Error                   Error instance
+     */
     public function error(?string $msg = null): Error
     {
         if (!($this->error instanceof Error)) {
