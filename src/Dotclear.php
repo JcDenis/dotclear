@@ -81,14 +81,21 @@ Class Dotclear
         $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
         new static($process, $blog_id);
     }
+
+    /**
+     * Singleton Dotclear Core
+     *
+     * @return  Singleton   The core instance
+     */
+    public static function core()
+    {
+        $class = __CLASS__ . '\\Core\\Core';
+        return $class::coreInstance();
+    }
 }
 
-/**
- * Singleton Dotclear Core
- *
- * @return  Singleton   The core instance
- */
+/** @see Dotclear::core() */
 function dcCore()
 {
-    return Dotclear\Core\Core::coreInstance();
+    return Dotclear::core();
 }
