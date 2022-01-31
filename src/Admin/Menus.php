@@ -209,7 +209,7 @@ class Menus extends ArrayObject
             'Blog',
             __('Categories'),
             'admin.categories',
-            'images/menu/categories.png',
+            ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
             dcCore()->auth->check('categories', dcCore()->blog->id)
         );
         $this->register(
@@ -223,7 +223,7 @@ class Menus extends ArrayObject
             'Blog',
             __('Comments'),
             'admin.comments',
-            'images/menu/comments.png',
+            ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
             dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
         $this->register(
@@ -246,25 +246,29 @@ class Menus extends ArrayObject
         $this->register(
             'System',
             __('Update'),
-            'admin.update', 'images/menu/update.png',
+            'admin.update',
+            'images/menu/update.png',
             dcCore()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
         );
         $this->register(
             'System',
             __('Languages'),
-            'admin.langs', 'images/menu/langs.png',
+            'admin.langs',
+            ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
             dcCore()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Users'),
-            'admin.users', 'images/menu/users.png',
+            'admin.users',
+            'images/menu/users.png',
             dcCore()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Blogs'),
-            'admin.blogs', 'images/menu/blogs.png',
+            'admin.blogs',
+            ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
             dcCore()->auth->isSuperAdmin() || dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id) && dcCore()->auth->getBlogCount() > 1
         );
     }
