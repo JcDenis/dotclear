@@ -1487,7 +1487,7 @@ abstract class Page
      *
      * @return     array  The code mirror themes.
      */
-    public function getCodeMirrorThemes(): array
+    public static function getCodeMirrorThemes(): array
     {
         $themes      = [];
         $themes_root = dcCore()::root('Admin', 'files', 'js', 'codemirror', 'theme');
