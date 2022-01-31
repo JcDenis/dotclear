@@ -22,6 +22,7 @@ use Dotclear\Core\PostMedia as CorePostMedia;
 use Dotclear\Admin\Page;
 
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 
 use Dotclear\Network\Http;
 
@@ -31,12 +32,13 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class PostMedia extends Page
 {
-    public function __construct()
+    protected function getPermissions(): string|null|false
     {
-        parent::__construct();
+        return 'usage,contentadmin';
+    }
 
-        $this->check('usage,contentadmin');
-
+    protected function getPagePrepend(): ?bool
+    {
         $post_id   = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
         $media_id  = !empty($_REQUEST['media_id']) ? (integer) $_REQUEST['media_id'] : null;
         $link_type = !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null;
@@ -78,29 +80,34 @@ class PostMedia extends Page
                 $pm = new CorePostMedia(dcCore());
                 $pm->removePostMedia($post_id, $media_id, $link_type);
 
-                static::addSuccessNotice(__('Attachment has been successfully removed.'));
+                dcCore()->notices->addSuccessNotice(__('Attachment has been successfully removed.'));
                 Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
             } elseif (isset($_POST['post_id'])) {
                 Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
             if (!empty($_GET['remove'])) {
-                $this->open(__('Remove attachment'));
-
-                echo '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>';
-
-                echo
-                '<form action="' . dcCore()->adminurl->get('admin.post.media') . '" method="post">' .
-                '<p>' . __('Are you sure you want to remove this attachment?') . '</p>' .
-                '<p><input type="submit" class="reset" value="' . __('Cancel') . '" /> ' .
-                ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
-                Form::hidden('post_id', $post_id) .
-                Form::hidden('media_id', $media_id) .
-                dcCore()->formNonce() . '</p>' .
-                    '</form>';
-
-                $this->close();
+                $this
+                    ->setPageTitle(__('Remove attachment'))
+                    ->setPageBreadcrumb([
+                        Html::escapeHTML(dcCore()->blog->name) => '',
+                        __('Posts')                            => ''
+                    ])
+                    ->setPageContent(
+                        '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>' .
+                        '<form action="' . dcCore()->adminurl->get('admin.post.media') . '" method="post">' .
+                        '<p>' . __('Are you sure you want to remove this attachment?') . '</p>' .
+                        '<p><input type="submit" class="reset" value="' . __('Cancel') . '" /> ' .
+                        ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
+                        Form::hidden('post_id', $post_id) .
+                        Form::hidden('media_id', $media_id) .
+                        dcCore()->formNonce() . '</p>' .
+                        '</form>'
+                    )
+                ;
             }
+
+            return false;
         }
     }
 }
