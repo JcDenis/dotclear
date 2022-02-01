@@ -141,7 +141,7 @@ abstract class AbstractModules
                     if ($entry_enabled) {
                         dcCore()->autoloader->addNamespace(dcCore()::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
                     # Save module in disabled list
-                    } else {
+                    } elseif ($this->disabled_meta) {
                         $this->disabled_mode       = false;
                         $this->modules_disabled[$this->id] = $this->disabled_meta;
                     }
