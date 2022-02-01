@@ -402,8 +402,8 @@ class Favorites
             'prefs' => [
                 'title'      => __('My preferences'),
                 'url'        => dcCore()->adminurl->get('admin.user.pref'),
-                'small-icon' => 'images/menu/user-pref.png',
-                'large-icon' => 'images/menu/user-pref-b.png', ],
+                'small-icon' => 'images/menu/user-pref.svg',
+                'large-icon' => 'images/menu/user-pref.svg', ],
             'new_post' => [
                 'title'       => __('New post'),
                 'url'         => dcCore()->adminurl->get('admin.post'),
@@ -458,8 +458,8 @@ class Favorites
             'users' => [
                 'title'      => __('Users'),
                 'url'        => dcCore()->adminurl->get('admin.users'),
-                'small-icon' => 'images/menu/users.png',
-                'large-icon' => 'images/menu/users-b.png', ],
+                'small-icon' => 'images/menu/users.svg',
+                'large-icon' => 'images/menu/users.svg', ],
             'langs' => [
                 'title'      => __('Languages'),
                 'url'        => dcCore()->adminurl->get('admin.langs'),

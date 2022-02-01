@@ -36,14 +36,14 @@ class ModulesTheme extends AbstractModules
             'Blog',
             __('Blog appearance'),
             'admin.blog.theme',
-            'images/menu/themes.png',
+            ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             dcCore()->auth->check('admin', dcCore()->blog->id)
         );
         dcCore()->favs->register('blog_theme', [
             'title'       => __('Blog appearance'),
             'url'         => dcCore()->adminurl->get('admin.blog.theme'),
-            'small-icon'  => 'images/menu/themes.png',
-            'large-icon'  => 'images/menu/blog-theme-b.png',
+            'small-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
+            'large-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'permissions' => 'admin'
         ]);
     }

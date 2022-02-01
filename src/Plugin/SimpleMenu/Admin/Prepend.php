@@ -39,7 +39,7 @@ class Prepend extends AbstractPrepend
         dcCore()->menu['Blog']->addItem(
             __('Simple menu'),
             dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            '?mf=Plugin/SimpleMenu/icon.png',
+            '?mf=Plugin/SimpleMenu/icon.svg',
             dcCore()->adminurl->called() == 'admin.plugin.SimpleMenu',
             dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
         );
@@ -72,7 +72,7 @@ class Prepend extends AbstractPrepend
     {
         $icons['simpleMenu'] = new ArrayObject([__('Simple menu'),
             dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            '?mf=Plugin/SimpleMenu/icon.png'
+            '?mf=Plugin/SimpleMenu/icon.svg'
         ]);
     }
 
@@ -81,8 +81,8 @@ class Prepend extends AbstractPrepend
         $favs->register('simpleMenu', [
             'title'       => __('Simple menu'),
             'url'         => dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            'small-icon'  => '?mf=Plugin/SimpleMenu/icon-small.png',
-            'large-icon'  => '?mf=Plugin/SimpleMenu/icon.png',
+            'small-icon'  => '?mf=Plugin/SimpleMenu/icon.svg',
+            'large-icon'  => '?mf=Plugin/SimpleMenu/icon.svg',
             'permissions' => 'usage,contentadmin'
         ]);
     }

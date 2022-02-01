@@ -247,7 +247,7 @@ class Menus extends ArrayObject
             'System',
             __('Update'),
             'admin.update',
-            'images/menu/update.png',
+            ['images/menu/update.svg', 'images/menu/update-dark.svg'],
             dcCore()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
         );
         $this->register(
@@ -261,7 +261,7 @@ class Menus extends ArrayObject
             'System',
             __('Users'),
             'admin.users',
-            'images/menu/users.png',
+            'images/menu/users.svg',
             dcCore()->auth->isSuperAdmin()
         );
         $this->register(

@@ -30,14 +30,14 @@ class ModulesPlugin extends AbstractModules
             'System',
             __('Plugins management'),
             'admin.plugins',
-            'images/menu/plugins.png',
+            ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             dcCore()->auth->isSuperAdmin()
         );
         dcCore()->favs->register('plugins', [
             'title'      => __('Plugins management'),
             'url'        => dcCore()->adminurl->get('admin.plugins'),
-            'small-icon' => 'images/menu/plugins.png',
-            'large-icon' => 'images/menu/plugins-b.png'
+            'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
+            'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
         ]);
     }
 

@@ -42,7 +42,7 @@ class Prepend extends AbstractPrepend
         dcCore()->menu['Blog']->addItem(
             __('Presentation widgets'),
             dcCore()->adminurl->get('admin.plugin.Widgets'),
-            '?mf=Plugin/Widgets/icon.png',
+            ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
             dcCore()->adminurl->called() == 'admin.plugin.Widgets',
             dcCore()->auth->check('admin', dcCore()->blog->id)
         );
@@ -83,8 +83,8 @@ class Prepend extends AbstractPrepend
         $favs->register('Widgets', [
             'title'      => __('Presentation widgets'),
             'url'        => dcCore()->adminurl->get('admin.plugin.Widgets'),
-            'small-icon' => '?mf=Plugin/Widgets/icon.png',
-            'large-icon' => '?mf=Plugin/Widgets/icon-big.png'
+            'small-icon' => ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
+            'large-icon' => ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
         ]);
     }
 

@@ -35,7 +35,7 @@ class Prepend extends AbstractPrepend
         dcCore()->menu['System']->addItem(
             'user:preferences',
             dcCore()->adminurl->get('admin.plugin.UserPref'),
-            '?mf=Plugin/UserPref/icon.png',
+            '?mf=Plugin/UserPref/icon.svg',
             dcCore()->adminurl->called() == 'admin.plugin.UserPref',
             dcCore()->auth->isSuperAdmin()
         );

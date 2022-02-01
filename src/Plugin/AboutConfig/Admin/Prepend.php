@@ -35,7 +35,7 @@ class Prepend extends AbstractPrepend
         dcCore()->menu['System']->addItem(
             'about:config',
             dcCore()->adminurl->get('admin.plugin.AboutConfig'),
-            '?mf=Plugin/AboutConfig/icon.png',
+            '?mf=Plugin/AboutConfig/icon.svg',
             dcCore()->adminurl->called() == 'admin.plugin.AboutConfig',
             dcCore()->auth->isSuperAdmin()
         );
