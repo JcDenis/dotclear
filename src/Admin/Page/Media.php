@@ -318,7 +318,7 @@ class Media extends Page
             form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
             '</form>';
 
-            retunr;
+            return;
         }
 
         if (!$this->mediaWritable() && !dcCore()->error()->flag()) {
