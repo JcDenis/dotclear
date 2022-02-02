@@ -37,6 +37,7 @@ class MediaItem extends Page
     private $id;
     private $file;
     private $dirs_combo;
+    private $media_writable;
 
     protected function getPermissions(): string|null|false
     {
@@ -74,7 +75,7 @@ class MediaItem extends Page
             $this->page_url_params['id'] = $this->id;
         }
 
-        $core_media_writable = false;
+        $this->media_writable = false;
 
         $this->dirs_combo = [];
 
@@ -90,7 +91,7 @@ class MediaItem extends Page
             }
 
             dcCore()->media->chdir(dirname($this->file->relname));
-            $core_media_writable = dcCore()->media->writable();
+            $this->media_writable = dcCore()->media->writable();
 
             # Prepare directories combo box
             foreach (dcCore()->media->getDBDirs() as $v) {
@@ -108,7 +109,7 @@ class MediaItem extends Page
         }
 
         # Upload a new file
-        if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $core_media_writable) {
+        if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
                 dcCore()->media->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
@@ -121,7 +122,7 @@ class MediaItem extends Page
         }
 
         # Update file
-        if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $core_media_writable) {
+        if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $this->media_writable) {
             $newFile = clone $this->file;
 
             $newFile->basename = $_POST['media_file'];
@@ -176,7 +177,7 @@ class MediaItem extends Page
         }
 
         # Update thumbnails
-        if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $core_media_writable) {
+        if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $this->media_writable) {
             try {
                 $foo = null;
                 dcCore()->media->mediaFireRecreateEvent($this->file);
@@ -190,7 +191,7 @@ class MediaItem extends Page
         }
 
         # Unzip file
-        if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $core_media_writable) {
+        if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $this->media_writable) {
             try {
                 $unzip_dir = dcCore()->media->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
 
@@ -767,7 +768,7 @@ class MediaItem extends Page
 
         echo '<h3>' . __('Updates and modifications') . '</h3>';
 
-        if ($this->file->editable && $core_media_writable) {
+        if ($this->file->editable && $this->media_writable) {
             if ($this->file->media_type == 'image') {
                 echo
                 '<form class="clear fieldset" action="' . dcCore()->adminurl->get('admin.media.item') . '" method="post">' .
