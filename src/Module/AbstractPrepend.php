@@ -16,12 +16,33 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Module\AbstractDefine;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 abstract class AbstractPrepend
 {
+    /**
+     * Module Define instance
+     *
+     * Temporary accessible during check/load/install
+     *
+     * @var AbstractDefine|null
+     */
+    protected static $define = null;
+
+    public static function setDefine(AbstractDefine $define): void
+    {
+        static::$define = $define;
+    }
+
+    public static function unsetDefine(): void
+    {
+        static::$define = null;
+    }
+
     /**
      * Check Module during process (Amdin, Public, Install, ...)
      *

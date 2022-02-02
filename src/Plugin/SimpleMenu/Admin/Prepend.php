@@ -28,25 +28,10 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
-        # Add Plugin Admin Page sidebar menu item
-        dcCore()->menu['Blog']->addItem(
-            __('Simple menu'),
-            dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            '?mf=Plugin/SimpleMenu/icon.svg',
-            dcCore()->adminurl->called() == 'admin.plugin.SimpleMenu',
-            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
-        );
-
-        # Add Plugin Admin behaviors
-        dcCore()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
-        dcCore()->behaviors->add('adminDashboardIcons', [__CLASS__, 'behaviorAdminDashboardIcons']);
+        static::addStandardMenu('Blog');
+        static::addStandardFavorites();
 
         # Widgets
         if (dcCore()->adminurl->called() == 'admin.plugin.Widgets') {
@@ -66,24 +51,5 @@ class Prepend extends AbstractPrepend
         dcCore()->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);
 
         return true;
-    }
-
-    public static function behaviorAdminDashboardIcons($icons)
-    {
-        $icons['simpleMenu'] = new ArrayObject([__('Simple menu'),
-            dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            '?mf=Plugin/SimpleMenu/icon.svg'
-        ]);
-    }
-
-    public static function behaviorAdminDashboardFavorites($favs)
-    {
-        $favs->register('simpleMenu', [
-            'title'       => __('Simple menu'),
-            'url'         => dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
-            'small-icon'  => '?mf=Plugin/SimpleMenu/icon.svg',
-            'large-icon'  => '?mf=Plugin/SimpleMenu/icon.svg',
-            'permissions' => 'usage,contentadmin'
-        ]);
     }
 }

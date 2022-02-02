@@ -26,26 +26,11 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
         $self_ns = dcCore()->blog->settings->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            /*
-            dcCore()->menu['Plugins']->addItem(
-                __('Legacy editor'),
-                dcCore()->adminurl->get('admin.plugin.LegacyEditor'),
-                ['?mf=Plugin/LegacyEditor/icon.svg', '?mf=Plugin/LegacyEditor/icon-dark.svg'],
-                dcCore()->adminurl->called() == 'admin.plugin.LegacyEditor',
-                dcCore()->auth->isSuperAdmin()
-            );
-            //*/
-
             if (!(dcCore()->wiki2xhtml instanceof wiki2xhtml)) {
                 dcCore()->initWikiPost();
             }

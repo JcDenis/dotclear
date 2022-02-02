@@ -31,11 +31,6 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
         dcCore()->behaviors->add('adminPostFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);

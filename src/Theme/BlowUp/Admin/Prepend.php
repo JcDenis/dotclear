@@ -29,11 +29,6 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
         dcCore()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);

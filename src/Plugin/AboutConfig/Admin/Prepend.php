@@ -24,20 +24,9 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
-        # Add Plugin Admin Page sidebar menu item
-        dcCore()->menu['System']->addItem(
-            'about:config',
-            dcCore()->adminurl->get('admin.plugin.AboutConfig'),
-            '?mf=Plugin/AboutConfig/icon.svg',
-            dcCore()->adminurl->called() == 'admin.plugin.AboutConfig',
-            dcCore()->auth->isSuperAdmin()
-        );
+        static::addStandardMenu('System');
+        static::addStandardFavorites();
     }
 }

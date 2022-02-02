@@ -21,8 +21,6 @@ use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
 use Dotclear\Plugin\Widgets\Lib\Widgets;
 
-use Dotclear\Admin\Favorites;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -31,27 +29,16 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function checkModule(): bool
-    {
-        return true;
-    }
-
     public static function loadModule(): void
     {
-        # Add Plugin Admin Page sidebar menu item
-        dcCore()->menu['Blog']->addItem(
-            __('Presentation widgets'),
-            dcCore()->adminurl->get('admin.plugin.Widgets'),
-            ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
-            dcCore()->adminurl->called() == 'admin.plugin.Widgets',
-            dcCore()->auth->check('admin', dcCore()->blog->id)
-        );
+        # Menu and Favorties
+        static::addStandardMenu('Blog');
+        static::addStandardFavorites();
 
-        # Add Plugin Admin behaviors
-        dcCore()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
+        # rte
         dcCore()->behaviors->add('adminRteFlags', [__CLASS__, 'behaviorAdminRteFlags']);
 
-        # Load widgets
+        # Widgets
         new WidgetsStack();
     }
 
@@ -76,16 +63,6 @@ class Prepend extends AbstractPrepend
         }
 
         return true;
-    }
-
-    public static function behaviorAdminDashboardFavorites(Favorites $favs): void
-    {
-        $favs->register('Widgets', [
-            'title'      => __('Presentation widgets'),
-            'url'        => dcCore()->adminurl->get('admin.plugin.Widgets'),
-            'small-icon' => ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
-            'large-icon' => ['?mf=Plugin/Widgets/icon.svg', '?mf=Plugin/Widgets/icon-dark.svg'],
-        ]);
     }
 
     public static function behaviorAdminRteFlags(ArrayObject $rte): void

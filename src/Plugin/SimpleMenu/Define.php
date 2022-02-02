@@ -36,7 +36,7 @@ $this
         'Plugin'
     )
     ->setPermissions(
-        'admin'
+        'usage,contentadmin'
     )
     ->setSettings(
         ['self' => '']

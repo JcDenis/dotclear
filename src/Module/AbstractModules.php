@@ -168,9 +168,11 @@ abstract class AbstractModules
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
-                if (true !== $class::checkModule()) {
+                $class::setDefine($module);
+                if (true !== $class::checkModule($module)) {
                     continue;
                 }
+                $class::unsetDefine();
             }
 
             # Load module main l10n
@@ -186,7 +188,9 @@ abstract class AbstractModules
 
             # Load others stuff from module
             if ($has_prepend) {
+                $class::setDefine($module);
                 $class::loadModule();
+                $class::unsetDefine();
             }
 
             //! todo: here or elsewhere, load module 'parent' Prepend
@@ -500,7 +504,9 @@ abstract class AbstractModules
 
         try {
             # Do module installation
+            $class::setDefine($this->modules_enabled[$id]);
             $i = $class::installModule();
+            $class::unsetDefine();
 
             # Update module version in db
             dcCore()->setVersion($id, $this->modules_enabled[$id]->version());
