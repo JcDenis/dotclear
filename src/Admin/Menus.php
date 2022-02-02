@@ -72,13 +72,16 @@ class Menus extends ArrayObject
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
-        $url     = dcCore()->adminurl->get($adminurl);
-        $pattern = '@' . preg_quote($url) . ($strict ? '' : '(\?.*)?') . '$@';
+        $match = dcCore()->adminurl->called() == $adminurl;
+        if ($strict && $match) {
+            $match = count($_GET) == 1;
+        }
+
         $this->offsetGet($section)->prependItem(
             $desc,
-            $url,
+            dcCore()->adminurl->get($adminurl),
             $icon,
-            preg_match($pattern, $_SERVER['REQUEST_URI']),
+            $match,
             $perm,
             null,
             null,

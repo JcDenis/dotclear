@@ -176,32 +176,16 @@ class Favorites
         if (empty($this->user_prefs)) {
             $this->user_prefs = $this->getFavorites(['new_post']);
         }
-        $uri = explode('?', $_SERVER['REQUEST_URI']);
-        // take only last part of the URI, all plugins work like that
-        $uri[0] = preg_replace('#(.*?)([^/]+)$#', '$2', $uri[0]);
-        // Loop over prefs to enable active favorites
+        # Loop over prefs to enable active favorites
         foreach ($this->user_prefs as $k => &$v) {
-            // duplicate request URI on each loop as it takes previous pref value ?!
-            $u = $uri;
+            # Use callback if defined to match whether favorite is active or not
             if (!empty($v['active_cb']) && is_callable($v['active_cb'])) {
-                // Use callback if defined to match whether favorite is active or not
-                $v['active'] = call_user_func($v['active_cb'], $u[0], $_REQUEST);
+                $v['active'] = call_user_func($v['active_cb']);
+            # Or use called handler
             } else {
-                // Failback active detection. We test against URI name & parameters
-                $v['active'] = true; // true until something proves it is false
-                $u           = explode('?', $v['url'], 2);
-                if (!preg_match('/' . preg_quote($u[0], '/') . '/', $_SERVER['REQUEST_URI'])) {
-                    $v['active'] = false; // no URI match
-                }
-                if (count($u) == 2) {
-                    parse_str($u[1], $p);
-                    // test against each request parameter.
-                    foreach ($p as $k2 => $v2) {
-                        if (!isset($_REQUEST[$k2]) || $_REQUEST[$k2] !== $v2) {
-                            $v['active'] = false;
-                        }
-                    }
-                }
+                parse_str(parse_url($v['url'], PHP_URL_QUERY), $url);
+                $handler = $url['handler'] ?: null;
+                $v['active'] = $handler == dcCore()->adminurl->called();
             }
         }
     }
@@ -335,7 +319,7 @@ class Favorites
         foreach ($this->user_prefs as $k => $v) {
             if (!empty($v['dashboard_cb']) && is_callable($v['dashboard_cb'])) {
                 $v = new ArrayObject($v);
-                call_user_func($v['dashboard_cb'], dcCore(), $v);
+                call_user_func($v['dashboard_cb'], $v);
             }
             $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
             dcCore()->behaviors->call('adminDashboardFavsIcon', $k, $icons[$k]);
@@ -476,12 +460,11 @@ class Favorites
     /**
      * Helper for posts icon on dashboard
      *
-     * @param   Core            $core   Core instance
      * @param   ArrayObject     $v      Favicon object
      */
-    public static function cbPostsDashboard(Core $core, ArrayObject $v): void
+    public static function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = (int) $core->blog->getPosts([], true)->f(0);
+        $post_count  = (int) dcCore()->blog->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -491,24 +474,21 @@ class Favorites
      *
      * Take account of post edition (if id is set)
      *
-     * @param   string      $request_uri        The URI
-     * @param   array       $request_params     The params
      * @return  boolean                         Active
      */
-    public static function cbNewpostActive(string $request_uri, array $request_params): bool
+    public static function cbNewpostActive(): bool
     {
-        return 'post.php' == $request_uri && !isset($request_params['id']);
+        return dcCore()->adminurl->called() == 'admin.post' && !isset($_REQUEST['id']);
     }
 
     /**
      * Helper for comments icon on dashboard
      *
-     * @param   Core            $core   The core
      * @param   ArrayObject     $v      Favicon object
      */
-    public static function cbCommentsDashboard(Core $core, ArrayObject $v): void
+    public static function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = (int) $core->blog->getComments([], true)->f(0);
+        $comment_count = (int) dcCore()->blog->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }
