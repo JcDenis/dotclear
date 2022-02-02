@@ -200,18 +200,47 @@ class Page extends AbstractPage
 
     private function settingLine($id, $s, $ns, $field_name, $strong_label)
     {
-        if ($s['type'] == 'boolean') {
-            $field = Form::combo([$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
-                [__('yes') => 1, __('no') => 0], $s['value'] ? 1 : 0);
-        } else {
-            if ($s['type'] == 'array') {
-                $field = Form::field([$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id], 40, null,
-                    Html::escapeHTML(json_encode($s['value'])));
-            } else {
-                $field = Form::field([$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id], 40, null,
-                    Html::escapeHTML((string) $s['value']));
-            }
+        switch ($s['type']) {
+            case 'boolean':
+                $field = Form::combo(
+                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    [__('yes') => 1, __('no') => 0],
+                    (int) $s['value']
+                );
+
+                break;
+
+            case 'array':
+                $field = Form::field(
+                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    40,
+                    null,
+                    Html::escapeHTML(json_encode($s['value']))
+                );
+
+                break;
+
+            case 'integer':
+                $field = Form::number(
+                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    null,
+                    null,
+                    Html::escapeHTML((string) $s['value'])
+                );
+
+                break;
+
+            default:
+                $field = Form::field(
+                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    40,
+                    null,
+                    Html::escapeHTML($s['value'])
+                );
+
+                break;
         }
+
         $type = Form::hidden([$field_name . '_type' . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id . '_type'],
             Html::escapeHTML($s['type']));
 
