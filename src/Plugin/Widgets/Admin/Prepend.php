@@ -36,7 +36,9 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites();
 
         # rte
-        dcCore()->behaviors->add('adminRteFlags', [__CLASS__, 'behaviorAdminRteFlags']);
+        dcCore()->behaviors->add('adminRteFlags', function (ArrayObject $rte): void {
+            $rte['widgets_text'] = [true, __('Widget\'s textareas')];
+        });
 
         # Widgets
         new WidgetsStack();
@@ -63,10 +65,5 @@ class Prepend extends AbstractPrepend
         }
 
         return true;
-    }
-
-    public static function behaviorAdminRteFlags(ArrayObject $rte): void
-    {
-        $rte['widgets_text'] = [true, __('Widget\'s textareas')];
     }
 }

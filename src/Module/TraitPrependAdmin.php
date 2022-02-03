@@ -76,7 +76,11 @@ trait TraitPrependAdmin
     {
         # call once behavoir for all modules
         if (empty(static::$favorties)) {
-            dcCore()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorStandardAdminDashboardFavorites']);
+            dcCore()->behaviors->add('adminDashboardFavorites', function (Favorites $favs): void {
+                foreach (static::$favorites as $id => $values) {
+                    $favs->register($id, $values);
+                }
+            });
         }
 
         $url = '?mf=' . static::$define->type() . '/' . static::$define->id() . './icon%s.svg';
@@ -88,12 +92,5 @@ trait TraitPrependAdmin
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => static::$define->permissions(),
         ];
-    }
-
-    public static function behaviorStandardAdminDashboardFavorites(Favorites $favs): void
-    {
-        foreach (static::$favorites as $id => $values) {
-            $favs->register($id, $values);
-        }
     }
 }

@@ -31,7 +31,11 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dcCore()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
+        dcCore()->behaviors->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
+            return $module->id() == 'BlowUp' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
+                '<p><a href="' . dcCore()->adminurl->get('admin.plugin.BlowUp') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+                : '';
+        });
     }
 
     public static function installModule(): ?bool
@@ -40,12 +44,5 @@ class Prepend extends AbstractPrepend
         dcCore()->blog->settings->themes->put('blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;
-    }
-
-    public static function behaviorAdminCurrentThemeDetails(AbstractDefine $module): string
-    {
-        return $module->id() == 'BlowUp' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
-            '<p><a href="' . dcCore()->adminurl->get('admin.plugin.BlowUp') . '" class="button submit">' . __('Configure theme') . '</a></p>'
-            : '';
     }
 }
