@@ -442,7 +442,7 @@ abstract class Page
         '<li><a class="smallscreen' . (preg_match('"' . preg_quote(dcCore()->adminurl->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
         '" href="' . dcCore()->adminurl->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
         '<li><a href="' . dcCore()->adminurl->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), dcCore()->auth->userID()) .
-            '</span><img src="?df=images/logout.png" alt="" /></a></li>' .
+            '</span><img src="?df=images/logout.svg" alt="" /></a></li>' .
             '</ul>' .
             '</header>'; // end header
 
@@ -562,8 +562,12 @@ abstract class Page
         $hl_pos         = $options['hl_pos']    ?? -1;
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
-            '<a class="go_home" href="' . dcCore()->adminurl->get('admin.home') . '"><img src="?df=style/dashboard.png" alt="' . __('Go to dashboard') . '" /></a>' :
-            '<img src="?df=style/dashboard-alt.png" alt="" />');
+            '<a class="go_home" href="' . dcCore()->adminurl->get('admin.home') . '">' .
+            '<img class="go_home light-only" src="?df=style/dashboard.svg" alt="' . __('Go to dashboard') . '" />' .
+            '<img class="go_home dark-only" src="?df=style/dashboard-dark.svg" alt="' . __('Go to dashboard') . '" />' .
+            '</a>' :
+            '<img class="go_home light-only" src="?df=style/dashboard-alt.svg" alt="" />' .
+            '<img class="go_home dark-only" src="?df=style/dashboard-alt-dark.svg" alt="" />');
         $index = 0;
         if ($hl_pos < 0) {
             $hl_pos = count($elements) + $hl_pos;
