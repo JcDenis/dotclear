@@ -48,7 +48,11 @@ class StoreParser
             throw new CoreException(__('Failed to read data feed'));
         }
 
-        $this->xml   = simplexml_load_string($data);
+        try {
+            $this->xml   = simplexml_load_string($data);
+        } catch(Exception) {
+            $this->xml = false;
+        }
         $this->items = [];
 
         if ($this->xml === false) {
