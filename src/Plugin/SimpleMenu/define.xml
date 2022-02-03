@@ -1,0 +1,12 @@
+<module id="SimpleMenu">
+  <name>Simple menu</name>
+  <description>Simple menu for Dotclear</description>
+  <version>1.7-dev</version>
+  <author>Franck Paul</author>
+  <type>Plugin</type>
+  <permissions>usage,contentadmin</permissions>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

@@ -46,20 +46,21 @@ class Prepend extends AbstractPrepend
 
     public static function installModule(): ?bool
     {
+        $widgets  = new Widgets();
         $settings = dcCore()->blog->settings;
         $settings->addNamespace('widgets');
         if ($settings->widgets->widgets_nav != null) {
-            $settings->widgets->put('widgets_nav', Widgets::load($settings->widgets->widgets_nav)->store());
+            $settings->widgets->put('widgets_nav', $widgets->load($settings->widgets->widgets_nav)->store());
         } else {
             $settings->widgets->put('widgets_nav', '', 'string', 'Navigation widgets', false);
         }
         if ($settings->widgets->widgets_extra != null) {
-            $settings->widgets->put('widgets_extra', Widgets::load($settings->widgets->widgets_extra)->store());
+            $settings->widgets->put('widgets_extra', $widgets->load($settings->widgets->widgets_extra)->store());
         } else {
             $settings->widgets->put('widgets_extra', '', 'string', 'Extra widgets', false);
         }
         if ($settings->widgets->widgets_custom != null) {
-            $settings->widgets->put('widgets_custom', Widgets::load($settings->widgets->widgets_custom)->store());
+            $settings->widgets->put('widgets_custom', $widgets->load($settings->widgets->widgets_custom)->store());
         } else {
             $settings->widgets->put('widgets_custom', '', 'string', 'Custom widgets', false);
         }

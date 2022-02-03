@@ -1,0 +1,15 @@
+<module id="Breadcrumb">
+  <name>Breadcrumb</name>
+  <description>Breadcrumb for Dotclear</description>
+  <version>0.8-dev</version>
+  <author>Franck Paul</author>
+  <type>Plugin</type>
+  <permissions>usage,contentadmin</permissions>
+  <settings>
+    <blog>#params.breadcrumb_params</blog>
+  </settings>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

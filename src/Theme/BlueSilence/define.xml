@@ -1,0 +1,12 @@
+<module id="BlueSilence">
+  <name>Dotclear Theme</name>
+  <description>Default Dotclear theme, fully customizable</description>
+  <version>1.1-dev</version>
+  <author>Marco / marcarea.com</author>
+  <type>Theme</type>
+  <templateset>Mustek</templateset>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

@@ -204,7 +204,7 @@ abstract class AbstractModules
         ob_start();
         try {
             $class = dcCore()::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
-            $define = new $class($id, $dir . '/Define.php');
+            $define = new $class($id, $dir . '/define.xml');
         } catch (ModuleException) {
             ob_end_clean();
 

@@ -1,0 +1,12 @@
+<module id="Berlin">
+  <name>Berlin</name>
+  <description>Dotclear 2.7+ default theme</description>
+  <version>1.5-dev</version>
+  <author>Dotclear team</author>
+  <type>Theme</type>
+  <templateset>Dotty</templateset>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

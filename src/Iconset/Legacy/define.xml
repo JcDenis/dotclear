@@ -1,0 +1,11 @@
+<module id="Legacy">
+  <name>Legacy</name>
+  <description>Original Dotclear 2.0 icons</description>
+  <version>0.2-dev</version>
+  <author>Dotclear team</author>
+  <type>Iconset</type>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

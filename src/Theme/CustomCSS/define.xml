@@ -1,0 +1,12 @@
+<module id="CustomCSS">
+  <name>Custom theme</name>
+  <description>A CSS customizable theme</description>
+  <version>1.3-dev</version>
+  <author>Olivier Meunier</author>
+  <type>Theme</type>
+  <templateset>Mustek</templateset>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

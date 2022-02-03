@@ -1,0 +1,13 @@
+<module id="Attachments">
+  <name>attachments</name>
+  <description>Manage post attachments</description>
+  <version>1.2-dev</version>
+  <author>Dotclear Team</author>
+  <type>Plugin</type>
+  <permissions>usage,contentadmin,pages</permissions>
+  <priority>999</priority>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

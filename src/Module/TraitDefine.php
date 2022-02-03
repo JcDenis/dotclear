@@ -246,6 +246,8 @@ trait TraitDefine
                 __('Module "%s" has no name.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
+        } else {
+            $this->properties['name'] = __($this->properties['name']);
         }
 
         if (empty($this->properties['description'])) {
@@ -253,6 +255,8 @@ trait TraitDefine
                 __('Module "%s" has no description.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
+        } else {
+            $this->properties['description'] = __($this->properties['description']);
         }
 
         if (empty($this->properties['author'])) {
