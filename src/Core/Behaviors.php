@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Closure;
 use Dotclear\Exception;
 
 class Behaviors
@@ -27,7 +28,7 @@ class Behaviors
      * @param   string          $behavior   The behavior
      * @param   string|array    $callback   The function
      */
-    public function add(string $behavior, string|array $callback): void
+    public function add(string $behavior, string|array|Closure $callback): void
     {
         # Silently failed non callable function
         if (is_callable($callback)) {
