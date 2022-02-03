@@ -73,9 +73,9 @@ abstract class AbstractDefine
 
     private function newFromArray(string $id, array $properties): void
     {
-        $this->properties = $properties;
+        $this->properties = array_merge($this->properties, $properties);
         $this->properties['id']       = $id;
-        $this->properties['root']     = empty($properties['root']) ? '' : dirname($file);
+        $this->properties['root']     = empty($properties['root']) ? '' : dirname($properties['root']);
         $this->properties['writable'] = !empty($this->properties['root']) && is_writable($this->properties['root']);
     }
 

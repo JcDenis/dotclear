@@ -113,6 +113,7 @@ trait TraitModulesAdmin
      */
     protected function loadModulesProcess(): void
     {
+        $this->register();
         $this->setPath();
         $this->setURL($this->getModulesURL());
         $this->setIndex(__('other'));
@@ -131,7 +132,6 @@ trait TraitModulesAdmin
             return false;
         }
 
-        $this->register();
 
         return true;
     }

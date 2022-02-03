@@ -68,7 +68,7 @@ class Home extends Page
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled")
         ];
 
-        # Module Plugin
+        # Module Plugin //! move this to Modules Plugin
         if (dcCore()->plugins) {
             if (dcCore()->plugins->disableModulesDependencies(dcCore()->adminurl->get('admin.home'))) {
                 exit;

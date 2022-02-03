@@ -146,6 +146,10 @@ trait TraitDefinePlugin
             $this->properties
         );
 
+        if ($this->properties['permissions'] == 'NULL') {
+            $this->properties['permissions'] = null;
+        }
+
         $this->repository = trim($this->properties['repository']);
         if (!empty($this->properties['repository'])) {
             $this->properties['repositiory'] = substr($this->properties['repository'], -12, 12) == '/dcstore.xml' ?

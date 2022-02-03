@@ -293,7 +293,7 @@ abstract class AbstractModules
                 if (!isset($modules[$dep[0]]) && $dep[0] != 'core') {
                     $missing[$dep[0]] = sprintf(__('Requires %s module which is not installed'), $dep[0]);
                 # Module present, but version missing
-                } elseif ((count($dep) > 1) && version_compare(($dep[0] == 'core' ? $dc_version : $modules[$dep[0]]->version()), $dep[1]) == -1) {
+                } elseif (count($dep) > 1 && version_compare(($dep[0] == 'core' ? $dc_version : $modules[$dep[0]]->version()), $dep[1]) == -1) {
                     if ($dep[0] == 'core') {
                         $missing[$dep[0]] = sprintf(
                             __('Requires Dotclear version %s, but version %s is installed'),
@@ -309,10 +309,9 @@ abstract class AbstractModules
                         );
                     }
                 # Module is disabled
-                } elseif (($dep[0] != 'core') && !$modules[$dep[0]]->enabled()) {
+                } elseif ($dep[0] != 'core' && !$modules[$dep[0]]->enabled()) {
                     $missing[$dep[0]] = sprintf(__('Requires %s module which is disabled'), $dep[0]);
-                }
-                if ($dep[0] != 'core') {
+                } elseif ($dep[0] != 'core') {
                     $modules[$dep[0]]->depParents($id);
                 }
             }

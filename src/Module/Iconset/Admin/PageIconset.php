@@ -41,6 +41,9 @@ class PageIconset extends Page
 
     protected function getPagePrepend(): ?bool
     {
+        if (dcCore()->iconsets->disableModulesDependencies(dcCore()->adminurl->get('admin.iconset'))) {
+            exit;
+        }
         # -- Execute actions --
         try {
             dcCore()->iconsets->doActions();
