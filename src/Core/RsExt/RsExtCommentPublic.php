@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\rsExtCommentPublic
+ * @class Dotclear\Core\RsExt\RsExtCommentPublic
  * @brief Dotclear comment record public helpers.
  *
  * @package Dotclear
@@ -15,7 +15,7 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtComment;
 
-class rsExtCommentPublic extends rsExtComment
+class RsExtCommentPublic extends RsExtComment
 {
     public static function getContent($rs, $absolute_urls = false)
     {

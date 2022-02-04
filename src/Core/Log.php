@@ -132,7 +132,7 @@ class Log
         }
 
         $rs = $sql->select();
-        $rs->extend('Dotclear\\Core\\RsExt\\rsExtLog');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtLog');
 
         return $rs;
     }

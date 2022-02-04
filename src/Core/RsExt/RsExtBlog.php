@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\rsExtBlog
+ * @class Dotclear\Core\RsExt\RsExtBlog
  * @brief Dotclear blogs record helpers.
  *
  * @package Dotclear

@@ -1209,7 +1209,7 @@ class Core
         $strReq = sprintf($strReq, $join, $where);
 
         $rs = $this->con->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\rsExtBlog');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtBlog');
 
         return $rs;
     }

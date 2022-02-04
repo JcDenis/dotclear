@@ -1121,7 +1121,7 @@ class Blog
 
         $rs            = $this->con->select($strReq);
         $rs->_nb_media = [];
-        $rs->extend('Dotclear\\Core\\RsExt\\rsExtPost');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtPost');
 
         # --BEHAVIOR-- coreBlogGetPosts
         dcCore()->behaviors->call('coreBlogGetPosts', $rs);
