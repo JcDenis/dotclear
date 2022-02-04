@@ -17,7 +17,7 @@ use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
-use Dotclear\Theme\BlowUp\Lib\BlowupConfig;
+use Dotclear\Theme\BlowUp\Lib\BlowUpConfig;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -117,7 +117,7 @@ class Page extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $this->blowup_config = new BlowupConfig();
+        $this->blowup_config = new BlowUpConfig();
 
         $this->blowup_can_write_images = $this->blowup_config->canWriteImages();
 
