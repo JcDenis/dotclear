@@ -288,23 +288,23 @@ class UrlHandler
     public function callHandler($type, $args)
     {
         if (!isset($this->types[$type])) {
-            throw new UtilsException('Unknown URL type');
+            throw new CoreException('Unknown URL type');
         }
 
         $handler = $this->types[$type]['handler'];
         if (!is_callable($handler)) {
-            throw new UtilsException('Unable to call function');
+            throw new CoreException('Unable to call function');
         }
 
         try {
             call_user_func($handler, $args);
-        } catch (UtilsException $e) {
+        } catch (CoreException $e) {
             foreach ($this->error_handlers as $err_handler) {
                 if (call_user_func($err_handler, $args, $type, $e) === true) {
                     return;
                 }
             }
-            # propagate UtilsException, as it has not been processed by handlers
+            # propagate CoreException, as it has not been processed by handlers
             throw $e;
         }
     }
@@ -312,18 +312,18 @@ class UrlHandler
     public function callDefaultHandler($args)
     {
         if (!is_callable($this->default_handler)) {
-            throw new UtilsException('Unable to call function');
+            throw new CoreException('Unable to call function');
         }
 
         try {
             call_user_func($this->default_handler, $args);
-        } catch (UtilsException $e) {
+        } catch (CoreException $e) {
             foreach ($this->error_handlers as $err_handler) {
                 if (call_user_func($err_handler, $args, 'default', $e) === true) {
                     return;
                 }
             }
-            # propagate UtilsException, as it has not been processed by handlers
+            # propagate CoreException, as it has not been processed by handlers
             throw $e;
         }
     }
