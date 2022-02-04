@@ -1365,7 +1365,7 @@ class Blog
             $limit;
 
         $rs = $this->con->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\rsExtDates');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtDates');
 
         return $rs;
     }
