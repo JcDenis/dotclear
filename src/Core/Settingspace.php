@@ -55,13 +55,13 @@ class Settingspace
      * Retrieves blog settings and puts them in $settings
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param   string          $blog_id    The blog identifier
+     * @param   string|null     $blog_id    The blog identifier
      * @param   string          $name       The namespace ID
      * @param   Record|null     $rs
      *
      * @throws     CoreException
      */
-    public function __construct(string $blog_id, string $name, ?Record $rs = null)
+    public function __construct(?string $blog_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;

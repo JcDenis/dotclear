@@ -19,6 +19,7 @@ use Closure;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Behaviors;
+use Dotclear\Core\Session;
 use Dotclear\Core\UrlHandler;
 use Dotclear\Core\RestServer;
 use Dotclear\Core\Meta;
@@ -164,7 +165,7 @@ class Core
         $this->behaviors = new Behaviors();
         $this->con       = $this->conInstance();
         $this->auth      = $this->authInstance();
-        $this->session   = new session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
+        $this->session   = new Session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
         $this->url       = new UrlHandler();
         $this->rest      = new RestServer();
         $this->meta      = new Meta();

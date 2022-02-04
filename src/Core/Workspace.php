@@ -245,16 +245,16 @@ class Workspace
      * $value_change allow you to not change pref. Useful if you need to change
      * a pref label or type and don't want to change its value.
      *
-     * @param   string  $id             The pref identifier
-     * @param   mixed   $value          The pref value
-     * @param   string  $type           The pref type
-     * @param   string  $label          The pref label
-     * @param   bool    $value_change   Change pref value or not
-     * @param   bool    $global         Pref is global
+     * @param   string      $id             The pref identifier
+     * @param   mixed       $value          The pref value
+     * @param   string      $type           The pref type
+     * @param   string      $label          The pref label
+     * @param   bool|null   $value_change   Change pref value or not
+     * @param   bool        $global         Pref is global
      *
-     * @throws     CoreException
+     * @throws                              CoreException
      */
-    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, bool $value_change = true, bool $global = false): void
+    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, ?bool $value_change = true, bool $global = false): void
     {
         if (!preg_match(self::WS_ID_SCHEMA, $id)) {
             throw new CoreException(sprintf(__('%s is not a valid pref id'), $id));

@@ -1958,15 +1958,15 @@ class Blog
     /**
      * Creates post HTML content, taking format and lang into account.
      *
-     * @param      int|null $post_id        The post identifier
-     * @param      string   $format         The format
-     * @param      string   $lang           The language
-     * @param      string   $excerpt        The excerpt
-     * @param      string   $excerpt_xhtml  The excerpt xhtml
-     * @param      string   $content        The content
-     * @param      string   $content_xhtml  The content xhtml
+     * @param      int|null     $post_id        The post identifier
+     * @param      string       $format         The format
+     * @param      string       $lang           The language
+     * @param      string|null  $excerpt        The excerpt
+     * @param      string|null  $excerpt_xhtml  The excerpt xhtml
+     * @param      string       $content        The content
+     * @param      string       $content_xhtml  The content xhtml
      */
-    public function setPostContent(?int $post_id, string $format, string $lang, string &$excerpt, string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
+    public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ($format == 'wiki') {
             dcCore()->initWikiPost();

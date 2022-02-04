@@ -1157,7 +1157,7 @@ abstract class Page
     {
         $js = [];
         if (dcCore()->auth->user_prefs->toggles) {
-            $unfolded_sections = explode(',', dcCore()->auth->user_prefs->toggles->unfolded_sections);
+            $unfolded_sections = explode(',', (string) dcCore()->auth->user_prefs->toggles->unfolded_sections);
             foreach ($unfolded_sections as $k => &$v) {
                 if ($v !== '') {
                     $js[$unfolded_sections[$k]] = true;
