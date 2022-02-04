@@ -2273,7 +2273,7 @@ class Blog
         }
 
         $rs = $this->con->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\rsExtComment');
+        $rs->extend('Dotclear\\Core\\RsExt\\RsExtComment');
 
         # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
         dcCore()->behaviors->call('coreBlogGetComments', $rs);

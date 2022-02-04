@@ -301,7 +301,7 @@ class DefaultPostAction
                 ];
                 $rs       = dcCore()->getUsers($params);
                 $rsStatic = $rs->toStatic();
-                $rsStatic->extend('Dotclear\\Core\\RsExt\\rsExtUser');
+                $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
                 $rsStatic = $rsStatic->toExtStatic();
                 $rsStatic->lexicalSort('user_id');
                 while ($rsStatic->fetch()) {

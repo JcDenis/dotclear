@@ -63,7 +63,7 @@ class Blogs extends Page
         $rsStatic = $rs->toStatic();
         if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {
             # Sort blog list using lexical order if necessary
-            $rsStatic->extend('Dotclear\\Core\\RsExt\\rsExtUser');
+            $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
             $rsStatic = $rsStatic->toExtStatic();
             $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
         }

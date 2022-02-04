@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\rsExtDates
+ * @class Dotclear\Core\RsExt\RsExtDates
  * @brief Dotclear dates record helpers.
  *
  * This class adds new methods to database dates results.
