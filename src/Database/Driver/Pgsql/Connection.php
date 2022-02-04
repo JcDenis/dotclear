@@ -216,11 +216,11 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_escape_string($str, $handle = null)
     {
-        if ($handle instanceof PgSql\Connection) {
-            return pg_escape_string($handle, $str);
+        if ($handle instanceof \PgSql\Connection) {
+            return pg_escape_string($handle, (string) $str);
         }
 
-        return addslashes($str);
+        return addslashes((string) $str);
     }
 
     public function db_write_lock($table)
