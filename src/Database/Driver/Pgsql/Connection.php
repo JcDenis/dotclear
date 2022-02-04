@@ -109,14 +109,14 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_close($handle)
     {
-        if (is_resource($handle)) {
+        if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             pg_close($handle);
         }
     }
 
     public function db_version($handle)
     {
-        if (is_resource($handle)) {
+        if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             return pg_parameter_status($handle, 'server_version');
         }
 
@@ -125,7 +125,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_query($handle, $query)
     {
-        if (is_resource($handle)) {
+        if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             $res = @pg_query($handle, $query);
             if ($res === false) {
                 $e = new DatabaseException($this->db_last_error($handle));
@@ -144,7 +144,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_num_fields($res)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_num_fields($res);
         }
 
@@ -153,7 +153,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_num_rows($res)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_num_rows($res);
         }
 
@@ -162,7 +162,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_field_name($res, $position)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_field_name($res, $position);
         }
 
@@ -171,7 +171,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_field_type($res, $position)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_field_type($res, $position);
         }
 
@@ -180,7 +180,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_fetch_assoc($res)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_fetch_assoc($res);
         }
 
@@ -189,7 +189,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_result_seek($res, $row)
     {
-        if (is_resource($res)) {
+        if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_result_seek($res, (int) $row);
         }
 
@@ -198,7 +198,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_changes($handle, $res)
     {
-        if (is_resource($handle) && is_resource($res)) {
+        if ((is_resource($handle) || $handle instanceof \PgSql\Connection) && (is_resource($res) || $res instanceof \PgSql\Result)) {
             return pg_affected_rows($res);
         }
 
@@ -207,7 +207,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
     public function db_last_error($handle)
     {
-        if (is_resource($handle)) {
+        if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             return pg_last_error($handle);
         }
 
