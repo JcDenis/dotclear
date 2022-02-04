@@ -306,7 +306,7 @@ class Template
         );
 
         # Next : build semantic tree from tokens.
-        $rootNode          = new tplNode();
+        $rootNode          = new TplNode();
         $node              = $rootNode;
         $errors            = [];
         $this->parent_file = '';
@@ -316,7 +316,7 @@ class Template
                 if (substr($match[0], 1, 1) == '/') {
                     // Closing tag, check if it matches current opened node
                     $tag = $match[3];
-                    if (($node instanceof tplNodeBlock) && $node->getTag() == $tag) {
+                    if (($node instanceof TplNodeBlock) && $node->getTag() == $tag) {
                         $node->setClosing();
                         $node = $node->getParent();
                     } else {
@@ -354,28 +354,28 @@ class Template
                             $this->parent_file = $attr['parent'];
                         }
                     } elseif (strtolower($tag) == 'parent') {
-                        $node->addChild(new tplNodeValueParent($tag, $attr, $str_attr));
+                        $node->addChild(new TplNodeValueParent($tag, $attr, $str_attr));
                     } else {
-                        $node->addChild(new tplNodeValue($tag, $attr, $str_attr));
+                        $node->addChild(new TplNodeValue($tag, $attr, $str_attr));
                     }
                 } else {
                     // Opening tag, create new node and dive into it
                     $tag = $match[1];
                     if ($tag == 'Block') {
-                        $newnode = new tplNodeBlockDefinition($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
+                        $newnode = new TplNodeBlockDefinition($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
                     } else {
-                        $newnode = new tplNodeBlock($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
+                        $newnode = new TplNodeBlock($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
                     }
                     $node->addChild($newnode);
                     $node = $newnode;
                 }
             } else {
                 // Simple text
-                $node->addChild(new tplNodeText($block));
+                $node->addChild(new TplNodeText($block));
             }
         }
 
-        if (($node instanceof tplNodeBlock) && !$node->isClosed()) {
+        if (($node instanceof TplNodeBlock) && !$node->isClosed()) {
             $errors[] = sprintf(
                 __('Did not find closing tag for block <tpl:%s>. Content has been ignored.'),
                 html::escapeHTML($node->getTag())
