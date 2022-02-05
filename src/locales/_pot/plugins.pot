@@ -550,7 +550,7 @@ msgstr ""
 msgid "All categories"
 msgstr ""
 
-#: plugins/blogroll/_widgets.php:35 plugins/blowupConfig/index.php:262
+#: plugins/blogroll/_widgets.php:35 plugins/BlowupConfig/index.php:262
 msgid "Links"
 msgstr ""
 
@@ -778,308 +778,308 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:97
+#: plugins/BlowupConfig/index.php:97
 msgid "Light linear gradient"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:98
+#: plugins/BlowupConfig/index.php:98
 msgid "Medium linear gradient"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:99
+#: plugins/BlowupConfig/index.php:99
 msgid "Dark linear gradient"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:100
+#: plugins/BlowupConfig/index.php:100
 msgid "Solid color"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:103
+#: plugins/BlowupConfig/index.php:103
 msgid "Custom..."
 msgstr ""
 
-#: plugins/blowupConfig/index.php:194
+#: plugins/BlowupConfig/index.php:194
 msgid "Theme configuration has been successfully updated."
 msgstr ""
 
-#: plugins/blowupConfig/index.php:203 plugins/blowupConfig/index.php:224
+#: plugins/BlowupConfig/index.php:203 plugins/BlowupConfig/index.php:224
 msgid "Blowup configuration"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:208
+#: plugins/BlowupConfig/index.php:208
 msgid "Predefined styles"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:209
+#: plugins/BlowupConfig/index.php:209
 msgid "Apply code"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:210
+#: plugins/BlowupConfig/index.php:210
 msgid "Choose a predefined style"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:228
+#: plugins/BlowupConfig/index.php:228
 msgid "Back to Blog appearance"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:231
+#: plugins/BlowupConfig/index.php:231
 msgid "For the following reasons, images cannot be created. You won't be able to change some background properties."
 msgstr ""
 
-#: plugins/blowupConfig/index.php:237
+#: plugins/BlowupConfig/index.php:237
 msgid "Customization"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:238
+#: plugins/BlowupConfig/index.php:238
 msgid "General"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:242
+#: plugins/BlowupConfig/index.php:242
 msgid "Background color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:245
+#: plugins/BlowupConfig/index.php:245
 msgid "Background color fill:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:250
+#: plugins/BlowupConfig/index.php:250
 msgid "Main text font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:253
+#: plugins/BlowupConfig/index.php:253
 msgid "Main text font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:256
+#: plugins/BlowupConfig/index.php:256
 msgid "Main text color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:259
+#: plugins/BlowupConfig/index.php:259
 msgid "Text line height:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:263
+#: plugins/BlowupConfig/index.php:263
 msgid "Links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:266
+#: plugins/BlowupConfig/index.php:266
 msgid "Visited links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:269
+#: plugins/BlowupConfig/index.php:269
 msgid "Focus links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:276
+#: plugins/BlowupConfig/index.php:276
 msgid "Prelude color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:281
+#: plugins/BlowupConfig/index.php:281
 msgid "Hide main title"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:284
+#: plugins/BlowupConfig/index.php:284
 msgid "Main title font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:287
+#: plugins/BlowupConfig/index.php:287
 msgid "Main title font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:290
+#: plugins/BlowupConfig/index.php:290
 msgid "Main title color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:293
+#: plugins/BlowupConfig/index.php:293
 msgid "Main title alignment:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:294
+#: plugins/BlowupConfig/index.php:294
 msgid "center"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:294 plugins/blowupConfig/index.php:326
+#: plugins/BlowupConfig/index.php:294 plugins/BlowupConfig/index.php:326
 msgid "left"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:294 plugins/blowupConfig/index.php:326
+#: plugins/BlowupConfig/index.php:294 plugins/BlowupConfig/index.php:326
 msgid "right"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:296
+#: plugins/BlowupConfig/index.php:296
 msgid "Main title position (x:y)"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:307 plugins/blowupConfig/index.php:308
+#: plugins/BlowupConfig/index.php:307 plugins/BlowupConfig/index.php:308
 msgid "Top image"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:310
+#: plugins/BlowupConfig/index.php:310
 msgid "Choose \"Custom...\" to upload your own image."
 msgstr ""
 
-#: plugins/blowupConfig/index.php:312
+#: plugins/BlowupConfig/index.php:312
 msgid "Add your image:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:313
+#: plugins/BlowupConfig/index.php:313
 #, php-format
 msgid "JPEG or PNG file, 800 pixels wide, maximum size %s"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:324
+#: plugins/BlowupConfig/index.php:324
 msgid "Sidebar"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:325
+#: plugins/BlowupConfig/index.php:325
 msgid "Sidebar position:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:328
+#: plugins/BlowupConfig/index.php:328
 msgid "Sidebar text font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:331
+#: plugins/BlowupConfig/index.php:331
 msgid "Sidebar text font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:334
+#: plugins/BlowupConfig/index.php:334
 msgid "Sidebar text color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:337
+#: plugins/BlowupConfig/index.php:337
 msgid "Sidebar titles font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:340
+#: plugins/BlowupConfig/index.php:340
 msgid "Sidebar titles font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:343
+#: plugins/BlowupConfig/index.php:343
 msgid "Sidebar titles color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:346
+#: plugins/BlowupConfig/index.php:346
 msgid "Sidebar 2nd level titles font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:349
+#: plugins/BlowupConfig/index.php:349
 msgid "Sidebar 2nd level titles font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:352
+#: plugins/BlowupConfig/index.php:352
 msgid "Sidebar 2nd level titles color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:355
+#: plugins/BlowupConfig/index.php:355
 msgid "Sidebar lines color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:358
+#: plugins/BlowupConfig/index.php:358
 msgid "Sidebar links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:361
+#: plugins/BlowupConfig/index.php:361
 msgid "Sidebar visited links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:364
+#: plugins/BlowupConfig/index.php:364
 msgid "Sidebar focus links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:368
+#: plugins/BlowupConfig/index.php:368
 msgid "Date title font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:371
+#: plugins/BlowupConfig/index.php:371
 msgid "Date title font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:374
+#: plugins/BlowupConfig/index.php:374
 msgid "Date title color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:377
+#: plugins/BlowupConfig/index.php:377
 msgid "Entry title font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:380
+#: plugins/BlowupConfig/index.php:380
 msgid "Entry title font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:383
+#: plugins/BlowupConfig/index.php:383
 msgid "Entry title color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:388
+#: plugins/BlowupConfig/index.php:388
 msgid "Comment background color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:393
+#: plugins/BlowupConfig/index.php:393
 msgid "Comment text color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:398
+#: plugins/BlowupConfig/index.php:398
 msgid "My comment background color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:403
+#: plugins/BlowupConfig/index.php:403
 msgid "My comment text color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:406
+#: plugins/BlowupConfig/index.php:406
 msgid "Footer"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:407
+#: plugins/BlowupConfig/index.php:407
 msgid "Footer font:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:410
+#: plugins/BlowupConfig/index.php:410
 msgid "Footer font size:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:413
+#: plugins/BlowupConfig/index.php:413
 msgid "Footer color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:416
+#: plugins/BlowupConfig/index.php:416
 msgid "Footer links color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:419
+#: plugins/BlowupConfig/index.php:419
 msgid "Footer background color:"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:423 plugins/blowupConfig/index.php:428
+#: plugins/BlowupConfig/index.php:423 plugins/BlowupConfig/index.php:428
 msgid "Additional CSS"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:424
+#: plugins/BlowupConfig/index.php:424
 msgid "Any additional CSS styles (must be written using the CSS syntax):"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:446
+#: plugins/BlowupConfig/index.php:446
 msgid "Configuration import / export"
 msgstr ""
 
-#: plugins/blowupConfig/index.php:448
+#: plugins/BlowupConfig/index.php:448
 msgid "You can share your configuration using the following code. To apply a configuration, paste the code, click on \"Apply code\" and save."
 msgstr ""
 
-#: plugins/blowupConfig/index.php:452
+#: plugins/BlowupConfig/index.php:452
 msgid "Copy this code:"
 msgstr ""
 
-#: plugins/blowupConfig/lib/class.blowup.config.php:66
+#: plugins/BlowupConfig/lib/class.Blowup.config.php:66
 msgid "default"
 msgstr ""
 
-#: plugins/blowupConfig/lib/class.blowup.config.php:294
+#: plugins/BlowupConfig/lib/class.Blowup.config.php:294
 msgid "Unable to create css file."
 msgstr ""
 
-#: plugins/blowupConfig/lib/class.blowup.config.php:409
+#: plugins/BlowupConfig/lib/class.Blowup.config.php:409
 msgid "Unable to open image."
 msgstr ""
 

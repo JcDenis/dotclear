@@ -113,7 +113,7 @@ class Distrib
         );
 
         define('DOTCLEAR_THEME_OFFICIAL',
-            'Berlin,BlueSilence,BlowUp,CustomCSS,Ductile'
+            'Berlin,BlueSilence,Blowup,CustomCSS,Ductile'
         );
 
         define('DOTCLEAR_ICONSET_OFFICIAL',

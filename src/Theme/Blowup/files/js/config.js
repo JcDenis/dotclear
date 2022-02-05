@@ -2,7 +2,7 @@
 'use strict';
 
 $(() => {
-  dotclear.mergeDeep(dotclear, dotclear.getData('blowup'));
+  dotclear.mergeDeep(dotclear, dotclear.getData('Blowup'));
 
   const toggleDisable = (e) => {
     if (e.attr('disabled')) {
@@ -78,11 +78,11 @@ $(() => {
   $('#top_image').on('change', function () {
     if (this.value == 'custom') {
       $('#uploader').show();
-      $('#image-preview').attr('src', `${dotclear.blowup_public_url}/page-t.png`);
+      $('#image-preview').attr('src', `${dotclear.Blowup_public_url}/page-t.png`);
     } else {
       $('#uploader').hide();
       $('#uploader input').val('');
-      $('#image-preview').attr('src', `index.php?pf=blowupConfig/alpha-img/page-t/${this.value}.png`);
+      $('#image-preview').attr('src', `index.php?pf=BlowupConfig/alpha-img/page-t/${this.value}.png`);
     }
   });
 
@@ -92,9 +92,9 @@ $(() => {
   $(styles_combo).append('<option value="none">none</option>');
   $(styles_combo).attr('title', dotclear.msg.predefined_style_title);
 
-  for (const style in dotclear.blowup_styles) {
+  for (const style in dotclear.Blowup_styles) {
     const styles_option = document.createElement('option');
-    styles_option.value = dotclear.blowup_styles[style];
+    styles_option.value = dotclear.Blowup_styles[style];
     $(styles_option).append(style);
     $(styles_combo).append(styles_option);
   }
@@ -139,7 +139,7 @@ $(() => {
   });
 });
 
-dotclear.blowup_styles = {
+dotclear.Blowup_styles = {
   'Plumetis 2.6':
     'body_bg_c:"#F5F5F5"; body_bg_g:"solid"; body_txt_f:"ss1"; body_txt_s:"14px"; body_txt_c:"#333333"; body_line_height:"24px"; top_image:"plumetis"; blog_title_hide:"0"; blog_title_f:"ss1"; blog_title_s:"36px"; blog_title_c:"#333333"; blog_title_a:"left"; blog_title_p:"20:94"; body_link_c:"#000000"; body_link_f_c:"#D33800"; body_link_v_c:"#333333"; sidebar_position:""; sidebar_text_f:"ss1"; sidebar_text_s:"12px"; sidebar_text_c:""; sidebar_title_f:""; sidebar_title_s:"14px"; sidebar_title_c:"#666666"; sidebar_title2_f:""; sidebar_title2_s:"12px"; sidebar_title2_c:"#000000"; sidebar_line_c:"#A6D9DC"; sidebar_link_c:""; sidebar_link_f_c:"#D33800"; sidebar_link_v_c:""; date_title_f:""; date_title_s:"12px"; date_title_c:"#666666"; post_title_f:"ss1"; post_title_s:"24px"; post_title_c:"#D33800"; post_comment_bg_c:"#E2EDED"; post_comment_c:"#333333"; post_commentmy_bg_c:"#A6D9DC"; post_commentmy_c:"#000000"; prelude_c:"#A6D9DC"; footer_f:""; footer_s:"12px"; footer_c:"#FFFFFF"; footer_l_c:"#FFFFFF"; footer_bg_c:"#999999"; extra_css:"h1, .post-title {font-weight: normal;text-shadow: 1px 1px 0 #fff;}#footer {background-image: none}body {border-top: 72px solid #A6D9DC}#top {margin-top: -36px}.post a {border-bottom: 1px solid #999}.post-title a, .post-info-co a {border-bottom: none}a:hover {background-color: #eee;text-decoration:none;}"',
   Forest:

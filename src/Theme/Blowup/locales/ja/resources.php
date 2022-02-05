@@ -7,6 +7,6 @@
  * @copyright GPL-2.0-only
  */
 
-if (!isset($__resources['help']['blowupConfig'])) {
-    $__resources['help']['blowupConfig'] = __DIR__ . '/help/help.html';
+if (!isset($__resources['help']['BlowupConfig'])) {
+    $__resources['help']['BlowupConfig'] = __DIR__ . '/help/help.html';
 }

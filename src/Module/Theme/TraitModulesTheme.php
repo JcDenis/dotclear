@@ -66,14 +66,14 @@ trait TraitModulesTheme
             dcCore()->blog->settings->addNamespace('system');
             $theme = $this->getModule((string) dcCore()->blog->settings->system->theme);
             if (!$theme) {
-                $theme = $this->getModule('BlowUp');
+                $theme = $this->getModule('Blowup');
             }
             $path[$theme->id()] = $theme->root() . $suffix;
 
             if ($theme->parent()) {
                 $parent = $this->getModule((string) $theme->parent());
                 if ($parent) {
-                    $theme = $this->getModule('BlowUp');
+                    $theme = $this->getModule('Blowup');
                 }
                 $path[$parent->id()] = $parent->root() . $suffix;
             }

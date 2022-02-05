@@ -115,7 +115,7 @@ class Upgrade
                 "AND setting_value = '%s' " .
                 'AND blog_id IS NOT NULL ';
             dcCore()->con->execute(sprintf($strReq, 'blueSilence', 'default'));
-            dcCore()->con->execute(sprintf($strReq, 'default', 'blowup'));
+            dcCore()->con->execute(sprintf($strReq, 'default', 'Blowup'));
         }
 
         if (version_compare($version, '2.1-alpha2-r2383', '<')) {
@@ -834,7 +834,7 @@ class Upgrade
             # Help specific (files was moved)
             $remtree  = scandir(DOTCLEAR_OLD_ROOT_DIR . '/locales');
             $remfiles = [
-                'help/blowupConfig.html',
+                'help/BlowupConfig.html',
                 'help/themeEditor.html',
             ];
             foreach ($remtree as $dir) {

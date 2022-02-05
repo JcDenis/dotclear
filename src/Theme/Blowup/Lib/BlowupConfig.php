@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Theme\BlowUp\Lib\BlowupConfig
- * @brief Helper for default theme (blowup) config.
+ * @class Dotclear\Theme\Blowup\Lib\BlowupConfig
+ * @brief Helper for default theme (Blowup) config.
  *
  * @package Dotclear
  * @subpackage Theme
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Theme\BlowUp\Lib;
+namespace Dotclear\Theme\Blowup\Lib;
 
 use Dotclear\Exception\ModuleException;
 
@@ -21,8 +21,8 @@ use Dotclear\File\Files;
 
 class BlowupConfig
 {
-    protected $css_folder = 'blowup-css';
-    protected $img_folder = 'blowup-images';
+    protected $css_folder = 'Blowup-css';
+    protected $img_folder = 'Blowup-images';
 
     protected $fonts = [
         'sans-serif' => [
@@ -301,7 +301,7 @@ class BlowupConfig
         # erase old css file
         $this->dropCss(dcCore()->blog->settings->system->theme);
 
-        # create new css file into public blowup-css subdirectory
+        # create new css file into public Blowup-css subdirectory
         $this->writeCss(dcCore()->blog->settings->system->theme, $res);
 
         return $res;

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Theme\BlowUp\Admin\Prepend
+ * @class Dotclear\Theme\Blowup\Admin\Prepend
  * @brief Dotclear Theme class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Theme\BlowUp\Admin;
+namespace Dotclear\Theme\Blowup\Admin;
 
 use ArrayObject;
 
@@ -32,8 +32,8 @@ class Prepend extends AbstractPrepend
     public static function loadModule(): void
     {
         dcCore()->behaviors->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
-            return $module->id() == 'BlowUp' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
-                '<p><a href="' . dcCore()->adminurl->get('admin.plugin.BlowUp') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+            return $module->id() == 'Blowup' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
+                '<p><a href="' . dcCore()->adminurl->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });
     }
@@ -41,7 +41,7 @@ class Prepend extends AbstractPrepend
     public static function installModule(): ?bool
     {
         dcCore()->blog->settings->addNamespace('themes');
-        dcCore()->blog->settings->themes->put('blowup_style', '', 'string', 'Blow Up  custom style', false);
+        dcCore()->blog->settings->themes->put('Blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;
     }
