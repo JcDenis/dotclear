@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
-use ArrayObject;
-
-use Dotclear\Admin\Page;
-
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Module\AbstractDefine;
