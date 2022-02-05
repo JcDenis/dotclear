@@ -150,7 +150,8 @@ trait TraitDefinePlugin
             $this->properties['permissions'] = null;
         }
 
-        $this->properties['priority'] = (int) $this->properties['priority'];
+        $this->properties['priority']          = (int) $this->properties['priority'];
+        $this->properties['standalone_config'] = (bool) $this->properties['standalone_config'];
 
         $this->repository = trim($this->properties['repository']);
         if (!empty($this->properties['repository'])) {
