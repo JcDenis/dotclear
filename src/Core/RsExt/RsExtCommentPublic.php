@@ -22,11 +22,9 @@ class RsExtCommentPublic extends RsExtComment
         if (isset(dcCore()->context) && dcCore()->blog->settings->system->use_smilies) {
             $c = parent::getContent($rs, $absolute_urls);
 
-            if (!isset($GLOBALS['__smilies'])) {
-                $GLOBALS['__smilies'] = dcCore()->context::getSmilies(dcCore()->blog);
-            }
+            dcCore()->context->getSmilies(dcCore()->blog);
 
-            return dcCore()->context::addSmilies($c);
+            return dcCore()->context->addSmilies($c);
         }
 
         return parent::getContent($rs, $absolute_urls);

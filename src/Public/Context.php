@@ -25,6 +25,8 @@ class Context
 {
     public $stack = [];
 
+    protected static $smilies = [];
+
     public function __set($name, $var)
     {
         if ($var === null) {
@@ -369,24 +371,36 @@ class Context
     # Smilies static methods
     public function getSmilies($blog)
     {
-        $path = [];
-        if (isset($GLOBALS['__theme'])) {
-            $path[] = $GLOBALS['__theme'];
-            if (isset($GLOBALS['__parent_theme'])) {
-                $path[] = $GLOBALS['__parent_theme'];
-            }
+        if (!empty(self::$smilies)) {
+            return true;
         }
-        $path[]     = 'default';
-        $definition = $blog->themes_path . '/%s/smilies/smilies.txt';
-        $base_url   = $blog->settings->system->themes_url . '/%s/smilies/';
+
+        //! reworks this
+        $__theme = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
+        if (!$__theme) {
+            $__theme = dcCore()->themes->getModule('BlowUp');
+        }
+        $path = [$__theme->root()];
+
+        if ($__theme->parent()) {
+            $__parent_theme = dcCore()->themes->getModule((string) $__theme->parent());
+            if ($__parent_theme) {
+                $__theme = dcCore()->themes->getModule('BlowUp');
+            }
+            $path[] = $__parent_theme->root();
+        }
+
+        $definition = '%s/files/smilies/smilies.txt';
+        $base_url   = dcCore()->blog->url . 'files/smilies/';
 
         $res = [];
 
         foreach ($path as $t) {
             if (file_exists(sprintf($definition, $t))) {
                 $base_url = sprintf($base_url, $t);
+                self::$smilies = $this->smiliesDefinition(sprintf($definition, $t), $base_url);
 
-                return $this->smiliesDefinition(sprintf($definition, $t), $base_url);
+                return true;
             }
         }
 
@@ -413,7 +427,7 @@ class Context
 
     public function addSmilies($str)
     {
-        if (!isset($GLOBALS['__smilies']) || !is_array($GLOBALS['__smilies'])) {
+        if (empty(self::$smilies)) {
             return $str;
         }
 
@@ -433,7 +447,7 @@ class Context
             } else {
                 $t = $cur_token[1];
                 if (!$in_pre) {
-                    $t = preg_replace(array_keys($GLOBALS['__smilies']), array_values($GLOBALS['__smilies']), $t);
+                    $t = preg_replace(array_keys(self::$smilies), array_values(self::$smilies), $t);
                 }
                 $result .= $t;
             }
