@@ -17,7 +17,7 @@ namespace Dotclear\Database\Driver\Mysqlmb4;
 
 use Dotclear\Exception\DatabaseException;
 
-use Dotclear\Database\Driver\Mysqli\Connetion as BaseConnection;
+use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -257,7 +257,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     {
         $default = [
             'order'   => '',
-            'collate' => false
+            'collate' => false,
         ];
         foreach (func_get_args() as $v) {
             if (is_string($v)) {
@@ -279,7 +279,7 @@ class Connection extends BaseConnection implements InterfaceConnection
             if (is_string($v)) {
                 $res[] = sprintf($fmt, $v);
             } elseif (is_array($v)) {
-                $res = array_map(function ($i) use ($fmt) {return sprintf($fmt, $i);}, $v);
+                $res = array_map(fn ($i) => sprintf($fmt, $i), $v);
             }
         }
 
@@ -323,7 +323,7 @@ class Connection extends BaseConnection implements InterfaceConnection
 
             '7' => 'timestamp',
 
-            '252' => 'blob'
+            '252' => 'blob',
 
         ];
         $type = 'unknown';
