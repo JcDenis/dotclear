@@ -1,45 +1,63 @@
 <?php
 /**
- * @brief Ductile, a theme for Dotclear 2
+ * @class Dotclear\Theme\Ductile\Public\Prepend
+ * @brief Dotclear Theme class
  *
  * @package Dotclear
- * @subpackage Themes
+ * @subpackage ThemeDuctile
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-namespace themes\ductile;
+declare(strict_types=1);
 
-if (!defined('DC_RC_PATH')) {
+namespace Dotclear\Theme\Ductile\Public;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependPublic;
+
+use Dotclear\Module\Theme\Admin\ConfigTheme;
+use Dotclear\File\Files;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-\l10n::set(__DIR__ . '/locales/' . $_lang . '/main');
-
-# Behaviors
-$core->addBehavior('publicHeadContent', [__NAMESPACE__ . '\tplDuctileTheme', 'publicHeadContent']);
-$core->addBehavior('publicInsideFooter', [__NAMESPACE__ . '\tplDuctileTheme', 'publicInsideFooter']);
-
-# Templates
-$core->tpl->addValue('ductileEntriesList', [__NAMESPACE__ . '\tplDuctileTheme', 'ductileEntriesList']);
-$core->tpl->addBlock('EntryIfContentIsCut', [__NAMESPACE__ . '\tplDuctileTheme', 'EntryIfContentIsCut']);
-$core->tpl->addValue('ductileNbEntryPerPage', [__NAMESPACE__ . '\tplDuctileTheme', 'ductileNbEntryPerPage']);
-$core->tpl->addValue('ductileLogoSrc', [__NAMESPACE__ . '\tplDuctileTheme', 'ductileLogoSrc']);
-$core->tpl->addBlock('IfPreviewIsNotMandatory', [__NAMESPACE__ . '\tplDuctileTheme', 'IfPreviewIsNotMandatory']);
-
-class tplDuctileTheme
+class Prepend extends AbstractPrepend
 {
+    use TraitPrependPublic;
+
+    private static $Ductile_config;
+
+    public static function loadModule(): void
+    {
+        if (!dcCore()->blog->settings->system->theme == 'Ductile') {
+            return;
+        }
+
+        self::$Ductile_config = new ConfigTheme();
+
+        # Behaviors
+        dcCore()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        dcCore()->behaviors->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
+
+        # Templates
+        dcCore()->tpl->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
+        dcCore()->tpl->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
+        dcCore()->tpl->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
+        dcCore()->tpl->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
+        dcCore()->tpl->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
+    }
+
     public static function ductileNbEntryPerPage($attr)
     {
         $nb = $attr['nb'] ?? null;
 
-        return '<?php ' . __NAMESPACE__ . '\tplDuctileTheme::ductileNbEntryPerPageHelper(' . strval((int) $nb) . '); ?>';
+        return '<?php ' . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) $nb) . '); ?>';
     }
 
     public static function ductileNbEntryPerPageHelper(int $nb)
     {
-        global $_ctx;
-
         $nb_other = $nb_first = 0;
 
         $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_counts');
@@ -76,17 +94,15 @@ class tplDuctileTheme
         }
 
         if ($nb_other > 0) {
-            $_ctx->nb_entry_per_page = $nb_other;
+            dcCore()->context->nb_entry_per_page = $nb_other;
         }
         if ($nb_first > 0) {
-            $_ctx->nb_entry_first_page = $nb_first;
+            dcCore()->context->nb_entry_first_page = $nb_first;
         }
     }
 
     public static function EntryIfContentIsCut($attr, $content)
     {
-        global $core;
-
         if (empty($attr['cut_string']) || !empty($attr['full'])) {
             return '';
         }
@@ -96,27 +112,25 @@ class tplDuctileTheme
             $urls = '1';
         }
 
-        $short              = $core->tpl->getFilters($attr);
+        $short              = dcCore()->tpl->getFilters($attr);
         $cut                = $attr['cut_string'];
         $attr['cut_string'] = 0;
-        $full               = $core->tpl->getFilters($attr);
+        $full               = dcCore()->tpl->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return '<?php if (strlen(' . sprintf($full, '$_ctx->posts->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, '$_ctx->posts->getContent(' . $urls . ')') . ')) : ?>' .
+        return '<?php if (strlen(' . sprintf($full, 'dcCore()->context->posts->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'dcCore()->context->posts->getContent(' . $urls . ')') . ')) : ?>' .
             $content .
             '<?php endif; ?>';
     }
 
     public static function ductileEntriesList($attr)
     {
-        global $core;
-
-        $tpl_path   = __DIR__ . '/tpl/';
+        $tpl_path   = __DIR__ . '/../tpl/';
         $list_types = ['title', 'short', 'full'];
 
         // Get all _entry-*.html in tpl folder of theme
-        $list_types_templates = \files::scandir($tpl_path);
+        $list_types_templates = Files::scandir($tpl_path);
         if (is_array($list_types_templates)) {
             foreach ($list_types_templates as $v) {
                 if (preg_match('/^_entry\-(.*)\.html$/', $v, $m)) {
@@ -132,12 +146,12 @@ class tplDuctileTheme
 
         $default = isset($attr['default']) ? trim($attr['default']) : 'short';
         $ret     = '<?php ' . "\n" .
-        'switch (' . __NAMESPACE__ . '\tplDuctileTheme::ductileEntriesListHelper(\'' . $default . '\')) {' . "\n";
+        'switch (' . __CLASS__ . '::ductileEntriesListHelper(\'' . $default . '\')) {' . "\n";
 
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
             '?>' . "\n" .
-            $core->tpl->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
+            dcCore()->tpl->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
                 '<?php ' . "\n" .
                 '       break;' . "\n";
         }
@@ -167,12 +181,12 @@ class tplDuctileTheme
 
     public static function ductileLogoSrc($attr)
     {
-        return '<?php echo ' . __NAMESPACE__ . '\tplDuctileTheme::ductileLogoSrcHelper(); ?>';
+        return '<?php echo ' . __CLASS__ . '::ductileLogoSrcHelper(); ?>';
     }
 
     public static function ductileLogoSrcHelper()
     {
-        $img_url = dcCore()->blog->settings->system->themes_url . '/' . dcCore()->blog->settings->system->theme . '/img/logo.png';
+        $img_url = dcCore()->blog->url . 'files/img/logo.png';
 
         $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
         if ($s === null) {
@@ -193,7 +207,7 @@ class tplDuctileTheme
                         $img_url = $s['logo_src'];
                     } else {
                         // relative URL (base = img folder of ductile theme)
-                        $img_url = dcCore()->blog->settings->system->themes_url . '/' . dcCore()->blog->settings->system->theme . '/img/' . $s['logo_src'];
+                        $img_url = dcCore()->blog->url . 'files/img/' . $s['logo_src'];
                     }
                 }
             }
@@ -219,13 +233,13 @@ class tplDuctileTheme
         return '';
     }
 
-    public static function publicInsideFooter($core)
+    public static function behaviorPublicInsideFooter()
     {
         $res     = '';
         $default = false;
-        $img_url = $core->blog->settings->system->themes_url . '/' . $core->blog->settings->system->theme . '/img/';
+        $img_url = dcCore()->blog->url . 'files/img/';
 
-        $s = $core->blog->settings->themes->get($core->blog->settings->system->theme . '_stickers');
+        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_stickers');
 
         if ($s === null) {
             $default = true;
@@ -248,8 +262,8 @@ class tplDuctileTheme
         }
 
         if ($default || $res == '') {
-            $res = self::setSticker(1, true, __('Subscribe'), $core->blog->url .
-                $core->url->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
+            $res = self::setSticker(1, true, __('Subscribe'), dcCore()->blog->url .
+                dcCore()->url->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
         }
 
         if ($res != '') {
@@ -281,7 +295,7 @@ class tplDuctileTheme
             '</li>' . "\n";
     }
 
-    public static function publicHeadContent($core)
+    public static function behaviorPublicHeadContent()
     {
         echo
         '<style type="text/css">' . "\n" .
@@ -291,8 +305,7 @@ class tplDuctileTheme
 
         echo
         '<script src="' .
-        $core->blog->settings->system->themes_url . '/' . $core->blog->settings->system->theme .
-            '/ductile.js"></script>' . "\n";
+        dcCore()->blog->url . 'files/js/ductile.js"></script>' . "\n";
 
         echo self::ductileWebfontHelper();
     }
@@ -329,7 +342,7 @@ class tplDuctileTheme
                 }
                 # Main font
                 $selectors = 'body, .supranav li a span, #comments.me, a.comment-number';
-                \dcThemeConfig::prop($css, $selectors, 'font-family', $s['body_webfont_family']);
+                self::$Ductile_config->prop($css, $selectors, 'font-family', $s['body_webfont_family']);
             }
         }
         if (!isset($s['alternate_font']) || ($s['alternate_font'] == '')) {
@@ -349,7 +362,7 @@ class tplDuctileTheme
                 }
                 # Secondary font
                 $selectors = '#blogdesc, .supranav, #content-info, #subcategories, #comments-feed, #sidebar h2, #sidebar h3, #footer';
-                \dcThemeConfig::prop($css, $selectors, 'font-family', $s['alternate_webfont_family']);
+                self::$Ductile_config->prop($css, $selectors, 'font-family', $s['alternate_webfont_family']);
             }
         }
         # Style directives
@@ -388,37 +401,37 @@ class tplDuctileTheme
         # Blog description
         $selectors = '#blogdesc';
         if (isset($s['subtitle_hidden'])) {
-            \dcThemeConfig::prop($css, $selectors, 'display', ($s['subtitle_hidden'] ? 'none' : null));
+            self::$Ductile_config->prop($css, $selectors, 'display', ($s['subtitle_hidden'] ? 'none' : null));
         }
 
         # Main font
         $selectors = 'body, .supranav li a span, #comments.me, a.comment-number';
         if (isset($s['body_font'])) {
-            \dcThemeConfig::prop($css, $selectors, 'font-family', self::fontDef($s['body_font']));
+            self::$Ductile_config->prop($css, $selectors, 'font-family', self::fontDef($s['body_font']));
         }
 
         # Secondary font
         $selectors = '#blogdesc, .supranav, #content-info, #subcategories, #comments-feed, #sidebar h2, #sidebar h3, #footer';
         if (isset($s['alternate_font'])) {
-            \dcThemeConfig::prop($css, $selectors, 'font-family', self::fontDef($s['alternate_font']));
+            self::$Ductile_config->prop($css, $selectors, 'font-family', self::fontDef($s['alternate_font']));
         }
 
         # Inside posts links font weight
         $selectors = '.post-excerpt a, .post-content a';
         if (isset($s['post_link_w'])) {
-            \dcThemeConfig::prop($css, $selectors, 'font-weight', ($s['post_link_w'] ? 'bold' : 'normal'));
+            self::$Ductile_config->prop($css, $selectors, 'font-weight', ($s['post_link_w'] ? 'bold' : 'normal'));
         }
 
         # Inside posts links colors (normal, visited)
         $selectors = '.post-excerpt a:link, .post-excerpt a:visited, .post-content a:link, .post-content a:visited';
         if (isset($s['post_link_v_c'])) {
-            \dcThemeConfig::prop($css, $selectors, 'color', $s['post_link_v_c']);
+            self::$Ductile_config->prop($css, $selectors, 'color', $s['post_link_v_c']);
         }
 
         # Inside posts links colors (hover, active, focus)
         $selectors = '.post-excerpt a:hover, .post-excerpt a:active, .post-excerpt a:focus, .post-content a:hover, .post-content a:active, .post-content a:focus';
         if (isset($s['post_link_f_c'])) {
-            \dcThemeConfig::prop($css, $selectors, 'color', $s['post_link_f_c']);
+            self::$Ductile_config->prop($css, $selectors, 'color', $s['post_link_f_c']);
         }
 
         # Style directives
@@ -437,43 +450,43 @@ class tplDuctileTheme
         # Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_w'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'font-weight', ($s['blog_title_w'] ? 'bold' : 'normal'));
+            self::$Ductile_config->prop($css_large, $selectors, 'font-weight', ($s['blog_title_w'] ? 'bold' : 'normal'));
         }
 
         # Blog title font size
         $selectors = 'h1';
         if (isset($s['blog_title_s'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'font-size', $s['blog_title_s']);
+            self::$Ductile_config->prop($css_large, $selectors, 'font-size', $s['blog_title_s']);
         }
 
         # Blog title color
         $selectors = 'h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_c'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'color', $s['blog_title_c']);
+            self::$Ductile_config->prop($css_large, $selectors, 'color', $s['blog_title_c']);
         }
 
         # Post title font weight
         $selectors = 'h2.post-title, h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_w'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'font-weight', ($s['post_title_w'] ? 'bold' : 'normal'));
+            self::$Ductile_config->prop($css_large, $selectors, 'font-weight', ($s['post_title_w'] ? 'bold' : 'normal'));
         }
 
         # Post title font size
         $selectors = 'h2.post-title';
         if (isset($s['post_title_s'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'font-size', $s['post_title_s']);
+            self::$Ductile_config->prop($css_large, $selectors, 'font-size', $s['post_title_s']);
         }
 
         # Post title color
         $selectors = 'h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_c'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'color', $s['post_title_c']);
+            self::$Ductile_config->prop($css_large, $selectors, 'color', $s['post_title_c']);
         }
 
         # Simple title color (title without link)
         $selectors = '#content-info h2, .post-title, .post h3, .post h4, .post h5, .post h6, .arch-block h3';
         if (isset($s['post_simple_title_c'])) {
-            \dcThemeConfig::prop($css_large, $selectors, 'color', $s['post_simple_title_c']);
+            self::$Ductile_config->prop($css_large, $selectors, 'color', $s['post_simple_title_c']);
         }
 
         # Style directives for large screens
@@ -495,37 +508,37 @@ class tplDuctileTheme
         # Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_w_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'font-weight', ($s['blog_title_w_m'] ? 'bold' : 'normal'));
+            self::$Ductile_config->prop($css_small, $selectors, 'font-weight', ($s['blog_title_w_m'] ? 'bold' : 'normal'));
         }
 
         # Blog title font size
         $selectors = 'h1';
         if (isset($s['blog_title_s_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'font-size', $s['blog_title_s_m']);
+            self::$Ductile_config->prop($css_small, $selectors, 'font-size', $s['blog_title_s_m']);
         }
 
         # Blog title color
         $selectors = 'h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_c_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'color', $s['blog_title_c_m']);
+            self::$Ductile_config->prop($css_small, $selectors, 'color', $s['blog_title_c_m']);
         }
 
         # Post title font weight
         $selectors = 'h2.post-title, h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_w_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'font-weight', ($s['post_title_w_m'] ? 'bold' : 'normal'));
+            self::$Ductile_config->prop($css_small, $selectors, 'font-weight', ($s['post_title_w_m'] ? 'bold' : 'normal'));
         }
 
         # Post title font size
         $selectors = 'h2.post-title';
         if (isset($s['post_title_s_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'font-size', $s['post_title_s_m']);
+            self::$Ductile_config->prop($css_small, $selectors, 'font-size', $s['post_title_s_m']);
         }
 
         # Post title color
         $selectors = 'h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_c_m'])) {
-            \dcThemeConfig::prop($css_small, $selectors, 'color', $s['post_title_c_m']);
+            self::$Ductile_config->prop($css_small, $selectors, 'color', $s['post_title_c_m']);
         }
 
         # Style directives for small screens

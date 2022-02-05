@@ -1,0 +1,12 @@
+<module id="Ductile">
+  <name>Ductile</name>
+  <description>Mediaqueries compliant elegant theme</description>
+  <version>1.6-dev</version>
+  <author>Dotclear team</author>
+  <type>Theme</type>
+  <templateset>Mustek</templateset>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>
