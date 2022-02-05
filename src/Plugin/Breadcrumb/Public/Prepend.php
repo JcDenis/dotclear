@@ -56,8 +56,8 @@ class Prepend extends AbstractPrepend
             $separator = ' &rsaquo; ';
         }
 
-        // Get current page if set
-        $page = isset($GLOBALS['_page_number']) ? (integer) $GLOBALS['_page_number'] : 0;
+        // Get current page
+        $page = dcCore()->context->page_number();
 
         switch (dcCore()->url->type) {
 

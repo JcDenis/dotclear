@@ -23,9 +23,10 @@ use Dotclear\Html\Html;
 
 class Context
 {
-    public $stack = [];
-    public $nb_entry_per_page = 10;
+    public $stack               = [];
+    public $nb_entry_per_page   = 10;
     public $nb_entry_first_page = 10;
+    protected $page_number      = 0;
 
     protected static $smilies = [];
 
@@ -245,6 +246,15 @@ class Context
         return $str;
     }
 
+    public function page_number($p = null)
+    {
+        if ($p !== null) {
+            $this->page_number = abs((int) $p) + 0;
+        }
+
+        return $this->page_number;
+    }
+
     public function categoryPostParam(&$p)
     {
         $not = substr($p['cat_url'], 0, 1) == '!';
@@ -285,9 +295,8 @@ class Context
 
     public function PaginationPosition($offset = 0)
     {
-        if (isset($GLOBALS['_page_number'])) {
-            $p = (integer) $GLOBALS['_page_number'];
-        } else {
+        $p = $this->page_number();
+        if (!$p) {
             $p = 1;
         }
 
@@ -307,20 +316,12 @@ class Context
 
     public function PaginationStart()
     {
-        if (isset($GLOBALS['_page_number'])) {
-            return $this->PaginationPosition() == 1;
-        }
-
-        return true;
+        return $this->PaginationPosition() == 1;
     }
 
     public function PaginationEnd()
     {
-        if (isset($GLOBALS['_page_number'])) {
-            return $this->PaginationPosition() == $this->PaginationNbPages();
-        }
-
-        return false;
+        return $this->PaginationPosition() == $this->PaginationNbPages();
     }
 
     public function PaginationURL($offset = 0)

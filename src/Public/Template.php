@@ -1281,7 +1281,7 @@ class Template extends BaseTemplate
             $lastn = abs((int) $attr['lastn']) + 0;
         }
 
-        $p = 'if (!isset($_page_number)) { $_page_number = 1; }' . "\n";
+        $p = '$_page_number = dcCore()->context->page_number(); if (!$_page_number) { $_page_number = 1; }' . "\n";
 
         if ($lastn != 0) {
             // Set limit (aka nb of entries needed)

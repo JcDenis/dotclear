@@ -387,7 +387,7 @@ class UrlHandler
     public function home($args)
     {
         // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
-        $n = $args ? $this->getPageNumber($args) : ($GLOBALS['_page_number'] ?? 0);
+        $n = $args ? $this->getPageNumber($args) : dcCore()->context->page_number();
 
         if ($args && !$n) {
             # Then specified URL went unrecognized by all URL handlers and
@@ -396,7 +396,7 @@ class UrlHandler
         } else {
             dcCore()->url->type = 'default';
             if ($n) {
-                $GLOBALS['_page_number'] = $n;
+                dcCore()->context->page_number($n);
                 if ($n > 1) {
                     dcCore()->url->type = 'default-page';
                 }
@@ -461,7 +461,7 @@ class UrlHandler
             $this->p404();
         } else {
             if ($n) {
-                $GLOBALS['_page_number'] = $n;
+                dcCore()->context->page_number($n);
             }
             dcCore()->context->cur_lang = $args;
             $this->home(null);
@@ -490,7 +490,7 @@ class UrlHandler
                 $this->p404();
             } else {
                 if ($n) {
-                    $GLOBALS['_page_number'] = $n;
+                    dcCore()->context->page_number($n);
                 }
                 $this->serveDocument('category.html');
             }
