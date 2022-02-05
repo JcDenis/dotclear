@@ -23,15 +23,7 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        $paths = explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
-        if(dcCore()->blog !== null) {
-            dcCore()->blog->settings->addNamespace('system');
-            if ('' != ($blog_path = dcCore()->blog->settings->system->themes_path)) {
-                array_unshift($paths, Path::fullFromRoot($blog_path, DOTCLEAR_OTHER_DIR));
-            }
-        }
-
-        return $paths;
+        return explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
     }
 
     public function getStoreURL(): string

@@ -74,9 +74,6 @@ class Blog
     /** @var string     Blog status */
     public $status;
 
-    /** @var string     Blog theme path */
-    public $themes_path;
-
     /** @var string     Blog public path */
     public $public_path;
 
@@ -115,7 +112,6 @@ class Blog
 
             $this->settings = new Settings($this->id);
 
-            $this->themes_path = Path::fullFromRoot($this->settings->system->themes_path, DOTCLEAR_OTHER_DIR);
             $this->public_path = Path::fullFromRoot($this->settings->system->public_path, DOTCLEAR_OTHER_DIR);
 
             $this->post_status['-2'] = __('Pending');
