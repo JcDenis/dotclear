@@ -199,8 +199,10 @@ class Prepend extends BasePrepend
             # --BEHAVIOR-- publicAfterDocument
             $this->behaviors->call('publicAfterDocument');
         } catch (Exception $e) {
-throw $e;
-//            static::errorpage($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
+            if (DOTCLEAR_MODE_DEV) {
+                throw $e;
+            }
+            static::errorpage($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
         }
     }
 
