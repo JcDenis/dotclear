@@ -21,6 +21,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Core\Prepend as BasePrepend;
 Use Dotclear\Core\Utils;
 
+use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Module\Iconset\Admin\ModulesIconset;
 use Dotclear\Module\Theme\Admin\ModulesTheme;
@@ -226,17 +227,12 @@ class Prepend extends BasePrepend
             # Load Modules Plugins
             if ('' != DOTCLEAR_PLUGIN_DIR) {
                 $this->plugins = new ModulesPlugin();
-                $this->plugins->loadModules($this->_lang);
-
-                # Load lang resources for each plugins
-                foreach($this->plugins->getModules() as $module) {
-                    $this->adminLoadResources($module->root() . '/locales', false);
-                }
+                $this->adminLoadModules($this->plugins);
             }
 
             # Load Modules Themes
             $this->themes = new ModulesTheme();
-            $this->themes->loadModules($this->_lang);
+            $this->adminLoadModules($this->themes);
 
             # Add default top menus
             $this->favs->setup();
@@ -267,6 +263,18 @@ class Prepend extends BasePrepend
 
         # Load requested admin page
         $this->adminLoadPage();
+    }
+
+    private function adminLoadModules(AbstractModules $modules): void
+    {
+        $modules->loadModules($this->_lang);
+
+        # Load lang resources for each module
+        foreach($modules->getModules() as $module) {
+            $this->adminLoadResources($module->root() . '/locales', false);
+            $modules->loadModuleL10N($module->id(), $this->_lang, 'main');
+            $modules->loadModuleL10N($module->id(), $this->_lang, 'admin');
+        }
     }
 
     private function adminServeFile(): void
