@@ -727,4 +727,32 @@ class RestMethods
 
         return $rsp;
     }
+
+    public static function initDefaultRestMethods()
+    {
+        $methods = [
+            'getPostsCount',
+            'getCommentsCount',
+            'checkNewsUpdate',
+            'checkCoreUpdate',
+            'checkStoreUpdate',
+            'getPostById',
+            'getCommentById',
+            'quickPost',
+            'validatePostMarkup',
+            'getZipMediaContent',
+            'getMeta',
+            'delMeta',
+            'setPostMeta',
+            'searchMeta',
+            'setSectionFold',
+            'getModuleById',
+            'setDashboardPositions',
+            'setListsOptions',
+        ];
+
+        foreach($methods as $method) {
+            dcCore()->rest->addFunction($method, [__CLASS__, $method]);
+        }
+    }
 }

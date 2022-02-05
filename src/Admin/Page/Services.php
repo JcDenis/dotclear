@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page;
 
 use Dotclear\Admin\Page;
+use Dotclear\Admin\RestMethods;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -21,28 +22,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Services extends Page
 {
-    private $rest_default_class   = 'Dotclear\\Admin\\RestMethods';
-    private $rest_default_methods = [
-        'getPostsCount',
-        'getCommentsCount',
-        'checkNewsUpdate',
-#        'checkCoreUpdate',
-#        'checkStoreUpdate',
-        'getPostById',
-        'getCommentById',
-        'quickPost',
-        'validatePostMarkup',
-        'getZipMediaContent',
-        'getMeta',
-        'delMeta',
-        'setPostMeta',
-        'searchMeta',
-        'setSectionFold',
-        'getModuleById',
-        'setDashboardPositions',
-        'setListsOptions',
-    ];
-
     protected function getPermissions(): string|null|false
     {
         return false;
@@ -50,9 +29,7 @@ class Services extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        foreach($this->rest_default_methods as $method) {
-            dcCore()->rest->addFunction($method, [$this->rest_default_class, $method]);
-        }
+        RestMethods::initDefaultRestMethods();
         dcCore()->rest->serve();
 
         return null;
