@@ -41,7 +41,7 @@ $(() => {
   $('#filter-control').on('click', function () {
     if ($(this).hasClass('open')) {
       if (dotclear.msg.show_filters) {
-        //return true;
+        return true;
       }
       $filtersform.hide();
       $(this).removeClass('open').text(dotclear.msg.filter_posts_list);

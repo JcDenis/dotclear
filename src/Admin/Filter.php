@@ -299,7 +299,7 @@ class Filter
             'show_filters'      => $this->show(),
             'filter_posts_list' => __('Show filters and display options'),
             'cancel_the_filter' => __('Cancel filters and display options'),
-            'filter_reset_url'  => $reset_url ?? dcCore()->adminurl->get(dcCore()->adminurl->called()),
+            'filter_reset_url'  => $reset_url ?: dcCore()->adminurl->get(dcCore()->adminurl->called()),
         ];
 
         //return $var . Page::jsFilterControl($this->show());
