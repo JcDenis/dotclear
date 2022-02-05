@@ -24,6 +24,8 @@ use Dotclear\Html\Html;
 class Context
 {
     public $stack = [];
+    public $nb_entry_per_page = 10;
+    public $nb_entry_first_page = 10;
 
     protected static $smilies = [];
 
@@ -273,9 +275,9 @@ class Context
 
         $nb_posts = $this->pagination->f(0);
         if ((dcCore()->url->type == 'default') || (dcCore()->url->type == 'default-page')) {
-            $nb_pages = ceil(($nb_posts - $this->nb_entry_first_page) / $this->nb_entry_per_page + 1);
+            $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
         } else {
-            $nb_pages = ceil($nb_posts / $this->nb_entry_per_page);
+            $nb_pages = ceil($nb_posts / (int) $this->nb_entry_per_page);
         }
 
         return $nb_pages;
