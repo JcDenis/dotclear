@@ -25,6 +25,9 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class L10n
 {
+    public static $l10n_trans = [];
+    public static $l10n_files = [];
+
     /// @name Languages properties
     //@{
     protected static $languages_definitions      = [];
@@ -54,13 +57,13 @@ class L10n
      * L10N initialization
      *
      * Create global arrays for L10N stuff. Should be called before any work
-     * with other methods. For plural-forms, __l10n values can now be array.
+     * with other methods. For plural-forms, l10n_trans values can now be array.
      *
      * @param string $code Language code to work with
      */
     public static function init($code = 'en')
     {
-        $GLOBALS['__l10n'] = $GLOBALS['__l10n_files'] = [];
+        self::$l10n_trans = self::$l10n_files = [];
 
         self::lang($code);
     }
@@ -114,13 +117,12 @@ class L10n
             return '';
 
         // If no l10n translation loaded or exists
-        } elseif ((!array_key_exists('__l10n', $GLOBALS) || empty($GLOBALS['__l10n'])
-            || !array_key_exists($singular, $GLOBALS['__l10n'])) && is_null($count)) {
+        } elseif ((empty(self::$l10n_trans) || !array_key_exists($singular, self::$l10n_trans)) && is_null($count)) {
             return $singular;
 
         // If no $plural form or if current language has no plural form return $singular translation
         } elseif ($plural === null || $count === null || self::$language_pluralsnumber == 1) {
-            $t = !empty($GLOBALS['__l10n'][$singular]) ? $GLOBALS['__l10n'][$singular] : $singular;
+            $t = !empty(self::$l10n_trans[$singular]) ? self::$l10n_trans[$singular] : $singular;
 
             return is_array($t) ? $t[0] : $t;
 
@@ -129,17 +131,17 @@ class L10n
         $i = self::index($count);
 
         // If it is a plural and translation exists in "singular" form
-        if ($i > 0 && !empty($GLOBALS['__l10n'][$plural])) {
-            $t = $GLOBALS['__l10n'][$plural];
+        if ($i > 0 && !empty(self::$l10n_trans[$plural])) {
+            $t = self::$l10n_trans[$plural];
 
             return is_array($t) ? $t[0] : $t;
 
         // If it is plural and index exists in plurals translations
-        } elseif (!empty($GLOBALS['__l10n'][$singular])
-                && is_array($GLOBALS['__l10n'][$singular])
-                && array_key_exists($i, $GLOBALS['__l10n'][$singular])
-                && !empty($GLOBALS['__l10n'][$singular][$i])) {
-            return $GLOBALS['__l10n'][$singular][$i];
+        } elseif (!empty(self::$l10n_trans[$singular])
+                && is_array(self::$l10n_trans[$singular])
+                && array_key_exists($i, self::$l10n_trans[$singular])
+                && !empty(self::$l10n_trans[$singular][$i])) {
+            return self::$l10n_trans[$singular][$i];
 
             // Else return input string according to "en" plural form
         }
@@ -178,14 +180,9 @@ class L10n
         if (file_exists($php_file)) {
             require $php_file;
         } elseif (($tmp = self::getPoFile($po_file)) !== false) {
-            $GLOBALS['__l10n_files'][] = $po_file;
-            $GLOBALS['__l10n']         = $tmp + $GLOBALS['__l10n']; // "+" erase numeric keys unlike array_merge
-/*
-        // lang.php file are trully deprecated
-        } elseif (($tmp = self::getLangFile($lang_file)) !== false) {
-            $GLOBALS['__l10n_files'][] = $lang_file;
-            $GLOBALS['__l10n']         = $tmp + $GLOBALS['__l10n']; // "+" erase numeric keys unlike array_merge
-*/        } else {
+            self::$l10n_files[] = $po_file;
+            self::$l10n_trans         = $tmp + self::$l10n_trans; // "+" erase numeric keys unlike array_merge
+        } else {
             return false;
         }
 
@@ -212,38 +209,6 @@ class L10n
         }
 
         return file_exists($f) ? $f : false;
-    }
-
-    /** @deprecated */
-    public static function getLangFile(string $file)
-    {
-        DeprecatedException::throw();
-
-        if (!file_exists($file)) {
-            return false;
-        }
-
-        $fp = @fopen($file, 'r');
-        if ($fp === false) {
-            return false;
-        }
-
-        $res = [];
-        while ($l = fgets($fp)) {
-            $l = trim($l);
-            # Comment
-            if (substr($l, 0, 1) == '#') {
-                continue;
-            }
-
-            # Original text
-            if (substr($l, 0, 1) == ';' && ($t = fgets($fp)) !== false && trim($t) != '') {
-                $res[substr($l, 1)] = trim($t);
-            }
-        }
-        fclose($fp);
-
-        return $res;
     }
 
     /// @name Gettext PO methods
@@ -275,49 +240,6 @@ class L10n
         }
 
         return $r;
-    }
-
-    /**
-     * Generates a PHP file from a po file
-     *
-     * Return a boolean depending on success or failure
-     *
-     * @param      string $file File
-     * @param      string $license_block optional license block to add at the beginning
-     * @return     boolean true on success
-     */
-    public static function generatePhpFileFromPo(string $file, string $license_block = ''): bool
-    {
-        $po_file  = $file . '.po';
-        $php_file = $file . '.lang.php';
-
-        $strings  = self::getPoFile($po_file);
-        $fcontent = "<?php\n" .
-            $license_block .
-            "#\n#\n#\n" .
-            "#        DOT NOT MODIFY THIS FILE !\n\n\n\n\n";
-
-        foreach ($strings as $vo => $tr) {
-            $vo = str_replace("'", "\\'", $vo);
-            if (is_array($tr)) {
-                foreach ($tr as $i => $t) {
-                    $t = str_replace("'", "\\'", $t);
-                    $fcontent .= '$GLOBALS[\'__l10n\'][\'' . $vo . '\'][' . $i . '] = \'' . $t . '\';' . "\n";
-                }
-            } else {
-                $tr = str_replace("'", "\\'", $tr);
-                $fcontent .= '$GLOBALS[\'__l10n\'][\'' . $vo . '\'] = \'' . $tr . '\';' . "\n";
-            }
-        }
-
-        if (($fp = fopen($php_file, 'w')) !== false) {
-            fwrite($fp, $fcontent, strlen($fcontent));
-            fclose($fp);
-
-            return true;
-        }
-
-        return false;
     }
 
     /**
