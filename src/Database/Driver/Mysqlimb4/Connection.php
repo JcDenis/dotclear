@@ -17,7 +17,7 @@ namespace Dotclear\Database\Driver\Mysqlmb4;
 
 use Dotclear\Exception\DatabaseException;
 
-use Dotclear\Database\Driver\Mysqli as BaseConnection;
+use Dotclear\Database\Driver\Mysqli\Connetion as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
