@@ -685,6 +685,10 @@ class WidgetsStack
 
     public function widgetHandler($id, $xml)
     {
+        if (!trim($xml)) {
+            return;
+        }
+
         $widgets = self::$__widgets;
 
         if (!($widgets->{$id} instanceof Widget)) {
