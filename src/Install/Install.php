@@ -168,7 +168,6 @@ class Install
                 $blog_settings->system->put('blog_timezone', $default_tz);
                 $blog_settings->system->put('lang', $dlang);
                 $blog_settings->system->put('public_url', $root_url . '/public');
-                $blog_settings->system->put('themes_url', $root_url . '/themes'); // themes system changes later
 
                 /* date and time formats */
                 $formatDate   = __('%A, %B %e %Y');
