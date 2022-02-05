@@ -48,4 +48,37 @@ trait TraitModulesTheme
     {
         return explode(',', DOTCLEAR_THEME_OFFICIAL);
     }
+
+    /**
+     * Get current theme path
+     *
+     * Return an array of theme and parent theme paths
+     *
+     * @param   string|null     $suffix     Optionnal sub folder
+     * @return  array                       List of theme path
+     */
+    public function getThemePath(?string $suffix = null): array
+    {
+        $suffix = $suffix ? '/' . $suffix : '';
+        $path = [];
+
+        if(dcCore()->blog !== null) {
+            dcCore()->blog->settings->addNamespace('system');
+            $theme = $this->getModule((string) dcCore()->blog->settings->system->theme);
+            if (!$theme) {
+                $theme = $this->getModule('BlowUp');
+            }
+            $path[$theme->id()] = $theme->root() . $suffix;
+
+            if ($theme->parent()) {
+                $parent = $this->getModule((string) $theme->parent());
+                if ($parent) {
+                    $theme = $this->getModule('BlowUp');
+                }
+                $path[$parent->id()] = $parent->root() . $suffix;
+            }
+        }
+
+        return $path;
+    }
 }

@@ -896,7 +896,6 @@ class UrlHandler
 
     public function files($args)
     {
-        $dirs  = [];
         $args  = Path::clean($args);
         $args  = trim($args);
         $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt'];
@@ -912,25 +911,7 @@ class UrlHandler
         }
 
         # Current Theme dir
-        $__parent_theme = null;
-        $__theme = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
-        if (!$__theme) {
-            $__theme = dcCore()->themes->getModule('default');
-        # Theme parent
-        } elseif ($__theme->parent()) {
-            $__parent_theme = dcCore()->themes->getModule((string) $__theme->parent());
-            if (!$__parent_theme) {
-                $__theme = dcCore()->themes->getModule('default');
-                $__parent_theme = null;
-            } else {
-            }
-        }
-        if ($__theme) {
-            $dirs[] = dcCore()::path($__theme->root(), 'files');
-        }
-        if ($__parent_theme) {
-            $dirs[] = dcCore()::path($__parent_theme->root(), 'files');
-        }
+        $dirs = dcCore()->themes->getThemePath('files');
 
         # Modules dirs
         $pos = strpos($args, '/');

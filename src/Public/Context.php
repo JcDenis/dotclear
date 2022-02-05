@@ -375,30 +375,12 @@ class Context
             return true;
         }
 
-        //! reworks this
-        $__theme = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
-        if (!$__theme) {
-            $__theme = dcCore()->themes->getModule('BlowUp');
-        }
-        $path = [$__theme->root()];
-
-        if ($__theme->parent()) {
-            $__parent_theme = dcCore()->themes->getModule((string) $__theme->parent());
-            if ($__parent_theme) {
-                $__theme = dcCore()->themes->getModule('BlowUp');
-            }
-            $path[] = $__parent_theme->root();
-        }
-
-        $definition = '%s/files/smilies/smilies.txt';
+        $path       = dcCore()->themes->getThemePath('files/smilies/smilies.txt');
         $base_url   = dcCore()->blog->url . 'files/smilies/';
 
-        $res = [];
-
-        foreach ($path as $t) {
-            if (file_exists(sprintf($definition, $t))) {
-                $base_url = sprintf($base_url, $t);
-                self::$smilies = $this->smiliesDefinition(sprintf($definition, $t), $base_url);
+        foreach ($path as $file) {
+            if (file_exists($file)) {
+                self::$smilies = $this->smiliesDefinition($file, $base_url);
 
                 return true;
             }

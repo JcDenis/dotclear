@@ -133,24 +133,16 @@ class Prepend extends BasePrepend
         }
 
         # Load current theme definition
-        $__parent_theme = null;
-        $__theme = $this->themes->getModule((string) $this->blog->settings->system->theme);
-        if (!$__theme) {
-            $__theme = $this->themes->getModule('BlowUp');
-        # Load parent theme definition
-        } elseif ($__theme->parent()) {
-            $__parent_theme = $this->themes->getModule((string) $__theme->parent());
-            if (!$__parent_theme) {
-                $__theme = $this->themes->getModule('BlowUp');
-                $__parent_theme = null;
-            } else {
-                $this->themes->loadModuleL10N($__parent_theme->id(), $this->_lang, 'main');
-                $this->themes->loadModuleL10N($__parent_theme->id(), $this->_lang, 'public');
-            }
+        $path = $this->themes->getThemePath('tpl');
+
+        # If theme has parent load their l10n
+        if (count($path) > 1) {
+            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'main');
+            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'public');
         }
 
         # If theme doesn't exist, stop everything
-        if (!$__theme) {
+        if (!count($path)) {
             static::errorpage(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
                     'path in your blog configuration. Please check theme_path value in ' .
                     'about:config module or reinstall default theme. (' . $__theme . ')'), 650);
@@ -160,29 +152,24 @@ class Prepend extends BasePrepend
         $this->blog->settings->addNamespace('themes');
 
         # Themes locales
-        $this->themes->loadModuleL10N($__theme->id(), $this->_lang, 'main');
-        $this->themes->loadModuleL10N($__theme->id(), $this->_lang, 'public');
+        $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'main');
+        $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'public');
 
         # --BEHAVIOR-- publicPrepend
         $this->behaviors->call('publicPrepend');
 
-        $__theme_tpl_path = [
-            static::path($__theme->root(), 'tpl')
-        ];
-        if ($__parent_theme) {
-            $__theme_tpl_path[] = static::path($__parent_theme->root(), 'tpl');
-        }
-        $tplset = $__theme->templateset();
+        # Check templateset and add all path to tpl
+        $tplset = $this->themes->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
             $tplset_dir = static::path(__DIR__, 'Template', $tplset);
             if (is_dir($tplset_dir)) {
-                $this->tpl->setPath($__theme_tpl_path, $tplset_dir, $this->tpl->getPath());
+                $this->tpl->setPath($path, $tplset_dir, $this->tpl->getPath());
             } else {
                 $tplset = null;
             }
         }
         if (empty($tplset)) {
-            $this->tpl->setPath($__theme_tpl_path, $this->tpl->getPath());
+            $this->tpl->setPath($path, $this->tpl->getPath());
         }
 
         # Prepare the HTTP cache thing
