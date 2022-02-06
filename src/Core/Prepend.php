@@ -97,14 +97,14 @@ class Prepend extends Core
         #  Set plateform (user) configuration constants
         require_once DOTCLEAR_CONFIG_PATH;
 
+        # Set Dotclear configuration constants
+        Distrib::getCoreConstants();
+
         # Starting from debug mode, display all errors
         if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {
             ini_set('display_errors', '1');
             error_reporting(E_ALL | E_STRICT);
         }
-
-        # Set Dotclear configuration constants
-        Distrib::getCoreConstants();
 
         # Set  some Http stuff
         Http::$https_scheme_on_443 = DOTCLEAR_FORCE_SCHEME_443;
