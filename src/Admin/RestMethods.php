@@ -403,7 +403,7 @@ class RestMethods
 
         $id = (int) $get['id'];
 
-        if (!dcCore()->auth->check('media,media_admin', dcCore()->blog)) {
+        if (!dcCore()->auth->check('media,media_admin', dcCore()->blog->id)) {
             throw new AdminException('Permission denied');
         }
 
