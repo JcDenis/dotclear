@@ -20,6 +20,7 @@ use Dotclear\Database\Record;
 
 use Dotclear\Utils\Text;
 use Dotclear\Html\Html;
+use Dotclear\File\Path;
 
 class Context
 {
@@ -371,21 +372,31 @@ class Context
     }
 
     # Smilies static methods
-    public function getSmilies($blog)
+    public function getSmilies()
     {
         if (!empty($this->smilies)) {
             return true;
         }
 
-        $path       = dcCore()->themes->getThemePath('files/smilies/smilies.txt');
-        $path[]     = __DIR__ . '/files/smilies/smilies.txt';
-        $base_url   = dcCore()->blog->url . 'files/smilies/';
+        # Check first blog public path
+        $file = dcCore()->blog->public_path . '/smilies/smilies.txt';
+        if (file_exists($file)) {
+            $base_url = dcCore()->blog->host . Path::clean(dcCore()->blog->settings->system->public_url) . '/smilies/';
+            $this->smilies = $this->smiliesDefinition($file, $base_url);
 
-        foreach ($path as $file) {
-            if ($file && file_exists($file)) {
-                $this->smilies = $this->smiliesDefinition($file, $base_url);
+            return true;
+        # Theme and then parent and then core path
+        } else {
+            $path       = dcCore()->themes->getThemePath('files/smilies/smilies.txt');
+            $path[]     = __DIR__ . '/files/smilies/smilies.txt';
+            $base_url   = dcCore()->blog->url . 'files/smilies/';
 
-                return true;
+            foreach ($path as $file) {
+                if ($file && file_exists($file)) {
+                    $this->smilies = $this->smiliesDefinition($file, $base_url);
+
+                    return true;
+                }
             }
         }
 

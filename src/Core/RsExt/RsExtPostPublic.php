@@ -52,7 +52,7 @@ class RsExtPostPublic extends RsExtPost
 
     protected static function smilies($rs, $c)
     {
-        dcCore()->context->getSmilies(dcCore()->blog);
+        dcCore()->context->getSmilies();
 
         return dcCore()->context->addSmilies($c);
     }
