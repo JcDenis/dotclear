@@ -95,7 +95,7 @@ class PageTheme extends Page
                     (string) dcCore()->behaviors->call('themessToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
-                        html::escapeHTML(dcCore()->blog->name)                       => '',
+                        Html::escapeHTML(dcCore()->blog->name)                       => '',
                         '<span class="page-title">' . __('Blog appearance') . '</span>' => '',
                 ])
             ;

@@ -710,13 +710,13 @@ class ModulesTheme extends AbstractModules
         if (!is_dir($new_dir)) {
             try {
                 // Create destination folder named $new_dir in themes folder
-                files::makeDir($new_dir, false);
+                Files::makeDir($new_dir, false);
                 // Copy files
-                $content = files::getDirList($this->modules[$id]['root']);
+                $content = Files::getDirList($this->modules[$id]['root']);
                 foreach ($content['dirs'] as $dir) {
                     $rel = substr($dir, strlen($this->modules[$id]['root']));
                     if ($rel !== '') {
-                        files::makeDir($new_dir . $rel);
+                        Files::makeDir($new_dir . $rel);
                     }
                 }
                 foreach ($content['files'] as $file) {
@@ -753,7 +753,7 @@ class ModulesTheme extends AbstractModules
                     }
                 }
             } catch (Exception $e) {
-                files::deltree($new_dir);
+                Files::deltree($new_dir);
 
                 throw new Exception($e->getMessage());
             }

@@ -626,7 +626,7 @@ class Media extends Page
         }
 
         $elements = [
-            html::escapeHTML(dcCore()->blog->name) => '',
+            Html::escapeHTML(dcCore()->blog->name) => '',
             __('Media manager')                       => empty($param) ? '' :
                 dcCore()->adminurl->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param)))
         ];

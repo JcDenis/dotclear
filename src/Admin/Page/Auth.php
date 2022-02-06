@@ -257,7 +257,7 @@ class Auth extends Page
 
             dcCore()->session->start();
             $_SESSION['sess_user_id']     = $this->user_id;
-            $_SESSION['sess_browser_uid'] = http::browserUID(DOTCLEAR_MASTER_KEY);
+            $_SESSION['sess_browser_uid'] = Http::browserUID(DOTCLEAR_MASTER_KEY);
 
             if ($data['user_remember']) {
                 setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', DOTCLEAR_ADMIN_SSL);

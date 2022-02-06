@@ -186,7 +186,7 @@ class Auth
             }
         } elseif ($user_key != '') {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
+            if (!hash_equals(Http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
                 return false;
             }
         }

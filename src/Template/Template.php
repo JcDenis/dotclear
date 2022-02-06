@@ -61,7 +61,7 @@ class Template
             return;
         }
 
-        $src = path::clean($attr['src']);
+        $src = Path::clean($attr['src']);
 
         $tpl_file = $this->getFilePath($src);
         if (!$tpl_file) {
@@ -95,7 +95,7 @@ class Template
         }
 
         foreach ($path as $k => $v) {
-            if (($v = path::real($v)) === false) {
+            if (($v = Path::real($v)) === false) {
                 unset($path[$k]);
             }
         }
@@ -118,7 +118,7 @@ class Template
             throw new TemplateException($dir . ' is not writable.');
         }
 
-        $this->cache_dir = path::real($dir) . '/';
+        $this->cache_dir = Path::real($dir) . '/';
     }
 
     public function addBlock(string $name, $callback)
@@ -213,7 +213,7 @@ class Template
         # - dest_file size == 0
         # - tpl_file is more recent thant dest_file
         if (!$stat_d || !$this->use_cache || $stat_d['size'] == 0 || $stat_f['mtime'] > $stat_d['mtime']) {
-            files::makeDir(dirname($dest_file), true);
+            Files::makeDir(dirname($dest_file), true);
 
             if (($fp = @fopen($dest_file, 'wb')) === false) {
                 throw new TemplateException('Unable to create cache file');
@@ -222,7 +222,7 @@ class Template
             $fc = $this->compileFile($tpl_file);
             fwrite($fp, $fc);
             fclose($fp);
-            files::inheritChmod($dest_file);
+            Files::inheritChmod($dest_file);
         }
 
         return $dest_file;
@@ -330,7 +330,7 @@ class Template
                         if ($search->getTag() == $tag) {
                             $errors[] = sprintf(
                                 __('Did not find closing tag for block <tpl:%s>. Content has been ignored.'),
-                                html::escapeHTML($node->getTag())
+                                Html::escapeHTML($node->getTag())
                             );
                             $search->setClosing();
                             $node = $search->getParent();
@@ -379,7 +379,7 @@ class Template
         if (($node instanceof TplNodeBlock) && !$node->isClosed()) {
             $errors[] = sprintf(
                 __('Did not find closing tag for block <tpl:%s>. Content has been ignored.'),
-                html::escapeHTML($node->getTag())
+                Html::escapeHTML($node->getTag())
             );
         }
 

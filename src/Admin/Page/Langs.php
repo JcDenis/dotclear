@@ -75,7 +75,7 @@ class Langs extends Page
                     throw new AdminException(__('Password verification failed'));
                 }
 
-                $url  = html::escapeHTML($_POST['pkg_url']);
+                $url  = Html::escapeHTML($_POST['pkg_url']);
                 $dest = DOTCLEAR_L10N_DIR . '/' . basename($url);
                 if (!preg_match('#^https://[^.]+\.dotclear\.(net|org)/.*\.zip$#', $url)) {
                     throw new AdminException(__('Invalid language file URL.'));
@@ -218,7 +218,7 @@ class Langs extends Page
                 echo
                 '<tr class="line wide">' .
                 '<td class="maximal nowrap">(' . $k . ') ' .
-                '<strong>' . html::escapeHTML($this->iso_codes[$k]) . '</strong></td>' .
+                '<strong>' . Html::escapeHTML($this->iso_codes[$k]) . '</strong></td>' .
                     '<td class="nowrap action">';
 
                 if ($is_deletable) {
@@ -226,7 +226,7 @@ class Langs extends Page
                     '<form action="' . dcCore()->adminurl->get('admin.langs') . '" method="post">' .
                     '<div>' .
                     dcCore()->formNonce() .
-                    Form::hidden(['locale_id'], html::escapeHTML($k)) .
+                    Form::hidden(['locale_id'], Html::escapeHTML($k)) .
                     '<input type="submit" class="delete" name="delete" value="' . __('Delete') . '" /> ' .
                         '</div>' .
                         '</form>';
@@ -248,7 +248,7 @@ class Langs extends Page
             $dc_langs_combo = [];
             foreach ($dc_langs as $k => $v) {
                 if ($v->link && isset($this->iso_codes[$v->title])) {
-                    $dc_langs_combo[html::escapeHTML('(' . $v->title . ') ' . $this->iso_codes[$v->title])] = html::escapeHTML($v->link);
+                    $dc_langs_combo[Html::escapeHTML('(' . $v->title . ') ' . $this->iso_codes[$v->title])] = Html::escapeHTML($v->link);
                 }
             }
 

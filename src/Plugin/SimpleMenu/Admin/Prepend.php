@@ -42,7 +42,7 @@ class Prepend extends AbstractPrepend
     public static function installModule(): ?bool
     {
         # Menu par défaut
-        $blog_url     = html::stripHostURL(dcCore()->blog->url);
+        $blog_url     = Html::stripHostURL(dcCore()->blog->url);
         $menu_default = [
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
             ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dcCore()->url->getURLFor('archive'), 'targetBlank' => false]

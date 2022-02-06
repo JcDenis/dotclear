@@ -221,7 +221,7 @@ class Page extends AbstractPage
             ->setPageHead(self::widgetsHead())
             ->setPageHelp('widgets', self::widgetsHelp())
             ->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Widgets')                             => ''
             ])
         ;
@@ -241,7 +241,7 @@ class Page extends AbstractPage
         $j = 0;
         foreach (WidgetsStack::$__widgets->elements(true) as $w) {
             echo
-            '<li>' . form::hidden(['w[void][0][id]'], html::escapeHTML($w->id())) .
+            '<li>' . form::hidden(['w[void][0][id]'], Html::escapeHTML($w->id())) .
             '<p class="widget-name">' . form::number(['w[void][0][order]'], [
                 'default'    => 0,
                 'class'      => 'hide',
@@ -322,8 +322,8 @@ class Page extends AbstractPage
         $widget_elements          = new stdClass;
         $widget_elements->content = '<dl>';
         foreach (WidgetsStack::$__widgets->elements() as $w) {
-            $widget_elements->content .= '<dt><strong>' . html::escapeHTML($w->name()) . '</strong> (' .
-            __('Widget ID:') . ' <strong>' . html::escapeHTML($w->id()) . '</strong>)' .
+            $widget_elements->content .= '<dt><strong>' . Html::escapeHTML($w->name()) . '</strong> (' .
+            __('Widget ID:') . ' <strong>' . Html::escapeHTML($w->id()) . '</strong>)' .
                 ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') . '</dt>' .
                 '<dd>';
 
@@ -352,7 +352,7 @@ class Page extends AbstractPage
                     }
 
                     $widget_elements->content .= '<li>' .
-                    __('Setting name:') . ' <strong>' . html::escapeHTML($n) . '</strong>' .
+                    __('Setting name:') . ' <strong>' . Html::escapeHTML($n) . '</strong>' .
                         ' (' . $s_type . ')' .
                         '</li>';
                 }
@@ -386,7 +386,7 @@ class Page extends AbstractPage
 
             $iname = 'w[' . $pr . '][' . $i . ']';
 
-            $res .= '<li>' . form::hidden([$iname . '[id]'], html::escapeHTML($w->id())) .
+            $res .= '<li>' . form::hidden([$iname . '[id]'], Html::escapeHTML($w->id())) .
             '<p class="widget-name">' . form::number([$iname . '[order]'], [
                 'default'    => $i,
                 'class'      => 'hidden',

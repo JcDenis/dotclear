@@ -86,7 +86,7 @@ class Widget
         if ($content_only) {
             return $content;
         }
-        $ret = '<div class="widget' . ($class ? ' ' . html::escapeHTML($class) : '') . '"' . ($attr ? ' ' . $attr : '') . '>' . "\n";
+        $ret = '<div class="widget' . ($class ? ' ' . Html::escapeHTML($class) : '') . '"' . ($attr ? ' ' . $attr : '') . '>' . "\n";
         $ret .= $content . "\n";
         $ret .= '</div>' . "\n";
 
@@ -242,7 +242,7 @@ class Widget
             case 'text':
                 $res .= '<p><label for="' . $wfid . '">' . $s['title'] . '</label> ' .
                 form::field([$iname, $wfid], 20, 255, [
-                    'default'    => html::escapeHTML((string) $s['value']),
+                    'default'    => Html::escapeHTML((string) $s['value']),
                     'class'      => 'maximal' . $class,
                     'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
@@ -252,7 +252,7 @@ class Widget
             case 'textarea':
                 $res .= '<p><label for="' . $wfid . '">' . $s['title'] . '</label> ' .
                 form::textarea([$iname, $wfid], 30, 8, [
-                    'default'    => html::escapeHTML($s['value']),
+                    'default'    => Html::escapeHTML($s['value']),
                     'class'      => 'maximal' . $class,
                     'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
@@ -296,7 +296,7 @@ class Widget
             case 'email':
                 $res .= '<p><label for="' . $wfid . '">' . $s['title'] . '</label> ' .
                 form::email([$iname, $wfid], [
-                    'default'      => html::escapeHTML($s['value']),
+                    'default'      => Html::escapeHTML($s['value']),
                     'autocomplete' => 'email'
                 ]) .
                 '</p>';

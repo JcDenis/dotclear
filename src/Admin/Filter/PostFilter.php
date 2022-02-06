@@ -123,7 +123,7 @@ class PostFilter extends Filter
         while ($categories->fetch()) {
             $combo[
                 str_repeat('&nbsp;', ($categories->level - 1) * 4) .
-                html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')'
+                Html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')'
             ] = $categories->cat_id;
         }
 

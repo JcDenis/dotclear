@@ -64,7 +64,7 @@ class ThemeEditor
         # Parent theme
         $parent = dcCore()->themes->getModule((string) $module->parent());
         if ($parent != null) {
-            $this->parent_theme = path::real($parent->root());
+            $this->parent_theme = Path::real($parent->root());
             $this->parent_name  = $parent->name();
         }
 
@@ -91,13 +91,13 @@ class ThemeEditor
             foreach ($files as $k => $v) {
                 if (strpos($v, $this->user_theme) === 0) {
                     $li = sprintf('<li class="default-file">%s</li>', $item);
-                    $list_theme .= sprintf($li, $k, html::escapeHTML($k));
+                    $list_theme .= sprintf($li, $k, Html::escapeHTML($k));
                 } elseif ($this->parent_theme && strpos($v, $this->parent_theme) === 0) {
                     $li = sprintf('<li class="parent-file">%s</li>', $item);
-                    $list_parent .= sprintf($li, $k, html::escapeHTML($k));
+                    $list_parent .= sprintf($li, $k, Html::escapeHTML($k));
                 } else {
                     $li = sprintf('<li>%s</li>', $item);
-                    $list_tpl .= sprintf($li, $k, html::escapeHTML($k));
+                    $list_tpl .= sprintf($li, $k, Html::escapeHTML($k));
                 }
             }
             $list .= ($list_theme != '' ? sprintf('<li class="group-file">' . __('From theme:') . '<ul>%s</ul></li>', $list_theme) : '');
@@ -114,7 +114,7 @@ class ThemeEditor
                 } else {
                     $li = sprintf('<li>%s</li>', $item);
                 }
-                $list .= sprintf($li, $k, html::escapeHTML($k));
+                $list .= sprintf($li, $k, Html::escapeHTML($k));
             }
         }
 
@@ -158,11 +158,11 @@ class ThemeEditor
             }
 
             if ($type == 'tpl' && !is_dir(dirname($dest))) {
-                files::makeDir(dirname($dest));
+                Files::makeDir(dirname($dest));
             }
 
             if ($type == 'po' && !is_dir(dirname($dest))) {
-                files::makeDir(dirname($dest));
+                Files::makeDir(dirname($dest));
             }
 
             $fp = @fopen($dest, 'wb');
@@ -352,7 +352,7 @@ class ThemeEditor
 
     protected function findLocales()
     {
-        $langs = l10n::getISOcodes(true, true);
+        $langs = L10n::getISOcodes(true, true);
         foreach ($langs as $k => $v) {
             if ($this->parent_theme) {
                 $this->po = array_merge($this->po, $this->getFilesInDir($this->parent_theme . '/locales/' . $v, 'po', $v . '/'));
@@ -368,7 +368,7 @@ class ThemeEditor
 
     protected function getFilesInDir($dir, $ext = null, $prefix = '', $model = null)
     {
-        $dir = path::real($dir);
+        $dir = Path::real($dir);
         if (!$dir || !is_dir($dir) || !is_readable($dir)) {
             return [];
         }
@@ -392,8 +392,8 @@ class ThemeEditor
             return 0;
         }
 
-        $ext_a = files::getExtension($a);
-        $ext_b = files::getExtension($b);
+        $ext_a = Files::getExtension($a);
+        $ext_b = Files::getExtension($b);
 
         return strcmp($ext_a . '.' . $a, $ext_b . '.' . $b);
     }

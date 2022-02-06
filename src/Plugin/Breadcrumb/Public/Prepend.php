@@ -76,7 +76,7 @@ class Prepend extends AbstractPrepend
                     // Home (first page only)
                     $ret = '<span id="bc-home">' . __('Home') . '</span>';
                     if (dcCore()->context->cur_lang) {
-                        $langs = l10n::getISOCodes();
+                        $langs = L10n::getISOCodes();
                         $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
                     }
                 }
@@ -90,7 +90,7 @@ class Prepend extends AbstractPrepend
                     $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
                     if (dcCore()->context->cur_lang) {
-                        $langs = l10n::getISOCodes();
+                        $langs = L10n::getISOCodes();
                         $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
                     }
                 }
@@ -134,7 +134,7 @@ class Prepend extends AbstractPrepend
             case 'lang':
                 // Lang
                 $ret   = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                $langs = l10n::getISOCodes();
+                $langs = L10n::getISOCodes();
                 $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
 
                 break;

@@ -100,13 +100,13 @@ class Prepend extends BasePrepend
         $_lang = $this->blog->settings->system->lang;
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
-        l10n::lang($this->_lang);
-        if (l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            l10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
+        L10n::lang($this->_lang);
+        if (L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
         }
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
-        l10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
+        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
+        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
+        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Utils::setlexicalLang('public', $this->_lang);

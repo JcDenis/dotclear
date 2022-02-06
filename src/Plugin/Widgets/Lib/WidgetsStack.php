@@ -56,13 +56,13 @@ class WidgetsStack
             return;
         }
 
-        $value = isset($GLOBALS['_search']) ? html::escapeHTML($GLOBALS['_search']) : '';
+        $value = isset($GLOBALS['_search']) ? Html::escapeHTML($GLOBALS['_search']) : '';
 
         return $w->renderDiv($w->content_only, $w->class, 'id="search"',
-            ($w->title ? $w->renderTitle('<label for="q">' . html::escapeHTML($w->title) . '</label>') : '') .
+            ($w->title ? $w->renderTitle('<label for="q">' . Html::escapeHTML($w->title) . '</label>') : '') .
             '<form action="' . dcCore()->blog->url . '" method="get" role="search">' .
             '<p><input type="text" size="10" maxlength="255" id="q" name="q" value="' . $value . '" ' .
-            ($w->placeholder ? 'placeholder="' . html::escapeHTML($w->placeholder) . '"' : '') .
+            ($w->placeholder ? 'placeholder="' . Html::escapeHTML($w->placeholder) . '"' : '') .
             ' aria-label="' . __('Search') . '"/> ' .
             '<input type="submit" class="submit" value="ok" title="' . __('Search') . '" /></p>' .
             '</form>');
@@ -78,7 +78,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<nav role="navigation"><ul>';
 
         if (!dcCore()->url->isHome(dcCore()->url->type)) {
@@ -124,7 +124,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '');
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '');
 
         $ref_level = $level = $rs->level - 1;
         while ($rs->fetch()) {
@@ -145,7 +145,7 @@ class WidgetsStack
             }
 
             $res .= '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', $rs->cat_url) . '">' .
-            html::escapeHTML($rs->cat_title) . '</a>' .
+            Html::escapeHTML($rs->cat_title) . '</a>' .
                 ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->nb_total : $rs->nb_post) . ')</span>' : '');
 
             $level = $rs->level;
@@ -182,7 +182,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<ul>';
 
         while ($rs->fetch()) {
@@ -190,7 +190,7 @@ class WidgetsStack
             if (dcCore()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
-            $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . html::escapeHTML($rs->post_title) . '</a></li> ';
+            $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->post_title) . '</a></li> ';
         }
 
         $res .= '</ul>';
@@ -216,8 +216,8 @@ class WidgetsStack
             return;
         }
 
-        $langs = l10n::getISOcodes();
-        $res   = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $langs = L10n::getISOcodes();
+        $res   = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<ul>';
 
         while ($rs->fetch()) {
@@ -259,7 +259,7 @@ class WidgetsStack
         $p_title = __('This blog\'s entries %s feed');
         $c_title = __('This blog\'s comments %s feed');
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
@@ -304,7 +304,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<ul>';
 
         $i = 0;
@@ -320,7 +320,7 @@ class WidgetsStack
                 $title = substr($link, 0, 25) . '...';
             }
 
-            $li = $link ? '<a href="' . html::escapeHTML($item->link) . '">' . $title . '</a>' : $title;
+            $li = $link ? '<a href="' . Html::escapeHTML($item->link) . '">' . $title . '</a>' : $title;
             $res .= ' <li>' . $li . '</li> ';
             $i++;
             if ($i >= $limit) {
@@ -343,7 +343,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') . $w->text;
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') . $w->text;
 
         return $w->renderDiv($w->content_only, 'text ' . $w->class, '', $res);
     }
@@ -385,7 +385,7 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') .
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<ul>';
 
         while ($rs->fetch()) {
@@ -394,7 +394,7 @@ class WidgetsStack
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
-            html::escapeHTML($rs->post_title) . '</a></li>';
+            Html::escapeHTML($rs->post_title) . '</a></li>';
         }
 
         $res .= '</ul>';
@@ -420,14 +420,14 @@ class WidgetsStack
             return;
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') . '<ul>';
+        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') . '<ul>';
 
         while ($rs->fetch()) {
             $res .= '<li class="' .
             ((boolean) $rs->comment_trackback ? 'last-tb' : 'last-comment') .
             '"><a href="' . $rs->getPostURL() . '#c' . $rs->comment_id . '">' .
-            html::escapeHTML($rs->post_title) . ' - ' .
-            html::escapeHTML($rs->comment_author) .
+            Html::escapeHTML($rs->post_title) . ' - ' .
+            Html::escapeHTML($rs->comment_author) .
                 '</a></li>';
         }
 
@@ -519,7 +519,7 @@ class WidgetsStack
         $rs         = dcCore()->blog->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
-            $categories[str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . html::escapeHTML($rs->cat_title)] = $rs->cat_id;
+            $categories[str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title)] = $rs->cat_id;
         }
         $w = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, 'List of last entries published');
         $w

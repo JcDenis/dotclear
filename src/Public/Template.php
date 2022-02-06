@@ -1609,7 +1609,7 @@ class Template extends BaseTemplate
     public function EntryIfFirst($attr)
     {
         $ret = $attr['return'] ?? 'first';
-        $ret = html::escapeHTML($ret);
+        $ret = Html::escapeHTML($ret);
 
         return
         '<?php if (dcCore()->context->posts->index() == 0) { ' .
@@ -1626,10 +1626,10 @@ class Template extends BaseTemplate
     public function EntryIfOdd($attr)
     {
         $odd = $attr['return'] ?? 'odd';
-        $odd = html::escapeHTML($odd);
+        $odd = Html::escapeHTML($odd);
 
         $even = $attr['even'] ?? '';
-        $even = html::escapeHTML($even);
+        $even = Html::escapeHTML($even);
 
         return '<?php echo ((dcCore()->context->posts->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
@@ -1645,7 +1645,7 @@ class Template extends BaseTemplate
     public function EntryIfSelected($attr)
     {
         $ret = $attr['return'] ?? 'selected';
-        $ret = html::escapeHTML($ret);
+        $ret = Html::escapeHTML($ret);
 
         return
         '<?php if (dcCore()->context->posts->post_selected) { ' .
@@ -2665,7 +2665,7 @@ class Template extends BaseTemplate
     public function CommentIfFirst($attr)
     {
         $ret = $attr['return'] ?? 'first';
-        $ret = html::escapeHTML($ret);
+        $ret = Html::escapeHTML($ret);
 
         return
         '<?php if (dcCore()->context->comments->index() == 0) { ' .
@@ -2681,7 +2681,7 @@ class Template extends BaseTemplate
     public function CommentIfMe($attr)
     {
         $ret = $attr['return'] ?? 'me';
-        $ret = html::escapeHTML($ret);
+        $ret = Html::escapeHTML($ret);
 
         return
         '<?php if (dcCore()->context->comments->isMe()) { ' .
@@ -2698,10 +2698,10 @@ class Template extends BaseTemplate
     public function CommentIfOdd($attr)
     {
         $odd = $attr['return'] ?? 'odd';
-        $odd = html::escapeHTML($odd);
+        $odd = Html::escapeHTML($odd);
 
         $even = $attr['even'] ?? '';
-        $even = html::escapeHTML($even);
+        $even = Html::escapeHTML($even);
 
         return '<?php echo ((dcCore()->context->comments->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
@@ -2970,7 +2970,7 @@ class Template extends BaseTemplate
     public function PingIfFirst($attr)
     {
         $ret = $attr['return'] ?? 'first';
-        $ret = html::escapeHTML($ret);
+        $ret = Html::escapeHTML($ret);
 
         return
         '<?php if (dcCore()->context->pings->index() == 0) { ' .
@@ -2987,10 +2987,10 @@ class Template extends BaseTemplate
     public function PingIfOdd($attr)
     {
         $odd = $attr['return'] ?? 'odd';
-        $odd = html::escapeHTML($odd);
+        $odd = Html::escapeHTML($odd);
 
         $even = $attr['even'] ?? '';
-        $even = html::escapeHTML($even);
+        $even = Html::escapeHTML($even);
 
         return '<?php echo ((dcCore()->context->pings->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
@@ -3268,7 +3268,7 @@ class Template extends BaseTemplate
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
-            $if[] = '(isset($_search_count) && $_search_count ' . html::decodeEntities($attr['search_count']) . ')';
+            $if[] = '(isset($_search_count) && $_search_count ' . Html::decodeEntities($attr['search_count']) . ')';
         }
 
         if (isset($attr['jquery_needed'])) {
@@ -3356,7 +3356,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'http::getSelfURI()') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'Http::getSelfURI()') . '; ?>';
     }
 
     /*dtd

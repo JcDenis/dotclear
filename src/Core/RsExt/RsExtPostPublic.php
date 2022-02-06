@@ -24,12 +24,12 @@ class RsExtPostPublic extends RsExtPost
         # Not very nice hack but it does the job :)
         if (isset(dcCore()->context) && dcCore()->context->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
-            $c    = dcCore()->context::remove_html($c);
-            $c    = dcCore()->context::cut_string($c, 350);
+            $c    = dcCore()->conText::remove_html($c);
+            $c    = dcCore()->conText::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
-            html::escapeHTML($rs->post_title) . '</a></p>';
+            Html::escapeHTML($rs->post_title) . '</a></p>';
 
             return $c;
         }

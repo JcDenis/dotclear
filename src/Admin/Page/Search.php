@@ -94,7 +94,7 @@ class Search extends Page
             ->setPageHelp('core_search')
             ->setPageHead($starting_scripts)
             ->setPageBreadcrumb([
-                    html::escapeHTML(dcCore()->blog->name) => '',
+                    Html::escapeHTML(dcCore()->blog->name) => '',
                     __('Search')                        => ''
             ])
         ;

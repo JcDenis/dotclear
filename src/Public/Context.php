@@ -191,12 +191,12 @@ class Context
 
     public function cut_string($str, $l)
     {
-        return text::cutString($str, $l);
+        return Text::cutString($str, $l);
     }
 
     public function encode_xml($str)
     {
-        return html::escapeHTML($str);
+        return Html::escapeHTML($str);
     }
 
     public function remove_isolated_figcaption($str)
@@ -217,14 +217,14 @@ class Context
     {
         $str = $this->remove_isolated_figcaption($str);
 
-        return html::decodeEntities(html::clean($str));
+        return Html::decodeEntities(Html::clean($str));
     }
 
     public function strip_tags($str)
     {
         $str = $this->remove_isolated_figcaption($str);
 
-        return trim(preg_replace('/ {2,}/', ' ', str_replace(["\r", "\n", "\t"], ' ', html::clean($str))));
+        return trim(preg_replace('/ {2,}/', ' ', str_replace(["\r", "\n", "\t"], ' ', Html::clean($str))));
     }
 
     public function lower_case($str)
@@ -562,7 +562,7 @@ class Context
         $formats = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'wepb'];
 
         # Get base name and extension
-        $info = path::info($img);
+        $info = Path::info($img);
         $base = $info['base'];
 
         $res = false;

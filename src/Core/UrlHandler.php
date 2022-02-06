@@ -160,7 +160,7 @@ class UrlHandler
 
         if (dcCore()->context->http_cache) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
-            http::cache($this->mod_files, $this->mod_ts);
+            Http::cache($this->mod_files, $this->mod_ts);
         }
 
         header('Content-Type: ' . dcCore()->context->content_type . '; charset=UTF-8');
@@ -203,7 +203,7 @@ class UrlHandler
         dcCore()->behaviors->call('urlHandlerServeDocument', $result);
 
         if (dcCore()->context->http_cache && dcCore()->context->http_etag) {
-            http::etag($result['content'], http::getSelfURI());
+            Http::etag($result['content'], Http::getSelfURI());
         }
         echo $result['content'];
     }
@@ -371,7 +371,7 @@ class UrlHandler
         }
 
         header('Content-Type: text/html; charset=UTF-8');
-        http::head(404, 'Not Found');
+        Http::head(404, 'Not Found');
         dcCore()->url->type    = '404';
         dcCore()->context->current_tpl  = '404.html';
         dcCore()->context->content_type = 'text/html';
@@ -435,7 +435,7 @@ class UrlHandler
         } else {
             dcCore()->url->type = 'search';
 
-            $GLOBALS['_search'] = !empty($_GET['q']) ? html::escapeHTML(rawurldecode($_GET['q'])) : '';
+            $GLOBALS['_search'] = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
                 dcCore()->behaviors->call('publicBeforeSearchCount', $params);
@@ -591,7 +591,7 @@ class UrlHandler
                 if ($post_comment) {
                     # Spam trap
                     if (!empty($_POST['f_mail'])) {
-                        http::head(412, 'Precondition Failed');
+                        Http::head(412, 'Precondition Failed');
                         header('Content-Type: text/plain');
                         echo 'So Long, and Thanks For All the Fish';
                         # Exits immediately the application to preserve the server.
@@ -635,18 +635,18 @@ class UrlHandler
                         # Post the comment
                         $cur                  = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
                         $cur->comment_author  = $name;
-                        $cur->comment_site    = html::clean($site);
-                        $cur->comment_email   = html::clean($mail);
+                        $cur->comment_site    = Html::clean($site);
+                        $cur->comment_email   = Html::clean($mail);
                         $cur->comment_content = $content;
                         $cur->post_id         = dcCore()->context->posts->post_id;
                         $cur->comment_status  = dcCore()->blog->settings->system->comments_pub ? 1 : -1;
-                        $cur->comment_ip      = http::realIP();
+                        $cur->comment_ip      = Http::realIP();
 
                         $redir = dcCore()->context->posts->getURL();
                         $redir .= dcCore()->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
 
                         try {
-                            if (!text::isEmail($cur->comment_email)) {
+                            if (!Text::isEmail($cur->comment_email)) {
                                 throw new CoreException(__('You must provide a valid email address.'));
                             }
 
@@ -736,7 +736,7 @@ class UrlHandler
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
             # RSS XSLT stylesheet
-            http::$cache_max_age = 60 * 60;
+            Http::$cache_max_age = 60 * 60;
             $this->serveDocument('rss2.xsl', 'text/xml');
 
             return;
@@ -859,7 +859,7 @@ class UrlHandler
 
     public function rsd($args)
     {
-        http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
+        Http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
 
         header('Content-Type: text/xml; charset=UTF-8');
         echo
@@ -868,7 +868,7 @@ class UrlHandler
         "<service>\n" .
         "  <engineName>Dotclear</engineName>\n" .
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
-        '  <homePageLink>' . html::escapeHTML(dcCore()->blog->url) . "</homePageLink>\n";
+        '  <homePageLink>' . Html::escapeHTML(dcCore()->blog->url) . "</homePageLink>\n";
 
         if (dcCore()->blog->settings->system->enable_xmlrpc) {
             $u = sprintf(DOTCLEAR_XMLRPC_URL, dcCore()->blog->url, dcCore()->blog->id); // @phpstan-ignore-line

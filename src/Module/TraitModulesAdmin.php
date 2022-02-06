@@ -644,7 +644,7 @@ trait TraitModulesAdmin
 
                 echo
                 '<td class="module-icon nowrap">' .
-                dcCore()->menu->getIconTheme($icon, false, html::escapeHTML($id), html::escapeHTML($id)) .
+                dcCore()->menu->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
                 '</td>';
             }
 

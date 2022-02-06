@@ -52,7 +52,7 @@ class Prepend extends Core
             $this->autoloader = new Autoloader('', '', true);
         }
 
-        # Add rcustom regs
+        # Add custom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
 
@@ -94,7 +94,7 @@ class Prepend extends Core
             exit;
         }
 
-        #  Set plateform (user) configuration constants
+        # Set plateform (user) configuration constants
         require_once DOTCLEAR_CONFIG_PATH;
 
         # Set Dotclear configuration constants
@@ -166,7 +166,7 @@ class Prepend extends Core
             # Loading locales for detected language
             $dlang = Http::getAcceptLanguages();
             foreach ($dlang as $l) {
-                if ($l == 'en' || l10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
+                if ($l == 'en' || L10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
                     L10n::lang($l);
 
                     break;

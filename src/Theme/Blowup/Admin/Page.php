@@ -197,7 +197,7 @@ class Page extends AbstractPage
                     }
 
                     if (!empty($_FILES['upfile']) && !empty($_FILES['upfile']['name'])) {
-                        files::uploadStatus($_FILES['upfile']);
+                        Files::uploadStatus($_FILES['upfile']);
                         $uploaded                = $this->Blowup_config->uploadImage($_FILES['upfile']);
                         $this->Blowup_user['uploaded'] = basename($uploaded);
                     }
@@ -244,7 +244,7 @@ class Page extends AbstractPage
                 static::jsLoad('?mf=Theme/Blowup/files/js/config.js')
             )
             ->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Blog appearance')               => dcCore()->adminurl->get('admin.blog.theme'),
                 __('Blowup configuration')          => ''
             ])
@@ -329,7 +329,7 @@ class Page extends AbstractPage
 
         if ($this->Blowup_can_write_images) {
             if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
-                $preview_image = http::concatURL(dcCore()->blog->url, $this->Blowup_config->imagesURL() . '/page-t.png');
+                $preview_image = Http::concatURL(dcCore()->blog->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?mf=Theme/Blowup/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
@@ -341,7 +341,7 @@ class Page extends AbstractPage
             '<p>' . __('Choose "Custom..." to upload your own image.') . '</p>' .
 
             '<p id="uploader"><label for="upfile">' . __('Add your image:') . '</label> ' .
-            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), files::size((int) DOTCLEAR_MAX_UPLOAD_SIZE)) . ')' .
+            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), Files::size((int) DOTCLEAR_MAX_UPLOAD_SIZE)) . ')' .
             '<input type="file" name="upfile" id="upfile" size="35" />' .
             '</p>' .
 
@@ -454,7 +454,7 @@ class Page extends AbstractPage
         '<h4 class="border-top">' . __('Additional CSS') . '</h4>' .
         '<p><label for="extra_css">' . __('Any additional CSS styles (must be written using the CSS syntax):') . '</label> ' .
         form::textarea('extra_css', 72, 5, [
-            'default'    => html::escapeHTML($this->Blowup_user['extra_css']),
+            'default'    => Html::escapeHTML($this->Blowup_user['extra_css']),
             'class'      => 'maximal',
             'extra_html' => 'title="' . __('Additional CSS') . '"'
         ]) .

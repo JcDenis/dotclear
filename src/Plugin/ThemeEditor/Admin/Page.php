@@ -52,7 +52,7 @@ class Page extends AbstractPage
                 ->setPageTitle(__('Edit theme files'))
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
-                    html::escapeHTML(dcCore()->blog->name) => '',
+                    Html::escapeHTML(dcCore()->blog->name) => '',
                     __('Blog appearance')                  => dcCore()->adminurl->get('admin.blog.theme'),
                     __('Edit theme files')                 => ''
                 ])
@@ -111,7 +111,7 @@ class Page extends AbstractPage
             ->setPageHelp('themeEditor')
             ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Blog appearance')                  => dcCore()->adminurl->get('admin.blog.theme'),
                 __('Edit theme files')                 => ''
             ])
@@ -153,7 +153,7 @@ class Page extends AbstractPage
         }
 
         echo
-        '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), html::escapeHTML($this->te_theme->name())) . '</strong></p>';
+        '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
         if (dcCore()->blog->settings->system->theme == 'default') {
             echo '<div class="error"><p>' .  __("You can't edit default theme.") . '</p></div>';

@@ -242,7 +242,7 @@ class ConfigTheme
      */
     public function cssPath($folder)
     {
-        return path::real(dcCore()->blog->public_path) . '/' . $folder;
+        return Path::real(dcCore()->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -267,7 +267,7 @@ class ConfigTheme
      */
     public function canWriteCss($folder, $create = false)
     {
-        $public = path::real(dcCore()->blog->public_path);
+        $public = Path::real(dcCore()->blog->public_path);
         $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
@@ -283,7 +283,7 @@ class ConfigTheme
                 return false;
             }
             if ($create) {
-                files::makeDir($css);
+                Files::makeDir($css);
             }
 
             return true;
@@ -350,7 +350,7 @@ class ConfigTheme
      */
     public function dropCss($folder, $theme)
     {
-        $file = path::real($this->cssPath($folder) . '/' . $theme . '.css');
+        $file = Path::real($this->cssPath($folder) . '/' . $theme . '.css');
         if (!$file) {
             return;
         }
@@ -386,7 +386,7 @@ class ConfigTheme
      */
     public function imagesPath($folder)
     {
-        return path::real(dcCore()->blog->public_path) . '/' . $folder;
+        return Path::real(dcCore()->blog->public_path) . '/' . $folder;
     }
 
     /**
@@ -411,7 +411,7 @@ class ConfigTheme
      */
     public function canWriteImages($folder, $create = false)
     {
-        $public = path::real(dcCore()->blog->public_path);
+        $public = Path::real(dcCore()->blog->public_path);
         $imgs   = $this->imagesPath($folder);
 
         if (!function_exists('imagecreatetruecolor') || !function_exists('imagepng') || !function_exists('imagecreatefrompng')) {
@@ -434,7 +434,7 @@ class ConfigTheme
                 return false;
             }
             if ($create) {
-                files::makeDir($imgs);
+                Files::makeDir($imgs);
             }
 
             return true;
@@ -465,7 +465,7 @@ class ConfigTheme
         }
 
         $name = $f['name'];
-        $type = files::getMimeType($name);
+        $type = Files::getMimeType($name);
 
         if ($type != 'image/jpeg' && $type != 'image/png') {
             throw new ModuleException(__('Invalid file type.'));
@@ -496,7 +496,7 @@ class ConfigTheme
     public function dropImage($folder, $img)
     {
         if ($folder) {
-            $img = path::real($this->imagesPath($folder) . '/' . $img);
+            $img = Path::real($this->imagesPath($folder) . '/' . $img);
         }
         if (!$img) {
             return;

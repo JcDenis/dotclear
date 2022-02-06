@@ -266,7 +266,7 @@ class Page extends AbstractPage
             ->setPageHelp('ductile')
             ->setPageHead(static::jsPageTabs())
             ->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Blog appearance')               => dcCore()->adminurl->get('admin.blog.theme'),
                 __('Ductile configuration')          => ''
             ])

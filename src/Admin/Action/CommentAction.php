@@ -39,7 +39,7 @@ class CommentAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            html::escapeHTML(dcCore()->blog->name) => '',
+            Html::escapeHTML(dcCore()->blog->name) => '',
             __('Comments')                            => dcCore()->adminurl->get('admin.comments'),
             __('Comments actions')                    => ''
         ]);

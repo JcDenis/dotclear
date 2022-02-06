@@ -91,7 +91,7 @@ class Blog extends Page
                 # --BEHAVIOR-- adminAfterBlogCreate
                 dcCore()->behaviors->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
-                static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), html::escapeHTML($cur->blog_name)));
+                static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->blog_name)));
                 dcCore()->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
             } catch (Exception $e) {
                 dcCore()->error($e->getMessage());

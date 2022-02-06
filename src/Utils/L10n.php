@@ -688,7 +688,7 @@ class L10n
      * Text direction
      *
      * @deprecated
-     * @see l10n::getLanguageTextDirection()
+     * @see L10n::getLanguageTextDirection()
      *
      * @param string    $lang    Language code
      * @return string ltr or rtl
@@ -1036,7 +1036,7 @@ if (!function_exists('__')) {
     /**
      * Translated string
      *
-     * @see l10n::trans()
+     * @see L10n::trans()
      *
      * @param      string   $singular Singular form of the string
      * @param      string   $plural Plural form of the string (optionnal)

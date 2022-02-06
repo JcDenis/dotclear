@@ -143,7 +143,7 @@ class Categories extends Page
                 static::jsLoad('js/_categories.js')
             )
             ->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Categories')                          => ''
             ])
         ;

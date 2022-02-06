@@ -647,7 +647,7 @@ class Utils
         /* check file extension */
         if (!in_array(Files::getExtension($file), $types)) {
             header('Content-Type: text/plain');
-            http::head(404, 'Not Found');
+            Http::head(404, 'Not Found');
             exit;
         }
 

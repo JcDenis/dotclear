@@ -62,7 +62,7 @@ class Page extends AbstractPage
         $this->sm_categories_combo = dcCore()->combos->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
-            $categories_label[$rs->cat_url] = html::escapeHTML($rs->cat_title);
+            $categories_label[$rs->cat_url] = Html::escapeHTML($rs->cat_title);
         }
 
         # Liste des langues utilisées
@@ -202,7 +202,7 @@ class Page extends AbstractPage
                         $this->sm_item_select_label = '';
                         $this->sm_item_label        = __('Label');
                         $this->sm_item_descr        = __('Description');
-                        $this->sm_item_url          = html::stripHostURL(dcCore()->blog->url);
+                        $this->sm_item_url          = Html::stripHostURL(dcCore()->blog->url);
                         switch ($this->sm_item_type) {
                             case 'home':
                                 $this->sm_item_label = __('Home');
@@ -246,7 +246,7 @@ class Page extends AbstractPage
                                 $this->sm_item_select_label = array_search($this->sm_item_select, $this->sm_pages_combo);
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = '';
-                                $this->sm_item_url          = html::stripHostURL($this->sm_item_select);
+                                $this->sm_item_url          = Html::stripHostURL($this->sm_item_select);
 
                                 break;
                             case 'tags':
@@ -444,7 +444,7 @@ class Page extends AbstractPage
 
             $this->setPageBreadcrumb(
                 [
-                    html::escapeHTML(dcCore()->blog->name) => '',
+                    Html::escapeHTML(dcCore()->blog->name) => '',
                     __('Simple menu')                         => dcCore()->adminurl->get('admin.plugin.SimpleMenu'),
                     __('Add item')                            => '',
                     $step_label                               => ''
@@ -453,7 +453,7 @@ class Page extends AbstractPage
             );
         } else {
             $this->setPageBreadcrumb([
-                html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(dcCore()->blog->name) => '',
                 __('Simple menu')                         => ''
             ]);
         }
@@ -621,26 +621,26 @@ class Page extends AbstractPage
                         'max'        => count($this->sm_menu),
                         'default'    => $count,
                         'class'      => 'position',
-                        'extra_html' => 'title="' . sprintf(__('position of %s'), html::escapeHTML($m['label'])) . '"'
+                        'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($m['label'])) . '"'
                     ]) .
                     form::hidden(['dynorder[]', 'dynorder-' . $i], $i) . '</td>';
                     echo '<td class="minimal">' . form::checkbox(['items_selected[]', 'ims-' . $i], $i) . '</td>';
                     echo '<td class="nowrap" scope="row">' . form::field(['items_label[]', 'iml-' . $i], null, 255,
                         [
-                            'default'    => html::escapeHTML($m['label']),
+                            'default'    => Html::escapeHTML($m['label']),
                             'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_descr[]', 'imd-' . $i], 30, 255,
                         [
-                            'default'    => html::escapeHTML($m['descr']),
+                            'default'    => Html::escapeHTML($m['descr']),
                             'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
-                    echo '<td class="nowrap">' . form::field(['items_url[]', 'imu-' . $i], 30, 255, html::escapeHTML($m['url'])) . '</td>';
+                    echo '<td class="nowrap">' . form::field(['items_url[]', 'imu-' . $i], 30, 255, Html::escapeHTML($m['url'])) . '</td>';
                     echo '<td class="nowrap">' . form::checkbox('items_targetBlank' . $i, 'blank', $targetBlank) . '</td>';
                 } else {
-                    echo '<td class="nowrap" scope="row">' . html::escapeHTML($m['label']) . '</td>';
-                    echo '<td class="nowrap">' . html::escapeHTML($m['descr']) . '</td>';
-                    echo '<td class="nowrap">' . html::escapeHTML($m['url']) . '</td>';
+                    echo '<td class="nowrap" scope="row">' . Html::escapeHTML($m['label']) . '</td>';
+                    echo '<td class="nowrap">' . Html::escapeHTML($m['descr']) . '</td>';
+                    echo '<td class="nowrap">' . Html::escapeHTML($m['url']) . '</td>';
                     echo '<td class="nowrap">' . $targetBlankStr . '</td>';
                 }
                 echo '</tr>';
@@ -653,7 +653,7 @@ class Page extends AbstractPage
                 echo '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>';
                 echo '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .
-                'onclick="return window.confirm(\'' . html::escapeJS(__('Are you sure you want to remove selected menu items?')) . '\');" />' .
+                'onclick="return window.confirm(\'' . Html::escapeJS(__('Are you sure you want to remove selected menu items?')) . '\');" />' .
                     '</p>';
                 echo '</div>';
                 echo '</form>';

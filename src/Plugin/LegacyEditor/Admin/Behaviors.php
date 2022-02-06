@@ -78,7 +78,7 @@ class Behaviors
 
     protected static function jsToolBar()
     {
-        $rtl = l10n::getLanguageTextDirection(dcCore()->_lang) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = L10n::getLanguageTextDirection(dcCore()->_lang) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;

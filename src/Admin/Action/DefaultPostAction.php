@@ -350,13 +350,13 @@ class DefaultPostAction
                     count($posts_ids)
                 ),
                 count($posts_ids),
-                Html::escapeHTML(l10n::getLanguageName($new_lang)))
+                Html::escapeHTML(L10n::getLanguageName($new_lang)))
             );
             $ap->redirect(true);
         } else {
             $rs         = dcCore()->blog->getLangs(['order' => 'asc']);
             $all_langs  = L10n::getISOcodes(false, true);
-            $lang_combo = ['' => '', __('Most used') => [], __('Available') => l10n::getISOcodes(true, true)];
+            $lang_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($rs->fetch()) {
                 if (isset($all_langs[$rs->post_lang])) {
                     $lang_combo[__('Most used')][$all_langs[$rs->post_lang]] = $rs->post_lang;
