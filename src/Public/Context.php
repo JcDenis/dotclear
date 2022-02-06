@@ -27,8 +27,7 @@ class Context
     public $nb_entry_per_page   = 10;
     public $nb_entry_first_page = 10;
     protected $page_number      = 0;
-
-    protected static $smilies = [];
+    protected $smilies          = [];
 
     public function __set($name, $var)
     {
@@ -374,16 +373,17 @@ class Context
     # Smilies static methods
     public function getSmilies($blog)
     {
-        if (!empty(self::$smilies)) {
+        if (!empty($this->smilies)) {
             return true;
         }
 
         $path       = dcCore()->themes->getThemePath('files/smilies/smilies.txt');
+        $path[]     = __DIR__ . '/files/smilies/smilies.txt';
         $base_url   = dcCore()->blog->url . 'files/smilies/';
 
         foreach ($path as $file) {
-            if (file_exists($file)) {
-                self::$smilies = $this->smiliesDefinition($file, $base_url);
+            if ($file && file_exists($file)) {
+                $this->smilies = $this->smiliesDefinition($file, $base_url);
 
                 return true;
             }
@@ -412,7 +412,7 @@ class Context
 
     public function addSmilies($str)
     {
-        if (empty(self::$smilies)) {
+        if (empty($this->smilies)) {
             return $str;
         }
 
@@ -432,7 +432,7 @@ class Context
             } else {
                 $t = $cur_token[1];
                 if (!$in_pre) {
-                    $t = preg_replace(array_keys(self::$smilies), array_values(self::$smilies), $t);
+                    $t = preg_replace(array_keys($this->smilies), array_values($this->smilies), $t);
                 }
                 $result .= $t;
             }
