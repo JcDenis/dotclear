@@ -232,7 +232,7 @@ class Page extends AbstractPage
         if ($theme && $theme->id() != 'default' && dcCore()->auth->isSuperAdmin()) {
             $path = dcCore()->themes->getModulesPath();
 
-            return DOTCLEAR_MODE_DEV
+            return DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
                 || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
                 || !dcCore()->themes->isDistributedModule($theme->id());
         }

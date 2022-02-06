@@ -106,7 +106,7 @@ class ModulesTheme extends AbstractModules
             }
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_MODE_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
                 $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->score()) . '</p>';
             }
 
@@ -311,7 +311,7 @@ class ModulesTheme extends AbstractModules
                 # Delete
                 case 'delete':
                     if (dcCore()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && defined('DOTCLEAR_MODE_DEV') && DOTCLEAR_MODE_DEV ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

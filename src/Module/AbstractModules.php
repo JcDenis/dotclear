@@ -421,7 +421,7 @@ abstract class AbstractModules
                 $id         = $tmp[0];
                 $cur_module = $modules->getModule($id);
                 if (!empty($cur_module)
-                    && (defined('DOTCLEAR_MODE_DEV') && DOTCLEAR_MODE_DEV === true
+                    && (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
                         || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))
                 ) {
                     # Delete old module

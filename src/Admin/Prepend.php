@@ -16,6 +16,7 @@ namespace Dotclear\Admin;
 use ArrayObject;
 
 use Dotclear\Exception;
+use Dotclear\Exception\PrependException;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Prepend as BasePrepend;
@@ -146,7 +147,7 @@ class Prepend extends BasePrepend
                     exit;
                 }
             } catch (Exception $e) { #DatabaseException?
-                static::errorpage(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
+                throw new PrependException(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 
             # Check nonce from POST requests
@@ -299,7 +300,7 @@ class Prepend extends BasePrepend
         # Extract modules class name from url
         $pos = strpos($_GET['mf'], '/');
         if (!$pos) {
-            static::errorpage(__('Failed to load file'), __('File handler not found'), 20);
+            throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
         }
 
         # Sanitize modules type
@@ -309,7 +310,7 @@ class Prepend extends BasePrepend
         # Check class
         $class = dcCore()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-            static::errorpage(__('Failed to load file'), __('File handler not found'), 20);
+            throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
         }
 
         # Get paths and serve file
@@ -389,16 +390,9 @@ class Prepend extends BasePrepend
             }
             $page = new $class($handler);
         } catch (AdminException $e) {
-            static::errorpage(
-                __('Unknow URL'),
-                $e->getMessage(),
-                404
-            );
+            throw new PrependException(__('Unknow URL'), $e->getMessage(), 404);
         } catch (Exception $e) {
-            if (DOTCLEAR_MODE_DEV) {
-                throw $e;
-            }
-            static::errorpage('Dotclear error', $e->getMessage(), 20);
+            throw new PrependException('Dotclear error', $e->getMessage(), 20);
         }
 
         # Process page
@@ -408,10 +402,8 @@ class Prepend extends BasePrepend
             ob_end_flush();
         } catch (Exception $e) {
             ob_end_clean();
-            if (DOTCLEAR_MODE_DEV) {
-                throw $e;
-            }
-            static::errorpage(__('Failed to load page'), $e->getMessage(), 20);
+
+            throw new PrependException(__('Failed to load page'), $e->getMessage(), 20);
         }
     }
 }

@@ -44,7 +44,10 @@ class Prepend extends AbstractPrepend
         if ($theme->id() != 'default' && dcCore()->auth->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = dcCore()->themes->getModulesPath();
-            if (DOTCLEAR_MODE_DEV || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path))) || !dcCore()->themes->isDistributedModule($theme->id())) {
+            if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
+                || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
+                || !dcCore()->themes->isDistributedModule($theme->id())
+            ) {
                 return '<p><a href="' . dcCore()->adminurl->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
             }
         }

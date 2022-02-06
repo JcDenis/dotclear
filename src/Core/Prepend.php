@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Exception;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\PrependException;
 
 use Dotclear\Core\Core;
 
@@ -62,11 +62,6 @@ class Prepend extends Core
         # Timezone
         Dt::setTZ('UTC');
 
-        # CLI_MODE, boolean constant that tell if we are in CLI mode
-        if (!defined('CLI_MODE')) {
-            define('CLI_MODE', PHP_SAPI == 'cli');
-        }
-
         # Disallow every special wrapper
         Http::unregisterWrapper();
 
@@ -102,6 +97,12 @@ class Prepend extends Core
         #  Set plateform (user) configuration constants
         require_once DOTCLEAR_CONFIG_PATH;
 
+        # Starting from debug mode, display all errors
+        if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {
+            ini_set('display_errors', '1');
+            error_reporting(E_ALL | E_STRICT);
+        }
+
         # Set Dotclear configuration constants
         Distrib::getCoreConstants();
 
@@ -114,9 +115,9 @@ class Prepend extends Core
             /* Check length of cryptographic algorithm result and exit if less than 40 characters long */
             if (strlen(Crypt::hmac(DOTCLEAR_MASTER_KEY, DOTCLEAR_VENDOR_NAME, DOTCLEAR_CRYPT_ALGO)) < 40) {
                 if ($this->process != 'Admin') {
-                    static::errorpage('Server error', 'Site temporarily unavailable');
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::errorpage('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
+                    throw new PrependException('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
                 }
                 exit;
             }
@@ -129,9 +130,9 @@ class Prepend extends Core
             if (!is_dir(DOTCLEAR_CACHE_DIR)) {
                 /* Admin must create it */
                 if (!in_array($this->process, ['Admin', 'Install'])) {
-                    static::errorpage('Server error', 'Site temporarily unavailable');
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::errorpage('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
+                    throw new PrependException('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
@@ -144,9 +145,9 @@ class Prepend extends Core
             if (!is_dir(DOTCLEAR_VAR_DIR)) {
                 // Admin must create it
                 if (!in_array($this->process, ['Admin', 'Install'])) {
-                    static::errorpage('Server error', 'Site temporarily unavailable');
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    static::errorpage('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
+                    throw new PrependException('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
@@ -172,7 +173,7 @@ class Prepend extends Core
                 }
             }
             if (in_array($this->process, ['Admin', 'Install'])) {
-                static::errorpage(
+                throw new PrependException(
                     __('Unable to connect to database'),
                     $e->getCode() == 0 ?
                     sprintf(
@@ -186,7 +187,7 @@ class Prepend extends Core
                         '<p>If you\'re unsure what these terms mean you should probably contact ' .
                         'your host. If you still need help you can always visit the ' .
                         '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
-                        (DOTCLEAR_MODE_DEBUG ? // @phpstan-ignore-line
+                        (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
                             '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                             ''),
                         (DOTCLEAR_DATABASE_HOST != '' ? DOTCLEAR_DATABASE_HOST : 'localhost')
@@ -195,7 +196,7 @@ class Prepend extends Core
                     20
                 );
             } else {
-                static::errorpage(
+                throw new PrependException(
                     __('Site temporarily unavailable'),
                     __('<p>We apologize for this temporary unavailability.<br />' .
                         'Thank you for your understanding.</p>'),
@@ -262,28 +263,5 @@ class Prepend extends Core
         } catch (Exception $e) {    // @phpstan-ignore-line
         }
         $this->con->close();
-    }
-
-    protected static function errorpage(string $summary, string $message, int $code = 0): void
-    {
-        # Error codes
-        # 10 : no config file
-        # 20 : database issue
-        # 30 : blog is not defined
-        # 40 : template files creation
-        # 50 : no default theme
-        # 60 : template processing error
-        # 70 : blog is offline
-
-        if (CLI_MODE) {
-            trigger_error($summary, E_USER_ERROR);
-            exit(1);
-        }
-        if (defined('DOTCLEAR_ERROR_FILE') && is_file(DOTCLEAR_ERROR_FILE)) {
-            include DOTCLEAR_ERROR_FILE;
-        } else {
-            include static::root('core_error.php');
-        }
-        exit;
     }
 }

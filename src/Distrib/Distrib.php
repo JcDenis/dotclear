@@ -37,23 +37,9 @@ class Distrib
 
     public static function getCoreConstants(): void
     {
-        # Dev
-        //*== DOTCLEAR_MODE_DEBUG ==
-        if (!defined('DOTCLEAR_MODE_DEBUG')) {
-            define('DOTCLEAR_MODE_DEBUG', true);
-        }
-        if (DOTCLEAR_MODE_DEBUG) { // @phpstan-ignore-line
-            ini_set('display_errors', '1');
-            error_reporting(E_ALL | E_STRICT);
-        }
-        //*/
-
-        if (!defined('DOTCLEAR_MODE_DEBUG')) {
-            define('DOTCLEAR_MODE_DEBUG', false);
-        }
-
-        if (!defined('DOTCLEAR_MODE_DEV')) {
-            define('DOTCLEAR_MODE_DEV', false);
+        # Error mode
+        if (!defined('DOTCLEAR_RUN_LEVEL')) {
+            define('DOTCLEAR_RUN_LEVEL', DOTCLEAR_RUN_PRODUCTION);
         }
 
         # Core

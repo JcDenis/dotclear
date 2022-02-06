@@ -213,7 +213,7 @@ trait TraitModulesAdmin
     public function isDeletablePath(string $root): bool
     {
         return $this->path_writable
-            && (preg_match('!^' . $this->path_pattern . '!', $root) || defined('DOTCLEAR_MODE_DEV') && DOTCLEAR_MODE_DEV)
+            && (preg_match('!^' . $this->path_pattern . '!', $root) || DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT)
             && dcCore()->auth->isSuperAdmin();
     }
     //@}
@@ -547,7 +547,7 @@ trait TraitModulesAdmin
             '<th class="first nowrap"' . ($colspan > 1 ? ' colspan="' . $colspan . '"' : '') . '>' . __('Name') . '</th>';
         }
 
-        if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_MODE_DEBUG) {   // @phpstan-ignore-line
+        if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
             echo
             '<th class="nowrap">' . __('Score') . '</th>';
         }
@@ -671,7 +671,7 @@ trait TraitModulesAdmin
                 '</td>';
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_MODE_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
                 $tds++;
                 echo
                     '<td class="module-version nowrap count"><span class="debug">' . $module->score() . '</span></td>';
@@ -800,7 +800,7 @@ trait TraitModulesAdmin
 
                 /* @phpstan-ignore-next-line */
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
-                    || !empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_STORE_ALLOWREPO
+                    || !empty($module->repository()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG && DOTCLEAR_STORE_ALLOWREPO
                 ) {
                     echo
                         '<div><ul class="mod-more">';
@@ -810,7 +810,7 @@ trait TraitModulesAdmin
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module->repository()) && DOTCLEAR_MODE_DEBUG && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
+                    if (!empty($module->repository()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
                         echo '<li class="modules-repository"><a href="' . $module->repository() . '">' . __('Third-party repository') . '</a></li>';
                     }
 
@@ -1000,7 +1000,7 @@ trait TraitModulesAdmin
                 # Delete
                 case 'delete':
                     if (dcCore()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && defined('DOTCLEAR_MODE_DEV') && DOTCLEAR_MODE_DEV ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

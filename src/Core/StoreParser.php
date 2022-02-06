@@ -99,8 +99,8 @@ class StoreParser
             }
             $item['tags'] = $tags;
 
-            # First filter right now. If DOTCLEAR_MODE_DEV is set all modules are parse
-            if (DOTCLEAR_MODE_DEV === true
+            # First filter right now. If level is DEVELOPMENT, all modules are parse
+            if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
                 || Utils::versionsCompare(DOTCLEAR_CORE_VERSION, $item['dc_min'], '>=', false)
                 && Utils::versionsCompare(DOTCLEAR_CORE_VERSION_BREAK, $item['dc_min'], '<=', false)
             ) {
