@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Template;
 
 use Dotclear\Exception;
+use Dotclear\Exception\TemplateException;
 
 use Dotclear\File\Path;
 use Dotclear\File\Files;
@@ -110,11 +111,11 @@ class Template
     public function setCacheDir(string $dir)
     {
         if (!is_dir($dir)) {
-            throw new Exception($dir . ' is not a valid directory.');
+            throw new TemplateException($dir . ' is not a valid directory.');
         }
 
         if (!is_writable($dir)) {
-            throw new Exception($dir . ' is not writable.');
+            throw new TemplateException($dir . ' is not writable.');
         }
 
         $this->cache_dir = path::real($dir) . '/';
@@ -123,7 +124,7 @@ class Template
     public function addBlock(string $name, $callback)
     {
         if (!is_callable($callback)) {
-            throw new Exception('No valid callback for ' . $name);
+            throw new TemplateException('No valid callback for ' . $name);
         }
 
         $this->blocks[$name] = $callback;
@@ -132,7 +133,7 @@ class Template
     public function addValue(string $name, $callback)
     {
         if (!is_callable($callback)) {
-            throw new Exception('No valid callback for ' . $name);
+            throw new TemplateException('No valid callback for ' . $name);
         }
 
         $this->values[$name] = $callback;
@@ -186,7 +187,7 @@ class Template
         $tpl_file = $this->getFilePath($file);
 
         if (!$tpl_file) {
-            throw new Exception('No template found for ' . $file);
+            throw new TemplateException('No template found for ' . $file);
         }
 
         $file_md5  = md5($tpl_file);
@@ -215,7 +216,7 @@ class Template
             files::makeDir(dirname($dest_file), true);
 
             if (($fp = @fopen($dest_file, 'wb')) === false) {
-                throw new Exception('Unable to create cache file');
+                throw new TemplateException('Unable to create cache file');
             }
 
             $fc = $this->compileFile($tpl_file);
@@ -406,14 +407,14 @@ class Template
                     $this->parent_stack[] = $file;
                     $newfile              = $this->getParentFilePath(dirname($file), basename($file));
                     if (!$newfile) {
-                        throw new Exception('No template found for ' . basename($file));
+                        throw new TemplateException('No template found for ' . basename($file));
                     }
                     $file = $newfile;
                 } elseif ($this->parent_file != '') {
                     $this->parent_stack[] = $file;
                     $file                 = $this->getFilePath($this->parent_file);
                     if (!$file) {
-                        throw new Exception('No template found for ' . $this->parent_file);
+                        throw new TemplateException('No template found for ' . $this->parent_file);
                     }
                 } else {
                     return $tree->compile($this) . $err;
