@@ -13,10 +13,11 @@ declare(strict_types=1);
 namespace Dotclear\Install;
 
 use Dotclear\Core\Prepend as BasePrepend;
-use Dotclear\Core\Utils;
 
 use Dotclear\Install\Install;
 use Dotclear\Install\Wizard;
+
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -30,7 +31,7 @@ class Prepend extends BasePrepend
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            Files::serveFile([static::root('Admin', 'files')], 'df');
             exit;
         }
 

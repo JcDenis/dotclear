@@ -27,6 +27,7 @@ use Dotclear\Module\Plugin\Public\ModulesPlugin;
 use Dotclear\Module\Theme\Public\ModulesTheme;
 
 use Dotclear\Utils\L10n;
+use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -207,13 +208,13 @@ class Prepend extends BasePrepend
     {
         # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
-            Utils::fileServer([static::root('Public', 'files')], 'df');
+            Files::serveFile([static::root('Public', 'files')], 'df');
             exit;
         }
 
         # Serve var file
         if (!empty($_GET['vf'])) {
-            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
+            Files::serveFile([DOTCLEAR_VAR_DIR], 'vf');
             exit;
         }
 

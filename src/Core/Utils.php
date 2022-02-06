@@ -21,9 +21,6 @@ use Dotclear\Exception\DeprecatedException;
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -97,7 +94,7 @@ class Utils
     {
         $escaped_src = Html::escapeHTML($src);
         if ($v !== null) {
-            $escaped_src = Utils::appendVersion($escaped_src, $v);
+            $escaped_src = self::appendVersion($escaped_src, $v);
         }
 
         return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
@@ -107,7 +104,7 @@ class Utils
     {
         $escaped_src = Html::escapeHTML($src);
         if ($v !== null) {
-            $escaped_src = Utils::appendVersion($escaped_src, $v);
+            $escaped_src = self::appendVersion($escaped_src, $v);
         }
 
         return '<script src="' . $escaped_src . '"></script>' . "\n";
@@ -115,7 +112,7 @@ class Utils
 
     public static function jsJson(string $id, mixed $vars): string
     {
-        // Use echo Utils::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
+        // Use echo self::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
         $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
 
@@ -132,7 +129,7 @@ class Utils
     public static function lexicalSort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            Utils::setLexicalLang($ns, $lang);
+            self::setLexicalLang($ns, $lang);
         }
 
         return usort($arr, [__CLASS__, 'lexicalSortHelper']);
@@ -148,7 +145,7 @@ class Utils
     public static function lexicalArraySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            Utils::setLexicalLang($ns, $lang);
+            self::setLexicalLang($ns, $lang);
         }
 
         return uasort($arr, [__CLASS__, 'lexicalSortHelper']);
@@ -164,7 +161,7 @@ class Utils
     public static function lexicalKeySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
         if ($ns != '') {
-            Utils::setLexicalLang($ns, $lang);
+            self::setLexicalLang($ns, $lang);
         }
 
         return uksort($arr, [__CLASS__, 'lexicalSortHelper']);
@@ -195,7 +192,7 @@ class Utils
 
     private static function lexicalSortHelper(string $a, string $b): int
     {
-        return strcoll(strtolower(Utils::removeDiacritics($a)), strtolower(Utils::removeDiacritics($b)));
+        return strcoll(strtolower(self::removeDiacritics($a)), strtolower(self::removeDiacritics($b)));
     }
 
     // removeDiacritics function (see https://github.com/infralabs/DiacriticsRemovePHP)
@@ -566,100 +563,14 @@ class Utils
     public static function removeDiacritics(string $str): string
     {
         $flags = 'um';
-        for ($i = 0; $i < sizeof(Utils::$defaultDiacriticsRemovalMap); $i++) {
+        for ($i = 0; $i < sizeof(self::$defaultDiacriticsRemovalMap); $i++) {
             $str = preg_replace(
-                Utils::$defaultDiacriticsRemovalMap[$i]['letters'] . $flags,
-                Utils::$defaultDiacriticsRemovalMap[$i]['base'],
+                self::$defaultDiacriticsRemovalMap[$i]['letters'] . $flags,
+                self::$defaultDiacriticsRemovalMap[$i]['base'],
                 $str
             );
         }
 
         return $str;
-    }
-
-    public static function fileServer(array $dirs, string $query, ?array $types = null, bool $allow_sub_dir = false)
-    {
-        /* set default types */
-        if ($types === null) {
-            $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt'];
-        }
-
-        /* check query form */
-        $query = preg_replace('/[^A-Za-z]/', '', $query);
-        if (empty($query)) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        /* check query parameter */
-        if (empty($_GET[$query])) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        /* $_GET['v'] : version in url to bypass cache in case of dotclear upgrade or in dev mode */
-        if (isset($_GET['v'])) {
-            unset($_GET['v']);
-        }
-
-        /* $_GET['t'] : parameter given by CKEditor, but don't care of value */
-        if (isset($_GET['t'])) {
-            unset($_GET['t']);
-        }
-
-        /* Only $_GET[$query] is allowed in URL */
-        if (count($_GET) > 1) {
-            header('Content-Type: text/plain');
-            Http::head(403, 'Forbidden');
-            exit;
-        }
-
-        /* disable directory change ".." */
-        if (!$allow_sub_dir && strpos('..', $_GET[$query]) !== false) {
-            header('Content-Type: text/plain');
-            Http::head(403, 'Forbidden');
-            exit;
-        }
-
-        /* clean query parameter */
-        $path = Path::clean($_GET[$query]);
-
-        /* search dirs */
-        $file = false;
-        foreach ($dirs as $dir) {
-            $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $path]));
-
-            if ($file !== false) {
-                break;
-            }
-        }
-        unset($dirs);
-
-        /* check file */
-        if ($file === false || !is_file($file) || !is_readable($file)) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        /* check file extension */
-        if (!in_array(Files::getExtension($file), $types)) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        /* set http cache (one week) */
-        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
-        Http::cache(array_merge([$file], get_included_files()));
-
-        /* send file to output */
-        header('Content-Type: ' . Files::getMimeType($file));
-        // Content-length is not mandatory and must be the exact size of content transfered AFTER possible compression (gzip, deflate, …)
-        //header('Content-Length: '.filesize($file));
-        readfile($file);
-        exit;
     }
 }

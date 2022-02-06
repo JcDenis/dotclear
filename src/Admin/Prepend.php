@@ -282,13 +282,13 @@ class Prepend extends BasePrepend
     {
         # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
-            Utils::fileServer([static::root('Admin', 'files')], 'df');
+            Files::serveFile([static::root('Admin', 'files')], 'df');
             exit;
         }
 
         # Serve var file
         if (!empty($_GET['vf'])) {
-            Utils::fileServer([DOTCLEAR_VAR_DIR], 'vf');
+            Files::serveFile([DOTCLEAR_VAR_DIR], 'vf');
             exit;
         }
 
@@ -318,7 +318,7 @@ class Prepend extends BasePrepend
         $paths   = $modules->getModulesPath();
         $paths[] = static::root('Core', 'files', 'js');
         $paths[] = static::root('Core', 'files', 'css');
-        Utils::fileServer($paths, 'mf');
+        Files::serveFile($paths, 'mf');
         exit;
     }
 
