@@ -3,11 +3,9 @@
  * @class Dotclear
  * @brief Dotclear process launcher
  *
- * Call Dotclear('admin'); to load admin pages
- * could be called also by Dotclear::Admin();
+ * Call Dotclear::Admin(); to load admin pages
  *
  * For a public blog, use Dotclear::Public('myblogid');
- * or Dotclear('public', 'myblogid');
  *
  * Process is not case sensitive here, whereas blog id is.
  *
@@ -32,14 +30,19 @@ Class Dotclear
     /** @var    Autoloader  Dotclear custom autoloader */
     public static $autoloader;
 
+    /// @name Core instance methods
+    //@{
     /**
-     * Start Dotclear process
+     * Call statically Dotclear process
      *
-     * @param   string  $process    The process to launch public/admin/install/...
-     * @param   string  $blog_id    The blog id for Public process
+     * @param  string $process The process (admin,install,public...)
+     * @param  array  $args    The arguments (only args[0] for blog id)
      */
-    public function __construct(string $process = 'public', string $blog_id = null)
+    public static function __callStatic(string $process, array $args): void
     {
+        # Optionnal firt argument is the blog ID
+        $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
+
         # Timer and memory usage for stats and dev
         if (!defined('DOTCLEAR_START_TIME')) {
             define('DOTCLEAR_START_TIME', microtime(true));
@@ -86,18 +89,6 @@ Class Dotclear
 
             static::error('Unexpected error', 'Sorry, execution of the script is halted.' . $detail, $e->getCode());
         }
-    }
-
-    /**
-     * Call statically Dotclear process
-     *
-     * @param  string $process The process (admin,install,public...)
-     * @param  array  $args    The arguments (only args[0] for blog id)
-     */
-    public static function __callStatic(string $process, array $args): void
-    {
-        $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
-        new static($process, $blog_id);
     }
 
     /**
@@ -197,6 +188,8 @@ Class Dotclear
             exit(0);
         }
     }
+    //@}
+
 }
 
 /** @see Dotclear::core() */
