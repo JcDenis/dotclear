@@ -88,7 +88,7 @@ class Prepend extends Core
             Http::redirect(preg_replace(
                 ['%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
                 '',
-                filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+                filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
             ) . '/admin/install.php');
 
             exit;
