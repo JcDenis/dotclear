@@ -3,9 +3,6 @@
  * @class Dotclear\Module\TraitModulesAdmin
  * @brief Dotclear Module Admin specific methods
  *
- * If exists, Module Config class must extends this class.
- * It provides a simple way to add an admin form to configure module.
- *
  * @package Dotclear
  * @subpackage Module
  *

@@ -105,6 +105,8 @@ class Core
     /** @var Core               Core singleton instance */
     protected static $instance;
 
+    /// @name Core instance methods
+    //@{
     /**
      * Disabled children constructor and direct instance
      */
@@ -152,6 +154,7 @@ class Core
 
         return static::$instance;
     }
+    //@}
 
     /**
      * Start Dotclear process

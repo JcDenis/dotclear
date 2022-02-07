@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Public\Prepend
  * @brief Dotclear public core prepend class
  *
  * @package Dotclear

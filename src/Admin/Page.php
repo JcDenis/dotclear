@@ -1485,7 +1485,6 @@ abstract class Page
         return $ret;
     }
 
-//! move this don't know where !
     /**
      * Gets the codemirror themes list.
      *
