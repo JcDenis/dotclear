@@ -17,7 +17,6 @@ use ArrayObject;
 
 use Dotclear\Exception;
 use Dotclear\Exception\PrependException;
-use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Prepend as BasePrepend;
 Use Dotclear\Core\Utils;
@@ -113,18 +112,18 @@ class Prepend extends BasePrepend
             $_COOKIE[DOTCLEAR_SESSION_NAME] = DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->auth->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
-                throw new AdminException('Invalid session data.');
+                throw new PrependException('Invalid session data.');
             }
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->checkNonce($_POST['xd_check'])) {
-                    throw new AdminException('Precondition Failed.');
+                    throw new PrependException('Precondition Failed.');
                 }
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                throw new AdminException('Permission denied.');
+                throw new PrependException('Permission denied.');
             }
 
             # Loading locales
@@ -132,7 +131,7 @@ class Prepend extends BasePrepend
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog->id) {
-                throw new AdminException('Permission denied.');
+                throw new PrependException('Permission denied.');
             }
         } elseif ($this->auth->sessionExists()) {
             # If we have a session we launch it now
@@ -386,11 +385,9 @@ class Prepend extends BasePrepend
         try {
             $class = $this->adminurl->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
-                throw new AdminException(sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler));
+                throw new PrependException(__('Unknow URL'), sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler), 404);
             }
             $page = new $class($handler);
-        } catch (AdminException $e) {
-            throw new PrependException(__('Unknow URL'), $e->getMessage(), 404);
         } catch (Exception $e) {
             throw new PrependException('Dotclear error', $e->getMessage(), 20);
         }
