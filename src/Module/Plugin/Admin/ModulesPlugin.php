@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Plugin\TraitModulesPlugin;
@@ -24,20 +22,20 @@ class ModulesPlugin extends AbstractModules
 
     protected function register(): void
     {
-        core()->adminurl->register(
+        dotclear()->adminurl->register(
             'admin.plugins',
-            core()::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin')
+            dotclear()::ns('Dotclear', 'Module', 'Plugin', 'Admin', 'PagePlugin')
         );
-        core()->menu->register(
+        dotclear()->menu->register(
             'System',
             __('Plugins management'),
             'admin.plugins',
             ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
-            core()->auth->isSuperAdmin()
+            dotclear()->auth->isSuperAdmin()
         );
-        core()->favs->register('plugins', [
+        dotclear()->favs->register('plugins', [
             'title'      => __('Plugins management'),
-            'url'        => core()->adminurl->get('admin.plugins'),
+            'url'        => dotclear()->adminurl->get('admin.plugins'),
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
         ]);
@@ -45,11 +43,11 @@ class ModulesPlugin extends AbstractModules
 
     public function getModulesURL(array $param = []): string
     {
-        return core()->adminurl->get('admin.plugins', $param);
+        return dotclear()->adminurl->get('admin.plugins', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return core()->adminurl->get('admin.plugin.' . $id, $param);
+        return dotclear()->adminurl->get('admin.plugin.' . $id, $param);
     }
 }

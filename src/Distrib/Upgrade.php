@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\DistribException;
 
@@ -45,7 +43,7 @@ class Upgrade
 
     protected function doUpgrade()
     {
-        $version = core()->getVersion('core');
+        $version = dotclear()->getVersion('core');
 
         if ($version === null) {
             return false;
@@ -53,15 +51,15 @@ class Upgrade
 
         if (version_compare($version, DOTCLEAR_CORE_VERSION, '<') == 1 || strpos(DOTCLEAR_CORE_VERSION, 'dev')) {
             try {
-                if (core()->con->driver() == 'sqlite') {
+                if (dotclear()->con->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
                 }
 
                 # Database upgrade
-                $_s = new Structure(core()->con, core()->prefix);
+                $_s = new Structure(dotclear()->con, dotclear()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(core()->con, core()->prefix);
+                $si      = new Structure(dotclear()->con, dotclear()->prefix);
                 $changes = $si->synchronize($_s);
 
                 /* Some other upgrades
@@ -70,12 +68,12 @@ class Upgrade
 
                 # Drop content from session table if changes or if needed
                 if ($changes != 0 || $cleanup_sessions) {
-                    core()->con->execute('DELETE FROM ' . core()->prefix . 'session ');
+                    dotclear()->con->execute('DELETE FROM ' . dotclear()->prefix . 'session ');
                 }
 
                 # Empty templates cache directory
                 try {
-                    core()->emptyTemplatesCache();
+                    dotclear()->emptyTemplatesCache();
                 } catch (Exception $e) {
                 }
 
@@ -100,10 +98,10 @@ class Upgrade
 
         # Populate media_dir field (since 2.0-beta3.3)
         if (version_compare($version, '2.0-beta3.3', '<')) {
-            $strReq = 'SELECT media_id, media_file FROM ' . core()->prefix . 'media ';
-            $rs_m   = core()->con->select($strReq);
+            $strReq = 'SELECT media_id, media_file FROM ' . dotclear()->prefix . 'media ';
+            $rs_m   = dotclear()->con->select($strReq);
             while ($rs_m->fetch()) {
-                $cur            = core()->con->openCursor(core()->prefix . 'media');
+                $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'media');
                 $cur->media_dir = dirname($rs_m->media_file);
                 $cur->update('WHERE media_id = ' . (int) $rs_m->media_id);
             }
@@ -111,23 +109,23 @@ class Upgrade
 
         if (version_compare($version, '2.0-beta7.3', '<')) {
             # Blowup becomes default theme
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 "SET setting_value = '%s' " .
                 "WHERE setting_id = 'theme' " .
                 "AND setting_value = '%s' " .
                 'AND blog_id IS NOT NULL ';
-            core()->con->execute(sprintf($strReq, 'blueSilence', 'default'));
-            core()->con->execute(sprintf($strReq, 'default', 'Blowup'));
+            dotclear()->con->execute(sprintf($strReq, 'blueSilence', 'default'));
+            dotclear()->con->execute(sprintf($strReq, 'default', 'Blowup'));
         }
 
         if (version_compare($version, '2.1-alpha2-r2383', '<')) {
-            $schema = Schema::init(core()->con);
-            $schema->dropUnique(core()->prefix . 'category', core()->prefix . 'uk_cat_title');
+            $schema = Schema::init(dotclear()->con);
+            $schema->dropUnique(dotclear()->prefix . 'category', dotclear()->prefix . 'uk_cat_title');
 
             # Reindex categories
-            $rs = core()->con->select(
+            $rs = dotclear()->con->select(
                 'SELECT cat_id, cat_title, blog_id ' .
-                'FROM ' . core()->prefix . 'category ' .
+                'FROM ' . dotclear()->prefix . 'category ' .
                 'ORDER BY blog_id ASC , cat_position ASC '
             );
             $cat_blog = $rs->blog_id;
@@ -136,8 +134,8 @@ class Upgrade
                 if ($cat_blog != $rs->blog_id) {
                     $i = 2;
                 }
-                core()->con->execute(
-                    'UPDATE ' . core()->prefix . 'category SET '
+                dotclear()->con->execute(
+                    'UPDATE ' . dotclear()->prefix . 'category SET '
                     . 'cat_lft = ' . ($i++) . ', cat_rgt = ' . ($i++) . ' ' .
                     'WHERE cat_id = ' . (int) $rs->cat_id
                 );
@@ -176,25 +174,25 @@ class Upgrade
 
         if (version_compare($version, '2.2-alpha1-r3043', '<')) {
             # metadata has been integrated to the core.
-            core()->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
-            if (core()->plugins->moduleExists('metadata')) {
-                core()->plugins->deleteModule('metadata');
+            dotclear()->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
+            if (dotclear()->plugins->moduleExists('metadata')) {
+                dotclear()->plugins->deleteModule('metadata');
             }
 
             # Tags template class has been renamed
             $sqlstr = 'SELECT blog_id, setting_id, setting_value ' .
-            'FROM ' . core()->prefix . 'setting ' .
+            'FROM ' . dotclear()->prefix . 'setting ' .
                 'WHERE (setting_id = \'widgets_nav\' OR setting_id = \'widgets_extra\') ' .
                 'AND setting_ns = \'widgets\';';
-            $rs = core()->con->select($sqlstr);
+            $rs = dotclear()->con->select($sqlstr);
             while ($rs->fetch()) {
                 $widgetsettings     = base64_decode($rs->setting_value);
                 $widgetsettings     = str_replace('s:11:"tplMetadata"', 's:7:"tplTags"', $widgetsettings);
-                $cur                = core()->con->openCursor(core()->prefix . 'setting');
+                $cur                = dotclear()->con->openCursor(dotclear()->prefix . 'setting');
                 $cur->setting_value = base64_encode($widgetsettings);
                 $sqlstr             = 'WHERE setting_id = \'' . $rs->setting_id . '\' AND setting_ns = \'widgets\' ' .
                     'AND blog_id ' .
-                    ($rs->blog_id == null ? 'is NULL' : '= \'' . core()->con->escape($rs->blog_id) . '\'');
+                    ($rs->blog_id == null ? 'is NULL' : '= \'' . dotclear()->con->escape($rs->blog_id) . '\'');
                 $cur->update($sqlstr);
             }
         }
@@ -223,9 +221,9 @@ class Upgrade
             foreach ($init_fav as $k => $f) {
                 $t = ['name'     => $f[0], 'title' => $f[1], 'url' => $f[2], 'small-icon' => $f[3],
                     'large-icon' => $f[4], 'permissions' => $f[5], 'id' => $f[6], 'class' => $f[7], ];
-                $sqlstr = 'INSERT INTO ' . core()->prefix . 'pref (pref_id, user_id, pref_ws, pref_value, pref_type, pref_label) VALUES (' .
+                $sqlstr = 'INSERT INTO ' . dotclear()->prefix . 'pref (pref_id, user_id, pref_ws, pref_value, pref_type, pref_label) VALUES (' .
                 '\'' . sprintf('g%03s', $count) . '\',NULL,\'favorites\',\'' . serialize($t) . '\',\'string\',NULL);';
-                core()->con->execute($sqlstr);
+                dotclear()->con->execute($sqlstr);
                 $count++;
             }
 
@@ -398,11 +396,11 @@ class Upgrade
             }
 
             # Some settings change, prepare db queries
-            $strReqFormat = 'INSERT INTO ' . core()->prefix . 'setting';
+            $strReqFormat = 'INSERT INTO ' . dotclear()->prefix . 'setting';
             $strReqFormat .= ' (setting_id,setting_ns,setting_value,setting_type,setting_label)';
             $strReqFormat .= ' VALUES(\'%s\',\'system\',\'%s\',\'string\',\'%s\')';
 
-            $strReqSelect = 'SELECT count(1) FROM ' . core()->prefix . 'setting';
+            $strReqSelect = 'SELECT count(1) FROM ' . dotclear()->prefix . 'setting';
             $strReqSelect .= ' WHERE setting_id = \'%s\'';
             $strReqSelect .= ' AND setting_ns = \'system\'';
             $strReqSelect .= ' AND blog_id IS NULL';
@@ -416,82 +414,82 @@ class Upgrade
                 $date_formats = array_map(function ($f) {return str_replace('%e', '%#d', $f);}, $date_formats);
             }
 
-            $rs = core()->con->select(sprintf($strReqSelect, 'date_formats'));
+            $rs = dotclear()->con->select(sprintf($strReqSelect, 'date_formats'));
             if ($rs->f(0) == 0) {
                 $strReq = sprintf($strReqFormat, 'date_formats', serialize($date_formats), 'Date formats examples');
-                core()->con->execute($strReq);
+                dotclear()->con->execute($strReq);
             }
-            $rs = core()->con->select(sprintf($strReqSelect, 'time_formats'));
+            $rs = dotclear()->con->select(sprintf($strReqSelect, 'time_formats'));
             if ($rs->f(0) == 0) {
                 $strReq = sprintf($strReqFormat, 'time_formats', serialize($time_formats), 'Time formats examples');
-                core()->con->execute($strReq);
+                dotclear()->con->execute($strReq);
             }
 
             # Add repository URL for themes and plugins as daInstaller move to core
-            $rs = core()->con->select(sprintf($strReqSelect, 'store_plugin_url'));
+            $rs = dotclear()->con->select(sprintf($strReqSelect, 'store_plugin_url'));
             if ($rs->f(0) == 0) {
                 $strReq = sprintf($strReqFormat, 'store_plugin_url', 'http://update.dotaddict.org/dc2/plugins.xml', 'Plugins XML feed location');
-                core()->con->execute($strReq);
+                dotclear()->con->execute($strReq);
             }
-            $rs = core()->con->select(sprintf($strReqSelect, 'store_theme_url'));
+            $rs = dotclear()->con->select(sprintf($strReqSelect, 'store_theme_url'));
             if ($rs->f(0) == 0) {
                 $strReq = sprintf($strReqFormat, 'store_theme_url', 'http://update.dotaddict.org/dc2/themes.xml', 'Themes XML feed location');
-                core()->con->execute($strReq);
+                dotclear()->con->execute($strReq);
             }
         }
 
         if (version_compare($version, '2.7', '<=')) {
             # Some new settings should be initialized, prepare db queries
-            $strReqFormat = 'INSERT INTO ' . core()->prefix . 'setting';
+            $strReqFormat = 'INSERT INTO ' . dotclear()->prefix . 'setting';
             $strReqFormat .= ' (setting_id,setting_ns,setting_value,setting_type,setting_label)';
             $strReqFormat .= ' VALUES(\'%s\',\'system\',\'%s\',\'string\',\'%s\')';
 
-            $strReqCount = 'SELECT count(1) FROM ' . core()->prefix . 'setting';
+            $strReqCount = 'SELECT count(1) FROM ' . dotclear()->prefix . 'setting';
             $strReqCount .= ' WHERE setting_id = \'%s\'';
             $strReqCount .= ' AND setting_ns = \'system\'';
             $strReqCount .= ' AND blog_id IS NULL';
 
-            $strReqSelect = 'SELECT setting_value FROM ' . core()->prefix . 'setting';
+            $strReqSelect = 'SELECT setting_value FROM ' . dotclear()->prefix . 'setting';
             $strReqSelect .= ' WHERE setting_id = \'%s\'';
             $strReqSelect .= ' AND setting_ns = \'system\'';
             $strReqSelect .= ' AND blog_id IS NULL';
 
             # Add nb of posts for home (first page), copying nb of posts on every page
-            $rs = core()->con->select(sprintf($strReqCount, 'nb_post_for_home'));
+            $rs = dotclear()->con->select(sprintf($strReqCount, 'nb_post_for_home'));
             if ($rs->f(0) == 0) {
-                $rs     = core()->con->select(sprintf($strReqSelect, 'nb_post_per_page'));
+                $rs     = dotclear()->con->select(sprintf($strReqSelect, 'nb_post_per_page'));
                 $strReq = sprintf($strReqFormat, 'nb_post_for_home', $rs->f(0), 'Nb of posts on home (first page only)');
-                core()->con->execute($strReq);
+                dotclear()->con->execute($strReq);
             }
         }
 
         if (version_compare($version, '2.8.1', '<=')) {
             # switch from jQuery 1.11.1 to 1.11.2
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '1.11.3' " .
                 " WHERE setting_id = 'jquery_version' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = '1.11.1' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
             # Some new settings should be initialized, prepare db queries
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'boolean\',\'%s\')';
-            core()->con->execute(sprintf($strReq, 'no_search', '0', 'Disable internal search system'));
+            dotclear()->con->execute(sprintf($strReq, 'no_search', '0', 'Disable internal search system'));
         }
 
         if (version_compare($version, '2.9', '<=')) {
             # Some new settings should be initialized, prepare db queries
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'%s\',\'%s\')';
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'media_video_width', '400', 'integer', 'Media video insertion width')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'media_video_height', '300', 'integer', 'Media video insertion height')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'media_flash_fallback', '1', 'boolean', 'Flash player fallback for audio and video media')
             );
 
@@ -522,36 +520,36 @@ class Upgrade
             }
 
             # Some new settings should be initialized, prepare db queries
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'%s\',\'%s\')';
             # Import feed control
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'import_feed_url_control', true, 'boolean', 'Control feed URL before import')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'import_feed_no_private_ip', true, 'boolean', 'Prevent import feed from private IP')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'import_feed_ip_regexp', '', 'string', 'Authorize import feed only from this IP regexp')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'import_feed_port_regexp', '/^(80|443)$/', 'string', 'Authorize import feed only from this port regexp')
             );
             # CSP directive (admin part)
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_on', true, 'boolean', 'Send CSP header (admin)')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_default', "''self''", 'string', 'CSP default-src directive')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_script', "''self'' ''unsafe-inline'' ''unsafe-eval''", 'string', 'CSP script-src directive')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_style', "''self'' ''unsafe-inline''", 'string', 'CSP style-src directive')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_img', "''self'' data: media.dotaddict.org", 'string', 'CSP img-src directive')
             );
         }
@@ -561,57 +559,57 @@ class Upgrade
             @unlink(DOTCLEAR_OLD_ROOT_DIR . '/admin/csp_report.txt');
 
             # Some new settings should be initialized, prepare db queries
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'%s\',\'%s\')';
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)')
             );
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = core()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
-            $csp_suffix = core()->con->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
+            $csp_prefix = dotclear()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
+            $csp_suffix = dotclear()->con->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
             # Try to fix some CSP directive wrongly stored for SQLite drivers
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self''" . $csp_suffix . "' " .
                 " WHERE setting_id = 'csp_admin_default' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = 'self' ";
-            core()->con->execute($strReq);
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            dotclear()->con->execute($strReq);
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self'' ''unsafe-inline'' ''unsafe-eval''" . $csp_suffix . "' " .
                 " WHERE setting_id = 'csp_admin_script' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = 'self'' ''unsafe-inline'' ''unsafe-eval' ";
-            core()->con->execute($strReq);
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            dotclear()->con->execute($strReq);
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self'' ''unsafe-inline''" . $csp_suffix . "' " .
                 " WHERE setting_id = 'csp_admin_style' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = 'self'' ''unsafe-inline' ";
-            core()->con->execute($strReq);
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            dotclear()->con->execute($strReq);
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self'' data: media.dotaddict.org blob:' " .
                 " WHERE setting_id = 'csp_admin_img' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = 'self'' data: media.dotaddict.org' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
 
             # Update CSP img-src default directive
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self'' data: media.dotaddict.org blob:' " .
                 " WHERE setting_id = 'csp_admin_img' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = '''self'' data: media.dotaddict.org' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
 
             # Update first publication on published posts
-            $strReq = 'UPDATE ' . core()->prefix . 'post ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'post ' .
                 'SET post_firstpub = 1 ' .
                 'WHERE post_status = 1 ';
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
 
             # A bit of housecleaning for no longer needed files
             $remfiles = [
@@ -654,26 +652,26 @@ class Upgrade
 
         if (version_compare($version, '2.12', '<')) {
             # switch from jQuery 2.2.0 to 2.2.4
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '2.2.4' " .
                 " WHERE setting_id = 'jquery_version' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = '2.2.0' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
         }
 
         if (version_compare($version, '2.12.2', '<')) {
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = core()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
+            $csp_prefix = dotclear()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
 
             # Update CSP img-src default directive
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '" . $csp_prefix . "''self'' data: http://media.dotaddict.org blob:' " .
                 " WHERE setting_id = 'csp_admin_img' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = '" . $csp_prefix . "''self'' data: media.dotaddict.org blob:' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
         }
 
         if (version_compare($version, '2.14', '<')) {
@@ -683,7 +681,7 @@ class Upgrade
 
         if (version_compare($version, '2.14.3', '<')) {
             # Update flie exclusion upload regex
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '/\\.(phps?|pht(ml)?|phl|.?html?|xml|js|htaccess)[0-9]*$/i' " .
                 " WHERE setting_id = 'media_exclusion' " .
                 " AND setting_ns = 'system' " .
@@ -692,17 +690,17 @@ class Upgrade
                 "   OR setting_value = '/\\.(phps?|pht(ml)?|phl)[0-9]*$/i' " .
                 "   OR setting_value = '/\\.(phps?|pht(ml)?|phl|s?html?|js)[0-9]*$/i'" .
                 "   OR setting_value = '/\\.(phps?|pht(ml)?|phl|s?html?|js|htaccess)[0-9]*$/i'";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
         }
 
         if (version_compare($version, '2.15', '<')) {
             # switch from jQuery 1.11.3 to 1.12.4
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = '1.12.4' " .
                 " WHERE setting_id = 'jquery_version' " .
                 " AND setting_ns = 'system' " .
                 " AND setting_value = '1.11.3' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
 
             # A bit of housecleaning for no longer needed files
             $remfiles = [
@@ -716,37 +714,37 @@ class Upgrade
 
         if (version_compare($version, '2.15.1', '<')) {
             // Remove unsafe-inline from CSP script directives
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = REPLACE(setting_value, '''unsafe-inline''', '') " .
                 " WHERE setting_id = 'csp_admin_script' " .
                 " AND setting_ns = 'system' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
         }
 
         if (version_compare($version, '2.16', '<')) {
             // Update DotAddict plugins store URL
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = REPLACE(setting_value, 'http://update.dotaddict.org', 'https://update.dotaddict.org') " .
                 " WHERE setting_id = 'store_plugin_url' " .
                 " AND setting_ns = 'system' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
             // Update DotAddict themes store URL
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = REPLACE(setting_value, 'http://update.dotaddict.org', 'https://update.dotaddict.org') " .
                 " WHERE setting_id = 'store_theme_url' " .
                 " AND setting_ns = 'system' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
             // Update CSP img-src default directive for media.dotaddict.org
-            $strReq = 'UPDATE ' . core()->prefix . 'setting ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'setting ' .
                 " SET setting_value = REPLACE(setting_value, 'http://media.dotaddict.org', 'https://media.dotaddict.org') " .
                 " WHERE setting_id = 'csp_admin_img' " .
                 " AND setting_ns = 'system' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
             // Set default jQuery loading for blog
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'%s\',\'%s\')';
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'jquery_needed', true, 'boolean', 'Load jQuery library')
             );
 
@@ -811,11 +809,11 @@ class Upgrade
 
         if (version_compare($version, '2.16.9', '<')) {
             // Fix 87,5% which should be 87.5% in pref for htmlfontsize
-            $strReq = 'UPDATE ' . core()->prefix . 'pref ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'pref ' .
                 " SET pref_value = REPLACE(pref_value, '87,5%', '87.5%') " .
                 " WHERE pref_id = 'htmlfontsize' " .
                 " AND pref_ws = 'interface' ";
-            core()->con->execute($strReq);
+            dotclear()->con->execute($strReq);
         }
 
         if (version_compare($version, '2.17', '<')) {
@@ -875,13 +873,13 @@ class Upgrade
             }
 
             # Global settings
-            $strReq = 'INSERT INTO ' . core()->prefix . 'setting' .
+            $strReq = 'INSERT INTO ' . dotclear()->prefix . 'setting' .
                 ' (setting_id,setting_ns,setting_value,setting_type,setting_label)' .
                 ' VALUES(\'%s\',\'system\',\'%s\',\'%s\',\'%s\')';
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'prevents_clickjacking', true, 'boolean', 'Prevents Clickjacking')
             );
-            core()->con->execute(
+            dotclear()->con->execute(
                 sprintf($strReq, 'prevents_floc', true, 'boolean', 'Prevents FLoC tracking')
             );
         }
@@ -899,8 +897,8 @@ class Upgrade
             }
         }
 
-        core()->setVersion('core', DOTCLEAR_CORE_VERSION);
-        core()->blogDefaults();
+        dotclear()->setVersion('core', DOTCLEAR_CORE_VERSION);
+        dotclear()->blogDefaults();
 
         return $cleanup_sessions;
     }
@@ -913,11 +911,11 @@ class Upgrade
      */
     protected function settings2array(string $ns, string $setting): void
     {
-        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . core()->prefix . 'setting ' .
+        $strReqSelect = 'SELECT setting_id,blog_id,setting_ns,setting_type,setting_value FROM ' . dotclear()->prefix . 'setting ' .
             "WHERE setting_id = '%s' " .
             "AND setting_ns = '%s' " .
             "AND setting_type = 'string'";
-        $rs = core()->con->select(sprintf($strReqSelect, $setting, $ns));
+        $rs = dotclear()->con->select(sprintf($strReqSelect, $setting, $ns));
         while ($rs->fetch()) {
             $value = @unserialize($rs->setting_value);
             if (!$value) {
@@ -925,16 +923,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . core()->prefix . 'setting ' .
-            "SET setting_type='array', setting_value = '" . core()->con->escape($value) . "' " .
-            "WHERE setting_id='" . core()->con->escape($rs->setting_id) . "' " .
-            "AND setting_ns='" . core()->con->escape($rs->setting_ns) . "' ";
+            $rs2   = 'UPDATE ' . dotclear()->prefix . 'setting ' .
+            "SET setting_type='array', setting_value = '" . dotclear()->con->escape($value) . "' " .
+            "WHERE setting_id='" . dotclear()->con->escape($rs->setting_id) . "' " .
+            "AND setting_ns='" . dotclear()->con->escape($rs->setting_ns) . "' ";
             if ($rs->blog_id == '') {
                 $rs2 .= 'AND blog_id IS null';
             } else {
-                $rs2 .= "AND blog_id = '" . core()->con->escape($rs->blog_id) . "'";
+                $rs2 .= "AND blog_id = '" . dotclear()->con->escape($rs->blog_id) . "'";
             }
-            core()->con->execute($rs2);
+            dotclear()->con->execute($rs2);
         }
     }
 
@@ -946,11 +944,11 @@ class Upgrade
      */
     protected function prefs2array(string $ws, string $pref): void
     {
-        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . core()->prefix . 'pref ' .
+        $strReqSelect = 'SELECT pref_id,user_id,pref_ws,pref_type,pref_value FROM ' . dotclear()->prefix . 'pref ' .
             "WHERE pref_id = '%s' " .
             "AND pref_ws = '%s' " .
             "AND pref_type = 'string'";
-        $rs = core()->con->select(sprintf($strReqSelect, $pref, $ws));
+        $rs = dotclear()->con->select(sprintf($strReqSelect, $pref, $ws));
         while ($rs->fetch()) {
             $value = @unserialize($rs->pref_value);
             if (!$value) {
@@ -958,16 +956,16 @@ class Upgrade
             }
             settype($value, 'array');
             $value = json_encode($value);
-            $rs2   = 'UPDATE ' . core()->prefix . 'pref ' .
-            "SET pref_type='array', pref_value = '" . core()->con->escape($value) . "' " .
-            "WHERE pref_id='" . core()->con->escape($rs->pref_id) . "' " .
-            "AND pref_ws='" . core()->con->escape($rs->pref_ws) . "' ";
+            $rs2   = 'UPDATE ' . dotclear()->prefix . 'pref ' .
+            "SET pref_type='array', pref_value = '" . dotclear()->con->escape($value) . "' " .
+            "WHERE pref_id='" . dotclear()->con->escape($rs->pref_id) . "' " .
+            "AND pref_ws='" . dotclear()->con->escape($rs->pref_ws) . "' ";
             if ($rs->user_id == '') {
                 $rs2 .= 'AND user_id IS null';
             } else {
-                $rs2 .= "AND user_id = '" . core()->con->escape($rs->user_id) . "'";
+                $rs2 .= "AND user_id = '" . dotclear()->con->escape($rs->user_id) . "'";
             }
-            core()->con->execute($rs2);
+            dotclear()->con->execute($rs2);
         }
     }
 }

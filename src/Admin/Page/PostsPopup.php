@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -48,7 +46,7 @@ class PostsPopup extends Page
         $this->page      = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
         $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
 
-        $post_types = core()->getPostTypes();
+        $post_types = dotclear()->getPostTypes();
         foreach ($post_types as $k => $v) {
             $this->type_combo[__($k)] = (string) $k;
         }
@@ -70,8 +68,8 @@ class PostsPopup extends Page
         }
 
         return new PostMiniCatalog(
-            core()->blog->getPosts($params),
-            core()->blog->getPosts($params, true)->f(0)
+            dotclear()->blog->getPosts($params),
+            dotclear()->blog->getPosts($params, true)->f(0)
         );
     }
 
@@ -83,7 +81,7 @@ class PostsPopup extends Page
             ->setPageHead(
                 static::jsLoad('js/_posts_list.js') .
                 static::jsLoad('js/_popup_posts.js') .
-                core()->behaviors->call('adminPopupPosts', $this->plugin_id)
+                dotclear()->behaviors->call('adminPopupPosts', $this->plugin_id)
             )
         ;
 
@@ -95,13 +93,13 @@ class PostsPopup extends Page
         echo
         '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>' .
 
-        '<form action="' . core()->adminurl->get('admin.posts.popup') . '" method="get">' .
+        '<form action="' . dotclear()->adminurl->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="type" class="classic">' . __('Entry type:') . '</label> ' . Form::combo('type', $this->type_combo, $this->type) . '' .
         '<noscript><div><input type="submit" value="' . __('Ok') . '" /></div></noscript>' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) . '</p>' .
         '</form>' .
 
-       '<form action="' . core()->adminurl->get('admin.posts.popup') . '" method="get">' .
+       '<form action="' . dotclear()->adminurl->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="q" class="classic">' . __('Search entry:') . '</label> ' . Form::field('q', 30, 255, Html::escapeHTML($this->q)) .
         ' <input type="submit" value="' . __('Search') . '" />' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) .

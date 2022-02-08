@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -43,12 +41,12 @@ class Blogs extends Page
 
     protected function getActionInstance(): ?Action
     {
-        return core()->auth->isSuperAdmin() ? new BlogAction(core()->adminurl->get('admin.blogs')) : null;
+        return dotclear()->auth->isSuperAdmin() ? new BlogAction(dotclear()->adminurl->get('admin.blogs')) : null;
     }
 
     protected function getFilterInstance(): ?Filter
     {
-        return new BlogFilter(core());
+        return new BlogFilter(dotclear());
     }
 
     protected function getCatalogInstance(): ?Catalog
@@ -57,10 +55,10 @@ class Blogs extends Page
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetBlogs, ArrayObject
-        core()->behaviors->call('adminGetBlogs', $params);
+        dotclear()->behaviors->call('adminGetBlogs', $params);
 
-        $counter  = core()->getBlogs($params, true);
-        $rs       = core()->getBlogs($params);
+        $counter  = dotclear()->getBlogs($params, true);
+        $rs       = dotclear()->getBlogs($params);
         $nb_blog  = $counter->f(0);
         $rsStatic = $rs->toStatic();
         if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {
@@ -93,38 +91,38 @@ class Blogs extends Page
 
     protected function getPageContent(): void
     {
-        if (core()->error()->flag()) {
+        if (dotclear()->error()->flag()) {
             return;
         }
 
-        if (core()->auth->isSuperAdmin()) {
-            echo '<p class="top-add"><a class="button add" href="' . core()->adminurl->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
+        if (dotclear()->auth->isSuperAdmin()) {
+            echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
         $this->filter->display('admin.blogs');
 
         # Show blogs
         $this->catalog->display($this->filter->page, $this->filter->nb,
-            (core()->auth->isSuperAdmin() ?
-                '<form action="' . core()->adminurl->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
+            (dotclear()->auth->isSuperAdmin() ?
+                '<form action="' . dotclear()->adminurl->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
 
             '%s' .
 
-            (core()->auth->isSuperAdmin() ?
+            (dotclear()->auth->isSuperAdmin() ?
                 '<div class="two-cols clearfix">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected blogs action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo(),
                     ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']) .
-                core()->formNonce() .
+                dotclear()->formNonce() .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
 
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                core()->adminurl->getHiddenFormFields('admin.blogs', $this->filter->values(true)) .
+                dotclear()->adminurl->getHiddenFormFields('admin.blogs', $this->filter->values(true)) .
                 '</form>' : ''),
             $this->filter->show()
         );

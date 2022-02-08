@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Core\Media;
@@ -113,7 +111,7 @@ class MediaCatalog extends Catalog
 
         if ($f->d) {
             // Folder
-            $link = core()->adminurl->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
+            $link = dotclear()->adminurl->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
             if ($f->parent) {
                 $fname = '..';
                 $class .= ' media-folder-up';
@@ -124,9 +122,9 @@ class MediaCatalog extends Catalog
             // Item
             $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
 
-            core()->behaviors->call('adminMediaURLParams', $params);
+            dotclear()->behaviors->call('adminMediaURLParams', $params);
 
-            $link = core()->adminurl->get('admin.media.item', (array) $params);
+            $link = dotclear()->adminurl->get('admin.media.item', (array) $params);
             if ($f->media_priv) {
                 $class .= ' media-private';
             }
@@ -153,7 +151,7 @@ class MediaCatalog extends Catalog
                 if ($filters->post_id) {
                     // Media attachment button
                     $act .= '<a class="attach-media" title="' . __('Attach this file to entry') . '" href="' .
-                    core()->adminurl->get(
+                    dotclear()->adminurl->get(
                         'admin.post.media',
                         ['media_id' => $f->media_id, 'post_id' => $filters->post_id, 'attach' => 1, 'link_type' => $filters->link_type]
                     ) .
@@ -177,7 +175,7 @@ class MediaCatalog extends Catalog
                 }
             } else {
                 $act .= '<a class="media-remove" ' .
-                'href="' . core()->adminurl->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
+                'href="' . dotclear()->adminurl->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
                 '<img src="?df=images/trash.png" alt="' . __('Delete') . '" title="' . __('delete') . '" /></a>';
             }
         }

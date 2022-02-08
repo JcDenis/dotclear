@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use function Dotclear\core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -49,7 +47,7 @@ class JoinStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeDeleteStatement
-        core()->behaviors->call('coreBeforeJoinStatement', $this);
+        dotclear()->behaviors->call('coreBeforeJoinStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -87,7 +85,7 @@ class JoinStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        core()->behaviors->call('coreAfterJoinStatement', $this, $query);
+        dotclear()->behaviors->call('coreAfterJoinStatement', $this, $query);
 
         return $query;
     }

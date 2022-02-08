@@ -15,8 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -84,19 +82,19 @@ class Post extends Page
     {
         $page_title = __('New post');
 
-        $this->post_format        = core()->auth->getOption('post_format');
-        $this->post_editor        = core()->auth->getOption('editor');
-        $this->post_lang          = core()->auth->getInfo('user_lang');
-        $this->post_status        = core()->auth->getInfo('user_post_status');
-        $this->post_open_comment  = core()->blog->settings->system->allow_comments;
-        $this->post_open_tb       = core()->blog->settings->system->allow_trackbacks;
+        $this->post_format        = dotclear()->auth->getOption('post_format');
+        $this->post_editor        = dotclear()->auth->getOption('editor');
+        $this->post_lang          = dotclear()->auth->getInfo('user_lang');
+        $this->post_status        = dotclear()->auth->getInfo('user_post_status');
+        $this->post_open_comment  = dotclear()->blog->settings->system->allow_comments;
+        $this->post_open_tb       = dotclear()->blog->settings->system->allow_trackbacks;
 
-        $this->can_view_ip   = core()->auth->check('contentadmin', core()->blog->id);
-        $this->can_edit_post = core()->auth->check('usage,contentadmin', core()->blog->id);
-        $this->can_publish   = core()->auth->check('publish,contentadmin', core()->blog->id);
+        $this->can_view_ip   = dotclear()->auth->check('contentadmin', dotclear()->blog->id);
+        $this->can_edit_post = dotclear()->auth->check('usage,contentadmin', dotclear()->blog->id);
+        $this->can_publish   = dotclear()->auth->check('publish,contentadmin', dotclear()->blog->id);
 
-        $this->post_headlink = '<link rel="%s" title="%s" href="' . core()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
-        $this->post_link     = '<a href="' . core()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $this->post_headlink = '<link rel="%s" title="%s" href="' . dotclear()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
+        $this->post_link     = '<a href="' . dotclear()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
         $next_headlink     = $prev_headlink     = null;
 
         # If user can't publish
@@ -115,10 +113,10 @@ class Post extends Page
 
             $params['post_id'] = (int) $_REQUEST['id'];
 
-            $this->post = core()->blog->getPosts($params);
+            $this->post = dotclear()->blog->getPosts($params);
 
             if ($this->post->isEmpty()) {
-                core()->error(__('This entry does not exist.'));
+                dotclear()->error(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = (int) $this->post->post_id;
@@ -142,8 +140,8 @@ class Post extends Page
                 $this->can_edit_post = $this->post->isEditable();
                 $this->can_delete    = $this->post->isDeletable();
 
-                $next_rs = core()->blog->getNextPost($this->post, 1);
-                $prev_rs = core()->blog->getNextPost($this->post, -1);
+                $next_rs = dotclear()->blog->getNextPost($this->post, 1);
+                $prev_rs = dotclear()->blog->getNextPost($this->post, -1);
 
                 if ($next_rs !== null) {
                     $this->next_link = sprintf(
@@ -176,9 +174,9 @@ class Post extends Page
                 }
 
                 try {
-                    core()->mediaInstance();
+                    dotclear()->mediaInstance();
                 } catch (Exception $e) {
-                    core()->error($e->getMessage());
+                    dotclear()->error($e->getMessage());
                 }
 
                 # Sanitize trackbacks excerpt
@@ -196,7 +194,7 @@ class Post extends Page
             $anchor = 'comments';
         }
 
-        $this->comments_actions = new CommentAction(core()->adminurl->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
+        $this->comments_actions = new CommentAction(dotclear()->adminurl->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
         if ($this->comments_actions->pageProcess()) {
             return null;
         }
@@ -212,17 +210,17 @@ class Post extends Page
                 foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
                         # --BEHAVIOR-- adminBeforePingTrackback
-                        core()->behaviors->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        dotclear()->behaviors->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
-                        core()->error($e->getMessage());
+                        dotclear()->error($e->getMessage());
                     }
                 }
 
-                if (!core()->error()->flag()) {
-                    core()->notices->addSuccessNotice(__('All pings sent.'));
-                    core()->adminurl->redirect(
+                if (!dotclear()->error()->flag()) {
+                    dotclear()->notices->addSuccessNotice(__('All pings sent.'));
+                    dotclear()->adminurl->redirect(
                         'admin.post',
                         ['id' => $this->post_id, 'tb' => '1']
                     );
@@ -256,7 +254,7 @@ class Post extends Page
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (Exception $e) {
-                    core()->error($e->getMessage());
+                    dotclear()->error($e->getMessage());
                 }
             }
 
@@ -272,7 +270,7 @@ class Post extends Page
                 $this->post_url = $_POST['post_url'];
             }
 
-            core()->blog->setPostContent(
+            dotclear()->blog->setPostContent(
                 $this->post_id,
                 $this->post_format,
                 $this->post_lang,
@@ -287,34 +285,34 @@ class Post extends Page
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
-                core()->behaviors->call('adminBeforePostDelete', $this->post_id);
-                core()->blog->delPost($this->post_id);
-                core()->adminurl->redirect('admin.posts');
+                dotclear()->behaviors->call('adminBeforePostDelete', $this->post_id);
+                dotclear()->blog->delPost($this->post_id);
+                dotclear()->adminurl->redirect('admin.posts');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
         # Create or update post
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
-            if (!empty($_POST['new_cat_title']) && core()->auth->check('categories', core()->blog->id)) {
-                $cur_cat            = core()->con->openCursor(core()->prefix . 'category');
+            if (!empty($_POST['new_cat_title']) && dotclear()->auth->check('categories', dotclear()->blog->id)) {
+                $cur_cat            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $_POST['new_cat_title'];
                 $cur_cat->cat_url   = '';
 
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                core()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+                dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $this->cat_id = core()->blog->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                core()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
+                dotclear()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
-            $cur = core()->con->openCursor(core()->prefix . 'post');
+            $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
 
             $cur->cat_id             = ($this->cat_id ?: null);
             $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
@@ -340,39 +338,39 @@ class Post extends Page
             if ($this->post_id) {
                 try {
                     # --BEHAVIOR-- adminBeforePostUpdate
-                    core()->behaviors->call('adminBeforePostUpdate', $cur, $this->post_id);
+                    dotclear()->behaviors->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    core()->blog->updPost($this->post_id, $cur);
+                    dotclear()->blog->updPost($this->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
-                    core()->behaviors->call('adminAfterPostUpdate', $cur, $this->post_id);
-                    core()->notices->addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
-                    core()->adminurl->redirect(
+                    dotclear()->behaviors->call('adminAfterPostUpdate', $cur, $this->post_id);
+                    dotclear()->notices->addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
+                    dotclear()->adminurl->redirect(
                         'admin.post',
                         ['id' => $this->post_id]
                     );
                 } catch (Exception $e) {
-                    core()->error($e->getMessage());
+                    dotclear()->error($e->getMessage());
                 }
             } else {
-                $cur->user_id = core()->auth->userID();
+                $cur->user_id = dotclear()->auth->userID();
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
-                    core()->behaviors->call('adminBeforePostCreate', $cur);
+                    dotclear()->behaviors->call('adminBeforePostCreate', $cur);
 
-                    $return_id = core()->blog->addPost($cur);
+                    $return_id = dotclear()->blog->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
-                    core()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
+                    dotclear()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
 
-                    core()->notices->addSuccessNotice(__('Entry has been successfully created.'));
-                    core()->adminurl->redirect(
+                    dotclear()->notices->addSuccessNotice(__('Entry has been successfully created.'));
+                    dotclear()->adminurl->redirect(
                         'admin.post',
                         ['id' => $return_id]
                     );
                 } catch (Exception $e) {
-                    core()->error($e->getMessage());
+                    dotclear()->error($e->getMessage());
                 }
             }
         }
@@ -429,7 +427,7 @@ class Post extends Page
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(core()->behaviors->call(
+                $this->setPageHead(dotclear()->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -437,14 +435,14 @@ class Post extends Page
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(core()->behaviors->call(
+                $this->setPageHead(dotclear()->behaviors->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(core()->behaviors->call(
+                $this->setPageHead(dotclear()->behaviors->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -465,16 +463,16 @@ class Post extends Page
                 static::jsLoad('js/_post.js') .
                 static::jsConfirmClose('entry-form', 'comment-form') .
                 # --BEHAVIOR-- adminPostHeaders
-                core()->behaviors->call('adminPostHeaders') .
+                dotclear()->behaviors->call('adminPostHeaders') .
                 static::jsPageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(core()->blog->name)         => '',
-                __('Posts')                                        => core()->adminurl->get('admin.posts'),
+                Html::escapeHTML(dotclear()->blog->name)         => '',
+                __('Posts')                                        => dotclear()->adminurl->get('admin.posts'),
                 ($this->post_id ? $page_title_edit : $page_title) => '',
             ], [
-                'x-frame-allow' => core()->blog->url,
+                'x-frame-allow' => dotclear()->blog->url,
             ])
         ;
 
@@ -483,16 +481,16 @@ class Post extends Page
 
     protected function getPageContent(): void
     {
-        $categories_combo = core()->combos->getCategoriesCombo(
-            core()->blog->getCategories()
+        $categories_combo = dotclear()->combos->getCategoriesCombo(
+            dotclear()->blog->getCategories()
         );
 
-        $status_combo = core()->combos->getPostStatusesCombo();
+        $status_combo = dotclear()->combos->getPostStatusesCombo();
 
-        $rs         = core()->blog->getLangs(['order' => 'asc']);
-        $lang_combo = core()->combos->getLangsCombo($rs, true);
+        $rs         = dotclear()->blog->getLangs(['order' => 'asc']);
+        $lang_combo = dotclear()->combos->getLangsCombo($rs, true);
 
-        $core_formaters    = core()->getFormaters();
+        $core_formaters    = dotclear()->getFormaters();
         $available_formats = ['' => ''];
         foreach ($core_formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -501,20 +499,20 @@ class Post extends Page
         }
 
         if (!empty($_GET['upd'])) {
-            core()->notices->success(__('Entry has been successfully updated.'));
+            dotclear()->notices->success(__('Entry has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
-            core()->notices->success(__('Entry has been successfully created.'));
+            dotclear()->notices->success(__('Entry has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
-            core()->notices->success(__('File has been successfully attached.'));
+            dotclear()->notices->success(__('File has been successfully attached.'));
         } elseif (!empty($_GET['rmattach'])) {
-            core()->notices->success(__('Attachment has been successfully removed.'));
+            dotclear()->notices->success(__('Attachment has been successfully removed.'));
         }
 
         if (!empty($_GET['creaco'])) {
-            core()->notices->success(__('Comment has been successfully created.'));
+            dotclear()->notices->success(__('Comment has been successfully created.'));
         }
         if (!empty($_GET['tbsent'])) {
-            core()->notices->success(__('All pings sent.'));
+            dotclear()->notices->success(__('All pings sent.'));
         }
 
         # XHTML conversion
@@ -523,7 +521,7 @@ class Post extends Page
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
 
-            core()->notices->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
+            dotclear()->notices->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
         if ($this->post_id && $this->post->post_status == 1) {
@@ -542,7 +540,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostNavLinks
-            core()->behaviors->call('adminPostNavLinks', $this->post ?? null, 'post');
+            dotclear()->behaviors->call('adminPostNavLinks', $this->post ?? null, 'post');
 
             echo '</p>';
         }
@@ -580,7 +578,7 @@ class Post extends Page
                         '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_no_xhtml">' .
                         '<a id="convert-xhtml" class="button' . ($this->post_id && $this->post_format != 'wiki' ? ' hide' : '') . '" href="' .
-                        core()->adminurl->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
+                        dotclear()->adminurl->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
                         '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
                 'metas-box' => [
@@ -594,7 +592,7 @@ class Post extends Page
                         '<p><label for="cat_id">' . __('Category:') . '</label>' .
                         Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
                         '</p>' .
-                        (core()->auth->check('categories', core()->blog->id) ?
+                        (dotclear()->auth->check('categories', dotclear()->blog->id) ?
                             '<div>' .
                             '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
                             '<p><label for="new_cat_title">' . __('Title:') . ' ' .
@@ -613,7 +611,7 @@ class Post extends Page
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (core()->blog->settings->system->allow_comments ?
+                        (dotclear()->blog->settings->system->allow_comments ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -623,7 +621,7 @@ class Post extends Page
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (core()->blog->settings->system->allow_trackbacks ?
+                        (dotclear()->blog->settings->system->allow_trackbacks ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -671,7 +669,7 @@ class Post extends Page
                     Form::textarea(
                         'post_content',
                         50,
-                        (int) core()->auth->getOption('edit_size'),
+                        (int) dotclear()->auth->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
@@ -695,11 +693,11 @@ class Post extends Page
             );
 
             # --BEHAVIOR-- adminPostFormItems
-            core()->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
+            dotclear()->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
-            echo '<form action="' . core()->adminurl->get('admin.post') . '" method="post" id="entry-form">';
+            echo '<form action="' . dotclear()->adminurl->get('admin.post') . '" method="post" id="entry-form">';
             echo '<div id="entry-wrapper">';
             echo '<div id="entry-content"><div class="constrained">';
 
@@ -710,7 +708,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostForm (may be deprecated)
-            core()->behaviors->call('adminPostForm', $this->post ?? null, 'post');
+            dotclear()->behaviors->call('adminPostForm', $this->post ?? null, 'post');
 
             echo
             '<p class="border-top">' .
@@ -718,12 +716,12 @@ class Post extends Page
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = core()->blog->url . core()->url->getURLFor('preview', core()->auth->userID() . '/' .
-                    Http::browserUID(DOTCLEAR_MASTER_KEY . core()->auth->userID() . core()->auth->cryptLegacy(core()->auth->userID())) .
+                $preview_url = dotclear()->blog->url . dotclear()->url->getURLFor('preview', dotclear()->auth->userID() . '/' .
+                    Http::browserUID(DOTCLEAR_MASTER_KEY . dotclear()->auth->userID() . dotclear()->auth->cryptLegacy(dotclear()->auth->userID())) .
                     '/' . $this->post->post_url);
 
-                core()->auth->user_prefs->addWorkspace('interface');
-                $blank_preview = core()->auth->user_prefs->interface->blank_preview;
+                dotclear()->auth->user_prefs->addWorkspace('interface');
+                $blank_preview = dotclear()->auth->user_prefs->interface->blank_preview;
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -732,11 +730,11 @@ class Post extends Page
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
                 echo
-                '<a id="post-cancel" href="' . core()->adminurl->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                '<a id="post-cancel" href="' . dotclear()->adminurl->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            core()->formNonce() .
+            dotclear()->formNonce() .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -754,13 +752,13 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            core()->behaviors->call('adminPostFormSidebar', $this->post ?? null, 'post');
+            dotclear()->behaviors->call('adminPostFormSidebar', $this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             # --BEHAVIOR-- adminPostForm
-            core()->behaviors->call('adminPostAfterForm', $this->post ?? null, 'post');
+            dotclear()->behaviors->call('adminPostAfterForm', $this->post ?? null, 'post');
 
             echo '</div>';
         }
@@ -771,7 +769,7 @@ class Post extends Page
 
             $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments = core()->blog->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = dotclear()->blog->getComments(array_merge($params, ['comment_trackback' => 0]));
 
             echo
             '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
@@ -781,7 +779,7 @@ class Post extends Page
             '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
-                echo '<form action="' . core()->adminurl->get('admin.post') . '" id="form-comments" method="post">';
+                echo '<form action="' . dotclear()->adminurl->get('admin.post') . '" id="form-comments" method="post">';
             }
 
             echo '<h3>' . __('Comments') . '</h3>';
@@ -800,7 +798,7 @@ class Post extends Page
                 Form::combo('action', $combo_action) .
                 Form::hidden(['section'], 'comments') .
                 Form::hidden(['id'], $this->post_id) .
-                core()->formNonce() .
+                dotclear()->formNonce() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -812,21 +810,21 @@ class Post extends Page
             '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
-            '<form action="' . core()->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
+            '<form action="' . dotclear()->adminurl->get('admin.comment') . '" method="post" id="comment-form">' .
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML(core()->auth->getInfo('user_cn')),
+                'default'    => Html::escapeHTML(dotclear()->auth->getInfo('user_cn')),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .
 
             '<p><label for="comment_email">' . __('Email:') . '</label>' .
-            Form::email('comment_email', 30, 255, Html::escapeHTML(core()->auth->getInfo('user_email'))) .
+            Form::email('comment_email', 30, 255, Html::escapeHTML(dotclear()->auth->getInfo('user_email'))) .
             '</p>' .
 
             '<p><label for="comment_site">' . __('Web site:') . '</label>' .
-            Form::url('comment_site', 30, 255, Html::escapeHTML(core()->auth->getInfo('user_url'))) .
+            Form::url('comment_site', 30, 255, Html::escapeHTML(dotclear()->auth->getInfo('user_url'))) .
             '</p>' .
 
             '<p class="area"><label for="comment_content" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' .
@@ -836,7 +834,7 @@ class Post extends Page
                 50,
                 8,
                 [
-                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . core()->auth->getInfo('user_lang') .
+                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . dotclear()->auth->getInfo('user_lang') .
                         '" spellcheck="true"',
                 ]
             ) .
@@ -844,7 +842,7 @@ class Post extends Page
 
             '<p>' .
             Form::hidden('post_id', $this->post_id) .
-            core()->formNonce() .
+            dotclear()->formNonce() .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . #constrained
 
@@ -858,7 +856,7 @@ class Post extends Page
             -------------------------------------------------------- */
 
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $this->trackbacks = core()->blog->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $this->trackbacks = dotclear()->blog->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             # Actions combo box
             $combo_action = $this->comments_actions->getCombo();
@@ -874,7 +872,7 @@ class Post extends Page
 
             # tracbacks actions
             if ($has_action) {
-                echo '<form action="' . core()->adminurl->get('admin.post') . '" id="form-trackbacks" method="post">';
+                echo '<form action="' . dotclear()->adminurl->get('admin.post') . '" id="form-trackbacks" method="post">';
             }
 
             echo '<h3>' . __('Trackbacks received') . '</h3>';
@@ -894,7 +892,7 @@ class Post extends Page
                 Form::combo('action', $combo_action) .
                 Form::hidden('id', $this->post_id) .
                 Form::hidden(['section'], 'trackbacks') .
-                core()->formNonce() .
+                dotclear()->formNonce() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -908,7 +906,7 @@ class Post extends Page
 
                 echo
                 '<h3>' . __('Ping blogs') . '</h3>' .
-                '<form action="' . core()->adminurl->get('admin.post', ['id' => $this->post_id]) . '" id="trackback-form" method="post">' .
+                '<form action="' . dotclear()->adminurl->get('admin.post', ['id' => $this->post_id]) . '" id="trackback-form" method="post">' .
                 '<p><label for="tb_urls" class="area">' . __('URLs to ping:') . '</label>' .
                 Form::textarea('tb_urls', 60, 5, $this->tb_urls) .
                 '</p>' .
@@ -917,11 +915,11 @@ class Post extends Page
                 Form::textarea('tb_excerpt', 60, 5, $this->tb_excerpt) . '</p>' .
 
                 '<p>' .
-                core()->formNonce() .
+                dotclear()->formNonce() .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
                     (empty($_GET['tb_auto']) ?
                     '&nbsp;&nbsp;<a class="button" href="' .
-                    core()->adminurl->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
+                    dotclear()->adminurl->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
                     '">' . __('Auto discover ping URLs') . '</a>'
                     : '') .
                     '</p>' .
@@ -955,11 +953,11 @@ class Post extends Page
             return true;
         }
         if ($com) {
-            if ((core()->blog->settings->system->comments_ttl == 0) || (time() - core()->blog->settings->system->comments_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog->settings->system->comments_ttl == 0) || (time() - dotclear()->blog->settings->system->comments_ttl * 86400 < $dt)) {
                 return true;
             }
         } else {
-            if ((core()->blog->settings->system->trackbacks_ttl == 0) || (time() - core()->blog->settings->system->trackbacks_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog->settings->system->trackbacks_ttl == 0) || (time() - dotclear()->blog->settings->system->trackbacks_ttl * 86400 < $dt)) {
                 return true;
             }
         }
@@ -987,7 +985,7 @@ class Post extends Page
         }
 
         while ($rs->fetch()) {
-            $comment_url = core()->adminurl->get('admin.comment', ['id' => $rs->comment_id]);
+            $comment_url = dotclear()->adminurl->get('admin.comment', ['id' => $rs->comment_id]);
 
             $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
@@ -1031,7 +1029,7 @@ class Post extends Page
             '<td class="maximal">' . Html::escapeHTML($rs->comment_author) . '</td>' .
             '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->comment_dt) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . core()->adminurl->get('admin.comments', ['ip' => $rs->comment_ip]) . '">' . $rs->comment_ip . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . dotclear()->adminurl->get('admin.comments', ['ip' => $rs->comment_ip]) . '">' . $rs->comment_ip . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

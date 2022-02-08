@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use Dotclear\Admin\Page;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -35,7 +33,7 @@ class Charte extends Page
     protected function getPageContent(): void
     {
         $js         = [];
-        $data_theme = core()->auth->user_prefs->interface->theme;
+        $data_theme = dotclear()->auth->user_prefs->interface->theme;
 ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
@@ -50,8 +48,8 @@ class Charte extends Page
 
 echo static::cssLoad('style/default.css');
 
-if (core()->auth->user_prefs->interface->htmlfontsize) {
-    $js['htmlFontSize'] = core()->auth->user_prefs->interface->htmlfontsize;
+if (dotclear()->auth->user_prefs->interface->htmlfontsize) {
+    $js['htmlFontSize'] = dotclear()->auth->user_prefs->interface->htmlfontsize;
 }
 // Set some JSON data
 echo static::jsJson('dotclear_init', $js);

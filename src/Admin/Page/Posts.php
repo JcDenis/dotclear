@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -42,7 +40,7 @@ class Posts extends Page
 
     protected function getActionInstance(): ?Action
     {
-        return new PostAction(core()->adminurl->get('admin.posts'));
+        return new PostAction(dotclear()->adminurl->get('admin.posts'));
     }
 
     protected function getFilterInstance(): ?Filter
@@ -63,16 +61,16 @@ class Posts extends Page
             'user_id'    => 'P.user_id'];
 
         # --BEHAVIOR-- adminPostsSortbyLexCombo
-        core()->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
+        dotclear()->behaviors->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            core()->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params['no_content'] = true;
 
-        $posts     = core()->blog->getPosts($params);
-        $counter   = core()->blog->getPosts($params, true);
+        $posts     = dotclear()->blog->getPosts($params);
+        $counter   = dotclear()->blog->getPosts($params, true);
 
         return new PostCatalog($posts, $counter->f(0));
     }
@@ -86,7 +84,7 @@ class Posts extends Page
             static::jsLoad('js/_posts_list.js')
         );
         $this->setPageBreadcrumb([
-            Html::escapeHTML(core()->blog->name) => '',
+            Html::escapeHTML(dotclear()->blog->name) => '',
             __('Posts')                               => ''
         ]);
 
@@ -100,15 +98,15 @@ class Posts extends Page
         } elseif (!empty($_GET['del'])) {
             static::success(__('Selected entries have been successfully deleted.'));
         }
-        if (!core()->error()->flag()) {
-            echo '<p class="top-add"><a class="button add" href="' . core()->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
+        if (!dotclear()->error()->flag()) {
+            echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             # filters
             $this->filter->display('admin.posts');
 
             # Show posts
             $this->catalog->display($this->filter->page, $this->filter->nb,
-                '<form action="' . core()->adminurl->get('admin.posts') . '" method="post" id="form-entries">' .
+                '<form action="' . dotclear()->adminurl->get('admin.posts') . '" method="post" id="form-entries">' .
 
                 '%s' .
 
@@ -118,8 +116,8 @@ class Posts extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                core()->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
-                core()->formNonce() .
+                dotclear()->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
+                dotclear()->formNonce() .
                 '</div>' .
                 '</form>',
                 $this->filter->show()

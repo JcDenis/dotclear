@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use function Dotclear\core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -189,7 +187,7 @@ class SelectStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeSelectStatement
-        core()->behaviors->call('coreBeforeSelectStatement', $this);
+        dotclear()->behaviors->call('coreBeforeSelectStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -261,7 +259,7 @@ class SelectStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        core()->behaviors->call('coreAfterSelectStatement', $this, $query);
+        dotclear()->behaviors->call('coreAfterSelectStatement', $this, $query);
 
         return $query;
     }

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -98,10 +96,10 @@ class Blog
      */
     public function __construct(string $id)
     {
-        $this->con    = core()->con;
-        $this->prefix = core()->prefix;
+        $this->con    = dotclear()->con;
+        $this->prefix = dotclear()->prefix;
 
-        if (($b = core()->getBlog($id)) !== null) {
+        if (($b = dotclear()->getBlog($id)) !== null) {
             $this->id     = $id;
             $this->uid    = $b->blog_uid;
             $this->name   = $b->blog_name;
@@ -127,7 +125,7 @@ class Blog
             $this->comment_status['1']  = __('Published');
 
             # --BEHAVIOR-- coreBlogConstruct, Dotclear\Core\Blog
-            core()->behaviors->call('coreBlogConstruct', $this);
+            dotclear()->behaviors->call('coreBlogConstruct', $this);
         }
     }
 
@@ -285,7 +283,7 @@ class Blog
         $cur->update("WHERE blog_id = '" . $this->con->escape($this->id) . "' ");
 
         # --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreBlogAfterTriggerBlog', $cur);
+        dotclear()->behaviors->call('coreBlogAfterTriggerBlog', $cur);
     }
 
     /**
@@ -409,7 +407,7 @@ class Blog
         if (isset($params['without_empty']) && ($params['without_empty'] == false)) {
             $without_empty = false;
         } else {
-            $without_empty = core()->auth->userID() == false; # Get all categories if in admin display
+            $without_empty = dotclear()->auth->userID() == false; # Get all categories if in admin display
         }
 
         $start = isset($params['start']) ? (int) $params['start'] : 0;
@@ -582,7 +580,7 @@ class Blog
         'JOIN ' . $this->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . $this->con->escape($this->id) . "' ) " .
         "WHERE C.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!core()->auth->userID()) {
+        if (!dotclear()->auth->userID()) {
             $strReq .= 'AND P.post_status = 1 ';
         }
 
@@ -613,7 +611,7 @@ class Blog
      */
     public function addCategory(Cursor $cur, int $parent = 0): int
     {
-        if (!core()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to add categories'));
         }
 
@@ -639,7 +637,7 @@ class Blog
         $cur->blog_id = (string) $this->id;
 
         # --BEHAVIOR-- coreBeforeCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreBeforeCategoryCreate', $this, $cur);
+        dotclear()->behaviors->call('coreBeforeCategoryCreate', $this, $cur);
 
         $id = $this->categories()->addNode($cur, $parent);
         if ($id !== null) {
@@ -652,7 +650,7 @@ class Blog
         }
 
         # --BEHAVIOR-- coreAfterCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreAfterCategoryCreate', $this, $cur);
+        dotclear()->behaviors->call('coreAfterCategoryCreate', $this, $cur);
 
         $this->triggerBlog();
 
@@ -669,7 +667,7 @@ class Blog
      */
     public function updCategory(int $id, Cursor $cur): void
     {
-        if (!core()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to update categories'));
         }
 
@@ -689,7 +687,7 @@ class Blog
         $this->getCategoryCursor($cur, $id);
 
         # --BEHAVIOR-- coreBeforeCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreBeforeCategoryUpdate', $this, $cur);
+        dotclear()->behaviors->call('coreBeforeCategoryUpdate', $this, $cur);
 
         $cur->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
@@ -697,7 +695,7 @@ class Blog
         );
 
         # --BEHAVIOR-- coreAfterCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreAfterCategoryUpdate', $this, $cur);
+        dotclear()->behaviors->call('coreAfterCategoryUpdate', $this, $cur);
 
         $this->triggerBlog();
     }
@@ -749,7 +747,7 @@ class Blog
      */
     public function delCategory(int $id): void
     {
-        if (!core()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to delete categories'));
         }
 
@@ -773,7 +771,7 @@ class Blog
      */
     public function resetCategoriesOrder(): void
     {
-        if (!core()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to reset categories order'));
         }
 
@@ -876,7 +874,7 @@ class Blog
         $cur->cat_url = $this->checkCategory($cur->cat_title, $cur->cat_url, $id);
 
         if ($cur->cat_desc !== null) {
-            $cur->cat_desc = core()->HTMLfilter($cur->cat_desc);
+            $cur->cat_desc = dotclear()->HTMLfilter($cur->cat_desc);
         }
     }
     //@}
@@ -926,7 +924,7 @@ class Blog
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
-        core()->behaviors->call('coreBlogBeforeGetPosts', $params);
+        dotclear()->behaviors->call('coreBlogBeforeGetPosts', $params);
 
         if ($count_only) {
             $strReq = 'SELECT count(DISTINCT P.post_id) ';
@@ -966,7 +964,7 @@ class Blog
 
         $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!core()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -974,8 +972,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (core()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(core()->auth->userID()) . "')";
+            if (dotclear()->auth->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1070,10 +1068,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                if (core()->behaviors->has('corePostSearch')) {
+                if (dotclear()->behaviors->has('corePostSearch')) {
 
                     # --BEHAVIOR-- corePostSearch, array
-                    core()->behaviors->call('corePostSearch', [&$words, &$strReq, &$params]);
+                    dotclear()->behaviors->call('corePostSearch', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -1122,12 +1120,12 @@ class Blog
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPost');
 
         # --BEHAVIOR-- coreBlogGetPosts
-        core()->behaviors->call('coreBlogGetPosts', $rs);
+        dotclear()->behaviors->call('coreBlogGetPosts', $rs);
 
         $alt = new ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
 
         # --BEHAVIOR-- coreBlogAfterGetPosts, ArrayObject, array
-        core()->behaviors->call('coreBlogAfterGetPosts', $rs, $alt);
+        dotclear()->behaviors->call('coreBlogAfterGetPosts', $rs, $alt);
 
         if ($alt['rs'] instanceof Record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
@@ -1207,7 +1205,7 @@ class Blog
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
 
-        if (!core()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -1215,8 +1213,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (core()->auth->userID()) {
-                $strReq .= "OR user_id = '" . $this->con->escape(core()->auth->userID()) . "')";
+            if (dotclear()->auth->userID()) {
+                $strReq .= "OR user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1301,7 +1299,7 @@ class Blog
         "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' " .
             $catReq;
 
-        if (!core()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -1309,8 +1307,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (core()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(core()->auth->userID()) . "')";
+            if (dotclear()->auth->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1379,7 +1377,7 @@ class Blog
      */
     public function addPost(Cursor $cur): int
     {
-        if (!core()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
@@ -1396,7 +1394,7 @@ class Blog
             $cur->blog_id     = (string) $this->id;
             $cur->post_creadt = date('Y-m-d H:i:s');
             $cur->post_upddt  = date('Y-m-d H:i:s');
-            $cur->post_tz     = core()->auth->getInfo('user_tz');
+            $cur->post_tz     = dotclear()->auth->getInfo('user_tz');
 
             # Post excerpt and content
             $this->getPostContent($cur, $cur->post_id);
@@ -1405,12 +1403,12 @@ class Blog
 
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $cur->post_id);
 
-            if (!core()->auth->check('publish,contentadmin', $this->id)) {
+            if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
                 $cur->post_status = -2;
             }
 
             # --BEHAVIOR-- coreBeforePostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-            core()->behaviors->call('coreBeforePostCreate', $this, $cur);
+            dotclear()->behaviors->call('coreBeforePostCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -1421,7 +1419,7 @@ class Blog
         }
 
         # --BEHAVIOR-- coreAfterPostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreAfterPostCreate', $this, $cur);
+        dotclear()->behaviors->call('coreAfterPostCreate', $this, $cur);
 
         $this->triggerBlog();
 
@@ -1440,7 +1438,7 @@ class Blog
      */
     public function updPost(int $id, Cursor $cur): void
     {
-        if (!core()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update entries'));
         }
 
@@ -1459,18 +1457,18 @@ class Blog
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $id);
         }
 
-        if (!core()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
             $cur->unsetField('post_status');
         }
 
         $cur->post_upddt = date('Y-m-d H:i:s');
 
         #If user is only "usage", we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . $this->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+            "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
 
             $rs = $this->con->select($strReq);
 
@@ -1480,12 +1478,12 @@ class Blog
         }
 
         # --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreBeforePostUpdate', $this, $cur);
+        dotclear()->behaviors->call('coreBeforePostUpdate', $this, $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
         # --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        core()->behaviors->call('coreBeforePostUpdate', $this, $cur);
+        dotclear()->behaviors->call('coreBeforePostUpdate', $this, $cur);
 
         $this->triggerBlog();
 
@@ -1513,7 +1511,7 @@ class Blog
      */
     public function updPostsStatus($ids, int $status): void
     {
-        if (!core()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
@@ -1524,8 +1522,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         #If user can only publish, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1560,7 +1558,7 @@ class Blog
      */
     public function updPostsSelected($ids, $selected): void
     {
-        if (!core()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -1571,8 +1569,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1605,7 +1603,7 @@ class Blog
      */
     public function updPostsCategory($ids, $cat_id): void
     {
-        if (!core()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -1616,8 +1614,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1639,7 +1637,7 @@ class Blog
      */
     public function changePostsCategory(?int $old_cat_id, ?int $new_cat_id): void
     {
-        if (!core()->auth->check('contentadmin,categories', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin,categories', $this->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
         }
 
@@ -1677,7 +1675,7 @@ class Blog
      */
     public function delPosts($ids): void
     {
-        if (!core()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
@@ -1692,8 +1690,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         #If user can only delete, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
 
         $this->con->execute($strReq);
@@ -1734,7 +1732,7 @@ class Blog
         if (count($to_change)) {
 
             # --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
-            core()->behaviors->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
+            dotclear()->behaviors->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
 
             $strReq = 'UPDATE ' . $this->prefix . 'post SET ' .
             'post_status = 1 ' .
@@ -1744,7 +1742,7 @@ class Blog
             $this->triggerBlog();
 
             # --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
-            core()->behaviors->call('coreAfterScheduledEntriesPublish', $this, $to_change);
+            dotclear()->behaviors->call('coreAfterScheduledEntriesPublish', $this, $to_change);
 
             $this->firstPublicationEntries($to_change);
         }
@@ -1776,7 +1774,7 @@ class Blog
             $this->con->execute($strReq);
 
             # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog, array
-            core()->behaviors->call('coreFirstPublicationEntries', $this, $to_change);
+            dotclear()->behaviors->call('coreFirstPublicationEntries', $this, $to_change);
         }
     }
 
@@ -1898,7 +1896,7 @@ class Blog
         }
 
         if ($cur->post_dt == '') {
-            $offset       = Dt::getTimeOffset(core()->auth->getInfo('user_tz'));
+            $offset       = Dt::getTimeOffset(dotclear()->auth->getInfo('user_tz'));
             $now          = time() + $offset;
             $cur->post_dt = date('Y-m-d H:i:00', $now);
         }
@@ -1967,8 +1965,8 @@ class Blog
     public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ($format == 'wiki') {
-            core()->initWikiPost();
-            core()->wiki2xhtml->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
+            dotclear()->initWikiPost();
+            dotclear()->wiki2xhtml->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
             switch ($this->settings->system->note_title_tag) {
                 case 1:
                     $tag = 'h3';
@@ -1983,31 +1981,31 @@ class Blog
 
                     break;
             }
-            core()->wiki2xhtml->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki2xhtml->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Notes') . '</' . $tag . '>%s</div>');
-            core()->wiki2xhtml->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki2xhtml->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Note') . '</' . $tag . '>%s</div>');
             if (strpos($lang, 'fr') === 0) {
-                core()->wiki2xhtml->setOpt('active_fr_syntax', 1);
+                dotclear()->wiki2xhtml->setOpt('active_fr_syntax', 1);
             }
         }
 
         if ($excerpt) {
-            $excerpt_xhtml = core()->callEditorFormater('LegacyEditor', $format, $excerpt);
-            $excerpt_xhtml = core()->HTMLfilter($excerpt_xhtml);
+            $excerpt_xhtml = dotclear()->callEditorFormater('LegacyEditor', $format, $excerpt);
+            $excerpt_xhtml = dotclear()->HTMLfilter($excerpt_xhtml);
         } else {
             $excerpt_xhtml = '';
         }
 
         if ($content) {
-            $content_xhtml = core()->callEditorFormater('LegacyEditor', $format, $content);
-            $content_xhtml = core()->HTMLfilter($content_xhtml);
+            $content_xhtml = dotclear()->callEditorFormater('LegacyEditor', $format, $content);
+            $content_xhtml = dotclear()->HTMLfilter($content_xhtml);
         } else {
             $content_xhtml = '';
         }
 
         # --BEHAVIOR-- coreAfterPostContentFormat, array
-        core()->behaviors->call('coreAfterPostContentFormat', [
+        dotclear()->behaviors->call('coreAfterPostContentFormat', [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,
@@ -2169,7 +2167,7 @@ class Blog
 
         $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!core()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((comment_status = 1 AND P.post_status = 1 ';
 
             if ($this->without_password) {
@@ -2177,8 +2175,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (core()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(core()->auth->userID()) . "')";
+            if (dotclear()->auth->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -2241,10 +2239,10 @@ class Blog
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                if (core()->behaviors->has('coreCommentSearch')) {
+                if (dotclear()->behaviors->has('coreCommentSearch')) {
 
                     # --BEHAVIOR coreCommentSearch, array
-                    core()->behaviors->call('coreCommentSearchs', [&$words, &$strReq, &$params]);
+                    dotclear()->behaviors->call('coreCommentSearchs', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -2274,7 +2272,7 @@ class Blog
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtComment');
 
         # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
-        core()->behaviors->call('coreBlogGetComments', $rs);
+        dotclear()->behaviors->call('coreBlogGetComments', $rs);
 
         return $rs;
     }
@@ -2311,7 +2309,7 @@ class Blog
             }
 
             # --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
-            core()->behaviors->call('coreBeforeCommentCreate', $this, $cur);
+            dotclear()->behaviors->call('coreBeforeCommentCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -2322,7 +2320,7 @@ class Blog
         }
 
         # --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
-        core()->behaviors->call('coreAfterCommentCreate', $this, $cur);
+        dotclear()->behaviors->call('coreAfterCommentCreate', $this, $cur);
 
         $this->triggerComment($cur->comment_id);
         if ($cur->comment_status != -2) {
@@ -2342,7 +2340,7 @@ class Blog
      */
     public function updComment(int $id, Cursor $cur): void
     {
-        if (!core()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
         }
 
@@ -2359,8 +2357,8 @@ class Blog
         }
 
         #If user is only usage, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            if ($rs->user_id != core()->auth->userID()) {
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            if ($rs->user_id != dotclear()->auth->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
@@ -2369,17 +2367,17 @@ class Blog
 
         $cur->comment_upddt = date('Y-m-d H:i:s');
 
-        if (!core()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
             $cur->unsetField('comment_status');
         }
 
         # --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Core\Blog, Dotclear\Database\Record
-        core()->behaviors->call('coreBeforeCommentUpdate', $this, $cur, $rs);
+        dotclear()->behaviors->call('coreBeforeCommentUpdate', $this, $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
         # --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Core\Blog, Dotclear\Database\Record
-        core()->behaviors->call('coreAfterCommentUpdate', $this, $cur, $rs);
+        dotclear()->behaviors->call('coreAfterCommentUpdate', $this, $cur, $rs);
 
         $this->triggerComment($id);
         $this->triggerBlog();
@@ -2406,7 +2404,7 @@ class Blog
      */
     public function updCommentsStatus($ids, int $status): void
     {
-        if (!core()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
@@ -2419,8 +2417,8 @@ class Blog
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);
@@ -2447,7 +2445,7 @@ class Blog
      */
     public function delComments($ids): void
     {
-        if (!core()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -2476,8 +2474,8 @@ class Blog
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);
@@ -2492,7 +2490,7 @@ class Blog
      */
     public function delJunkComments():void
     {
-        if (!core()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -2502,8 +2500,8 @@ class Blog
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!core()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
+        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Catalog;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Admin\Pager;
@@ -66,7 +64,7 @@ class UserCatalog extends Catalog
             ];
 
             $cols = new \ArrayObject($cols);
-            core()->behaviors->call('adminUserListHeader', $this->rs, $cols);
+            dotclear()->behaviors->call('adminUserListHeader', $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -109,9 +107,9 @@ class UserCatalog extends Catalog
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $p = core()->getUserPermissions($this->rs->user_id);
+        $p = dotclear()->getUserPermissions($this->rs->user_id);
 
-        if (isset($p[core()->blog->id]['p']['admin'])) {
+        if (isset($p[dotclear()->blog->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
         if ($this->rs->user_super) {
@@ -124,18 +122,18 @@ class UserCatalog extends Catalog
             'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], (int) $this->rs->nb_post) .
             Form::checkbox(['users[]'], $this->rs->user_id) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
-            core()->adminurl->get('admin.user', ['id' => $this->rs->user_id]) . '">' .
+            dotclear()->adminurl->get('admin.user', ['id' => $this->rs->user_id]) . '">' .
             $this->rs->user_id . '</a>&nbsp;' . $img_status . '</td>',
             'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_firstname) . '</td>',
             'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_name) . '</td>',
             'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_displayname) . '</td>',
             'entries'      => '<td class="nowrap count"><a href="' .
-            core()->adminurl->get('admin.posts', ['user_id' => $this->rs->user_id]) . '">' .
+            dotclear()->adminurl->get('admin.posts', ['user_id' => $this->rs->user_id]) . '">' .
             $this->rs->nb_post . '</a></td>',
         ];
 
         $cols = new \ArrayObject($cols);
-        core()->behaviors->call('adminUserListValue', $this->rs, $cols);
+        dotclear()->behaviors->call('adminUserListValue', $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

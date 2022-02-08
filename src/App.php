@@ -3,9 +3,9 @@
  * @class Dotclear
  * @brief Dotclear process launcher
  *
- * Call Dotclear::Admin(); to load admin pages
+ * Call new Dotclear\App('admin'); to load admin pages
  *
- * For a public blog, use Dotclear::Public('myblogid');
+ * For a public blog, use new Dotclear\App('public', 'myblogid');
  *
  * Process is not case sensitive here, whereas blog id is.
  *
@@ -189,8 +189,5 @@ Class App
 
 }
 
-/** @see Dotclear::core() */
-function core()
-{
-    return App::core();
-}
+# Put namespace root functions to functions.php file
+require_once __DIR__ . '/functions.php';

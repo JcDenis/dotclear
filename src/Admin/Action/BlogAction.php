@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Action;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -35,7 +33,7 @@ class BlogAction extends Action
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        core()->behaviors->call('adminBlogsActionsPage', $this);
+        dotclear()->behaviors->call('adminBlogsActionsPage', $this);
 
         # Page setup
         $this
@@ -43,8 +41,8 @@ class BlogAction extends Action
             ->setPageType($this->in_plugin ? 'plugin' : null)
             ->setPageHead(static::jsLoad('js/_blogs_actions.js'))
             ->setPageBreadcrumb([
-                Html::escapeHTML(core()->blog->name) => '',
-                __('Blogs')                               => core()->adminurl->get('admin.blogs'),
+                Html::escapeHTML(dotclear()->blog->name) => '',
+                __('Blogs')                               => dotclear()->adminurl->get('admin.blogs'),
                 __('Blogs actions')                       => ''
             ]);
     }
@@ -58,7 +56,7 @@ class BlogAction extends Action
 
     public function error(Exception $e)
     {
-        core()->error($e->getMessage());
+        dotclear()->error($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
     }
 
@@ -90,7 +88,7 @@ class BlogAction extends Action
             $params['blog_id'] = $from['blogs'];
         }
 
-        $bl = core()->getBlogs($params);
+        $bl = dotclear()->getBlogs($params);
         while ($bl->fetch()) {
             $this->entries[$bl->blog_id] = [
                 'blog' => $bl->blog_id,

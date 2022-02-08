@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Admin\Filter;
@@ -52,7 +50,7 @@ class MediaFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        core()->behaviors->call('adminMediaFilter', $filters);
+        dotclear()->behaviors->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -68,7 +66,7 @@ class MediaFilter extends Filter
     {
         $values = new ArrayObject($this->values());
 
-        core()->behaviors->call('adminMediaURLParams', $values);
+        dotclear()->behaviors->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {
@@ -83,7 +81,7 @@ class MediaFilter extends Filter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = core()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dotclear()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
             if ($post->isEmpty()) {
                 $post_id = null;
             }

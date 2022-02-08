@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Lib;
 
-use function Dotclear\core;
-
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 
@@ -101,7 +99,7 @@ class Widget
             return '';
         }
 
-        $theme = core()->themes->getModule((string) core()->blog->settings->system->theme);
+        $theme = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
         if (!$theme) {
             return;
         }
@@ -128,7 +126,7 @@ class Widget
             return '';
         }
 
-        $theme = core()->themes->getModule((string) core()->blog->settings->system->theme);
+        $theme = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
         if (!$theme) {
             return;
         }
@@ -246,7 +244,7 @@ class Widget
                 form::field([$iname, $wfid], 20, 255, [
                     'default'    => Html::escapeHTML((string) $s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . core()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                    'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
                 '</p>';
 
@@ -256,7 +254,7 @@ class Widget
                 form::textarea([$iname, $wfid], 30, 8, [
                     'default'    => Html::escapeHTML($s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . core()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                    'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
                 ]) .
                 '</p>';
 

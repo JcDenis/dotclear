@@ -17,8 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use function Dotclear\core;
-
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 use Dotclear\Admin\Filter\DefaultFilter;
@@ -40,7 +38,7 @@ class BlogFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        core()->behaviors->call('adminBlogFilter', $filters);
+        dotclear()->behaviors->call('adminBlogFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -57,7 +55,7 @@ class BlogFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                core()->combos->getBlogStatusesCombo()
+                dotclear()->combos->getBlogStatusesCombo()
             ))
             ->prime(true);
     }

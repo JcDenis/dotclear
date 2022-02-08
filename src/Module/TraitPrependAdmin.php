@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use function Dotclear\core;
-
 use Dotclear\Admin\Favorites;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -52,22 +50,22 @@ trait TraitPrependAdmin
      */
     protected static function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!$menu || !isset(core()->menu[$menu])) {
+        if (!$menu || !isset(dotclear()->menu[$menu])) {
             $menu = 'Plugins';
         }
         if ($permissions === '') {
             $permissons = static::$define->permissions();
         }
 
-        core()->menu[$menu]->addItem(
+        dotclear()->menu[$menu]->addItem(
             static::$define->name(),
-            core()->adminurl->get('admin.plugin.' . static::$define->id()),
+            dotclear()->adminurl->get('admin.plugin.' . static::$define->id()),
             [
                 '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon.svg',
                 '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon-dark.svg',
             ],
-            core()->adminurl->called() == 'admin.plugin.' . static::$define->id(),
-            $permissions === null ? core()->auth->isSuperAdmin() : core()->auth->check($permissions, core()->blog->id)
+            dotclear()->adminurl->called() == 'admin.plugin.' . static::$define->id(),
+            $permissions === null ? dotclear()->auth->isSuperAdmin() : dotclear()->auth->check($permissions, dotclear()->blog->id)
         );
     }
 
@@ -78,7 +76,7 @@ trait TraitPrependAdmin
     {
         # call once behavoir for all modules
         if (empty(static::$favorties)) {
-            core()->behaviors->add('adminDashboardFavorites', function (Favorites $favs): void {
+            dotclear()->behaviors->add('adminDashboardFavorites', function (Favorites $favs): void {
                 foreach (static::$favorites as $id => $values) {
                     $favs->register($id, $values);
                 }
@@ -89,7 +87,7 @@ trait TraitPrependAdmin
 
         static::$favorites[static::$define->id()] = [
             'title'       => static::$define->name(),
-            'url'         => core()->adminurl->get('admin.plugin.' . static::$define->id()),
+            'url'         => dotclear()->adminurl->get('admin.plugin.' . static::$define->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => static::$define->permissions(),

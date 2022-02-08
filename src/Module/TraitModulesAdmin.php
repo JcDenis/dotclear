@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use function Dotclear\core;
-
 use Dotclear\Core\Store;
 
 use Dotclear\Module\AbstractModules;
@@ -125,9 +123,9 @@ trait TraitModulesAdmin
      */
     protected function loadModuleDefineProcess(AbstractDefine $define): bool
     {
-        if (!$define->permissions() && !core()->auth->isSuperAdmin()) {
+        if (!$define->permissions() && !dotclear()->auth->isSuperAdmin()) {
             return false;
-        } elseif ($define->permissions() && !core()->auth->check($define->permissions(), core()->blog->id)) {
+        } elseif ($define->permissions() && !dotclear()->auth->check($define->permissions(), dotclear()->blog->id)) {
             return false;
         }
 
@@ -213,7 +211,7 @@ trait TraitModulesAdmin
     {
         return $this->path_writable
             && (preg_match('!^' . $this->path_pattern . '!', $root) || DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT)
-            && core()->auth->isSuperAdmin();
+            && dotclear()->auth->isSuperAdmin();
     }
     //@}
 
@@ -331,7 +329,7 @@ trait TraitModulesAdmin
         '<form action="' . $this->getURL() . '" method="get">' .
         '<p><label for="m_search" class="classic">' . __('Search in repository:') . '&nbsp;</label><br />' .
         Form::field('m_search', 30, 255, Html::escapeHTML($query)) .
-        Form::hidden('handler', core()->adminurl->called()) .
+        Form::hidden('handler', dotclear()->adminurl->called()) .
         '<input type="submit" value="' . __('OK') . '" /> ';
 
         if ($query) {
@@ -581,7 +579,7 @@ trait TraitModulesAdmin
                 '<th' . (in_array('description', $cols) ? '' : ' class="maximal"') . '></th>';
         }
 
-        if (!empty($actions) && core()->auth->isSuperAdmin()) {
+        if (!empty($actions) && dotclear()->auth->isSuperAdmin()) {
             echo
             '<th class="minimal nowrap">' . __('Action') . '</th>';
         }
@@ -643,7 +641,7 @@ trait TraitModulesAdmin
 
                 echo
                 '<td class="module-icon nowrap">' .
-                core()->menu->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
+                dotclear()->menu->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
                 '</td>';
             }
 
@@ -666,14 +664,14 @@ trait TraitModulesAdmin
                 Form::hidden(['modules[' . $count . ']'], Html::escapeHTML($id));
             }
             echo
-            core()->formNonce() .
+            dotclear()->formNonce() .
                 '</td>';
 
             # Display score only for debug purpose
             if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
                 $tds++;
                 echo
-                    '<td class="module-version nowrap count"><span class="debug">' . $module->score() . '</span></td>';
+                    '<td class="module-version nowrap count"><span class="debug">' . $module->sdotclear() . '</span></td>';
             }
 
             if (in_array('author', $cols) && !in_array('expander', $cols)) {
@@ -737,7 +735,7 @@ trait TraitModulesAdmin
                     : '') . '</td>';
             }
 
-            if (!empty($actions) && core()->auth->isSuperAdmin()) {
+            if (!empty($actions) && dotclear()->auth->isSuperAdmin()) {
                 $buttons = $this->getActions($id, $module, $actions);
 
                 $tds++;
@@ -787,12 +785,12 @@ trait TraitModulesAdmin
                 $config = $index = false;
                 if (!empty($module->type())) {
                     $config       = is_subclass_of(
-                        core()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                        dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
                         'Dotclear\\Module\\AbstractConfig'
                     );
 
                     $index       = is_subclass_of(
-                        core()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                        dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
                         'Dotclear\\Module\\AbstractPage'
                     );
                 }
@@ -840,7 +838,7 @@ trait TraitModulesAdmin
         if (!$count && $this->getSearch() === null) {
             echo
             '<p class="message">' . __('No modules matched your search.') . '</p>';
-        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && core()->auth->isSuperAdmin()) {
+        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && dotclear()->auth->isSuperAdmin()) {
             $buttons = $this->getGlobalActions($actions, in_array('checkbox', $cols));
 
             if (!empty($buttons)) {
@@ -881,12 +879,12 @@ trait TraitModulesAdmin
 
         if ($module->type()) { // should be always true
             $config       = is_subclass_of(
-                core()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
                 'Dotclear\\Module\\AbstractConfig'
             );
 
             $index        = is_subclass_of(
-                core()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
                 'Dotclear\\Module\\AbstractPage'
             );
         }
@@ -899,7 +897,7 @@ trait TraitModulesAdmin
         }
         if ($config || $index || !empty($settings)) {
             if ($config) {
-                if (!$check || core()->auth->isSuperAdmin() || core()->auth->check($module->permissions(), core()->blog->id)) {
+                if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check($module->permissions(), dotclear()->blog->id)) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig() && !$self) {
                         $params['redir'] = $this->getModuleURL($id);
@@ -913,24 +911,24 @@ trait TraitModulesAdmin
                 foreach ($settings as $sk => $sv) {
                     switch ($sk) {
                         case 'blog':
-                            if (!$check || core()->auth->isSuperAdmin() || core()->auth->check('admin', core()->blog->id)) {
+                            if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check('admin', dotclear()->blog->id)) {
                                 $st['blog'] = '<a class="module-config" href="' .
-                                core()->adminurl->get('admin.blog.pref') . $sv .
+                                dotclear()->adminurl->get('admin.blog.pref') . $sv .
                                 '">' . __('Module settings (in blog parameters)') . '</a>';
                             }
 
                             break;
                         case 'pref':
-                            if (!$check || core()->auth->isSuperAdmin() || core()->auth->check('usage,contentadmin', core()->blog->id)) {
+                            if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check('usage,contentadmin', dotclear()->blog->id)) {
                                 $st['pref'] = '<a class="module-config" href="' .
-                                core()->adminurl->get('admin.user.pref') . $sv .
+                                dotclear()->adminurl->get('admin.user.pref') . $sv .
                                 '">' . __('Module settings (in user preferences)') . '</a>';
                             }
 
                             break;
                         case 'self':
                             if ($self) {
-                                if (!$check || core()->auth->isSuperAdmin() || core()->auth->check($module->permissions(), core()->blog->id)) {
+                                if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check($module->permissions(), dotclear()->blog->id)) {
                                     $st['self'] = '<a class="module-config" href="' .
                                     $this->getModuleURL($id) . $sv .
                                     '">' . __('Module settings') . '</a>';
@@ -941,7 +939,7 @@ trait TraitModulesAdmin
 
                             break;
                         case 'other':
-                            if (!$check || core()->auth->isSuperAdmin() || core()->auth->check($module->permissions(), core()->blog->id)) {
+                            if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check($module->permissions(), dotclear()->blog->id)) {
                                 $st['other'] = '<a class="module-config" href="' .
                                 $sv .
                                 '">' . __('Module settings') . '</a>';
@@ -952,7 +950,7 @@ trait TraitModulesAdmin
                 }
             }
             if ($index && $self) {
-                if (!$check || core()->auth->isSuperAdmin() || core()->auth->check($module->permissions(), core()->blog->id)) {
+                if (!$check || dotclear()->auth->isSuperAdmin() || dotclear()->auth->check($module->permissions(), dotclear()->blog->id)) {
                     $st['index'] = '<a class="module-config" href="' .
                     $this->getModuleURL($id) .
                     '">' . __('Module settings') . '</a>';
@@ -982,7 +980,7 @@ trait TraitModulesAdmin
 
                 # Deactivate
                 case 'activate':
-                    if (core()->auth->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
+                    if (dotclear()->auth->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
 
@@ -990,7 +988,7 @@ trait TraitModulesAdmin
 
                 # Activate
                 case 'deactivate':
-                    if (core()->auth->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
+                    if (dotclear()->auth->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
                         $submits[] = '<input type="submit" name="deactivate[' . Html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
                     }
 
@@ -998,7 +996,7 @@ trait TraitModulesAdmin
 
                 # Delete
                 case 'delete':
-                    if (core()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
                         $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
@@ -1007,7 +1005,7 @@ trait TraitModulesAdmin
 
                 # Clone
                 case 'clone':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" class="button clone" name="clone[' . Html::escapeHTML($id) . ']" value="' . __('Clone') . '" />';
                     }
 
@@ -1015,7 +1013,7 @@ trait TraitModulesAdmin
 
                 # Install (from store)
                 case 'install':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="install[' . Html::escapeHTML($id) . ']" value="' . __('Install') . '" />';
                     }
 
@@ -1023,7 +1021,7 @@ trait TraitModulesAdmin
 
                 # Update (from store)
                 case 'update':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update[' . Html::escapeHTML($id) . ']" value="' . __('Update') . '" />';
                     }
 
@@ -1033,7 +1031,7 @@ trait TraitModulesAdmin
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = core()->behaviors->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = dotclear()->behaviors->call('adminModulesListGetActions', $this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1064,7 +1062,7 @@ trait TraitModulesAdmin
 
                 # Deactivate
                 case 'activate':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="activate" value="' . (
                             $with_selection ?
                             __('Activate selected modules') :
@@ -1076,7 +1074,7 @@ trait TraitModulesAdmin
 
                 # Activate
                 case 'deactivate':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="deactivate" value="' . (
                             $with_selection ?
                             __('Deactivate selected modules') :
@@ -1088,7 +1086,7 @@ trait TraitModulesAdmin
 
                 # Update (from store)
                 case 'update':
-                    if (core()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update" value="' . (
                             $with_selection ?
                             __('Update selected modules') :
@@ -1102,7 +1100,7 @@ trait TraitModulesAdmin
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = core()->behaviors->call('adminModulesListGetGlobalActions', $this, $with_selection);
+                    $tmp = dotclear()->behaviors->call('adminModulesListGetGlobalActions', $this, $with_selection);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1131,7 +1129,7 @@ trait TraitModulesAdmin
         $modules = !empty($_POST['modules']) && is_array($_POST['modules']) ? array_values($_POST['modules']) : [];
 
         # Delete
-        if (core()->auth->isSuperAdmin() && !empty($_POST['delete'])) {
+        if (dotclear()->auth->isSuperAdmin() && !empty($_POST['delete'])) {
             if (is_array($_POST['delete'])) {
                 $modules = array_keys($_POST['delete']);
             }
@@ -1155,12 +1153,12 @@ trait TraitModulesAdmin
                     }
 
                     # --BEHAVIOR-- moduleBeforeDelete
-                    core()->behaviors->call('pluginBeforeDelete', $module);
+                    dotclear()->behaviors->call('pluginBeforeDelete', $module);
 
                     $this->deleteModule($id);
 
                     # --BEHAVIOR-- moduleAfterDelete
-                    core()->behaviors->call('pluginAfterDelete', $module);
+                    dotclear()->behaviors->call('pluginAfterDelete', $module);
                 } else {
                     $this->modules->deleteModule($id, true);
                 }
@@ -1171,16 +1169,16 @@ trait TraitModulesAdmin
             if (!$count && $failed) {
                 throw new AdminException(__("You don't have permissions to delete this plugin."));
             } elseif ($failed) {
-                core()->notices->addWarningNotice(__('Some plugins have not been delete.'));
+                dotclear()->notices->addWarningNotice(__('Some plugins have not been delete.'));
             } else {
-                core()->notices->addSuccessNotice(
+                dotclear()->notices->addSuccessNotice(
                     __('Plugin has been successfully deleted.', 'Plugins have been successuflly deleted.', $count)
                 );
             }
             Http::redirect($this->getURL());
 
         # Install //! waiting for store modules to be from AbstractDefine
-        } elseif (core()->auth->isSuperAdmin() && !empty($_POST['install'])) {
+        } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['install'])) {
             if (is_array($_POST['install'])) {
                 $modules = array_keys($_POST['install']);
             }
@@ -1200,23 +1198,23 @@ trait TraitModulesAdmin
                 $dest = $this->getPath() . '/' . basename($module->file());
 
                 # --BEHAVIOR-- moduleBeforeAdd
-                core()->behaviors->call('pluginBeforeAdd', $module);
+                dotclear()->behaviors->call('pluginBeforeAdd', $module);
 
                 $this->store->process($module->file(), $dest);
 
                 # --BEHAVIOR-- moduleAfterAdd
-                core()->behaviors->call('pluginAfterAdd', $module);
+                dotclear()->behaviors->call('pluginAfterAdd', $module);
 
                 $count++;
             }
 
-            core()->notices->addSuccessNotice(
+            dotclear()->notices->addSuccessNotice(
                 __('Plugin has been successfully installed.', 'Plugins have been successfully installed.', $count)
             );
             Http::redirect($this->getURL());
 
         # Activate
-        } elseif (core()->auth->isSuperAdmin() && !empty($_POST['activate'])) {
+        } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['activate'])) {
             if (is_array($_POST['activate'])) {
                 $modules = array_keys($_POST['activate']);
             }
@@ -1233,23 +1231,23 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeActivate
-                core()->behaviors->call('pluginBeforeActivate', $id);
+                dotclear()->behaviors->call('pluginBeforeActivate', $id);
 
                 $this->activateModule($id);
 
                 # --BEHAVIOR-- moduleAfterActivate
-                core()->behaviors->call('pluginAfterActivate', $id);
+                dotclear()->behaviors->call('pluginAfterActivate', $id);
 
                 $count++;
             }
 
-            core()->notices->addSuccessNotice(
+            dotclear()->notices->addSuccessNotice(
                 __('Plugin has been successfully activated.', 'Plugins have been successuflly activated.', $count)
             );
             Http::redirect($this->getURL());
 
         # Deactivate
-        } elseif (core()->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
+        } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
             if (is_array($_POST['deactivate'])) {
                 $modules = array_keys($_POST['deactivate']);
             }
@@ -1273,27 +1271,27 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeDeactivate
-                core()->behaviors->call('pluginBeforeDeactivate', $module);
+                dotclear()->behaviors->call('pluginBeforeDeactivate', $module);
 
                 $this->deactivateModule($id);
 
                 # --BEHAVIOR-- moduleAfterDeactivate
-                core()->behaviors->call('pluginAfterDeactivate', $module);
+                dotclear()->behaviors->call('pluginAfterDeactivate', $module);
 
                 $count++;
             }
 
             if ($failed) {
-                core()->notices->addWarningNotice(__('Some plugins have not been deactivated.'));
+                dotclear()->notices->addWarningNotice(__('Some plugins have not been deactivated.'));
             } else {
-                core()->notices->addSuccessNotice(
+                dotclear()->notices->addSuccessNotice(
                     __('Plugin has been successfully deactivated.', 'Plugins have been successuflly deactivated.', $count)
                 );
             }
             Http::redirect($this->getURL());
 
         # Update //! waiting for store modules to be from AbstractDefine
-        } elseif (core()->auth->isSuperAdmin() && !empty($_POST['update'])) {
+        } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['update'])) {
             if (is_array($_POST['update'])) {
                 $modules = array_keys($_POST['update']);
             }
@@ -1319,19 +1317,19 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeUpdate
-                core()->behaviors->call('pluginBeforeUpdate', $module);
+                dotclear()->behaviors->call('pluginBeforeUpdate', $module);
 
                 $this->store->process($module->file(), $dest);
 
                 # --BEHAVIOR-- moduleAfterUpdate
-                core()->behaviors->call('pluginAfterUpdate', $module);
+                dotclear()->behaviors->call('pluginAfterUpdate', $module);
 
                 $count++;
             }
 
             $tab = $count && $count == count($list) ? '#plugins' : '#update';
 
-            core()->notices->addSuccessNotice(
+            dotclear()->notices->addSuccessNotice(
                 __('Plugin has been successfully updated.', 'Plugins have been successfully updated.', $count)
             );
             Http::redirect($this->getURL() . $tab);
@@ -1340,7 +1338,7 @@ trait TraitModulesAdmin
         # Manual actions
         elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
             || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
-            if (empty($_POST['your_pwd']) || !core()->auth->checkPassword($_POST['your_pwd'])) {
+            if (empty($_POST['your_pwd']) || !dotclear()->auth->checkPassword($_POST['your_pwd'])) {
                 throw new AdminException(__('Password verification failed'));
             }
 
@@ -1358,14 +1356,14 @@ trait TraitModulesAdmin
             }
 
             # --BEHAVIOR-- moduleBeforeAdd
-            core()->behaviors->call('pluginBeforeAdd', null);
+            dotclear()->behaviors->call('pluginBeforeAdd', null);
 
             $ret_code = $this->store->install($dest);
 
             # --BEHAVIOR-- moduleAfterAdd
-            core()->behaviors->call('pluginAfterAdd', null);
+            dotclear()->behaviors->call('pluginAfterAdd', null);
 
-            core()->notices->addSuccessNotice(
+            dotclear()->notices->addSuccessNotice(
                 $ret_code == 2 ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')
@@ -1376,7 +1374,7 @@ trait TraitModulesAdmin
         } else {
 
             # --BEHAVIOR-- adminModulesListDoActions
-            core()->behaviors->call('adminModulesListDoActions', $this, $modules, 'plugin');
+            dotclear()->behaviors->call('adminModulesListDoActions', $this, $modules, 'plugin');
         }
     }
 
@@ -1387,7 +1385,7 @@ trait TraitModulesAdmin
      */
     public function displayManualForm(): AbstractModules
     {
-        if (!core()->auth->isSuperAdmin() || !$this->isWritablePath()) {
+        if (!dotclear()->auth->isSuperAdmin() || !$this->isWritablePath()) {
             return $this;
         }
 
@@ -1408,7 +1406,7 @@ trait TraitModulesAdmin
             ]
         ) . '</p>' .
         '<p><input type="submit" name="upload_pkg" value="' . __('Upload') . '" />' .
-        core()->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
             '</form>';
 
         # 'Fetch module' form
@@ -1431,7 +1429,7 @@ trait TraitModulesAdmin
             ]
         ) . '</p>' .
         '<p><input type="submit" name="fetch_pkg" value="' . __('Download') . '" />' .
-        core()->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
             '</form>';
 
         return $this;
@@ -1460,24 +1458,24 @@ trait TraitModulesAdmin
         # Check module
         $module = $this->getModule($id);
         if (!$module) {
-            core()->error(__('Unknown module ID'));
+            dotclear()->error(__('Unknown module ID'));
 
             return false;
         }
 
         # Check config
-        $class  = core()::ns('Dotclear', $module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
+        $class  = dotclear()::ns('Dotclear', $module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
         if (!is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
-            core()->error(__('This module has no configuration file.'));
+            dotclear()->error(__('This module has no configuration file.'));
 
             return false;
         }
 
         # Check permissions
-        if (!core()->auth->isSuperAdmin()
-            && !core()->auth->check((string) $class::getPermissions(), core()->blog->id)
+        if (!dotclear()->auth->isSuperAdmin()
+            && !dotclear()->auth->check((string) $class::getPermissions(), dotclear()->blog->id)
         ) {
-            core()->error(__('Insufficient permissions'));
+            dotclear()->error(__('Insufficient permissions'));
 
             return false;
         }
@@ -1515,7 +1513,7 @@ trait TraitModulesAdmin
             ob_end_clean();
         } catch (Exception $e) {
             ob_end_clean();
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
 
         return !empty($this->config_content);
@@ -1551,7 +1549,7 @@ trait TraitModulesAdmin
         '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
         Form::hidden('module', $this->config_module->id()) .
         Form::hidden('redir', $this->getRedir()) .
-        core()->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
             '</form>' .
 
         (empty($links) ? '' : sprintf('<hr class="clear"/><p class="right modules">%s</p>', implode(' - ', $links)));

@@ -110,7 +110,7 @@ trait TraitDefineStore
         return $this->properties['tags'] ?: [];
     }
 
-    public function score(): int
+    public function sdotclear(): int
     {
         return $this->properties['score'] ?: 0;
     }

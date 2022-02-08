@@ -17,8 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use function Dotclear\core;
-
 use Dotclear\Admin\Filter;
 use Dotclear\Admin\Filters;
 use Dotclear\Admin\Filter\DefaultFilter;
@@ -44,7 +42,7 @@ class CommentFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminCommentFilter
-        core()->behaviors->call('adminCommentFilter', $filters);
+        dotclear()->behaviors->call('adminCommentFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -93,7 +91,7 @@ class CommentFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                core()->combos->getCommentStatusesCombo()
+                dotclear()->combos->getCommentStatusesCombo()
             ))
             ->prime(true);
     }
@@ -103,7 +101,7 @@ class CommentFilter extends Filter
      */
     public function getCommentIpFilter(): ?DefaultFilter
     {
-        if (!core()->auth->check('contentadmin', core()->blog->id)) {
+        if (!dotclear()->auth->check('contentadmin', dotclear()->blog->id)) {
             return null;
         }
 

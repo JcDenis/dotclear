@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -60,19 +58,19 @@ class Users extends Page
             'user_displayname' => 'user_displayname'];
 
         # --BEHAVIOR-- adminUsersSortbyLexCombo
-        core()->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        dotclear()->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            core()->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetUsers
-        core()->behaviors->call('adminGetUsers', $params);
+        dotclear()->behaviors->call('adminGetUsers', $params);
 
-        $rs       = core()->getUsers($params);
-        $counter  = core()->getUsers($params, true);
+        $rs       = dotclear()->getUsers($params);
+        $counter  = dotclear()->getUsers($params, true);
         $rsStatic = $rs->toStatic();
         if ($this->filter->sortby != 'nb_post') {
             // Sort user list using lexical order if necessary
@@ -101,15 +99,15 @@ class Users extends Page
 
     protected function getPageContent(): void
     {
-        if (core()->error()->flag()) {
+        if (dotclear()->error()->flag()) {
             return;
         }
 
         if (!empty($_GET['del'])) {
-            core()->notices->message(__('User has been successfully removed.'));
+            dotclear()->notices->message(__('User has been successfully removed.'));
         }
         if (!empty($_GET['upd'])) {
-            core()->notices->message(__('The permissions have been successfully updated.'));
+            dotclear()->notices->message(__('The permissions have been successfully updated.'));
         }
 
         $combo_action = [
@@ -118,9 +116,9 @@ class Users extends Page
         ];
 
         # --BEHAVIOR-- adminUsersActionsCombo
-        core()->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
+        dotclear()->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
 
-        echo '<p class="top-add"><strong><a class="button add" href="' . core()->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
+        echo '<p class="top-add"><strong><a class="button add" href="' . dotclear()->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
         $this->filter->display('admin.users');
 
@@ -128,7 +126,7 @@ class Users extends Page
         $this->catalog->display(
             $this->filter->page,
             $this->filter->nb,
-            '<form action="' . core()->adminurl->get('admin.users') . '" method="post" id="form-users">' .
+            '<form action="' . dotclear()->adminurl->get('admin.users') . '" method="post" id="form-users">' .
 
             '%s' .
 
@@ -140,10 +138,10 @@ class Users extends Page
             Form::combo('action', $combo_action) .
             '</label> ' .
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-            core()->formNonce() .
+            dotclear()->formNonce() .
             '</p>' .
             '</div>' .
-            core()->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
+            dotclear()->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
             '</form>',
             $this->filter->show()
         );

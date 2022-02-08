@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\PrependException;
 
@@ -95,7 +93,7 @@ class Prepend extends BasePrepend
         $this->context = new Context();
 
         try {
-            $this->tpl = new Template(DOTCLEAR_CACHE_DIR, '\Dotclear\core()->tpl');
+            $this->tpl = new Template(DOTCLEAR_CACHE_DIR, 'dotclear()->tpl');
         } catch (Exception $e) {
             throw new PrependException(__('Can\'t create template files.'), $e->getMessage(), 640);
         }

@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
-use function Dotclear\core;
-
 use Dotclear\Exception\InstallException;
 use Dotclear\Exception\DatabaseException;
 
@@ -47,7 +45,7 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(core()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
+            L10n::set(dotclear()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {

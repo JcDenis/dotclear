@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -43,20 +41,20 @@ class PageIconset extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (core()->iconsets->disableModulesDependencies(core()->adminurl->get('admin.iconset'))) {
+        if (dotclear()->iconsets->disableModulesDependencies(dotclear()->adminurl->get('admin.iconset'))) {
             exit;
         }
         # -- Execute actions --
         try {
-            core()->iconsets->doActions();
+            dotclear()->iconsets->doActions();
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
 
         # -- Plugin install --
         $this->modules_install = null;
-        if (!core()->error()->flag()) {
-            $this->modules_install = core()->iconsets->installModules();
+        if (!dotclear()->error()->flag()) {
+            $this->modules_install = dotclear()->iconsets->installModules();
         }
 
         # Page setup
@@ -68,7 +66,7 @@ class PageIconset extends Page
                 static::jsPageTabs() .
 
                 # --BEHAVIOR-- modulesToolsHeaders
-                (string) core()->behaviors->call('modulesToolsHeaders', false)
+                (string) dotclear()->behaviors->call('modulesToolsHeaders', false)
             )
             ->setPageBreadcrumb([
                 __('System')             => '',
@@ -86,7 +84,7 @@ class PageIconset extends Page
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', core()->iconsets->getSettingsUrls($k, true));
+                $info = implode(' - ', dotclear()->iconsets->getSettingsUrls($k, true));
                 echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
 
@@ -106,21 +104,21 @@ class PageIconset extends Page
         }
 
         if ($this->from_configuration) {
-            echo core()->iconsets->displayModuleConfiguration();
+            echo dotclear()->iconsets->displayModuleConfiguration();
 
             return;
         }
 
         # -- Display modules lists --
-        if (core()->auth->isSuperAdmin()) {
-            if (!core()->error()->flag()) {
+        if (dotclear()->auth->isSuperAdmin()) {
+            if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    core()->notices->success(__('Manual checking of modules update done successfully.'));
+                    dotclear()->notices->success(__('Manual checking of modules update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = core()->iconsets->store->get(true);
+            $modules = dotclear()->iconsets->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
@@ -130,7 +128,7 @@ class PageIconset extends Page
                     count($modules)
                 ) . '</p>';
 
-                core()->iconsets
+                dotclear()->iconsets
                     ->setList('module-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -149,10 +147,10 @@ class PageIconset extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . core()->iconsets->getURL('', false) . '" method="get">' .
+                '<form action="' . dotclear()->iconsets->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
-                Form::hidden('handler', core()->adminurl->called()) .
+                Form::hidden('handler', dotclear()->adminurl->called()) .
                     '</form>';
             }
         }
@@ -161,13 +159,13 @@ class PageIconset extends Page
         '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
 
         # Activated modules
-        $modules = core()->iconsets->getModules();
+        $modules = dotclear()->iconsets->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . (core()->auth->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
+            '<h3>' . (dotclear()->auth->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
-            core()->iconsets
+            dotclear()->iconsets
                 ->setList('module-activate')
                 ->setTab('modules')
                 ->setData($modules)
@@ -178,14 +176,14 @@ class PageIconset extends Page
         }
 
         # Deactivated modules
-        if (core()->auth->isSuperAdmin()) {
-            $modules = core()->iconsets->getDisabledModules();
+        if (dotclear()->auth->isSuperAdmin()) {
+            $modules = dotclear()->iconsets->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated modules') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated modules are installed but not usable. You can activate them from here.') . '</p>';
 
-                core()->iconsets
+                dotclear()->iconsets
                     ->setList('module-deactivate')
                     ->setTab('modules')
                     ->setData($modules)
@@ -199,18 +197,18 @@ class PageIconset extends Page
         echo
             '</div>';
 
-        if (core()->auth->isSuperAdmin() && core()->iconsets->isWritablePath()) {
+        if (dotclear()->auth->isSuperAdmin() && dotclear()->iconsets->isWritablePath()) {
 
             # New modules from repo
-            $search  = core()->iconsets->getSearch();
-            $modules = $search ? core()->iconsets->store->search($search) : core()->iconsets->store->get();
+            $search  = dotclear()->iconsets->getSearch();
+            $modules = $search ? dotclear()->iconsets->store->search($search) : dotclear()->iconsets->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
                 '<h3>' . __('Add modules from repository') . '</h3>';
 
-                core()->iconsets
+                dotclear()->iconsets
                     ->setList('module-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -238,17 +236,17 @@ class PageIconset extends Page
             '<h3>' . __('Add modules from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install modules by uploading or downloading zip files.') . '</p>';
 
-            core()->iconsets->displayManualForm();
+            dotclear()->iconsets->displayManualForm();
 
             echo
                 '</div>';
         }
 
         # --BEHAVIOR-- modulesToolsTabs
-        core()->behaviors->call('modulesToolsTabs');
+        dotclear()->behaviors->call('modulesToolsTabs');
 
         # -- Notice for super admin --
-        if (core()->auth->isSuperAdmin() && !core()->iconsets->isWritablePath()) {
+        if (dotclear()->auth->isSuperAdmin() && !dotclear()->iconsets->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }

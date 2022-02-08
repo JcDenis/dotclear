@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -49,21 +47,21 @@ class Categories extends Page
             $cat_id = (int) $keys[0];
 
             # Check if category to delete exists
-            $category = core()->blog->getCategory($cat_id);
+            $category = dotclear()->blog->getCategory($cat_id);
             if ($category->isEmpty()) {
-                core()->notices->addErrorNotice(__('This category does not exist.'));
-                core()->adminurl->redirect('admin.categories');
+                dotclear()->notices->addErrorNotice(__('This category does not exist.'));
+                dotclear()->adminurl->redirect('admin.categories');
             }
             $name = $category->cat_title;
             unset($category);
 
             try {
                 # Delete category
-                core()->blog->delCategory($cat_id);
-                core()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
-                core()->adminurl->redirect('admin.categories');
+                dotclear()->blog->delCategory($cat_id);
+                dotclear()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
+                dotclear()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -78,7 +76,7 @@ class Categories extends Page
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if ($mov_cat !== null) {
-                    $category = core()->blog->getCategory($mov_cat);
+                    $category = dotclear()->blog->getCategory($mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -87,15 +85,15 @@ class Categories extends Page
                 }
                 # Move posts
                 if ($mov_cat != $cat_id) {
-                    core()->blog->changePostsCategory($cat_id, $mov_cat);
+                    dotclear()->blog->changePostsCategory($cat_id, $mov_cat);
                 }
-                core()->notices->addSuccessNotice(sprintf(
+                dotclear()->notices->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
                     Html::escapeHTML($name)
                 ));
-                core()->adminurl->redirect('admin.categories');
+                dotclear()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -105,30 +103,30 @@ class Categories extends Page
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    core()->blog->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
+                    dotclear()->blog->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
                 }
             }
 
-            core()->notices->addSuccessNotice(__('Categories have been successfully reordered.'));
-            core()->adminurl->redirect('admin.categories');
+            dotclear()->notices->addSuccessNotice(__('Categories have been successfully reordered.'));
+            dotclear()->adminurl->redirect('admin.categories');
         }
 
         # Reset order
         if (!empty($_POST['reset'])) {
             try {
-                core()->blog->resetCategoriesOrder();
-                core()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
-                core()->adminurl->redirect('admin.categories');
+                dotclear()->blog->resetCategoriesOrder();
+                dotclear()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
+                dotclear()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
-        $this->caregories = core()->blog->getCategories();
+        $this->caregories = dotclear()->blog->getCategories();
 
         # Page setup
-        if (!core()->auth->user_prefs->accessibility->nodragdrop
-            && core()->auth->check('categories', core()->blog->id)
+        if (!dotclear()->auth->user_prefs->accessibility->nodragdrop
+            && dotclear()->auth->check('categories', dotclear()->blog->id)
             && $this->caregories->count() > 1) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
@@ -145,7 +143,7 @@ class Categories extends Page
                 static::jsLoad('js/_categories.js')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(core()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog->name) => '',
                 __('Categories')                          => ''
             ])
         ;
@@ -156,19 +154,19 @@ class Categories extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['del'])) {
-            core()->notices->success(__('The category has been successfully removed.'));
+            dotclear()->notices->success(__('The category has been successfully removed.'));
         }
         if (!empty($_GET['reord'])) {
-            core()->notices->success(__('Categories have been successfully reordered.'));
+            dotclear()->notices->success(__('Categories have been successfully reordered.'));
         }
         if (!empty($_GET['move'])) {
-            core()->notices->success(__('Entries have been successfully moved to the category you choose.'));
+            dotclear()->notices->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
-        $categories_combo = core()->combos->getCategoriesCombo($this->caregories);
+        $categories_combo = dotclear()->combos->getCategoriesCombo($this->caregories);
 
         echo
-        '<p class="top-add"><a class="button add" href="' . core()->adminurl->get('admin.category') . '">' . __('New category') . '</a></p>';
+        '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl->get('admin.category') . '">' . __('New category') . '</a></p>';
 
         echo
             '<div class="col">';
@@ -176,7 +174,7 @@ class Categories extends Page
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
             echo
-            '<form action="' . core()->adminurl->get('admin.categories') . '" method="post" id="form-categories">' .
+            '<form action="' . dotclear()->adminurl->get('admin.categories') . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
             $ref_level = $level = $this->caregories->level - 1;
@@ -195,9 +193,9 @@ class Categories extends Page
 
                 echo
                 '<p class="cat-title"><label class="classic" for="cat_' . $this->caregories->cat_id . '"><a href="' .
-                core()->adminurl->get('admin.category', ['id' => $this->caregories->cat_id]) . '">' . Html::escapeHTML($this->caregories->cat_title) .
+                dotclear()->adminurl->get('admin.category', ['id' => $this->caregories->cat_id]) . '">' . Html::escapeHTML($this->caregories->cat_title) .
                 '</a></label> </p>' .
-                '<p class="cat-nb-posts">(<a href="' . core()->adminurl->get('admin.posts', ['cat_id' => $this->caregories->cat_id]) . '">' .
+                '<p class="cat-nb-posts">(<a href="' . dotclear()->adminurl->get('admin.posts', ['cat_id' => $this->caregories->cat_id]) . '">' .
                 sprintf(($this->caregories->nb_post > 1 ? __('%d entries') : __('%d entry')), $this->caregories->nb_post) . '</a>' .
                 ', ' . __('total:') . ' ' . $this->caregories->nb_total . ')</p>' .
                 '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->caregories->cat_url) . '</code></p>';
@@ -234,8 +232,8 @@ class Categories extends Page
 
             echo '<div class="clear">';
 
-            if (core()->auth->check('categories', core()->blog->id) && $this->caregories->count() > 1) {
-                if (!core()->auth->user_prefs->accessibility->nodragdrop) {
+            if (dotclear()->auth->check('categories', dotclear()->blog->id) && $this->caregories->count() > 1) {
+                if (!dotclear()->auth->user_prefs->accessibility->nodragdrop) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
                 echo
@@ -249,7 +247,7 @@ class Categories extends Page
 
             echo
             '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            core()->formNonce() . '</p>' .
+            dotclear()->formNonce() . '</p>' .
                 '</div></form>';
         }
 

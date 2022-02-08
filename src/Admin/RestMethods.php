@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -32,12 +30,12 @@ class RestMethods
     /**
      * Serve method to get number of posts (whatever are their status) for current blog.
      *
-     * @param     Core  core()     Core instance
+     * @param     Core  dotclear()     Core instance
      * @param     array   $get     cleaned $_GET
      */
     public static function getPostsCount($get)
     {
-        $count = core()->blog->getPosts([], true)->f(0);
+        $count = dotclear()->blog->getPosts([], true)->f(0);
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -49,12 +47,12 @@ class RestMethods
     /**
      * Serve method to get number of comments (whatever are their status) for current blog.
      *
-     * @param     Core  core()     Core instance
+     * @param     Core  dotclear()     Core instance
      * @param     array   $get     cleaned $_GET
      */
     public static function getCommentsCount($get)
     {
-        $count = core()->blog->getComments([], true)->f(0);
+        $count = dotclear()->blog->getComments([], true)->f(0);
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -71,16 +69,16 @@ class RestMethods
         $rsp->check = false;
         $ret        = __('Dotclear news not available');
 
-        if (core()->auth->user_prefs->dashboard->dcnews) {
+        if (dotclear()->auth->user_prefs->dashboard->dcnews) {
             try {
-                if (empty(core()->resources['rss_news'])) {
+                if (empty(dotclear()->resources['rss_news'])) {
                     throw new AdminException();
                 }
                 $feed_reader = new Reader();
                 $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
-                $feed = $feed_reader->parse(core()->resources['rss_news']);
+                $feed = $feed_reader->parse(dotclear()->resources['rss_news']);
                 if ($feed) {
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;
@@ -117,7 +115,7 @@ class RestMethods
         $ret        = __('Dotclear update not available');
 
         /* @phpstan-ignore-next-line */
-        if (core()->auth->isSuperAdmin() && !DOTCLEAR_CORE_UPDATE_NOAUTO && is_readable(DOTCLEAR_DIGESTS_DIR) && !core()->auth->user_prefs->dashboard->nodcupdate) {
+        if (dotclear()->auth->isSuperAdmin() && !DOTCLEAR_CORE_UPDATE_NOAUTO && is_readable(DOTCLEAR_DIGESTS_DIR) && !dotclear()->auth->user_prefs->dashboard->nodcupdate) {
             $updater      = new Update(DOTCLEAR_CORE_UPDATE_URL, 'dotclear', DOTCLEAR_CORE_UPDATE_CHANNEL, DOTCLEAR_CACHE_DIR . '/versions');
             $new_v        = $updater->check(DOTCLEAR_CORE_VERSION);
             $version_info = $new_v ? $updater->getInfoURL() : '';
@@ -126,8 +124,8 @@ class RestMethods
                 // Check PHP version required
                 if (version_compare(phpversion(), $updater->getPHPVersion()) >= 0) {
                     $ret = '<div class="dc-update" id="ajax-update"><h3>' . sprintf(__('Dotclear %s is available!'), $new_v) . '</h3> ' .
-                    '<p><a class="button submit" href="' . core()->adminurl->get('admin.update') . '">' . sprintf(__('Upgrade now'), $new_v) . '</a> ' .
-                    '<a class="button" href="' . core()->adminurl->get('admin.update', ['hide_msg' => 1]) . '">' . __('Remind me later') . '</a>' .
+                    '<p><a class="button submit" href="' . dotclear()->adminurl->get('admin.update') . '">' . sprintf(__('Upgrade now'), $new_v) . '</a> ' .
+                    '<a class="button" href="' . dotclear()->adminurl->get('admin.update', ['hide_msg' => 1]) . '">' . __('Remind me later') . '</a>' .
                         ($version_info ? ' </p>' .
                         '<p class="updt-info"><a href="' . $version_info . '">' . __('Information about this version') . '</a>' : '') . '</p>' .
                         '</div>';
@@ -143,7 +141,7 @@ class RestMethods
                 $rsp->check = true;
             } else {
                 if (version_compare(phpversion(), DOTCLEAR_PHP_NEXT_REQUIRED, '<')) {
-                    if (!core()->auth->user_prefs->interface->hidemoreinfo) {
+                    if (!dotclear()->auth->user_prefs->interface->hidemoreinfo) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
@@ -177,15 +175,15 @@ class RestMethods
         }
 
         if ($post['store'] == 'themes') {
-            $mod = core()->themes;
-            $url = core()->blog->settings->system->store_theme_url;
+            $mod = dotclear()->themes;
+            $url = dotclear()->blog->settings->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {
-            $mod = core()->plugins;
-            $url = core()->blog->settings->system->store_plugin_url;
+            $mod = dotclear()->plugins;
+            $url = dotclear()->blog->settings->system->store_plugin_url;
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
-            core()->behaviors->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
+            dotclear()->behaviors->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
                 throw new AdminException('Unknown store type');
@@ -217,7 +215,7 @@ class RestMethods
             $params['post_type'] = $get['post_type'];
         }
 
-        $rs = core()->blog->getPosts($params);
+        $rs = dotclear()->blog->getPosts($params);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No post for this ID');
@@ -277,7 +275,7 @@ class RestMethods
             throw new AdminException('No comment ID');
         }
 
-        $rs = core()->blog->getComments(['comment_id' => (int) $get['id']]);
+        $rs = dotclear()->blog->getComments(['comment_id' => (int) $get['id']]);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No comment for this ID');
@@ -301,7 +299,7 @@ class RestMethods
 
         $rsp->comment_display_content($rs->getContent(true));
 
-        if (core()->auth->userID()) {
+        if (dotclear()->auth->userID()) {
             $rsp->comment_ip($rs->comment_ip);
             $rsp->comment_email($rs->comment_email);
 //!            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
@@ -313,46 +311,46 @@ class RestMethods
     public static function quickPost($get, $post)
     {
         # Create category
-        if (!empty($post['new_cat_title']) && core()->auth->check('categories', core()->blog->id)) {
-            $cur_cat            = core()->con->openCursor(core()->prefix . 'category');
+        if (!empty($post['new_cat_title']) && dotclear()->auth->check('categories', dotclear()->blog->id)) {
+            $cur_cat            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
             $cur_cat->cat_title = $post['new_cat_title'];
             $cur_cat->cat_url   = '';
 
             $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
             # --BEHAVIOR-- adminBeforeCategoryCreate
-            core()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+            dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
 
-            $post['cat_id'] = core()->blog->addCategory($cur_cat, (int) $parent_cat);
+            $post['cat_id'] = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
 
             # --BEHAVIOR-- adminAfterCategoryCreate
-            core()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
+            dotclear()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
         }
 
-        $cur = core()->con->openCursor(core()->prefix . 'post');
+        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_title        = !empty($post['post_title']) ? $post['post_title'] : '';
-        $cur->user_id           = core()->auth->userID();
+        $cur->user_id           = dotclear()->auth->userID();
         $cur->post_content      = !empty($post['post_content']) ? $post['post_content'] : '';
         $cur->cat_id            = !empty($post['cat_id']) ? (int) $post['cat_id'] : null;
         $cur->post_format       = !empty($post['post_format']) ? $post['post_format'] : 'xhtml';
         $cur->post_lang         = !empty($post['post_lang']) ? $post['post_lang'] : '';
         $cur->post_status       = !empty($post['post_status']) ? (int) $post['post_status'] : 0;
-        $cur->post_open_comment = (int) core()->blog->settings->system->allow_comments;
-        $cur->post_open_tb      = (int) core()->blog->settings->system->allow_trackbacks;
+        $cur->post_open_comment = (int) dotclear()->blog->settings->system->allow_comments;
+        $cur->post_open_tb      = (int) dotclear()->blog->settings->system->allow_trackbacks;
 
         # --BEHAVIOR-- adminBeforePostCreate
-        core()->behaviors->call('adminBeforePostCreate', $cur);
+        dotclear()->behaviors->call('adminBeforePostCreate', $cur);
 
-        $return_id = core()->blog->addPost($cur);
+        $return_id = dotclear()->blog->addPost($cur);
 
         # --BEHAVIOR-- adminAfterPostCreate
-        core()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
+        dotclear()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
 
         $rsp     = new XmlTag('post');
         $rsp->id = $return_id;
 
-        $post = core()->blog->getPosts(['post_id' => $return_id]);
+        $post = dotclear()->blog->getPosts(['post_id' => $return_id]);
 
         $rsp->post_status = $post->post_status;
         $rsp->post_url    = $post->getURL();
@@ -385,7 +383,7 @@ class RestMethods
         $format        = $post['format'];
         $lang          = $post['lang'];
 
-        core()->blog->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
+        dotclear()->blog->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
 
         $rsp = new XmlTag('result');
 
@@ -405,15 +403,15 @@ class RestMethods
 
         $id = (int) $get['id'];
 
-        if (!core()->auth->check('media,media_admin', core()->blog->id)) {
+        if (!dotclear()->auth->check('media,media_admin', dotclear()->blog->id)) {
             throw new AdminException('Permission denied');
         }
 
         $file = null;
 
         try {
-            core()->mediaInstance();
-            $file = core()->media->getFile($id);
+            dotclear()->mediaInstance();
+            $file = dotclear()->media->getFile($id);
         } catch (Exception $e) {
         }
 
@@ -422,7 +420,7 @@ class RestMethods
         }
 
         $rsp     = new XmlTag('result');
-        $content = core()->media->getZipContent($file);
+        $content = dotclear()->media->getZipContent($file);
 
         foreach ($content as $k => $v) {
             $rsp->file($k);
@@ -440,12 +438,12 @@ class RestMethods
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = core()->meta->getMetadata([
+        $rs = dotclear()->meta->getMetadata([
             'meta_type' => $metaType,
             'limit'     => $limit,
             'meta_id'   => $metaId,
             'post_id'   => $postid, ]);
-        $rs = core()->meta->computeMetaStats($rs);
+        $rs = dotclear()->meta->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);
         $sort   = $sortby[0];
@@ -502,7 +500,7 @@ class RestMethods
         }
 
         # Get previous meta for post
-        $post_meta = core()->meta->getMetadata([
+        $post_meta = dotclear()->meta->getMetadata([
             'meta_type' => $post['metaType'],
             'post_id'   => $post['postId'], ]);
         $pm = [];
@@ -510,9 +508,9 @@ class RestMethods
             $pm[] = $post_meta->meta_id;
         }
 
-        foreach (core()->meta->splitMetaValues($post['meta']) as $m) {
+        foreach (dotclear()->meta->splitMetaValues($post['meta']) as $m) {
             if (!in_array($m, $pm)) {
-                core()->meta->setPostMeta($post['postId'], $post['metaType'], $m);
+                dotclear()->meta->setPostMeta($post['postId'], $post['metaType'], $m);
             }
         }
 
@@ -533,7 +531,7 @@ class RestMethods
             throw new AdminException('No meta type');
         }
 
-        core()->meta->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
+        dotclear()->meta->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
 
         return true;
     }
@@ -545,8 +543,8 @@ class RestMethods
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = core()->meta->getMetadata(['meta_type' => $metaType]);
-        $rs = core()->meta->computeMetaStats($rs);
+        $rs = dotclear()->meta->getMetadata(['meta_type' => $metaType]);
+        $rs = dotclear()->meta->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);
         $sort   = $sortby[0];
@@ -595,13 +593,13 @@ class RestMethods
         if (empty($post['section'])) {
             throw new AdminException('No section name');
         }
-        if (core()->auth->user_prefs->toggles === null) {
-            core()->auth->user_prefs->addWorkspace('toggles');
+        if (dotclear()->auth->user_prefs->toggles === null) {
+            dotclear()->auth->user_prefs->addWorkspace('toggles');
         }
         $section = $post['section'];
         $status  = isset($post['value']) && ($post['value'] != 0);
-        if (core()->auth->user_prefs->toggles->prefExists('unfolded_sections')) {
-            $toggles = explode(',', trim((string) core()->auth->user_prefs->toggles->unfolded_sections));
+        if (dotclear()->auth->user_prefs->toggles->prefExists('unfolded_sections')) {
+            $toggles = explode(',', trim((string) dotclear()->auth->user_prefs->toggles->unfolded_sections));
         } else {
             $toggles = [];
         }
@@ -617,7 +615,7 @@ class RestMethods
                 $toggles[] = $section;
             };
         }
-        core()->auth->user_prefs->toggles->put('unfolded_sections', join(',', $toggles));
+        dotclear()->auth->user_prefs->toggles->put('unfolded_sections', join(',', $toggles));
 
         return true;
     }
@@ -631,14 +629,14 @@ class RestMethods
             throw new AdminException('No sorted list of id');
         }
 
-        if (core()->auth->user_prefs->dashboard === null) {
-            core()->auth->user_prefs->addWorkspace('dashboard');
+        if (dotclear()->auth->user_prefs->dashboard === null) {
+            dotclear()->auth->user_prefs->addWorkspace('dashboard');
         }
 
         $zone  = $post['id'];
         $order = $post['list'];
 
-        core()->auth->user_prefs->dashboard->put($zone, $order);
+        dotclear()->auth->user_prefs->dashboard->put($zone, $order);
 
         return true;
     }
@@ -649,7 +647,7 @@ class RestMethods
             throw new AdminException('No list name');
         }
 
-        $sorts = core()->userpref->getUserFilters();
+        $sorts = dotclear()->userpref->getUserFilters();
 
         if (!isset($sorts[$post['id']])) {
             throw new AdminException('List name invalid');
@@ -672,10 +670,10 @@ class RestMethods
                 $su[$sort_type][2] = $sort_type == $post['id'] && isset($post[$k]) ? abs((int) $post[$k]) : $sort_data[4][1];
             }
         }
-        if (core()->auth->user_prefs->interface === null) {
-            core()->auth->user_prefs->addWorkspace('interface');
+        if (dotclear()->auth->user_prefs->interface === null) {
+            dotclear()->auth->user_prefs->addWorkspace('interface');
         }
-        core()->auth->user_prefs->interface->put('sorts', $su, 'array');
+        dotclear()->auth->user_prefs->interface->put('sorts', $su, 'array');
 
         $res->msg = __('List options saved');
 
@@ -696,15 +694,15 @@ class RestMethods
         $module = [];
 
         if ($list == 'plugin-activate') {
-            $modules = core()->plugins->getModules();
+            $modules = dotclear()->plugins->getModules();
             if (empty($modules) || !isset($modules[$id])) {
                 throw new AdminException('Unknown module ID');
             }
             $module = $modules[$id];
         } elseif ($list == 'plugin-new') {
             $store = new Store(
-                core()->plugins,
-                core()->blog->settings->system->store_plugin_url
+                dotclear()->plugins,
+                dotclear()->blog->settings->system->store_plugin_url
             );
             $store->check();
 
@@ -754,7 +752,7 @@ class RestMethods
         ];
 
         foreach($methods as $method) {
-            core()->rest->addFunction($method, [__CLASS__, $method]);
+            dotclear()->rest->addFunction($method, [__CLASS__, $method]);
         }
     }
 }

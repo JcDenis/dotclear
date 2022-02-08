@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
@@ -38,11 +36,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gp_nav'])) {
-            core()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+            dotclear()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            core()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+            dotclear()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
             exit;
         }
 
@@ -50,19 +48,19 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ws => $s) {
-                    core()->auth->user_prefs->addWorkspace($ws);
+                    dotclear()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        core()->auth->user_prefs->$ws->put($k, $v);
+                        dotclear()->auth->user_prefs->$ws->put($k, $v);
                     }
                 }
 
-                core()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                core()->adminurl->redirect('admin.plugin.UserPref');
+                dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                dotclear()->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -70,19 +68,19 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
-                    core()->auth->user_prefs->addWorkspace($ws);
+                    dotclear()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        core()->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
+                        dotclear()->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
                     }
                 }
 
-                core()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                core()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
+                dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                dotclear()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -96,7 +94,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
-                Html::escapeHTML(core()->auth->userID()) => '',
+                Html::escapeHTML(dotclear()->auth->userID()) => '',
                 __('user:preferences')                        => ''
             ])
         ;
@@ -111,7 +109,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (core()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -134,7 +132,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (core()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -157,12 +155,12 @@ class Page extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . core()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
-        core()->formNonce() . '</p></form>';
+        dotclear()->formNonce() . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -179,7 +177,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . core()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -193,7 +191,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        core()->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
         '</form>';
     }
 

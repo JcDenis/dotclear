@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use function Dotclear\core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -22,7 +20,7 @@ class DeleteStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeDeleteStatement
-        core()->behaviors->call('coreBeforeDeleteStatement', $this);
+        dotclear()->behaviors->call('coreBeforeDeleteStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -58,7 +56,7 @@ class DeleteStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertDeleteStatement
-        core()->behaviors->call('coreAfterDeleteStatement', $this, $query);
+        dotclear()->behaviors->call('coreAfterDeleteStatement', $this, $query);
 
         return $query;
     }

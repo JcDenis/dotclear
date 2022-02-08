@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -43,27 +41,27 @@ class PagePlugin extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (core()->plugins->disableModulesDependencies(core()->adminurl->get('admin.plugins'))) {
+        if (dotclear()->plugins->disableModulesDependencies(dotclear()->adminurl->get('admin.plugins'))) {
             exit;
         }
 
         # Module configuration
-        if (core()->plugins->loadModuleConfiguration()) {
+        if (dotclear()->plugins->loadModuleConfiguration()) {
 
-            core()->plugins->parseModuleConfiguration();
+            dotclear()->plugins->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Plugins management'));
             $this->setPageHelp('core_plugins_conf');
 
             # --BEHAVIOR-- pluginsToolsHeaders
-            $head = core()->behaviors->call('pluginsToolsHeaders', true);
+            $head = dotclear()->behaviors->call('pluginsToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(core()->blog->name)                            => '',
-                __('Plugins management')                                             => core()->plugins->getURL('', false),
+                Html::escapeHTML(dotclear()->blog->name)                            => '',
+                __('Plugins management')                                             => dotclear()->plugins->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>' => ''
             ]);
 
@@ -75,15 +73,15 @@ class PagePlugin extends Page
 
             # -- Execute actions --
             try {
-                core()->plugins->doActions();
+                dotclear()->plugins->doActions();
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
 
             # -- Plugin install --
             $this->modules_install = null;
-            if (!core()->error()->flag()) {
-                $this->modules_install = core()->plugins->installModules();
+            if (!dotclear()->error()->flag()) {
+                $this->modules_install = dotclear()->plugins->installModules();
             }
 
             # Page setup
@@ -95,7 +93,7 @@ class PagePlugin extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) core()->behaviors->call('pluginsToolsHeaders', false)
+                    (string) dotclear()->behaviors->call('pluginsToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                     __('System')             => '',
@@ -115,7 +113,7 @@ class PagePlugin extends Page
             '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', core()->plugins->getSettingsUrls($k, true));
+                $info = implode(' - ', dotclear()->plugins->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -137,21 +135,21 @@ class PagePlugin extends Page
         }
 
         if ($this->from_configuration) {
-            echo core()->plugins->displayModuleConfiguration();
+            echo dotclear()->plugins->displayModuleConfiguration();
 
             return;
         }
 
         # -- Display modules lists --
-        if (core()->auth->isSuperAdmin()) {
-            if (!core()->error()->flag()) {
+        if (dotclear()->auth->isSuperAdmin()) {
+            if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    core()->notices->success(__('Manual checking of plugins update done successfully.'));
+                    dotclear()->notices->success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = core()->plugins->store->get(true);
+            $modules = dotclear()->plugins->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
@@ -161,7 +159,7 @@ class PagePlugin extends Page
                     count($modules)
                 ) . '</p>';
 
-                core()->plugins
+                dotclear()->plugins
                     ->setList('plugin-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -180,10 +178,10 @@ class PagePlugin extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . core()->plugins->getURL('', false) . '" method="get">' .
+                '<form action="' . dotclear()->plugins->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
-                Form::hidden('handler', core()->adminurl->called()) .
+                Form::hidden('handler', dotclear()->adminurl->called()) .
                     '</form>';
             }
         }
@@ -192,13 +190,13 @@ class PagePlugin extends Page
         '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         # Activated modules
-        $modules = core()->plugins->getModules();
+        $modules = dotclear()->plugins->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . (core()->auth->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
+            '<h3>' . (dotclear()->auth->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            core()->plugins
+            dotclear()->plugins
                 ->setList('plugin-activate')
                 ->setTab('plugins')
                 ->setData($modules)
@@ -209,14 +207,14 @@ class PagePlugin extends Page
         }
 
         # Deactivated modules
-        if (core()->auth->isSuperAdmin()) {
-            $modules = core()->plugins->getDisabledModules();
+        if (dotclear()->auth->isSuperAdmin()) {
+            $modules = dotclear()->plugins->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                core()->plugins
+                dotclear()->plugins
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
                     ->setData($modules)
@@ -230,18 +228,18 @@ class PagePlugin extends Page
         echo
             '</div>';
 
-        if (core()->auth->isSuperAdmin() && core()->plugins->isWritablePath()) {
+        if (dotclear()->auth->isSuperAdmin() && dotclear()->plugins->isWritablePath()) {
 
             # New modules from repo
-            $search  = core()->plugins->getSearch();
-            $modules = $search ? core()->plugins->store->search($search) : core()->plugins->store->get();
+            $search  = dotclear()->plugins->getSearch();
+            $modules = $search ? dotclear()->plugins->store->search($search) : dotclear()->plugins->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                core()->plugins
+                dotclear()->plugins
                     ->setList('plugin-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -269,17 +267,17 @@ class PagePlugin extends Page
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            core()->plugins->displayManualForm();
+            dotclear()->plugins->displayManualForm();
 
             echo
                 '</div>';
         }
 
         # --BEHAVIOR-- pluginsToolsTabs
-        core()->behaviors->call('pluginsToolsTabs');
+        dotclear()->behaviors->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
-        if (core()->auth->isSuperAdmin() && !core()->plugins->isWritablePath()) {
+        if (dotclear()->auth->isSuperAdmin() && !dotclear()->plugins->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }

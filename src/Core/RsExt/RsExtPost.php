@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use function Dotclear\core;
-
 use Dotclear\Container\User as ContainerUser;
 
 use Dotclear\Core\RsExt\RsExtStaticRecord;
@@ -38,7 +36,7 @@ class RsExtPost
     public static function isEditable($rs)
     {
         # If user is admin or contentadmin, true
-        if (core()->auth->check('contentadmin', core()->blog->id)) {
+        if (dotclear()->auth->check('contentadmin', dotclear()->blog->id)) {
             return true;
         }
 
@@ -48,8 +46,8 @@ class RsExtPost
         }
 
         # If user is usage and owner of the entrie
-        if (core()->auth->check('usage', core()->blog->id)
-            && $rs->user_id == core()->auth->userID()) {
+        if (dotclear()->auth->check('usage', dotclear()->blog->id)
+            && $rs->user_id == dotclear()->auth->userID()) {
             return true;
         }
 
@@ -66,7 +64,7 @@ class RsExtPost
     public static function isDeletable($rs)
     {
         # If user is admin, or contentadmin, true
-        if (core()->auth->check('contentadmin', core()->blog->id)) {
+        if (dotclear()->auth->check('contentadmin', dotclear()->blog->id)) {
             return true;
         }
 
@@ -76,8 +74,8 @@ class RsExtPost
         }
 
         # If user has delete rights and is owner of the entrie
-        if (core()->auth->check('delete', core()->blog->id)
-            && $rs->user_id == core()->auth->userID()) {
+        if (dotclear()->auth->check('delete', dotclear()->blog->id)
+            && $rs->user_id == dotclear()->auth->userID()) {
             return true;
         }
 
@@ -136,9 +134,9 @@ class RsExtPost
     public static function commentsActive($rs)
     {
         return
-        core()->blog->settings->system->allow_comments
+        dotclear()->blog->settings->system->allow_comments
             && $rs->post_open_comment
-            && (core()->blog->settings->system->comments_ttl == 0 || time() - (core()->blog->settings->system->comments_ttl * 86400) < $rs->getTS());
+            && (dotclear()->blog->settings->system->comments_ttl == 0 || time() - (dotclear()->blog->settings->system->comments_ttl * 86400) < $rs->getTS());
     }
 
     /**
@@ -151,9 +149,9 @@ class RsExtPost
     public static function trackbacksActive($rs)
     {
         return
-        core()->blog->settings->system->allow_trackbacks
+        dotclear()->blog->settings->system->allow_trackbacks
             && $rs->post_open_tb
-            && (core()->blog->settings->system->trackbacks_ttl == 0 || time() - (core()->blog->settings->system->trackbacks_ttl * 86400) < $rs->getTS());
+            && (dotclear()->blog->settings->system->trackbacks_ttl == 0 || time() - (dotclear()->blog->settings->system->trackbacks_ttl * 86400) < $rs->getTS());
     }
 
     /**
@@ -202,7 +200,7 @@ class RsExtPost
      */
     public static function getURL($rs)
     {
-        return core()->blog->url . core()->getPostPublicURL(
+        return dotclear()->blog->url . dotclear()->getPostPublicURL(
             $rs->post_type, Html::sanitizeURL($rs->post_url)
         );
     }
@@ -216,7 +214,7 @@ class RsExtPost
      */
     public static function getCategoryURL($rs)
     {
-        return core()->blog->url . core()->url->getURLFor('category', Html::sanitizeURL($rs->cat_url));
+        return dotclear()->blog->url . dotclear()->url->getURLFor('category', Html::sanitizeURL($rs->cat_url));
     }
 
     /**
@@ -297,7 +295,7 @@ class RsExtPost
     public static function getDate($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = core()->blog->settings->system->date_format;
+            $format = dotclear()->blog->settings->system->date_format;
         }
 
         if ($type == 'upddt') {
@@ -322,7 +320,7 @@ class RsExtPost
     public static function getTime($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = core()->blog->settings->system->time_format;
+            $format = dotclear()->blog->settings->system->time_format;
         }
 
         if ($type == 'upddt') {
@@ -393,7 +391,7 @@ class RsExtPost
      */
     public static function getFeedID($rs)
     {
-        return 'urn:md5:' . md5(core()->blog->uid . $rs->post_id);
+        return 'urn:md5:' . md5(dotclear()->blog->uid . $rs->post_id);
     }
 
     /**
@@ -431,7 +429,7 @@ class RsExtPost
      */
     public static function getTrackbackLink($rs)
     {
-        return core()->blog->url . core()->url->getURLFor('trackback', $rs->post_id);
+        return dotclear()->blog->url . dotclear()->url->getURLFor('trackback', $rs->post_id);
     }
 
     /**
@@ -484,13 +482,13 @@ class RsExtPost
             return $rs->_nb_media[$rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
-            'FROM ' . core()->prefix . 'post_media ' .
+            'FROM ' . dotclear()->prefix . 'post_media ' .
             'WHERE post_id = ' . (integer) $rs->post_id . ' ';
         if ($link_type != null) {
-            $strReq .= "AND link_type = '" . core()->con->escape($link_type) . "'";
+            $strReq .= "AND link_type = '" . dotclear()->con->escape($link_type) . "'";
         }
 
-        $res                         = (integer) core()->con->select($strReq)->f(0);
+        $res                         = (integer) dotclear()->con->select($strReq)->f(0);
         $rs->_nb_media[$rs->index()] = $res;
 
         return $res;
@@ -506,6 +504,6 @@ class RsExtPost
      */
     public static function underCat($rs, $cat_url)
     {
-        return core()->blog->IsInCatSubtree($rs->cat_url, $cat_url);
+        return dotclear()->blog->IsInCatSubtree($rs->cat_url, $cat_url);
     }
 }

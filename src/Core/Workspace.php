@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -71,14 +69,14 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->con     = core()->con;
-        $this->table   = core()->prefix . 'pref';
+        $this->con     = dotclear()->con;
+        $this->table   = dotclear()->prefix . 'pref';
         $this->user_id = $user_id;
 
         try {
             $this->getPrefs($rs);
         } catch (Exception $e) {
-            if (version_compare(core()->getVersion('core'), '2.3', '>')) {
+            if (version_compare(dotclear()->getVersion('core'), '2.3', '>')) {
                 trigger_error(__('Unable to retrieve prefs:') . ' ' . $this->con->error(), E_USER_ERROR);
             }
         }

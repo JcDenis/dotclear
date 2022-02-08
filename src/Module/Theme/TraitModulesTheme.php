@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme;
 
-use function Dotclear\core;
-
 use Dotclear\File\Path;
 
 trait TraitModulesTheme
@@ -30,7 +28,7 @@ trait TraitModulesTheme
 
     public function getStoreURL(): string
     {
-        return (string) core()->blog->settings->system->store_theme_url;
+        return (string) dotclear()->blog->settings->system->store_theme_url;
     }
 
     public function useStoreCache(): bool
@@ -56,9 +54,9 @@ trait TraitModulesTheme
         $suffix = $suffix ? '/' . $suffix : '';
         $path = [];
 
-        if(core()->blog !== null) {
-            core()->blog->settings->addNamespace('system');
-            $theme = $this->getModule((string) core()->blog->settings->system->theme);
+        if(dotclear()->blog !== null) {
+            dotclear()->blog->settings->addNamespace('system');
+            $theme = $this->getModule((string) dotclear()->blog->settings->system->theme);
             if (!$theme) {
                 $theme = $this->getModule('Berlin');
             }

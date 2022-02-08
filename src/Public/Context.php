@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Core\Media;
@@ -160,12 +158,12 @@ class Context
         $args[0] = &$str;
 
         # --BEHAVIOR-- publicBeforeContentFilter
-        $res = core()->behaviors->call('publicBeforeContentFilter', $tag, $args);
+        $res = dotclear()->behaviors->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             # --BEHAVIOR-- publicContentFilter
-            switch (core()->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
+            switch (dotclear()->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -180,7 +178,7 @@ class Context
         }
 
         # --BEHAVIOR-- publicAfterContentFilter
-        $res = core()->behaviors->call('publicAfterContentFilter', $tag, $args);
+        $res = dotclear()->behaviors->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;
@@ -286,7 +284,7 @@ class Context
         }
 
         $nb_posts = $this->pagination->f(0);
-        if ((core()->url->type == 'default') || (core()->url->type == 'default-page')) {
+        if ((dotclear()->url->type == 'default') || (dotclear()->url->type == 'default-page')) {
             $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
         } else {
             $nb_pages = ceil($nb_posts / (int) $this->nb_entry_per_page);
@@ -334,7 +332,7 @@ class Context
 
         $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
-        $url = core()->blog->url . $args;
+        $url = dotclear()->blog->url . $args;
 
         if ($n > 1) {
             $url = preg_replace('#/$#', '', $url);
@@ -381,17 +379,17 @@ class Context
         }
 
         # Check first blog public path
-        $file = core()->blog->public_path . '/smilies/smilies.txt';
+        $file = dotclear()->blog->public_path . '/smilies/smilies.txt';
         if (file_exists($file)) {
-            $base_url = core()->blog->host . Path::clean(core()->blog->settings->system->public_url) . '/smilies/';
+            $base_url = dotclear()->blog->host . Path::clean(dotclear()->blog->settings->system->public_url) . '/smilies/';
             $this->smilies = $this->smiliesDefinition($file, $base_url);
 
             return true;
         # Theme and then parent and then core path
         } else {
-            $path       = core()->themes->getThemePath('files/smilies/smilies.txt');
+            $path       = dotclear()->themes->getThemePath('files/smilies/smilies.txt');
             $path[]     = __DIR__ . '/files/smilies/smilies.txt';
-            $base_url   = core()->blog->url . 'files/smilies/';
+            $base_url   = dotclear()->blog->url . 'files/smilies/';
 
             foreach ($path as $file) {
                 if ($file && file_exists($file)) {
@@ -496,14 +494,14 @@ class Context
     public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
         try {
-            $media = core()->mediaInstance();
+            $media = dotclear()->mediaInstance();
             $sizes = implode('|', array_keys($media->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = core()->blog->settings->system->public_url;
-            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', core()->blog->url);
-            $p_root = core()->blog->public_path;
+            $p_url  = dotclear()->blog->settings->system->public_url;
+            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog->url);
+            $p_root = dotclear()->blog->public_path;
 
             $pattern = '(?:' . preg_quote($p_site, '/') . ')?' . preg_quote($p_url, '/');
             $pattern = sprintf('/<img.+?src="%s(.*?\.(?:jpg|jpeg|gif|png|svg|webp))"[^>]+/msui', $pattern);
@@ -554,7 +552,7 @@ class Context
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
     }
 
@@ -570,7 +568,7 @@ class Context
         $res = false;
 
         try {
-            $media = core()->mediaInstance();
+            $media = dotclear()->mediaInstance();
             $sizes = implode('|', array_keys($media->thumb_sizes));
             if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
                 $base = $m[1];
@@ -602,7 +600,7 @@ class Context
                 }
             }
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
 
         if ($res) {

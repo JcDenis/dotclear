@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Action;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -25,7 +23,7 @@ class DefaultBlogAction
 {
     public static function BlogsAction(Action $ap): void
     {
-        if (!core()->auth->isSuperAdmin()) {
+        if (!dotclear()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -46,7 +44,7 @@ class DefaultBlogAction
 
     public static function doChangeBlogStatus(Action $ap, $post): void
     {
-        if (!core()->auth->isSuperAdmin()) {
+        if (!dotclear()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -74,18 +72,18 @@ class DefaultBlogAction
                 break;
         }
 
-        $cur              = core()->con->openCursor(core()->prefix . 'blog');
+        $cur              = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
         $cur->blog_status = $status;
         //$cur->blog_upddt = date('Y-m-d H:i:s');
-        $cur->update('WHERE blog_id ' . core()->con->in($ids));
+        $cur->update('WHERE blog_id ' . dotclear()->con->in($ids));
 
-        core()->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
+        dotclear()->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
     }
 
     public static function doDeleteBlog(Action $ap, $post): void
     {
-        if (!core()->auth->isSuperAdmin()) {
+        if (!dotclear()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -94,14 +92,14 @@ class DefaultBlogAction
             throw new AdminException(__('No blog selected'));
         }
 
-        if (!core()->auth->checkPassword($_POST['pwd'])) {
+        if (!dotclear()->auth->checkPassword($_POST['pwd'])) {
             throw new AdminException(__('Password verification failed'));
         }
 
         $ids = [];
         foreach ($ap_ids as $id) {
-            if ($id == core()->blog->id) {
-                core()->notices->addWarningNotice(__('The current blog cannot be deleted.'));
+            if ($id == dotclear()->blog->id) {
+                dotclear()->notices->addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;
             }
@@ -109,13 +107,13 @@ class DefaultBlogAction
 
         if (!empty($ids)) {
             # --BEHAVIOR-- adminBeforeBlogsDelete
-            core()->behaviors->call('adminBeforeBlogsDelete', $ids);
+            dotclear()->behaviors->call('adminBeforeBlogsDelete', $ids);
 
             foreach ($ids as $id) {
-                core()->delBlog($id);
+                dotclear()->delBlog($id);
             }
 
-            core()->notices->addSuccessNotice(sprintf(
+            dotclear()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d blog has been successfully deleted',
                     '%d blogs have been successfully deleted',

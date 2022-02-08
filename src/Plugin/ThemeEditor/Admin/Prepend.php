@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -36,21 +34,21 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        core()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
-        core()->behaviors->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'behaviorAdminBeforeUserOptionsUpdate']);
-        core()->behaviors->add('adminPreferencesForm', [__CLASS__, 'behaviorAdminPreferencesForm']);
+        dotclear()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
+        dotclear()->behaviors->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'behaviorAdminBeforeUserOptionsUpdate']);
+        dotclear()->behaviors->add('adminPreferencesForm', [__CLASS__, 'behaviorAdminPreferencesForm']);
     }
 
     public static function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
     {
-        if ($theme->id() != 'default' && core()->auth->isSuperAdmin()) {
+        if ($theme->id() != 'default' && dotclear()->auth->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
-            $path = core()->themes->getModulesPath();
+            $path = dotclear()->themes->getModulesPath();
             if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
                 || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
-                || !core()->themes->isDistributedModule($theme->id())
+                || !dotclear()->themes->isDistributedModule($theme->id())
             ) {
-                return '<p><a href="' . core()->adminurl->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
+                return '<p><a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
             }
         }
 
@@ -60,21 +58,21 @@ class Prepend extends AbstractPrepend
     public static function behaviorAdminBeforeUserOptionsUpdate(Cursor $cur, string $userID): void
     {
         // Get and store user's prefs for plugin options
-        core()->auth->user_prefs->addWorkspace('interface');
+        dotclear()->auth->user_prefs->addWorkspace('interface');
 
         try {
-            core()->auth->user_prefs->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
-            core()->auth->user_prefs->interface->put('colorsyntax_theme',
+            dotclear()->auth->user_prefs->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
+            dotclear()->auth->user_prefs->interface->put('colorsyntax_theme',
                 (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : ''));
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
     }
 
     public static function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        core()->auth->user_prefs->addWorkspace('interface');
+        dotclear()->auth->user_prefs->addWorkspace('interface');
 
         $themes_list  = Page::getCodeMirrorThemes();
         $themes_combo = [__('Default') => ''];
@@ -88,7 +86,7 @@ class Prepend extends AbstractPrepend
         echo
         '<div class="col">' .
         '<p><label for="colorsyntax" class="classic">' .
-        Form::checkbox('colorsyntax', 1, (int) core()->auth->user_prefs->interface->colorsyntax) . '</label>' .
+        Form::checkbox('colorsyntax', 1, (int) dotclear()->auth->user_prefs->interface->colorsyntax) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
         if (count($themes_combo) > 1) {
@@ -96,7 +94,7 @@ class Prepend extends AbstractPrepend
             '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
             Form::combo('colorsyntax_theme', $themes_combo,
                 [
-                    'default' => (string) core()->auth->user_prefs->interface->colorsyntax_theme
+                    'default' => (string) dotclear()->auth->user_prefs->interface->colorsyntax_theme
                 ]) .
                 '</p>';
         } else {
@@ -123,7 +121,7 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea>';
         echo
-        Page::jsJson('theme_editor_current', ['theme' => core()->auth->user_prefs->interface->colorsyntax_theme != '' ? core()->auth->user_prefs->interface->colorsyntax_theme : 'default']) .
+        Page::jsJson('theme_editor_current', ['theme' => dotclear()->auth->user_prefs->interface->colorsyntax_theme != '' ? dotclear()->auth->user_prefs->interface->colorsyntax_theme : 'default']) .
         Page::jsLoad('?mf=Plugin/ThemeEditor/files/js/theme.js');
         echo '</div>';
         echo '</div>';

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Lib;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Plugin\Widgets\Lib\Widgets;
@@ -32,9 +30,9 @@ class SimpleMenuWidgets
 
     public function __construct()
     {
-        core()->behaviors->add('initWidgets', [$this, 'initWidgets']);
-        if (!empty(core()->tpl)) {
-            core()->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
+        dotclear()->behaviors->add('initWidgets', [$this, 'initWidgets']);
+        if (!empty(dotclear()->tpl)) {
+            dotclear()->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
         self::$widgets = $this;
     }
@@ -60,7 +58,7 @@ class SimpleMenuWidgets
     # Template function
     public function simpleMenu($attr)
     {
-        if (!(boolean) core()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
             return '';
         }
 
@@ -84,7 +82,7 @@ class SimpleMenuWidgets
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!(boolean) core()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
             return;
         }
 
@@ -92,7 +90,7 @@ class SimpleMenuWidgets
             return;
         }
 
-        if (($w->homeonly == 1 && !core()->url->isHome(core()->url->type)) || ($w->homeonly == 2 && core()->url->isHome(core()->url->type))) {
+        if (($w->homeonly == 1 && !dotclear()->url->isHome(dotclear()->url->type)) || ($w->homeonly == 2 && dotclear()->url->isHome(dotclear()->url->type))) {
             return;
         }
 
@@ -113,18 +111,18 @@ class SimpleMenuWidgets
     {
         $ret = '';
 
-        if (!(boolean) core()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
             return $ret;
         }
 
-        $menu = core()->blog->settings->system->simpleMenu;
+        $menu = dotclear()->blog->settings->system->simpleMenu;
         if (is_array($menu)) {
             // Current relative URL
             $url     = $_SERVER['REQUEST_URI'];
             $abs_url = http::getHost() . $url;
 
             // Home recognition var
-            $home_url       = html::stripHostURL(core()->blog->url);
+            $home_url       = html::stripHostURL(dotclear()->blog->url);
             $home_directory = dirname($home_url);
             if ($home_directory != '/') {
                 $home_directory = $home_directory . '/';
@@ -182,7 +180,7 @@ class SimpleMenuWidgets
                 ]);
 
                 # --BEHAVIOR-- publicSimpleMenuItem
-                core()->behaviors->call('publicSimpleMenuItem', $i, $item);
+                dotclear()->behaviors->call('publicSimpleMenuItem', $i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
                     ($item['active'] ? ' active' : '') .

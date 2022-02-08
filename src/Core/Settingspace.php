@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -71,8 +69,8 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->con     = core()->con;
-        $this->table   = core()->prefix . 'setting';
+        $this->con     = dotclear()->con;
+        $this->table   = dotclear()->prefix . 'setting';
         $this->blog_id = $blog_id;
 
         $this->getSettings($rs);

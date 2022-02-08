@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -30,27 +28,27 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        $self_ns = core()->blog->settings->addNamespace('LegacyEditor');
+        $self_ns = dotclear()->blog->settings->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            if (!(core()->wiki2xhtml instanceof wiki2xhtml)) {
-                core()->initWikiPost();
+            if (!(dotclear()->wiki2xhtml instanceof wiki2xhtml)) {
+                dotclear()->initWikiPost();
             }
 
-            core()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            core()->addEditorFormater('LegacyEditor', 'wiki', [core()->wiki2xhtml, 'transform']);
+            dotclear()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+            dotclear()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml, 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
-            core()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
-            core()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-            core()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
-            core()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
+            dotclear()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
+            dotclear()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
+            dotclear()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
+            dotclear()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
     }
 
     public static function installModule(): ?bool
     {
-        $settings = core()->blog->settings;
+        $settings = dotclear()->blog->settings;
         $settings->addNamespace('LegacyEditor');
         $settings->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 

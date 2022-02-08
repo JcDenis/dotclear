@@ -19,8 +19,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use function Dotclear\core;
-
 use Dotclear\Core\Utils;
 use Dotclear\Core\Prefs;
 
@@ -46,7 +44,7 @@ class RsExtComment
     public static function getDate($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = core()->blog->settings->system->date_format;
+            $format = dotclear()->blog->settings->system->date_format;
         }
 
         if ($type == 'upddt') {
@@ -69,7 +67,7 @@ class RsExtComment
     public static function getTime($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = core()->blog->settings->system->time_format;
+            $format = dotclear()->blog->settings->system->time_format;
         }
 
         if ($type == 'upddt') {
@@ -143,7 +141,7 @@ class RsExtComment
     {
         $res = $rs->comment_content;
 
-        if (core()->blog->settings->system->comments_nofollow) {
+        if (dotclear()->blog->settings->system->comments_nofollow) {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'noFollowURL'], $res);
         } else {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'UgcURL'], $res);
@@ -197,7 +195,7 @@ class RsExtComment
      */
     public static function getPostURL($rs)
     {
-        return core()->blog->url . core()->getPostPublicURL(
+        return dotclear()->blog->url . dotclear()->getPostPublicURL(
             $rs->post_type, Html::sanitizeURL($rs->post_url)
         );
     }
@@ -218,7 +216,7 @@ class RsExtComment
         }
 
         $rel = 'ugc';
-        if (core()->blog->settings->system->comments_nofollow) {
+        if (dotclear()->blog->settings->system->comments_nofollow) {
             $rel .= ' nofollow';
         }
 
@@ -278,7 +276,7 @@ class RsExtComment
      */
     public static function getFeedID($rs)
     {
-        return 'urn:md5:' . md5(core()->blog->uid . $rs->comment_id);
+        return 'urn:md5:' . md5(dotclear()->blog->uid . $rs->comment_id);
     }
 
     /**

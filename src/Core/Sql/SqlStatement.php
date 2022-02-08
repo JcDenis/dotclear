@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
-use function Dotclear\core;
-
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -31,7 +29,7 @@ class SqlStatement
      */
     public function __construct($ctx = null)
     {
-        $this->con  = core()->con;
+        $this->con  = dotclear()->con;
         $this->ctx  = $ctx;
 
         $this->columns = $this->from = $this->where = $this->cond = $this->sql = [];

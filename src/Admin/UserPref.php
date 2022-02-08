@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -60,10 +58,10 @@ class UserPref
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        core()->behaviors->call('adminColumnsLists', $cols);
+        dotclear()->behaviors->call('adminColumnsLists', $cols);
 
         # Load user settings
-        $cols_user = @core()->auth->user_prefs->interface->cols;
+        $cols_user = @dotclear()->auth->user_prefs->interface->cols;
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -96,10 +94,10 @@ class UserPref
     public function getDefaultFilters(): array
     {
         $users = [null, null, null, null, null];
-        if (core()->auth->isSuperAdmin()) {
+        if (dotclear()->auth->isSuperAdmin()) {
             $users = [
                 __('Users'),
-                core()->combos->getUsersSortbyCombo(),
+                dotclear()->combos->getUsersSortbyCombo(),
                 'user_id',
                 'asc',
                 [__('users per page'), 30]
@@ -109,21 +107,21 @@ class UserPref
         return [
             'posts' => [
                 __('Posts'),
-                core()->combos->getPostsSortbyCombo(),
+                dotclear()->combos->getPostsSortbyCombo(),
                 'post_dt',
                 'desc',
                 [__('entries per page'), 30]
             ],
             'comments' => [
                 __('Comments'),
-                core()->combos->getCommentsSortbyCombo(),
+                dotclear()->combos->getCommentsSortbyCombo(),
                 'comment_dt',
                 'desc',
                 [__('comments per page'), 30]
             ],
             'blogs' => [
                 __('Blogs'),
-                core()->combos->getBlogsSortbyCombo(),
+                dotclear()->combos->getBlogsSortbyCombo(),
                 'blog_upddt',
                 'desc',
                 [__('blogs per page'), 30]
@@ -165,12 +163,12 @@ class UserPref
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            core()->behaviors->call('adminFiltersLists', $sorts);
+            dotclear()->behaviors->call('adminFiltersLists', $sorts);
 
-            if (core()->auth->user_prefs->interface === null) {
-                core()->auth->user_prefs->addWorkspace('interface');
+            if (dotclear()->auth->user_prefs->interface === null) {
+                dotclear()->auth->user_prefs->addWorkspace('interface');
             }
-            $sorts_user = @core()->auth->user_prefs->interface->sorts;
+            $sorts_user = @dotclear()->auth->user_prefs->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {

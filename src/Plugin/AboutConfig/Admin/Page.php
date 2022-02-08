@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
@@ -38,11 +36,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gs_nav'])) {
-            core()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+            dotclear()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
-            core()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+            dotclear()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
             exit;
         }
 
@@ -50,20 +48,20 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ns => $s) {
-                    core()->blog->settings->addNamespace($ns);
+                    dotclear()->blog->settings->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        core()->blog->settings->$ns->put($k, $v);
+                        dotclear()->blog->settings->$ns->put($k, $v);
                     }
-                    core()->blog->triggerBlog();
+                    dotclear()->blog->triggerBlog();
                 }
 
-                core()->notices->addSuccessNotice(__('Configuration successfully updated'));
-                core()->adminurl->redirect('admin.plugin.AboutConfig');
+                dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
+                dotclear()->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -71,20 +69,20 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ns => $s) {
-                    core()->blog->settings->addNamespace($ns);
+                    dotclear()->blog->settings->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        core()->blog->settings->$ns->put($k, $v, null, null, true, true);
+                        dotclear()->blog->settings->$ns->put($k, $v, null, null, true, true);
                     }
-                    core()->blog->triggerBlog();
+                    dotclear()->blog->triggerBlog();
                 }
 
-                core()->notices->addSuccessNotice(__('Configuration successfully updated'));
-                core()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
+                dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
+                dotclear()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
-                core()->error($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -98,7 +96,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                              => '',
-                Html::escapeHTML(core()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog->name) => '',
                 __('about:config')                        => ''
             ])
         ;
@@ -109,11 +107,11 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         echo
-        '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(core()->blog->name)) . '">' .
-        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(core()->blog->name)) . '</h3>';
+        '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog->name)) . '">' .
+        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog->name)) . '</h3>';
 
         $settings = [];
-        foreach (core()->blog->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog->settings->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -136,7 +134,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (core()->blog->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog->settings->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -159,12 +157,12 @@ class Page extends AbstractPage
     private function settingMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . core()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'s_submit" />' .
-        core()->formNonce() . '</p></form>';
+        dotclear()->formNonce() . '</p></form>';
     }
 
     private function settingTable(array $prefs, bool $global): void
@@ -181,7 +179,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . core()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -195,7 +193,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        core()->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
         '</form>';
     }
 

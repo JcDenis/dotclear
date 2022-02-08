@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -58,7 +56,7 @@ class Notices
      */
     public function __construct()
     {
-        $this->table = core()->prefix . $this->table_name;
+        $this->table = dotclear()->prefix . $this->table_name;
     }
 
     /**
@@ -155,7 +153,7 @@ class Notices
      */
     public function add(Cursor $cur): int
     {
-        core()->con->writeLock($this->table);
+        dotclear()->con->writeLock($this->table);
 
         try {
             # Get ID
@@ -172,18 +170,18 @@ class Notices
             $this->cursor($cur, $cur->notice_id);
 
             # --BEHAVIOR-- coreBeforeNoticeCreate
-            core()->behaviors->call('adminBeforeNoticeCreate', $this, $cur);
+            dotclear()->behaviors->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
-            core()->con->unlock();
+            dotclear()->con->unlock();
         } catch (Exception $e) {
-            core()->con->unlock();
+            dotclear()->con->unlock();
 
             throw $e;
         }
 
         # --BEHAVIOR-- coreAfterNoticeCreate
-        core()->behaviors->call('adminAfterNoticeCreate', $this, $cur);
+        dotclear()->behaviors->call('adminAfterNoticeCreate', $this, $cur);
 
         return $cur->notice_id;
     }
@@ -242,18 +240,18 @@ class Notices
         $res = '';
 
         # Return error messages if any
-        if (core()->error()->flag() && !$this->error_displayed) {
+        if (dotclear()->error()->flag() && !$this->error_displayed) {
 
             # --BEHAVIOR-- adminPageNotificationError
-            $notice_error = core()->behaviors->call('adminPageNotificationError');
+            $notice_error = dotclear()->behaviors->call('adminPageNotificationError');
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count(core()->error()->getErrors()) > 1 ? __('Errors:') : __('Error:'),
-                    core()->error()->toHTML()
+                    count(dotclear()->error()->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    dotclear()->error()->toHTML()
                 );
             }
             $this->error_displayed = true;
@@ -296,7 +294,7 @@ class Notices
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
                     # --BEHAVIOR-- adminPageNotification, array
-                    $notice = core()->behaviors->call('adminPageNotification', $notification);
+                    $notice = dotclear()->behaviors->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }
@@ -318,7 +316,7 @@ class Notices
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = core()->con->openCursor($this->table());
+        $cur = dotclear()->con->openCursor($this->table());
 
         $cur->notice_type    = $type;
         $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');
@@ -382,8 +380,8 @@ class Notices
         if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), core()->auth->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], core()->auth->getInfo('user_tz')),
+                Dt::iso8601(strtotime($notification['ts']), dotclear()->auth->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dotclear()->auth->getInfo('user_tz')),
             );
         }
         $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
@@ -410,8 +408,8 @@ class Notices
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), core()->auth->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, core()->auth->getInfo('user_tz')),
+                    Dt::iso8601(time(), dotclear()->auth->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, dotclear()->auth->getInfo('user_tz')),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

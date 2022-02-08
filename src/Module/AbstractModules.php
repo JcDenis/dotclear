@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use function Dotclear\core;
-
 use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
@@ -125,7 +123,7 @@ abstract class AbstractModules
 
             # Loop through current modules root path
             while (($this->id = $handle->read()) !== false) {
-                $entry_path = core()::path($root, $this->id);
+                $entry_path = dotclear()::path($root, $this->id);
 
                 # Check dir
                 if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
@@ -141,7 +139,7 @@ abstract class AbstractModules
 
                     # Add module namespace
                     if ($entry_enabled) {
-                        core()->autoloader->addNamespace(core()::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
+                        dotclear()->autoloader->addNamespace(dotclear()::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
                     # Save module in disabled list
                     } elseif ($this->disabled_meta) {
                         $this->disabled_mode       = false;
@@ -165,7 +163,7 @@ abstract class AbstractModules
         # Load modules stuff
         foreach ($this->modules_enabled as $id => $module) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = core()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+            $class = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
@@ -182,9 +180,9 @@ abstract class AbstractModules
 
             # Auto register main module Admin Page URL if exists
             if (DOTCLEAR_PROCESS == 'Admin') {
-                $page = core()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
+                $page = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
                 if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
-                    core()->adminurl->register('admin.plugin.' . $id, $page);
+                    dotclear()->adminurl->register('admin.plugin.' . $id, $page);
                 }
             }
 
@@ -205,7 +203,7 @@ abstract class AbstractModules
         # Include module Define file
         ob_start();
         try {
-            $class = core()::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
+            $class = dotclear()::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
             $define = new $class($id, $dir . '/define.xml');
         } catch (ModuleException) {
             ob_end_clean();
@@ -493,12 +491,12 @@ abstract class AbstractModules
         }
 
         # Check module version in db
-        if (version_compare((string) core()->getVersion($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
+        if (version_compare((string) dotclear()->getVersion($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
             return null;
         }
 
         # Search module install class
-        $class = core()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+        $class = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
             return null;
         }
@@ -510,7 +508,7 @@ abstract class AbstractModules
             $class::unsetDefine();
 
             # Update module version in db
-            core()->setVersion($id, $this->modules_enabled[$id]->version());
+            dotclear()->setVersion($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
         } catch (Exception $e) {
@@ -547,7 +545,7 @@ abstract class AbstractModules
                 __('The following modules have been disabled :'),
                 join('', $reason)
             );
-            core()->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            dotclear()->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 

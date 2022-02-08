@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use function Dotclear\core;
-
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -52,19 +50,19 @@ class Search extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        core()->behaviors->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
-        core()->behaviors->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
+        dotclear()->behaviors->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
+        dotclear()->behaviors->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
         // posts search
-        core()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
-        core()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
+        dotclear()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
+        dotclear()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
         // comments search
-        core()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
-        core()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
+        dotclear()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
+        dotclear()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
 
         $qtype_combo = new ArrayObject();
 
         # --BEHAVIOR-- adminSearchPageCombo
-        core()->behaviors->call('adminSearchPageCombo', $qtype_combo);
+        dotclear()->behaviors->call('adminSearchPageCombo', $qtype_combo);
 
         $this->qtype_combo = $qtype_combo->getArrayCopy();
         $q     = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
@@ -74,7 +72,7 @@ class Search extends Page
         }
 
         $page = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
-        $nb = core()->userpref->getUserFilters('search', 'nb');
+        $nb = dotclear()->userpref->getUserFilters('search', 'nb');
         if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
             $nb = (integer) $_GET['nb'];
         }
@@ -82,12 +80,12 @@ class Search extends Page
         $this->args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         # --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? core()->behaviors->call('adminSearchPageHead', $this->args) : '';
+        $starting_scripts = $q ? dotclear()->behaviors->call('adminSearchPageHead', $this->args) : '';
 
         if ($q) {
 
             # --BEHAVIOR-- adminSearchPageProcess
-            core()->behaviors->call('adminSearchPageProcess', $this->args);
+            dotclear()->behaviors->call('adminSearchPageProcess', $this->args);
         }
 
         # Page setup
@@ -96,7 +94,7 @@ class Search extends Page
             ->setPageHelp('core_search')
             ->setPageHead($starting_scripts)
             ->setPageBreadcrumb([
-                    Html::escapeHTML(core()->blog->name) => '',
+                    Html::escapeHTML(dotclear()->blog->name) => '',
                     __('Search')                        => ''
             ])
         ;
@@ -107,7 +105,7 @@ class Search extends Page
     protected function getPageContent(): void
     {
         echo
-        '<form action="' . core()->adminurl->get('admin.search') . '" method="get" role="search">' .
+        '<form action="' . dotclear()->adminurl->get('admin.search') . '" method="get" role="search">' .
         '<div class="fieldset"><h3>' . __('Search options') . '</h3>' .
         '<p><label for="q">' . __('Query:') . ' </label>' .
         Form::field('q', 30, 255, Html::escapeHTML($this->args['q'])) . '</p>' .
@@ -120,11 +118,11 @@ class Search extends Page
         '</div>' .
         '</form>';
 
-        if ($this->args['q'] && !core()->error()->flag()) {
+        if ($this->args['q'] && !dotclear()->error()->flag()) {
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
-            core()->behaviors->call('adminSearchPageDisplay', $this->args);
+            dotclear()->behaviors->call('adminSearchPageDisplay', $this->args);
 
             $res = ob_get_contents();
             ob_end_clean();
@@ -161,14 +159,14 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) core()->blog->getPosts($params, true)->f(0);
-            self::$list    = new PostCatalog(core()->blog->getPosts($params), self::$count);
-            self::$actions = new PostAction(core()->adminurl->get('admin.search'), $args);
+            self::$count   = (int) dotclear()->blog->getPosts($params, true)->f(0);
+            self::$list    = new PostCatalog(dotclear()->blog->getPosts($params), self::$count);
+            self::$actions = new PostAction(dotclear()->adminurl->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
     }
 
@@ -183,7 +181,7 @@ class Search extends Page
         }
 
         self::$list->display($args['page'], $args['nb'],
-            '<form action="' . core()->adminurl->get('admin.search') . '" method="post" id="form-entries">' .
+            '<form action="' . dotclear()->adminurl->get('admin.search') . '" method="post" id="form-entries">' .
 
             '%s' .
 
@@ -193,7 +191,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            core()->formNonce() .
+            dotclear()->formNonce() .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'
@@ -214,14 +212,14 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) core()->blog->getComments($params, true)->f(0);
-            self::$list    = new CommentCatalog(core()->blog->getComments($params), self::$count);
-            self::$actions = new CommentAction(core()->adminurl->get('admin.search'), $args);
+            self::$count   = (int) dotclear()->blog->getComments($params, true)->f(0);
+            self::$list    = new CommentCatalog(dotclear()->blog->getComments($params), self::$count);
+            self::$actions = new CommentAction(dotclear()->adminurl->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
-            core()->error($e->getMessage());
+            dotclear()->error($e->getMessage());
         }
     }
 
@@ -236,7 +234,7 @@ class Search extends Page
         }
 
         self::$list->display($args['page'], $args['nb'],
-            '<form action="' . core()->adminurl->get('admin.search') . '" method="post" id="form-comments">' .
+            '<form action="' . dotclear()->adminurl->get('admin.search') . '" method="post" id="form-comments">' .
 
             '%s' .
 
@@ -246,7 +244,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            core()->formNonce() .
+            dotclear()->formNonce() .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'
