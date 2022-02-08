@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace Dotclear;
 
+use Dotclear\Exception;
+
 # This is more a mode level rather than an error level !
 # Define one of this level in DOTCLEAR_RUN_LEVEL
 define('DOTCLEAR_RUN_PRODUCTION', 0);
@@ -95,12 +97,6 @@ Class App
     {
         $class = __NAMESPACE__ . '\\Core\\Core';
         return $class::coreInstance();
-    }
-
-    public static function error_handler(int $errno, string $errstr, string $errfile, int $errline): bool
-    {
-        static::error('Fatal error: ' . $errno, $errstr . ' in ' . $errfile . ':' . $errline);
-        return false;
     }
 
     /**
