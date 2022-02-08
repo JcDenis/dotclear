@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
@@ -31,22 +33,22 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (!dcCore()->blog->settings->system->theme == 'Ductile') {
+        if (!core()->blog->settings->system->theme == 'Ductile') {
             return;
         }
 
         self::$Ductile_config = new ConfigTheme();
 
         # Behaviors
-        dcCore()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
-        dcCore()->behaviors->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
+        core()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        core()->behaviors->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
 
         # Templates
-        dcCore()->tpl->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
-        dcCore()->tpl->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
-        dcCore()->tpl->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
-        dcCore()->tpl->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
-        dcCore()->tpl->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
+        core()->tpl->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
+        core()->tpl->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
+        core()->tpl->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
+        core()->tpl->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
+        core()->tpl->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
     }
 
     public static function ductileNbEntryPerPage($attr)
@@ -60,11 +62,11 @@ class Prepend extends AbstractPrepend
     {
         $nb_other = $nb_first = 0;
 
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_counts');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_entries_counts');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                switch (dcCore()->url->type) {
+                switch (core()->url->type) {
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
@@ -76,9 +78,9 @@ class Prepend extends AbstractPrepend
 
                         break;
                     default:
-                        if (isset($s[dcCore()->url->type])) {
+                        if (isset($s[core()->url->type])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (integer) $s[dcCore()->url->type];
+                            $nb_first = $nb_other = (integer) $s[core()->url->type];
                         }
 
                         break;
@@ -94,10 +96,10 @@ class Prepend extends AbstractPrepend
         }
 
         if ($nb_other > 0) {
-            dcCore()->context->nb_entry_per_page = $nb_other;
+            core()->context->nb_entry_per_page = $nb_other;
         }
         if ($nb_first > 0) {
-            dcCore()->context->nb_entry_first_page = $nb_first;
+            core()->context->nb_entry_first_page = $nb_first;
         }
     }
 
@@ -112,14 +114,14 @@ class Prepend extends AbstractPrepend
             $urls = '1';
         }
 
-        $short              = dcCore()->tpl->getFilters($attr);
+        $short              = core()->tpl->getFilters($attr);
         $cut                = $attr['cut_string'];
         $attr['cut_string'] = 0;
-        $full               = dcCore()->tpl->getFilters($attr);
+        $full               = core()->tpl->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return '<?php if (strlen(' . sprintf($full, 'dcCore()->context->posts->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, 'dcCore()->context->posts->getContent(' . $urls . ')') . ')) : ?>' .
+        return '<?php if (strlen(' . sprintf($full, 'core()->context->posts->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'core()->context->posts->getContent(' . $urls . ')') . ')) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -151,7 +153,7 @@ class Prepend extends AbstractPrepend
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
             '?>' . "\n" .
-            dcCore()->tpl->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
+            core()->tpl->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
                 '<?php ' . "\n" .
                 '       break;' . "\n";
         }
@@ -164,12 +166,12 @@ class Prepend extends AbstractPrepend
 
     public static function ductileEntriesListHelper($default)
     {
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_lists');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_entries_lists');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                if (isset($s[dcCore()->url->type])) {
-                    $model = $s[dcCore()->url->type];
+                if (isset($s[core()->url->type])) {
+                    $model = $s[core()->url->type];
 
                     return $model;
                 }
@@ -186,9 +188,9 @@ class Prepend extends AbstractPrepend
 
     public static function ductileLogoSrcHelper()
     {
-        $img_url = dcCore()->blog->url . 'files/img/logo.png';
+        $img_url = core()->blog->url . 'files/img/logo.png';
 
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_style');
         if ($s === null) {
             // no settings yet, return default logo
             return $img_url;
@@ -207,7 +209,7 @@ class Prepend extends AbstractPrepend
                         $img_url = $s['logo_src'];
                     } else {
                         // relative URL (base = img folder of ductile theme)
-                        $img_url = dcCore()->blog->url . 'files/img/' . $s['logo_src'];
+                        $img_url = core()->blog->url . 'files/img/' . $s['logo_src'];
                     }
                 }
             }
@@ -218,7 +220,7 @@ class Prepend extends AbstractPrepend
 
     public static function IfPreviewIsNotMandatory($attr, $content)
     {
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_style');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -237,9 +239,9 @@ class Prepend extends AbstractPrepend
     {
         $res     = '';
         $default = false;
-        $img_url = dcCore()->blog->url . 'files/img/';
+        $img_url = core()->blog->url . 'files/img/';
 
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_stickers');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_stickers');
 
         if ($s === null) {
             $default = true;
@@ -262,8 +264,8 @@ class Prepend extends AbstractPrepend
         }
 
         if ($default || $res == '') {
-            $res = self::setSticker(1, true, __('Subscribe'), dcCore()->blog->url .
-                dcCore()->url->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
+            $res = self::setSticker(1, true, __('Subscribe'), core()->blog->url .
+                core()->url->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
         }
 
         if ($res != '') {
@@ -305,14 +307,14 @@ class Prepend extends AbstractPrepend
 
         echo
         '<script src="' .
-        dcCore()->blog->url . 'files/js/ductile.js"></script>' . "\n";
+        core()->blog->url . 'files/js/ductile.js"></script>' . "\n";
 
         echo self::ductileWebfontHelper();
     }
 
     public static function ductileWebfontHelper()
     {
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_style');
 
         if ($s === null) {
             return;
@@ -383,7 +385,7 @@ class Prepend extends AbstractPrepend
 
     public static function ductileStyleHelper()
     {
-        $s = dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
+        $s = core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_style');
 
         if ($s === null) {
             return;

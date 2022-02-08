@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Sql;
 
+use function Dotclear\core;
+
 use Dotclear\Database\Cursor;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -101,7 +103,7 @@ class UpdateStatement extends SqlStatement
     public function whereStatement(): string
     {
         # --BEHAVIOR-- coreBeforeUpdateWhereStatement
-        dcCore()->behaviors->call('coreBeforeUpdateWhereStatement', $this);
+        core()->behaviors->call('coreBeforeUpdateWhereStatement', $this);
 
         $query = '';
 
@@ -126,7 +128,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertUpdateWhereStatement
-        dcCore()->behaviors->call('coreAfterUpdateWhereStatement', $this, $query);
+        core()->behaviors->call('coreAfterUpdateWhereStatement', $this, $query);
 
         return $query;
     }
@@ -139,7 +141,7 @@ class UpdateStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeUpdateStatement
-        dcCore()->behaviors->call('coreBeforeUpdateStatement', $this);
+        core()->behaviors->call('coreBeforeUpdateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -180,7 +182,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertUpdateStatement
-        dcCore()->behaviors->call('coreAfterUpdateStatement', $this, $query);
+        core()->behaviors->call('coreAfterUpdateStatement', $this, $query);
 
         return $query;
     }

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -29,8 +31,8 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dcCore()->behaviors->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
-        dcCore()->behaviors->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
+        core()->behaviors->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
+        core()->behaviors->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
     }
 
     public static function behaviorAdminBlogPreferencesForm(Settings $settings): void

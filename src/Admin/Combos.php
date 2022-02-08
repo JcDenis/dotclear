@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Container\User as ContainerUser;
@@ -66,7 +68,7 @@ class Combos
     public function getPostStatusesCombo()
     {
         $status_combo = [];
-        foreach (dcCore()->blog->getAllPostStatus() as $k => $v) {
+        foreach (core()->blog->getAllPostStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -173,7 +175,7 @@ class Combos
     public function getEditorsCombo()
     {
         $editors_combo = [];
-        foreach (dcCore()->getEditors() as $v) {
+        foreach (core()->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -191,11 +193,11 @@ class Combos
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
-            foreach (dcCore()->getFormaters($editor_id) as $formater) {
+            foreach (core()->getFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach (dcCore()->getFormaters() as $editor => $formaters) {
+            foreach (core()->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }
@@ -215,7 +217,7 @@ class Combos
         $iconsets_combo = new ArrayObject([__('Default') => '']);
 
         # --BEHAVIOR-- adminPostsSortbyCombo
-        dcCore()->behaviors->call('adminIconsetCombo', $iconsets_combo);
+        core()->behaviors->call('adminIconsetCombo', $iconsets_combo);
 
         return $iconsets_combo->getArrayCopy();
     }
@@ -228,7 +230,7 @@ class Combos
     public function getBlogStatusesCombo()
     {
         $status_combo = [];
-        foreach (dcCore()->getAllBlogStatus() as $k => $v) {
+        foreach (core()->getAllBlogStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -243,7 +245,7 @@ class Combos
     public function getCommentStatusesCombo()
     {
         $status_combo = [];
-        foreach (dcCore()->blog->getAllCommentStatus() as $k => $v) {
+        foreach (core()->blog->getAllCommentStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -271,7 +273,7 @@ class Combos
             __('Number of trackbacks') => 'nb_trackback'
         ]);
         # --BEHAVIOR-- adminPostsSortbyCombo
-        dcCore()->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
+        core()->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -288,7 +290,7 @@ class Combos
             __('Spam filter') => 'comment_spam_filter'
         ]);
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        dcCore()->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
+        core()->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -302,7 +304,7 @@ class Combos
             __('Status')      => 'blog_status'
         ]);
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        dcCore()->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
+        core()->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -310,7 +312,7 @@ class Combos
     public function getUsersSortbyCombo()
     {
         $sortby_combo = new ArrayObject([]);
-        if (dcCore()->auth->isSuperAdmin()) {
+        if (core()->auth->isSuperAdmin()) {
             $sortby_combo = new ArrayObject([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
@@ -319,7 +321,7 @@ class Combos
                 __('Number of entries') => 'nb_post'
             ]);
             # --BEHAVIOR-- adminUsersSortbyCombo
-            dcCore()->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
+            core()->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
         }
         return $sortby_combo->getArrayCopy();
     }

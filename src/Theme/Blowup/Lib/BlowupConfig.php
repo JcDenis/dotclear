@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Lib;
 
+use function Dotclear\core;
+
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\Theme\Admin\ConfigTheme;
@@ -299,10 +301,10 @@ class BlowupConfig
         }
 
         # erase old css file
-        $this->dropCss(dcCore()->blog->settings->system->theme);
+        $this->dropCss(core()->blog->settings->system->theme);
 
         # create new css file into public Blowup-css subdirectory
-        $this->writeCss(dcCore()->blog->settings->system->theme, $res);
+        $this->writeCss(core()->blog->settings->system->theme, $res);
 
         return $res;
     }

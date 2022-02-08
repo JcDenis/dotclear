@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -28,27 +30,27 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        $self_ns = dcCore()->blog->settings->addNamespace('LegacyEditor');
+        $self_ns = core()->blog->settings->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            if (!(dcCore()->wiki2xhtml instanceof wiki2xhtml)) {
-                dcCore()->initWikiPost();
+            if (!(core()->wiki2xhtml instanceof wiki2xhtml)) {
+                core()->initWikiPost();
             }
 
-            dcCore()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            dcCore()->addEditorFormater('LegacyEditor', 'wiki', [dcCore()->wiki2xhtml, 'transform']);
+            core()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+            core()->addEditorFormater('LegacyEditor', 'wiki', [core()->wiki2xhtml, 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
-            dcCore()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
-            dcCore()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-            dcCore()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
-            dcCore()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
+            core()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
+            core()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
+            core()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
+            core()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
     }
 
     public static function installModule(): ?bool
     {
-        $settings = dcCore()->blog->settings;
+        $settings = core()->blog->settings;
         $settings->addNamespace('LegacyEditor');
         $settings->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -39,7 +41,7 @@ class PostFilter extends Filter
     {
         parent::__construct($type);
 
-        if (!empty($post_type) && array_key_exists($post_type, dcCore()->getPostTypes())) {
+        if (!empty($post_type) && array_key_exists($post_type, core()->getPostTypes())) {
             $this->post_type = $post_type;
             $this->add((new DefaultFilter('post_type', $post_type))->param('post_type'));
         }
@@ -60,7 +62,7 @@ class PostFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminPostFilter
-        dcCore()->behaviors->call('adminPostFilter', $filters);
+        core()->behaviors->call('adminPostFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -75,17 +77,17 @@ class PostFilter extends Filter
         $users = null;
 
         try {
-            $users = dcCore()->blog->getPostsUsers($this->post_type);
+            $users = core()->blog->getPostsUsers($this->post_type);
             if ($users->isEmpty()) {
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error($e->getMessage());
+            core()->error($e->getMessage());
 
             return null;
         }
 
-        $combo = dcCore()->combos->getUsersCombo($users);
+        $combo = core()->combos->getUsersCombo($users);
         Utils::lexicalKeySort($combo);
 
         return (new DefaultFilter('user_id'))
@@ -106,12 +108,12 @@ class PostFilter extends Filter
         $categories = null;
 
         try {
-            $categories = dcCore()->blog->getCategories(['post_type' => $this->post_type]);
+            $categories = core()->blog->getCategories(['post_type' => $this->post_type]);
             if ($categories->isEmpty()) {
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error($e->getMessage());
+            core()->error($e->getMessage());
 
             return null;
         }
@@ -144,7 +146,7 @@ class PostFilter extends Filter
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
-                dcCore()->combos->getPostStatusesCombo()
+                core()->combos->getPostStatusesCombo()
             ))
             ->prime(true);
     }
@@ -154,7 +156,7 @@ class PostFilter extends Filter
      */
     public function getPostFormatFilter(): DefaultFilter
     {
-        $core_formaters    = dcCore()->getFormaters();
+        $core_formaters    = core()->getFormaters();
         $available_formats = [];
         foreach ($core_formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -237,7 +239,7 @@ class PostFilter extends Filter
         $dates = null;
 
         try {
-            $dates = dcCore()->blog->getDates([
+            $dates = core()->blog->getDates([
                 'type'      => 'month',
                 'post_type' => $this->post_type
             ]);
@@ -245,7 +247,7 @@ class PostFilter extends Filter
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error($e->getMessage());
+            core()->error($e->getMessage());
 
             return null;
         }
@@ -256,7 +258,7 @@ class PostFilter extends Filter
             ->title(__('Month:'))
             ->options(array_merge(
                 ['-' => ''],
-                dcCore()->combos->getDatesCombo($dates)
+                core()->combos->getDatesCombo($dates)
             ));
     }
 
@@ -278,12 +280,12 @@ class PostFilter extends Filter
         $langs = null;
 
         try {
-            $langs = dcCore()->blog->getLangs(['post_type' => $this->post_type]);
+            $langs = core()->blog->getLangs(['post_type' => $this->post_type]);
             if ($langs->isEmpty()) {
                 return null;
             }
         } catch (Exception $e) {
-            dcCore()->error($e->getMessage());
+            core()->error($e->getMessage());
 
             return null;
         }
@@ -293,7 +295,7 @@ class PostFilter extends Filter
             ->title(__('Lang:'))
             ->options(array_merge(
                 ['-' => ''],
-                dcCore()->combos->getLangsCombo($langs, false)
+                core()->combos->getLangsCombo($langs, false)
             ));
     }
 

@@ -13,18 +13,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+use function Dotclear\core;
+
 use Dotclear\Core\RsExt\RsExtComment;
 
 class RsExtCommentPublic extends RsExtComment
 {
     public static function getContent($rs, $absolute_urls = false)
     {
-        if (isset(dcCore()->context) && dcCore()->blog->settings->system->use_smilies) {
+        if (isset(core()->context) && core()->blog->settings->system->use_smilies) {
             $c = parent::getContent($rs, $absolute_urls);
 
-            dcCore()->context->getSmilies();
+            core()->context->getSmilies();
 
-            return dcCore()->context->addSmilies($c);
+            return core()->context->addSmilies($c);
         }
 
         return parent::getContent($rs, $absolute_urls);

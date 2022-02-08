@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -40,27 +42,27 @@ class PageTheme extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (dcCore()->themes->disableModulesDependencies(dcCore()->adminurl->get('admin.blog.theme'))) {
+        if (core()->themes->disableModulesDependencies(core()->adminurl->get('admin.blog.theme'))) {
             exit;
         }
 
         # Module configuration
-        if (dcCore()->themes->loadModuleConfiguration()) {
+        if (core()->themes->loadModuleConfiguration()) {
 
-            dcCore()->themes->parseModuleConfiguration();
+            core()->themes->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Blog appearance'));
             $this->setPageHelp('core_blog_theme_conf');
 
             # --BEHAVIOR-- themessToolsHeaders
-            $head = dcCore()->behaviors->call('themessToolsHeaders', true);
+            $head = core()->behaviors->call('themessToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dcCore()->blog->name)                            => '',
-                __('Blog appearance')                                             => dcCore()->themes->getURL('', false),
+                Html::escapeHTML(core()->blog->name)                            => '',
+                __('Blog appearance')                                             => core()->themes->getURL('', false),
                 '<span class="page-title">' . __('Theme configuration') . '</span>' => ''
             ]);
 
@@ -72,15 +74,15 @@ class PageTheme extends Page
 
             # -- Execute actions --
             try {
-                dcCore()->themes->doActions();
+                core()->themes->doActions();
             } catch (Exception $e) {
-                dcCore()->themes->add($e->getMessage());
+                core()->themes->add($e->getMessage());
             }
 
             # -- Plugin install --
             $this->modules_install = null;
-            if (!dcCore()->error()->flag()) {
-                $this->modules_install = dcCore()->themes->installModules();
+            if (!core()->error()->flag()) {
+                $this->modules_install = core()->themes->installModules();
             }
 
             # Page setup
@@ -92,10 +94,10 @@ class PageTheme extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dcCore()->behaviors->call('themessToolsHeaders', false)
+                    (string) core()->behaviors->call('themessToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
-                        Html::escapeHTML(dcCore()->blog->name)                       => '',
+                        Html::escapeHTML(core()->blog->name)                       => '',
                         '<span class="page-title">' . __('Blog appearance') . '</span>' => '',
                 ])
             ;
@@ -112,7 +114,7 @@ class PageTheme extends Page
             '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dcCore()->themes->getSettingsUrls($k, true));
+                $info = implode(' - ', core()->themes->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -134,21 +136,21 @@ class PageTheme extends Page
         }
 
         if ($this->from_configuration) {
-            echo dcCore()->themes->displayModuleConfiguration();
+            echo core()->themes->displayModuleConfiguration();
 
             return;
         }
 
         # -- Display modules lists --
-        if (dcCore()->auth->isSuperAdmin()) {
-            if (!dcCore()->error()->flag()) {
+        if (core()->auth->isSuperAdmin()) {
+            if (!core()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dcCore()->notices->success(__('Manual checking of themes update done successfully.'));
+                    core()->notices->success(__('Manual checking of themes update done successfully.'));
                 }
             }
 
             # Updated modules from repo
-            $modules = dcCore()->themes->store->get(true);
+            $modules = core()->themes->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update themes')) . '">' .
@@ -158,7 +160,7 @@ class PageTheme extends Page
                     count($modules)
                 ) . '</p>';
 
-                dcCore()->themes
+                core()->themes
                     ->setList('theme-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -177,23 +179,23 @@ class PageTheme extends Page
                     '</div>';
             } else {
                 echo
-                '<form action="' . dcCore()->themes->getURL('', false) . '" method="get">' .
+                '<form action="' . core()->themes->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of themes') . '" /></p>' .
-                Form::hidden('handler', dcCore()->adminurl->called()) .
+                Form::hidden('handler', core()->adminurl->called()) .
                     '</form>';
             }
         }
 
         # Activated modules
-        $modules = dcCore()->themes->getModules();
+        $modules = core()->themes->getModules();
         if (!empty($modules)) {
             echo
             '<div class="multi-part" id="themes" title="' . __('Installed themes') . '">' .
             '<h3>' . __('Installed themes') . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed themes from this list.') . '</p>';
 
-            dcCore()->themes
+            core()->themes
                 ->setList('theme-activate')
                 ->setTab('themes')
                 ->setData($modules)
@@ -207,15 +209,15 @@ class PageTheme extends Page
         }
 
         # Deactivated modules
-        if (dcCore()->auth->isSuperAdmin()) {
-            $modules = dcCore()->themes->getDisabledModules();
+        if (core()->auth->isSuperAdmin()) {
+            $modules = core()->themes->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="deactivate" title="' . __('Deactivated themes') . '">' .
                 '<h3>' . __('Deactivated themes') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated themes are installed but not usable. You can activate them from here.') . '</p>';
 
-                dcCore()->themes
+                core()->themes
                     ->setList('theme-deactivate')
                     ->setTab('themes')
                     ->setData($modules)
@@ -229,18 +231,18 @@ class PageTheme extends Page
             }
         }
 
-        if (dcCore()->auth->isSuperAdmin() && dcCore()->themes->isWritablePath()) {
+        if (core()->auth->isSuperAdmin() && core()->themes->isWritablePath()) {
 
             # New modules from repo
-            $search  = dcCore()->themes->getSearch();
-            $modules = $search ? dcCore()->themes->store->search($search) : dcCore()->themes->store->get();
+            $search  = core()->themes->getSearch();
+            $modules = $search ? core()->themes->store->search($search) : core()->themes->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add themes') . '">' .
                 '<h3>' . __('Add themes from repository') . '</h3>';
 
-                dcCore()->themes
+                core()->themes
                     ->setList('theme-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -268,17 +270,17 @@ class PageTheme extends Page
             '<h3>' . __('Add themes from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install themes by uploading or downloading zip files.') . '</p>';
 
-            dcCore()->themes->displayManualForm();
+            core()->themes->displayManualForm();
 
             echo
                 '</div>';
         }
 
         # --BEHAVIOR-- themessToolsTabs
-        dcCore()->behaviors->call('themesToolsTabs');
+        core()->behaviors->call('themesToolsTabs');
 
         # -- Notice for super admin --
-        if (dcCore()->auth->isSuperAdmin() && !dcCore()->themes->isWritablePath()) {
+        if (core()->auth->isSuperAdmin() && !core()->themes->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your themes directory to enable them.') . '</p>';
         }

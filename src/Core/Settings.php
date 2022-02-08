@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -54,8 +56,8 @@ class Settings
      */
     public function __construct(?string $blog_id)
     {
-        $this->con     = dcCore()->con;
-        $this->table   = dcCore()->prefix . 'setting';
+        $this->con     = core()->con;
+        $this->table   = core()->prefix . 'setting';
         $this->blog_id = $blog_id;
         $this->loadSettings();
     }

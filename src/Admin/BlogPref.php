@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Admin\Page;
 
 class BlogPref
@@ -31,7 +33,7 @@ class BlogPref
         }
 
         $res = Page::jsJson('admin.blog_pref', [
-            'base_url' => dcCore()->blog->url
+            'base_url' => core()->blog->url
         ]) .
         Page::jsLoad('js/_blog_pref_popup_posts.js');
 

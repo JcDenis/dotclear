@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Public;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
@@ -28,8 +30,8 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (dcCore()->blog->settings->system->theme == 'Blowup') {
-            dcCore()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        if (core()->blog->settings->system->theme == 'Blowup') {
+            core()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
         }
     }
 

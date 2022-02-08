@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
@@ -40,7 +42,7 @@ class LinkPopup extends Page
             ->setPageType('popup')
             ->setPageHead(
                 static::jsLoad('js/_popup_link.js') .
-                dcCore()->behaviors->call('adminPopupLink', $plugin_id)
+                core()->behaviors->call('adminPopupLink', $plugin_id)
             )
         ;
 
@@ -54,8 +56,8 @@ class LinkPopup extends Page
         $title     = !empty($_GET['title']) ? $_GET['title'] : '';
 
         # Languages combo
-        $rs         = dcCore()->blog->getLangs(['order' => 'asc']);
-        $lang_combo = dcCore()->combos->getLangsCombo($rs, true);
+        $rs         = core()->blog->getLangs(['order' => 'asc']);
+        $lang_combo = core()->combos->getLangsCombo($rs, true);
 
         echo
         '<h2 class="page-title">' . __('Add a link') . '</h2>' .

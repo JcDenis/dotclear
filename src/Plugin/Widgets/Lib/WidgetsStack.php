@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Lib;
 
+use function Dotclear\core;
+
 use Dotclear\Plugin\Widgets\Lib\Widgets;
 use Dotclear\Plugin\Widgets\Lib\Widget;
 
@@ -33,10 +35,10 @@ class WidgetsStack
         $this->initWidgets();
         self::$stack = $this;
 
-        if (!empty(dcCore()->tpl)) {
-            dcCore()->tpl->addValue('Widgets', [$this, 'tplWidgets']);
-            dcCore()->tpl->addBlock('Widget', [$this, 'tplWidget']);
-            dcCore()->tpl->addBlock('IfWidgets', [$this, 'tplIfWidgets']);
+        if (!empty(core()->tpl)) {
+            core()->tpl->addValue('Widgets', [$this, 'tplWidgets']);
+            core()->tpl->addBlock('Widget', [$this, 'tplWidget']);
+            core()->tpl->addBlock('IfWidgets', [$this, 'tplIfWidgets']);
         }
     }
 
@@ -44,7 +46,7 @@ class WidgetsStack
     //@{
     public function search($w)
     {
-        if (dcCore()->blog->settings->system->no_search) {
+        if (core()->blog->settings->system->no_search) {
             return;
         }
 
@@ -52,7 +54,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -60,7 +62,7 @@ class WidgetsStack
 
         return $w->renderDiv($w->content_only, $w->class, 'id="search"',
             ($w->title ? $w->renderTitle('<label for="q">' . Html::escapeHTML($w->title) . '</label>') : '') .
-            '<form action="' . dcCore()->blog->url . '" method="get" role="search">' .
+            '<form action="' . core()->blog->url . '" method="get" role="search">' .
             '<p><input type="text" size="10" maxlength="255" id="q" name="q" value="' . $value . '" ' .
             ($w->placeholder ? 'placeholder="' . Html::escapeHTML($w->placeholder) . '"' : '') .
             ' aria-label="' . __('Search') . '"/> ' .
@@ -74,33 +76,33 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
         $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<nav role="navigation"><ul>';
 
-        if (!dcCore()->url->isHome(dcCore()->url->type)) {
+        if (!core()->url->isHome(core()->url->type)) {
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
-            '<a href="' . dcCore()->blog->url . '">' . __('Home') . '</a></li>';
-            if (dcCore()->blog->settings->system->static_home) {
+            '<a href="' . core()->blog->url . '">' . __('Home') . '</a></li>';
+            if (core()->blog->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . core()->blog->url . core()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
-            if (dcCore()->blog->settings->system->static_home) {
+            if (core()->blog->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . core()->blog->url . core()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         }
 
         $res .= '<li class="topnav-arch">' .
-        '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('archive') . '">' .
+        '<a href="' . core()->blog->url . core()->url->getURLFor('archive') . '">' .
         __('Archives') . '</a></li>' .
             '</ul></nav>';
 
@@ -109,17 +111,17 @@ class WidgetsStack
 
     public function categories($w)
     {
-        $context = dcCore()->context;
+        $context = core()->context;
 
         if ($w->offline) {
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
-        $rs = dcCore()->blog->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
+        $rs = core()->blog->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
         if ($rs->isEmpty()) {
             return;
         }
@@ -129,8 +131,8 @@ class WidgetsStack
         $ref_level = $level = $rs->level - 1;
         while ($rs->fetch()) {
             $class = '';
-            if ((dcCore()->url->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
-                || (dcCore()->url->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
+            if ((core()->url->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
+                || (core()->url->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
                 $class = ' class="category-current"';
             }
 
@@ -144,7 +146,7 @@ class WidgetsStack
                 $res .= '</li><li' . $class . '>';
             }
 
-            $res .= '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', $rs->cat_url) . '">' .
+            $res .= '<a href="' . core()->blog->url . core()->url->getURLFor('category', $rs->cat_url) . '">' .
             Html::escapeHTML($rs->cat_title) . '</a>' .
                 ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->nb_total : $rs->nb_post) . ')</span>' : '');
 
@@ -160,13 +162,13 @@ class WidgetsStack
 
     public function bestof($w)
     {
-        $context = dcCore()->context;
+        $context = core()->context;
 
         if ($w->offline) {
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -176,7 +178,7 @@ class WidgetsStack
             'order'         => 'post_dt ' . strtoupper($w->orderby)
         ];
 
-        $rs = dcCore()->blog->getPosts($params);
+        $rs = core()->blog->getPosts($params);
 
         if ($rs->isEmpty()) {
             return;
@@ -187,7 +189,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dcCore()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (core()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->post_title) . '</a></li> ';
@@ -200,17 +202,17 @@ class WidgetsStack
 
     public function langs($w)
     {
-        $context = dcCore()->context;
+        $context = core()->context;
 
         if ($w->offline) {
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
-        $rs = dcCore()->blog->getLangs();
+        $rs = core()->blog->getLangs();
 
         if ($rs->count() <= 1) {
             return;
@@ -227,7 +229,7 @@ class WidgetsStack
 
             $res .= ' <li>' .
             sprintf($l,
-                '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('lang', $rs->post_lang) . '" ' .
+                '<a href="' . core()->blog->url . core()->url->getURLFor('lang', $rs->post_lang) . '" ' .
                 'class="lang-' . $rs->post_lang . '">' .
                 $lang_name . '</a>') .
                 ' </li>';
@@ -240,13 +242,13 @@ class WidgetsStack
 
     public function subscribe($w)
     {
-        $context = dcCore()->context;
+        $context = core()->context;
 
         if ($w->offline) {
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -263,13 +265,13 @@ class WidgetsStack
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
-        'href="' . dcCore()->blog->url . dcCore()->url->getURLFor('feed', $type) . '" ' .
+        'href="' . core()->blog->url . core()->url->getURLFor('feed', $type) . '" ' .
         'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
-        if (dcCore()->blog->settings->system->allow_comments || dcCore()->blog->settings->system->allow_trackbacks) {
+        if (core()->blog->settings->system->allow_comments || core()->blog->settings->system->allow_trackbacks) {
             $res .= '<li><a type="' . $mime . '" ' .
-            'href="' . dcCore()->blog->url . dcCore()->url->getURLFor('feed', $type . '/comments') . '" ' .
+            'href="' . core()->blog->url . core()->url->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
             __('Comments feed') . '</a></li>';
         }
@@ -289,7 +291,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -339,7 +341,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -350,13 +352,13 @@ class WidgetsStack
 
     public function lastposts($w)
     {
-        $context = dcCore()->context;
+        $context = core()->context;
 
         if ($w->offline) {
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
@@ -376,9 +378,9 @@ class WidgetsStack
 
         if ($w->tag) {
             $params['meta_id'] = $w->tag;
-            $rs                = dcCore()->meta->getPostsByMeta($params);
+            $rs                = core()->meta->getPostsByMeta($params);
         } else {
-            $rs = dcCore()->blog->getPosts($params);
+            $rs = core()->blog->getPosts($params);
         }
 
         if ($rs->isEmpty()) {
@@ -390,7 +392,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dcCore()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (core()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
@@ -408,13 +410,13 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dcCore()->url->type)) {
+        if (!$w->checkHomeOnly(core()->url->type)) {
             return;
         }
 
         $params['limit'] = abs((integer) $w->limit);
         $params['order'] = 'comment_dt desc';
-        $rs              = dcCore()->blog->getComments($params);
+        $rs              = core()->blog->getComments($params);
 
         if ($rs->isEmpty()) {
             return;
@@ -516,7 +518,7 @@ class WidgetsStack
             ->addClass()
             ->addOffline();
 
-        $rs         = dcCore()->blog->getCategories(['post_type' => 'post']);
+        $rs         = core()->blog->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
             $categories[str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title)] = $rs->cat_id;
@@ -525,7 +527,7 @@ class WidgetsStack
         $w
             ->addTitle(__('Last entries'))
             ->setting('category', __('Category:'), '', 'combo', $categories);
-        if (dcCore()->plugins->hasModule('tags')) {
+        if (core()->plugins->hasModule('tags')) {
             $w->setting('tag', __('Tag:'), '');
         }
         $w
@@ -546,7 +548,7 @@ class WidgetsStack
             ->addOffline();
 
         # --BEHAVIOR-- initWidgets
-        dcCore()->behaviors->call('initWidgets', $__widgets);
+        core()->behaviors->call('initWidgets', $__widgets);
 
         $__default_widgets = ['nav' => new Widgets(), 'extra' => new Widgets(), 'custom' => new Widgets()];
 
@@ -556,7 +558,7 @@ class WidgetsStack
         $__default_widgets['custom']->append($__widgets->subscribe);
 
         # --BEHAVIOR-- initDefaultWidgets
-        dcCore()->behaviors->call('initDefaultWidgets', $__widgets, $__default_widgets);
+        core()->behaviors->call('initDefaultWidgets', $__widgets, $__default_widgets);
 
         self::$__widgets = $__widgets;
         self::$__default_widgets = $__default_widgets;
@@ -589,8 +591,8 @@ class WidgetsStack
     public function widgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dcCore()->blog->settings->addNameSpace('widgets');
-        $widgets = dcCore()->blog->settings->widgets->{$wtype};
+        core()->blog->settings->addNameSpace('widgets');
+        $widgets = core()->blog->settings->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
@@ -641,8 +643,8 @@ class WidgetsStack
     public function ifWidgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dcCore()->blog->settings->addNameSpace('widgets');
-        $widgets = dcCore()->blog->settings->widgets->{$wtype};
+        core()->blog->settings->addNameSpace('widgets');
+        $widgets = core()->blog->settings->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults

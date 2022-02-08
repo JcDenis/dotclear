@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
+use function Dotclear\core;
+
 use stdClass;
 
 use Dotclear\Exception;
@@ -48,14 +50,14 @@ class Page extends AbstractPage
     {
         $widgets = new Widgets();
         # Loading navigation, extra widgets and custom widgets
-        if (dcCore()->blog->settings->widgets->widgets_nav) {
-            $this->widgets_nav = $widgets->load(dcCore()->blog->settings->widgets->widgets_nav);
+        if (core()->blog->settings->widgets->widgets_nav) {
+            $this->widgets_nav = $widgets->load(core()->blog->settings->widgets->widgets_nav);
         }
-        if (dcCore()->blog->settings->widgets->widgets_extra) {
-            $this->widgets_extra = $widgets->load(dcCore()->blog->settings->widgets->widgets_extra);
+        if (core()->blog->settings->widgets->widgets_extra) {
+            $this->widgets_extra = $widgets->load(core()->blog->settings->widgets->widgets_extra);
         }
-        if (dcCore()->blog->settings->widgets->widgets_custom) {
-            $this->widgets_custom = $widgets->load(dcCore()->blog->settings->widgets->widgets_custom);
+        if (core()->blog->settings->widgets->widgets_custom) {
+            $this->widgets_custom = $widgets->load(core()->blog->settings->widgets->widgets_custom);
         }
 
         # Adding widgets to sidebars
@@ -107,13 +109,13 @@ class Page extends AbstractPage
                 }
 
                 try {
-                    dcCore()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
-                    dcCore()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
-                    dcCore()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
-                    dcCore()->blog->triggerBlog();
-                    dcCore()->adminurl->redirect('admin.plugin.Widgets');
+                    core()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
+                    core()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
+                    core()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
+                    core()->blog->triggerBlog();
+                    core()->adminurl->redirect('admin.plugin.Widgets');
                 } catch (Exception $e) {
-                    dcCore()->error($e->getMessage());
+                    core()->error($e->getMessage());
                 }
             }
         }
@@ -191,27 +193,27 @@ class Page extends AbstractPage
                 $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
                 $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
 
-                dcCore()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
-                dcCore()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
-                dcCore()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
-                dcCore()->blog->triggerBlog();
+                core()->blog->settings->widgets->put('widgets_nav', $this->widgets_nav->store());
+                core()->blog->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
+                core()->blog->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
+                core()->blog->triggerBlog();
 
-                dcCore()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
-                dcCore()->adminurl->redirect('admin.plugin.Widgets');
+                core()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
+                core()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
-                dcCore()->blog->settings->widgets->put('widgets_nav', '');
-                dcCore()->blog->settings->widgets->put('widgets_extra', '');
-                dcCore()->blog->settings->widgets->put('widgets_custom', '');
-                dcCore()->blog->triggerBlog();
+                core()->blog->settings->widgets->put('widgets_nav', '');
+                core()->blog->settings->widgets->put('widgets_extra', '');
+                core()->blog->settings->widgets->put('widgets_custom', '');
+                core()->blog->triggerBlog();
 
-                dcCore()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
-                dcCore()->adminurl->redirect('admin.plugin.Widgets');
+                core()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
+                core()->adminurl->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -221,7 +223,7 @@ class Page extends AbstractPage
             ->setPageHead(self::widgetsHead())
             ->setPageHelp('widgets', self::widgetsHelp())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(core()->blog->name) => '',
                 __('Widgets')                             => ''
             ])
         ;
@@ -233,7 +235,7 @@ class Page extends AbstractPage
     {
         # All widgets
         echo
-        '<form id="listWidgets" action="' . dcCore()->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
+        '<form id="listWidgets" action="' . core()->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
@@ -259,11 +261,11 @@ class Page extends AbstractPage
 
         echo
         '</ul>' .
-        '<p>' . dcCore()->formNonce() . '</p>' .
+        '<p>' . core()->formNonce() . '</p>' .
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" /></p>' .
             '</form>';
 
-        echo '<form id="sidebarsWidgets" action="' . dcCore()->adminurl->get('admin.plugin.Widgets') . '" method="post">';
+        echo '<form id="sidebarsWidgets" action="' . core()->adminurl->get('admin.plugin.Widgets') . '" method="post">';
         # Nav sidebar
         echo
         '<div id="sidebarNav" class="widgets fieldset">' .
@@ -284,7 +286,7 @@ class Page extends AbstractPage
 
         echo
         '<p id="sidebarsControl">' .
-        dcCore()->formNonce() .
+        core()->formNonce() .
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .
@@ -295,13 +297,13 @@ class Page extends AbstractPage
     private function widgetsHead(): string
     {
 
-        $widget_editor = dcCore()->auth->getOption('editor');
+        $widget_editor = core()->auth->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @dcCore()->auth->user_prefs->interface->rte_flags;
+        $rte_flags     = @core()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = dcCore()->auth->user_prefs->accessibility->nodragdrop;
+        $user_dm_nodragdrop = core()->auth->user_prefs->accessibility->nodragdrop;
 
         return
         static::cssLoad('?mf=Plugin/Widgets/files/style.css') .
@@ -313,7 +315,7 @@ class Page extends AbstractPage
         ]) .
         static::jsLoad('?mf=Plugin/Widgets/files/js/widgets.js') .
         (!$user_dm_nodragdrop ? static::jsLoad('?mf=Plugin/Widgets/files/js/dragdrop.js') : '') .
-        ($rte_flag ? (string) dcCore()->behaviors->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
+        ($rte_flag ? (string) core()->behaviors->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         static::jsConfirmClose('sidebarsWidgets');
     }
 

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Action;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -38,7 +40,7 @@ class PostAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dcCore()->blog->name) => '',
+            Html::escapeHTML(core()->blog->name) => '',
             $this->getCallerTitle()                   => $this->getRedirection(true),
             __('Posts actions')                       => ''
         ]);
@@ -49,12 +51,12 @@ class PostAction extends Action
         // We could have added a behavior here, but we want default action
         // to be setup first
         DefaultPostAction::PostAction($this);
-        dcCore()->behaviors->call('adminPostsActionsPage', $this);
+        core()->behaviors->call('adminPostsActionsPage', $this);
     }
 
     public function error(Exception $e)
     {
-        dcCore()->error($e->getMessage());
+        core()->error($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
@@ -81,7 +83,7 @@ class PostAction extends Action
             $params['post_type'] = $from['post_type'];
         }
 
-        $posts = dcCore()->blog->getPosts($params);
+        $posts = core()->blog->getPosts($params);
         while ($posts->fetch()) {
             $this->entries[$posts->post_id] = $posts->post_title;
         }

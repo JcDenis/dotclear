@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
@@ -36,11 +38,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gp_nav'])) {
-            dcCore()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+            core()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            dcCore()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+            core()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
             exit;
         }
 
@@ -48,19 +50,19 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ws => $s) {
-                    dcCore()->auth->user_prefs->addWorkspace($ws);
+                    core()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dcCore()->auth->user_prefs->$ws->put($k, $v);
+                        core()->auth->user_prefs->$ws->put($k, $v);
                     }
                 }
 
-                dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                dcCore()->adminurl->redirect('admin.plugin.UserPref');
+                core()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                core()->adminurl->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -68,19 +70,19 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
-                    dcCore()->auth->user_prefs->addWorkspace($ws);
+                    core()->auth->user_prefs->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dcCore()->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
+                        core()->auth->user_prefs->$ws->put($k, $v, null, null, true, true);
                     }
                 }
 
-                dcCore()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                dcCore()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
+                core()->notices->addSuccessNotice(__('Preferences successfully updated'));
+                core()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -94,7 +96,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
-                Html::escapeHTML(dcCore()->auth->userID()) => '',
+                Html::escapeHTML(core()->auth->userID()) => '',
                 __('user:preferences')                        => ''
             ])
         ;
@@ -109,7 +111,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dcCore()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (core()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -132,7 +134,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dcCore()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (core()->auth->user_prefs->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -155,12 +157,12 @@ class Page extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dcCore()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
+        '<form action="' . core()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
-        dcCore()->formNonce() . '</p></form>';
+        core()->formNonce() . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -177,7 +179,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dcCore()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
+        echo '<form action="' . core()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -191,7 +193,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dcCore()->formNonce() . '</p>' .
+        core()->formNonce() . '</p>' .
         '</form>';
     }
 

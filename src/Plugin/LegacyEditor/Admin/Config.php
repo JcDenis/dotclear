@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractConfig;
 
 use Dotclear\Html\Form;
@@ -26,23 +28,23 @@ class Config extends AbstractConfig
 {
     public function setConfiguration($post, $redir): void
     {
-        dcCore()->blog->settings->addNameSpace('LegacyEditor');
-        dcCore()->blog->settings->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
+        core()->blog->settings->addNameSpace('LegacyEditor');
+        core()->blog->settings->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
 
-        dcCore()->notices->addSuccessNotice(__('The configuration has been updated.'));
+        core()->notices->addSuccessNotice(__('The configuration has been updated.'));
         Http::redirect($redir);
     }
 
     public function getConfiguration(): void
     {
-        dcCore()->blog->settings->addNamespace('LegacyEditor');
+        core()->blog->settings->addNamespace('LegacyEditor');
 
         echo
         '<div class="fieldset">' .
         '<h3>' . __('Plugin activation') . '</h3>' .
 
         '<p><label class="classic" for="LegacyEditor_active">' .
-        Form::checkbox('LegacyEditor_active', 1, (bool) dcCore()->blog->settings->LegacyEditor->active) .
+        Form::checkbox('LegacyEditor_active', 1, (bool) core()->blog->settings->LegacyEditor->active) .
         __('Enable LegacyEditor plugin') . '</label></p>' .
 
         '</div>';

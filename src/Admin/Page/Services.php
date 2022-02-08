@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Admin\Page;
 use Dotclear\Admin\RestMethods;
 
@@ -30,7 +32,7 @@ class Services extends Page
     protected function getPagePrepend(): ?bool
     {
         RestMethods::initDefaultRestMethods();
-        dcCore()->rest->serve();
+        core()->rest->serve();
 
         return null;
     }

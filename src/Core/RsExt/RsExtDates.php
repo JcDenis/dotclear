@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+use function Dotclear\core;
+
 use Dotclear\Database\Record;
 use Dotclear\Utils\Dt;
 
@@ -80,7 +82,7 @@ class RsExtDates
      * Returns date month archive full URL.
      *
      * @param      record  $rs       Invisible parameter
-     * @param      dcCore  dcCore()     The core
+     * @param      dcCore  core()     The core
      *
      * @return     string
      */
@@ -88,7 +90,7 @@ class RsExtDates
     {
         $url = date('Y/m', strtotime($rs->dt));
 
-        return dcCore()->blog->url . dcCore()->url->getURLFor('archive', $url);
+        return core()->blog->url . core()->url->getURLFor('archive', $url);
     }
 
     /**
@@ -148,7 +150,7 @@ class RsExtDates
     public static function getDate(Record $rs, string $format = ''): string
     {
         if (!$format) {
-            $format = dcCore()->blog->settings->system->date_format;
+            $format = core()->blog->settings->system->date_format;
         }
 
         return Dt::dt2str($format, $rs->dt);

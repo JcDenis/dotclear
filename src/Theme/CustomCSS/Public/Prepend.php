@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\CustomCSS\Public;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Module\AbstractPrepend;
@@ -28,13 +30,13 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (dcCore()->blog->settings->system->theme == 'CustomCSS') {
-            dcCore()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        if (core()->blog->settings->system->theme == 'CustomCSS') {
+            core()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
         }
     }
 
     public static function behaviorPublicHeadContent()
     {
-        echo '<link rel="stylesheet" type="text/css" href="' . dcCore()->blog->settings->system->public_url . '/custom_style.css" media="screen">' . "\n";
+        echo '<link rel="stylesheet" type="text/css" href="' . core()->blog->settings->system->public_url . '/custom_style.css" media="screen">' . "\n";
     }
 }

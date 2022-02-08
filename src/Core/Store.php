@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -133,7 +135,7 @@ class Store
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+                $class = core()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
                 $updates[$id] = new $class($id, $properties);
 
                 if (!empty($updates[$id]->error()->flag())) {
@@ -145,7 +147,7 @@ class Store
         # Convert new modules from array to Define object
         foreach($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class = dcCore()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+            $class = core()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
             $raw_datas[$id] = new $class($id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {

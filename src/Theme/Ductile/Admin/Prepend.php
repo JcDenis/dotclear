@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Module\AbstractDefine;
@@ -27,9 +29,9 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dcCore()->behaviors->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
-            return $module->id() == 'Ductile' && dcCore()->auth->check('admin', dcCore()->blog->id) ?
-                '<p><a href="' . dcCore()->adminurl->get('admin.plugin.Ductile') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+        core()->behaviors->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
+            return $module->id() == 'Ductile' && core()->auth->check('admin', core()->blog->id) ?
+                '<p><a href="' . core()->adminurl->get('admin.plugin.Ductile') . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });
     }

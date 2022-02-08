@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
@@ -121,12 +123,12 @@ class Page extends AbstractPage
 
         $this->Blowup_can_write_images = $this->Blowup_config->canWriteImages();
 
-        if (dcCore()->error()->flag()) {
-            $this->Blowup_notices = dcCore()->error()->toHTML();
-            dcCore()->error()->reset();
+        if (core()->error()->flag()) {
+            $this->Blowup_notices = core()->error()->toHTML();
+            core()->error()->reset();
         }
 
-        $Blowup_style = (string) dcCore()->blog->settings->themes->Blowup_style;
+        $Blowup_style = (string) core()->blog->settings->themes->Blowup_style;
         $Blowup_user = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
@@ -216,14 +218,14 @@ class Page extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dcCore()->blog->settings->addNamespace('themes');
-                dcCore()->blog->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
-                dcCore()->blog->triggerBlog();
+                core()->blog->settings->addNamespace('themes');
+                core()->blog->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
+                core()->blog->triggerBlog();
 
-                dcCore()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
-                dcCore()->adminurl->redirect('admin.plugin.Blowup');
+                core()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
+                core()->adminurl->redirect('admin.plugin.Blowup');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -244,8 +246,8 @@ class Page extends AbstractPage
                 static::jsLoad('?mf=Theme/Blowup/files/js/config.js')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dcCore()->blog->name) => '',
-                __('Blog appearance')               => dcCore()->adminurl->get('admin.blog.theme'),
+                Html::escapeHTML(core()->blog->name) => '',
+                __('Blog appearance')               => core()->adminurl->get('admin.blog.theme'),
                 __('Blowup configuration')          => ''
             ])
         ;
@@ -256,14 +258,14 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         echo
-        '<p><a class="back" href="' . dcCore()->adminurl->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
+        '<p><a class="back" href="' . core()->adminurl->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
             Notices::message(__('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
                 $this->Blowup_notices, false, true);
         }
 
-        echo '<form id="theme_config" action="' . dcCore()->adminurl->get('admin.plugin.Blowup') . '" method="post" enctype="multipart/form-data">';
+        echo '<form id="theme_config" action="' . core()->adminurl->get('admin.plugin.Blowup') . '" method="post" enctype="multipart/form-data">';
 
         echo '<div class="fieldset"><h3>' . __('Customization') . '</h3>' .
         '<h4>' . __('General') . '</h4>';
@@ -329,7 +331,7 @@ class Page extends AbstractPage
 
         if ($this->Blowup_can_write_images) {
             if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
-                $preview_image = Http::concatURL(dcCore()->blog->url, $this->Blowup_config->imagesURL() . '/page-t.png');
+                $preview_image = Http::concatURL(core()->blog->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?mf=Theme/Blowup/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
@@ -487,7 +489,7 @@ class Page extends AbstractPage
 
         echo
         '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
-        dcCore()->formNonce() . '</p>' .
+        core()->formNonce() . '</p>' .
             '</form>';
 
     }

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -41,14 +43,14 @@ class Prefs
      */
     public function __construct($user_id, $workspace = null)
     {
-        $this->con     = dcCore()->con;
-        $this->table   = dcCore()->prefix . 'pref';
+        $this->con     = core()->con;
+        $this->table   = core()->prefix . 'pref';
         $this->user_id = $user_id;
 
         try {
             $this->loadPrefs($workspace);
         } catch (Exception $e) {
-            if (version_compare(dcCore()->getVersion('core'), '2.3', '>')) {
+            if (version_compare(core()->getVersion('core'), '2.3', '>')) {
                 trigger_error(__('Unable to retrieve workspaces:') . ' ' . $this->con->error(), E_USER_ERROR);
             }
         }

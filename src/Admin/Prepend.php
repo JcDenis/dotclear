@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -307,7 +309,7 @@ class Prepend extends BasePrepend
         $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
 
         # Check class
-        $class = dcCore()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
+        $class = core()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
             throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
         }

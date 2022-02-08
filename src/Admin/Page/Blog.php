@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Core\Settings;
@@ -57,14 +59,14 @@ class Blog extends Page
             )
             ->setPageBreadcrumb([
                 __('System')   => '',
-                __('Blogs')    => dcCore()->adminurl->get('admin.blogs'),
+                __('Blogs')    => core()->adminurl->get('admin.blogs'),
                 __('New blog') => ''
             ])
         ;
 
         # Create a blog
         if (!isset($_POST['id']) && (isset($_POST['create']))) {
-            $cur       = dcCore()->con->openCursor(dcCore()->prefix . 'blog');
+            $cur       = core()->con->openCursor(core()->prefix . 'blog');
             $this->blog_id   = $cur->blog_id   = $_POST['blog_id'];
             $this->blog_url  = $cur->blog_url  = $_POST['blog_url'];
             $this->blog_name = $cur->blog_name = $_POST['blog_name'];
@@ -72,15 +74,15 @@ class Blog extends Page
 
             try {
                 # --BEHAVIOR-- adminBeforeBlogCreate
-                dcCore()->behaviors->call('adminBeforeBlogCreate', $cur, $this->blog_id);
+                core()->behaviors->call('adminBeforeBlogCreate', $cur, $this->blog_id);
 
-                dcCore()->addBlog($cur);
+                core()->addBlog($cur);
 
                 # Default settings and override some
                 $blog_settings = new Settings($cur->blog_id);
                 $blog_settings->addNamespace('system');
-                $blog_settings->system->put('lang', dcCore()->auth->getInfo('user_lang'));
-                $blog_settings->system->put('blog_timezone', dcCore()->auth->getInfo('user_tz'));
+                $blog_settings->system->put('lang', core()->auth->getInfo('user_lang'));
+                $blog_settings->system->put('blog_timezone', core()->auth->getInfo('user_tz'));
 
                 if (substr($this->blog_url, -1) == '?') {
                     $blog_settings->system->put('url_scan', 'query_string');
@@ -89,12 +91,12 @@ class Blog extends Page
                 }
 
                 # --BEHAVIOR-- adminAfterBlogCreate
-                dcCore()->behaviors->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
+                core()->behaviors->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
                 static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->blog_name)));
-                dcCore()->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
+                core()->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -104,9 +106,9 @@ class Blog extends Page
     protected function getPageContent(): void
     {
         echo
-        '<form action="' . dcCore()->adminurl->get('admin.blog') . '" method="post" id="blog-form">' .
+        '<form action="' . core()->adminurl->get('admin.blog') . '" method="post" id="blog-form">' .
 
-        '<div>' . dcCore()->formNonce() . '</div>' .
+        '<div>' . core()->formNonce() . '</div>' .
         '<p><label class="required" for="blog_id"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label> ' .
         Form::field('blog_id', 30, 32,
             [
@@ -121,7 +123,7 @@ class Blog extends Page
         Form::field('blog_name', 30, 255,
             [
                 'default'    => Html::escapeHTML($this->blog_name),
-                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . dcCore()->auth->getInfo('user_lang') . '" ' .
+                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . core()->auth->getInfo('user_lang') . '" ' .
                     'spellcheck="true"'
             ]
         ) . '</p>' .
@@ -139,7 +141,7 @@ class Blog extends Page
         Form::textarea('blog_desc', 60, 5,
             [
                 'default'    => Html::escapeHTML($this->blog_desc),
-                'extra_html' => 'lang="' . dcCore()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                'extra_html' => 'lang="' . core()->auth->getInfo('user_lang') . '" spellcheck="true"'
             ]) . '</p>' .
 
         '<p><input type="submit" accesskey="s" name="create" value="' . __('Create') . '" />' .

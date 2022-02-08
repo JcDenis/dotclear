@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -34,7 +36,7 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites();
 
         # Widgets
-        if (dcCore()->adminurl->called() == 'admin.plugin.Widgets') {
+        if (core()->adminurl->called() == 'admin.plugin.Widgets') {
             new SimpleMenuWidgets();
         }
     }
@@ -42,13 +44,13 @@ class Prepend extends AbstractPrepend
     public static function installModule(): ?bool
     {
         # Menu par défaut
-        $blog_url     = Html::stripHostURL(dcCore()->blog->url);
+        $blog_url     = Html::stripHostURL(core()->blog->url);
         $menu_default = [
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
-            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dcCore()->url->getURLFor('archive'), 'targetBlank' => false]
+            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . core()->url->getURLFor('archive'), 'targetBlank' => false]
         ];
-        dcCore()->blog->settings->system->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
-        dcCore()->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);
+        core()->blog->settings->system->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
+        core()->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);
 
         return true;
     }

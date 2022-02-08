@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Core\Utils;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -163,7 +165,7 @@ class Menu
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
-            '>' . dcCore()->menu->getIconTheme($img) .
+            '>' . core()->menu->getIconTheme($img) .
             '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
     }
 }

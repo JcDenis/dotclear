@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Utils;
@@ -34,8 +36,8 @@ class Meta
      */
     public function __construct()
     {
-        $this->con   = dcCore()->con;
-        $this->table = dcCore()->prefix . 'meta';
+        $this->con   = core()->con;
+        $this->table = core()->prefix . 'meta';
     }
 
     /**
@@ -154,16 +156,16 @@ class Meta
     {
         $post_id = (int) $post_id;
 
-        if (!dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)) {
+        if (!core()->auth->check('usage,contentadmin', core()->blog->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         #�If user can only publish, we need to check the post's owner
-        if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id)) {
+        if (!core()->auth->check('contentadmin', core()->blog->id)) {
             $strReq = 'SELECT post_id ' .
-            'FROM ' . dcCore()->prefix . 'post ' .
+            'FROM ' . core()->prefix . 'post ' .
             'WHERE post_id = ' . $post_id . ' ' .
-            "AND user_id = '" . $this->con->escape(dcCore()->auth->userID()) . "' ";
+            "AND user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
 
             $rs = $this->con->select($strReq);
 
@@ -195,11 +197,11 @@ class Meta
 
         $post_meta = serialize($meta);
 
-        $cur            = $this->con->openCursor(dcCore()->prefix . 'post');
+        $cur            = $this->con->openCursor(core()->prefix . 'post');
         $cur->post_meta = $post_meta;
 
         $cur->update('WHERE post_id = ' . $post_id);
-        dcCore()->blog->triggerBlog();
+        core()->blog->triggerBlog();
     }
 
     /**
@@ -231,7 +233,7 @@ class Meta
 
         unset($params['meta_id']);
 
-        return dcCore()->blog->getPosts($params, $count_only);
+        return core()->blog->getPosts($params, $count_only);
     }
 
     /**
@@ -260,7 +262,7 @@ class Meta
             unset($params['meta_type']);
         }
 
-        return dcCore()->blog->getComments($params, $count_only);
+        return core()->blog->getComments($params, $count_only);
     }
 
     /**
@@ -287,9 +289,9 @@ class Meta
             $strReq = 'SELECT M.meta_id, M.meta_type, COUNT(M.post_id) as count, MAX(P.post_dt) as latest, MIN(P.post_dt) as oldest ';
         }
 
-        $strReq .= 'FROM ' . $this->table . ' M LEFT JOIN ' . dcCore()->prefix . 'post P ' .
+        $strReq .= 'FROM ' . $this->table . ' M LEFT JOIN ' . core()->prefix . 'post P ' .
         'ON M.post_id = P.post_id ' .
-        "WHERE P.blog_id = '" . $this->con->escape(dcCore()->blog->id) . "' ";
+        "WHERE P.blog_id = '" . $this->con->escape(core()->blog->id) . "' ";
 
         if (isset($params['meta_type'])) {
             $strReq .= " AND meta_type = '" . $this->con->escape($params['meta_type']) . "' ";
@@ -303,16 +305,16 @@ class Meta
             $strReq .= ' AND P.post_id ' . $this->con->in($params['post_id']) . ' ';
         }
 
-        if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id)) {
+        if (!core()->auth->check('contentadmin', core()->blog->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
-            if (dcCore()->blog->without_password) {
+            if (core()->blog->without_password) {
                 $strReq .= 'AND post_password IS NULL ';
             }
             $strReq .= ') ';
 
-            if (dcCore()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dcCore()->auth->userID()) . "')";
+            if (core()->auth->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(core()->auth->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -447,13 +449,13 @@ class Meta
         }
 
         $getReq = 'SELECT M.post_id ' .
-        'FROM ' . $this->table . ' M, ' . dcCore()->prefix . 'post P ' .
+        'FROM ' . $this->table . ' M, ' . core()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . $this->con->escape(dcCore()->blog->id) . "' " .
+        "AND P.blog_id = '" . $this->con->escape(core()->blog->id) . "' " .
             "AND meta_id = '%s' ";
 
-        if (!dcCore()->auth->check('contentadmin', dcCore()->blog->id)) {
-            $getReq .= "AND P.user_id = '" . $this->con->escape(dcCore()->auth->userID()) . "' ";
+        if (!core()->auth->check('contentadmin', core()->blog->id)) {
+            $getReq .= "AND P.user_id = '" . $this->con->escape(core()->auth->userID()) . "' ";
         }
         if ($post_type !== null) {
             $getReq .= "AND P.post_type = '" . $this->con->escape($post_type) . "' ";
@@ -543,9 +545,9 @@ class Meta
     public function delMeta($meta_id, $type = null, $post_type = null)
     {
         $strReq = 'SELECT M.post_id ' .
-        'FROM ' . $this->table . ' M, ' . dcCore()->prefix . 'post P ' .
+        'FROM ' . $this->table . ' M, ' . core()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . $this->con->escape(dcCore()->blog->id) . "' " .
+        "AND P.blog_id = '" . $this->con->escape(core()->blog->id) . "' " .
         "AND meta_id = '" . $this->con->escape($meta_id) . "' ";
 
         if ($type !== null) {

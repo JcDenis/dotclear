@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Iconset\TraitModulesIconset;
@@ -22,20 +24,20 @@ class ModulesIconset extends AbstractModules
 
     protected function register(): void
     {
-        dcCore()->adminurl->register(
+        core()->adminurl->register(
             'admin.iconset',
-            dcCore()::ns('Dotclear', 'Module', 'Iconset', 'Admin', 'PageIconset')
+            core()::ns('Dotclear', 'Module', 'Iconset', 'Admin', 'PageIconset')
         );
-        dcCore()->menu->register(
+        core()->menu->register(
             'System',
             __('Iconset management'),
             'admin.iconset',
             'images/menu/no-icon.svg',
-            dcCore()->auth->isSuperAdmin()
+            core()->auth->isSuperAdmin()
         );
-        dcCore()->favs->register('iconsets', [
+        core()->favs->register('iconsets', [
             'title'      => __('Iconsets management'),
-            'url'        => dcCore()->adminurl->get('admin.iconset'),
+            'url'        => core()->adminurl->get('admin.iconset'),
             'small-icon' => 'images/menu/no-icon.svg',
             'large-icon' => 'images/menu/no-icon.svg'
         ]);
@@ -43,12 +45,12 @@ class ModulesIconset extends AbstractModules
 
     public function getModulesURL(array $param = []): string
     {
-        return dcCore()->adminurl->get('admin.iconset', $param);
+        return core()->adminurl->get('admin.iconset', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dcCore()->adminurl->get('admin.iconset.' . $id, $param);
+        return core()->adminurl->get('admin.iconset.' . $id, $param);
     }
 /*
     public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): AbstractModules

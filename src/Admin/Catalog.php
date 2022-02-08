@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Admin\UserPref;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -48,6 +50,6 @@ class Catalog
      */
     public function userColumns($type, $cols)
     {
-        $cols = dcCore()->userpref->getUserColumns($type, $cols);
+        $cols = core()->userpref->getUserColumns($type, $cols);
     }
 }

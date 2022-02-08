@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -45,11 +47,11 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(dcCore()::root('Public', 'Template', DOTCLEAR_TEMPLATE_DEFAULT));
+        $this->tplset_theme = Path::real(core()::root('Public', 'Template', DOTCLEAR_TEMPLATE_DEFAULT));
         $this->tplset_name  = Path::real(DOTCLEAR_TEMPLATE_DEFAULT);
 
         # Current theme
-        $module = dcCore()->themes->getModule((string) dcCore()->blog->settings->system->theme);
+        $module = core()->themes->getModule((string) core()->blog->settings->system->theme);
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }
@@ -57,12 +59,12 @@ class ThemeEditor
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(dcCore()::root('Public', 'Template', $module->templateset()));
+            $this->tplset_theme = Path::real(core()::root('Public', 'Template', $module->templateset()));
             $this->tplset_name  = $module->templateset();
         }
 
         # Parent theme
-        $parent = dcCore()->themes->getModule((string) $module->parent());
+        $parent = core()->themes->getModule((string) $module->parent());
         if ($parent != null) {
             $this->parent_theme = Path::real($parent->root());
             $this->parent_name  = $parent->name();
@@ -324,7 +326,7 @@ class ThemeEditor
         $this->tpl = array_merge($this->tpl, $this->getFilesInDir($this->user_theme . '/tpl'));
 
         # Then we look in 'default-templates' plugins directory
-        $plugins = dcCore()->plugins->getModules();
+        $plugins = core()->plugins->getModules();
         foreach ($plugins as $p) {
             // Looking in default-templates directory
             $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/default-templates'), $this->tpl);

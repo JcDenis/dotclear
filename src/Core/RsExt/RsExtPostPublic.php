@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+use function Dotclear\core;
+
 use Dotclear\Core\RsExt\RsExtPost;
 
 use Dotclear\Html\Html;
@@ -22,10 +24,10 @@ class RsExtPostPublic extends RsExtPost
     public static function getContent($rs, $absolute_urls = false)
     {
         # Not very nice hack but it does the job :)
-        if (isset(dcCore()->context) && dcCore()->context->short_feed_items === true) {
+        if (isset(core()->context) && core()->context->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
-            $c    = dcCore()->conText::remove_html($c);
-            $c    = dcCore()->conText::cut_string($c, 350);
+            $c    = core()->conText::remove_html($c);
+            $c    = core()->conText::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
@@ -34,7 +36,7 @@ class RsExtPostPublic extends RsExtPost
             return $c;
         }
 
-        if (dcCore()->blog->settings->system->use_smilies) {
+        if (core()->blog->settings->system->use_smilies) {
             return self::smilies($rs, parent::getContent($rs, $absolute_urls));
         }
 
@@ -43,7 +45,7 @@ class RsExtPostPublic extends RsExtPost
 
     public static function getExcerpt($rs, $absolute_urls = false)
     {
-        if (dcCore()->blog->settings->system->use_smilies) {
+        if (core()->blog->settings->system->use_smilies) {
             return self::smilies($rs, parent::getExcerpt($rs, $absolute_urls));
         }
 
@@ -52,8 +54,8 @@ class RsExtPostPublic extends RsExtPost
 
     protected static function smilies($rs, $c)
     {
-        dcCore()->context->getSmilies();
+        core()->context->getSmilies();
 
-        return dcCore()->context->addSmilies($c);
+        return core()->context->addSmilies($c);
     }
 }

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Admin\Filter;
@@ -36,7 +38,7 @@ class UserFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminUserFilter
-        dcCore()->behaviors->call('adminUserFilter', $filters);
+        core()->behaviors->call('adminUserFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

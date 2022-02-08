@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Public;
 
+use function Dotclear\core;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -21,21 +23,21 @@ class Attachments
 {
     public function __construct()
     {
-        dcCore()->tpl->addBlock('Attachments', [__CLASS__, 'Attachments']);
-        dcCore()->tpl->addBlock('AttachmentsHeader', [__CLASS__, 'AttachmentsHeader']);
-        dcCore()->tpl->addBlock('AttachmentsFooter', [__CLASS__, 'AttachmentsFooter']);
-        dcCore()->tpl->addValue('AttachmentMimeType', [__CLASS__, 'AttachmentMimeType']);
-        dcCore()->tpl->addValue('AttachmentType', [__CLASS__, 'AttachmentType']);
-        dcCore()->tpl->addValue('AttachmentFileName', [__CLASS__, 'AttachmentFileName']);
-        dcCore()->tpl->addValue('AttachmentSize', [__CLASS__, 'AttachmentSize']);
-        dcCore()->tpl->addValue('AttachmentTitle', [__CLASS__, 'AttachmentTitle']);
-        dcCore()->tpl->addValue('AttachmentThumbnailURL', [__CLASS__, 'AttachmentThumbnailURL']);
-        dcCore()->tpl->addValue('AttachmentURL', [__CLASS__, 'AttachmentURL']);
-        dcCore()->tpl->addValue('MediaURL', [__CLASS__, 'MediaURL']);
-        dcCore()->tpl->addBlock('AttachmentIf', [__CLASS__, 'AttachmentIf']);
-        dcCore()->tpl->addValue('EntryAttachmentCount', [__CLASS__, 'EntryAttachmentCount']);
+        core()->tpl->addBlock('Attachments', [__CLASS__, 'Attachments']);
+        core()->tpl->addBlock('AttachmentsHeader', [__CLASS__, 'AttachmentsHeader']);
+        core()->tpl->addBlock('AttachmentsFooter', [__CLASS__, 'AttachmentsFooter']);
+        core()->tpl->addValue('AttachmentMimeType', [__CLASS__, 'AttachmentMimeType']);
+        core()->tpl->addValue('AttachmentType', [__CLASS__, 'AttachmentType']);
+        core()->tpl->addValue('AttachmentFileName', [__CLASS__, 'AttachmentFileName']);
+        core()->tpl->addValue('AttachmentSize', [__CLASS__, 'AttachmentSize']);
+        core()->tpl->addValue('AttachmentTitle', [__CLASS__, 'AttachmentTitle']);
+        core()->tpl->addValue('AttachmentThumbnailURL', [__CLASS__, 'AttachmentThumbnailURL']);
+        core()->tpl->addValue('AttachmentURL', [__CLASS__, 'AttachmentURL']);
+        core()->tpl->addValue('MediaURL', [__CLASS__, 'MediaURL']);
+        core()->tpl->addBlock('AttachmentIf', [__CLASS__, 'AttachmentIf']);
+        core()->tpl->addValue('EntryAttachmentCount', [__CLASS__, 'EntryAttachmentCount']);
 
-        dcCore()->behaviors->add('tplIfConditions', [__CLASS__, 'tplIfConditions']);
+        core()->behaviors->add('tplIfConditions', [__CLASS__, 'tplIfConditions']);
     }
 
     /*dtd
@@ -44,15 +46,15 @@ class Attachments
     public static function Attachments($attr, $content)
     {
         $res = "<?php\n" .
-            'if (dcCore()->context->posts !== null && dcCore()->media) {' . "\n" .
-            'dcCore()->context->attachments = new ArrayObject(dcCore()->media->getPostMedia(dcCore()->context->posts->post_id,null,"attachment"));' . "\n" .
+            'if (core()->context->posts !== null && core()->media) {' . "\n" .
+            'core()->context->attachments = new ArrayObject(core()->media->getPostMedia(core()->context->posts->post_id,null,"attachment"));' . "\n" .
             "?>\n" .
 
-            '<?php foreach (dcCore()->context->attachments as $attach_i => $attach_f) : ' .
+            '<?php foreach (core()->context->attachments as $attach_i => $attach_f) : ' .
             '$GLOBALS[\'attach_i\'] = $attach_i; $GLOBALS[\'attach_f\'] = $attach_f;' .
-            'dcCore()->context->file_url = $attach_f->file_url; ?>' .
+            'core()->context->file_url = $attach_f->file_url; ?>' .
             $content .
-            '<?php endforeach; dcCore()->context->attachments = null; unset($attach_i,$attach_f,dcCore()->context->file_url); ?>' .
+            '<?php endforeach; core()->context->attachments = null; unset($attach_i,$attach_f,core()->context->file_url); ?>' .
 
             "<?php } ?>\n";
 
@@ -76,7 +78,7 @@ class Attachments
     public static function AttachmentsFooter($attr, $content)
     {
         return
-            '<?php if ($attach_i+1 == count(dcCore()->context->attachments)) : ?>' .
+            '<?php if ($attach_i+1 == count(core()->context->attachments)) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -96,7 +98,7 @@ class Attachments
     {
         $if = [];
 
-        $operator = isset($attr['operator']) ? dcCore()->tpl::getOperator($attr['operator']) : '&&';
+        $operator = isset($attr['operator']) ? core()->tpl::getOperator($attr['operator']) : '&&';
 
         if (isset($attr['is_image'])) {
             $sign = (boolean) $attr['is_image'] ? '' : '!';
@@ -147,7 +149,7 @@ class Attachments
      */
     public static function AttachmentMimeType($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->type') . '; ?>';
     }
@@ -157,7 +159,7 @@ class Attachments
      */
     public static function AttachmentType($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->media_type') . '; ?>';
     }
@@ -167,7 +169,7 @@ class Attachments
      */
     public static function AttachmentFileName($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->basename') . '; ?>';
     }
@@ -180,7 +182,7 @@ class Attachments
      */
     public static function AttachmentSize($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
         if (!empty($attr['full'])) {
             return '<?php echo ' . sprintf($f, '$attach_f->size') . '; ?>';
         }
@@ -193,7 +195,7 @@ class Attachments
      */
     public static function AttachmentTitle($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->media_title') . '; ?>';
     }
@@ -203,7 +205,7 @@ class Attachments
      */
     public static function AttachmentThumbnailURL($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return
         '<?php ' .
@@ -218,16 +220,16 @@ class Attachments
      */
     public static function AttachmentURL($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->file_url') . '; ?>';
     }
 
     public static function MediaURL($attr)
     {
-        $f = dcCore()->tpl->getFilters($attr);
+        $f = core()->tpl->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dcCore()->context->file_url') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'core()->context->file_url') . '; ?>';
     }
 
     /*dtd
@@ -240,8 +242,8 @@ class Attachments
      */
     public static function EntryAttachmentCount($attr)
     {
-        return dcCore()->tpl->displayCounter(
-            'dcCore()->context->posts->countMedia(\'attachment\')',
+        return core()->tpl->displayCounter(
+            'core()->context->posts->countMedia(\'attachment\')',
             [
                 'none' => 'no attachments',
                 'one'  => 'one attachment',
@@ -256,7 +258,7 @@ class Attachments
     {
         if ($tag == 'EntryIf' && isset($attr['has_attachment'])) {
             $sign = (boolean) $attr['has_attachment'] ? '' : '!';
-            $if[] = $sign . 'dcCore()->context->posts->countMedia(\'attachment\')';
+            $if[] = $sign . 'core()->context->posts->countMedia(\'attachment\')';
         }
     }
 }

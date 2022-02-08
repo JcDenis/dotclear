@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -70,11 +72,11 @@ class Auth
      */
     public function __construct()
     {
-        $this->con        = dcCore()->con;
+        $this->con        = core()->con;
         $this->container  = new ContainerUser();
-        $this->blog_table = dcCore()->prefix . 'blog';
-        $this->user_table = dcCore()->prefix . 'user';
-        $this->perm_table = dcCore()->prefix . 'permissions';
+        $this->blog_table = core()->prefix . 'blog';
+        $this->user_table = core()->prefix . 'user';
+        $this->perm_table = core()->prefix . 'permissions';
 
         $this->perm_types = [
             'admin'        => __('administrator'),
@@ -260,11 +262,11 @@ class Auth
      */
     public function checkSession(?string $uid = null): bool
     {
-        dcCore()->session->start();
+        core()->session->start();
 
         # If session does not exist, logout.
         if (!isset($_SESSION['sess_user_id'])) {
-            dcCore()->session->destroy();
+            core()->session->destroy();
 
             return false;
         }
@@ -276,7 +278,7 @@ class Auth
         $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
 
         if (!$user_can_log) {
-            dcCore()->session->destroy();
+            core()->session->destroy();
 
             return false;
         }
@@ -444,7 +446,7 @@ class Auth
     public function getBlogCount(): int
     {
         if ($this->blog_count === null) {
-            $this->blog_count = dcCore()->getBlogs([], true)->f(0);  // @phpstan-ignore-line
+            $this->blog_count = core()->getBlogs([], true)->f(0);  // @phpstan-ignore-line
         }
 
         return (int) $this->blog_count;

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Iconset\ThomasDaveluy\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Module\AbstractPrepend;
@@ -30,11 +32,11 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dcCore()->behaviors->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
+        core()->behaviors->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
     }
 
     public static function adminIconsetCombo(ArrayObject $iconsets)
     {
-        $iconsets['Thomas Daveluy'] = Path::real(dcCore()::path(__DIR__, '..'));
+        $iconsets['Thomas Daveluy'] = Path::real(core()::path(__DIR__, '..'));
     }
 }

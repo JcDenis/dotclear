@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 
@@ -31,8 +33,8 @@ class PostMedia
      */
     public function __construct()
     {
-        $this->con   = dcCore()->con;
-        $this->table = dcCore()->prefix . 'post_media';
+        $this->con   = core()->con;
+        $this->table = core()->prefix . 'post_media';
     }
 
     /**
@@ -51,7 +53,7 @@ class PostMedia
             $strReq .= implode(', ', $params['columns']) . ', ';
         }
 
-        $strReq .= 'FROM ' . dcCore()->prefix . 'media M ' .
+        $strReq .= 'FROM ' . core()->prefix . 'media M ' .
         'INNER JOIN ' . $this->table . ' PM ON (M.media_id = PM.media_id) ';
 
         if (!empty($params['from'])) {
@@ -109,7 +111,7 @@ class PostMedia
         $cur->link_type = $link_type;
 
         $cur->insert();
-        dcCore()->blog->triggerBlog();
+        core()->blog->triggerBlog();
     }
 
     /**
@@ -131,6 +133,6 @@ class PostMedia
             $strReq .= "AND link_type = '" . $this->con->escape($link_type) . "'";
         }
         $this->con->execute($strReq);
-        dcCore()->blog->triggerBlog();
+        core()->blog->triggerBlog();
     }
 }

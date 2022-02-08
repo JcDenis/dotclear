@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Admin\Menu;
@@ -32,14 +34,14 @@ class Menus extends ArrayObject
     public function __construct()
     {
         if (!self::$iconset) {
-            self::$iconset   = (string) @dcCore()->auth->user_prefs->interface->iconset;
+            self::$iconset   = (string) @core()->auth->user_prefs->interface->iconset;
         }
 
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
-        if (!dcCore()->auth->user_prefs->interface->nofavmenu) {
-            dcCore()->favs->appendMenuTitle($this);
+        if (!core()->auth->user_prefs->interface->nofavmenu) {
+            core()->favs->appendMenuTitle($this);
         }
         $this->add('Blog', 'blog-menu', __('Blog'));
         $this->add('System', 'system-menu', __('System settings'));
@@ -72,14 +74,14 @@ class Menus extends ArrayObject
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
-        $match = dcCore()->adminurl->called() == $adminurl;
+        $match = core()->adminurl->called() == $adminurl;
         if ($strict && $match) {
             $match = count($_GET) == 1;
         }
 
         $this->offsetGet($section)->prependItem(
             $desc,
-            dcCore()->adminurl->get($adminurl),
+            core()->adminurl->get($adminurl),
             $icon,
             $match,
             $perm,
@@ -168,7 +170,7 @@ class Menus extends ArrayObject
                     }
                     /*
                     # Not in iconset nor in Dotclear
-                    $icon = Path::real(dcCore()::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
+                    $icon = Path::real(core()::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }
@@ -188,7 +190,7 @@ class Menus extends ArrayObject
     public function setup()
     {
         $this->initDefaultMenus();
-        dcCore()->behaviors->call('adminMenus', $this);
+        core()->behaviors->call('adminMenus', $this);
     }
 
     protected function initDefaultMenus()
@@ -199,49 +201,49 @@ class Menus extends ArrayObject
             __('Blog settings'),
             'admin.blog.pref',
             ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            dcCore()->auth->check('admin', dcCore()->blog->id)
+            core()->auth->check('admin', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('Media manager'),
             'admin.media',
             ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-            dcCore()->auth->check('media,media_admin', dcCore()->blog->id)
+            core()->auth->check('media,media_admin', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('Categories'),
             'admin.categories',
             ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-            dcCore()->auth->check('categories', dcCore()->blog->id)
+            core()->auth->check('categories', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('Search'),
             'admin.search',
             ['images/menu/search.svg','images/menu/search-dark.svg'],
-            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
+            core()->auth->check('usage,contentadmin', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('Comments'),
             'admin.comments',
             ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
+            core()->auth->check('usage,contentadmin', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('Posts'),
             'admin.posts',
             ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id)
+            core()->auth->check('usage,contentadmin', core()->blog->id)
         );
         $this->register(
             'Blog',
             __('New post'),
             'admin.post',
              ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id),
+            core()->auth->check('usage,contentadmin', core()->blog->id),
             true,
             true
         );
@@ -251,28 +253,28 @@ class Menus extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dcCore()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
+            core()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
         );
         $this->register(
             'System',
             __('Languages'),
             'admin.langs',
             ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
-            dcCore()->auth->isSuperAdmin()
+            core()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Users'),
             'admin.users',
             'images/menu/users.svg',
-            dcCore()->auth->isSuperAdmin()
+            core()->auth->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Blogs'),
             'admin.blogs',
             ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-            dcCore()->auth->isSuperAdmin() || dcCore()->auth->check('usage,contentadmin', dcCore()->blog->id) && dcCore()->auth->getBlogCount() > 1
+            core()->auth->isSuperAdmin() || core()->auth->check('usage,contentadmin', core()->blog->id) && core()->auth->getBlogCount() > 1
         );
     }
 }

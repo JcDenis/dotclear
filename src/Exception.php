@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear;
 
-use Dotclear;
+use Dotclear\App;
 
 class Exception extends \RuntimeException
 {
@@ -23,7 +23,7 @@ class Exception extends \RuntimeException
 
         # In VERBOSE mode all Exceptions are shown and stop process even if they're caught
         if (defined('DOTCLEAR_RUN_LEVEL') && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_VERBOSE) {
-            Dotclear::error($message, str_replace("\n", '<br />', $this->getTraceAsString()), $code);
+            App::error($message, str_replace("\n", '<br />', $this->getTraceAsString()), $code);
         }
     }
 }

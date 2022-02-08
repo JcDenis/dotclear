@@ -10,7 +10,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.3.0"
+    "php": ">=8.0.0"
   },
   "require-dev": {
     "atoum/atoum": "dev-master",
@@ -29,8 +29,8 @@
     "bin-dir": "bin/"
   },
   "autoload": {
-    "psr-0": {
-      "": ""
+    "psr-4": {
+      "Dotclear\\": "src/"
     }
   }
 }

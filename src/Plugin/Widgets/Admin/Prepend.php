@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Module\AbstractPrepend;
@@ -36,7 +38,7 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites();
 
         # rte
-        dcCore()->behaviors->add('adminRteFlags', function (ArrayObject $rte): void {
+        core()->behaviors->add('adminRteFlags', function (ArrayObject $rte): void {
             $rte['widgets_text'] = [true, __('Widget\'s textareas')];
         });
 
@@ -47,7 +49,7 @@ class Prepend extends AbstractPrepend
     public static function installModule(): ?bool
     {
         $widgets  = new Widgets();
-        $settings = dcCore()->blog->settings;
+        $settings = core()->blog->settings;
         $settings->addNamespace('widgets');
         if ($settings->widgets->widgets_nav != null) {
             $settings->widgets->put('widgets_nav', $widgets->load($settings->widgets->widgets_nav)->store());

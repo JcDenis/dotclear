@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset;
 
+use function Dotclear\core;
+
 trait TraitModulesIconset
 {
     public function getModulesType(): string
@@ -26,7 +28,7 @@ trait TraitModulesIconset
 
     public function getStoreURL(): string
     {
-        return (string) dcCore()->blog->settings->system->store_iconset_url;
+        return (string) core()->blog->settings->system->store_iconset_url;
     }
 
     public function useStoreCache(): bool

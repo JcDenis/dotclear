@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
@@ -45,9 +47,9 @@ class Log
      */
     public function __construct()
     {
-        $this->con        = dcCore()->con;
-        $this->log_table  = dcCore()->prefix . 'log';
-        $this->user_table = dcCore()->prefix . 'user';
+        $this->con        = core()->con;
+        $this->log_table  = core()->prefix . 'log';
+        $this->user_table = core()->prefix . 'user';
     }
 
     /**
@@ -106,7 +108,7 @@ class Log
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
-            $sql->where('L.blog_id = ' . $sql->quote(dcCore()->blog->id));
+            $sql->where('L.blog_id = ' . $sql->quote(core()->blog->id));
         }
 
         if (!empty($params['user_id'])) {
@@ -158,13 +160,13 @@ class Log
             $rs = $sql->select();
 
             $cur->log_id  = (int) $rs->f(0) + 1;
-            $cur->blog_id = (string) dcCore()->blog->id;
+            $cur->blog_id = (string) core()->blog->id;
             $cur->log_dt  = date('Y-m-d H:i:s');
 
             $this->getLogCursor($cur, $cur->log_id);
 
             # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-            dcCore()->behaviors->call('coreBeforeLogCreate', $this, $cur);
+            core()->behaviors->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
             $this->con->unlock();
@@ -175,7 +177,7 @@ class Log
         }
 
         # --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-        dcCore()->behaviors->call('coreAfterLogCreate', $this, $cur);
+        core()->behaviors->call('coreAfterLogCreate', $this, $cur);
 
         return (int) $cur->log_id;
     }

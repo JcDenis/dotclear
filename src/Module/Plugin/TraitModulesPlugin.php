@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin;
 
+use function Dotclear\core;
+
 trait TraitModulesPlugin
 {
     public function getModulesType(): string
@@ -26,7 +28,7 @@ trait TraitModulesPlugin
 
     public function getStoreURL(): string
     {
-        return (string) dcCore()->blog->settings->system->store_plugin_url;
+        return (string) core()->blog->settings->system->store_plugin_url;
     }
 
     public function useStoreCache(): bool

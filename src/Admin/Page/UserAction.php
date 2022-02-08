@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -43,7 +45,7 @@ class UserAction extends Page
         $this->users = [];
         if (!empty($_POST['users']) && is_array($_POST['users'])) {
             foreach ($_POST['users'] as $u) {
-                if (dcCore()->userExists($u)) {
+                if (core()->userExists($u)) {
                     $this->users[] = $u;
                 }
             }
@@ -52,7 +54,7 @@ class UserAction extends Page
         $this->blogs = [];
         if (!empty($_POST['blogs']) && is_array($_POST['blogs'])) {
             foreach ($_POST['blogs'] as $b) {
-                if (dcCore()->blogExists($b)) {
+                if (core()->blogExists($b)) {
                     $this->blogs[] = $b;
                 }
             }
@@ -64,7 +66,7 @@ class UserAction extends Page
             if (isset($_POST['redir']) && strpos($_POST['redir'], '://') === false) {
                 $this->redir = $_POST['redir'];
             } else {
-                $this->redir = dcCore()->adminurl->get('admin.users', [
+                $this->redir = core()->adminurl->get('admin.users', [
                     'q'      => $_POST['q'] ?? '',
                     'sortby' => $_POST['sortby'] ?? '',
                     'order'  => $_POST['order'] ?? '',
@@ -74,30 +76,30 @@ class UserAction extends Page
             }
 
             if (empty($this->users)) {
-                dcCore()->error(__('No blog or user given.'));
+                core()->error(__('No blog or user given.'));
             }
 
             # --BEHAVIOR-- adminUsersActions
-            dcCore()->behaviors->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->redir);
+            core()->behaviors->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->redir);
 
             # Delete users
             if ($this->user_action == 'deleteuser' && !empty($this->users)) {
                 foreach ($this->users as $u) {
                     try {
-                        if ($u == dcCore()->auth->userID()) {
+                        if ($u == core()->auth->userID()) {
                             throw new AdminException(__('You cannot delete yourself.'));
                         }
 
                         # --BEHAVIOR-- adminBeforeUserDelete
-                        dcCore()->behaviors->call('adminBeforeUserDelete', $u);
+                        core()->behaviors->call('adminBeforeUserDelete', $u);
 
-                        dcCore()->delUser($u);
+                        core()->delUser($u);
                     } catch (Exception $e) {
-                        dcCore()->error($e->getMessage());
+                        core()->error($e->getMessage());
                     }
                 }
-                if (!dcCore()->error()->flag()) {
-                    dcCore()->notices->addSuccessNotice(__('User has been successfully deleted.'));
+                if (!core()->error()->flag()) {
+                    core()->notices->addSuccessNotice(__('User has been successfully deleted.'));
                     Http::redirect($this->redir);
                 }
             }
@@ -105,7 +107,7 @@ class UserAction extends Page
             # Update users perms
             if ($this->user_action == 'updateperm' && !empty($this->users) && !empty($this->blogs)) {
                 try {
-                    if (empty($_POST['your_pwd']) || !dcCore()->auth->checkPassword($_POST['your_pwd'])) {
+                    if (empty($_POST['your_pwd']) || !core()->auth->checkPassword($_POST['your_pwd'])) {
                         throw new AdminException(__('Password verification failed'));
                     }
 
@@ -121,14 +123,14 @@ class UserAction extends Page
                                 }
                             }
 
-                            dcCore()->setUserBlogPermissions($u, $b, $set_perms, true);
+                            core()->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
                 } catch (Exception $e) {
-                    dcCore()->error($e->getMessage());
+                    core()->error($e->getMessage());
                 }
-                if (!dcCore()->error()->flag()) {
-                    dcCore()->notices->addSuccessNotice(__('User has been successfully updated.'));
+                if (!core()->error()->flag()) {
+                    core()->notices->addSuccessNotice(__('User has been successfully updated.'));
                     Http::redirect($this->redir);
                 }
             }
@@ -137,13 +139,13 @@ class UserAction extends Page
         if (!empty($this->users) && empty($this->blogs) && $this->user_action == 'blogs') {
             $this->setPageBreadcrumb([
                 __('System')      => '',
-                __('Users')       => dcCore()->adminurl->get('admin.users'),
+                __('Users')       => core()->adminurl->get('admin.users'),
                 __('Permissions') => ''
             ]);
         } else {
             $this->setPageBreadcrumb([
                 __('System')  => '',
-                __('Users')   => dcCore()->adminurl->get('admin.users'),
+                __('Users')   => core()->adminurl->get('admin.users'),
                 __('Actions') => ''
             ]);
         }
@@ -154,7 +156,7 @@ class UserAction extends Page
             ->setPageHead(
                 static::jsLoad('js/_users_actions.js') .
                 # --BEHAVIOR-- adminUsersActionsHeaders
-                dcCore()->behaviors->call('adminUsersActionsHeaders')
+                core()->behaviors->call('adminUsersActionsHeaders')
             )
         ;
 
@@ -186,7 +188,7 @@ class UserAction extends Page
         echo '<p><a class="back" href="' . Html::escapeURL($this->redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
 
         # --BEHAVIOR-- adminUsersActionsContent
-        dcCore()->behaviors->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
+        core()->behaviors->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
 
         # Blog list where to set permissions
         if (!empty($this->users) && empty($this->blogs) && $this->user_action == 'blogs') {
@@ -195,13 +197,13 @@ class UserAction extends Page
             $user_list = [];
 
             try {
-                $rs      = dcCore()->getBlogs();
+                $rs      = core()->getBlogs();
                 $nb_blog = $rs->count();
             } catch (Exception $e) {
             }
 
             foreach ($this->users as $u) {
-                $user_list[] = '<a href="' . dcCore()->adminurl->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
+                $user_list[] = '<a href="' . core()->adminurl->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
             echo
@@ -214,7 +216,7 @@ class UserAction extends Page
                 echo '<p><strong>' . __('No blog') . '</strong></p>';
             } else {
                 echo
-                '<form action="' . dcCore()->adminurl->get('admin.user.actions') . '" method="post" id="form-blogs">' .
+                '<form action="' . core()->adminurl->get('admin.user.actions') . '" method="post" id="form-blogs">' .
                 '<div class="table-outer clear">' .
                 '<table><tr>' .
                 '<th class="nowrap" colspan="2">' . __('Blog ID') . '</th>' .
@@ -226,7 +228,7 @@ class UserAction extends Page
 
                 while ($rs->fetch()) {
                     $img_status = $rs->blog_status == 1 ? 'check-on' : ($rs->blog_status == 0 ? 'check-off' : 'check-wrn');
-                    $txt_status = dcCore()->getBlogStatus((int) $rs->blog_status);
+                    $txt_status = core()->getBlogStatus((int) $rs->blog_status);
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo
@@ -241,7 +243,7 @@ class UserAction extends Page
                     '<td class="maximal">' . Html::escapeHTML($rs->blog_name) . '</td>' .
                     '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->blog_url) . '">' . Html::escapeHTML($rs->blog_url) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . dcCore()->countBlogPosts($rs->blog_id) . '</td>' .
+                    '<td class="nowrap">' . core()->countBlogPosts($rs->blog_id) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }
@@ -252,7 +254,7 @@ class UserAction extends Page
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
                 Form::hidden(['action'], 'perms') .
-                dcCore()->formNonce() . '</p>' .
+                core()->formNonce() . '</p>' .
                     '</form>';
             }
 
@@ -260,11 +262,11 @@ class UserAction extends Page
         } elseif (!empty($this->blogs) && !empty($this->users) && $this->user_action == 'perms') {
             $user_perm = [];
             if (count($this->users) == 1) {
-                $user_perm = dcCore()->getUserPermissions($this->users[0]);
+                $user_perm = core()->getUserPermissions($this->users[0]);
             }
 
             foreach ($this->users as $u) {
-                $user_list[] = '<a href="' . dcCore()->adminurl->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
+                $user_list[] = '<a href="' . core()->adminurl->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
             echo
@@ -272,13 +274,13 @@ class UserAction extends Page
                 __('You are about to change permissions on the following blogs for users %s.'),
                 implode(', ', $user_list)
             ) . '</p>' .
-            '<form id="permissions-form" action="' . dcCore()->adminurl->get('admin.user.actions') . '" method="post">';
+            '<form id="permissions-form" action="' . core()->adminurl->get('admin.user.actions') . '" method="post">';
 
             foreach ($this->blogs as $b) {
-                echo '<h3>' . ('Blog:') . ' <a href="' . dcCore()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
+                echo '<h3>' . ('Blog:') . ' <a href="' . core()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 Form::hidden(['blogs[]'], $b) . '</h3>';
                 $unknown_perms = $user_perm;
-                foreach (dcCore()->auth->getPermissionsTypes() as $perm_id => $perm) {
+                foreach (core()->auth->getPermissionsTypes() as $perm_id => $perm) {
                     $checked = false;
 
                     if (count($this->users) == 1) {
@@ -322,7 +324,7 @@ class UserAction extends Page
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
             Form::hidden(['action'], 'updateperm') .
-            dcCore()->formNonce() . '</p>' .
+            core()->formNonce() . '</p>' .
                 '</div>' .
                 '</form>';
         }

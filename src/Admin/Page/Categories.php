@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -47,21 +49,21 @@ class Categories extends Page
             $cat_id = (int) $keys[0];
 
             # Check if category to delete exists
-            $category = dcCore()->blog->getCategory($cat_id);
+            $category = core()->blog->getCategory($cat_id);
             if ($category->isEmpty()) {
-                dcCore()->notices->addErrorNotice(__('This category does not exist.'));
-                dcCore()->adminurl->redirect('admin.categories');
+                core()->notices->addErrorNotice(__('This category does not exist.'));
+                core()->adminurl->redirect('admin.categories');
             }
             $name = $category->cat_title;
             unset($category);
 
             try {
                 # Delete category
-                dcCore()->blog->delCategory($cat_id);
-                dcCore()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
-                dcCore()->adminurl->redirect('admin.categories');
+                core()->blog->delCategory($cat_id);
+                core()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
+                core()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -76,7 +78,7 @@ class Categories extends Page
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if ($mov_cat !== null) {
-                    $category = dcCore()->blog->getCategory($mov_cat);
+                    $category = core()->blog->getCategory($mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -85,15 +87,15 @@ class Categories extends Page
                 }
                 # Move posts
                 if ($mov_cat != $cat_id) {
-                    dcCore()->blog->changePostsCategory($cat_id, $mov_cat);
+                    core()->blog->changePostsCategory($cat_id, $mov_cat);
                 }
-                dcCore()->notices->addSuccessNotice(sprintf(
+                core()->notices->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
                     Html::escapeHTML($name)
                 ));
-                dcCore()->adminurl->redirect('admin.categories');
+                core()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -103,30 +105,30 @@ class Categories extends Page
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    dcCore()->blog->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
+                    core()->blog->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
                 }
             }
 
-            dcCore()->notices->addSuccessNotice(__('Categories have been successfully reordered.'));
-            dcCore()->adminurl->redirect('admin.categories');
+            core()->notices->addSuccessNotice(__('Categories have been successfully reordered.'));
+            core()->adminurl->redirect('admin.categories');
         }
 
         # Reset order
         if (!empty($_POST['reset'])) {
             try {
-                dcCore()->blog->resetCategoriesOrder();
-                dcCore()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
-                dcCore()->adminurl->redirect('admin.categories');
+                core()->blog->resetCategoriesOrder();
+                core()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
+                core()->adminurl->redirect('admin.categories');
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
-        $this->caregories = dcCore()->blog->getCategories();
+        $this->caregories = core()->blog->getCategories();
 
         # Page setup
-        if (!dcCore()->auth->user_prefs->accessibility->nodragdrop
-            && dcCore()->auth->check('categories', dcCore()->blog->id)
+        if (!core()->auth->user_prefs->accessibility->nodragdrop
+            && core()->auth->check('categories', core()->blog->id)
             && $this->caregories->count() > 1) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
@@ -143,7 +145,7 @@ class Categories extends Page
                 static::jsLoad('js/_categories.js')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dcCore()->blog->name) => '',
+                Html::escapeHTML(core()->blog->name) => '',
                 __('Categories')                          => ''
             ])
         ;
@@ -154,19 +156,19 @@ class Categories extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['del'])) {
-            dcCore()->notices->success(__('The category has been successfully removed.'));
+            core()->notices->success(__('The category has been successfully removed.'));
         }
         if (!empty($_GET['reord'])) {
-            dcCore()->notices->success(__('Categories have been successfully reordered.'));
+            core()->notices->success(__('Categories have been successfully reordered.'));
         }
         if (!empty($_GET['move'])) {
-            dcCore()->notices->success(__('Entries have been successfully moved to the category you choose.'));
+            core()->notices->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
-        $categories_combo = dcCore()->combos->getCategoriesCombo($this->caregories);
+        $categories_combo = core()->combos->getCategoriesCombo($this->caregories);
 
         echo
-        '<p class="top-add"><a class="button add" href="' . dcCore()->adminurl->get('admin.category') . '">' . __('New category') . '</a></p>';
+        '<p class="top-add"><a class="button add" href="' . core()->adminurl->get('admin.category') . '">' . __('New category') . '</a></p>';
 
         echo
             '<div class="col">';
@@ -174,7 +176,7 @@ class Categories extends Page
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
             echo
-            '<form action="' . dcCore()->adminurl->get('admin.categories') . '" method="post" id="form-categories">' .
+            '<form action="' . core()->adminurl->get('admin.categories') . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
             $ref_level = $level = $this->caregories->level - 1;
@@ -193,9 +195,9 @@ class Categories extends Page
 
                 echo
                 '<p class="cat-title"><label class="classic" for="cat_' . $this->caregories->cat_id . '"><a href="' .
-                dcCore()->adminurl->get('admin.category', ['id' => $this->caregories->cat_id]) . '">' . Html::escapeHTML($this->caregories->cat_title) .
+                core()->adminurl->get('admin.category', ['id' => $this->caregories->cat_id]) . '">' . Html::escapeHTML($this->caregories->cat_title) .
                 '</a></label> </p>' .
-                '<p class="cat-nb-posts">(<a href="' . dcCore()->adminurl->get('admin.posts', ['cat_id' => $this->caregories->cat_id]) . '">' .
+                '<p class="cat-nb-posts">(<a href="' . core()->adminurl->get('admin.posts', ['cat_id' => $this->caregories->cat_id]) . '">' .
                 sprintf(($this->caregories->nb_post > 1 ? __('%d entries') : __('%d entry')), $this->caregories->nb_post) . '</a>' .
                 ', ' . __('total:') . ' ' . $this->caregories->nb_total . ')</p>' .
                 '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->caregories->cat_url) . '</code></p>';
@@ -232,8 +234,8 @@ class Categories extends Page
 
             echo '<div class="clear">';
 
-            if (dcCore()->auth->check('categories', dcCore()->blog->id) && $this->caregories->count() > 1) {
-                if (!dcCore()->auth->user_prefs->accessibility->nodragdrop) {
+            if (core()->auth->check('categories', core()->blog->id) && $this->caregories->count() > 1) {
+                if (!core()->auth->user_prefs->accessibility->nodragdrop) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
                 echo
@@ -247,7 +249,7 @@ class Categories extends Page
 
             echo
             '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            dcCore()->formNonce() . '</p>' .
+            core()->formNonce() . '</p>' .
                 '</div></form>';
         }
 

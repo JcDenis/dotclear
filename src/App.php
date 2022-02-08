@@ -17,6 +17,8 @@
  */
 declare(strict_types=1);
 
+namespace Dotclear;
+
 # This is more a mode level rather than an error level !
 # Define one of this level in DOTCLEAR_RUN_LEVEL
 define('DOTCLEAR_RUN_PRODUCTION', 0);
@@ -25,7 +27,7 @@ define('DOTCLEAR_RUN_DEPRECATED', 512);
 define('DOTCLEAR_RUN_DEBUG', 1024);
 define('DOTCLEAR_RUN_VERBOSE', 2048);
 
-Class Dotclear
+Class App
 {
     /** @var    Autoloader  Dotclear custom autoloader */
     public static $autoloader;
@@ -36,12 +38,10 @@ Class Dotclear
      * Call statically Dotclear process
      *
      * @param  string $process The process (admin,install,public...)
-     * @param  array  $args    The arguments (only args[0] for blog id)
+     * @param  string  $blog_id    The blog id for public process
      */
-    public static function __callStatic(string $process, array $args): void
+    public function __construct(string $process, ?string $blog_id = null)
     {
-        # Optionnal firt argument is the blog ID
-        $blog_id = isset($args[0]) && is_string($args[0]) ? $args[0] : null;
 
         # Timer and memory usage for stats and dev
         if (!defined('DOTCLEAR_START_TIME')) {
@@ -59,8 +59,8 @@ Class Dotclear
         # Dotclear autoloader (once)
         if (!static::$autoloader) {
             require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoloader.php']);
-            static::$autoloader = new Dotclear\Utils\Autoloader();
-            static::$autoloader->addNamespace(__CLASS__, DOTCLEAR_ROOT_DIR);
+            static::$autoloader = new Utils\Autoloader();
+            static::$autoloader->addNamespace(__NAMESPACE__, DOTCLEAR_ROOT_DIR);
         }
 
         //*
@@ -69,8 +69,8 @@ Class Dotclear
         //*/
 
         # Find process (Admin|Public|Install|...)
-        $class = implode('\\', [__CLASS__, ucfirst(strtolower($process)), 'Prepend']);
-        if (!is_subclass_of($class, __CLASS__ . '\\Core\\Core')) {
+        $class = implode('\\', [__NAMESPACE__, ucfirst(strtolower($process)), 'Prepend']);
+        if (!is_subclass_of($class, __NAMESPACE__ . '\\Core\\Core')) {
             static::error('No process', 'Something went wrong while trying to start process.', 5);
         }
 
@@ -98,8 +98,14 @@ Class Dotclear
      */
     public static function core()
     {
-        $class = __CLASS__ . '\\Core\\Core';
+        $class = __NAMESPACE__ . '\\Core\\Core';
         return $class::coreInstance();
+    }
+
+    public static function error_handler(int $errno, string $errstr, string $errfile, int $errline): bool
+    {
+        static::error('Fatal error: ' . $errno, $errstr . ' in ' . $errfile . ':' . $errline);
+        return false;
     }
 
     /**
@@ -193,7 +199,7 @@ Class Dotclear
 }
 
 /** @see Dotclear::core() */
-function dcCore()
+function core()
 {
-    return Dotclear::core();
+    return App::core();
 }

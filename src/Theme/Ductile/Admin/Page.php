@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
@@ -114,19 +116,19 @@ class Page extends AbstractPage
             }
         }
 
-        $ductile_user = (string) dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_style');
+        $ductile_user = (string) core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_style');
         $ductile_user = @unserialize($ductile_user);
         if (is_array($ductile_user)) {
             $this->Ductile_user = array_merge($this->Ductile_user, $ductile_user);
         }
 
-        $ductile_lists = (string) dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_lists');
+        $ductile_lists = (string) core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_entries_lists');
         $ductile_lists = @unserialize($ductile_lists);
         if (is_array($ductile_lists)) {
             $this->Ductile_lists = array_merge($this->Ductile_lists, $ductile_lists);
         }
 
-        $ductile_counts = (string) dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_entries_counts');
+        $ductile_counts = (string) core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_entries_counts');
         $ductile_counts = @unserialize($ductile_counts);
         if (is_array($ductile_counts)) {
             $this->Ductile_counts = array_merge($this->Ductile_counts, $ductile_counts);
@@ -134,12 +136,12 @@ class Page extends AbstractPage
 
         $this->Ductile_stickers = [[
             'label' => __('Subscribe'),
-            'url'   => dcCore()->blog->url .
-            dcCore()->url->getURLFor('feed', 'atom'),
+            'url'   => core()->blog->url .
+            core()->url->getURLFor('feed', 'atom'),
             'image' => 'sticker-feed.png'
         ]];
 
-        $ductile_stickers = (string) dcCore()->blog->settings->themes->get(dcCore()->blog->settings->system->theme . '_stickers');
+        $ductile_stickers = (string) core()->blog->settings->themes->get(core()->blog->settings->system->theme . '_stickers');
         $ductile_stickers = @unserialize($ductile_stickers);
         if (is_array($ductile_stickers)) {
             $this->Ductile_stickers = $ductile_stickers;
@@ -246,17 +248,17 @@ class Page extends AbstractPage
                     $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
                 }
 
-                dcCore()->blog->settings->themes->put(dcCore()->blog->settings->system->theme . '_style', serialize($this->Ductile_user));
-                dcCore()->blog->settings->themes->put(dcCore()->blog->settings->system->theme . '_stickers', serialize($this->Ductile_stickers));
-                dcCore()->blog->settings->themes->put(dcCore()->blog->settings->system->theme . '_entries_lists', serialize($this->Ductile_lists));
-                dcCore()->blog->settings->themes->put(dcCore()->blog->settings->system->theme . '_entries_counts', serialize($this->Ductile_counts));
+                core()->blog->settings->themes->put(core()->blog->settings->system->theme . '_style', serialize($this->Ductile_user));
+                core()->blog->settings->themes->put(core()->blog->settings->system->theme . '_stickers', serialize($this->Ductile_stickers));
+                core()->blog->settings->themes->put(core()->blog->settings->system->theme . '_entries_lists', serialize($this->Ductile_lists));
+                core()->blog->settings->themes->put(core()->blog->settings->system->theme . '_entries_counts', serialize($this->Ductile_counts));
 
-                dcCore()->blog->triggerBlog();
-                dcCore()->emptyTemplatesCache();
+                core()->blog->triggerBlog();
+                core()->emptyTemplatesCache();
 
-                dcCore()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
+                core()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
             } catch (Exception $e) {
-                dcCore()->error($e->getMessage());
+                core()->error($e->getMessage());
             }
         }
 
@@ -266,13 +268,13 @@ class Page extends AbstractPage
             ->setPageHelp('ductile')
             ->setPageHead(static::jsPageTabs())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dcCore()->blog->name) => '',
-                __('Blog appearance')               => dcCore()->adminurl->get('admin.blog.theme'),
+                Html::escapeHTML(core()->blog->name) => '',
+                __('Blog appearance')               => core()->adminurl->get('admin.blog.theme'),
                 __('Ductile configuration')          => ''
             ])
         ;
 
-        if (!dcCore()->auth->user_prefs->accessibility->nodragdrop) {
+        if (!core()->auth->user_prefs->accessibility->nodragdrop) {
             $this->setpageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
@@ -314,14 +316,14 @@ class Page extends AbstractPage
             __('stylesheet (Google)') => 'css',
         ];
 
-        $img_url = dcCore()->blog->url . 'files/img/';
+        $img_url = core()->blog->url . 'files/img/';
 
         # HTML Tab
 
         echo '<div class="multi-part" id="themes-list-html" title="' . __('Content') . '">' .
         '<h3>' . __('Content') . '</h3>';
 
-        echo '<form id="theme_config" action="' . dcCore()->adminurl->get('admin.plugin.Ductile') . '#themes-list-html' .
+        echo '<form id="theme_config" action="' . core()->adminurl->get('admin.plugin.Ductile') . '#themes-list-html' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h4>' . __('Header') . '</h4>' .
@@ -329,9 +331,9 @@ class Page extends AbstractPage
         Form::checkbox('subtitle_hidden', 1, $this->Ductile_user['subtitle_hidden']) . '</p>';
         echo '<p class="field"><label for="logo_src">' . __('Logo URL:') . '</label> ' .
         Form::field('logo_src', 40, 255, $this->Ductile_user['logo_src']) . '</p>';
-        if (dcCore()->plugins->hasModule('SimpleMenu')) {
+        if (core()->plugins->hasModule('SimpleMenu')) {
             echo '<p>' . sprintf(__('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
-                dcCore()->adminurl->get('admin.plugin.SimpleMenu')) . '</p>';
+                core()->adminurl->get('admin.plugin.SimpleMenu')) . '</p>';
         }
 
         echo '<h4 class="border-top pretty-title">' . __('Stickers') . '</h4>';
@@ -406,7 +408,7 @@ class Page extends AbstractPage
         Form::checkbox('preview_not_mandatory', 1, $this->Ductile_user['preview_not_mandatory']) . '</p>';
 
         echo '<p><input type="hidden" name="conf_tab" value="html" /></p>';
-        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' . dcCore()->formNonce() . '</p>';
+        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' . core()->formNonce() . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab
@@ -415,7 +417,7 @@ class Page extends AbstractPage
 
         echo '<div class="multi-part" id="themes-list-css' . '" title="' . __('Presentation') . '">';
 
-        echo '<form id="theme_config" action="' . dcCore()->adminurl->get('admin.plugin.Ductile') . '#themes-list-css' .
+        echo '<form id="theme_config" action="' . core()->adminurl->get('admin.plugin.Ductile') . '#themes-list-css' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h3>' . __('General settings') . '</h3>';
@@ -559,7 +561,7 @@ class Page extends AbstractPage
         echo '</div>';
 
         echo '<p><input type="hidden" name="conf_tab" value="css" /></p>';
-        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' . dcCore()->formNonce() . '</p>';
+        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' . core()->formNonce() . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab

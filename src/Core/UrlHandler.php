@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Exception;
@@ -56,7 +58,7 @@ class UrlHandler
 
     protected function getHomeType()
     {
-        return dcCore()->blog->settings->system->static_home ? 'static' : 'default';
+        return core()->blog->settings->system->static_home ? 'static' : 'default';
     }
 
     public function isHome($type)
@@ -66,7 +68,7 @@ class UrlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $url  = dcCore()->behaviors->call('publicGetURLFor', $type, $value);
+        $url  = core()->behaviors->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -84,7 +86,7 @@ class UrlHandler
     {
         $args = new ArrayObject(func_get_args());
 
-        dcCore()->behaviors->call('publicRegisterURL', $args);
+        core()->behaviors->call('publicRegisterURL', $args);
 
         $this->types[$args[0]] = [
             'url'            => $args[1],
@@ -138,38 +140,38 @@ class UrlHandler
 
     protected function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
     {
-        if (dcCore()->context->nb_entry_per_page === null) {
-            dcCore()->context->nb_entry_per_page = dcCore()->blog->settings->system->nb_post_per_page;
+        if (core()->context->nb_entry_per_page === null) {
+            core()->context->nb_entry_per_page = core()->blog->settings->system->nb_post_per_page;
         }
-        if (dcCore()->context->nb_entry_first_page === null) {
-            dcCore()->context->nb_entry_first_page = dcCore()->context->nb_entry_per_page;
+        if (core()->context->nb_entry_first_page === null) {
+            core()->context->nb_entry_first_page = core()->context->nb_entry_per_page;
         }
 
-        $tpl_file = dcCore()->tpl->getFilePath($tpl);
+        $tpl_file = core()->tpl->getFilePath($tpl);
         if (!$tpl_file) {
             throw new CoreException('Unable to find template ');
         }
 
 
-        dcCore()->context->current_tpl  = $tpl;
-        dcCore()->context->content_type = $content_type;
-        dcCore()->context->http_cache   = $http_cache;
-        dcCore()->context->http_etag    = $http_etag;
+        core()->context->current_tpl  = $tpl;
+        core()->context->content_type = $content_type;
+        core()->context->http_cache   = $http_cache;
+        core()->context->http_etag    = $http_etag;
 
-        dcCore()->behaviors->call('urlHandlerBeforeGetData', dcCore()->context);
+        core()->behaviors->call('urlHandlerBeforeGetData', core()->context);
 
-        if (dcCore()->context->http_cache) {
+        if (core()->context->http_cache) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
             Http::cache($this->mod_files, $this->mod_ts);
         }
 
-        header('Content-Type: ' . dcCore()->context->content_type . '; charset=UTF-8');
+        header('Content-Type: ' . core()->context->content_type . '; charset=UTF-8');
 
         // Additional headers
         $headers = new ArrayObject();
-        if (dcCore()->blog->settings->system->prevents_clickjacking) {
-            if (dcCore()->context->exists('xframeoption')) {
-                $url    = parse_url(dcCore()->context->xframeoption);
+        if (core()->blog->settings->system->prevents_clickjacking) {
+            if (core()->context->exists('xframeoption')) {
+                $url    = parse_url(core()->context->xframeoption);
                 $header = sprintf(
                     'X-Frame-Options: %s',
                     is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
@@ -180,12 +182,12 @@ class UrlHandler
             }
             $headers->append($header);
         }
-        if (dcCore()->blog->settings->system->prevents_floc) {
+        if (core()->blog->settings->system->prevents_floc) {
             $headers->append('Permissions-Policy: interest-cohort=()');
         }
 
         # --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        dcCore()->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
+        core()->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any
         foreach ($headers as $header) {
@@ -193,16 +195,16 @@ class UrlHandler
         }
 
         $result                 = new ArrayObject();
-        $result['content']      = dcCore()->tpl->getData(dcCore()->context->current_tpl);
-        $result['content_type'] = dcCore()->context->content_type;
-        $result['tpl']          = dcCore()->context->current_tpl;
-        $result['blogupddt']    = dcCore()->blog->upddt;
+        $result['content']      = core()->tpl->getData(core()->context->current_tpl);
+        $result['content_type'] = core()->context->content_type;
+        $result['tpl']          = core()->context->current_tpl;
+        $result['blogupddt']    = core()->blog->upddt;
         $result['headers']      = $headers;
 
         # --BEHAVIOR-- urlHandlerServeDocument
-        dcCore()->behaviors->call('urlHandlerServeDocument', $result);
+        core()->behaviors->call('urlHandlerServeDocument', $result);
 
-        if (dcCore()->context->http_cache && dcCore()->context->http_etag) {
+        if (core()->context->http_cache && core()->context->http_etag) {
             Http::etag($result['content'], Http::getSelfURI());
         }
         echo $result['content'];
@@ -244,7 +246,7 @@ class UrlHandler
         $this->getArgs($part, $type, $this->args);
 
         # --BEHAVIOR-- urlHandlerGetArgsDocument
-        dcCore()->behaviors->call('urlHandlerGetArgsDocument', $this);
+        core()->behaviors->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -372,14 +374,14 @@ class UrlHandler
 
         header('Content-Type: text/html; charset=UTF-8');
         Http::head(404, 'Not Found');
-        dcCore()->url->type    = '404';
-        dcCore()->context->current_tpl  = '404.html';
-        dcCore()->context->content_type = 'text/html';
+        core()->url->type    = '404';
+        core()->context->current_tpl  = '404.html';
+        core()->context->content_type = 'text/html';
 
-        echo dcCore()->tpl->getData(dcCore()->context->current_tpl);
+        echo core()->tpl->getData(core()->context->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
-        dcCore()->behaviors->call('publicAfterDocument');
+        core()->behaviors->call('publicAfterDocument');
 
         exit;
     }
@@ -387,27 +389,27 @@ class UrlHandler
     public function home($args)
     {
         // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
-        $n = $args ? $this->getPageNumber($args) : dcCore()->context->page_number();
+        $n = $args ? $this->getPageNumber($args) : core()->context->page_number();
 
         if ($args && !$n) {
             # Then specified URL went unrecognized by all URL handlers and
             # defaults to the home page, but is not a page number.
             $this->p404();
         } else {
-            dcCore()->url->type = 'default';
+            core()->url->type = 'default';
             if ($n) {
-                dcCore()->context->page_number($n);
+                core()->context->page_number($n);
                 if ($n > 1) {
-                    dcCore()->url->type = 'default-page';
+                    core()->url->type = 'default-page';
                 }
             }
 
             if (empty($_GET['q'])) {
-                if (dcCore()->blog->settings->system->nb_post_for_home !== null) {
-                    dcCore()->context->nb_entry_first_page = dcCore()->blog->settings->system->nb_post_for_home;
+                if (core()->blog->settings->system->nb_post_for_home !== null) {
+                    core()->context->nb_entry_first_page = core()->blog->settings->system->nb_post_for_home;
                 }
                 $this->serveDocument('home.html');
-                dcCore()->blog->publishScheduledEntries();
+                core()->blog->publishScheduledEntries();
             } else {
                 $this->search();
             }
@@ -416,11 +418,11 @@ class UrlHandler
 
     public function static_home($args)
     {
-        dcCore()->url->type = 'static';
+        core()->url->type = 'static';
 
         if (empty($_GET['q'])) {
             $this->serveDocument('static.html');
-            dcCore()->blog->publishScheduledEntries();
+            core()->blog->publishScheduledEntries();
         } else {
             $this->search();
         }
@@ -428,18 +430,18 @@ class UrlHandler
 
     public function search()
     {
-        if (dcCore()->blog->settings->system->no_search) {
+        if (core()->blog->settings->system->no_search) {
 
             # Search is disabled for this blog.
             $this->p404();
         } else {
-            dcCore()->url->type = 'search';
+            core()->url->type = 'search';
 
             $GLOBALS['_search'] = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
-                dcCore()->behaviors->call('publicBeforeSearchCount', $params);
-                $GLOBALS['_search_count'] = dcCore()->blog->getPosts($params, true)->f(0);
+                core()->behaviors->call('publicBeforeSearchCount', $params);
+                $GLOBALS['_search_count'] = core()->blog->getPosts($params, true)->f(0);
             }
 
             $this->serveDocument('search.html');
@@ -452,18 +454,18 @@ class UrlHandler
         $params = new ArrayObject([
             'lang' => $args]);
 
-        dcCore()->behaviors->call('publicLangBeforeGetLangs', $params, $args);
+        core()->behaviors->call('publicLangBeforeGetLangs', $params, $args);
 
-        dcCore()->context->langs = dcCore()->blog->getLangs($params);
+        core()->context->langs = core()->blog->getLangs($params);
 
-        if (dcCore()->context->langs->isEmpty()) {
+        if (core()->context->langs->isEmpty()) {
             # The specified language does not exist.
             $this->p404();
         } else {
             if ($n) {
-                dcCore()->context->page_number($n);
+                core()->context->page_number($n);
             }
-            dcCore()->context->cur_lang = $args;
+            core()->context->cur_lang = $args;
             $this->home(null);
         }
     }
@@ -481,16 +483,16 @@ class UrlHandler
                 'post_type'     => 'post',
                 'without_empty' => false]);
 
-            dcCore()->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
+            core()->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
 
-            dcCore()->context->categories = dcCore()->blog->getCategories($params);
+            core()->context->categories = core()->blog->getCategories($params);
 
-            if (dcCore()->context->categories->isEmpty()) {
+            if (core()->context->categories->isEmpty()) {
                 # The specified category does no exist.
                 $this->p404();
             } else {
                 if ($n) {
-                    dcCore()->context->page_number($n);
+                    core()->context->page_number($n);
                 }
                 $this->serveDocument('category.html');
             }
@@ -508,11 +510,11 @@ class UrlHandler
                 'month' => $m[2],
                 'type'  => 'month']);
 
-            dcCore()->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
+            core()->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
 
-            dcCore()->context->archives = dcCore()->blog->getDates($params->getArrayCopy());
+            core()->context->archives = core()->blog->getDates($params->getArrayCopy());
 
-            if (dcCore()->context->archives->isEmpty()) {
+            if (core()->context->archives->isEmpty()) {
                 # There is no entries for the specified period.
                 $this->p404();
             } else {
@@ -530,35 +532,35 @@ class UrlHandler
             # No entry was specified.
             $this->p404();
         } else {
-            dcCore()->blog->withoutPassword(false);
+            core()->blog->withoutPassword(false);
 
             $params = new ArrayObject([
                 'post_url' => $args]);
 
-            dcCore()->behaviors->call('publicPostBeforeGetPosts', $params, $args);
+            core()->behaviors->call('publicPostBeforeGetPosts', $params, $args);
 
-            dcCore()->context->posts = dcCore()->blog->getPosts($params);
+            core()->context->posts = core()->blog->getPosts($params);
 
-            dcCore()->context->comment_preview               = new ArrayObject();
-            dcCore()->context->comment_preview['content']    = '';
-            dcCore()->context->comment_preview['rawcontent'] = '';
-            dcCore()->context->comment_preview['name']       = '';
-            dcCore()->context->comment_preview['mail']       = '';
-            dcCore()->context->comment_preview['site']       = '';
-            dcCore()->context->comment_preview['preview']    = false;
-            dcCore()->context->comment_preview['remember']   = false;
+            core()->context->comment_preview               = new ArrayObject();
+            core()->context->comment_preview['content']    = '';
+            core()->context->comment_preview['rawcontent'] = '';
+            core()->context->comment_preview['name']       = '';
+            core()->context->comment_preview['mail']       = '';
+            core()->context->comment_preview['site']       = '';
+            core()->context->comment_preview['preview']    = false;
+            core()->context->comment_preview['remember']   = false;
 
-            dcCore()->blog->withoutPassword(true);
+            core()->blog->withoutPassword(true);
 
-            if (dcCore()->context->posts->isEmpty()) {
+            if (core()->context->posts->isEmpty()) {
                 # The specified entry does not exist.
                 $this->p404();
             } else {
-                $post_id       = dcCore()->context->posts->post_id;
-                $post_password = dcCore()->context->posts->post_password;
+                $post_id       = core()->context->posts->post_id;
+                $post_password = core()->context->posts->post_password;
 
                 # Password protected entry
-                if ($post_password != '' && !dcCore()->context->preview) {
+                if ($post_password != '' && !core()->context->preview) {
                     # Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -585,7 +587,7 @@ class UrlHandler
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && dcCore()->context->posts->commentsActive();
+                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && core()->context->posts->commentsActive();
 
                 # Posting a comment
                 if ($post_comment) {
@@ -606,44 +608,44 @@ class UrlHandler
 
                     if ($content != '') {
                         # --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = dcCore()->behaviors->call('publicBeforeCommentTransform', $content);
+                        $buffer = core()->behaviors->call('publicBeforeCommentTransform', $content);
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
-                            if (dcCore()->blog->settings->system->wiki_comments) {
-                                dcCore()->initWikiComment();
+                            if (core()->blog->settings->system->wiki_comments) {
+                                core()->initWikiComment();
                             } else {
-                                dcCore()->initWikiSimpleComment();
+                                core()->initWikiSimpleComment();
                             }
-                            $content = dcCore()->wikiTransform($content);
+                            $content = core()->wikiTransform($content);
                         }
-                        $content = dcCore()->HTMLfilter($content);
+                        $content = core()->HTMLfilter($content);
                     }
 
-                    dcCore()->context->comment_preview['content']    = $content;
-                    dcCore()->context->comment_preview['rawcontent'] = $_POST['c_content'];
-                    dcCore()->context->comment_preview['name']       = $name;
-                    dcCore()->context->comment_preview['mail']       = $mail;
-                    dcCore()->context->comment_preview['site']       = $site;
+                    core()->context->comment_preview['content']    = $content;
+                    core()->context->comment_preview['rawcontent'] = $_POST['c_content'];
+                    core()->context->comment_preview['name']       = $name;
+                    core()->context->comment_preview['mail']       = $mail;
+                    core()->context->comment_preview['site']       = $site;
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        dcCore()->behaviors->call('publicBeforeCommentPreview', dcCore()->context->comment_preview);
+                        core()->behaviors->call('publicBeforeCommentPreview', core()->context->comment_preview);
 
-                        dcCore()->context->comment_preview['preview'] = true;
+                        core()->context->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
+                        $cur                  = core()->con->openCursor(core()->prefix . 'comment');
                         $cur->comment_author  = $name;
                         $cur->comment_site    = Html::clean($site);
                         $cur->comment_email   = Html::clean($mail);
                         $cur->comment_content = $content;
-                        $cur->post_id         = dcCore()->context->posts->post_id;
-                        $cur->comment_status  = dcCore()->blog->settings->system->comments_pub ? 1 : -1;
+                        $cur->post_id         = core()->context->posts->post_id;
+                        $cur->comment_status  = core()->blog->settings->system->comments_pub ? 1 : -1;
                         $cur->comment_ip      = Http::realIP();
 
-                        $redir = dcCore()->context->posts->getURL();
-                        $redir .= dcCore()->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
+                        $redir = core()->context->posts->getURL();
+                        $redir .= core()->blog->settings->system->url_scan == 'query_string' ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->comment_email)) {
@@ -651,12 +653,12 @@ class UrlHandler
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
-                            dcCore()->behaviors->call('publicBeforeCommentCreate', $cur);
+                            core()->behaviors->call('publicBeforeCommentCreate', $cur);
                             if ($cur->post_id) {
-                                $comment_id = dcCore()->blog->addComment($cur);
+                                $comment_id = core()->blog->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
-                                dcCore()->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
+                                core()->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if ($cur->comment_status == 1) {
@@ -665,19 +667,19 @@ class UrlHandler
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var(dcCore()->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var(core()->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
-                            dcCore()->context->form_error = $e->getMessage();
+                            core()->context->form_error = $e->getMessage();
                         }
                     }
                 }
 
                 # The entry
-                if (dcCore()->context->posts->trackbacksActive()) {
-                    header('X-Pingback: ' . dcCore()->blog->url . dcCore()->url->getURLFor('xmlrpc', dcCore()->blog->id));
-                    header('Link: <' . dcCore()->blog->url . dcCore()->url->getURLFor('webmention') . '>; rel="webmention"');
+                if (core()->context->posts->trackbacksActive()) {
+                    header('X-Pingback: ' . core()->blog->url . core()->url->getURLFor('xmlrpc', core()->blog->id));
+                    header('Link: <' . core()->blog->url . core()->url->getURLFor('webmention') . '>; rel="webmention"');
                 }
                 $this->serveDocument('post.html');
             }
@@ -693,13 +695,13 @@ class UrlHandler
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
-            if (!dcCore()->auth->checkUser($user_id, null, $user_key)) {
+            if (!core()->auth->checkUser($user_id, null, $user_key)) {
                 # The user has no access to the entry.
                 $this->p404();
             } else {
-                dcCore()->context->preview = true;
+                core()->context->preview = true;
                 if (defined('DOTCLEAR_ADMIN_URL')) {
-                    dcCore()->context->xframeoption = DOTCLEAR_ADMIN_URL;
+                    core()->context->xframeoption = DOTCLEAR_ADMIN_URL;
                 }
                 $this->post($post_url);
             }
@@ -721,17 +723,17 @@ class UrlHandler
 
             $args = $m[3];
 
-            dcCore()->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
+            core()->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
 
-            dcCore()->context->langs = dcCore()->blog->getLangs($params);
+            core()->context->langs = core()->blog->getLangs($params);
 
-            if (dcCore()->context->langs->isEmpty()) {
+            if (core()->context->langs->isEmpty()) {
                 # The specified language does not exist.
                 $this->p404();
 
                 return;
             }
-            dcCore()->context->cur_lang = $m[1];
+            core()->context->cur_lang = $m[1];
         }
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
@@ -764,44 +766,44 @@ class UrlHandler
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
-            dcCore()->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
+            core()->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
 
-            dcCore()->context->categories = dcCore()->blog->getCategories($params);
+            core()->context->categories = core()->blog->getCategories($params);
 
-            if (dcCore()->context->categories->isEmpty()) {
+            if (core()->context->categories->isEmpty()) {
                 # The specified category does no exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . dcCore()->context->categories->cat_title;
+            $subtitle = ' - ' . core()->context->categories->cat_title;
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
                 'post_type' => '']);
 
-            dcCore()->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
+            core()->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
 
-            dcCore()->context->posts = dcCore()->blog->getPosts($params);
+            core()->context->posts = core()->blog->getPosts($params);
 
-            if (dcCore()->context->posts->isEmpty()) {
+            if (core()->context->posts->isEmpty()) {
                 # The specified post does not exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . dcCore()->context->posts->post_title;
+            $subtitle = ' - ' . core()->context->posts->post_title;
         }
 
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            dcCore()->context->nb_comment_per_page = dcCore()->blog->settings->system->nb_comment_per_feed;
+            core()->context->nb_comment_per_page = core()->blog->settings->system->nb_comment_per_feed;
         } else {
-            dcCore()->context->nb_entry_per_page = dcCore()->blog->settings->system->nb_post_per_feed;
-            dcCore()->context->short_feed_items  = dcCore()->blog->settings->system->short_feed_items;
+            core()->context->nb_entry_per_page = core()->blog->settings->system->nb_post_per_feed;
+            core()->context->short_feed_items  = core()->blog->settings->system->short_feed_items;
         }
         $tpl .= '.xml';
 
@@ -809,12 +811,12 @@ class UrlHandler
             $mime = 'application/atom+xml';
         }
 
-        dcCore()->context->feed_subtitle = $subtitle;
+        core()->context->feed_subtitle = $subtitle;
 
-        header('X-Robots-Tag: ' . dcCore()->context->robotsPolicy(dcCore()->blog->settings->system->robots_policy, ''));
+        header('X-Robots-Tag: ' . core()->context->robotsPolicy(core()->blog->settings->system->robots_policy, ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
-            dcCore()->blog->publishScheduledEntries();
+            core()->blog->publishScheduledEntries();
         }
     }
 
@@ -835,7 +837,7 @@ class UrlHandler
             $args['type']    = 'trackback';
 
             # --BEHAVIOR-- publicBeforeReceiveTrackback
-            dcCore()->behaviors->call('publicBeforeReceiveTrackback', $args);
+            core()->behaviors->call('publicBeforeReceiveTrackback', $args);
 
             $tb = new Trackback();
             $tb->receiveTrackback($post_id);
@@ -851,7 +853,7 @@ class UrlHandler
         $args['type'] = 'webmention';
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        dcCore()->behaviors->call('publicBeforeReceiveTrackback', $args);
+        core()->behaviors->call('publicBeforeReceiveTrackback', $args);
 
         $tb = new Trackback();
         $tb->receiveWebmention();
@@ -868,10 +870,10 @@ class UrlHandler
         "<service>\n" .
         "  <engineName>Dotclear</engineName>\n" .
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
-        '  <homePageLink>' . Html::escapeHTML(dcCore()->blog->url) . "</homePageLink>\n";
+        '  <homePageLink>' . Html::escapeHTML(core()->blog->url) . "</homePageLink>\n";
 
-        if (dcCore()->blog->settings->system->enable_xmlrpc) {
-            $u = sprintf(DOTCLEAR_XMLRPC_URL, dcCore()->blog->url, dcCore()->blog->id); // @phpstan-ignore-line
+        if (core()->blog->settings->system->enable_xmlrpc) {
+            $u = sprintf(DOTCLEAR_XMLRPC_URL, core()->blog->url, core()->blog->id); // @phpstan-ignore-line
 
             echo
                 "  <apis>\n" .
@@ -911,7 +913,7 @@ class UrlHandler
         }
 
         # Current Theme dir
-        $dirs = dcCore()->themes->getThemePath('files');
+        $dirs = core()->themes->getThemePath('files');
 
         # Modules dirs
         $pos = strpos($args, '/');
@@ -921,7 +923,7 @@ class UrlHandler
             $modf = substr($args, $pos, strlen($args));
 
             # Check class
-            $class = dcCore()::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+            $class = core()::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
             if (is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
                 # Get paths and serve file
                 $modules = new $class();
@@ -932,9 +934,9 @@ class UrlHandler
 
         # List other available file paths
         $dirs[] = DOTCLEAR_VAR_DIR;
-        $dirs[] = dcCore()::root('Public', 'files');
-        $dirs[] = dcCore()::root('Core', 'files', 'css');
-        $dirs[] = dcCore()::root('Core', 'files', 'js');
+        $dirs[] = core()::root('Public', 'files');
+        $dirs[] = core()::root('Core', 'files', 'css');
+        $dirs[] = core()::root('Core', 'files', 'js');
 
         # Search dirs
         $file = false;

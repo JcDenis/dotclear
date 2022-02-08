@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Action;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -23,7 +25,7 @@ class DefaultBlogAction
 {
     public static function BlogsAction(Action $ap): void
     {
-        if (!dcCore()->auth->isSuperAdmin()) {
+        if (!core()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -44,7 +46,7 @@ class DefaultBlogAction
 
     public static function doChangeBlogStatus(Action $ap, $post): void
     {
-        if (!dcCore()->auth->isSuperAdmin()) {
+        if (!core()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -72,18 +74,18 @@ class DefaultBlogAction
                 break;
         }
 
-        $cur              = dcCore()->con->openCursor(dcCore()->prefix . 'blog');
+        $cur              = core()->con->openCursor(core()->prefix . 'blog');
         $cur->blog_status = $status;
         //$cur->blog_upddt = date('Y-m-d H:i:s');
-        $cur->update('WHERE blog_id ' . dcCore()->con->in($ids));
+        $cur->update('WHERE blog_id ' . core()->con->in($ids));
 
-        dcCore()->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
+        core()->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
     }
 
     public static function doDeleteBlog(Action $ap, $post): void
     {
-        if (!dcCore()->auth->isSuperAdmin()) {
+        if (!core()->auth->isSuperAdmin()) {
             return;
         }
 
@@ -92,14 +94,14 @@ class DefaultBlogAction
             throw new AdminException(__('No blog selected'));
         }
 
-        if (!dcCore()->auth->checkPassword($_POST['pwd'])) {
+        if (!core()->auth->checkPassword($_POST['pwd'])) {
             throw new AdminException(__('Password verification failed'));
         }
 
         $ids = [];
         foreach ($ap_ids as $id) {
-            if ($id == dcCore()->blog->id) {
-                dcCore()->notices->addWarningNotice(__('The current blog cannot be deleted.'));
+            if ($id == core()->blog->id) {
+                core()->notices->addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;
             }
@@ -107,13 +109,13 @@ class DefaultBlogAction
 
         if (!empty($ids)) {
             # --BEHAVIOR-- adminBeforeBlogsDelete
-            dcCore()->behaviors->call('adminBeforeBlogsDelete', $ids);
+            core()->behaviors->call('adminBeforeBlogsDelete', $ids);
 
             foreach ($ids as $id) {
-                dcCore()->delBlog($id);
+                core()->delBlog($id);
             }
 
-            dcCore()->notices->addSuccessNotice(sprintf(
+            core()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d blog has been successfully deleted',
                     '%d blogs have been successfully deleted',

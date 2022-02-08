@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
+use function Dotclear\core;
+
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
@@ -29,7 +31,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dcCore()->tpl->addValue('Breadcrumb', [__CLASS__, 'tplValueBreadcrumb']);
+        core()->tpl->addValue('Breadcrumb', [__CLASS__, 'tplValueBreadcrumb']);
     }
 
     # Template function
@@ -47,8 +49,8 @@ class Prepend extends AbstractPrepend
         $ret = '';
 
         # Check if breadcrumb enabled for the current blog
-        dcCore()->blog->settings->addNameSpace('breadcrumb');
-        if (!dcCore()->blog->settings->breadcrumb->breadcrumb_enabled) {
+        core()->blog->settings->addNameSpace('breadcrumb');
+        if (!core()->blog->settings->breadcrumb->breadcrumb_enabled) {
             return $ret;
         }
 
@@ -57,9 +59,9 @@ class Prepend extends AbstractPrepend
         }
 
         // Get current page
-        $page = dcCore()->context->page_number();
+        $page = core()->context->page_number();
 
-        switch (dcCore()->url->type) {
+        switch (core()->url->type) {
 
             case 'static':
                 // Static home
@@ -68,16 +70,16 @@ class Prepend extends AbstractPrepend
                 break;
 
             case 'default':
-                if (dcCore()->blog->settings->system->static_home) {
+                if (core()->blog->settings->system->static_home) {
                     // Static home and on (1st) blog page
-                    $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                    $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                     $ret .= $separator . __('Blog');
                 } else {
                     // Home (first page only)
                     $ret = '<span id="bc-home">' . __('Home') . '</span>';
-                    if (dcCore()->context->cur_lang) {
+                    if (core()->context->cur_lang) {
                         $langs = L10n::getISOCodes();
-                        $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
+                        $ret .= $separator . ($langs[core()->context->cur_lang] ?? core()->context->cur_lang);
                     }
                 }
 
@@ -85,13 +87,13 @@ class Prepend extends AbstractPrepend
 
             case 'default-page':
                 // Home or blog page`(page 2 to n)
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                if (dcCore()->blog->settings->system->static_home) {
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('posts') . '">' . __('Blog') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                if (core()->blog->settings->system->static_home) {
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
-                    if (dcCore()->context->cur_lang) {
+                    if (core()->context->cur_lang) {
                         $langs = L10n::getISOCodes();
-                        $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
+                        $ret .= $separator . ($langs[core()->context->cur_lang] ?? core()->context->cur_lang);
                     }
                 }
                 $ret .= $separator . sprintf(__('page %d'), $page);
@@ -100,15 +102,15 @@ class Prepend extends AbstractPrepend
 
             case 'category':
                 // Category
-                $ret        = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                $categories = dcCore()->blog->getCategoryParents((int) dcCore()->context->categories->cat_id);
+                $ret        = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                $categories = core()->blog->getCategoryParents((int) core()->context->categories->cat_id);
                 while ($categories->fetch()) {
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
                 if ($page == 0) {
-                    $ret .= $separator . dcCore()->context->categories->cat_title;
+                    $ret .= $separator . core()->context->categories->cat_title;
                 } else {
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', dcCore()->context->categories->cat_url) . '">' . dcCore()->context->categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('category', core()->context->categories->cat_url) . '">' . core()->context->categories->cat_title . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -116,65 +118,65 @@ class Prepend extends AbstractPrepend
 
             case 'post':
                 // Post
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                if (dcCore()->context->posts->cat_id) {
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                if (core()->context->posts->cat_id) {
                     // Parents cats of post's cat
-                    $categories = dcCore()->blog->getCategoryParents((int) dcCore()->context->posts->cat_id);
+                    $categories = core()->blog->getCategoryParents((int) core()->context->posts->cat_id);
                     while ($categories->fetch()) {
-                        $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                        $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                     }
                     // Post's cat
-                    $categories = dcCore()->blog->getCategory((int) dcCore()->context->posts->cat_id);
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $categories = core()->blog->getCategory((int) core()->context->posts->cat_id);
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
-                $ret .= $separator . dcCore()->context->posts->post_title;
+                $ret .= $separator . core()->context->posts->post_title;
 
                 break;
 
             case 'lang':
                 // Lang
-                $ret   = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                $ret   = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                 $langs = L10n::getISOCodes();
-                $ret .= $separator . ($langs[dcCore()->context->cur_lang] ?? dcCore()->context->cur_lang);
+                $ret .= $separator . ($langs[core()->context->cur_lang] ?? core()->context->cur_lang);
 
                 break;
 
             case 'archive':
                 // Archives
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                if (!dcCore()->context->archives) {
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                if (!core()->context->archives) {
                     // Global archives
                     $ret .= $separator . __('Archives');
                 } else {
                     // Month archive
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . dt::dt2str('%B %Y', dcCore()->context->archives->dt);
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('archive') . '">' . __('Archives') . '</a>';
+                    $ret .= $separator . dt::dt2str('%B %Y', core()->context->archives->dt);
                 }
 
                 break;
 
             case 'pages':
                 // Page
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                $ret .= $separator . dcCore()->context->posts->post_title;
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                $ret .= $separator . core()->context->posts->post_title;
 
                 break;
 
             case 'tags':
                 // All tags
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                 $ret .= $separator . __('All tags');
 
                 break;
 
             case 'tag':
                 // Tag
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
-                $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('tags') . '">' . __('All tags') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
+                $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('tags') . '">' . __('All tags') . '</a>';
                 if ($page == 0) {
-                    $ret .= $separator . dcCore()->context->meta->meta_id;
+                    $ret .= $separator . core()->context->meta->meta_id;
                 } else {
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . dcCore()->url->getURLFor('tag', rawurlencode(dcCore()->context->meta->meta_id)) . '">' . dcCore()->context->meta->meta_id . '</a>';
+                    $ret .= $separator . '<a href="' . core()->blog->url . core()->url->getURLFor('tag', rawurlencode(core()->context->meta->meta_id)) . '">' . core()->context->meta->meta_id . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -182,11 +184,11 @@ class Prepend extends AbstractPrepend
 
             case 'search':
                 // Search
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                 if ($page == 0) {
                     $ret .= $separator . __('Search:') . ' ' . $GLOBALS['_search'];
                 } else {
-                    $ret .= $separator . '<a href="' . dcCore()->blog->url . '?q=' . rawurlencode($GLOBALS['_search']) . '">' . __('Search:') . ' ' . $GLOBALS['_search'] . '</a>';
+                    $ret .= $separator . '<a href="' . core()->blog->url . '?q=' . rawurlencode($GLOBALS['_search']) . '">' . __('Search:') . ' ' . $GLOBALS['_search'] . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -194,16 +196,16 @@ class Prepend extends AbstractPrepend
 
             case '404':
                 // 404
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                 $ret .= $separator . __('404');
 
                 break;
 
             default:
-                $ret = '<a id="bc-home" href="' . dcCore()->blog->url . '">' . __('Home') . '</a>';
+                $ret = '<a id="bc-home" href="' . core()->blog->url . '">' . __('Home') . '</a>';
                 # --BEHAVIOR-- publicBreadcrumb
                 # Should specific breadcrumb if any, will be added after home page url
-                $special = dcCore()->behaviors->call('publicBreadcrumb', dcCore()->url->type, $separator);
+                $special = core()->behaviors->call('publicBreadcrumb', core()->url->type, $separator);
                 if ($special) {
                     $ret .= $separator . $special;
                 }
@@ -212,7 +214,7 @@ class Prepend extends AbstractPrepend
         }
 
         # Encapsulate breadcrumb in <p>…</p>
-        if (!dcCore()->blog->settings->breadcrumb->breadcrumb_alone) {
+        if (!core()->blog->settings->breadcrumb->breadcrumb_alone) {
             $ret = '<p id="breadcrumb">' . $ret . '</p>';
         }
 

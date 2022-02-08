@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -46,7 +48,7 @@ class PostMedia extends Page
         if (!$post_id) {
             exit;
         }
-        $rs = dcCore()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+        $rs = core()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
         if ($rs->isEmpty()) {
             exit;
         }
@@ -57,13 +59,13 @@ class PostMedia extends Page
                 $pm->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
-                    echo json_encode(['url' => dcCore()->getPostAdminURL($rs->post_type, $post_id, false)]);
+                    echo json_encode(['url' => core()->getPostAdminURL($rs->post_type, $post_id, false)]);
                     exit();
                 }
-                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
+                Http::redirect(core()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
-            $f = dcCore()->mediaInstance()->getPostMedia($post_id, $media_id, $link_type);
+            $f = core()->mediaInstance()->getPostMedia($post_id, $media_id, $link_type);
             if (empty($f)) {
                 $post_id = $media_id = null;
 
@@ -71,37 +73,37 @@ class PostMedia extends Page
             }
             $f = $f[0];
         } catch (Exception $e) {
-            dcCore()->error($e->getMessage());
+            core()->error($e->getMessage());
         }
 
         # Remove a media from en
-        if (($post_id && $media_id) || dcCore()->error()->flag()) {
+        if (($post_id && $media_id) || core()->error()->flag()) {
             if (!empty($_POST['remove'])) {
-                $pm = new CorePostMedia(dcCore());
+                $pm = new CorePostMedia(core());
                 $pm->removePostMedia($post_id, $media_id, $link_type);
 
-                dcCore()->notices->addSuccessNotice(__('Attachment has been successfully removed.'));
-                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
+                core()->notices->addSuccessNotice(__('Attachment has been successfully removed.'));
+                Http::redirect(core()->getPostAdminURL($rs->post_type, $post_id, false));
             } elseif (isset($_POST['post_id'])) {
-                Http::redirect(dcCore()->getPostAdminURL($rs->post_type, $post_id, false));
+                Http::redirect(core()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
             if (!empty($_GET['remove'])) {
                 $this
                     ->setPageTitle(__('Remove attachment'))
                     ->setPageBreadcrumb([
-                        Html::escapeHTML(dcCore()->blog->name) => '',
+                        Html::escapeHTML(core()->blog->name) => '',
                         __('Posts')                            => ''
                     ])
                     ->setPageContent(
                         '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>' .
-                        '<form action="' . dcCore()->adminurl->get('admin.post.media') . '" method="post">' .
+                        '<form action="' . core()->adminurl->get('admin.post.media') . '" method="post">' .
                         '<p>' . __('Are you sure you want to remove this attachment?') . '</p>' .
                         '<p><input type="submit" class="reset" value="' . __('Cancel') . '" /> ' .
                         ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
                         Form::hidden('post_id', $post_id) .
                         Form::hidden('media_id', $media_id) .
-                        dcCore()->formNonce() . '</p>' .
+                        core()->formNonce() . '</p>' .
                         '</form>'
                     )
                 ;

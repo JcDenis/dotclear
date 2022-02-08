@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
+use function Dotclear\core;
+
 use ArrayObject;
 
 use Dotclear\Exception\AdminException;
@@ -207,7 +209,7 @@ class UrlHandler
     public function setup()
     {
         $this->initDefaultURLs();
-        dcCore()->behaviors->call('adminURLs', $this);
+        core()->behaviors->call('adminURLs', $this);
     }
 
     protected function initDefaultURLs()

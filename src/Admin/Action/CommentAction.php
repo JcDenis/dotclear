@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Action;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -39,8 +41,8 @@ class CommentAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dcCore()->blog->name) => '',
-            __('Comments')                            => dcCore()->adminurl->get('admin.comments'),
+            Html::escapeHTML(core()->blog->name) => '',
+            __('Comments')                            => core()->adminurl->get('admin.comments'),
             __('Comments actions')                    => ''
         ]);
     }
@@ -50,12 +52,12 @@ class CommentAction extends Action
         // We could have added a behavior here, but we want default action
         // to be setup first
         DefaultCommentAction::CommentAction($this);
-        dcCore()->behaviors->call('adminCommentsActionsPage', $this);
+        core()->behaviors->call('adminCommentsActionsPage', $this);
     }
 
     public function error(AdminException $e)
     {
-        dcCore()->error($e->getMessage());
+        core()->error($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 
@@ -104,7 +106,7 @@ class CommentAction extends Action
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $params['no_content'] = true;
         }
-        $co = dcCore()->blog->getComments($params);
+        $co = core()->blog->getComments($params);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
+use function Dotclear\core;
+
 use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
@@ -79,7 +81,7 @@ class Auth extends Page
 
         # If we have a session cookie, go to index.php
         if (isset($_SESSION['sess_user_id'])) {
-            dcCore()->adminurl->redirect('admin.home');
+            core()->adminurl->redirect('admin.home');
         }
 
         # Loading locales for detected language
@@ -87,16 +89,16 @@ class Auth extends Page
         $dlang = ($dlang == '' ? 'en' : $dlang);
         if ($dlang != 'en' && preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $dlang)) {
             L10n::lang($dlang);
-            L10n::set(dcCore()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
+            L10n::set(core()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
         }
 
         $this->default_lang = $dlang;
-        $this->page_url     = dcCore()->adminurl->get('admin.auth');
-        $this->change_pwd   = dcCore()->auth->allowPassChange() && isset($_POST['new_pwd']) && isset($_POST['new_pwd_c']) && isset($_POST['login_data']);
+        $this->page_url     = core()->adminurl->get('admin.auth');
+        $this->change_pwd   = core()->auth->allowPassChange() && isset($_POST['new_pwd']) && isset($_POST['new_pwd_c']) && isset($_POST['login_data']);
         $this->login_data   = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
-        $this->recover      = dcCore()->auth->allowPassChange() && !empty($_REQUEST['recover']);
+        $this->recover      = core()->auth->allowPassChange() && !empty($_REQUEST['recover']);
         $this->safe_mode    = !empty($_REQUEST['safe_mode']);
-        $this->akey         = dcCore()->auth->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
+        $this->akey         = core()->auth->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
         $this->user_id      =
         $this->user_pwd     =
         $this->user_key     =
@@ -168,7 +170,7 @@ class Auth extends Page
         $this->user_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
 
         try {
-            $recover_key = dcCore()->auth->setRecoverKey($this->user_id, $this->user_email);
+            $recover_key = core()->auth->setRecoverKey($this->user_id, $this->user_email);
 
             $subject = Mail::B64Header('Dotclear ' . __('Password reset'));
             $message = __('Someone has requested to reset the password for the following site and username.') . "\n\n" .
@@ -189,7 +191,7 @@ class Auth extends Page
     protected function sendNewPassword(): void
     {
         try {
-            $recover_res = dcCore()->auth->recoverUserPassword($this->akey);
+            $recover_res = core()->auth->recoverUserPassword($this->akey);
 
             $subject = mb_encode_mimeheader('Dotclear ' . __('Your new password'), 'UTF-8', 'B');
             $message = __('Username:') . ' ' . $recover_res['user_id'] . "\n" .
@@ -230,13 +232,13 @@ class Auth extends Page
                 if (is_array($user_id)) {
                     $this->user_id    = trim((string) $data['user_id']);
                     $this->user_key   = substr($data['cookie_admin'], 0, 40);
-                    $check_user = dcCore()->auth->checkUser($this->user_id, null, $this->user_key) === true;
+                    $check_user = core()->auth->checkUser($this->user_id, null, $this->user_key) === true;
                 } else {
                     $this->user_id = trim((string) $user_id);  // @phpstan-ignore-line
                 }
             }
 
-            if (!dcCore()->auth->allowPassChange() || !$check_user) {
+            if (!core()->auth->allowPassChange() || !$check_user) {
                 $this->change_pwd = false;
 
                 throw new AdminException();
@@ -246,16 +248,16 @@ class Auth extends Page
                 throw new AdminException(__("Passwords don't match"));
             }
 
-            if (dcCore()->auth->checkUser($this->user_id, $_POST['new_pwd']) === true) {
+            if (core()->auth->checkUser($this->user_id, $_POST['new_pwd']) === true) {
                 throw new AdminException(__("You didn't change your password."));
             }
 
-            $cur                  = dcCore()->con->openCursor(dcCore()->prefix . 'user');
+            $cur                  = core()->con->openCursor(core()->prefix . 'user');
             $cur->user_change_pwd = 0;
             $cur->user_pwd        = $_POST['new_pwd'];
-            dcCore()->updUser(dcCore()->auth->userID(), $cur);
+            core()->updUser(core()->auth->userID(), $cur);
 
-            dcCore()->session->start();
+            core()->session->start();
             $_SESSION['sess_user_id']     = $this->user_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(DOTCLEAR_MASTER_KEY);
 
@@ -263,7 +265,7 @@ class Auth extends Page
                 setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', DOTCLEAR_ADMIN_SSL);
             }
 
-            dcCore()->adminurl->redirect('admin.home');
+            core()->adminurl->redirect('admin.home');
         } catch (Exception $e) {
             $this->err = $e->getMessage();
         }
@@ -272,33 +274,33 @@ class Auth extends Page
     protected function logon()
     {
         # We check the user
-        $check_user = dcCore()->auth->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;
+        $check_user = core()->auth->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;
         if ($check_user) {
-            $check_perms = dcCore()->auth->findUserBlog() !== false;
+            $check_perms = core()->auth->findUserBlog() !== false;
         } else {
             $check_perms = false;
         }
 
         $cookie_admin = Http::browserUID(DOTCLEAR_MASTER_KEY . $this->user_id .
-            dcCore()->auth->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
+            core()->auth->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
 
-        if ($check_perms && dcCore()->auth->mustChangePassword()) {
+        if ($check_perms && core()->auth->mustChangePassword()) {
             $login_data = join('/', [
                 base64_encode($this->user_id),
                 $cookie_admin,
                 empty($_POST['user_remember']) ? '0' : '1',
             ]);
 
-            if (!dcCore()->auth->allowPassChange()) {
+            if (!core()->auth->allowPassChange()) {
                 $this->err = __('You have to change your password before you can login.');
             } else {
                 $this->err        = __('In order to login, you have to change your password now.');
                 $this->change_pwd = true;
             }
-        } elseif ($check_perms && !empty($_POST['safe_mode']) && !dcCore()->auth->isSuperAdmin()) {
+        } elseif ($check_perms && !empty($_POST['safe_mode']) && !core()->auth->isSuperAdmin()) {
             $this->err = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
-            dcCore()->session->start();
+            core()->session->start();
             $_SESSION['sess_user_id']     = $this->user_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(DOTCLEAR_MASTER_KEY);
 
@@ -306,7 +308,7 @@ class Auth extends Page
                 $_SESSION['sess_blog_id'] = $_POST['blog'];
             }
 
-            if (!empty($_POST['safe_mode']) && dcCore()->auth->isSuperAdmin()) {
+            if (!empty($_POST['safe_mode']) && core()->auth->isSuperAdmin()) {
                 $_SESSION['sess_safe_mode'] = true;
             }
 
@@ -314,7 +316,7 @@ class Auth extends Page
                 setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', DOTCLEAR_ADMIN_SSL);
             }
 
-            dcCore()->adminurl->redirect('admin.home');
+            core()->adminurl->redirect('admin.home');
         } else {
             if ($check_user) {
                 $this->err = __('Insufficient permissions');
@@ -365,7 +367,7 @@ class Auth extends Page
 
 <?php
         # --BEHAVIOR-- loginPageHTMLHead
-        dcCore()->behaviors->call('loginPageHTMLHead');
+        core()->behaviors->call('loginPageHTMLHead');
 
         echo
             self::jsJson('pwstrength', [
@@ -386,7 +388,7 @@ class Auth extends Page
 ?>
 <body id="dotclear-admin" class="auth">
 
-<form action="<?php echo dcCore()->adminurl->get('admin.auth'); ?>" method="post" id="login-screen">
+<form action="<?php echo core()->adminurl->get('admin.auth'); ?>" method="post" id="login-screen">
 <h1 role="banner"><?php echo Html::escapeHTML(DOTCLEAR_VENDOR_NAME); ?></h1>
 
 <?php
@@ -398,7 +400,7 @@ class Auth extends Page
         }
 
         if ($this->akey) {
-            echo '<p><a href="' . dcCore()->adminurl->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>';
+            echo '<p><a href="' . core()->adminurl->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>';
         } elseif ($this->recover) {
             echo
             '<div class="fieldset" role="main"><h2>' . __('Request a new password') . '</h2>' .
@@ -430,7 +432,7 @@ class Auth extends Page
 
             '<details open id="issue">' . "\n" .
             '<summary>' . __('Other option') . '</summary>' . "\n" .
-            '<p><a href="' . dcCore()->adminurl->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>' .
+            '<p><a href="' . core()->adminurl->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>' .
             '</details>';
         } elseif ($this->change_pwd) {
             echo
@@ -459,8 +461,8 @@ class Auth extends Page
             Form::hidden('login_data', $this->login_data) . '</p>' .
             '</div>';
         } else {
-            if (is_callable([dcCore()->auth, 'authForm'])) {
-                echo dcCore()->auth->authForm($this->user_id);
+            if (is_callable([core()->auth, 'authForm'])) {
+                echo core()->auth->authForm($this->user_id);
             } else {
                 if ($this->safe_mode) {
                     echo '<div class="fieldset" role="main">';
@@ -520,13 +522,13 @@ class Auth extends Page
                 if ($this->safe_mode) {
                     echo '<summary>' . __('Other option') . '</summary>' . "\n";
                     echo
-                    '<p><a href="' . dcCore()->adminurl->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
+                    '<p><a href="' . core()->adminurl->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
                 } else {
                     echo '<summary>' . __('Connection issue?') . '</summary>' . "\n";
-                    if (dcCore()->auth->allowPassChange()) {
-                        echo '<p><a href="' . dcCore()->adminurl->get('admin.auth', ['recover' => 1]) . '">' . __('I forgot my password') . '</a></p>';
+                    if (core()->auth->allowPassChange()) {
+                        echo '<p><a href="' . core()->adminurl->get('admin.auth', ['recover' => 1]) . '">' . __('I forgot my password') . '</a></p>';
                     }
-                    echo '<p><a href="' . dcCore()->adminurl->get('admin.auth', ['safe_mode' => 1]) . '" id="safe_mode_link">' . __('I want to log in in safe mode') . '</a></p>';
+                    echo '<p><a href="' . core()->adminurl->get('admin.auth', ['safe_mode' => 1]) . '" id="safe_mode_link">' . __('I want to log in in safe mode') . '</a></p>';
                 }
                 echo '</details>';
             }

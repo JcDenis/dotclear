@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use function Dotclear\core;
+
 use Dotclear\Exception\InstallException;
 
 use Dotclear\Core\Settings;
@@ -51,9 +53,9 @@ class Install
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(dcCore()::root(DOTCLEAR_L10N_DIR, $dlang, 'date'));
-            L10n::set(dcCore()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
-            L10n::set(dcCore()::root(DOTCLEAR_L10N_DIR, $dlang, 'plugins'));
+            L10n::set(core()::root(DOTCLEAR_L10N_DIR, $dlang, 'date'));
+            L10n::set(core()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
+            L10n::set(core()::root(DOTCLEAR_L10N_DIR, $dlang, 'plugins'));
         }
 
         if (!defined('DOTCLEAR_MASTER_KEY') || DOTCLEAR_MASTER_KEY == '') {
@@ -62,15 +64,15 @@ class Install
         }
 
         /* Check if dotclear is already installed */
-        $schema = Schema::init(dcCore()->con);
-        if (in_array(dcCore()->prefix . 'post', $schema->getTables())) {
+        $schema = Schema::init(core()->con);
+        if (in_array(core()->prefix . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';
         }
 
         /* Check system capabilites */
         $_e = [];
-        if (!Distrib::checkRequirements(dcCore()->con, $_e)) {
+        if (!Distrib::checkRequirements(core()->con, $_e)) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }
@@ -130,17 +132,17 @@ class Install
                 }
 
                 /* Create schema */
-                $_s = new Structure(dcCore()->con, dcCore()->prefix);
+                $_s = new Structure(core()->con, core()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(dcCore()->con, dcCore()->prefix);
+                $si      = new Structure(core()->con, core()->prefix);
                 $changes = $si->synchronize($_s);
 
                 # Create user
-                $cur                 = dcCore()->con->openCursor(dcCore()->prefix . 'user');
+                $cur                 = core()->con->openCursor(core()->prefix . 'user');
                 $cur->user_id        = $u_login;
                 $cur->user_super     = 1;
-                $cur->user_pwd       = dcCore()->auth->crypt($u_pwd);
+                $cur->user_pwd       = core()->auth->crypt($u_pwd);
                 $cur->user_name      = (string) $u_name;
                 $cur->user_firstname = (string) $u_firstname;
                 $cur->user_email     = (string) $u_email;
@@ -151,17 +153,17 @@ class Install
                 $cur->user_options   = serialize(ContainerUser::defaultOptions());
                 $cur->insert();
 
-                dcCore()->auth->checkUser($u_login);
+                core()->auth->checkUser($u_login);
 
                 /* Create blog */
-                $cur            = dcCore()->con->openCursor(dcCore()->prefix . 'blog');
+                $cur            = core()->con->openCursor(core()->prefix . 'blog');
                 $cur->blog_id   = 'default';
                 $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
                 $cur->blog_name = __('My first blog');
-                dcCore()->addBlog($cur);
+                core()->addBlog($cur);
 
                 /* Create global blog settings */
-                dcCore()->blogDefaults();
+                core()->blogDefaults();
 
                 $blog_settings = new Settings('default');
                 $blog_settings->addNamespace('system');
@@ -197,8 +199,8 @@ class Install
                 /* SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                 so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
                  */
-                $csp_prefix = dcCore()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
-                $csp_suffix = dcCore()->con->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
+                $csp_prefix = core()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
+                $csp_suffix = core()->con->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
                 $blog_settings->system->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
                 $blog_settings->system->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
@@ -212,15 +214,15 @@ class Install
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:", 'string', 'CSP img-src directive', true, true);
 
                 /* Add Dotclear version */
-                $cur          = dcCore()->con->openCursor(dcCore()->prefix . 'version');
+                $cur          = core()->con->openCursor(core()->prefix . 'version');
                 $cur->module  = 'core';
                 $cur->version = (string) DOTCLEAR_CORE_VERSION;
                 $cur->insert();
 
                 /* Create first post */
-                dcCore()->setBlog('default');
+                core()->setBlog('default');
 
-                $cur               = dcCore()->con->openCursor(dcCore()->prefix . 'post');
+                $cur               = core()->con->openCursor(core()->prefix . 'post');
                 $cur->user_id      = $u_login;
                 $cur->post_format  = 'xhtml';
                 $cur->post_lang    = $dlang;
@@ -231,10 +233,10 @@ class Install
                 $cur->post_status        = 1;
                 $cur->post_open_comment  = 1;
                 $cur->post_open_tb       = 0;
-                $post_id                 = dcCore()->blog->addPost($cur);
+                $post_id                 = core()->blog->addPost($cur);
 
                 /* Add a comment to it */
-                $cur                  = dcCore()->con->openCursor(dcCore()->prefix . 'comment');
+                $cur                  = core()->con->openCursor(core()->prefix . 'comment');
                 $cur->post_id         = $post_id;
                 $cur->comment_tz      = $default_tz;
                 $cur->comment_author  = __('Dotclear Team');
@@ -242,32 +244,32 @@ class Install
                 $cur->comment_site    = 'https://dotclear.org/';
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
-                dcCore()->blog->addComment($cur);
+                core()->blog->addComment($cur);
 /*
                 #  Plugins initialization
                 //define('DC_CONTEXT_ADMIN', true);
-                dcCore()->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
-                $plugins_install = dcCore()->plugins->installModules();
+                core()->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
+                $plugins_install = core()->plugins->installModules();
 */
                 /* Add dashboard module options */
-                dcCore()->auth->user_prefs->addWorkspace('dashboard');
-                dcCore()->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
-                dcCore()->auth->user_prefs->dashboard->put('dcnews', true, 'boolean', '', null, true);
-                dcCore()->auth->user_prefs->dashboard->put('quickentry', true, 'boolean', '', null, true);
-                dcCore()->auth->user_prefs->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
+                core()->auth->user_prefs->addWorkspace('dashboard');
+                core()->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
+                core()->auth->user_prefs->dashboard->put('dcnews', true, 'boolean', '', null, true);
+                core()->auth->user_prefs->dashboard->put('quickentry', true, 'boolean', '', null, true);
+                core()->auth->user_prefs->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
 
                 /* Add accessibility options */
-                dcCore()->auth->user_prefs->addWorkspace('accessibility');
-                dcCore()->auth->user_prefs->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
+                core()->auth->user_prefs->addWorkspace('accessibility');
+                core()->auth->user_prefs->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
 
                 /* Add user interface options */
-                dcCore()->auth->user_prefs->addWorkspace('interface');
-                dcCore()->auth->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
+                core()->auth->user_prefs->addWorkspace('interface');
+                core()->auth->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 /* Add default favorites */
-                dcCore()->favs = new Favorites();
+                core()->favs = new Favorites();
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
-                dcCore()->favs->setFavoriteIDs($init_favs, true);
+                core()->favs->setFavoriteIDs($init_favs, true);
 
                 $step = 1;
             } catch (InstallException $e) {
