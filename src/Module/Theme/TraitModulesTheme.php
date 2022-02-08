@@ -60,14 +60,14 @@ trait TraitModulesTheme
             core()->blog->settings->addNamespace('system');
             $theme = $this->getModule((string) core()->blog->settings->system->theme);
             if (!$theme) {
-                $theme = $this->getModule('Blowup');
+                $theme = $this->getModule('Berlin');
             }
             $path[$theme->id()] = $theme->root() . $suffix;
 
             if ($theme->parent()) {
                 $parent = $this->getModule((string) $theme->parent());
                 if ($parent) {
-                    $theme = $this->getModule('Blowup');
+                    $theme = $this->getModule('Berlin');
                 }
                 $path[$parent->id()] = $parent->root() . $suffix;
             }
