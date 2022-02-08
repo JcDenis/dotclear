@@ -63,11 +63,6 @@ Class App
             static::$autoloader->addNamespace(__NAMESPACE__, DOTCLEAR_ROOT_DIR);
         }
 
-        //*
-        # Legacy mode temporary fix
-        require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'DotclearLegacy.php']);
-        //*/
-
         # Find process (Admin|Public|Install|...)
         $class = implode('\\', [__NAMESPACE__, ucfirst(strtolower($process)), 'Prepend']);
         if (!is_subclass_of($class, __NAMESPACE__ . '\\Core\\Core')) {
