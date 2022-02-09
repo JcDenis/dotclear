@@ -25,6 +25,7 @@ if (isset($_SERVER['DC_BLOG_ID'])) {
     $blog = 'default';
 }
 
-require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), 'src', 'App.php']);
+require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'src', 'functions.php']);
 
-new \Dotclear\App('public', $blog);
+
+dotclear_run('public', $blog);

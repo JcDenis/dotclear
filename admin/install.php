@@ -8,6 +8,6 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-require implode(DIRECTORY_SEPARATOR, [dirname(__FILE__), '..', 'src', 'App.php']);
+require implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'src', 'functions.php']);
 
-new \Dotclear\App('install');
+dotclear_run('install');

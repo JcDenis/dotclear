@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-use Dotclear\App;
 use Dotclear\Exception;
 
 class PrependException extends Exception
@@ -31,6 +30,6 @@ class PrependException extends Exception
      */
     public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0)
     {
-        App::error($message, $detail, $code);
+        dotclear_error($message, $detail, $code);
     }
 }
