@@ -19,11 +19,11 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Core\Sql\SelectStatement;
+use Dotclear\Core\Sql\JoinStatement;
+use Dotclear\Core\Sql\TruncateStatement;
+use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Network\Http;
-use Dotclear\Utils\Sql\SelectStatement;
-use Dotclear\Utils\Sql\JoinStatement;
-use Dotclear\Utils\Sql\TruncateStatement;
-use Dotclear\Utils\Sql\DeleteStatement;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
