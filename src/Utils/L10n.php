@@ -175,11 +175,8 @@ class L10n
     {
         $lang_file = $file . '.lang';
         $po_file   = $file . '.po';
-        $php_file  = $file . '.lang.php';
 
-        if (file_exists($php_file)) {
-            require $php_file;
-        } elseif (($tmp = self::getPoFile($po_file)) !== false) {
+        if (($tmp = self::getPoFile($po_file)) !== false) {
             self::$l10n_files[] = $po_file;
             self::$l10n_trans         = $tmp + self::$l10n_trans; // "+" erase numeric keys unlike array_merge
         } else {
