@@ -281,6 +281,16 @@ class ModulesTheme extends AbstractModules
             if (in_array('select', $actions)) {
                 $submits[] = '<input type="submit" name="select[' . Html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
             }
+        } elseif (DOTCLEAR_RUN_LEVEL < DOTCLEAR_RUN_DEBUG) {
+            // Currently selected theme
+            if ($pos = array_search('delete', $actions, true)) {
+                // Remove 'delete' action
+                unset($actions[$pos]);
+            }
+            if ($pos = array_search('deactivate', $actions, true)) {
+                // Remove 'deactivate' action
+                unset($actions[$pos]);
+            }
         }
 
         if ($this->isDistributedModule($id) && ($pos = array_search('delete', $actions, true))) {
