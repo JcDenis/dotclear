@@ -699,8 +699,9 @@ class ModulesTheme extends AbstractModules
 
     public function cloneModule(string $id): void
     {
+        # Check destination path
         $root = $this->path;
-        if (!is_dir($root) || !is_readable($root)) {
+        if (!is_dir($root) || !is_writable($root)) {
             throw new Exception(__('Themes folder unreachable'));
         }
         if (substr($root, -1) != '/') {
@@ -716,11 +717,11 @@ class ModulesTheme extends AbstractModules
         }
         $counter = 0;
         $new_id  = sprintf('%sClone', $module->id());
-        $new_dir = sprintf('%sClone', $module->root());
+        $new_dir = sprintf('%sClone', $root . $module->id());
         while (is_dir($new_dir)) {
             $counter++;
             $new_id  = sprintf('%sClone%s', $module->id(), $counter);
-            $new_dir = sprintf('%sClone%s', $module->root(), $counter);
+            $new_dir = sprintf('%sClone%s', $root . $module->id(), $counter);
         }
 
         if (!is_dir($new_dir)) {
