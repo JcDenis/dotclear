@@ -377,8 +377,12 @@ class Media extends Manager
                 }
             }
 
-            if (isset($f->media_thumb['sq']) && $f->media_type == 'image') {
-                $f->media_icon = $f->media_thumb['sq'];
+            if ($f->media_type === 'image') {
+                if (isset($f->media_thumb['sq'])) {
+                    $f->media_icon = $f->media_thumb['sq'];
+                } elseif (strtolower($p['extension']) === 'svg') {
+                    $f->media_icon = $this->root_url . $p['dirname'] . '/' . $p['base'] . '.' . $p['extension'];
+                }
             }
 
             return $f;
