@@ -116,6 +116,8 @@ if (!function_exists('dotclear_error')) {
      */
     function dotclear_error(string $message, string $detail = '', int $code = 0): void
     {
+        @ob_clean();
+
         # Display message only in CLI mode
         if (PHP_SAPI == 'cli') {
             trigger_error($message, E_USER_ERROR);
