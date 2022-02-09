@@ -42,6 +42,7 @@ class Autoloader
 
     /** @var array Keep track of loaded files */
     private static $loaded_files = [];
+    private static $request_count = 0;
 
     /**
      * Register loader with SPL autoloader stack.
@@ -175,6 +176,7 @@ class Autoloader
      */
     public function loadClass(string $class): ?string
     {
+        self::$request_count++;
         $prefix = $class;
 
         while (false !== $pos = strrpos($prefix, self::NS_SEP)) {
@@ -247,5 +249,15 @@ class Autoloader
     public static function getLoadedFiles(): array
     {
         return empty(self::$loaded_files) ? [] : array_keys(self::$loaded_files);
+    }
+
+    /**
+     * Get number of requests on this autoloader
+     *
+     * @return  int     Number of requests
+     */
+    public static function getRequestsCount(): int
+    {
+        return self::$request_count;
     }
 }
