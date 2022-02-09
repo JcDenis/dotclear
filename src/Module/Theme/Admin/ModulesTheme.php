@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+use Dotclear\Exception;
+use Dotclear\Exception\ModuleException;
+
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Theme\TraitModulesTheme;
@@ -422,7 +425,7 @@ class ModulesTheme extends AbstractModules
                 $id      = $modules[0];
 
                 if (!$this->hasModule($id)) {
-                    throw new Exception(__('No such theme.'));
+                    throw new ModuleException(__('No such theme.'));
                 }
 
                 dotclear()->blog->settings->addNamespace('system');
@@ -445,7 +448,7 @@ class ModulesTheme extends AbstractModules
 
                 $list = $this->getDisabledModules();
                 if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
+                    throw new ModuleException(__('No such theme.'));
                 }
 
                 $count = 0;
@@ -476,7 +479,7 @@ class ModulesTheme extends AbstractModules
 
                 $list = $this->getModules();
                 if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
+                    throw new ModuleException(__('No such theme.'));
                 }
 
                 $failed = false;
@@ -519,7 +522,7 @@ class ModulesTheme extends AbstractModules
                 $count = 0;
                 foreach ($modules as $id) {
                     if (!$this->hasModule($id)) {
-                        throw new Exception(__('No such theme.'));
+                        throw new ModuleException(__('No such theme.'));
                     }
 
                     # --BEHAVIOR-- themeBeforeClone
@@ -549,7 +552,7 @@ class ModulesTheme extends AbstractModules
                 foreach ($modules as $id) {
                     if (!isset($list[$id])) {
                         if (!$this->hasModule($id)) {
-                            throw new Exception(__('No such theme.'));
+                            throw new ModuleException(__('No such theme.'));
                         }
 
                         $module = $this->getModule($id);
@@ -575,7 +578,7 @@ class ModulesTheme extends AbstractModules
                 }
 
                 if (!$count && $failed) {
-                    throw new Exception(__("You don't have permissions to delete this theme."));
+                    throw new ModuleException(__("You don't have permissions to delete this theme."));
                 } elseif ($failed) {
                     dotclear()->notices->addWarningNotice(__('Some themes have not been delete.'));
                 } else {
@@ -592,7 +595,7 @@ class ModulesTheme extends AbstractModules
                 $list = $this->store->get();
 
                 if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
+                    throw new ModuleException(__('No such theme.'));
                 }
 
                 $count = 0;
@@ -625,7 +628,7 @@ class ModulesTheme extends AbstractModules
 
                 $list = $this->store->get(true);
                 if (empty($list)) {
-                    throw new Exception(__('No such theme.'));
+                    throw new ModuleException(__('No such theme.'));
                 }
 
                 $count = 0;
@@ -659,7 +662,7 @@ class ModulesTheme extends AbstractModules
             elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
                 || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
                 if (empty($_POST['your_pwd']) || !dotclear()->auth->checkPassword($_POST['your_pwd'])) {
-                    throw new Exception(__('Password verification failed'));
+                    throw new ModuleException(__('Password verification failed'));
                 }
 
                 if (!empty($_POST['upload_pkg'])) {
@@ -667,7 +670,7 @@ class ModulesTheme extends AbstractModules
 
                     $dest = $this->getPath() . '/' . $_FILES['pkg_file']['name'];
                     if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
-                        throw new Exception(__('Unable to move uploaded file.'));
+                        throw new ModuleException(__('Unable to move uploaded file.'));
                     }
                 } else {
                     $url  = urldecode($_POST['pkg_url']);
@@ -702,18 +705,18 @@ class ModulesTheme extends AbstractModules
         # Check destination path
         $root = $this->path;
         if (!is_dir($root) || !is_writable($root)) {
-            throw new Exception(__('Themes folder unreachable'));
+            throw new ModuleException(__('Themes folder unreachable'));
         }
         if (substr($root, -1) != '/') {
             $root .= '/';
         }
         if (($d = @dir($root)) === false) {
-            throw new Exception(__('Themes folder unreadable'));
+            throw new ModuleException(__('Themes folder unreadable'));
         }
 
         $module = $this->getModule($id);
         if (!$module) {
-            throw new Exception('Theme is unknown');
+            throw new ModuleException('Theme is unknown');
         }
         $counter = 0;
         $new_id  = sprintf('%sClone', $module->id());
@@ -749,10 +752,10 @@ class ModulesTheme extends AbstractModules
             } catch (Exception $e) {
                 Files::deltree($new_dir);
 
-                throw new Exception($e->getMessage());
+                throw new ModuleException($e->getMessage());
             }
         } else {
-            throw new Exception(__('Destination folder already exist'));
+            throw new ModuleException(__('Destination folder already exist'));
         }
     }
 }
