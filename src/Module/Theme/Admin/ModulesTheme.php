@@ -20,6 +20,7 @@ use Dotclear\Module\AbstractDefine;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 use Dotclear\File\Path;
+use Dotclear\File\Files;
 use Dotclear\Network\Http;
 
 class ModulesTheme extends AbstractModules
@@ -696,10 +697,9 @@ class ModulesTheme extends AbstractModules
         }
     }
 
-    //! todo: update this
-    public function cloneModule($id)
+    public function cloneModule(string $id): void
     {
-        $root = end($this->path); // Use last folder set in folders list (should be only one for theme)
+        $root = $this->path;
         if (!is_dir($root) || !is_readable($root)) {
             throw new Exception(__('Themes folder unreachable'));
         }
@@ -710,56 +710,39 @@ class ModulesTheme extends AbstractModules
             throw new Exception(__('Themes folder unreadable'));
         }
 
-        $counter = 0;
-        $new_dir = sprintf('%s-copy', $this->modules[$id]['root']);
-        while (is_dir($new_dir)) {
-            $new_dir = sprintf('%s-copy-%s', $this->modules[$id]['root'], ++$counter);
+        $module = $this->getModule($id);
+        if (!$module) {
+            throw new Exception('Theme is unknown');
         }
-        $new_name = $this->modules[$id]['name'] . ($counter ? sprintf(__(' (copy #%s)'), $counter) : __(' (copy)'));
+        $counter = 0;
+        $new_id  = sprintf('%sClone', $module->id());
+        $new_dir = sprintf('%sClone', $module->root());
+        while (is_dir($new_dir)) {
+            $counter++;
+            $new_id  = sprintf('%sClone', $module->id(), $counter);
+            $new_dir = sprintf('%sClone%s', $module->root(), $counter);
+        }
 
         if (!is_dir($new_dir)) {
             try {
                 // Create destination folder named $new_dir in themes folder
                 Files::makeDir($new_dir, false);
                 // Copy files
-                $content = Files::getDirList($this->modules[$id]['root']);
+                $content = Files::getDirList($module->root());
                 foreach ($content['dirs'] as $dir) {
-                    $rel = substr($dir, strlen($this->modules[$id]['root']));
+                    $rel = substr($dir, strlen($module->root()));
                     if ($rel !== '') {
                         Files::makeDir($new_dir . $rel);
                     }
                 }
                 foreach ($content['files'] as $file) {
-                    $rel = substr($file, strlen($this->modules[$id]['root']));
+                    $rel = substr($file, strlen($module->root()));
                     copy($file, $new_dir . $rel);
-                    if ($rel === '/_define.php') {
+
+                    if (in_array(substr($rel, -4), ['.xml', '.php'])) {
                         $buf = file_get_contents($new_dir . $rel);
-                        // Find offset of registerModule function call
-                        $pos = strpos($buf, '$this->registerModule');
-                        // Change theme name to $new_name in _define.php
-                        if (preg_match('/(\$this->registerModule\(\s*)((\s*|.*)+?)(\s*\);+)/m', $buf, $matches)) {
-                            // Change only first occurence in registerModule parameters (should be the theme name)
-                            $matches[2] = preg_replace('/' . preg_quote($this->modules[$id]['name']) . '/', $new_name, $matches[2], 1);
-                            $buf        = substr($buf, 0, $pos) . $matches[1] . $matches[2] . $matches[4];
-                            $buf .= sprintf("\n\n// Cloned on %s from %s theme.\n", date('c'), $this->modules[$id]['name']);
-                            file_put_contents($new_dir . $rel, $buf);
-                        } else {
-                            throw new Exception(__('Unable to modify _config.php'));
-                        }
-                    }
-                    if (substr($rel, -4) === '.php') {
-                        // Change namespace in *.php
-                        // ex: namespace themes\berlin; → namespace themes\berlinClone;
-                        $buf = file_get_contents($new_dir . $rel);
-                        if (preg_match('/^namespace\s*themes\\\([^;].*);$/m', $buf, $matches)) {
-                            $pos     = strpos($buf, $matches[0]);
-                            $rel_dir = substr($new_dir, strlen($root));
-                            $ns      = preg_replace('/[^a-zA-Z0-9_]/', '', str_replace(['-', '.'], '', ucwords($rel_dir, '_-.')));
-                            $buf     = substr($buf, 0, $pos) .
-                                'namespace themes\\' . $ns . ';' .
-                                substr($buf, $pos + strlen($matches[0]));
-                            file_put_contents($new_dir . $rel, $buf);
-                        }
+                        $buf = str_replace($module->id(), $new_id, $buf);
+                        file_put_contents($new_dir . $rel, $buf);
                     }
                 }
             } catch (Exception $e) {
