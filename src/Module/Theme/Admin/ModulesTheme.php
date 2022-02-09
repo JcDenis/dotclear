@@ -719,7 +719,7 @@ class ModulesTheme extends AbstractModules
         $new_dir = sprintf('%sClone', $module->root());
         while (is_dir($new_dir)) {
             $counter++;
-            $new_id  = sprintf('%sClone', $module->id(), $counter);
+            $new_id  = sprintf('%sClone%s', $module->id(), $counter);
             $new_dir = sprintf('%sClone%s', $module->root(), $counter);
         }
 
