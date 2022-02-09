@@ -614,7 +614,7 @@ class MediaItem extends Page
                     '</a></p>';
             } elseif ($thumb_size == 'o') {
                 $S     = getimagesize($this->file->file);
-                $class = ($S[1] > 500) ? ' class="overheight"' : '';
+                $class = !$S || ($S[1] > 500) ? ' class="overheight"' : '';
                 unset($S);
                 echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->file->file_url . '">' .
                 '<img src="' . $this->file->file_url . '?' . time() * rand() . '" alt="" />' .
@@ -644,9 +644,13 @@ class MediaItem extends Page
                 $stats      = stat($thumb_file);
                 echo
                 '<h3>' . __('Thumbnail details') . '</h3>' .
-                '<ul>' .
-                '<li><strong>' . __('Image width:') . '</strong> ' . $T[0] . ' px</li>' .
-                '<li><strong>' . __('Image height:') . '</strong> ' . $T[1] . ' px</li>' .
+                '<ul>';
+                if (is_array($T)) {
+                    echo
+                    '<li><strong>' . __('Image width:') . '</strong> ' . $T[0] . ' px</li>' .
+                    '<li><strong>' . __('Image height:') . '</strong> ' . $T[1] . ' px</li>';
+                }
+                echo
                 '<li><strong>' . __('File size:') . '</strong> ' . Files::size($stats[7]) . '</li>' .
                 '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->file->media_thumb[$thumb_size] . '">' .
                 $this->file->media_thumb[$thumb_size] . '</a></li>' .
@@ -669,10 +673,12 @@ class MediaItem extends Page
         '<li><strong>' . __('File type:') . '</strong> ' . $this->file->type . '</li>';
         if ($this->file->media_image) {
             $S = getimagesize($this->file->file);
-            echo
-            '<li><strong>' . __('Image width:') . '</strong> ' . $S[0] . ' px</li>' .
-            '<li><strong>' . __('Image height:') . '</strong> ' . $S[1] . ' px</li>';
-            unset($S);
+            if (is_array($S)) {
+                echo
+                '<li><strong>' . __('Image width:') . '</strong> ' . $S[0] . ' px</li>' .
+                '<li><strong>' . __('Image height:') . '</strong> ' . $S[1] . ' px</li>';
+                unset($S);
+            }
         }
         echo
         '<li><strong>' . __('File size:') . '</strong> ' . Files::size($this->file->size) . '</li>' .
