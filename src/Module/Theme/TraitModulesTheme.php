@@ -23,7 +23,18 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        return explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
+        $paths = explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
+
+        # If a theme directory is set for current blog, it will be added to the end of paths
+        if (isset(dotclear()->blog)) {
+            dotclear()->blog->settings->addNamespace('system');
+            $dir = (string) dotclear()->blog->settings->system->module_theme_dir;
+            if (false !== ($dir = Path::real(strpos('\\', $dir) === 0 ? $dir : dotclear()::root($dir), true))) {
+                $paths[] = $dir;
+            }
+        }
+
+        return $paths;
     }
 
     public function getStoreURL(): string

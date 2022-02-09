@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin;
 
+use Dotclear\File\Path;
+
 trait TraitModulesPlugin
 {
     public function getModulesType(): string
@@ -21,7 +23,18 @@ trait TraitModulesPlugin
 
     public function getModulesPath(): array
     {
-        return explode(PATH_SEPARATOR, DOTCLEAR_PLUGIN_DIR);
+        $paths = explode(PATH_SEPARATOR, DOTCLEAR_PLUGIN_DIR);
+
+        # If a plugin directory is set for current blog, it will be added to the end of paths
+        if (isset(dotclear()->blog)) {
+            dotclear()->blog->settings->addNamespace('system');
+            $dir = (string) dotclear()->blog->settings->system->module_plugin_dir;
+            if (false !== ($dir = Path::real(strpos('\\', $dir) === 0 ? $dir : dotclear()::root($dir), true))) {
+                $paths[] = $dir;
+            }
+        }
+
+        return $paths;
     }
 
     public function getStoreURL(): string

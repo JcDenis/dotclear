@@ -88,9 +88,6 @@ class Prepend extends BasePrepend
         $this->combos   = new Combos();
         $this->userpref = new UserPref();
 
-        # Serve modules file (mf)
-        $this->adminServeFile();
-
         # Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); # HTTP/1.1
@@ -205,6 +202,9 @@ class Prepend extends BasePrepend
                 exit;
             }
         }
+
+        # Serve modules file (mf)
+        $this->adminServeFile();
 
         # User session exists
         if (!empty($this->auth->userID()) && $this->blog !== null) {

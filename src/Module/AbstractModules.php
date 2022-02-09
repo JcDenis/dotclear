@@ -73,6 +73,8 @@ abstract class AbstractModules
     /**
      * Get modules path
      *
+     * If more than one path exists, new module goes in this last path.
+     *
      * @return  string  The modules path
      */
     abstract public function getModulesPath(): array;
