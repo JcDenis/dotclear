@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Lib\Filter;
 
+use Dotclear\Exception;
+
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
 use Dotclear\Html\Html;
