@@ -12,13 +12,13 @@ ul.spaminfo li {
   background-repeat: no-repeat;
 }
 ul.spaminfo .spamcount {
-  background-image: url(images/junk.png);
+  background-image: url(?df=images/junk.png);
 }
 ul.spaminfo .hamcount {
-  background-image: url(images/check-on.png);
+  background-image: url(?df=images/check-on.png);
 }
 ul.spaminfo .feed {
-  background-image: url(index.php?pf=antispam/feed.png);
+  background-image: url(?mf=Plugin/Antispam/files/feed.png);
 }
 /* ---------------------------------------------------------- listing of IPs / bad words */
 

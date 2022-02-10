@@ -1,40 +1,73 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Antispam
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib;
+
+use ArrayObject;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilters;
+use Dotclear\Plugin\Antispam\Lib\Filter\FilterWords;
+
+use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
+use Dotclear\Database\Structure;
+use Dotclear\Core\Blog;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcAntispam
+class Antispam
 {
+    /** @var Spamfilters Spamfitlers instance */
     public static $filters;
 
-    public static function initFilters()
+    public static function initFilters(): void
     {
-        global $core;
+        $spamfilters = new ArrayObject(self::defaultFilters());
 
-        if (!isset($core->spamfilters)) {
-            return;
-        }
+        # --BEHAVIOR-- antispamInitFilters , ArrayObject
+        dotclear()->behaviors->call('antispamInitFilters', $spamfilters);
+        $spamfilters = $spamfilters->getArrayCopy();
 
-        self::$filters = new dcSpamFilters($core);
-        self::$filters->init($core->spamfilters);
+        self::$filters = new Spamfilters();
+        self::$filters->init($spamfilters);
     }
 
-    public static function isSpam($cur)
+    public static function defaultFilters()
+    {
+        $ns = 'Dotclear\\Plugin\\Antispam\\Lib\\Filter\\';
+        $defaultfilters = [
+            $ns . 'FilterIp',
+            $ns . 'FilterIplookup',
+            $ns . 'FilterWords',
+            $ns . 'FilterLinkslookup',
+       ];
+
+        if (function_exists('gmp_init') || function_exists('bcadd')) {
+            $defaultfilters[] = $ns . 'FilterIpv6';
+        }
+
+        return $defaultfilters;
+    }
+
+    public static function isSpam(Cursor $cur): void
     {
         self::initFilters();
         self::$filters->isSpam($cur);
     }
 
-    public static function trainFilters($blog, $cur, $rs)
+    public static function trainFilters(Blog $blog, Cursor $cur, Record $rs): void
     {
         $status = null;
         # From ham to spam
@@ -56,7 +89,7 @@ class dcAntispam
         }
     }
 
-    public static function statusMessage($rs)
+    public static function statusMessage(Record $rs): string
     {
         if ($rs->exists('comment_status') && $rs->comment_status == -2) {
             $filter_name = $rs->exists('comment_spam_filter') ? $rs->comment_spam_filter : null;
@@ -69,78 +102,69 @@ class dcAntispam
         }
     }
 
-    public static function dashboardIcon($core, $icons)
+    public static function dashboardIconTitle(): string
     {
-        if (($count = self::countSpam($core)) > 0) {
-            $str = ($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)');
-            $icons['comments'][0] .= '</span></a> <a href="' . $core->adminurl->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
-            sprintf($str, $count);
-        }
-    }
-
-    public static function dashboardIconTitle($core)
-    {
-        if (($count = self::countSpam($core)) > 0) {
+        if (($count = self::countSpam()) > 0) {
             $str = ($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)');
 
-            return '</span></a> <a href="' . $core->adminurl->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
+            return '</span></a> <a href="' . dotclear()->adminurl->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
             sprintf($str, $count);
         }
 
         return '';
     }
 
-    public static function dashboardHeaders()
+    public static function dashboardHeaders(): string
     {
-        return dcPage::jsLoad(urldecode(dcPage::getPF('antispam/js/dashboard.js')));
+        return Utils::jsLoad('mf=Plugin/Antispam/files/js/dashboard.js');
     }
 
-    public static function countSpam($core)
+    public static function countSpam(): int
     {
-        return $core->blog->getComments(['comment_status' => -2], true)->f(0);
+        return (int) dotclear()->blog->getComments(['comment_status' => -2], true)->f(0);
     }
 
-    public static function countPublishedComments($core)
+    public static function countPublishedComments(): int
     {
-        return $core->blog->getComments(['comment_status' => 1], true)->f(0);
+        return (int) dotclear()->blog->getComments(['comment_status' => 1], true)->f(0);
     }
 
-    public static function delAllSpam($core, $beforeDate = null)
+    public static function delAllSpam(?string $beforeDate = null): void
     {
         $strReq = 'SELECT comment_id ' .
-        'FROM ' . $core->prefix . 'comment C ' .
-        'JOIN ' . $core->prefix . 'post P ON P.post_id = C.post_id ' .
-        "WHERE blog_id = '" . $core->con->escape($core->blog->id) . "' " .
+        'FROM ' . dotclear()->prefix . 'comment C ' .
+        'JOIN ' . dotclear()->prefix . 'post P ON P.post_id = C.post_id ' .
+        "WHERE blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
             'AND comment_status = -2 ';
         if ($beforeDate) {
             $strReq .= 'AND comment_dt < \'' . $beforeDate . '\' ';
         }
 
-        $rs = $core->con->select($strReq);
+        $rs = dotclear()->con->select($strReq);
         $r  = [];
         while ($rs->fetch()) {
-            $r[] = (integer) $rs->comment_id;
+            $r[] = (int) $rs->comment_id;
         }
 
         if (empty($r)) {
             return;
         }
 
-        $strReq = 'DELETE FROM ' . $core->prefix . 'comment ' .
-        'WHERE comment_id ' . $core->con->in($r) . ' ';
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
+        'WHERE comment_id ' . dotclear()->con->in($r) . ' ';
 
-        $core->con->execute($strReq);
+        dotclear()->con->execute($strReq);
     }
 
-    public static function getUserCode($core)
+    public static function getUserCode(): string
     {
-        $code = pack('a32', $core->auth->userID()) .
-        hash(DC_CRYPT_ALGO, $core->auth->cryptLegacy($core->auth->getInfo('user_pwd')));
+        $code = pack('a32', dotclear()->auth->userID()) .
+        hash(DOTCLEAR_CRYPT_ALGO, dotclear()->auth->cryptLegacy(dotclear()->auth->getInfo('user_pwd')));
 
         return bin2hex($code);
     }
 
-    public static function checkUserCode($core, $code)
+    public static function checkUserCode(string $code): string|false
     {
         $code = pack('H*', $code);
 
@@ -152,20 +176,20 @@ class dcAntispam
         }
 
         $strReq = 'SELECT user_id, user_pwd ' .
-        'FROM ' . $core->prefix . 'user ' .
-        "WHERE user_id = '" . $core->con->escape($user_id) . "' ";
+        'FROM ' . dotclear()->prefix . 'user ' .
+        "WHERE user_id = '" . dotclear()->con->escape($user_id) . "' ";
 
-        $rs = $core->con->select($strReq);
+        $rs = dotclear()->con->select($strReq);
 
         if ($rs->isEmpty()) {
             return false;
         }
 
-        if (hash(DC_CRYPT_ALGO, $core->auth->cryptLegacy($rs->user_pwd)) != $pwd) {
+        if (hash(DOTCLEAR_CRYPT_ALGO, dotclear()->auth->cryptLegacy($rs->user_pwd)) != $pwd) {
             return false;
         }
 
-        $permissions = $core->getBlogPermissions($core->blog->id);
+        $permissions = dotclear()->getBlogPermissions(dotclear()->blog->id);
 
         if (empty($permissions[$rs->user_id])) {
             return false;
@@ -174,24 +198,21 @@ class dcAntispam
         return $rs->user_id;
     }
 
-    public static function purgeOldSpam($core)
+    public static function purgeOldSpam(): void
     {
         $defaultDateLastPurge = time();
         $defaultModerationTTL = '7';
         $init                 = false;
 
-        // settings
-        $core->blog->settings->addNamespace('antispam');
-
-        $dateLastPurge = $core->blog->settings->antispam->antispam_date_last_purge;
+        $dateLastPurge = dotclear()->blog->settings->antispam->antispam_date_last_purge;
         if ($dateLastPurge === null) {
             $init = true;
-            $core->blog->settings->antispam->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
+            dotclear()->blog->settings->antispam->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
             $dateLastPurge = $defaultDateLastPurge;
         }
-        $moderationTTL = $core->blog->settings->antispam->antispam_moderation_ttl;
+        $moderationTTL = dotclear()->blog->settings->antispam->antispam_moderation_ttl;
         if ($moderationTTL === null) {
-            $core->blog->settings->antispam->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
+            dotclear()->blog->settings->antispam->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
             $moderationTTL = $defaultModerationTTL;
         }
 
@@ -204,10 +225,47 @@ class dcAntispam
         if ((time() - $dateLastPurge) > (86400)) {
             // update dateLastPurge
             if (!$init) {
-                $core->blog->settings->antispam->put('antispam_date_last_purge', time(), null, null, true, false);
+                dotclear()->blog->settings->antispam->put('antispam_date_last_purge', time(), null, null, true, false);
             }
             $date = date('Y-m-d H:i:s', time() - $moderationTTL * 86400);
-            dcAntispam::delAllSpam($core, $date);
+            self::delAllSpam(dotclear(), $date);
         }
+    }
+
+    public static function installModule(): ?bool
+    {
+        $s = new Structure(dotclear()->con, dotclear()->prefix);
+
+        $s->spamrule
+            ->rule_id('bigint', 0, false)
+            ->blog_id('varchar', 32, true)
+            ->rule_type('varchar', 16, false, "'word'")
+            ->rule_content('varchar', 128, false)
+
+            ->primary('pk_spamrule', 'rule_id')
+        ;
+
+        $s->spamrule->index('idx_spamrule_blog_id', 'btree', 'blog_id');
+        $s->spamrule->reference('fk_spamrule_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
+
+        if ($s->driver() == 'pgsql') {
+            $s->spamrule->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
+        }
+
+        # Schema installation
+        $si      = new Structure(dotclear()->con, dotclear()->prefix);
+        $changes = $si->synchronize($s);
+
+        # Creating default wordslist
+        if (dotclear()->getVersion('Antispam') === null) {
+            $_o = new FilterWords();
+            $_o->defaultWordsList();
+            unset($_o);
+        }
+
+        dotclear()->blog->settings->addNamespace('antispam');
+        dotclear()->blog->settings->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
+
+        return true;
     }
 }

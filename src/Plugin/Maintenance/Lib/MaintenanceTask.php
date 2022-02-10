@@ -79,7 +79,6 @@ class MaintenanceTask
             $this->success = __('Task successfully executed.');
         }
 
-        dotclear()->blog->settings->addNamespace('maintenance');
         $ts = dotclear()->blog->settings->maintenance->get('ts_' . $this->id);
 
         $this->ts = abs((int) $ts);

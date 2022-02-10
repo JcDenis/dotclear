@@ -1,19 +1,28 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Spamfilter
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib;
+
+use Dotclear\Html\Html;
+use Dotclear\Database\Record;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcSpamFilter
+class Spamfilter
 {
+    public $id;
     public $name;
     public $description;
     public $active      = true;
@@ -22,26 +31,22 @@ class dcSpamFilter
     public $help        = null;
 
     protected $has_gui = false;
-    protected $gui_url = null;
-
-    protected $core;
+    protected $gui_url = false;
 
     /**
      * Constructs a new instance.
-     *
-     * @param      dcCore  $core   The core
      */
-    public function __construct(dcCore $core)
+    public function __construct()
     {
-        $this->core = &$core;
         $this->setInfo();
 
+        $this->id = join('', array_slice(explode('\\', get_class($this)), -1));
         if (!$this->name) {
-            $this->name = get_class($this);
+            $this->name = $this->id;
         }
 
-        if (isset($core->adminurl)) {
-            $this->gui_url = $core->adminurl->get('admin.plugin.antispam', ['f' => get_class($this)], '&');
+        if (isset(dotclear()->adminurl)) {
+            $this->gui_url = dotclear()->adminurl->get('admin.plugin.Antispam', ['f' => $this->id], '&');
         }
     }
 
@@ -49,14 +54,14 @@ class dcSpamFilter
     This method is called by the constructor and allows you to change some
     object properties without overloading object constructor.
      */
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('No description');
     }
 
     /**
      * This method should return if a comment is a spam or not. If it returns true
-     * or false, execution of next filters will be stoped. If should return nothing
+     * or false, execution of next filters will be stoped. If should return null
      * to let next filters apply.
      *
      * Your filter should also fill $status variable with its own information if
@@ -70,9 +75,12 @@ class dcSpamFilter
      * @param      string  $content  The comment content
      * @param      integer $post_id  The comment post_id
      * @param      integer $status   The comment status
+     *
+     * @return  bool    Status
      */
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
+        return null;
     }
 
     /**
@@ -86,9 +94,9 @@ class dcSpamFilter
      * @param      string  $site     The comment author site
      * @param      string  $ip       The comment author IP
      * @param      string  $content  The comment content
-     * @param      record  $rs       The comment record
+     * @param      Record  $rs       The comment record
      */
-    public function trainFilter($status, $filter, $type, $author, $email, $site, $ip, $content, $rs)
+    public function trainFilter(string $status, string $filter, string $type, string $author, string $email, string $site, string $ip, string $content, Record $rs): void
     {
     }
 
@@ -102,7 +110,7 @@ class dcSpamFilter
      *
      * @return     string  The status message.
      */
-    public function getStatusMessage($status, $comment_id)
+    public function getStatusMessage(string $status, int $comment_id): string
     {
         return sprintf(__('Filtered by %1$s (%2$s)'), $this->guiLink(), $status);
     }
@@ -113,13 +121,14 @@ class dcSpamFilter
      *
      * @param      string  $url    The GUI url
      */
-    public function gui($url)
+    public function gui(string $url): string
     {
+        return '';
     }
 
-    public function hasGUI()
+    public function hasGUI(): bool
     {
-        if (!$this->core->auth->check('admin', $this->core->blog->id)) {
+        if (!dotclear()->auth->check('admin', dotclear()->blog->id)) {
             return false;
         }
 
@@ -130,7 +139,7 @@ class dcSpamFilter
         return true;
     }
 
-    public function guiURL()
+    public function guiURL(): string|false
     {
         if (!$this->hasGui()) {
             return false;
@@ -145,16 +154,21 @@ class dcSpamFilter
      *
      * @return     string
      */
-    public function guiLink()
+    public function guiLink(): string
     {
         if (($url = $this->guiURL()) !== false) {
-            $url  = html::escapeHTML($url);
+            $url  = Html::escapeHTML($url);
             $link = '<a href="%2$s">%1$s</a>';
         } else {
             $link = '%1$s';
         }
 
         return sprintf($link, $this->name, $url);
+    }
+
+    public function guiTab(): ?string
+    {
+        return null;
     }
 
     public function help()

@@ -1,43 +1,41 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Spamfilters
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcSpamFilters
+class Spamfilters
 {
     private $filters     = [];
     private $filters_opt = [];
-    private $core;
 
-    public function __construct($core)
+    public function init($filters): void
     {
-        $this->core = &$core;
-    }
-
-    public function init($filters)
-    {
-        foreach ($filters as $f) {
-            if (!class_exists($f)) {
+        foreach ($filters as $class) {
+            if (!is_subclass_of($class, 'Dotclear\\Plugin\\Antispam\\Lib\\Spamfilter')) {
                 continue;
             }
 
-            $r = new ReflectionClass($f);
-            $p = $r->getParentClass();
-
-            if (!$p || $p->name != 'dcSpamFilter') {
-                continue;
-            }
-
-            $this->filters[$f] = new $f($this->core);
+            $f = new $class();
+            $this->filters[$f->id] = $f;
         }
 
         $this->setFilterOpts();
@@ -46,12 +44,12 @@ class dcSpamFilters
         }
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
 
-    public function isSpam($cur)
+    public function isSpam(Cursor $cur): bool
     {
         foreach ($this->filters as $fid => $f) {
             if (!$f->active) {
@@ -64,7 +62,7 @@ class dcSpamFilters
             $site    = $cur->comment_site;
             $ip      = $cur->comment_ip;
             $content = $cur->comment_content;
-            $post_id = $cur->post_id;
+            $post_id = (int) $cur->post_id;
             $status  = null;
 
             $is_spam = $f->isSpam($type, $author, $email, $site, $ip, $content, $post_id, $status);
@@ -87,7 +85,7 @@ class dcSpamFilters
         return false;
     }
 
-    public function trainFilters($rs, $status, $filter_name)
+    public function trainFilters(Record $rs, string $status, string $filter_name): void
     {
         foreach ($this->filters as $fid => $f) {
             if (!$f->active) {
@@ -105,7 +103,7 @@ class dcSpamFilters
         }
     }
 
-    public function statusMessage($rs, $filter_name)
+    public function statusMessage(Record $rs, string $filter_name): string
     {
         $f = $this->filters[$filter_name] ?? null;
 
@@ -114,22 +112,21 @@ class dcSpamFilters
         }
         $status = $rs->exists('comment_spam_status') ? $rs->comment_spam_status : null;
 
-        return $f->getStatusMessage($status, $rs->comment_id);
+        return $f->getStatusMessage($status, (int) $rs->comment_id);
     }
 
-    public function saveFilterOpts($opts, $global = false)
+    public function saveFilterOpts(array $opts, bool $global = false): void
     {
-        $this->core->blog->settings->addNamespace('antispam');
         if ($global) {
-            $this->core->blog->settings->antispam->drop('antispam_filters');
+            dotclear()->blog->settings->antispam->drop('antispam_filters');
         }
-        $this->core->blog->settings->antispam->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
+        dotclear()->blog->settings->antispam->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
     }
 
-    private function setFilterOpts()
+    private function setFilterOpts(): void
     {
-        if ($this->core->blog->settings->antispam->antispam_filters !== null) {
-            $this->filters_opt = $this->core->blog->settings->antispam->antispam_filters;
+        if (dotclear()->blog->settings->antispam->antispam_filters !== null) {
+            $this->filters_opt = dotclear()->blog->settings->antispam->antispam_filters;
         }
 
         # Create default options if needed
@@ -147,7 +144,7 @@ class dcSpamFilters
         }
     }
 
-    private function orderCallBack($a, $b)
+    private function orderCallBack(Spamfilter $a, Spamfilter $b)
     {
         if ($a->order == $b->order) {
             return 0;

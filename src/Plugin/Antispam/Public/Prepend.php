@@ -1,17 +1,44 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Public\Prepend
+ * @brief Dotclear Plugin class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Public;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependPublic;
+
+use Dotclear\Plugin\Antispam\Lib\Antispam;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-$core->addBehavior('publicBeforeCommentCreate', ['dcAntispam', 'isSpam']);
-$core->addBehavior('publicBeforeTrackbackCreate', ['dcAntispam', 'isSpam']);
-$core->addBehavior('publicBeforeDocument', ['dcAntispam', 'purgeOldSpam']);
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependPublic;
+
+    public static function loadModule(): void
+    {
+        # Settings
+        dotclear()->blog->settings->addNamespace('antispam');
+
+        # Url
+        $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamUrl';
+        dotclear()->url->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [$class, 'spamFeed']);
+        dotclear()->url->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$class, 'hamFeed']);
+
+        $class = 'Dotclear\\Plugin\\Antispam\\Lib\\Antispam';
+        dotclear()->behaviors->add('publicBeforeCommentCreate', [$class, 'isSpam']);
+        dotclear()->behaviors->add('publicBeforeTrackbackCreate', [$class, 'isSpam']);
+        dotclear()->behaviors->add('publicBeforeDocument', [$class, 'purgeOldSpam']);
+    }
+}

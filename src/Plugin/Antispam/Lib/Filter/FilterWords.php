@@ -1,44 +1,53 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Filter\FilterWords
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib\Filter;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+use Dotclear\Html\Html;
+Use Dotclear\Html\Form;
+use Dotclear\Network\Http;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcFilterWords extends dcSpamFilter
+class FilterWords extends Spamfilter
 {
     public $has_gui = true;
     public $name    = 'Bad Words';
     public $help    = 'words-filter';
 
-    private $con;
     private $table;
 
-    public function __construct($core)
+    public function __construct()
     {
-        parent::__construct($core);
-        $this->con   = &$core->con;
-        $this->table = $core->prefix . 'spamrule';
+        parent::__construct();
+        $this->table = dotclear()->prefix . 'spamrule';
     }
 
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('Words Blocklist');
     }
 
-    public function getStatusMessage($status, $comment_id)
+    public function getStatusMessage(string $status, int $comment_id): string
     {
         return sprintf(__('Filtered by %1$s with word %2$s.'), $this->guiLink(), '<em>' . $status . '</em>');
     }
 
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
         $str = $author . ' ' . $email . ' ' . $site . ' ' . $content;
 
@@ -60,33 +69,33 @@ class dcFilterWords extends dcSpamFilter
                 return true;
             }
         }
+
+        return null;
     }
 
-    public function gui($url)
+    public function gui(string $url): string
     {
-        $core = &$this->core;
-
         # Create list
         if (!empty($_POST['createlist'])) {
             try {
                 $this->defaultWordsList();
-                dcPage::addSuccessNotice(__('Words have been successfully added.'));
-                http::redirect($url);
+                dotclear()->notices->addSuccessNotice(__('Words have been successfully added.'));
+                Http::redirect($url);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
         # Adding a word
         if (!empty($_POST['swa'])) {
-            $globalsw = !empty($_POST['globalsw']) && $core->auth->isSuperAdmin();
+            $globalsw = !empty($_POST['globalsw']) && dotclear()->auth->isSuperAdmin();
 
             try {
                 $this->addRule($_POST['swa'], $globalsw);
-                dcPage::addSuccessNotice(__('Word has been successfully added.'));
-                http::redirect($url);
+                dotclear()->notices->addSuccessNotice(__('Word has been successfully added.'));
+                Http::redirect($url);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -94,24 +103,24 @@ class dcFilterWords extends dcSpamFilter
         if (!empty($_POST['swd']) && is_array($_POST['swd'])) {
             try {
                 $this->removeRule($_POST['swd']);
-                dcPage::addSuccessNotice(__('Words have been successfully removed.'));
-                http::redirect($url);
+                dotclear()->notices->addSuccessNotice(__('Words have been successfully removed.'));
+                Http::redirect($url);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
         /* DISPLAY
         ---------------------------------------------- */
-        $res = '<form action="' . html::escapeURL($url) . '" method="post" class="fieldset">' .
-        '<p><label class="classic" for="swa">' . __('Add a word ') . '</label> ' . form::field('swa', 20, 128);
+        $res = '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
+        '<p><label class="classic" for="swa">' . __('Add a word ') . '</label> ' . Form::field('swa', 20, 128);
 
-        if ($core->auth->isSuperAdmin()) {
-            $res .= '<label class="classic" for="globalsw">' . form::checkbox('globalsw', 1) .
+        if (dotclear()->auth->isSuperAdmin()) {
+            $res .= '<label class="classic" for="globalsw">' . Form::checkbox('globalsw', 1) .
             __('Global word (used for all blogs)') . '</label> ';
         }
 
-        $res .= $core->formNonce() .
+        $res .= dotclear()->formNonce() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -120,7 +129,7 @@ class dcFilterWords extends dcSpamFilter
         if ($rs->isEmpty()) {
             $res .= '<p><strong>' . __('No word in list.') . '</strong></p>';
         } else {
-            $res .= '<form action="' . html::escapeURL($url) . '" method="post" class="fieldset">' .
+            $res .= '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
             '<h3>' . __('List of bad words') . '</h3>' .
                 '<div class="antispam">';
 
@@ -132,17 +141,17 @@ class dcFilterWords extends dcSpamFilter
                 $p_style = '';
 
                 if (!$rs->blog_id) {
-                    $disabled_word = !$core->auth->isSuperAdmin();
+                    $disabled_word = !dotclear()->auth->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
                 $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->rule_id . '">' .
-                form::checkbox(['swd[]', 'word-' . $rs->rule_id], $rs->rule_id,
+                Form::checkbox(['swd[]', 'word-' . $rs->rule_id], $rs->rule_id,
                     [
                         'disabled' => $disabled_word
                     ]
                 ) . ' ' .
-                html::escapeHTML($rs->rule_content) .
+                Html::escapeHTML($rs->rule_content) .
                     '</label></p>';
 
                 if ($rs->blog_id) {
@@ -163,18 +172,18 @@ class dcFilterWords extends dcSpamFilter
             $res .= '<div class="global">' . $res_global . '</div>';
 
             $res .= '</div>' .
-            '<p>' . form::hidden(['spamwords'], 1) .
-            $core->formNonce() .
+            '<p>' . Form::hidden(['spamwords'], 1) .
+            dotclear()->formNonce() .
             '<input class="submit delete" type="submit" value="' . __('Delete selected words') . '"/></p>' .
                 '</form>';
         }
 
-        if ($core->auth->isSuperAdmin()) {
-            $res .= '<form action="' . html::escapeURL($url) . '" method="post">' .
+        if (dotclear()->auth->isSuperAdmin()) {
+            $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
             '<p><input type="submit" value="' . __('Create default wordlist') . '" />' .
-            form::hidden(['spamwords'], 1) .
-            form::hidden(['createlist'], 1) .
-            $core->formNonce() . '</p>' .
+            Form::hidden(['spamwords'], 1) .
+            Form::hidden(['createlist'], 1) .
+            dotclear()->formNonce() . '</p>' .
                 '</form>';
         }
 
@@ -186,41 +195,41 @@ class dcFilterWords extends dcSpamFilter
         $strReq = 'SELECT rule_id, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
         "WHERE rule_type = 'word' " .
-        "AND ( blog_id = '" . $this->con->escape($this->core->blog->id) . "' " .
+        "AND ( blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
             'OR blog_id IS NULL ) ' .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
-        return $this->con->select($strReq);
+        return dotclear()->con->select($strReq);
     }
 
     private function addRule($content, $general = false)
     {
         $strReq = 'SELECT rule_id FROM ' . $this->table . ' ' .
         "WHERE rule_type = 'word' " .
-        "AND rule_content = '" . $this->con->escape($content) . "' ";
+        "AND rule_content = '" . dotclear()->con->escape($content) . "' ";
         if (!$general) {
-            $strReq .= ' AND blog_id = \'' . $this->core->blog->id . '\'';
+            $strReq .= ' AND blog_id = \'' . dotclear()->blog->id . '\'';
         }
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con->select($strReq);
 
         if (!$rs->isEmpty() && !$general) {
             throw new Exception(__('This word exists'));
         }
 
-        $cur               = $this->con->openCursor($this->table);
+        $cur               = dotclear()->con->openCursor($this->table);
         $cur->rule_type    = 'word';
         $cur->rule_content = (string) $content;
 
-        if ($general && $this->core->auth->isSuperAdmin()) {
+        if ($general && dotclear()->auth->isSuperAdmin()) {
             $cur->blog_id = null;
         } else {
-            $cur->blog_id = $this->core->blog->id;
+            $cur->blog_id = dotclear()->blog->id;
         }
 
         if (!$rs->isEmpty() && $general) {
             $cur->update('WHERE rule_id = ' . $rs->rule_id);
         } else {
-            $rs_max       = $this->con->select('SELECT MAX(rule_id) FROM ' . $this->table);
+            $rs_max       = dotclear()->con->select('SELECT MAX(rule_id) FROM ' . $this->table);
             $cur->rule_id = (integer) $rs_max->f(0) + 1;
             $cur->insert();
         }
@@ -240,11 +249,11 @@ class dcFilterWords extends dcSpamFilter
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 
-        if (!$this->core->auth->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . $this->con->escape($this->core->blog->id) . "' ";
+        if (!dotclear()->auth->isSuperAdmin()) {
+            $strReq .= "AND blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' ";
         }
 
-        $this->con->execute($strReq);
+        dotclear()->con->execute($strReq);
     }
 
     public function defaultWordsList()

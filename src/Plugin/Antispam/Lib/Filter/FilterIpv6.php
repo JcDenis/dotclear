@@ -1,47 +1,57 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Filter\FilterIpv6
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib\Filter;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+use Dotclear\Html\Html;
+Use Dotclear\Html\Form;
+use Dotclear\Network\Http;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcFilterIPv6 extends dcSpamFilter
+class FilterIpv6 extends Spamfilter
 {
     public $name    = 'IP Filter v6';
     public $has_gui = true;
     public $help    = 'ip-filter-v6';
 
-    private $con;
     private $table;
+    private $tab;
 
-    public function __construct($core)
+    public function __construct()
     {
-        parent::__construct($core);
-        $this->con   = &$core->con;
-        $this->table = $core->prefix . 'spamrule';
+        parent::__construct();
+        $this->table = dotclear()->prefix . 'spamrule';
     }
 
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('IP v6 Blocklist / Allowlist Filter');
     }
 
-    public function getStatusMessage($status, $comment_id)
+    public function getStatusMessage(string $status, int $comment_id): string
     {
         return sprintf(__('Filtered by %1$s with rule %2$s.'), $this->guiLink(), $status);
     }
 
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
         if (!$ip) {
-            return;
+            return null;
         }
 
         # White list check
@@ -55,30 +65,29 @@ class dcFilterIPv6 extends dcSpamFilter
 
             return true;
         }
+
+        return null;
     }
 
-    public function gui($url)
+    public function gui(string $url): string
     {
-        global $default_tab;
-        $core = &$this->core;
-
         # Set current type and tab
         $ip_type = 'blackv6';
         if (!empty($_REQUEST['ip_type']) && $_REQUEST['ip_type'] == 'whitev6') {
             $ip_type = 'whitev6';
         }
-        $default_tab = 'tab_' . $ip_type;
+        $this->tab = 'tab_' . $ip_type;
 
         # Add IP to list
         if (!empty($_POST['addip'])) {
             try {
-                $global = !empty($_POST['globalip']) && $core->auth->isSuperAdmin();
+                $global = !empty($_POST['globalip']) && dotclear()->auth->isSuperAdmin();
 
                 $this->addIP($ip_type, $_POST['addip'], $global);
-                dcPage::addSuccessNotice(__('IP address has been successfully added.'));
-                http::redirect($url . '&ip_type=' . $ip_type);
+                dotclear()->notices->addSuccessNotice(__('IP address has been successfully added.'));
+                Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -86,10 +95,10 @@ class dcFilterIPv6 extends dcSpamFilter
         if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
             try {
                 $this->removeRule($_POST['delip']);
-                dcPage::addSuccessNotice(__('IP addresses have been successfully removed.'));
-                http::redirect($url . '&ip_type=' . $ip_type);
+                dotclear()->notices->addSuccessNotice(__('IP addresses have been successfully removed.'));
+                Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
@@ -101,24 +110,27 @@ class dcFilterIPv6 extends dcSpamFilter
         return $res;
     }
 
+    public function guiTab(): ?string
+    {
+        return $this->tab;
+    }
+
     private function displayForms($url, $type, $title)
     {
-        $core = &$this->core;
-
         $res = '<div class="multi-part" id="tab_' . $type . '" title="' . $title . '">' .
 
-        '<form action="' . html::escapeURL($url) . '" method="post" class="fieldset">' .
+        '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
 
         '<p>' .
-        form::hidden(['ip_type'], $type) .
+        Form::hidden(['ip_type'], $type) .
         '<label class="classic" for="addip_' . $type . '">' . __('Add an IP address: ') . '</label> ' .
-        form::field(['addip', 'addip_' . $type], 18, 255);
-        if ($core->auth->isSuperAdmin()) {
-            $res .= '<label class="classic" for="globalip_' . $type . '">' . form::checkbox(['globalip', 'globalip_' . $type], 1) . ' ' .
+        Form::field(['addip', 'addip_' . $type], 18, 255);
+        if (dotclear()->auth->isSuperAdmin()) {
+            $res .= '<label class="classic" for="globalip_' . $type . '">' . Form::checkbox(['globalip', 'globalip_' . $type], 1) . ' ' .
             __('Global IP (used for all blogs)') . '</label> ';
         }
 
-        $res .= $core->formNonce() .
+        $res .= dotclear()->formNonce() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -128,7 +140,7 @@ class dcFilterIPv6 extends dcSpamFilter
         if ($rs->isEmpty()) {
             $res .= '<p><strong>' . __('No IP address in list.') . '</strong></p>';
         } else {
-            $res .= '<form action="' . html::escapeURL($url) . '" method="post">' .
+            $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
             '<h3>' . __('IP list') . '</h3>' .
                 '<div class="antispam">';
 
@@ -140,17 +152,17 @@ class dcFilterIPv6 extends dcSpamFilter
                 $disabled_ip = false;
                 $p_style     = '';
                 if (!$rs->blog_id) {
-                    $disabled_ip = !$core->auth->isSuperAdmin();
+                    $disabled_ip = !dotclear()->auth->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
                 $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->rule_id . '">' .
-                form::checkbox(['delip[]', $type . '-ip-' . $rs->rule_id], $rs->rule_id,
+                Form::checkbox(['delip[]', $type . '-ip-' . $rs->rule_id], $rs->rule_id,
                     [
                         'disabled' => $disabled_ip
                     ]
                 ) . ' ' .
-                html::escapeHTML($pattern) .
+                Html::escapeHTML($pattern) .
                     '</label></p>';
 
                 if ($rs->blog_id) {
@@ -171,8 +183,8 @@ class dcFilterIPv6 extends dcSpamFilter
 
             $res .= '</div>' .
             '<p><input class="submit delete" type="submit" value="' . __('Delete') . '"/>' .
-            $core->formNonce() .
-            form::hidden(['ip_type'], $type) .
+            dotclear()->formNonce() .
+            Form::hidden(['ip_type'], $type) .
                 '</p>' .
                 '</form>';
         }
@@ -187,19 +199,19 @@ class dcFilterIPv6 extends dcSpamFilter
         $pattern = $this->compact($pattern);
 
         $old = $this->getRuleCIDR($type, $global, $pattern);
-        $cur = $this->con->openCursor($this->table);
+        $cur = dotclear()->con->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = $this->con->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
+            $id = dotclear()->con->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
 
             $cur->rule_id      = $id;
             $cur->rule_type    = (string) $type;
             $cur->rule_content = (string) $pattern;
 
-            if ($global && $this->core->auth->isSuperAdmin()) {
+            if ($global && dotclear()->auth->isSuperAdmin()) {
                 $cur->blog_id = null;
             } else {
-                $cur->blog_id = $this->core->blog->id;
+                $cur->blog_id = dotclear()->blog->id;
             }
 
             $cur->insert();
@@ -214,11 +226,11 @@ class dcFilterIPv6 extends dcSpamFilter
     {
         $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . $this->con->escape($type) . "' " .
-        "AND (blog_id = '" . $this->core->blog->id . "' OR blog_id IS NULL) " .
+        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
-        return $this->con->select($strReq);
+        return dotclear()->con->select($strReq);
     }
 
     private function getRuleCIDR($type, $global, $pattern)
@@ -228,24 +240,22 @@ class dcFilterIPv6 extends dcSpamFilter
         $ip = $this->long2ip_v6($ip);
 
         $strReq = 'SELECT * FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . $this->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
         "AND rule_content LIKE '" . $ip . "%' " .
-        'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . $this->core->blog->id . "' ");
+        'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog->id . "' ");
 
-        return $this->con->select($strReq);
+        return dotclear()->con->select($strReq);
     }
 
     private function checkIP($cip, $type)
     {
-        $core = &$this->core;
-
         $strReq = 'SELECT DISTINCT(rule_content) ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . $this->con->escape($type) . "' " .
-        "AND (blog_id = '" . $this->core->blog->id . "' OR blog_id IS NULL) " .
+        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY rule_content ASC ';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con->select($strReq);
         while ($rs->fetch()) {
             $pattern = $rs->rule_content;
             if ($this->inrange($cip, $pattern)) {
@@ -270,11 +280,11 @@ class dcFilterIPv6 extends dcSpamFilter
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 
-        if (!$this->core->auth->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . $this->core->blog->id . "' ";
+        if (!dotclear()->auth->isSuperAdmin()) {
+            $strReq .= "AND blog_id = '" . dotclear()->blog->id . "' ";
         }
 
-        $this->con->execute($strReq);
+        dotclear()->con->execute($strReq);
     }
 
     private function compact($pattern)
@@ -316,7 +326,7 @@ class dcFilterIPv6 extends dcSpamFilter
             if (function_exists('gmp_init')) {
                 $ipmax = gmp_add(gmp_init($ipmin, 10), gmp_sub(gmp_init($mask, 10), gmp_init(1)));
             } elseif (function_exists('bcadd')) {
-                $ipmax = bcadd($ipmin, bcsub($mask, 1));    // @phpstan-ignore-line
+                $ipmax = bcadd($ipmin, bcsub($mask, '1'));    // @phpstan-ignore-line
             } else {
                 trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
             }

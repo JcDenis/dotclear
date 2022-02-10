@@ -1,18 +1,30 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\AntispamUrl
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib;
+
+use ArrayObject;
+
+use Dotclear\Plugin\Antispam\Lib\Antispam;
+
+use Dotclear\Core\UrlHandler;
+use Dotclear\Html\Html;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcAntispamURL extends dcUrlHandlers
+class AntispamUrl extends UrlHandler
 {
     public static function hamFeed($args)
     {
@@ -26,8 +38,7 @@ class dcAntispamURL extends dcUrlHandlers
 
     private static function genFeed($type, $args)
     {
-        global $core;
-        $user_id = dcAntispam::checkUserCode($core, $args);
+        $user_id = Antispam::checkUserCode($args);
 
         if ($user_id === false) {
             self::p404();
@@ -35,11 +46,11 @@ class dcAntispamURL extends dcUrlHandlers
             return;
         }
 
-        $core->auth->checkUser($user_id, null, null);
+        dotclear()->auth->checkUser($user_id, null, null);
 
         header('Content-Type: application/xml; charset=UTF-8');
 
-        $title   = $core->blog->name . ' - ' . __('Spam moderation') . ' - ';
+        $title   = dotclear()->blog->name . ' - ' . __('Spam moderation') . ' - ';
         $params  = [];
         $end_url = '';
         if ($type == 'spam') {
@@ -59,17 +70,17 @@ class dcAntispamURL extends dcUrlHandlers
         '<channel>' . "\n" .
         '<title>' . html::escapeHTML($title) . '</title>' . "\n" .
         /* @phpstan-ignore-next-line */
-        '<link>' . (DC_ADMIN_URL ? DC_ADMIN_URL . 'comments.php' . $end_url : 'about:blank') . '</link>' . "\n" .
+        '<link>' . (DOTCLEAR_ADMIN_URL ? DOTCLEAR_ADMIN_URL . 'comments.php' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
-        $rs       = $core->blog->getComments($params);
+        $rs       = dotclear()->blog->getComments($params);
         $maxitems = 20;
         $nbitems  = 0;
 
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             $nbitems++;
             /* @phpstan-ignore-next-line */
-            $uri    = DC_ADMIN_URL ? DC_ADMIN_URL . 'comment.php?id=' . $rs->comment_id : 'about:blank';
+            $uri    = DOTCLEAR_ADMIN_URL ? DOTCLEAR_ADMIN_URL . 'comment.php?id=' . $rs->comment_id : 'about:blank';
             $author = $rs->comment_author;
             $title  = $rs->post_title . ' - ' . $author;
             if ($type == 'spam') {

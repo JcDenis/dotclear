@@ -1,37 +1,44 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Filter\FilterLinkslookup
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib\Filter;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcFilterLinksLookup extends dcSpamFilter
+class FilterLinkslookup extends Spamfilter
 {
     public $name = 'Links Lookup';
 
     private $server = 'multi.surbl.org';
 
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('Checks links in comments against surbl.org');
     }
 
-    public function getStatusMessage($status, $comment_id)
+    public function getStatusMessage(string $status, int $comment_id): string
     {
         return sprintf(__('Filtered by %1$s with server %2$s.'), $this->guiLink(), $status);
     }
 
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
-        if (!$ip || long2ip(ip2long($ip)) != $ip) {
-            return;
+        if (!$ip || long2ip((int) ip2long($ip)) != $ip) {
+            return null;
         }
 
         $urls = $this->getLinks($content);
@@ -49,7 +56,7 @@ class dcFilterLinksLookup extends dcSpamFilter
             $i = count($domain_elem) - 1;
             if ($i == 0) {
                 // "domain" is 1 word long, don't check it
-                return;
+                return null;
             }
             $host = $domain_elem[$i];
             do {
@@ -63,6 +70,8 @@ class dcFilterLinksLookup extends dcSpamFilter
                 }
             } while ($i > 0);
         }
+
+        return null;
     }
 
     private function getLinks($text)

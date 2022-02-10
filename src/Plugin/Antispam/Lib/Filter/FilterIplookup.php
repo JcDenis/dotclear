@@ -1,18 +1,29 @@
 <?php
 /**
- * @brief antispam, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Antispam\Lib\Filter\FilterIpookup
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Antispam\Lib\Filter;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+use Dotclear\Html\Html;
+Use Dotclear\Html\Form;
+use Dotclear\Network\Http;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcFilterIpLookup extends dcSpamFilter
+class FilterIplookup extends Spamfilter
 {
     public $name    = 'IP Lookup';
     public $has_gui = true;
@@ -20,35 +31,35 @@ class dcFilterIpLookup extends dcSpamFilter
 
     private $default_bls = 'sbl-xbl.spamhaus.org , bsb.spamlookup.net';
 
-    public function __construct($core)
+    public function __construct()
     {
-        parent::__construct($core);
+        parent::__construct();
 
-        if (defined('DC_DNSBL_SUPER') && DC_DNSBL_SUPER && !$core->auth->isSuperAdmin()) {
+        if (defined('DC_DNSBL_SUPER') && DC_DNSBL_SUPER && !dotclear()->auth->isSuperAdmin()) {
             $this->has_gui = false;
         }
     }
 
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('Checks sender IP address against DNSBL servers');
     }
 
-    public function getStatusMessage($status, $comment_id)
+    public function getStatusMessage(string $status, int $comment_id): string
     {
         return sprintf(__('Filtered by %1$s with server %2$s.'), $this->guiLink(), $status);
     }
 
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
         if (!$ip) {
             // No IP given
-            return;
+            return null;
         }
 
         if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE) && !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE)) {
             // Not an IPv4 IP (excludind private range) not an IPv6 IP (excludind private range)
-            return;
+            return null;
         }
 
         $bls = $this->getServers();
@@ -62,34 +73,34 @@ class dcFilterIpLookup extends dcSpamFilter
                 return true;
             }
         }
+
+        return null;
     }
 
-    public function gui($url)
+    public function gui(string $url): string
     {
-        global $core;
-
         $bls = $this->getServers();
 
         if (isset($_POST['bls'])) {
             try {
-                $this->core->blog->settings->addNamespace('antispam');
-                $this->core->blog->settings->antispam->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
-                dcPage::addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
-                http::redirect($url);
+                dotclear()->blog->settings->addNamespace('antispam');
+                dotclear()->blog->settings->antispam->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
+                dotclear()->notices->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
+                Http::redirect($url);
             } catch (Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error($e->getMessage());
             }
         }
 
         /* DISPLAY
         ---------------------------------------------- */
-        $res = '<form action="' . html::escapeURL($url) . '" method="post" class="fieldset">' .
+        $res = '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
         '<h3>' . __('IP Lookup servers') . '</h3>' .
         '<p><label for="bls">' . __('Add here a coma separated list of servers.') . '</label>' .
-        form::textarea('bls', 40, 3, html::escapeHTML($bls), 'maximal') .
+        Form::textarea('bls', 40, 3, Html::escapeHTML($bls), 'maximal') .
         '</p>' .
         '<p><input type="submit" value="' . __('Save') . '" />' .
-        $this->core->formNonce() . '</p>' .
+        dotclear()->formNonce() . '</p>' .
             '</form>';
 
         return $res;
@@ -97,10 +108,10 @@ class dcFilterIpLookup extends dcSpamFilter
 
     private function getServers()
     {
-        $bls = $this->core->blog->settings->antispam->antispam_dnsbls;
+        $bls = dotclear()->blog->settings->antispam->antispam_dnsbls;
         if ($bls === null) {
-            $this->core->blog->settings->addNamespace('antispam');
-            $this->core->blog->settings->antispam->put('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
+            dotclear()->blog->settings->addNamespace('antispam');
+            dotclear()->blog->settings->antispam->put('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
 
             return $this->default_bls;
         }
