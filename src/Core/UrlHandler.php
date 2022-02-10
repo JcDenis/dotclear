@@ -197,7 +197,7 @@ class UrlHandler
         $result['content_type'] = dotclear()->context->content_type;
         $result['tpl']          = dotclear()->context->current_tpl;
         $result['blogupddt']    = dotclear()->blog->upddt;
-        $result['headers']      = $headers;
+        $result['headers']      = headers_list();
 
         # --BEHAVIOR-- urlHandlerServeDocument
         dotclear()->behaviors->call('urlHandlerServeDocument', $result);
