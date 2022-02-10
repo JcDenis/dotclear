@@ -1,18 +1,27 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskZiptheme
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+use Dotclear\File\Zip\Zip;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceZiptheme extends dcMaintenanceTask
+class MaintenanceTaskZiptheme extends MaintenanceTask
 {
     protected $perm  = 'admin';
     protected $blog  = true;
@@ -29,10 +38,12 @@ class dcMaintenanceZiptheme extends dcMaintenanceTask
     public function execute()
     {
         // Get theme path
-        $path  = $this->core->blog->themes_path;
-        $theme = $this->core->blog->settings->system->theme;
-        $dir   = path::real($path . '/' . $theme);
-        if (empty($path) || empty($theme) || !is_dir($dir)) {
+        $theme = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
+        if (!$theme) {
+            return false;
+        }
+        $dir = $theme->root();
+        if (!is_dir($dir)) {
             return false;
         }
 
@@ -47,7 +58,7 @@ class dcMaintenanceZiptheme extends dcMaintenanceTask
         $this->log();
 
         // Send zip
-        header('Content-Disposition: attachment;filename=theme-' . $theme . '.zip');
+        header('Content-Disposition: attachment;filename=theme-' . $theme->id() . '.zip');
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);

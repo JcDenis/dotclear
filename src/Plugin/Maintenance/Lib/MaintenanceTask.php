@@ -1,14 +1,21 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\MaintenanceTask
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib;
+
+use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
@@ -17,10 +24,9 @@ if (!defined('DC_RC_PATH')) {
 
 Every task of maintenance must extend this class.
  */
-class dcMaintenanceTask
+class MaintenanceTask
 {
     protected $maintenance;
-    protected $core;
     protected $p_url;
     protected $code;
     protected $ts      = 0;
@@ -30,6 +36,7 @@ class dcMaintenanceTask
     protected $perm    = null;
 
     protected $id;
+    protected $sid;
     protected $name;
     protected $description;
     protected $tab   = 'maintenance';
@@ -46,22 +53,21 @@ class dcMaintenanceTask
      * If your task required something on construct,
      * use method init() to do it.
      *
-     * @param      dcMaintenance  $maintenance  The maintenance
+     * @param      Maintenance  $maintenance  The maintenance
      */
-    public function __construct(dcMaintenance $maintenance)
+    final public function __construct(Maintenance $maintenance)
     {
         $this->maintenance = $maintenance;
-        $this->core        = $maintenance->core;
         $this->init();
         $this->id = null;
 
-        if ($this->perm() === null && !$this->core->auth->isSuperAdmin()
-            || !$this->core->auth->check($this->perm(), $this->core->blog->id)) {
+        if ($this->perm() === null && !dotclear()->auth->isSuperAdmin()
+            || !dotclear()->auth->check((string) $this->perm(), dotclear()->blog->id)) {
             return;
         }
 
         $this->p_url = $maintenance->p_url;
-        $this->id    = get_class($this);
+        $this->id    = join('', array_slice(explode('\\', get_class($this)), -1));
 
         if (!$this->name) {
             $this->name = get_class($this);
@@ -73,10 +79,10 @@ class dcMaintenanceTask
             $this->success = __('Task successfully executed.');
         }
 
-        $this->core->blog->settings->addNamespace('maintenance');
-        $ts = $this->core->blog->settings->maintenance->get('ts_' . $this->id);
+        dotclear()->blog->settings->addNamespace('maintenance');
+        $ts = dotclear()->blog->settings->maintenance->get('ts_' . $this->id);
 
-        $this->ts = abs((integer) $ts);
+        $this->ts = abs((int) $ts);
     }
 
     /**
@@ -121,7 +127,7 @@ class dcMaintenanceTask
      */
     public function code($code)
     {
-        $this->code = (integer) $code;
+        $this->code = (int) $code;
     }
 
     /**
@@ -131,7 +137,7 @@ class dcMaintenanceTask
      */
     public function ts()
     {
-        return $this->ts === false ? false : abs((integer) $this->ts);
+        return $this->ts === false ? false : abs((int) $this->ts);
     }
 
     /**

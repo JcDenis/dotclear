@@ -1,18 +1,27 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskZipmedia
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+use Dotclear\File\Zip\Zip;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceZipmedia extends dcMaintenanceTask
+class MaintenanceTaskZipmedia extends MaintenanceTask
 {
     protected $perm  = 'admin';
     protected $blog  = true;
@@ -29,22 +38,22 @@ class dcMaintenanceZipmedia extends dcMaintenanceTask
     public function execute()
     {
         // Instance media
-        $this->core->media = new dcMedia($this->core);
-        $this->core->media->chdir('');
-        $this->core->media->getDir();
+        dotclear()->mediaInstance();
+        dotclear()->media->chdir('');
+        dotclear()->media->getDir();
 
         // Create zip
         @set_time_limit(300);
         $fp  = fopen('php://output', 'wb');
-        $zip = new fileZip($fp);
+        $zip = new Zip($fp);
         $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-        $zip->addDirectory($this->core->media->root . '/', '', true);
+        $zip->addDirectory(dotclear()->media->root . '/', '', true);
 
         // Log task execution here as we sent file and stop script
         $this->log();
 
         // Send zip
-        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . $this->core->blog->id . '-' . 'media.zip');
+        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog->id . '-' . 'media.zip');
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);

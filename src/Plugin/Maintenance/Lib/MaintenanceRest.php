@@ -1,14 +1,23 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\MaintenanceDescriptor
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib;
+
+use Dotclear\Exception\AdminException;
+use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+use Dotclear\Html\XmlTag;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
@@ -19,31 +28,30 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 
 Serve maintenance methods via Dotclear's rest API
  */
-class dcMaintenanceRest
+class MaintenanceRest
 {
     /**
      * Serve method to do step by step task for maintenance.
      *
-     * @param      dcCore     $core   dcCore instance
      * @param      array      $get    cleaned $_GET
      * @param      array      $post   cleaned $_POST
      *
-     * @throws     Exception  (description)
+     * @throws     AdminException  (description)
      *
      * @return     xmlTag     XML representation of response.
      */
-    public static function step($core, $get, $post)
+    public static function step($get, $post)
     {
         if (!isset($post['task'])) {
-            throw new Exception('No task ID');
+            throw new AdminException('No task ID');
         }
         if (!isset($post['code'])) {
-            throw new Exception('No code ID');
+            throw new AdminException('No code ID');
         }
 
-        $maintenance = new dcMaintenance($core);
+        $maintenance = new Maintenance();
         if (($task = $maintenance->getTask($post['task'])) === null) {
-            throw new Exception('Unknown task ID');
+            throw new AdminException('Unknown task ID');
         }
 
         $task->code((integer) $post['code']);

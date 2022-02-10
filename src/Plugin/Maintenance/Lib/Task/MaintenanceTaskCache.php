@@ -1,18 +1,25 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskCache
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceCache extends dcMaintenanceTask
+class MaintenanceTaskCache extends MaintenanceTask
 {
     protected $group = 'purge';
 
@@ -27,7 +34,7 @@ class dcMaintenanceCache extends dcMaintenanceTask
 
     public function execute()
     {
-        $this->core->emptyTemplatesCache();
+        dotclear()->emptyTemplatesCache();
 
         return true;
     }

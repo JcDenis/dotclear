@@ -1,14 +1,19 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\MaintenanceDescriptor
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
@@ -18,7 +23,7 @@ if (!defined('DC_RC_PATH')) {
 At this time this class is used in same way an arrayObject
 but in futur it could be completed with advance methods.
  */
-class dcMaintenanceDescriptor
+class MaintenanceDescriptor
 {
     protected $id;
     protected $name;

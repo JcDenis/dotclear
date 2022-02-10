@@ -1,18 +1,25 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskCountcomments
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceCountcomments extends dcMaintenanceTask
+class MaintenanceTaskCountcomments extends MaintenanceTask
 {
     protected $group = 'index';
 
@@ -27,7 +34,7 @@ class dcMaintenanceCountcomments extends dcMaintenanceTask
 
     public function execute()
     {
-        $this->core->countAllComments();
+        dotclear()->countAllComments();
 
         return true;
     }

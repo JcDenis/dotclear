@@ -1,18 +1,27 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskVacuum
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+use Dotclear\Database\Schema;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceVacuum extends dcMaintenanceTask
+class MaintenanceTaskVacuum extends MaintenanceTask
 {
     protected $group = 'optimize';
 
@@ -28,11 +37,11 @@ class dcMaintenanceVacuum extends dcMaintenanceTask
 
     public function execute()
     {
-        $schema = dbSchema::init($this->core->con);
+        $schema = Schema::init(dotclear()->con);
 
         foreach ($schema->getTables() as $table) {
-            if (strpos($table, $this->core->prefix) === 0) {
-                $this->core->con->vacuum($table);
+            if (strpos($table, dotclear()->prefix) === 0) {
+                dotclear()->con->vacuum($table);
             }
         }
 

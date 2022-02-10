@@ -1,51 +1,65 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Admin;
+
+use ArrayObject;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+
+use Dotclear\Admin\Favorites;
+use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+use Dotclear\Html\Form;
+use Dotclear\Utils\Dt;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-// Sidebar menu
-$_menu['Plugins']->addItem(
-    __('Maintenance'),
-    $core->adminurl->get('admin.plugin.maintenance'),
-    dcPage::getPF('maintenance/icon.png'),
-    preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.maintenance')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-    $core->auth->check('admin', $core->blog->id)
-);
-
-// Admin behaviors
-$core->addBehavior('dcMaintenanceInit', ['dcMaintenanceAdmin', 'dcMaintenanceInit']);
-$core->addBehavior('adminDashboardFavorites', ['dcMaintenanceAdmin', 'adminDashboardFavorites']);
-$core->addBehavior('adminDashboardContents', ['dcMaintenanceAdmin', 'adminDashboardItems']);
-$core->addBehavior('adminDashboardOptionsForm', ['dcMaintenanceAdmin', 'adminDashboardOptionsForm']);
-$core->addBehavior('adminAfterDashboardOptionsUpdate', ['dcMaintenanceAdmin', 'adminAfterDashboardOptionsUpdate']);
-$core->addBehavior('adminPageHelpBlock', ['dcMaintenanceAdmin', 'adminPageHelpBlock']);
-$core->addBehavior('pluginsToolsHeaders', ['dcMaintenanceAdmin', 'pluginsToolsHeaders']);
-
-/**
-@ingroup PLUGIN_MAINTENANCE
-@nosubgrouping
-@brief Maintenance plugin admin class.
-
-Group of methods used on behaviors.
- */
-class dcMaintenanceAdmin
+class Prepend extends AbstractPrepend
 {
+    use TraitPrependAdmin;
+
+    public static function loadModule(): void
+    {
+        # Menu
+        static::addStandardMenu('Plugins');
+
+        # Workspace
+        dotclear()->auth->user_prefs->addWorkspace('maintenance');
+
+        # Rest service
+        dotclear()->rest->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
+
+        # Admin behaviors
+        dotclear()->behaviors->add('dcMaintenanceInit', [__CLASS__, 'behaviorDcMaintenanceInit']);
+        dotclear()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
+        dotclear()->behaviors->add('adminDashboardContents', [__CLASS__, 'behaviorAdminDashboardItems']);
+        dotclear()->behaviors->add('adminDashboardOptionsForm', [__CLASS__, 'behaviorAdminDashboardOptionsForm']);
+        dotclear()->behaviors->add('adminAfterDashboardOptionsUpdate', [__CLASS__, 'behaviorAdminAfterDashboardOptionsUpdate']);
+        dotclear()->behaviors->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
+    }
+
     /**
      * Register default tasks.
      *
-     * @param      dcMaintenance  $maintenance  dcMaintenance instance
+     * @param   Maintenance     $maintenance    Maintenance instance
      */
-    public static function dcMaintenanceInit(dcMaintenance $maintenance)
+    public static function behaviorDcMaintenanceInit(Maintenance $maintenance): void
     {
+        $ns = 'Dotclear\\Plugin\\Maintenance\\Lib\\Task\\';
+
         $maintenance
             ->addTab('maintenance', __('Servicing'), ['summary' => __('Tools to maintain the performance of your blogs.')])
             ->addTab('backup', __('Backup'), ['summary' => __('Tools to back up your content.')])
@@ -60,49 +74,45 @@ class dcMaintenanceAdmin
 
             ->addGroup('l10n', __('Translations'), ['summary' => __('Maintain translations')])
 
-            ->addTask('dcMaintenanceCache')
-            ->addTask('dcMaintenanceCSP')
-            ->addTask('dcMaintenanceIndexposts')
-            ->addTask('dcMaintenanceIndexcomments')
-            ->addTask('dcMaintenanceCountcomments')
-            ->addTask('dcMaintenanceSynchpostsmeta')
-            ->addTask('dcMaintenanceLogs')
-            ->addTask('dcMaintenanceVacuum')
-            ->addTask('dcMaintenanceZipmedia')
-            ->addTask('dcMaintenanceZiptheme')
+            ->addTask($ns . 'MaintenanceTaskCache')
+            ->addTask($ns . 'MaintenanceTaskCSP')
+            ->addTask($ns . 'MaintenanceTaskIndexposts')
+            ->addTask($ns . 'MaintenanceTaskIndexcomments')
+            ->addTask($ns . 'MaintenanceTaskCountcomments')
+            ->addTask($ns . 'MaintenanceTaskSynchpostsmeta')
+            ->addTask($ns . 'MaintenanceTaskLogs')
+            ->addTask($ns . 'MaintenanceTaskVacuum')
+            ->addTask($ns . 'MaintenanceTaskZipmedia')
+            ->addTask($ns . 'MaintenanceTaskZiptheme')
         ;
     }
 
     /**
      * Favorites
      *
-     * @param      dcCore        $core   dcCore instance
-     * @param      dcFavorites   $favs   favs
+     * @param   Favorites   $favs   Favorites instance
      */
-    public static function adminDashboardFavorites(dcCore $core, dcFavorites $favs)
+    public static function behaviorAdminDashboardFavorites(Favorites $favs): void
     {
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
-            'url'          => $core->adminurl->get('admin.plugin.maintenance'),
-            'small-icon'   => dcPage::getPF('maintenance/icon.png'),
-            'large-icon'   => dcPage::getPF('maintenance/icon-big.png'),
+            'url'          => dotclear()->adminurl->get('admin.plugin.Maintenance'),
+            'small-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
+            'large-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
-            'active_cb'    => ['dcMaintenanceAdmin', 'adminDashboardFavoritesActive'],
-            'dashboard_cb' => ['dcMaintenanceAdmin', 'adminDashboardFavoritesCallback']
+            'active_cb'    => [__CLASS__, 'behaviorAdminDashboardFavoritesActive'],
+            'dashboard_cb' => [__CLASS__, 'behaviorAdminDashboardFavoritesCallback']
         ]);
     }
 
     /**
      * Is maintenance plugin active
      *
-     * @param      string  $request  The request
-     * @param      array   $params   The parameters
-     *
-     * @return     bool    true if maintenance plugin is active else false
+     * @return  bool    True if maintenance plugin is active else false
      */
-    public static function adminDashboardFavoritesActive($request, $params)
+    public static function behaviorAdminDashboardFavoritesActive(): bool
     {
-        return $request == 'plugin.php' && isset($params['p']) && $params['p'] == 'maintenance';
+        return dotclear()->adminurl->called() == 'admin.plugin.Maintenance';
     }
 
     /**
@@ -111,19 +121,17 @@ class dcMaintenanceAdmin
      * This updates maintenance fav icon text
      * if there are tasks required maintenance.
      *
-     * @param      dcCore       $core   The core
-     * @param      arrayObject  $fav    The fav
+     * @param   ArrayObject     $fav    The fav
      */
-    public static function adminDashboardFavoritesCallback(dcCore $core, $fav)
+    public static function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
     {
-        // Check user option
-        $core->auth->user_prefs->addWorkspace('maintenance');
-        if (!$core->auth->user_prefs->maintenance->dashboard_icon) {
+        # Check user option
+        if (!dotclear()->auth->user_prefs->maintenance->dashboard_icon) {
             return;
         }
 
-        // Check expired tasks
-        $maintenance = new dcMaintenance($core);
+        # Check expired tasks
+        $maintenance = new Maintenance();
         $count       = 0;
         foreach ($maintenance->getTasks() as $t) {
             if ($t->expired() !== false) {
@@ -136,23 +144,21 @@ class dcMaintenanceAdmin
         }
 
         $fav['title'] .= '<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count);
-        $fav['large-icon'] = dcPage::getPF('maintenance/icon-big-update.png');
+        $fav['large-icon'] = ['?mf=Plugin/Maintenance/icon-update.svg', '?mf=Plugin/Maintenance/icon-dark-update.svg'];
     }
 
     /**
      * Dashboard items stack.
      *
-     * @param      dcCore       $core   The core
-     * @param      arrayObject  $items  The items
+     * @param   ArrayObject     $items  The items
      */
-    public static function adminDashboardItems(dcCore $core, $items)
+    public static function behaviorAdminDashboardItems(ArrayObject $items): void
     {
-        $core->auth->user_prefs->addWorkspace('maintenance');
-        if (!$core->auth->user_prefs->maintenance->dashboard_item) {
+        if (!dotclear()->auth->user_prefs->maintenance->dashboard_item) {
             return;
         }
 
-        $maintenance = new dcMaintenance($core);
+        $maintenance = new Maintenance();
 
         $lines = [];
         foreach ($maintenance->getTasks() as $t) {
@@ -165,8 +171,8 @@ class dcMaintenanceAdmin
                 __('This task has never been executed.')
                 :
                 sprintf(__('Last execution of this task was on %s.'),
-                    dt::dt2str($core->blog->settings->system->date_format, $ts) . ' ' .
-                    dt::dt2str($core->blog->settings->system->time_format, $ts)
+                    dt::dt2str(dotclear()->blog->settings->system->date_format, (string) $ts) . ' ' .
+                    dt::dt2str(dotclear()->blog->settings->system->time_format, (string) $ts)
                 )
             ) . '">' . $t->task() . '</li>';
         }
@@ -177,10 +183,10 @@ class dcMaintenanceAdmin
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3><img src="' . dcPage::getPF('maintenance/icon-small.png') . '" alt="" /> ' . __('Maintenance') . '</h3>' .
+            '<h3>' . dotclear()->menu->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
-            '<p><a href="' . $core->adminurl->get('admin.plugin.maintenance') . '">' . __('Manage tasks') . '</a></p>' .
+            '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
             '</div>'
         ]);
     }
@@ -190,23 +196,19 @@ class dcMaintenanceAdmin
      *
      * This add options for superadmin user
      * to show or not expired taks.
-     *
-     * @param      dcCore  $core   The core
      */
-    public static function adminDashboardOptionsForm(dcCore $core)
+    public static function behaviorAdminDashboardOptionsForm(): void
     {
-        $core->auth->user_prefs->addWorkspace('maintenance');
-
         echo
         '<div class="fieldset">' .
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        form::checkbox('maintenance_dashboard_icon', 1, $core->auth->user_prefs->maintenance->dashboard_icon) .
+        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->auth->user_prefs->maintenance->dashboard_icon) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        form::checkbox('maintenance_dashboard_item', 1, $core->auth->user_prefs->maintenance->dashboard_item) .
+        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->auth->user_prefs->maintenance->dashboard_item) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -215,19 +217,16 @@ class dcMaintenanceAdmin
     /**
      * User preferences update.
      *
-     * @param      string  $user_id  The user identifier
+     * @param   string  $user_id    The user identifier
      */
-    public static function adminAfterDashboardOptionsUpdate($user_id = null)
+    public static function behaviorAdminAfterDashboardOptionsUpdate(string $user_id = null): void
     {
-        global $core;
-
         if (is_null($user_id)) {
             return;
         }
 
-        $core->auth->user_prefs->addWorkspace('maintenance');
-        $core->auth->user_prefs->maintenance->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
-        $core->auth->user_prefs->maintenance->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
+        dotclear()->auth->user_prefs->maintenance->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
+        dotclear()->auth->user_prefs->maintenance->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
     }
 
     /**
@@ -239,9 +238,9 @@ class dcMaintenanceAdmin
      * but keep it for exemple of how to use behavior adminPageHelpBlock.
      * Cheers, JC
      *
-     * @param      arrayObject  $blocks  The blocks
+     * @param   ArrayObject     $blocks     The blocks
      */
-    public static function adminPageHelpBlock($blocks)
+    public static function behaviorAdminPageHelpBlock(ArrayObject $blocks)
     {
         $found = false;
         foreach ($blocks as $block) {
@@ -255,7 +254,7 @@ class dcMaintenanceAdmin
             return;
         }
 
-        $maintenance = new dcMaintenance($GLOBALS['core']);
+        $maintenance = new Maintenance();
 
         $res_tab = '';
         foreach ($maintenance->getTabs() as $tab_obj) {
@@ -295,18 +294,9 @@ class dcMaintenanceAdmin
         }
     }
 
-    /**
-     * Add javascript for plugin configuration.
-     *
-     * @param      dcCore  $core    The core
-     * @param      string  $module  The module
-     *
-     * @return     mixed
-     */
-    public static function pluginsToolsHeaders(dcCore $core, $module)
+    //! move this to page
+    public static function behaviorPluginsToolsHeaders($module): string
     {
-        if ($module == 'maintenance') {
-            return dcPage::jsLoad(dcPage::getPF('maintenance/js/settings.js'));
-        }
+        return $module == 'Maintenance' ? 'mf=Plugin/Maintenance/js/settings.js' : '';
     }
 }

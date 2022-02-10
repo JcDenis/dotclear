@@ -1,39 +1,43 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Maintenance
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceDescriptor;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
 /**
 Main class to call everything related to maintenance.
  */
-class dcMaintenance
+class Maintenance
 {
-    public $core;
     public $p_url;
 
-    private $tasks  = [];
-    private $tabs   = [];
-    private $groups = [];
-    private $logs   = null;
+    private $tasks     = [];
+    private $tasks_id  = [];
+    private $tabs      = [];
+    private $groups    = [];
+    private $logs      = null;
 
     /**
      * Constructor.
-     *
-     * @param    dcCore    $core    dcCore instance
      */
-    public function __construct(dcCore $core)
+    public function __construct()
     {
-        $this->core  = $core;
-        $this->p_url = $core->adminurl->get('admin.plugin.maintenance');
+        $this->p_url = dotclear()->adminurl->get('admin.plugin.Maintenance');
         $logs        = $this->getLogs();
         $this->init();
     }
@@ -43,12 +47,12 @@ class dcMaintenance
      *
      * To register a tab or group or task,
      * use behavior dcMaintenanceInit then a method of
-     * dcMaintenance like addTab('myTab', ...).
+     * Maintenance like addTab('myTab', ...).
      */
     protected function init()
     {
         # --BEHAVIOR-- dcMaintenanceInit
-        $this->core->callBehavior('dcMaintenanceInit', $this);
+        dotclear()->behaviors->call('dcMaintenanceInit', $this);
     }
 
     /// @name Tab methods
@@ -64,7 +68,7 @@ class dcMaintenance
      */
     public function addTab($id, $name, $options = [])
     {
-        $this->tabs[$id] = new dcMaintenanceDescriptor($id, $name, $options);
+        $this->tabs[$id] = new MaintenanceDescriptor($id, $name, $options);
 
         return $this;
     }
@@ -74,7 +78,7 @@ class dcMaintenance
      *
      * @param      string  $id     The identifier
      *
-     * @return     dcMaintenanceDescriptor|null  The tab.
+     * @return     MaintenanceDescriptor|null  The tab.
      */
     public function getTab($id)
     {
@@ -105,7 +109,7 @@ class dcMaintenance
      */
     public function addGroup($id, $name, $options = [])
     {
-        $this->groups[$id] = new dcMaintenanceDescriptor($id, $name, $options);
+        $this->groups[$id] = new MaintenanceDescriptor($id, $name, $options);
 
         return $this;
     }
@@ -115,7 +119,7 @@ class dcMaintenance
      *
      * @param      string  $id     The identifier
      *
-     * @return     dcMaintenanceDescriptor|null  The group.
+     * @return     MaintenanceDescriptor|null  The group.
      */
     public function getGroup($id)
     {
@@ -144,8 +148,9 @@ class dcMaintenance
      */
     public function addTask($task)
     {
-        if (class_exists($task) && is_subclass_of($task, 'dcMaintenanceTask')) {
+        if (is_subclass_of($task, 'Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceTask')) {
             $this->tasks[$task] = new $task($this);
+            $this->tasks_id[$this->tasks[$task]->id()] = $task;
         }
 
         return $this;
@@ -160,7 +165,7 @@ class dcMaintenance
      */
     public function getTask($id)
     {
-        return array_key_exists($id, $this->tasks) ? $this->tasks[$id] : null;
+        return array_key_exists($id, $this->tasks_id) ? $this->tasks[$this->tasks_id[$id]] : null;
     }
 
     /**
@@ -204,10 +209,10 @@ class dcMaintenance
         }
 
         // Get logs from this task
-        $rs = $this->core->con->select(
+        $rs = dotclear()->con->select(
             'SELECT log_id ' .
-            'FROM ' . $this->core->prefix . 'log ' .
-            "WHERE log_msg = '" . $this->core->con->escape($id) . "' " .
+            'FROM ' . dotclear()->prefix . 'log ' .
+            "WHERE log_msg = '" . dotclear()->con->escape($id) . "' " .
             "AND log_table = 'maintenance' "
         );
 
@@ -218,17 +223,17 @@ class dcMaintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            $this->core->log->delLogs($logs);
+            dotclear()->log->delLogs($logs);
         }
 
         // Add new log
-        $cur = $this->core->con->openCursor($this->core->prefix . 'log');
+        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'log');
 
         $cur->log_msg   = $id;
         $cur->log_table = 'maintenance';
-        $cur->user_id   = $this->core->auth->userID();
+        $cur->user_id   = dotclear()->auth->userID();
 
-        $this->core->log->addLog($cur);
+        dotclear()->log->addLog($cur);
     }
 
     /**
@@ -237,7 +242,7 @@ class dcMaintenance
     public function delLogs()
     {
         // Retrieve logs from this task
-        $rs = $this->core->log->getLogs([
+        $rs = dotclear()->log->getLogs([
             'log_table' => 'maintenance',
             'blog_id'   => '*',
         ]);
@@ -249,7 +254,7 @@ class dcMaintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            $this->core->log->delLogs($logs);
+            dotclear()->log->delLogs($logs);
         }
     }
 
@@ -268,7 +273,7 @@ class dcMaintenance
     public function getLogs()
     {
         if ($this->logs === null) {
-            $rs = $this->core->log->getLogs([
+            $rs = dotclear()->log->getLogs([
                 'log_table' => 'maintenance',
                 'blog_id'   => '*',
             ]);
@@ -277,7 +282,7 @@ class dcMaintenance
             while ($rs->fetch()) {
                 $this->logs[$rs->log_msg] = [
                     'ts'   => strtotime($rs->log_dt),
-                    'blog' => $rs->blog_id == $this->core->blog->id,
+                    'blog' => $rs->blog_id == dotclear()->blog->id,
                 ];
             }
         }

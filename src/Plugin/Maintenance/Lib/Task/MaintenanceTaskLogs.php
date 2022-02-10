@@ -1,18 +1,25 @@
 <?php
 /**
- * @brief maintenance, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskLogs
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Maintenance\Lib\Task;
+
+use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcMaintenanceLogs extends dcMaintenanceTask
+class MaintenanceTaskLogs extends MaintenanceTask
 {
     public static $keep_maintenance_logs = true;
 
@@ -29,13 +36,13 @@ class dcMaintenanceLogs extends dcMaintenanceTask
 
     public function execute()
     {
-        if (dcMaintenanceLogs::$keep_maintenance_logs) {
-            $this->core->con->execute(
-                'DELETE FROM ' . $this->core->prefix . 'log ' .
+        if (static::$keep_maintenance_logs) {
+            dotclear()->con->execute(
+                'DELETE FROM ' . dotclear()->prefix . 'log ' .
                 "WHERE log_table <> 'maintenance' "
             );
         } else {
-            $this->core->log->delLogs(null, true);
+            dotclear()->log->delLogs(null, true);
         }
 
         return true;
