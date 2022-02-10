@@ -92,7 +92,7 @@ class PageTheme extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dotclear()->behaviors->call('themessToolsHeaders', false)
+                    (string) dotclear()->behaviors->call('themesToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                         Html::escapeHTML(dotclear()->blog->name)                       => '',
