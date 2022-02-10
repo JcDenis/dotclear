@@ -1,22 +1,35 @@
 <?php
 /**
- * @brief buildtools, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Buildtools\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginBuildtools
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Buildtools\Admin;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+
+use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
-$core->addBehavior('dcMaintenanceInit', ['dcBuildTools', 'maintenanceAdmin']);
 
-class dcBuildTools
+class Prepend extends AbstractPrepend
 {
-    public static function maintenanceAdmin($maintenance)
+    use TraitPrependAdmin;
+
+    public static function loadModule(): void
     {
-        $maintenance->addTask('dcMaintenanceBuildtools');
+        dotclear()->behaviors->add('dcMaintenanceInit', function(Maintenance $maintenance): void {
+            $maintenance->addTask('Dotclear\\Plugin\\Buildtools\\Admin\\MaintenanceTaskBuildtools');
+        });
     }
 }

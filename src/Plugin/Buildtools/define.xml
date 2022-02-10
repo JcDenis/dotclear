@@ -1,23 +1,12 @@
-<?php
-/**
- * @brief buildtools, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugins
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-
-$this->registerModule(
-    'buildtools',                             // Name
-    'Internal build tools for dotclear team', // Description
-    'dcTeam',                                 // Author
-    '1.0',                                    // Version
-    [
-        'permissions' => 'admin'
-    ]
-);
+<module id="Buildtools">
+  <name>Buildtools</name>
+  <description>Internal build tools for dotclear team</description>
+  <version>1.1-dev</version>
+  <author>Dotclear team</author>
+  <type>Plugin</type>
+  <permissions>admin</permissions>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>
