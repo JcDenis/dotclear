@@ -50,7 +50,7 @@ class MaintenanceTaskZiptheme extends MaintenanceTask
         // Create zip
         @set_time_limit(300);
         $fp  = fopen('php://output', 'wb');
-        $zip = new fileZip($fp);
+        $zip = new Zip($fp);
         $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
         $zip->addDirectory($dir . '/', '', true);
 
