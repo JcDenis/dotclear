@@ -72,9 +72,9 @@ trait TraitPrependAdmin
     /**
      * Helper to add a standard admin favorites item
      */
-    protected static function addStandardFavorites(): void
+    protected static function addStandardFavorites(?string $permissions = null): void
     {
-        # call once behavoir for all modules
+        # call once for all modules
         if (empty(static::$favorties)) {
             dotclear()->behaviors->add('adminDashboardFavorites', function (Favorites $favs): void {
                 foreach (static::$favorites as $id => $values) {
@@ -90,7 +90,7 @@ trait TraitPrependAdmin
             'url'         => dotclear()->adminurl->get('admin.plugin.' . static::$define->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
-            'permissions' => static::$define->permissions(),
+            'permissions' => $permissions ?: static::$define->permissions(),
         ];
     }
 }
