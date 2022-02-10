@@ -114,7 +114,7 @@ abstract class AbstractModules
         # Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
             # Check dir
-            if (!is_dir($root) || !is_readable($root)) {
+            if (empty($root) || !is_dir($root) || !is_readable($root)) {
                 continue;
             }
 

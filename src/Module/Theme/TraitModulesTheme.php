@@ -28,8 +28,8 @@ trait TraitModulesTheme
         # If a theme directory is set for current blog, it will be added to the end of paths
         if (isset(dotclear()->blog)) {
             dotclear()->blog->settings->addNamespace('system');
-            $dir = (string) dotclear()->blog->settings->system->module_theme_dir;
-            if (false !== ($dir = Path::real(strpos('\\', $dir) === 0 ? $dir : dotclear()::root($dir), true))) {
+            $path = (string) dotclear()->blog->settings->system->module_theme_dir;
+            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : dotclear()::root($path), true))) {
                 $paths[] = $dir;
             }
         }
