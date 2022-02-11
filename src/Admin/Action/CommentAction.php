@@ -52,7 +52,7 @@ class CommentAction extends Action
         dotclear()->behaviors->call('adminCommentsActionsPage', $this);
     }
 
-    public function error(AdminException $e)
+    public function error(\Exception $e)
     {
         dotclear()->error($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
