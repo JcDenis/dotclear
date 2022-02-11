@@ -53,11 +53,17 @@ define('DOTCLEAR_SESSION_NAME', 'dcxd');
 // Session TTL
 //define('DOTCLEAR_SESSION_TTL','120 seconds');
 
+// Themes root
+// Multiple directories can be set using PATH_SEPARATOR ";"
+//define('DOTCLEAR_THEME_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Theme']));
+
 // Plugins root
-//define('DOTCLEAR_PLUGIN_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
+// Multiple directories can be set using PATH_SEPARATOR ";"
+//define('DOTCLEAR_PLUGIN_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugin']));
 
 // Iconsets root
-//define('DOTCLEAR_ICONSET_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugins']));
+// Multiple directories can be set using PATH_SEPARATOR ";"
+//define('DOTCLEAR_ICONSET_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Iconset']));
 
 // Template cache directory
 //define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));
@@ -72,7 +78,7 @@ define('DOTCLEAR_CRYPT_ALGO', 'sha512');
 //define('DOTCLEAR_VENDOR_NAME', 'Dotclear');
 
 // Do not check for update
-//define('DOTCLEAR_UPDATE_NOCHECK', false);
+//define('DOTCLEAR_CORE_UPDATE_NOAUTO', false);
 
 // Update URL
 //define('DOTCLEAR_CORE_UPDATE_URL','https://download.dotclear.org/versions.xml');
@@ -88,10 +94,10 @@ define('DOTCLEAR_CRYPT_ALGO', 'sha512');
 //define('DOTCLEAR_REVERSE_PROXY',false);
 
 // Show hidden media dirs
-//define('DOTCLEAR_SHOW_HIDDEN_DIRS', false);
+//define('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN', false);
 
 // Store update checking
-//define('DOTCLEAR_STORE_NOCHECK', false);
+//define('DOTCLEAR_STORE_UPDATE_NOAUTO', false);
 
 // If you have PATH_INFO issue, uncomment following lines
 //if (!isset($_SERVER['ORIG_PATH_INFO'])) {

@@ -132,13 +132,13 @@ class Distrib
 
         if (!defined('DOTCLEAR_PLUGIN_UPDATE_URL')) {
             define('DOTCLEAR_PLUGIN_UPDATE_URL',
-                'https://update.dotaddict.org/dc2/themes.xml'
+                'https://update.dotaddict.org/dc2/plugins.xml'
             );
         }
 
         if (!defined('DOTCLEAR_THEME_UPDATE_URL')) {
             define('DOTCLEAR_THEME_UPDATE_URL',
-                'https://update.dotaddict.org/dc2/plugins.xml'
+                'https://update.dotaddict.org/dc2/themes.xml'
             );
         }
 
@@ -169,6 +169,44 @@ class Distrib
         if (!defined('DOTCLEAR_STORE_ALLOWREPO')) {
             define('DOTCLEAR_STORE_ALLOWREPO',
                 true
+            );
+        }
+
+        # Database
+        # must be filled in config file
+        if (!defined('DOTCLEAR_DATABASE_DRIVER')) {
+            define('DOTCLEAR_DATABASE_DRIVER', '');
+        }
+
+        # must be filled in config file
+        if (!defined('DOTCLEAR_DATABASE_HOST')) {
+            define('DOTCLEAR_DATABASE_HOST', '');
+        }
+
+        # must be filled in config file
+        if (!defined('DOTCLEAR_DATABASE_USER')) {
+            define('DOTCLEAR_DATABASE_USER', '');
+        }
+
+        # must be filled in config file
+        if (!defined('DOTCLEAR_DATABASE_PASSWORD')) {
+            define('DOTCLEAR_DATABASE_PASSWORD', '');
+        }
+
+        # must be filled in config file
+        if (!defined('DOTCLEAR_DATABASE_NAME')) {
+            define('DOTCLEAR_DATABASE_NAME', '');
+        }
+
+        if (!defined('DOTCLEAR_DATABASE_PREFIX')) {
+            define('DOTCLEAR_DATABASE_PREFIX',
+                'dc_'
+            );
+        }
+
+        if (!defined('DOTCLEAR_DATABASE_PERSIST')) {
+            define('DOTCLEAR_DATABASE_PERSIST',
+                false
             );
         }
 
@@ -209,6 +247,16 @@ class Distrib
             );
         }
 
+        # must be filled in config file
+        if (!defined('DOTCLEAR_ADMIN_URL')) {
+            define('DOTCLEAR_ADMIN_URL', '');
+        }
+
+        # must be filled in config file
+        if (!defined('DOTCLEAR_ADMIN_MAILFROM')) {
+            define('DOTCLEAR_ADMIN_MAILFROM', '');
+        }
+
         if (!defined('DOTCLEAR_FORCE_SCHEME_443')) {
             define('DOTCLEAR_FORCE_SCHEME_443',
                 true
@@ -221,10 +269,9 @@ class Distrib
             );
         }
 
-        if (!defined('DOTCLEAR_DATABASE_PERSIST')) {
-            define('DOTCLEAR_DATABASE_PERSIST',
-                false
-            );
+        # must be filled in config file
+        if (!defined('DOTCLEAR_MASTER_KEY')) {
+            define('DOTCLEAR_MASTER_KEY', '');
         }
 
         if (!defined('DOTCLEAR_SESSION_NAME')) {
@@ -250,6 +297,13 @@ class Distrib
                 'sha1'
             );
         }
+
+        if (!defined('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN')) {
+            define('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN',
+                false
+            );
+        }
+
     }
 
     public static function getDatabaseStructure(Structure $_s): void

@@ -700,8 +700,8 @@ class Media extends Page
     public function getDirsRecord()
     {
         $dir = $this->media_dir;
-        // Remove hidden directories (unless DOTCLEAR_SHOW_HIDDEN_DIRS is set to true)
-        if (!defined('DOTCLEAR_SHOW_HIDDEN_DIRS') || (DOTCLEAR_SHOW_HIDDEN_DIRS == false)) {
+        // Remove hidden directories (unless DOTCLEAR_MEDIA_DIR_SHOWHIDDEN is set to true)
+        if (!defined('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN') || (DOTCLEAR_MEDIA_DIR_SHOWHIDDEN == false)) {
             for ($i = count($dir['dirs']) - 1; $i >= 0; $i--) {
                 if ($dir['dirs'][$i]->d) {
                     if (strpos($dir['dirs'][$i]->basename, '.') === 0) {
