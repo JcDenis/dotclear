@@ -38,6 +38,7 @@ class Prepend extends AbstractPrepend
 
         # Workspace
         dotclear()->auth->user_prefs->addWorkspace('maintenance');
+        dotclear()->blog->settings->addNamespace('maintenance');
 
         # Rest service
         dotclear()->rest->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
