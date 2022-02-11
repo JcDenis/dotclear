@@ -17,11 +17,13 @@ use ArrayObject;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilters;
 use Dotclear\Plugin\Antispam\Lib\Filter\FilterWords;
+use Dotclear\Plugin\Antispam\Lib\Filter\FilterIp;
 
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Structure;
 use Dotclear\Core\Blog;
+use Dotclear\Admin\Action;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -267,5 +269,49 @@ class Antispam
         dotclear()->blog->settings->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;
+    }
+
+    //! todo: manage IPv6
+    public static function commentsActionsPage(Action $ap): void
+    {
+        $ip_filter_active = true;
+        if (dotclear()->blog->settings->antispam->antispam_filters !== null) {
+            $filters_opt = dotclear()->blog->settings->antispam->antispam_filters;
+            if (is_array($filters_opt)) {
+                $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && $filters_opt['FilterIp'][0] == 1;
+            }
+        }
+
+        if ($ip_filter_active) {
+            $blocklist_actions = [__('Blocklist IP') => 'blocklist'];
+            if (dotclear()->auth->isSuperAdmin()) {
+                $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
+            }
+
+            $ap->addAction(
+                [__('IP address') => $blocklist_actions],
+                [__CLASS__, 'doBlocklistIP']
+            );
+        }
+    }
+
+    public static function doBlocklistIP(Action $ap, $post)
+    {
+        $action = $ap->getAction();
+        $co_ids = $ap->getIDs();
+        if (empty($co_ids)) {
+            throw new AdminException(__('No comment selected'));
+        }
+
+        $global = !empty($action) && $action == 'blocklist_global' && dotclear()->auth->isSuperAdmin();
+
+        $ip_filter = new FilterIp();
+        $rs        = $ap->getRS();
+        while ($rs->fetch()) {
+            $ip_filter->addIP('black', $rs->comment_ip, $global);
+        }
+
+        dotclear()->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        $ap->redirect(true);
     }
 }

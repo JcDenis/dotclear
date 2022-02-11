@@ -58,6 +58,7 @@ class Prepend extends AbstractPrepend
         dotclear()->behaviors->add('coreAfterCommentUpdate', [$class, 'trainFilters']);
         dotclear()->behaviors->add('adminAfterCommentDesc', [$class, 'statusMessage']);
         dotclear()->behaviors->add('adminDashboardHeaders', [$class, 'dashboardHeaders']);
+        dotclear()->behaviors->add('adminCommentsActionsPage', [$class, 'commentsActionsPage']);
 
         # Admin behaviors
         dotclear()->behaviors->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
