@@ -15,7 +15,7 @@ namespace Dotclear\Public;
 
 use Dotclear\Exception\PrependException;
 
-use Dotclear\Core\Prepend as BasePrepend;
+use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 
 use Dotclear\Database\Record;
@@ -33,7 +33,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Prepend extends BasePrepend
+class Prepend extends Core
 {
     protected $process = 'Public';
 

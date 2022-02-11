@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
-use Dotclear\Core\Prepend as BasePrepend;
+use Dotclear\Core\Core;
 
 use Dotclear\Install\Install;
 use Dotclear\Install\Wizard;
@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Prepend extends BasePrepend
+class Prepend extends Core
 {
     protected $process = 'Install';
 

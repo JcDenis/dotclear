@@ -16,35 +16,38 @@ namespace Dotclear\Core;
 use ArrayObject;
 use Closure;
 
-use Dotclear\Exception\CoreException;
-
-use Dotclear\Core\Behaviors;
-use Dotclear\Core\Session;
-use Dotclear\Core\UrlHandler;
-use Dotclear\Core\RestServer;
-use Dotclear\Core\Meta;
-use Dotclear\Core\Log;
-use Dotclear\Core\Utils;
-use Dotclear\Core\Media;
-use Dotclear\Core\Blog;
 use Dotclear\Core\Auth;
+use Dotclear\Core\Behaviors;
+use Dotclear\Core\Blog;
+use Dotclear\Core\Log;
+use Dotclear\Core\Media;
+use Dotclear\Core\Meta;
+use Dotclear\Core\RestServer;
+use Dotclear\Core\Session;
 use Dotclear\Core\Settings;
-
+use Dotclear\Core\UrlHandler;
+use Dotclear\Core\Utils;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
-
-use Dotclear\Container\User as ContainerUser;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
-use Dotclear\Html\TraitError;
+use Dotclear\Database\Schema;
+use Dotclear\Distrib\Distrib;
+use Dotclear\Exception\CoreException;
+use Dotclear\Exception\PrependException;
+use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Html\Wiki2xhtml;
 use Dotclear\Html\HtmlFilter;
+use Dotclear\Html\TraitError;
+use Dotclear\Html\Wiki2xhtml;
+use Dotclear\Network\Http;
+use Dotclear\Utils\Autoloader;
+use Dotclear\Utils\Crypt;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
-use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -54,14 +57,35 @@ class Core
 {
     use TraitError;
 
+    /** @var Auth               Auth instance */
+    public $auth;
+
+    /** @var string             Autoloader */
+    public $autoloader;
+
+    /** @var Behaviors          Behaviors instance */
+    public $behaviors;
+
+    /** @var Blog               Blog instance */
+    public $blog;
+
     /** @var Connection         Connetion instance */
     public $con;
+
+    /** @var Log                Log instance */
+    public $log;
+
+    /** @var Media              Media instance */
+    public $media;
+
+    /** @var Meta               Meta instance */
+    public $meta;
 
     /** @var string             Database table prefix */
     public $prefix;
 
-    /** @var Auth               Auth instance */
-    public $auth;
+    /** @var RestServer         RestServer instance */
+    public $rest;
 
     /** @var Session            Session instance */
     public $session;
@@ -72,38 +96,23 @@ class Core
     /** @var Wiki2xhtml         Wiki2xhtml instance */
     public $wiki2xhtml;
 
-    /** @var Media              Media instance */
-    public $media;
-
-    /** @var RestServer         RestServer instance */
-    public $rest;
-
-    /** @var Log                Log instance */
-    public $log;
-
-    /** @var Meta               Meta instance */
-    public $meta;
-
-    /** @var Blog               Blog instance */
-    public $blog;
-
-    /** @var Behaviors          Behaviors instance */
-    public $behaviors;
-
-    /** @var array              versions container */
-    private $versions   = null;
-
-    /** @var array              formaters container */
-    private $formaters  = [];
+    /** @var string             Current Process */
+    protected $process;
 
     /** @var array              top behaviors */
     protected static $top_behaviors = [];
 
+    /** @var array              formaters container */
+    private $formaters  = [];
+
     /** @var array              posts types container */
     private $post_types = [];
 
+    /** @var array              versions container */
+    private $versions   = null;
+
     /** @var Core               Core singleton instance */
-    protected static $instance;
+    private static $instance;
 
     /// @name Core instance methods
     //@{
@@ -165,20 +174,241 @@ class Core
     {
         static::startStatistics();
 
-        $this->behaviors = new Behaviors();
-        $this->con       = $this->conInstance();
-        $this->auth      = $this->authInstance();
-        $this->session   = new Session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
-        $this->url       = new UrlHandler();
-        $this->rest      = new RestServer();
-        $this->meta      = new Meta();
-        $this->log       = new Log();
+        # Add autoloader (for modules)
+        if (!$this->autoloader) {
+            $this->autoloader = new Autoloader('', '', true);
+        }
 
-        $this->registerTopBehaviors();
+        # Add custom regs
+        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
+        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
+
+        # Encoding
+        mb_internal_encoding('UTF-8');
+
+        # Timezone
+        Dt::setTZ('UTC');
+
+        # Disallow every special wrapper
+        Http::unregisterWrapper();
+
+        # Find configuration file
+        if (!defined('DOTCLEAR_CONFIG_PATH')) {
+            if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
+            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
+            } else {
+                define('DOTCLEAR_CONFIG_PATH', static::root('config.php'));
+            }
+        }
+
+        # No configuration ? start installalation process
+        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
+            # Set Dotclear configuration constants for installation process
+            if ($this->process == 'Install') {
+                Distrib::getCoreConstants();
+
+                # Stop core process here in Install process
+                return;
+            }
+            # Redirect to installation process
+            Http::redirect(preg_replace(
+                ['%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+                '',
+                filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+            ) . '/admin/install.php');
+
+            exit;
+        }
+
+        # Set plateform (user) configuration constants
+        require_once DOTCLEAR_CONFIG_PATH;
+
+        # Set Dotclear configuration constants
+        Distrib::getCoreConstants();
+
+        # Starting from debug mode, display all errors
+        if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {
+            ini_set('display_errors', '1');
+            error_reporting(E_ALL | E_STRICT);
+        }
+
+        # Set  some Http stuff
+        Http::$https_scheme_on_443 = DOTCLEAR_FORCE_SCHEME_443;
+        Http::$reverse_proxy = DOTCLEAR_REVERSE_PROXY;
+
+        # Check cryptography algorithm
+        if ('DOTCLEAR_CRYPT_ALGO' != 'sha1') {
+            /* Check length of cryptographic algorithm result and exit if less than 40 characters long */
+            if (strlen(Crypt::hmac(DOTCLEAR_MASTER_KEY, DOTCLEAR_VENDOR_NAME, DOTCLEAR_CRYPT_ALGO)) < 40) {
+                if ($this->process != 'Admin') {
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
+                } else {
+                    throw new PrependException('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
+                }
+                exit;
+            }
+        }
+
+        # Check existence of cache directory
+        if (!is_dir(DOTCLEAR_CACHE_DIR)) {
+            /* Try to create it */
+            @Files::makeDir(DOTCLEAR_CACHE_DIR);
+            if (!is_dir(DOTCLEAR_CACHE_DIR)) {
+                /* Admin must create it */
+                if (!in_array($this->process, ['Admin', 'Install'])) {
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
+                } else {
+                    throw new PrependException('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
+                }
+                exit;
+            }
+        }
+
+        # Check existence of var directory
+        if (!is_dir(DOTCLEAR_VAR_DIR)) {
+            // Try to create it
+            @Files::makeDir(DOTCLEAR_VAR_DIR);
+            if (!is_dir(DOTCLEAR_VAR_DIR)) {
+                // Admin must create it
+                if (!in_array($this->process, ['Admin', 'Install'])) {
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
+                } else {
+                    throw new PrependException('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
+                }
+                exit;
+            }
+        }
+
+        # Start l10n
+        L10n::init();
+
+        # Define current process for files check
+        define('DOTCLEAR_PROCESS', $this->process);
+
+        # Load Core
+        try {
+            $this->behaviors = new Behaviors();
+            $this->con       = $this->conInstance();
+            $this->auth      = $this->authInstance();
+            $this->session   = new Session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
+            $this->url       = new UrlHandler();
+            $this->rest      = new RestServer();
+            $this->meta      = new Meta();
+            $this->log       = new Log();
+
+            $this->registerTopBehaviors();
+        } catch (\Exception $e) {
+            # Loading locales for detected language
+            $dlang = Http::getAcceptLanguages();
+            foreach ($dlang as $l) {
+                if ($l == 'en' || L10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
+                    L10n::lang($l);
+
+                    break;
+                }
+            }
+            if (in_array($this->process, ['Admin', 'Install'])) {
+                throw new PrependException(
+                    __('Unable to connect to database'),
+                    $e->getCode() == 0 ?
+                    sprintf(
+                        __('<p>This either means that the username and password information in ' .
+                        'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
+                        'the database server at "<em>%s</em>". This could mean your ' .
+                        'host\'s database server is down.</p> ' .
+                        '<ul><li>Are you sure you have the correct username and password?</li>' .
+                        '<li>Are you sure that you have typed the correct hostname?</li>' .
+                        '<li>Are you sure that the database server is running?</li></ul>' .
+                        '<p>If you\'re unsure what these terms mean you should probably contact ' .
+                        'your host. If you still need help you can always visit the ' .
+                        '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
+                        (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+                            '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
+                            ''),
+                        (DOTCLEAR_DATABASE_HOST != '' ? DOTCLEAR_DATABASE_HOST : 'localhost')
+                    ) :
+                    '',
+                    20
+                );
+            } else {
+                throw new PrependException(
+                    __('Site temporarily unavailable'),
+                    __('<p>We apologize for this temporary unavailability.<br />' .
+                        'Thank you for your understanding.</p>'),
+                    20
+                );
+            }
+        }
+
+        # Clean up Http globals
+        Http::trimRequest();
+
+        try {
+            Http::unsetGlobals();
+        } catch (\Exception $e) {
+            header('Content-Type: text/plain');
+            echo $e->getMessage();
+            exit;
+        }
+
+        # Register Core post types
+        $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
+
+        # Store upload_max_filesize in bytes
+        $u_max_size = Files::str2bytes(ini_get('upload_max_filesize'));
+        $p_max_size = Files::str2bytes(ini_get('post_max_size'));
+        if ($p_max_size < $u_max_size) {
+            $u_max_size = $p_max_size;
+        }
+        define('DOTCLEAR_MAX_UPLOAD_SIZE', $u_max_size);
+        unset($u_max_size, $p_max_size);
+
+        # Register supplemental mime types
+        Files::registerMimeTypes([
+            // Audio
+            'aac'  => 'audio/aac',
+            'ogg'  => 'audio/ogg',
+            'weba' => 'audio/webm',
+            'm4a'  => 'audio/mp4',
+            // Video
+            'mp4'  => 'video/mp4',
+            'm4p'  => 'video/mp4',
+            'webm' => 'video/webm',
+        ]);
+
+        # Register shutdown function
+        register_shutdown_function([$this, 'shutdown']);
     }
 
     /// @name Core init methods
     //@{
+    /**
+     * Shutdown function
+     *
+     * Close properly session and connection.
+     */
+    public function shutdown(): void
+    {
+        global $__shutdown;
+        if (is_array($__shutdown)) {
+            foreach ($__shutdown as $f) {
+                if (is_callable($f)) {
+                    call_user_func($f);
+                }
+            }
+        }
+        # Explicitly close session before DB connection
+        try {
+            if (session_id()) {
+                session_write_close();
+            }
+        } catch (\Exception $e) {    // @phpstan-ignore-line
+        }
+        $this->con->close();
+    }
+
     /**
      * Get session ttl
      *
@@ -514,7 +744,7 @@ class Core
      * Add Top Behavior statically before Core instance
      *
      * Dotclear\Core\Core::addTopBehavior('MyBehavior', 'MyFunction');
-     * also work from Dotclear\Core\Prepend and other child class
+     * also work from other child class
      *
      * @param  string           $behavior   The behavior
      * @param  string|array     $callback   The function

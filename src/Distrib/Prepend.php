@@ -14,13 +14,14 @@ namespace Dotclear\Distrib;
 
 use Dotclear\Exception\DistribException
 
-use Dotclear\Core\Prepend as BasePrepend;
+use Dotclear\Core\Core;
+use Dotclear\Distrib\Upgrade;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Prepend extends BasePrepend
+class Prepend extends Core
 {
     protected $process = 'Distrib';
 
