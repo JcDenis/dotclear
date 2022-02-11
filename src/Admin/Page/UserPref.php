@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Utils;
@@ -229,7 +228,7 @@ class UserPref extends Page
                 dotclear()->notices->addSuccessNotice(__('Personal information has been successfully updated.'));
 
                 dotclear()->adminurl->redirect('admin.user.pref');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -331,7 +330,7 @@ class UserPref extends Page
 
                 dotclear()->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-options');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -358,7 +357,7 @@ class UserPref extends Page
 
                 dotclear()->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -381,7 +380,7 @@ class UserPref extends Page
                     dotclear()->notices->addSuccessNotice(__('Favorites have been successfully added.'));
                     dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -406,7 +405,7 @@ class UserPref extends Page
                     dotclear()->notices->addSuccessNotice(__('Favorites have been successfully removed.'));
                     dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 use stdClass;
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractPage;
@@ -96,7 +95,7 @@ class Page extends AbstractPage
                 $this->sm_pages_combo[$rs->post_title] = $rs->getURL();
             }
             unset($rs);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         # Liste des tags -- Doit être pris en charge plus tard par le plugin ?
@@ -107,7 +106,7 @@ class Page extends AbstractPage
                 $this->sm_tags_combo[$rs->meta_id] = $rs->meta_id;
             }
             unset($rs);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         # Liste des types d'item de menu
@@ -162,7 +161,7 @@ class Page extends AbstractPage
                 // All done successfully, return to menu items list
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated.'));
                 dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         } else {
@@ -299,7 +298,7 @@ class Page extends AbstractPage
                                 $this->sm_item_select_label = $this->sm_item_label;
                                 dotclear()->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
-                        } catch (Exception $e) {
+                        } catch (\Exception $e) {
                             dotclear()->error($e->getMessage());
                         }
 
@@ -336,7 +335,7 @@ class Page extends AbstractPage
                         } else {
                             throw new ModuleException(__('No menu items selected.'));
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         dotclear()->error($e->getMessage());
                     }
                 }
@@ -399,7 +398,7 @@ class Page extends AbstractPage
                         // All done successfully, return to menu items list
                         dotclear()->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
                         dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         dotclear()->error($e->getMessage());
                     }
                 }

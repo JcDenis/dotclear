@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Network\Http;
@@ -109,7 +108,7 @@ class Trackback
                 # Read response status
                 $status     = $http->getStatus();
                 $ping_error = '0';
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new CoreException(__('Unable to ping URL'));
             }
 
@@ -133,7 +132,7 @@ class Trackback
                 $http = self::initHttp($url, $path);
                 $http->post($path, $data, 'UTF-8');
                 $res = $http->getContent();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new CoreException(__('Unable to ping URL'));
             }
 
@@ -157,7 +156,7 @@ class Trackback
             } catch (xmlrpcException $e) {
                 $ping_error = $e->getCode();
                 $ping_msg   = $e->getMessage();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new CoreException(__('Unable to ping URL'));
             }
         }
@@ -269,7 +268,7 @@ class Trackback
 
             try {
                 $this->addBacklink($post_id, $url, $blog_name, $title, $excerpt, $comment);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $err = 1;
                 $msg = 'Something went wrong : ' . $e->getMessage();
             }
@@ -351,7 +350,7 @@ class Trackback
             }
 
             $this->addBacklink($posts->post_id, $from_url, '', $title, $excerpt, $comment);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new CoreException(__('Sorry, an internal problem has occured.'), 0);
         }
 
@@ -432,7 +431,7 @@ class Trackback
             Http::head($code);
 
             return;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $err = $e->getMessage();
         }
 
@@ -728,7 +727,7 @@ class Trackback
             $page_content = $http->getContent();
             $pb_url       = $http->getHeader('x-pingback');
             $wm_url       = $http->getHeader('link');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Update;
@@ -98,7 +97,7 @@ class RestMethods
                     $ret .= '</dl></div>';
                     $rsp->check = true;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
         $rsp->ret = $ret;
@@ -412,7 +411,7 @@ class RestMethods
         try {
             dotclear()->mediaInstance();
             $file = dotclear()->media->getFile($id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         if ($file === null || $file->type != 'application/zip' || !$file->editable) {

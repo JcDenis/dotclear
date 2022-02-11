@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Lib\Filter;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -89,7 +88,7 @@ class FilterIplookup extends Spamfilter
                 dotclear()->blog->settings->antispam->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
                 dotclear()->notices->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

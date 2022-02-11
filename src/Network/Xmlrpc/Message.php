@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Network\Xmlrpc;
 
-use Dotclear\Exception;
 use Dotclear\Exception\NetworkException;
 
 use Dotclear\Network\Xmlrpc\Date;
@@ -88,7 +87,7 @@ class Message
             if ($dom->getElementsByTagName('*')->length > 30000) {
                 throw new NetworkException('XML Parser Error.');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new NetworkException('XML Parser Error.');
         }
         $this->_parser = xml_parser_create();

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Sql\SelectStatement;
@@ -174,7 +173,7 @@ class Notices
 
             $cur->insert();
             dotclear()->con->unlock();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->con->unlock();
 
             throw $e;

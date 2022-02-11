@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 
@@ -73,7 +72,7 @@ class PageTheme extends Page
             # -- Execute actions --
             try {
                 dotclear()->themes->doActions();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->themes->add($e->getMessage());
             }
 

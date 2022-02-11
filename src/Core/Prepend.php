@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\PrependException;
 
 use Dotclear\Core\Core;
@@ -163,7 +162,7 @@ class Prepend extends Core
         # Load Core
         try {
             parent::process();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             # Loading locales for detected language
             $dlang = Http::getAcceptLanguages();
             foreach ($dlang as $l) {
@@ -211,7 +210,7 @@ class Prepend extends Core
 
         try {
             Http::unsetGlobals();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             header('Content-Type: text/plain');
             echo $e->getMessage();
             exit;
@@ -261,7 +260,7 @@ class Prepend extends Core
             if (session_id()) {
                 session_write_close();
             }
-        } catch (Exception $e) {    // @phpstan-ignore-line
+        } catch (\Exception $e) {    // @phpstan-ignore-line
         }
         $this->con->close();
     }

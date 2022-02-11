@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
-use Dotclear\Exception;
 use Dotclear\Exception\PrependException;
 
 use Dotclear\Core\Prepend as BasePrepend;
@@ -62,7 +61,7 @@ class Prepend extends BasePrepend
         # Load blog
         try {
             $this->setBlog($blog_id ?: '');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             init_prepend_l10n();
             /* @phpstan-ignore-next-line */
             throw new PrependException(__('Database problem'), DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ?
@@ -85,7 +84,7 @@ class Prepend extends BasePrepend
         # Load media
         try {
             $this->mediaInstance();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException(__('Can\'t load media.'), $e->getMessage(), 640);
         }
 
@@ -94,7 +93,7 @@ class Prepend extends BasePrepend
 
         try {
             $this->tpl = new Template(DOTCLEAR_CACHE_DIR, 'dotclear()->tpl');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException(__('Can\'t create template files.'), $e->getMessage(), 640);
         }
 
@@ -123,7 +122,7 @@ class Prepend extends BasePrepend
                 $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'main');
                 $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'public');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException(__('Can\'t load plugins.'), $e->getMessage(), 640);
         }
 
@@ -131,7 +130,7 @@ class Prepend extends BasePrepend
         try {
             $this->themes = new ModulesTheme();
             $this->themes->loadModules($_lang);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException(__('Can\'t load themes.'), $e->getMessage(), 640);
         }
 
@@ -188,7 +187,7 @@ class Prepend extends BasePrepend
 
             # --BEHAVIOR-- publicAfterDocument
             $this->behaviors->call('publicAfterDocument');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException(__('Template problem'), DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ?
                 __('The following error was encountered while trying to load template file:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                 __('Something went wrong while loading template file for your blog.'), 660);

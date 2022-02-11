@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Media;
@@ -70,7 +69,7 @@ class PostMedia extends Page
                 throw new AdminException(__('This attachment does not exist'));
             }
             $f = $f[0];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 

@@ -15,7 +15,6 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Utils;
@@ -205,7 +204,7 @@ abstract class Page
             if (($catalog_class = $this->getCatalogInstance()) !== null) {
                 $this->catalog = $catalog_class;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
     }

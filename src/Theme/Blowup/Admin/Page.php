@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
@@ -222,7 +221,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.plugin.Blowup');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

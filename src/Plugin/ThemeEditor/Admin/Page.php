@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 use stdClass;
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractPage;
@@ -83,7 +82,7 @@ class Page extends AbstractPage
                 } elseif (!empty($_REQUEST['php'])) {
                     $this->te_file = $this->te_editor->getFileContent('php', $_REQUEST['php']);
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->te_file = $file_default;
 
                 throw $e;
@@ -101,7 +100,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('The file has been reset.'));
                 dotclear()->adminurl->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 

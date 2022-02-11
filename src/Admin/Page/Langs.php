@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -63,7 +62,7 @@ class Langs extends Page
 
                 self::addSuccessNotice(__('Language has been successfully deleted.'));
                 dotclear()->adminurl->redirect('admin.langs');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -90,7 +89,7 @@ class Langs extends Page
 
                 try {
                     $ret_code = self::langInstall($dest);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     @unlink($dest);
 
                     throw $e;
@@ -103,7 +102,7 @@ class Langs extends Page
                     self::addSuccessNotice(__('Language has been successfully installed.'));
                 }
                 dotclear()->adminurl->redirect('admin.langs');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -123,7 +122,7 @@ class Langs extends Page
 
                 try {
                     $ret_code = self::langInstall($dest);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     @unlink($dest);
 
                     throw $e;
@@ -136,7 +135,7 @@ class Langs extends Page
                     dotclear()->notices->addSuccessNotice(__('Language has been successfully installed.'));
                 }
                 dotclear()->adminurl->redirect('admin.langs');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -178,7 +177,7 @@ class Langs extends Page
             if ($dc_langs !== false) {
                 $dc_langs = $dc_langs->items;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         echo

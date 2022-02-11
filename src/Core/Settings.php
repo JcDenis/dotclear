@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Settingspace;
@@ -78,7 +77,7 @@ class Settings
 
         try {
             $rs = $this->con->select($strReq);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             trigger_error(__('Unable to retrieve namespaces:') . ' ' . $this->con->error(), E_USER_ERROR);
         }
 

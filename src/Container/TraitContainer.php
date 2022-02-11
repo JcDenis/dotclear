@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Container;
 
-use Dotclear\Exception;
 
 use Dotclear\Utils\Dt;
 
@@ -31,7 +30,7 @@ trait TraitContainer
     {
         if ($type !== null) {
             if (!@settype($arg, $type)) {
-                throw new Exception('Could not convert type');
+                throw new \Exception('Could not convert type');
             }
         }
 

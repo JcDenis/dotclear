@@ -15,7 +15,6 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -358,7 +357,7 @@ abstract class Action extends Page
                 if ($performed) {
                     return true;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->error($e);
                 return false;
             }

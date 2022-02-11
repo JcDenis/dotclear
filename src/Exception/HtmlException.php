@@ -12,6 +12,4 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-use Dotclear\Exception;
-
-class HtmlException extends Exception { }
+class HtmlException extends \Exception { }

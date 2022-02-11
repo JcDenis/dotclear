@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
-use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Core\Media;
@@ -506,7 +505,7 @@ class ConfigTheme
             // Delete thumbnails if any
             try {
                 dotclear()->mediaInstance()->imageThumbRemove($img);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
             // Delete image

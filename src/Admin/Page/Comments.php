@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Action;
@@ -85,7 +84,7 @@ class Comments extends Page
                 dotclear()->blog->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
                 dotclear()->adminurl->redirect('admin.comments');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

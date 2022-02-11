@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Menu;
@@ -42,7 +41,7 @@ class Home extends Page
             try {
                 dotclear()->setUserDefaultBlog(dotclear()->auth->userID(), dotclear()->blog->id);
                 dotclear()->adminurl->redirect('admin.home');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

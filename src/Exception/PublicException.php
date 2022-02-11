@@ -12,6 +12,4 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-use Dotclear\Exception;
-
-class PublicException extends Exception { }
+class PublicException extends \Exception { }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -156,7 +155,7 @@ class Auth extends Page
                 if (($changes = Upgrade::dotclearUpgrade() !== false)) {
                     $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->err = $e->getMessage();
             }
         }
@@ -181,7 +180,7 @@ class Auth extends Page
 
             Mail::sendMail($this->user_email, $subject, $message, $headers);
             $this->msg = sprintf(__('The e-mail was sent successfully to %s.'), $this->user_email);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->err = $e->getMessage();
         }
     }
@@ -201,7 +200,7 @@ class Auth extends Page
 
             Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
             $this->msg = __('Your new password is in your mailbox.');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->err = $e->getMessage();
         }
     }
@@ -264,7 +263,7 @@ class Auth extends Page
             }
 
             dotclear()->adminurl->redirect('admin.home');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->err = $e->getMessage();
         }
     }

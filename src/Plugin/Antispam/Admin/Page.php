@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
@@ -51,11 +50,11 @@ class Page extends AbstractPage
             # Show filter configuration GUI
             if (!empty($_GET['f'])) {
                 if (!isset($this->a_filters[$_GET['f']])) {
-                    throw new Exception(__('Filter does not exist.'));
+                    throw new \Exception(__('Filter does not exist.'));
                 }
 
                 if (!$this->a_filters[$_GET['f']]->hasGUI()) {
-                    throw new Exception(__('Filter has no user interface.'));
+                    throw new \Exception(__('Filter has no user interface.'));
                 }
 
                 $filter     = $this->a_filters[$_GET['f']];
@@ -116,7 +115,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Filters configuration has been successfully saved.'));
                 dotclear()->adminurl->redirect('admin.plugin.Antispam');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 

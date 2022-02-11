@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Template;
 
-use Dotclear\Exception;
 use Dotclear\Exception\TemplateException;
 
 use Dotclear\File\Path;
@@ -74,7 +73,7 @@ class Template
         return
         '<?php try { ' .
         'echo ' . $this->self_name . "->getData('" . str_replace("'", "\'", $src) . "'); " .
-            '} catch (Exception $e) {} ?>' . "\n";
+            '} catch (\Exception $e) {} ?>' . "\n";
     }
 
     public function blockSection($attr, string $content)

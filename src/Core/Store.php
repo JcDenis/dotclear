@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\StoreReader;
@@ -82,7 +81,7 @@ class Store
         try {
             /* @phpstan-ignore-next-line */
             $parser = DOTCLEAR_STORE_UPDATE_NOAUTO ? false : StoreReader::quickParse($this->xml_url, DOTCLEAR_CACHE_DIR, $force);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -123,7 +122,7 @@ class Store
                             }
                         }
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                 }
             }
 
@@ -276,7 +275,7 @@ class Store
                 $client->setOutput($dest);
                 $client->get($path);
                 unset($client);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 unset($client);
 
                 throw new CoreException(__('An error occurred while downloading the file.'));

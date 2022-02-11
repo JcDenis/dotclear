@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractDefine;
@@ -401,7 +400,7 @@ abstract class AbstractModules
                 }
 
                 Files::deltree($destination);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $zip->close();
                 unlink($zip_file);
                 Files::deltree($destination);
@@ -513,7 +512,7 @@ abstract class AbstractModules
             dotclear()->setVersion($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
 
             return false;
@@ -538,7 +537,7 @@ abstract class AbstractModules
             try {
                 $this->deactivateModule($module['id']);
                 $reason[] = sprintf('<li>%s : %s</li>', $module['id'], join(',', $module['reason']));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
         if (count($reason)) {

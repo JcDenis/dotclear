@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Update as CoreUpdate;
@@ -121,7 +120,7 @@ class Update extends Page
                     @unlink(DOTCLEAR_BACKUP_DIR . '/' . $b_file);
                     dotclear()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -173,7 +172,7 @@ class Update extends Page
 
                         break;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $msg = $e->getMessage();
 
                 if ($e->getCode() == dcUpdate::ERR_FILES_CHANGED) {

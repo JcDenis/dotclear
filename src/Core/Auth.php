@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Sql\SelectStatement;
@@ -130,7 +129,7 @@ class Auth
 
         try {
             $rs = $sql->select();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $err = $e->getMessage();
 
             return false;
@@ -373,7 +372,7 @@ class Auth
             try {
                 $res              = call_user_func_array($f, $args);
                 $this->container->setSuper(false);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->container->setSuper(false);
 
                 throw $e;

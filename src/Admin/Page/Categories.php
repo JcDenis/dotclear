@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -60,7 +59,7 @@ class Categories extends Page
                 dotclear()->blog->delCategory($cat_id);
                 dotclear()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 dotclear()->adminurl->redirect('admin.categories');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -92,7 +91,7 @@ class Categories extends Page
                     Html::escapeHTML($name)
                 ));
                 dotclear()->adminurl->redirect('admin.categories');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -117,7 +116,7 @@ class Categories extends Page
                 dotclear()->blog->resetCategoriesOrder();
                 dotclear()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
                 dotclear()->adminurl->redirect('admin.categories');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

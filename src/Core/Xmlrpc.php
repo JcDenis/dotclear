@@ -15,7 +15,6 @@ namespace Dotclear\Core;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Container\User as ContainerUser;
@@ -256,7 +255,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $this->debugTrace($methodname, $args, $rsp);
 
             return $rsp;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->debugTrace($methodname, $args, [$e->getMessage(), $e->getCode()]);
 
             throw $e;

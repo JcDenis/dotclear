@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 
@@ -41,7 +40,7 @@ class BlogDel extends Page
         if (!empty($_POST['blog_id'])) {
             try {
                 $rs = dotclear()->getBlog($_POST['blog_id']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
 
@@ -63,7 +62,7 @@ class BlogDel extends Page
                     dotclear()->notices->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
                     dotclear()->adminurl->redirect('admin.blogs');
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }

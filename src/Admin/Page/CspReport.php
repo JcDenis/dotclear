@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 
@@ -122,7 +121,7 @@ class CspReport extends Page
                     // The file content will have to be enclosed in brackets [] before
                     // beeing decoded with json_decoded(<content>,true);
                     fprintf($fp, ($contents != '' ? ',' : '') . '%s', $output);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     return null;
                 }
             }

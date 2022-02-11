@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
@@ -59,7 +58,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.UserPref');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -79,7 +78,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

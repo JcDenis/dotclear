@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Network\Socket;
 
-use Dotclear\Exception;
 use Dotclear\Exception\NetworkException;
 
 if (!defined('DOTCLEAR_PROCESS')) {

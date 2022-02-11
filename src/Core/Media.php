@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\PostMedia;
@@ -596,7 +595,7 @@ class Media extends Manager
 
         try {
             usort($this->dir['files'], [$this, 'sortFileHandler']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
     }
 
@@ -697,7 +696,7 @@ class Media extends Manager
 
         try {
             usort($this->dir['files'], [$this, 'sortFileHandler']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         return (count($f_res) > 0 ? true : false);
@@ -885,13 +884,13 @@ class Media extends Manager
 
                 try {
                     $cur->insert();
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     @unlink($name);
 
                     throw $e;
                 }
                 $this->con->unlock();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->con->unlock();
 
                 throw $e;
@@ -1231,7 +1230,7 @@ class Media extends Manager
                 }
             }
             $img->close();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if ($cur === null) {
                 # Called only if cursor is null (public call)
                 throw $e;
@@ -1275,7 +1274,7 @@ class Media extends Manager
             foreach ($this->thumb_sizes as $suffix => $s) {
                 try {
                     parent::moveFile(sprintf($thumb_old, $suffix), sprintf($thumb_new, $suffix));
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                 }
             }
         }
@@ -1303,7 +1302,7 @@ class Media extends Manager
         foreach ($this->thumb_sizes as $suffix => $s) {
             try {
                 parent::removeFile(sprintf($thumb, $suffix));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
     }

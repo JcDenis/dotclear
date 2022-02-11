@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Database\Connection;
@@ -89,7 +88,7 @@ class Settingspace
 
             try {
                 $rs = $this->con->select($strReq);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 trigger_error(__('Unable to retrieve settings:') . ' ' . $this->con->error(), E_USER_ERROR);
             }
         }

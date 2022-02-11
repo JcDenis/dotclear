@@ -17,7 +17,6 @@ namespace Dotclear\Admin\Filter;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Utils;
@@ -79,7 +78,7 @@ class PostFilter extends Filter
             if ($users->isEmpty()) {
                 return null;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
 
             return null;
@@ -110,7 +109,7 @@ class PostFilter extends Filter
             if ($categories->isEmpty()) {
                 return null;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
 
             return null;
@@ -244,7 +243,7 @@ class PostFilter extends Filter
             if ($dates->isEmpty()) {
                 return null;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
 
             return null;
@@ -282,7 +281,7 @@ class PostFilter extends Filter
             if ($langs->isEmpty()) {
                 return null;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
 
             return null;

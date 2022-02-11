@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Action\PostAction;
@@ -165,7 +164,7 @@ class Search extends Page
             if (self::$actions->getPagePrepend()) {
                 return;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
     }
@@ -218,7 +217,7 @@ class Search extends Page
             if (self::$actions->getPagePrepend()) {
                 return;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
     }

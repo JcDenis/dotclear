@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
-use Dotclear\Exception;
 
 use Dotclear\Core\Media;
 
@@ -551,7 +550,7 @@ class Context
 
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
     }
@@ -599,7 +598,7 @@ class Context
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 

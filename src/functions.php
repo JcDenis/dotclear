@@ -66,14 +66,17 @@ if (!function_exists('dotclear_run')) {
             $class::coreInstance($blog_id);
             ob_end_flush();
 
-        # Catch all errors and display or not them
-        } catch(Exception $e) {
+        # Catch all Exceptions and display or not them
+        } catch (\Exception $e) {
             ob_end_clean();
 
-            $detail = defined('DOTCLEAR_RUN_LEVEL') && DOTCLEAR_RUN_LEVEL > DOTCLEAR_RUN_PRODUCTION ?
-                ' The following error was encountered: ' . $e->getMessage() : '';
-
-            dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.' . $detail, $e->getCode());
+            if (defined('DOTCLEAR_RUN_LEVEL') && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {
+                dotclear_error(get_class($e), $e->getMessage() . "\n\n" . $e->getTraceAsString(), $e->getCode());
+            } elseif (defined('DOTCLEAR_RUN_LEVEL') && DOTCLEAR_RUN_LEVEL > DOTCLEAR_RUN_PRODUCTION) {
+                dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
+            } else {
+                dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
+            }
         }
     }
 }
@@ -128,6 +131,7 @@ if (!function_exists('dotclear_error')) {
 
         # Display error through an internal error page
         } else {
+            $detail = str_replace("\n", '<br />', $detail);
             header('Content-Type: text/html; charset=utf-8');
             header('HTTP/1.0 ' . $code . ' ' . $message);
 ?>

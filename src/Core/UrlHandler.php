@@ -15,7 +15,6 @@ namespace Dotclear\Core;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Trackback;
@@ -668,7 +667,7 @@ class UrlHandler
                             $redir_arg .= filter_var(dotclear()->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
-                        } catch (Exception $e) {
+                        } catch (\Exception $e) {
                             dotclear()->context->form_error = $e->getMessage();
                         }
                     }

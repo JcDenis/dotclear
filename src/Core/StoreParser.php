@@ -17,7 +17,6 @@ namespace Dotclear\Core;
 
 use SimpleXMLElement;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Core\Utils;
@@ -50,7 +49,7 @@ class StoreParser
 
         try {
             $this->xml   = simplexml_load_string($data);
-        } catch(Exception) {
+        } catch(\Exception) {
             $this->xml = false;
         }
         $this->items = [];

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
-use Dotclear\Exception;
 use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractModules;
@@ -749,7 +748,7 @@ class ModulesTheme extends AbstractModules
                         file_put_contents($new_dir . $rel, $buf);
                     }
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Files::deltree($new_dir);
 
                 throw new ModuleException($e->getMessage());

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 
@@ -47,7 +46,7 @@ class PageIconset extends Page
         # -- Execute actions --
         try {
             dotclear()->iconsets->doActions();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 

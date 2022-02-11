@@ -25,7 +25,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Network\Xmlrpc;
 
-use Dotclear\Exception;
 use Dotclear\Exception\NetworkException;
 
 use Dotclear\Network\Xmlrpc\Message;
@@ -114,7 +113,7 @@ class Server
                 }
 
                 $data = $HTTP_RAW_POST_DATA;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 if ($e->getCode() == 400) {
                     $this->head(400, 'Bad Request');
                 } elseif ($e->getCode() == 405) {
@@ -138,7 +137,7 @@ class Server
             }
 
             $result = $this->call($this->message->methodName, $this->message->params);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error($e);
         }
 
@@ -366,7 +365,7 @@ class Server
 
                 $result   = $this->call($method, $params);
                 $return[] = [$result];
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $return[] = [
                     'faultCode'   => $e->getCode(),
                     'faultString' => $e->getMessage(),

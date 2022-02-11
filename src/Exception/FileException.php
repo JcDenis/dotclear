@@ -12,6 +12,4 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-use Dotclear\Exception;
-
-class FileException extends Exception { }
+class FileException extends \Exception { }

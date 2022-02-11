@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Lib\Filter;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -83,7 +82,7 @@ class FilterWords extends Spamfilter
                 $this->defaultWordsList();
                 dotclear()->notices->addSuccessNotice(__('Words have been successfully added.'));
                 Http::redirect($url);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -96,7 +95,7 @@ class FilterWords extends Spamfilter
                 $this->addRule($_POST['swa'], $globalsw);
                 dotclear()->notices->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -107,7 +106,7 @@ class FilterWords extends Spamfilter
                 $this->removeRule($_POST['swd']);
                 dotclear()->notices->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -215,7 +214,7 @@ class FilterWords extends Spamfilter
         $rs = dotclear()->con->select($strReq);
 
         if (!$rs->isEmpty() && !$general) {
-            throw new Exception(__('This word exists'));
+            throw new \Exception(__('This word exists'));
         }
 
         $cur               = dotclear()->con->openCursor($this->table);
@@ -364,7 +363,7 @@ class FilterWords extends Spamfilter
         foreach ($words as $w) {
             try {
                 $this->addRule($w, true);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
     }

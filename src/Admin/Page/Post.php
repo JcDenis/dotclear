@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Media;
@@ -175,7 +174,7 @@ class Post extends Page
 
                 try {
                     dotclear()->mediaInstance();
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
 
@@ -213,7 +212,7 @@ class Post extends Page
                         dotclear()->behaviors->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         dotclear()->error($e->getMessage());
                     }
                 }
@@ -253,7 +252,7 @@ class Post extends Page
                         throw new AdminException(__('Invalid publication date'));
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }
@@ -288,7 +287,7 @@ class Post extends Page
                 dotclear()->behaviors->call('adminBeforePostDelete', $this->post_id);
                 dotclear()->blog->delPost($this->post_id);
                 dotclear()->adminurl->redirect('admin.posts');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -349,7 +348,7 @@ class Post extends Page
                         'admin.post',
                         ['id' => $this->post_id]
                     );
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             } else {
@@ -369,7 +368,7 @@ class Post extends Page
                         'admin.post',
                         ['id' => $return_id]
                     );
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -104,7 +103,7 @@ class MediaItem extends Page
             }
             ksort($this->dirs_combo);
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 
@@ -116,7 +115,7 @@ class MediaItem extends Page
 
                 dotclear()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -171,7 +170,7 @@ class MediaItem extends Page
                 dotclear()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -185,7 +184,7 @@ class MediaItem extends Page
                 dotclear()->notices->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -198,7 +197,7 @@ class MediaItem extends Page
                 dotclear()->notices->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
                 dotclear()->adminurl->redirect('admin.media', $this->media_page_url_params);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -968,7 +967,7 @@ class MediaItem extends Page
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         return $defaults;

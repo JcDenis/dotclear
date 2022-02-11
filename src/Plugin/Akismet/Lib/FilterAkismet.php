@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Lib;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -88,7 +87,7 @@ class FilterAkismet extends Spamfilter
                     return true;
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         } # If http or akismet is dead, we don't need to know it
 
         return null;
@@ -111,7 +110,7 @@ class FilterAkismet extends Spamfilter
             if ($ak->verify()) {
                 $ak->{$f}($rs->getPostURL(), $type, $author, $email, $site, $content);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         } # If http or akismet is dead, we don't need to know it
     }
 
@@ -129,7 +128,7 @@ class FilterAkismet extends Spamfilter
 
                 dotclear()->notices->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -138,7 +137,7 @@ class FilterAkismet extends Spamfilter
             try {
                 $ak          = new Akismet(dotclear()->blog->url, dotclear()->blog->settings->akismet->ak_key);
                 $ak_verified = $ak->verify();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

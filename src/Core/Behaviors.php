@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Closure;
-use Dotclear\Exception;
 
 class Behaviors
 {
@@ -117,7 +116,7 @@ class Behaviors
         if (defined('DOTCLEAR_BEHAVIOR_TRACE') && is_callable(DOTCLEAR_BEHAVIOR_TRACE)) {
             try {
                 call_user_func(DOTCLEAR_BEHAVIOR_TRACE, $callback, $args);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
     }

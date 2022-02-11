@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\File\Path;
@@ -154,7 +153,7 @@ class ThemeEditor
             $dest = $this->getDestinationFile($type, $f);
 
             if ($dest == false) {
-                throw new Exception();
+                throw new \Exception();
             }
 
             if ($type == 'tpl' && !is_dir(dirname($dest))) {
@@ -167,7 +166,7 @@ class ThemeEditor
 
             $fp = @fopen($dest, 'wb');
             if (!$fp) {
-                throw new Exception();
+                throw new \Exception();
             }
 
             $content = preg_replace('/(\r?\n)/m', "\n", $content);
@@ -178,7 +177,7 @@ class ThemeEditor
 
             # Updating inner files list
             $this->updateFileInList($type, $f, $dest);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new AdminException(sprintf(__('Unable to write file %s. Please check your theme files and folders permissions.'), $f));
         }
     }
@@ -227,7 +226,7 @@ class ThemeEditor
                 // Updating template files list
                 $this->findTemplates();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new AdminException(sprintf(__('Unable to delete file %s. Please check your theme files and folders permissions.'), $f));
         }
     }

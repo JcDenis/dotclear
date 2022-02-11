@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 
 use Dotclear\Html\XmlTag;
 
@@ -97,7 +96,7 @@ class RestServer
 
         try {
             $res = $this->callFunction($_REQUEST['f'], $get, $post);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->rsp->status = 'failed';
             $this->rsp->message($e->getMessage());
             $this->getXML($encoding);

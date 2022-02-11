@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Filter;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Html\Form\Select as FormSelect;

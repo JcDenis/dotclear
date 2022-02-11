@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 
 use Dotclear\Core\StoreParser;
 
@@ -167,7 +166,7 @@ class StoreReader extends NetHttp
 
         try {
             return $this->get($path);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             //! @todo Log error when repository query fail
             return false;
         }
@@ -232,7 +231,7 @@ class StoreReader extends NetHttp
 
                 try {
                     Files::makeDir(dirname($cached_file), true);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     return $modules;
                 }
 

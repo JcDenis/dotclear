@@ -15,7 +15,6 @@ namespace Dotclear\Core;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
@@ -1412,7 +1411,7 @@ class Blog
 
             $cur->insert();
             $this->con->unlock();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->unlock();
 
             throw $e;
@@ -2313,7 +2312,7 @@ class Blog
 
             $cur->insert();
             $this->con->unlock();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->unlock();
 
             throw $e;

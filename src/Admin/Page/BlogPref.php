@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Media;
@@ -88,7 +87,7 @@ class BlogPref extends Page
                 $this->blog_desc     = $rs->blog_desc;
                 $this->blog_settings = new Settings($this->blog_id);
                 $this->blog_url      = $rs->blog_url;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
 
@@ -254,7 +253,7 @@ class BlogPref extends Page
                 dotclear()->notices->addSuccessNotice(__('Blog has been successfully updated.'));
 
                 Http::redirect(sprintf($this->redir, $this->blog_id));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -369,7 +368,7 @@ class BlogPref extends Page
             foreach ($media->thumb_sizes as $code => $size) {
                 $img_default_size_combo[__($size[2])] = $code;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 
@@ -766,7 +765,7 @@ class BlogPref extends Page
                             '</p>';
                     }
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
             echo '</div>';

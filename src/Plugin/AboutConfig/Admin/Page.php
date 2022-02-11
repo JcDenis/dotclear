@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
@@ -60,7 +59,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.AboutConfig');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -81,7 +80,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

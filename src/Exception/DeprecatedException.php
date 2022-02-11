@@ -12,9 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-use Dotclear\Exception;
-
-class DeprecatedException extends Exception
+/**
+ * Do not use directly "throw new DeprecatedException"
+ * Use "DeprecatedException::throw()" instead
+ * as it not stops process in production run.
+ */
+class DeprecatedException extends \Exception
 {
     public function __construct($message = 'Exception for the use of deprecated function', $code = 0, Throwable $previous = null)
     {

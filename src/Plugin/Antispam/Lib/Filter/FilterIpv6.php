@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Lib\Filter;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -88,7 +87,7 @@ class FilterIpv6 extends Spamfilter
                 $this->addIP($ip_type, $_POST['addip'], $global);
                 dotclear()->notices->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -99,7 +98,7 @@ class FilterIpv6 extends Spamfilter
                 $this->removeRule($_POST['delip']);
                 dotclear()->notices->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -355,13 +354,13 @@ class FilterIpv6 extends Spamfilter
         $bits = explode('/', $pattern);
 
         if (!filter_var($bits[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new Exception('Invalid IPv6 address');
+            throw new \Exception('Invalid IPv6 address');
         }
 
         $ip = $this->ip2long_v6($bits[0]);
 
         if (!$ip || $ip == -1) {
-            throw new Exception('Invalid IP address');
+            throw new \Exception('Invalid IP address');
         }
 
         # Set mask

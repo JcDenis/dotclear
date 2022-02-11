@@ -1511,7 +1511,7 @@ trait TraitModulesAdmin
             $this->config_content = ob_get_contents();
 
             ob_end_clean();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             ob_end_clean();
             dotclear()->error($e->getMessage());
         }

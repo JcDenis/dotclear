@@ -300,7 +300,7 @@ class WidgetsStack
             if ($feed == false || count($feed->items) == 0) {
                 return;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return;
         }
 

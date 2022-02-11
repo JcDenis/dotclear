@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
@@ -255,7 +254,7 @@ class Page extends AbstractPage
                 dotclear()->emptyTemplatesCache();
 
                 dotclear()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

@@ -14,7 +14,7 @@ try {
     require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'Process.php']);
     new Dotclear('Distrib');
     exit(0);
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo $e->getMessage() . "\n";
     exit(1);
 }

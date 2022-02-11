@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\Database\Connection;
@@ -168,7 +167,7 @@ class Log
 
             $cur->insert();
             $this->con->unlock();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->unlock();
 
             throw $e;

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Lib\Filter;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -89,7 +88,7 @@ class FilterIp extends Spamfilter
                 $this->addIP($ip_type, $_POST['addip'], $global);
                 dotclear()->notices->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -100,7 +99,7 @@ class FilterIp extends Spamfilter
                 $this->removeRule($_POST['delip']);
                 dotclear()->notices->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -208,13 +207,13 @@ class FilterIp extends Spamfilter
         $bits[0] .= str_repeat('.0', 3 - substr_count($bits[0], '.'));
 
         if (!filter_var($bits[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            throw new Exception('Invalid IPv4 address');
+            throw new \Exception('Invalid IPv4 address');
         }
 
         $ip = ip2long($bits[0]);
 
         if (!$ip || $ip == -1) {
-            throw new Exception('Invalid IP address');
+            throw new \Exception('Invalid IP address');
         }
 
         # Set mask

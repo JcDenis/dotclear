@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-use Dotclear\Exception;
 use Dotclear\Exception\DatabaseException;
 
 use Dotclear\Database\Connection;
@@ -194,7 +193,7 @@ abstract class NestedTree
                 return $data->{$this->f_id};
             } catch (DatabaseException $e) {
             } # We don't mind error in this case
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->unlock();
 
             throw $e;
@@ -224,7 +223,7 @@ abstract class NestedTree
         try {
             $this->con->execute($sql);
             $this->con->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->rollback();
 
             throw $e;
@@ -295,7 +294,7 @@ abstract class NestedTree
             }
 
             $this->con->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->rollback();
 
             throw $e;
@@ -328,7 +327,7 @@ abstract class NestedTree
                 );
             }
             $this->con->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->rollback();
 
             throw $e;

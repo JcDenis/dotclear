@@ -29,7 +29,7 @@ class Distrib
     {
         $file = implode(DIRECTORY_SEPARATOR, [__DIR__, 'config.php.distrib']);
         if (!is_file($file)) {
-            throw new Exception(sprintf(__('File %s does not exist.'), $file));
+            throw new \Exception(sprintf(__('File %s does not exist.'), $file));
         }
 
         return file_get_contents($file);

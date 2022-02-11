@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Core\Prefs;
@@ -70,7 +69,7 @@ class User extends Page
                 $this->user_profile_urls  = $user_prefs->profile->urls;
 
                 $page_title = $this->container->getId();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -186,7 +185,7 @@ class User extends Page
                         dotclear()->adminurl->redirect('admin.user', ['id' => $new_id]);
                     }
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

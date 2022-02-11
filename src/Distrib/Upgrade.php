@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use Dotclear\Exception;
 use Dotclear\Exception\DistribException;
 
 use Dotclear\File\Files;
@@ -74,11 +73,11 @@ class Upgrade
                 # Empty templates cache directory
                 try {
                     dotclear()->emptyTemplatesCache();
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                 }
 
                 return (bool) $changes;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new DistribException(__('Something went wrong with auto upgrade:') .
                     ' ' . $e->getMessage());
             }

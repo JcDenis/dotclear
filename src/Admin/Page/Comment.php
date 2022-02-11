@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -76,7 +75,7 @@ class Comment extends Page
                 dotclear()->behaviors->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
                 dotclear()->notices->addSuccessNotice(__('Comment has been successfully created.'));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
             Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
@@ -106,7 +105,7 @@ class Comment extends Page
                     $this->comment_status      = $rs->comment_status;
                     $this->comment_trackback   = (boolean) $rs->comment_trackback;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -153,7 +152,7 @@ class Comment extends Page
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully updated.'));
                     dotclear()->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }
@@ -167,7 +166,7 @@ class Comment extends Page
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }

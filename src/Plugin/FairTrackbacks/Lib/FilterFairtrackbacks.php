@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\FairTrackbacks\Lib;
 
-use Dotclear\Exception;
 
 use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
@@ -46,7 +45,7 @@ class FilterFairtrackbacks extends Spamfilter
             $S             = array_merge($default_parse, parse_url($site));
 
             if (($S['scheme'] != 'http' && $S['scheme'] != 'https') || !$S['host'] || !$S['path']) {
-                throw new Exception('Invalid URL');
+                throw new \Exception('Invalid URL');
             }
 
             # Check incomink link page
@@ -55,7 +54,7 @@ class FilterFairtrackbacks extends Spamfilter
             $P        = array_merge($default_parse, parse_url($post_url));
 
             if ($post_url == $site) {
-                throw new Exception('Same source and destination');
+                throw new \Exception('Same source and destination');
             }
 
             $o = NetHttp::initClient($site, $path);
@@ -64,7 +63,7 @@ class FilterFairtrackbacks extends Spamfilter
 
             # Trackback source does not return 200 status code
             if ($o->getStatus() != 200) {
-                throw new Exception('Invalid Status Code');
+                throw new \Exception('Invalid Status Code');
             }
 
             $tb_page = $o->getContent();
@@ -78,10 +77,10 @@ class FilterFairtrackbacks extends Spamfilter
             $pattern = preg_quote($pattern, '/');
 
             if (!preg_match('/' . $pattern . '/', $tb_page)) {
-                throw new Exception('Unfair');
+                throw new \Exception('Unfair');
             }
-        } catch (Exception $e) {
-            throw new Exception('Trackback not allowed for this URL.');
+        } catch (\Exception $e) {
+            throw new \Exception('Trackback not allowed for this URL.');
         }
 
         return null;

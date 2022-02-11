@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 
 use Dotclear\Core\Settings;
 
@@ -51,7 +50,7 @@ class Category extends Page
         if (!empty($_REQUEST['id'])) {
             try {
                 $rs = dotclear()->blog->getCategory((int) $_REQUEST['id']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
 
@@ -107,7 +106,7 @@ class Category extends Page
                     dotclear()->blog->setCategoryParent($this->cat_id, $new_parent);
                     dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                     dotclear()->adminurl->redirect('admin.categories');
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }
@@ -119,7 +118,7 @@ class Category extends Page
                 dotclear()->blog->setCategoryPosition($this->cat_id, (integer) $_POST['cat_sibling'], $_POST['cat_move']);
                 dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                 dotclear()->adminurl->redirect('admin.categories');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -169,7 +168,7 @@ class Category extends Page
                         Html::escapeHTML($cur->cat_title)));
                     dotclear()->adminurl->redirect('admin.categories');
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

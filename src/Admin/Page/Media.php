@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Filter;
@@ -99,7 +98,7 @@ class Media extends Page
             $rs = $this->getDirsRecord();
 
             return new MediaCatalog($rs, $rs->count());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error($e->getMessage());
         }
 
@@ -133,8 +132,8 @@ class Media extends Page
                 $this->filter->d = null;
                 dotclear()->media->chdir($this->filter->d);
 
-                throw new Exception(__('Not a valid directory'));
-            } catch (Exception $e) {
+                throw new \Exception(__('Not a valid directory'));
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -167,7 +166,7 @@ class Media extends Page
                         Html::escapeHTML($nd)
                     ));
                     dotclear()->adminurl->redirect('admin.media', $this->filter->values());
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
             }
@@ -198,7 +197,7 @@ class Media extends Page
                         'size' => $upfile['size'],
                         'html' => $this->mediaLine($new_file_id)
                     ];
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $message['files'][] = [
                         'name'  => $upfile['name'],
                         'size'  => $upfile['size'],
@@ -219,7 +218,7 @@ class Media extends Page
 
                 dotclear()->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -239,7 +238,7 @@ class Media extends Page
                     )
                 );
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -264,7 +263,7 @@ class Media extends Page
                 }
                 dotclear()->notices->addSuccessNotice($msg);
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -279,7 +278,7 @@ class Media extends Page
                     Html::escapeHTML($this->filter->d))
                 );
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

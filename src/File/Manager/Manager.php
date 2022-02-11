@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\File\Manager;
 
-use Dotclear\Exception;
 use Dotclear\Exception\FileException;
 
 use Dotclear\File\Path;

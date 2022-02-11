@@ -15,7 +15,6 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 use Dotclear\Exception\PrependException;
 
 use Dotclear\Core\Prepend as BasePrepend;
@@ -142,7 +141,7 @@ class Prepend extends BasePrepend
                     $this->adminurl->redirect('admin.auth');
                     exit;
                 }
-            } catch (Exception $e) { #DatabaseException?
+            } catch (\Exception $e) { #DatabaseException?
                 throw new PrependException(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
             }
 
@@ -388,7 +387,7 @@ class Prepend extends BasePrepend
                 throw new PrependException(__('Unknow URL'), sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler), 404);
             }
             $page = new $class($handler);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new PrependException('Dotclear error', $e->getMessage(), 20);
         }
 
@@ -397,7 +396,7 @@ class Prepend extends BasePrepend
             ob_start();
             $page->pageProcess();
             ob_end_flush();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             ob_end_clean();
 
             throw new PrependException(__('Failed to load page'), $e->getMessage(), 20);

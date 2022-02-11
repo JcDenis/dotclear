@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use Dotclear\Exception;
 use Dotclear\Exception\DistribException
 
 use Dotclear\Core\Prepend as BasePrepend;
@@ -53,7 +52,7 @@ class Prepend extends BasePrepend
 
         try {
             $changes = Upgrade::dotclearUpgrade();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->con->rollback();
 
             throw $e;

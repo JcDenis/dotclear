@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Exception;
 use Dotclear\Exception\CoreException;
 
 use Dotclear\File\Files;
@@ -113,7 +112,7 @@ class Update
         if (!is_dir($cache_dir)) {
             try {
                 Files::makeDir($cache_dir);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return;
             }
         }
@@ -149,7 +148,7 @@ class Update
                 throw new CoreException();
             }
             $this->readVersion($client->getContent());
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return;
         }
 
@@ -277,7 +276,7 @@ class Update
 
                 throw new CoreException();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new CoreException(__('An error occurred while downloading archive.'));
         }
     }
@@ -350,7 +349,7 @@ class Update
 
             try {
                 $b_zip->addFile($root . '/' . $file, $file);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $not_readable[] = $file;
             }
         }
@@ -477,7 +476,7 @@ class Update
                 $this->version_info['info']     = isset($r['info']) ? (string) $r['info'] : null;
                 $this->version_info['php']      = isset($r['php']) ? (string) $r['php'] : null;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw $e;
         }
     }

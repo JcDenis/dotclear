@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Module\AbstractPage;
 
@@ -65,7 +64,7 @@ class Page extends AbstractPage
             try {
                 $this->m_code = $this->m_task->execute();
                 if (false === $this->m_code) {
-                    throw new Exception($this->m_task->error());
+                    throw new \Exception($this->m_task->error());
                 }
                 if (true === $this->m_code) {
                     $this->m_maintenance->setLog($this->m_task->id());
@@ -73,7 +72,7 @@ class Page extends AbstractPage
                     dotclear()->notices->addSuccessNotice($this->m_task->success());
                     dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'tab' => $this->m_tab], '#' . $this->m_tab);
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -112,7 +111,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Maintenance plugin has been successfully configured.'));
                 dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }
@@ -136,7 +135,7 @@ class Page extends AbstractPage
                 }
 
                 dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
         }

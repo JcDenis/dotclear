@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page;
 
-use Dotclear\Exception;
 use Dotclear\Exception\AdminException;
 
 use Dotclear\Admin\Page;
@@ -92,7 +91,7 @@ class UserAction extends Page
                         dotclear()->behaviors->call('adminBeforeUserDelete', $u);
 
                         dotclear()->delUser($u);
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         dotclear()->error($e->getMessage());
                     }
                 }
@@ -124,7 +123,7 @@ class UserAction extends Page
                             dotclear()->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error($e->getMessage());
                 }
                 if (!dotclear()->error()->flag()) {
@@ -197,7 +196,7 @@ class UserAction extends Page
             try {
                 $rs      = dotclear()->getBlogs();
                 $nb_blog = $rs->count();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
 
             foreach ($this->users as $u) {

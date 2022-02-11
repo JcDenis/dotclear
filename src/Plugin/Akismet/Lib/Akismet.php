@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Lib;
 
-use Dotclear\Exception;
 
 use Dotclear\Network\NetHttp\NetHttp;
 use Dotclear\Network\Http;
@@ -113,7 +112,7 @@ class Akismet extends NetHttp
         $path       = sprintf($this->ak_path, $function);
 
         if (!$this->post($path, $data, 'UTF-8')) {
-            throw new Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
+            throw new \Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
         }
 
         return $this->getContent() == 'true';

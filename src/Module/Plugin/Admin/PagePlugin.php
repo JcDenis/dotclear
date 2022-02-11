@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 
@@ -74,7 +73,7 @@ class PagePlugin extends Page
             # -- Execute actions --
             try {
                 dotclear()->plugins->doActions();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error($e->getMessage());
             }
 

@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use ArrayObject;
 
-use Dotclear\Exception;
 
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Action;

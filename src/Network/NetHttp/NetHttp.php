@@ -43,7 +43,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Network\NetHttp;
 
-use Dotclear\Exception;
 use Dotclear\Exception\NetworkException;
 
 use Dotclear\Network\Socket\Socket;

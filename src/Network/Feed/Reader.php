@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Network\Feed;
 
-use Dotclear\Exception;
 
 use Dotclear\File\Files;
 
@@ -215,7 +214,7 @@ class Reader extends NetHttp
                     if (Files::putContent($cached_file, serialize($feed))) {
                         Files::inheritChmod($cached_file);
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     return $feed;
                 }
 
