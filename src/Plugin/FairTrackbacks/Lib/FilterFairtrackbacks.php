@@ -1,38 +1,44 @@
 <?php
 /**
- * @brief fairTrackbacks, an antispam filter plugin for Dotclear 2
+ * @class Dotclear\Plugin\FairTrackbacks\Lib\FilterFairtrackbacks
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginFairTrackbacks
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\FairTrackbacks\Lib;
+
+use Dotclear\Exception;
+
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+
+use Dotclear\Network\NetHttp\NetHttp;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class dcFilterFairTrackbacks extends dcSpamFilter
+class FilterFairtrackbacks extends Spamfilter
 {
     public $name    = 'Fair Trackbacks';
     public $has_gui = false;
     public $active  = true;
     public $order   = -10;
 
-    public function __construct($core)
-    {
-        parent::__construct($core);
-    }
-
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->description = __('Checks trackback source for a link to the post');
     }
 
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
         if ($type != 'trackback') {
-            return;
+            return null;
         }
 
         try {
@@ -44,7 +50,7 @@ class dcFilterFairTrackbacks extends dcSpamFilter
             }
 
             # Check incomink link page
-            $post     = $this->core->blog->getPosts(['post_id' => $post_id]);
+            $post     = dotclear()->blog->getPosts(['post_id' => $post_id]);
             $post_url = $post->getURL();
             $P        = array_merge($default_parse, parse_url($post_url));
 
@@ -52,8 +58,8 @@ class dcFilterFairTrackbacks extends dcSpamFilter
                 throw new Exception('Same source and destination');
             }
 
-            $o = netHttp::initClient($site, $path);
-            $o->setTimeout(DC_QUERY_TIMEOUT);
+            $o = NetHttp::initClient($site, $path);
+            $o->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
             $o->get($path);
 
             # Trackback source does not return 200 status code
@@ -77,5 +83,7 @@ class dcFilterFairTrackbacks extends dcSpamFilter
         } catch (Exception $e) {
             throw new Exception('Trackback not allowed for this URL.');
         }
+
+        return null;
     }
 }

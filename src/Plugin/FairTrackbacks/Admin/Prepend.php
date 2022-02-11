@@ -1,22 +1,37 @@
 <?php
 /**
- * @brief fairTrackbacks, an antispam filter plugin for Dotclear 2
+ * @class Dotclear\Plugin\FairTrackbacks\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginFairTrackbacks
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\FairTrackbacks\Admin;
+
+use ArrayObject;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-if (!defined('DC_FAIRTRACKBACKS_FORCE')) {
-    define('DC_FAIRTRACKBACKS_FORCE', false);
-}
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependAdmin;
 
-if (!DC_FAIRTRACKBACKS_FORCE) { // @phpstan-ignore-line
-    $__autoload['dcFilterFairTrackbacks'] = dirname(__FILE__) . '/class.dc.filter.fairtrackbacks.php';
-    $core->spamfilters[]                  = 'dcFilterFairTrackbacks';
+    public static function loadModule(): void
+    {
+        if (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE) { // @phpstan-ignore-line
+            dotclear()->behaviors->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
+                $spamfilters[] = 'Dotclear\\Plugin\\FairTrackbacks\\Lib\\FilterFairtrackbacks';
+            });
+        }
+    }
 }
