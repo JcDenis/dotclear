@@ -84,7 +84,7 @@ class Antispam
 
         # the status of this comment has changed
         if ($status) {
-            $filter_name = $rs->exists('comment_spam_filter') ? $rs->comment_spam_filter : null;
+            $filter_name = $rs->spamFilter() ?: null;
 
             self::initFilters();
             self::$filters->trainFilters($rs, $status, $filter_name);
@@ -94,7 +94,7 @@ class Antispam
     public static function statusMessage(Record $rs): string
     {
         if ($rs->exists('comment_status') && $rs->comment_status == -2) {
-            $filter_name = $rs->exists('comment_spam_filter') ? $rs->comment_spam_filter : null;
+            $filter_name = $rs->spamFilter() ?: null;
 
             self::initFilters();
 
@@ -238,6 +238,11 @@ class Antispam
     {
         $s = new Structure(dotclear()->con, dotclear()->prefix);
 
+        $s->comment
+            ->comment_spam_status('varchar', 128, true, 0)
+            ->comment_spam_filter('varchar', 32, true, null)
+        ;
+
         $s->spamrule
             ->rule_id('bigint', 0, false)
             ->blog_id('varchar', 32, true)
@@ -269,6 +274,32 @@ class Antispam
         dotclear()->blog->settings->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;
+    }
+
+    public static function blogGetComments(Record $rs): void
+    {
+        $rs->extend('Dotclear\\Plugin\\Antispam\\Lib\\RsExtComment');
+    }
+
+    public static function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void
+    {
+        if ($spam) {
+            $cols['spam_filter'] = '<th scope="col">' . __('Spam filter') . '</th>';
+        }
+    }
+
+    public static function commentListValue(Record $rs, ArrayObject $cols, bool $spam): void
+    {
+        if ($spam) {
+            $filter_name = '';
+            if ($rs->spamFilter()) {
+                if (!self::$filters) {
+                    self::initFilters();
+                }
+                $filter_name = (null !== ($f = self::$filters->getFilter($rs->spamFilter()))) ? $f->name : $rs->spamFilter();
+            }
+            $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
+        }
     }
 
     //! todo: manage IPv6

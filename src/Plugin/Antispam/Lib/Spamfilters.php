@@ -44,6 +44,11 @@ class Spamfilters
         }
     }
 
+    public function getFilter($f): ?Spamfilter
+    {
+        return $this->filters[$f] ?: null;
+    }
+
     public function getFilters(): array
     {
         return $this->filters;
@@ -110,7 +115,7 @@ class Spamfilters
         if ($f === null) {
             return __('Unknown filter.');
         }
-        $status = $rs->exists('comment_spam_status') ? $rs->comment_spam_status : null;
+        $status = $rs->spamStatus() ?: null;
 
         return $f->getStatusMessage($status, (int) $rs->comment_id);
     }

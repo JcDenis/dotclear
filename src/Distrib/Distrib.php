@@ -436,8 +436,6 @@ class Distrib
             ->comment_words('text', 0, true, null)
             ->comment_ip('varchar', 39, true, null)
             ->comment_status('smallint', 0, true, 0)
-            ->comment_spam_status('varchar', 128, true, 0)
-            ->comment_spam_filter('varchar', 32, true, null)
             ->comment_trackback('smallint', 0, false, 0)
 
             ->primary('pk_comment', 'comment_id')

@@ -47,18 +47,6 @@ class CommentCatalog extends Catalog
                 echo '<p><strong>' . __('No comments') . '</strong></p>';
             }
         } else {
-            // Get antispam filters' name
-            $filters = [];
-/*            if ($spam) {
-                if (class_exists('dcAntispam')) {
-                    Antispam::initFilters();
-                    $fs = Antispam::$filters->getFilters();
-                    foreach ($fs as $fid => $f) {
-                        $filters[$fid] = $f->name;
-                    }
-                }
-            }
-*/
             $pager = new Pager($page, $this->rs_count, $nb_per_page, 10);
 
             $comments = [];
@@ -120,12 +108,11 @@ class CommentCatalog extends Catalog
             ];
             if ($spam) {
                 $cols['ip']          = '<th scope="col">' . __('IP') . '</th>';
-                $cols['spam_filter'] = '<th scope="col">' . __('Spam filter') . '</th>';
             }
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new ArrayObject($cols);
-            dotclear()->behaviors->call('adminCommentListHeader', $this->rs, $cols);
+            dotclear()->behaviors->call('adminCommentListHeader', $this->rs, $cols, $spam);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -140,7 +127,7 @@ class CommentCatalog extends Catalog
             echo $blocks[0];
 
             while ($this->rs->fetch()) {
-                echo $this->commentLine(isset($comments[$this->rs->comment_id]), $spam, $filters);
+                echo $this->commentLine(isset($comments[$this->rs->comment_id]), $spam);
             }
 
             echo $blocks[1];
@@ -170,7 +157,7 @@ class CommentCatalog extends Catalog
      *
      * @return     string
      */
-    private function commentLine($checked = false, $spam = false, $filters = [])
+    private function commentLine($checked = false, $spam = false)
     {
         global $author, $status, $sortby, $order, $nb;
 
@@ -243,24 +230,15 @@ class CommentCatalog extends Catalog
         ];
 
         if ($spam) {
-            $filter_name = '';
-            if ($this->rs->comment_spam_filter) {
-                if (isset($filters[$this->rs->comment_spam_filter])) {
-                    $filter_name = $filters[$this->rs->comment_spam_filter];
-                } else {
-                    $filter_name = $this->rs->comment_spam_filter;
-                }
-            }
             $cols['ip'] = '<td class="nowrap"><a href="' .
             dotclear()->adminurl->get('admin.comments', ['ip' => $this->rs->comment_ip]) . '">' .
             $this->rs->comment_ip . '</a></td>';
-            $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
         }
         $cols['entry'] = '<td class="nowrap discrete"><a href="' . $post_url . '">' . $post_title . '</a>' .
             ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
-        dotclear()->behaviors->call('adminCommentListValue', $this->rs, $cols);
+        dotclear()->behaviors->call('adminCommentListValue', $this->rs, $cols, $spam);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

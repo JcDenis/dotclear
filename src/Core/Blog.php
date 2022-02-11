@@ -2151,7 +2151,7 @@ class Blog
             $strReq = 'SELECT C.comment_id, comment_dt, comment_tz, comment_upddt, ' .
                 'comment_author, comment_email, comment_site, ' .
                 $content_req . ' comment_trackback, comment_status, ' .
-                'comment_spam_status, comment_spam_filter, comment_ip, ' .
+                'comment_ip, ' .
                 'P.post_title, P.post_url, P.post_id, P.post_password, P.post_type, ' .
                 'P.post_dt, P.user_id, U.user_email, U.user_url ';
         }
