@@ -23,6 +23,8 @@ use Dotclear\Admin\Favorites;
 
 use Dotclear\Distrib\Distrib;
 
+use Dotclear\Module\Plugin\ModulesPlugin;
+
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
 use Dotclear\Network\Http;
@@ -243,12 +245,13 @@ class Install
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
                 dotclear()->blog->addComment($cur);
-/*
-                #  Plugins initialization
-                //define('DC_CONTEXT_ADMIN', true);
-                dotclear()->plugins->loadModules(DOTCLEAR_PLUGINS_DIR);
-                $plugins_install = dotclear()->plugins->installModules();
-*/
+
+                /*  Plugins initialization */
+                # Only if plugin has Install/Prepend.php file using Install process
+                # Else install will be made from admin home page through Admin/Prepend.php file.
+                $plugins = new ModulesPlugin();
+                $plugins_install = $plugins->installModules($this->_lang);
+
                 /* Add dashboard module options */
                 dotclear()->auth->user_prefs->addWorkspace('dashboard');
                 dotclear()->auth->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);

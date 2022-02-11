@@ -318,12 +318,13 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
             throw new CoreException('Not enough permissions on this blog.');
         }
-/*
-//!
-        foreach (dotclear()->plugins->getModules() as $id => $m) {
-            dotclear()->plugins->loadNsFile($id, 'xmlrpc');
+
+        if (isset(dotclear()->plugins)) {
+            foreach (dotclear()->plugins->getModules() as $module) {
+                $modules->loadModuleL10N($module->id(), dotclear()->_lang, 'xmlrpc');
+            }
         }
-*/
+
         return true;
     }
 
