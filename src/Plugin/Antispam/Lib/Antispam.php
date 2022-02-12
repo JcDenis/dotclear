@@ -18,6 +18,7 @@ use ArrayObject;
 use Dotclear\Plugin\Antispam\Lib\Spamfilters;
 use Dotclear\Plugin\Antispam\Lib\Filter\FilterWords;
 use Dotclear\Plugin\Antispam\Lib\Filter\FilterIp;
+use Dotclear\Plugin\Antispam\Lib\Filter\FilterIpv6;
 
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -336,10 +337,19 @@ class Antispam
 
         $global = !empty($action) && $action == 'blocklist_global' && dotclear()->auth->isSuperAdmin();
 
-        $ip_filter = new FilterIp();
-        $rs        = $ap->getRS();
+        $rs = $ap->getRS();
+
+        $ip_filter_v4 = new FilterIp();
+        $ip_filter_v6 = new FilterIpv6();
+
         while ($rs->fetch()) {
-            $ip_filter->addIP('black', $rs->comment_ip, $global);
+            if (filter_var($rs->comment_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+                // IP is an IPv6
+                $ip_filter_v6->addIP('blackv6', $rs->comment_ip, $global);
+            } else {
+                // Assume that IP is IPv4
+                $ip_filter_v4->addIP('black', $rs->comment_ip, $global);
+            }
         }
 
         dotclear()->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
