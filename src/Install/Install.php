@@ -12,22 +12,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use Dotclear\Admin\Favorites;
+use Dotclear\Container\User as ContainerUser;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
-
-use Dotclear\Container\User as ContainerUser;
-
-use Dotclear\Admin\Favorites;
-
-use Dotclear\Distrib\Distrib;
-
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
-use Dotclear\Network\Http;
-use Dotclear\Html\Html;
+use Dotclear\Distrib\Distrib;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
 
@@ -161,7 +156,7 @@ class Install
                 dotclear()->addBlog($cur);
 
                 /* Create global blog settings */
-                dotclear()->blogDefaults();
+                Distrib::setBlogDefaultSettings();
 
                 $blog_settings = new Settings('default');
                 $blog_settings->addNamespace('system');

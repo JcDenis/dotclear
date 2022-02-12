@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use Dotclear\Core\Exception as Exception;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Structure;
 use Dotclear\File\Files;
@@ -433,5 +431,120 @@ class Distrib
         }
 
         return count($err) == 0;
+    }
+
+
+    /**
+     * Get blog default settings
+     *
+     * Creates default settings for active blog. Optionnal parameter
+     * <var>defaults</var> replaces default params while needed.
+     *
+     * @param   array   $defaults   The defaults settings
+     */
+    public static function setBlogDefaultSettings($defaults = null): void
+    {
+        if (!is_array($defaults)) {
+            $defaults = [
+                ['allow_comments', 'boolean', true,
+                    'Allow comments on blog'],
+                ['allow_trackbacks', 'boolean', true,
+                    'Allow trackbacks on blog'],
+                ['blog_timezone', 'string', 'Europe/London',
+                    'Blog timezone'],
+                ['comments_nofollow', 'boolean', true,
+                    'Add rel="nofollow" to comments URLs'],
+                ['comments_pub', 'boolean', true,
+                    'Publish comments immediately'],
+                ['comments_ttl', 'integer', 0,
+                    'Number of days to keep comments open (0 means no ttl)'],
+                ['copyright_notice', 'string', '', 'Copyright notice (simple text)'],
+                ['date_format', 'string', '%A, %B %e %Y',
+                    'Date format. See PHP strftime function for patterns'],
+                ['editor', 'string', '',
+                    'Person responsible of the content'],
+                ['enable_html_filter', 'boolean', 0,
+                    'Enable HTML filter'],
+                ['enable_xmlrpc', 'boolean', 0,
+                    'Enable XML/RPC interface'],
+                ['lang', 'string', 'en',
+                    'Default blog language'],
+                ['media_exclusion', 'string', '/\.(phps?|pht(ml)?|phl|.?html?|xml|js|htaccess)[0-9]*$/i',
+                    'File name exclusion pattern in media manager. (PCRE value)'],
+                ['media_img_m_size', 'integer', 448,
+                    'Image medium size in media manager'],
+                ['media_img_s_size', 'integer', 240,
+                    'Image small size in media manager'],
+                ['media_img_t_size', 'integer', 100,
+                    'Image thumbnail size in media manager'],
+                ['media_img_title_pattern', 'string', 'Title ;; Date(%b %Y) ;; separator(, )',
+                    'Pattern to set image title when you insert it in a post'],
+                ['media_video_width', 'integer', 400,
+                    'Video width in media manager'],
+                ['media_video_height', 'integer', 300,
+                    'Video height in media manager'],
+                ['module_plugin_dir', 'string', '',
+                    'Blog exclusive plugins path'],
+                ['module_theme_dir', 'string', '',
+                    'Blog exclusive themes path'],
+                ['nb_post_for_home', 'integer', 20,
+                    'Number of entries on first home page'],
+                ['nb_post_per_page', 'integer', 20,
+                    'Number of entries on home pages and category pages'],
+                ['nb_post_per_feed', 'integer', 20,
+                    'Number of entries on feeds'],
+                ['nb_comment_per_feed', 'integer', 20,
+                    'Number of comments on feeds'],
+                ['post_url_format', 'string', '{y}/{m}/{d}/{t}',
+                    'Post URL format. {y}: year, {m}: month, {d}: day, {id}: post id, {t}: entry title'],
+                ['public_path', 'string', 'public',
+                    'Path to public directory, begins with a / for a full system path'],
+                ['public_url', 'string', '/public',
+                    'URL to public directory'],
+                ['robots_policy', 'string', 'INDEX,FOLLOW',
+                    'Search engines robots policy'],
+                ['short_feed_items', 'boolean', false,
+                    'Display short feed items'],
+                ['theme', 'string', 'Berlin',
+                    'Blog theme'],
+                ['time_format', 'string', '%H:%M',
+                    'Time format. See PHP strftime function for patterns'],
+                ['tpl_allow_php', 'boolean', false,
+                    'Allow PHP code in templates'],
+                ['tpl_use_cache', 'boolean', true,
+                    'Use template caching'],
+                ['trackbacks_pub', 'boolean', true,
+                    'Publish trackbacks immediately'],
+                ['trackbacks_ttl', 'integer', 0,
+                    'Number of days to keep trackbacks open (0 means no ttl)'],
+                ['url_scan', 'string', 'query_string',
+                    'URL handle mode (path_info or query_string)'],
+                ['use_smilies', 'boolean', false,
+                    'Show smilies on entries and comments'],
+                ['no_search', 'boolean', false,
+                    'Disable search'],
+                ['inc_subcats', 'boolean', false,
+                    'Include sub-categories in category page and category posts feed'],
+                ['wiki_comments', 'boolean', false,
+                    'Allow commenters to use a subset of wiki syntax'],
+                ['import_feed_url_control', 'boolean', true,
+                    'Control feed URL before import'],
+                ['import_feed_no_private_ip', 'boolean', true,
+                    'Prevent import feed from private IP'],
+                ['import_feed_ip_regexp', 'string', '',
+                    'Authorize import feed only from this IP regexp'],
+                ['import_feed_port_regexp', 'string', '/^(80|443)$/',
+                    'Authorize import feed only from this port regexp'],
+                ['jquery_needed', 'boolean', true,
+                    'Load jQuery library']
+            ];
+        }
+
+        $settings = new Settings(null);
+        $settings->addNamespace('system');
+
+        foreach ($defaults as $v) {
+            $settings->system->put($v[0], $v[2], $v[1], $v[3], false, true);
+        }
     }
 }

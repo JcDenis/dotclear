@@ -15,13 +15,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
+use Dotclear\Database\Schema;
+use Dotclear\Database\Structure;
+use Dotclear\Distrib\Distrib;
 use Dotclear\Exception\DistribException;
-
 use Dotclear\File\Files;
 use Dotclear\File\Path;
-
-use Dotclear\Database\Structure;
-use Dotclear\Database\Schema;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -897,7 +896,7 @@ class Upgrade
         }
 
         dotclear()->setVersion('core', dotclear()->config()->core_version);
-        dotclear()->blogDefaults();
+        Distrib::setBlogDefaultSettings();
 
         return $cleanup_sessions;
     }
