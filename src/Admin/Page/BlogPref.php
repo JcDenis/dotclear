@@ -395,13 +395,13 @@ class BlogPref extends Page
         ];
 
         # jQuery available versions
-        $jquery_root           = dotclear()::root('Core', 'files', 'js', 'jquery');
-        $jquery_versions_combo = [__('Default') . ' (' . DOTCLEAR_JQUERY_DEFAULT . ')' => ''];
+        $jquery_root           = root_path('Core', 'files', 'js', 'jquery');
+        $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->jquery_default . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (($d = @dir($jquery_root)) !== false) {
                 while (($entry = $d->read()) !== false) {
                     if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_dir($jquery_root . '/' . $entry)) {
-                        if ($entry != DOTCLEAR_JQUERY_DEFAULT) {
+                        if ($entry != dotclear()->config()->jquery_default) {
                             $jquery_versions_combo[$entry] = $entry;
                         }
                     }
@@ -742,7 +742,7 @@ class BlogPref extends Page
 
                 $client = NetHttp::initClient($file, $path);
                 if ($client !== false) {
-                    $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
+                    $client->setTimeout(dotclear()->config()->query_timeout);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status  = $client->getStatus();
@@ -794,7 +794,7 @@ class BlogPref extends Page
             '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(DOTCLEAR_XMLRPC_URL, dotclear()->blog->url, dotclear()->blog->id) . // @phpstan-ignore-line
+            sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog->url, dotclear()->blog->id) . // @phpstan-ignore-line
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
             '<li>' . __('User name:') . ' <strong><code>' . dotclear()->auth->userID() . '</code></strong></li>' .

@@ -111,7 +111,7 @@ class Blog
 
             $this->settings = new Settings($this->id);
 
-            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, DOTCLEAR_OTHER_DIR);
+            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, dotclear()->config()->base_dir);
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
@@ -154,12 +154,12 @@ class Blog
         $version = $this->settings->system->jquery_version;
         if ($version == '') {
             // Version not set, use default one
-            $version = DOTCLEAR_JQUERY_DEFAULT; // defined in inc/prepend.php
+            $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
         } else {
             if (!$this->settings->system->jquery_allow_old_version) {
                 // Use the blog defined version only if more recent than default
-                if (version_compare($version, DOTCLEAR_JQUERY_DEFAULT, '<')) {
-                    $version = DOTCLEAR_JQUERY_DEFAULT; // defined in inc/prepend.php
+                if (version_compare($version, dotclear()->config()->jquery_default, '<')) {
+                    $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
                 }
             }
         }

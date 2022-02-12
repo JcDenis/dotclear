@@ -296,7 +296,7 @@ class WidgetsStack
         $limit = abs((integer) $w->limit);
 
         try {
-            $feed = Reader::quickParse($w->url, DC_TPL_CACHE);
+            $feed = Reader::quickParse($w->url, dotclear()->config()->cache_dir);
             if ($feed == false || count($feed->items) == 0) {
                 return;
             }

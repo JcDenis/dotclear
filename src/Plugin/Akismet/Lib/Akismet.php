@@ -39,7 +39,7 @@ class Akismet extends NetHttp
         $this->ak_path = sprintf($this->ak_path, $this->ak_version, '%s');
         $this->ak_host = $this->ak_key . '.' . $this->base_host;
 
-        parent::__construct($this->ak_host, 80, DOTCLEAR_QUERY_TIMEOUT);
+        parent::__construct($this->ak_host, 80, dotclear()->config()->query_timeout);
     }
 
     public function verify()

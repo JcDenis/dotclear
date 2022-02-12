@@ -811,7 +811,7 @@ class Trackback
     private static function initHttp($url, &$path)
     {
         $client = NetHttp::initClient($url, $path);
-        $client->setTimeout(DC_QUERY_TIMEOUT);
+        $client->setTimeout(dotclear()->config()->query_timeout);
         $client->setUserAgent('Dotclear - https://dotclear.org/');
         $client->useGzip(false);
         $client->setPersistReferers(false);

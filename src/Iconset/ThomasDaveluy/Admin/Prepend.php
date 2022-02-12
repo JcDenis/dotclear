@@ -35,6 +35,6 @@ class Prepend extends AbstractPrepend
 
     public static function adminIconsetCombo(ArrayObject $iconsets)
     {
-        $iconsets['Thomas Daveluy'] = Path::real(dotclear()::path(__DIR__, '..'));
+        $iconsets['Thomas Daveluy'] = Path::real(implode_path(__DIR__, '..'));
     }
 }

@@ -168,7 +168,7 @@ class Menus extends ArrayObject
                     }
                     /*
                     # Not in iconset nor in Dotclear
-                    $icon = Path::real(dotclear()::path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
+                    $icon = Path::real(implode_path(DOTCLEAR_ROOT_DIR, 'Admin', 'files', $img));
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }
@@ -251,7 +251,7 @@ class Menus extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dotclear()->auth->isSuperAdmin() && is_readable(DOTCLEAR_DIGESTS_DIR)
+            dotclear()->auth->isSuperAdmin() && is_readable(dotclear()->config()->digests_dir)
         );
         $this->register(
             'System',

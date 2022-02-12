@@ -33,8 +33,8 @@ class Prepend extends Core
 
         if (isset($_SERVER['argv'][1])) {
             $dc_conf = $_SERVER['argv'][1];
-        } elseif (isset($_SERVER['DC_RC_PATH'])) {
-            $dc_conf = realpath($_SERVER['DC_RC_PATH']);
+        } elseif (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
+            $dc_conf = realpath($_SERVER['DOTCLEAR_CONFIG_PATH']);
         } else {
             $dc_conf = DOTCLEAR_ROOT_DIR . '/config.php';
         }
@@ -43,7 +43,7 @@ class Prepend extends Core
             throw new DistribException(sprintf('%s is not a file', $dc_conf));
         }
 
-        $_SERVER['DC_RC_PATH'] = $dc_conf;
+        $_SERVER['DOTCLEAR_CONFIG_PATH'] = $dc_conf;
         unset($dc_conf);
 
         parent::process();

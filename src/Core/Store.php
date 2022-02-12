@@ -60,7 +60,7 @@ class Store
     {
         $this->modules    = $modules;
         $this->xml_url    = $xml_url;
-        $this->user_agent = sprintf('Dotclear/%s)', DOTCLEAR_CORE_VERSION);
+        $this->user_agent = sprintf('Dotclear/%s)', dotclear()->config()->core_version);
 
         $this->check($force);
     }
@@ -79,8 +79,7 @@ class Store
         }
 
         try {
-            /* @phpstan-ignore-next-line */
-            $parser = DOTCLEAR_STORE_UPDATE_NOAUTO ? false : StoreReader::quickParse($this->xml_url, DOTCLEAR_CACHE_DIR, $force);
+            $parser = dotclear()->config()->store_update_noauto ? false : StoreReader::quickParse($this->xml_url, dotclear()->config()->cache_dir, $force);
         } catch (\Exception $e) {
             return false;
         }
@@ -110,10 +109,10 @@ class Store
                 unset($raw_datas[$id]);
             }
             # per module third-party repository
-            if (!empty($module->repository()) && DOTCLEAR_STORE_ALLOWREPO) {  // @phpstan-ignore-line
+            if (!empty($module->repository()) && dotclear()->config()->store_allow_repo) {
                 try {
                     ;
-                    if (false !== ($dcs_parser = StoreReader::quickParse($module->repository(), DOTCLEAR_CACHE_DIR, $force))) {
+                    if (false !== ($dcs_parser = StoreReader::quickParse($module->repository(), dotclear()->config()->cache_dir, $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && self::compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || self::compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
@@ -132,7 +131,7 @@ class Store
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class = dotclear()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+                $class = root_ns('Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
                 $updates[$id] = new $class($id, $properties);
 
                 if (!empty($updates[$id]->error()->flag())) {
@@ -144,7 +143,7 @@ class Store
         # Convert new modules from array to Define object
         foreach($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class = dotclear()::ns('Dotclear', 'Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+            $class = root_ns('Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
             $raw_datas[$id] = new $class($id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {

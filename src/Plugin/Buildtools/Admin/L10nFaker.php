@@ -30,7 +30,7 @@ class L10nFaker
 
     public function __construct()
     {
-        $this->bundled_plugins = explode(',', DOTCLEAR_PLUGIN_OFFICIAL);
+        $this->bundled_plugins = explode(',', dotclear()->config()->plugin_official);
         dotclear()->mediaInstance();
     }
 

@@ -697,8 +697,8 @@ class UrlHandler
                 $this->p404();
             } else {
                 dotclear()->context->preview = true;
-                if (defined('DOTCLEAR_ADMIN_URL')) {
-                    dotclear()->context->xframeoption = DOTCLEAR_ADMIN_URL;
+                if (dotclear()->config()->admin_url != '') {
+                    dotclear()->context->xframeoption = dotclear()->config()->admin_url;
                 }
                 $this->post($post_url);
             }
@@ -870,7 +870,7 @@ class UrlHandler
         '  <homePageLink>' . Html::escapeHTML(dotclear()->blog->url) . "</homePageLink>\n";
 
         if (dotclear()->blog->settings->system->enable_xmlrpc) {
-            $u = sprintf(DOTCLEAR_XMLRPC_URL, dotclear()->blog->url, dotclear()->blog->id); // @phpstan-ignore-line
+            $u = sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog->url, dotclear()->blog->id); // @phpstan-ignore-line
 
             echo
                 "  <apis>\n" .
@@ -920,7 +920,7 @@ class UrlHandler
             $modf = substr($args, $pos, strlen($args));
 
             # Check class
-            $class = dotclear()::ns('Dotclear', 'Module', $type, 'Public', 'Modules' . $type);
+            $class = root_ns('Module', $type, 'Public', 'Modules' . $type);
             if (is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
                 # Get paths and serve file
                 $modules = new $class();
@@ -930,10 +930,10 @@ class UrlHandler
         }
 
         # List other available file paths
-        $dirs[] = DOTCLEAR_VAR_DIR;
-        $dirs[] = dotclear()::root('Public', 'files');
-        $dirs[] = dotclear()::root('Core', 'files', 'css');
-        $dirs[] = dotclear()::root('Core', 'files', 'js');
+        $dirs[] = dotclear()->config()->var_dir;
+        $dirs[] = root_path('Public', 'files');
+        $dirs[] = root_path('Core', 'files', 'css');
+        $dirs[] = root_path('Core', 'files', 'js');
 
         # Search dirs
         $file = false;

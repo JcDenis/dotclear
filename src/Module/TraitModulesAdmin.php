@@ -210,7 +210,7 @@ trait TraitModulesAdmin
     public function isDeletablePath(string $root): bool
     {
         return $this->path_writable
-            && (preg_match('!^' . $this->path_pattern . '!', $root) || DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT)
+            && (preg_match('!^' . $this->path_pattern . '!', $root) || dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT)
             && dotclear()->auth->isSuperAdmin();
     }
     //@}
@@ -544,7 +544,7 @@ trait TraitModulesAdmin
             '<th class="first nowrap"' . ($colspan > 1 ? ' colspan="' . $colspan . '"' : '') . '>' . __('Name') . '</th>';
         }
 
-        if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+        if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
             echo
             '<th class="nowrap">' . __('Score') . '</th>';
         }
@@ -569,7 +569,7 @@ trait TraitModulesAdmin
             '<th class="nowrap module-desc" scope="col">' . __('Details') . '</th>';
         }
 
-        if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
+        if (in_array('repository', $cols) && dotclear()->config()->store_allow_repo) {
             echo
             '<th class="nowrap count" scope="col">' . __('Repository') . '</th>';
         }
@@ -668,7 +668,7 @@ trait TraitModulesAdmin
                 '</td>';
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
                 $tds++;
                 echo
                     '<td class="module-version nowrap count"><span class="debug">' . $module->sdotclear() . '</span></td>';
@@ -719,7 +719,7 @@ trait TraitModulesAdmin
                 echo '</td>';
             }
 
-            if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
+            if (in_array('repository', $cols) && dotclear()->config()->store_allow_repo) {
                 $tds++;
                 echo
                 '<td class="module-repository nowrap count">' . (!empty($module->repository()) ? __('Third-party repository') : __('Official repository')) . '</td>';
@@ -785,19 +785,19 @@ trait TraitModulesAdmin
                 $config = $index = false;
                 if (!empty($module->type())) {
                     $config       = is_subclass_of(
-                        dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                        root_ns($module->type(), $id, 'Admin', 'Config'),
                         'Dotclear\\Module\\AbstractConfig'
                     );
 
                     $index       = is_subclass_of(
-                        dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                        root_ns($module->type(), $id, 'Admin', 'Page'),
                         'Dotclear\\Module\\AbstractPage'
                     );
                 }
 
                 /* @phpstan-ignore-next-line */
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
-                    || !empty($module->repository()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG && DOTCLEAR_STORE_ALLOWREPO
+                    || !empty($module->repository()) && dotclear()->config()->store_allow_repo && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG
                 ) {
                     echo
                         '<div><ul class="mod-more">';
@@ -807,7 +807,7 @@ trait TraitModulesAdmin
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module->repository()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
+                    if (!empty($module->repository()) && dotclear()->config()->store_allow_repo && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
                         echo '<li class="modules-repository"><a href="' . $module->repository() . '">' . __('Third-party repository') . '</a></li>';
                     }
 
@@ -879,12 +879,12 @@ trait TraitModulesAdmin
 
         if ($module->type()) { // should be always true
             $config       = is_subclass_of(
-                dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config'),
+                root_ns($module->type(), $id, 'Admin', 'Config'),
                 'Dotclear\\Module\\AbstractConfig'
             );
 
             $index        = is_subclass_of(
-                dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Page'),
+                root_ns($module->type(), $id, 'Admin', 'Page'),
                 'Dotclear\\Module\\AbstractPage'
             );
         }
@@ -997,7 +997,7 @@ trait TraitModulesAdmin
                 # Delete
                 case 'delete':
                     if (dotclear()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 
@@ -1307,7 +1307,7 @@ trait TraitModulesAdmin
                     continue;
                 }
 
-                if (DOTCLEAR_MODULES_ALLOWMULTI) {
+                if (dotclear()->config()->module_allow_multi) {
                     $dest = $module->root() . '/../' . basename($module->file());
                 } else {
                     $dest = $this->getPath() . '/' . basename($module->file());
@@ -1464,7 +1464,7 @@ trait TraitModulesAdmin
         }
 
         # Check config
-        $class  = dotclear()::ns('Dotclear', $module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
+        $class  = root_ns($module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
         if (!is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
             dotclear()->error(__('This module has no configuration file.'));
 

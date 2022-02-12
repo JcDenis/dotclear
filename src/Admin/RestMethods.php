@@ -74,7 +74,7 @@ class RestMethods
                     throw new AdminException();
                 }
                 $feed_reader = new Reader();
-                $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
+                $feed_reader->setCacheDir(dotclear()->config()->cache_dir);
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
                 $feed = $feed_reader->parse(dotclear()->resources['rss_news']);
@@ -114,9 +114,9 @@ class RestMethods
         $ret        = __('Dotclear update not available');
 
         /* @phpstan-ignore-next-line */
-        if (dotclear()->auth->isSuperAdmin() && !DOTCLEAR_CORE_UPDATE_NOAUTO && is_readable(DOTCLEAR_DIGESTS_DIR) && !dotclear()->auth->user_prefs->dashboard->nodcupdate) {
-            $updater      = new Update(DOTCLEAR_CORE_UPDATE_URL, 'dotclear', DOTCLEAR_CORE_UPDATE_CHANNEL, DOTCLEAR_CACHE_DIR . '/versions');
-            $new_v        = $updater->check(DOTCLEAR_CORE_VERSION);
+        if (dotclear()->auth->isSuperAdmin() && !dotclear()->config()->core_update_noauto && is_readable(dotclear()->config()->digests_dir) && !dotclear()->auth->user_prefs->dashboard->nodcupdate) {
+            $updater      = new Update(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
+            $new_v        = $updater->check(dotclear()->config()->core_version);
             $version_info = $new_v ? $updater->getInfoURL() : '';
 
             if ($updater->getNotify() && $new_v) {
@@ -139,12 +139,12 @@ class RestMethods
                 }
                 $rsp->check = true;
             } else {
-                if (version_compare(phpversion(), DOTCLEAR_PHP_NEXT_REQUIRED, '<')) {
+                if (version_compare(phpversion(), dotclear()->config()->php_next_required, '<')) {
                     if (!dotclear()->auth->user_prefs->interface->hidemoreinfo) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                            DOTCLEAR_PHP_NEXT_REQUIRED,
+                            dotclear()->config()->php_next_required,
                             phpversion()
                         ) .
                         '</p>';

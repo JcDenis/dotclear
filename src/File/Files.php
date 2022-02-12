@@ -598,4 +598,20 @@ class Files
         readfile($file);
         exit;
     }
+
+    /**
+     * Server max upload file size
+     *
+     * @return float    Max file size
+     */
+    public static function getMaxUploadFilesize(): float
+    {
+        $u_max_size = self::str2bytes(ini_get('upload_max_filesize'));
+        $p_max_size = self::str2bytes(ini_get('post_max_size'));
+        if ($p_max_size < $u_max_size) {
+            $u_max_size = $p_max_size;
+        }
+
+        return $u_max_size;
+    }
 }

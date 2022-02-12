@@ -87,7 +87,7 @@ class Utils
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? md5(uniqid()) : ($v ?: DOTCLEAR_CORE_VERSION));
+            'v=' . (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
     }
 
     public static function cssLoad(string $src, string $media = 'screen', string $v = null): string

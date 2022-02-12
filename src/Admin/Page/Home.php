@@ -51,7 +51,7 @@ class Home extends Page
             dotclear()->session->destroy();
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
-                setcookie('dc_admin', '', -600, '', '', DOTCLEAR_ADMIN_SSL);
+                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->admin_ssl);
             }
             dotclear()->adminurl->redirect('admin.auth');
             exit;
@@ -202,18 +202,18 @@ class Home extends Page
             echo '<p class="static-msg">' . __('This blog is removed') . '.</p>';
         }
 
-        if (!defined('DOTCLEAR_ADMIN_URL') || !DOTCLEAR_ADMIN_URL) {    // @phpstan-ignore-line
+        if (!dotclear()->config()->admin_url) {
             echo
             '<p class="static-msg">' .
-            sprintf(__('%s is not defined, you should edit your configuration file.'), 'DC_ADMIN_URL') .
+            sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_url') .
             ' ' . __('See <a href="https://dotclear.org/documentation/2.0/admin/config">documentation</a> for more information.') .
                 '</p>';
         }
 
-        if (!defined('DOTCLEAR_ADMIN_MAILFROM') || !DOTCLEAR_ADMIN_MAILFROM) {
+        if (!dotclear()->config()->admin_mailform) {
             echo
             '<p class="static-msg">' .
-            sprintf(__('%s is not defined, you should edit your configuration file.'), 'DOTCLEAR_ADMIN_MAILFROM') .
+            sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_mailform') .
             ' ' . __('See <a href="https://dotclear.org/documentation/2.0/admin/config">documentation</a> for more information.') .
                 '</p>';
         }
@@ -222,11 +222,11 @@ class Home extends Page
 
         # Check cache directory
         if (dotclear()->auth->isSuperAdmin()) {
-            if (!is_dir(DOTCLEAR_CACHE_DIR) || !is_writable(DOTCLEAR_CACHE_DIR)) {
-                $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "DOTCLEAR_CACHE_DIR" in inc/config.php file.') . '</p>';
+            if (!is_dir(dotclear()->config()->cache_dir) || !is_writable(dotclear()->config()->cache_dir)) {
+                $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in config.php file.') . '</p>';
             }
         } else {
-            if (!is_dir(DOTCLEAR_CACHE_DIR) || !is_writable(DOTCLEAR_CACHE_DIR)) {
+            if (!is_dir(dotclear()->config()->cache_dir) || !is_writable(dotclear()->config()->cache_dir)) {
                 $err[] = '<p>' . __('The cache directory does not exist or is not writable. You should contact your administrator.') . '</p>';
             }
         }

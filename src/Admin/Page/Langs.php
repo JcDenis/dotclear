@@ -41,14 +41,14 @@ class Langs extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        $this->is_writable = is_dir(DOTCLEAR_L10N_DIR) && is_writable(DOTCLEAR_L10N_DIR);
+        $this->is_writable = is_dir(dotclear()->config()->l10n_dir) && is_writable(dotclear()->config()->l10n_dir);
         $this->iso_codes   = L10n::getISOCodes();
 
         # Delete a language pack
         if ($this->is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
             try {
                 $locale_id = $_POST['locale_id'];
-                if (!isset($this->iso_codes[$locale_id]) || !is_dir(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
+                if (!isset($this->iso_codes[$locale_id]) || !is_dir(dotclear()->config()->l10n_dir . '/' . $locale_id)) {
                     throw new AdminException(__('No such installed language'));
                 }
 
@@ -56,7 +56,7 @@ class Langs extends Page
                     throw new AdminException(__("You can't remove English language."));
                 }
 
-                if (!Files::deltree(DOTCLEAR_L10N_DIR . '/' . $locale_id)) {
+                if (!Files::deltree(dotclear()->config()->l10n_dir . '/' . $locale_id)) {
                     throw new AdminException(__('Permissions to delete language denied.'));
                 }
 
@@ -75,7 +75,7 @@ class Langs extends Page
                 }
 
                 $url  = Html::escapeHTML($_POST['pkg_url']);
-                $dest = DOTCLEAR_L10N_DIR . '/' . basename($url);
+                $dest = dotclear()->config()->l10n_dir . '/' . basename($url);
                 if (!preg_match('#^https://[^.]+\.dotclear\.(net|org)/.*\.zip$#', $url)) {
                     throw new AdminException(__('Invalid language file URL.'));
                 }
@@ -115,7 +115,7 @@ class Langs extends Page
                 }
 
                 Files::uploadStatus($_FILES['pkg_file']);
-                $dest = DOTCLEAR_L10N_DIR . '/' . $_FILES['pkg_file']['name'];
+                $dest = dotclear()->config()->l10n_dir . '/' . $_FILES['pkg_file']['name'];
                 if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
                     throw new AdminException(__('Unable to move uploaded file.'));
                 }
@@ -168,12 +168,12 @@ class Langs extends Page
         # Get languages list on Dotclear.net
         $dc_langs    = false;
         $feed_reader = new Reader;
-        $feed_reader->setCacheDir(DOTCLEAR_CACHE_DIR);
+        $feed_reader->setCacheDir(dotclear()->config()->cache_dir);
         $feed_reader->setTimeout(5);
         $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
 
         try {
-            $dc_langs = $feed_reader->parse(sprintf(DOTCLEAR_L10N_UPDATE_URL, DOTCLEAR_CORE_VERSION));   // @phpstan-ignore-line
+            $dc_langs = $feed_reader->parse(sprintf(dotclear()->config()->l10n_update_url, dotclear()->config()->core_version));
             if ($dc_langs !== false) {
                 $dc_langs = $dc_langs->items;
             }
@@ -190,13 +190,13 @@ class Langs extends Page
         echo
         '<h3>' . __('Installed languages') . '</h3>';
 
-        $locales_content = scandir(DOTCLEAR_L10N_DIR);
+        $locales_content = scandir(dotclear()->config()->l10n_dir);
         $tmp             = [];
         foreach ($locales_content as $v) {
-            $c = ($v == '.' || $v == '..' || $v == 'en' || !is_dir(DOTCLEAR_L10N_DIR . '/' . $v) || !isset($this->iso_codes[$v]));
+            $c = ($v == '.' || $v == '..' || $v == 'en' || !is_dir(dotclear()->config()->l10n_dir . '/' . $v) || !isset($this->iso_codes[$v]));
 
             if (!$c) {
-                $tmp[$v] = DOTCLEAR_L10N_DIR . '/' . $v;
+                $tmp[$v] = dotclear()->config()->l10n_dir . '/' . $v;
             }
         }
         $locales_content = $tmp;
@@ -255,7 +255,7 @@ class Langs extends Page
             '<form method="post" action="' . dotclear()->adminurl->get('admin.langs') . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Available languages') . '</h4>' .
             '<p>' . sprintf(__('You can download and install a additional language directly from Dotclear.net. ' .
-                'Proposed languages are based on your version: %s.'), '<strong>' . DOTCLEAR_CORE_VERSION . '</strong>') . '</p>' .
+                'Proposed languages are based on your version: %s.'), '<strong>' . dotclear()->config()->core_version . '</strong>') . '</p>' .
             '<p class="field"><label for="pkg_url" class="classic">' . __('Language:') . '</label> ' .
             Form::combo(['pkg_url'], $dc_langs_combo) . '</p>' .
             '<p class="field"><label for="your_pwd1" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label> ' .

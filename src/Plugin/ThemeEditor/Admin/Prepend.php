@@ -44,7 +44,7 @@ class Prepend extends AbstractPrepend
         if ($theme->id() != 'default' && dotclear()->auth->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = dotclear()->themes->getModulesPath();
-            if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
+            if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
                 || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
                 || !dotclear()->themes->isDistributedModule($theme->id())
             ) {

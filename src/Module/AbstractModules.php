@@ -124,7 +124,7 @@ abstract class AbstractModules
 
             # Loop through current modules root path
             while (($this->id = $handle->read()) !== false) {
-                $entry_path = dotclear()::path($root, $this->id);
+                $entry_path = implode_path($root, $this->id);
 
                 # Check dir
                 if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
@@ -140,7 +140,7 @@ abstract class AbstractModules
 
                     # Add module namespace
                     if ($entry_enabled) {
-                        dotclear()->autoloader->addNamespace(dotclear()::ns('Dotclear', $this->getModulesType(), $this->id), $entry_path);
+                        dotclear()->autoloader->addNamespace(root_ns($this->getModulesType(), $this->id), $entry_path);
                     # Save module in disabled list
                     } elseif ($this->disabled_meta) {
                         $this->disabled_mode       = false;
@@ -164,7 +164,7 @@ abstract class AbstractModules
         # Load modules stuff
         foreach ($this->modules_enabled as $id => $module) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+            $class = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
@@ -181,7 +181,7 @@ abstract class AbstractModules
 
             # Auto register main module Admin Page URL if exists
             if (DOTCLEAR_PROCESS == 'Admin') {
-                $page = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
+                $page = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
                 if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
                     dotclear()->adminurl->register('admin.plugin.' . $id, $page);
                 }
@@ -204,7 +204,7 @@ abstract class AbstractModules
         # Include module Define file
         ob_start();
         try {
-            $class = dotclear()::ns('Dotclear', 'Module', $this->getModulesType(), 'Define' . $this->getModulesType());
+            $class = root_ns('Module', $this->getModulesType(), 'Define' . $this->getModulesType());
             $define = new $class($id, $dir . '/define.xml');
         } catch (ModuleException) {
             ob_end_clean();
@@ -283,7 +283,7 @@ abstract class AbstractModules
     public function checkModuleDependencies(): void
     {
         $modules          = array_merge($this->modules_enabled, $this->modules_disabled);
-        $dc_version       = preg_replace('/\-dev.*$/', '', DOTCLEAR_CORE_VERSION);
+        $dc_version       = preg_replace('/\-dev.*$/', '', dotclear()->config()->core_version);
         $this->to_disable = [];
 
         foreach ($modules as $id => $module) {
@@ -422,7 +422,7 @@ abstract class AbstractModules
                 $id         = $tmp[0];
                 $cur_module = $modules->getModule($id);
                 if (!empty($cur_module)
-                    && (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT
+                    && (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
                         || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))
                 ) {
                     # Delete old module
@@ -497,7 +497,7 @@ abstract class AbstractModules
         }
 
         # Search module install class
-        $class = dotclear()::ns('Dotclear', $this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+        $class = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
             return null;
         }

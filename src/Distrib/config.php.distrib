@@ -14,91 +14,6 @@ if (!defined('DOTCLEAR_CONFIG_PATH')) {
   return;
 }
 
-// Database driver (mysql (deprecated, disabled in PHP7), mysqli, mysqlimb4 (full UTF-8), pgsql, sqlite)
-define('DOTCLEAR_DATABASE_DRIVER', '');
-
-// Database hostname (usually "localhost")
-define('DOTCLEAR_DATABASE_HOST', '');
-
-// Database user
-define('DOTCLEAR_DATABASE_USER', '');
-
-// Database password
-define('DOTCLEAR_DATABASE_PASSWORD', '');
-
-// Database name
-define('DOTCLEAR_DATABASE_NAME', '');
-
-// Tables' prefix
-define('DOTCLEAR_DATABASE_PREFIX', 'dc_');
-
-// Persistent database connection
-define('DOTCLEAR_DATABASE_PERSIST', false);
-
-// Crypt key (password storage)
-define('DOTCLEAR_MASTER_KEY', '');
-
-// Use SSL on admin pages
-define('DOTCLEAR_ADMIN_SSL', false);
-
-// Admin URL. You need to set it for some features.
-define('DOTCLEAR_ADMIN_URL', '');
-
-// Admin mail from address. For password recovery and such.
-define('DOTCLEAR_ADMIN_MAILFROM', '');
-
-// Cookie's name
-define('DOTCLEAR_SESSION_NAME', 'dcxd');
-
-// Session TTL
-//define('DOTCLEAR_SESSION_TTL','120 seconds');
-
-// Themes root
-// Multiple directories can be set using PATH_SEPARATOR ";"
-//define('DOTCLEAR_THEME_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Theme']));
-
-// Plugins root
-// Multiple directories can be set using PATH_SEPARATOR ";"
-//define('DOTCLEAR_PLUGIN_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Plugin']));
-
-// Iconsets root
-// Multiple directories can be set using PATH_SEPARATOR ";"
-//define('DOTCLEAR_ICONSET_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Iconset']));
-
-// Template cache directory
-//define('DOTCLEAR_CACHE_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'cache']));
-
-// Var directory
-//define('DOTCLEAR_VAR_DIR', implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'var']));
-
-// Cryptographic algorithm
-define('DOTCLEAR_CRYPT_ALGO', 'sha512');
-
-// Vendor name
-//define('DOTCLEAR_VENDOR_NAME', 'Dotclear');
-
-// Do not check for update
-//define('DOTCLEAR_CORE_UPDATE_NOAUTO', false);
-
-// Update URL
-//define('DOTCLEAR_CORE_UPDATE_URL','https://download.dotclear.org/versions.xml');
-
-// Update channel (stable, unstable, testing)
-//define('DOTCLEAR_CORE_UPDATE_CHANNEL', 'stable');
-
-// Proxy config
-//define('HTTP_PROXY_HOST','127.0.0.1');
-//define('HTTP_PROXY_PORT','8080');
-
-// Reverse Proxy
-//define('DOTCLEAR_REVERSE_PROXY',false);
-
-// Show hidden media dirs
-//define('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN', false);
-
-// Store update checking
-//define('DOTCLEAR_STORE_UPDATE_NOAUTO', false);
-
 // If you have PATH_INFO issue, uncomment following lines
 //if (!isset($_SERVER['ORIG_PATH_INFO'])) {
 //    $_SERVER['ORIG_PATH_INFO'] = '';
@@ -112,3 +27,90 @@ define('DOTCLEAR_CRYPT_ALGO', 'sha512');
 //    socketMail::$smtp_relay = 'my.smtp.relay.org';
 //    socketMail::mail($to, $subject, $message, $headers);
 //}
+
+// Proxy config
+//define('HTTP_PROXY_HOST','127.0.0.1');
+//define('HTTP_PROXY_PORT','8080');
+
+return [
+    // Database driver (mysql (deprecated, disabled in PHP7), mysqli, mysqlimb4 (full UTF-8), pgsql, sqlite)
+    'database_driver' => '',
+
+    // Database hostname (usually "localhost")
+    'database_host' => '',
+
+    // Database user
+    'database_user' => '',
+
+    // Database password
+    'database_password' => '',
+
+    // Database name
+    'database_name' => '',
+
+    // Tables' prefix
+    'database_prefix' => 'dc_',
+
+    // Persistent database connection
+    'database_persist' => false,
+
+    // Crypt key (password storage)
+    'master_key' => '',
+
+    // Use SSL on admin pages
+    'admin_ssl' => false,
+
+    // Admin URL. You need to set it for some features.
+    'admin_url' => '',
+
+    // Admin mail from address. For password recovery and such.
+    'admin_mailform' => '',
+
+    // Cookie's name
+    'session_name' => 'dcxd',
+
+    // Session TTL
+    //'session_ttl' => '120 seconds',
+
+    // Themes root
+    // Multiple directories can be set using PATH_SEPARATOR ";"
+    //'theme_dir' => root_path('Theme'),
+
+    // Plugins root
+    // Multiple directories can be set using PATH_SEPARATOR ";"
+    //'plugin_dir' => root_path('Plugin'),
+
+    // Iconsets root
+    // Multiple directories can be set using PATH_SEPARATOR ";"
+    //'iconset_dir' => root_path('Iconset']),
+
+    // Template cache directory
+    //'cache_dir' => root_path('..', 'cache'),
+
+    // Var directory
+    //'var_dir' => root_path('..', 'var'),
+
+    // Cryptographic algorithm
+    'crypt_algo' => 'sha512',
+
+    // Vendor name
+    //'vendor_name' => 'Dotclear',
+
+    // Do not check for update
+    //'core_update_noauto' => false,
+
+    // Update URL
+    //'core_update_url' => 'https://download.dotclear.org/versions.xml',
+
+    // Update channel (stable, unstable, testing)
+    //'core_update_channel' => 'stable',
+
+    // Reverse Proxy
+    //'reverse_proxy' => false,
+
+    // Show hidden media dirs
+    //'media_dir_showhidden' => false,
+
+    // Store update checking
+    //'store_update_noauto' => false,
+];

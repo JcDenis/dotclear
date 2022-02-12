@@ -31,7 +31,7 @@ class Prepend extends Core
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Files::serveFile([static::root('Admin', 'files')], 'df');
+            Files::serveFile([root_path('Admin', 'files')], 'df');
             exit;
         }
 

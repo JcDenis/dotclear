@@ -107,7 +107,7 @@ class Widget
         $wtscheme = $theme->options('widgettitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || $tplset == DOTCLEAR_TEMPLATE_DEFAULT) {
+            if (empty($tplset) || $tplset == dotclear()->config()->template_default) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h2>%s</h2>';
             } else {
@@ -134,7 +134,7 @@ class Widget
         $wtscheme = $theme->options('widgetsubtitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || $tplset == DOTCLEAR_TEMPLATE_DEFAULT) {
+            if (empty($tplset) || $tplset == dotclear()->config()->template_default) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h3>%s</h3>';
             } else {

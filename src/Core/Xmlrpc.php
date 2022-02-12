@@ -876,7 +876,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'software_version' => [
                 'desc'     => 'Software Version',
                 'readonly' => true,
-                'value'    => DC_VERSION
+                'value'    => dotclear()->config()->core_version
             ],
             'blog_url' => [
                 'desc'     => 'Blog URL',

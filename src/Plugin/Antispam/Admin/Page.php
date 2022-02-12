@@ -270,7 +270,7 @@ class Page extends AbstractPage
         '</form>';
 
         # Syndication
-        if (DOTCLEAR_ADMIN_URL) { // @phpstan-ignore-line
+        if (dotclear()->config()->admin_url != '') {
             $ham_feed = dotclear()->blog->url . dotclear()->url->getURLFor(
                 'hamfeed',
                 $code = Antispam::getUserCode()

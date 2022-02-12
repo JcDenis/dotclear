@@ -48,7 +48,7 @@ class Upgrade
             return false;
         }
 
-        if (version_compare($version, DOTCLEAR_CORE_VERSION, '<') == 1 || strpos(DOTCLEAR_CORE_VERSION, 'dev')) {
+        if (version_compare($version, dotclear()->config()->core_version, '<') == 1 || strpos(dotclear()->config()->core_version, 'dev')) {
             try {
                 if (dotclear()->con->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
@@ -512,8 +512,8 @@ class Upgrade
             @rmdir(DOTCLEAR_OLD_ROOT_DIR . '/' . 'admin/js/jsUpload/vendor');
 
             # Create new var directory and its .htaccess file
-            @Files::makeDir(DC_VAR);
-            $f = DC_VAR . '/.htaccess';
+            @Files::makeDir(dotclear()->config()->var_dir);
+            $f = dotclear()->config()->var_dir . '/.htaccess';
             if (!file_exists($f)) {
                 @file_put_contents($f, 'Require all denied' . "\n" . 'Deny from all' . "\n");
             }
@@ -896,7 +896,7 @@ class Upgrade
             }
         }
 
-        dotclear()->setVersion('core', DOTCLEAR_CORE_VERSION);
+        dotclear()->setVersion('core', dotclear()->config()->core_version);
         dotclear()->blogDefaults();
 
         return $cleanup_sessions;

@@ -35,7 +35,7 @@ class UrlHandler
      */
     public function __construct()
     {
-        $this->root_url = defined('DOTCLEAR_ADMIN_URL') ? DOTCLEAR_ADMIN_URL : '';
+        $this->root_url = dotclear()->config()->admin_url;
         $this->urls = new ArrayObject();
     }
 

@@ -42,7 +42,7 @@ class CspReport extends Page
 
         // Specify admin CSP log file if necessary
         if (!defined('LOGFILE')) {
-            define('LOGFILE', Path::real(DOTCLEAR_VAR_DIR) . '/csp/csp_report.json');
+            define('LOGFILE', Path::real(dotclear()->config()->var_dir) . '/csp/csp_report.json');
         }
 
         // Get the raw POST data

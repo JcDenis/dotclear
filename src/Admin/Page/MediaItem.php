@@ -852,9 +852,9 @@ class MediaItem extends Page
             echo
             '<form class="clear fieldset" action="' . dotclear()->adminurl->get('admin.media.item') . '" method="post" enctype="multipart/form-data">' .
             '<h4>' . __('Change file') . '</h4>' .
-            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) DOTCLEAR_MAX_UPLOAD_SIZE) . '</div>' .
+            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) dotclear()->config()->media_upload_maxsize) . '</div>' .
             '<p><label for="upfile">' . __('Choose a file:') .
-            ' (' . sprintf(__('Maximum size %s'), Files::size((int) DOTCLEAR_MAX_UPLOAD_SIZE)) . ') ' .
+            ' (' . sprintf(__('Maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ') ' .
             '<input type="file" id="upfile" name="upfile" size="35" />' .
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .

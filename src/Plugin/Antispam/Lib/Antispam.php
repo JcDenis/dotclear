@@ -161,7 +161,7 @@ class Antispam
     public static function getUserCode(): string
     {
         $code = pack('a32', dotclear()->auth->userID()) .
-        hash(DOTCLEAR_CRYPT_ALGO, dotclear()->auth->cryptLegacy(dotclear()->auth->getInfo('user_pwd')));
+        hash(dotclear()->config()->crypt_algo, dotclear()->auth->cryptLegacy(dotclear()->auth->getInfo('user_pwd')));
 
         return bin2hex($code);
     }
@@ -187,7 +187,7 @@ class Antispam
             return false;
         }
 
-        if (hash(DOTCLEAR_CRYPT_ALGO, dotclear()->auth->cryptLegacy($rs->user_pwd)) != $pwd) {
+        if (hash(dotclear()->config()->crypt_algo, dotclear()->auth->cryptLegacy($rs->user_pwd)) != $pwd) {
             return false;
         }
 
@@ -230,7 +230,7 @@ class Antispam
                 dotclear()->blog->settings->antispam->put('antispam_date_last_purge', time(), null, null, true, false);
             }
             $date = date('Y-m-d H:i:s', time() - $moderationTTL * 86400);
-            self::delAllSpam(dotclear(), $date);
+            self::delAllSpam($date);
         }
     }
 

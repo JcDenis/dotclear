@@ -58,7 +58,7 @@ class FilterFairtrackbacks extends Spamfilter
             }
 
             $o = NetHttp::initClient($site, $path);
-            $o->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
+            $o->setTimeout(dotclear()->config()->query_timeout);
             $o->get($path);
 
             # Trackback source does not return 200 status code

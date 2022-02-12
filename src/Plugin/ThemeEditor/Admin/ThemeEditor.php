@@ -44,8 +44,8 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(dotclear()::root('Public', 'Template', DOTCLEAR_TEMPLATE_DEFAULT));
-        $this->tplset_name  = Path::real(DOTCLEAR_TEMPLATE_DEFAULT);
+        $this->tplset_theme = Path::real(root_path('Public', 'Template', dotclear()->config()->template_default));
+        $this->tplset_name  = Path::real(dotclear()->config()->template_default);
 
         # Current theme
         $module = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
@@ -56,7 +56,7 @@ class ThemeEditor
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(dotclear()::root('Public', 'Template', $module->templateset()));
+            $this->tplset_theme = Path::real(root_path('Public', 'Template', $module->templateset()));
             $this->tplset_name  = $module->templateset();
         }
 

@@ -716,7 +716,7 @@ class Post extends Page
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
                 $preview_url = dotclear()->blog->url . dotclear()->url->getURLFor('preview', dotclear()->auth->userID() . '/' .
-                    Http::browserUID(DOTCLEAR_MASTER_KEY . dotclear()->auth->userID() . dotclear()->auth->cryptLegacy(dotclear()->auth->userID())) .
+                    Http::browserUID(dotclear()->config()->master_key . dotclear()->auth->userID() . dotclear()->auth->cryptLegacy(dotclear()->auth->userID())) .
                     '/' . $this->post->post_url);
 
                 dotclear()->auth->user_prefs->addWorkspace('interface');

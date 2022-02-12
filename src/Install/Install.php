@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
-use Dotclear\Exception\InstallException;
-
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 
@@ -23,7 +21,7 @@ use Dotclear\Admin\Favorites;
 
 use Dotclear\Distrib\Distrib;
 
-use Dotclear\Module\Plugin\ModulesPlugin;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
@@ -53,14 +51,14 @@ class Install
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(dotclear()::root(DOTCLEAR_L10N_DIR, $dlang, 'date'));
-            L10n::set(dotclear()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
-            L10n::set(dotclear()::root(DOTCLEAR_L10N_DIR, $dlang, 'plugins'));
+            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'date'));
+            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
         }
 
-        if (!defined('DOTCLEAR_MASTER_KEY') || DOTCLEAR_MASTER_KEY == '') {
+        if (dotclear()->config()->master_key == '') {
             $can_install = false;
-            $err         = '<p>' . __('Please set a master key (DOTCLEAR_MASTER_KEY) in configuration file.') . '</p>';
+            $err         = '<p>' . __('Please set a master key (dotclear()->config()->master_key) in configuration file.') . '</p>';
         }
 
         /* Check if dotclear is already installed */
@@ -72,7 +70,7 @@ class Install
 
         /* Check system capabilites */
         $_e = [];
-        if (!Distrib::checkRequirements(dotclear()->con, $_e)) {
+        if (!Distrib::checkRequirements(dotclear()->con, $_e)) { //! no need to con, and change _e to arrayobject
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }
@@ -190,9 +188,9 @@ class Install
                 $blog_settings->system->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
                 /* Add repository URL for themes and plugins */
-                $blog_settings->system->put('store_plugin_url', DOTCLEAR_PLUGIN_UPDATE_URL, 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->system->put('store_theme_url', DOTCLEAR_THEME_UPDATE_URL, 'string', 'Themes XML feed location', true, true);
-                $blog_settings->system->put('store_iconset_url', DOTCLEAR_ICONSET_UPDATE_URL, 'string', 'Themes XML feed location', true, true);
+                $blog_settings->system->put('store_plugin_url', dotclear()->config()->plugin_update_url, 'string', 'Plugins XML feed location', true, true);
+                $blog_settings->system->put('store_theme_url', dotclear()->config()->theme_update_url, 'string', 'Themes XML feed location', true, true);
+                $blog_settings->system->put('store_iconset_url', dotclear()->config()->iconset_update_url, 'string', 'Iconsets XML feed location', true, true);
 
                 /* CSP directive (admin part) */
 
@@ -216,7 +214,7 @@ class Install
                 /* Add Dotclear version */
                 $cur          = dotclear()->con->openCursor(dotclear()->prefix . 'version');
                 $cur->module  = 'core';
-                $cur->version = (string) DOTCLEAR_CORE_VERSION;
+                $cur->version = (string) dotclear()->config()->core_version;
                 $cur->insert();
 
                 /* Create first post */
@@ -250,7 +248,7 @@ class Install
                 # Only if plugin has Install/Prepend.php file using Install process
                 # Else install will be made from admin home page through Admin/Prepend.php file.
                 $plugins = new ModulesPlugin();
-                $plugins_install = $plugins->installModules($this->_lang);
+                $plugins_install = $plugins->installModules($dlang);
 
                 /* Add dashboard module options */
                 dotclear()->auth->user_prefs->addWorkspace('dashboard');
@@ -273,7 +271,7 @@ class Install
                 dotclear()->favs->setFavoriteIDs($init_favs, true);
 
                 $step = 1;
-            } catch (InstallException $e) {
+            } catch (\Exception $e) {
                 $err = $e->getMessage();
             }
         }
@@ -321,8 +319,8 @@ class Install
         '<h1>' . __('Dotclear installation') . '</h1>' .
             '<div id="main">';
 
-        if (!is_writable(DOTCLEAR_CACHE_DIR)) {
-            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), DOTCLEAR_CACHE_DIR) . '</p></div>';
+        if (!is_writable(dotclear()->config()->cache_dir)) {
+            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), dotclear()->config()->cache_dir) . '</p></div>';
         }
 
         if ($can_install && !empty($err)) {

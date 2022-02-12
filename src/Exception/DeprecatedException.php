@@ -29,7 +29,7 @@ class DeprecatedException extends \Exception
 
     public static function throw(): void
     {
-        if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEPRECATED) {
+        if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEPRECATED) {
             throw new self();
         }
     }

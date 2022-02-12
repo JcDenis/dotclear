@@ -34,7 +34,7 @@ class MaintenanceTaskCSP extends MaintenanceTask
 
     public function execute()
     {
-        $csp_file = path::real(DC_VAR) . '/csp/csp_report.json';
+        $csp_file = path::real(dotclear()->config()->var_dir) . '/csp/csp_report.json';
         if (file_exists($csp_file)) {
             unlink($csp_file);
         }

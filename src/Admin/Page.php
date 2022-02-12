@@ -352,7 +352,7 @@ abstract class Page
                 }
             }
             if (count($directives)) {
-                $directives[]   = 'report-uri ' . DOTCLEAR_ADMIN_URL . '?handler=admin.cspreport';
+                $directives[]   = 'report-uri ' . dotclear()->config()->admin_url . '?handler=admin.cspreport';
                 $report_only    = (dotclear()->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
@@ -375,7 +375,7 @@ abstract class Page
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n";
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
@@ -398,7 +398,7 @@ abstract class Page
         dotclear()->auth->user_prefs->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
 
         $js['showIp'] = dotclear()->blog && dotclear()->blog->id ? dotclear()->auth->check('contentadmin', dotclear()->blog->id) : false;
 
@@ -417,7 +417,7 @@ abstract class Page
         "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
         ($safe_mode ? ' safe-mode' : '') .
-        (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+        (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
             ' debug-mode' :
             '') .
         '">' . "\n" .
@@ -428,7 +428,7 @@ abstract class Page
         '<li><a href="#help">' . __('Go to help') . '</a></li>' .
         '</ul>' . "\n" .
         '<header id="header" role="banner">' .
-        '<h1><a href="' . dotclear()->adminurl->get('admin.home') . '"><span class="hidden">' . DOTCLEAR_VENDOR_NAME . '</span></a></h1>' . "\n";
+        '<h1><a href="' . dotclear()->adminurl->get('admin.home') . '"><span class="hidden">' . dotclear()->config()->vendor_name . '</span></a></h1>' . "\n";
 
         echo
         '<form action="' . dotclear()->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
@@ -497,7 +497,7 @@ abstract class Page
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(DOTCLEAR_VENDOR_NAME) . ' - ' . DOTCLEAR_CORE_VERSION . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
@@ -517,7 +517,7 @@ abstract class Page
         dotclear()->auth->user_prefs->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->auth->user_prefs->accessibility->nodragdrop;
 
-        $js['debug'] = DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
 
         // Set JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -534,12 +534,12 @@ abstract class Page
             "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
             ($safe_mode ? ' safe-mode' : '') .
-            (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+            (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
                 ' debug-mode' :
                 '') .
             '">' . "\n" .
 
-            '<h1>' . DOTCLEAR_VENDOR_NAME . '</h1>' . "\n";
+            '<h1>' . dotclear()->config()->vendor_name . '</h1>' . "\n";
 
         echo
             '<div id="wrapper">' . "\n" .
@@ -709,7 +709,7 @@ abstract class Page
             echo dotclear()->menu[$k]->draw();
         }
 
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . DOTCLEAR_CORE_VERSION);
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->core_version);
 
         # --BEHAVIOR-- adminPageFooter, string
         $textAlt = dotclear()->behaviors->call('adminPageFooter', $text);
@@ -738,7 +738,7 @@ abstract class Page
             $figure .
             ' -->' . "\n";
 
-        if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT) {
+        if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT) {
             echo $this->pageDebugInfo();
         }
 
@@ -1130,7 +1130,7 @@ abstract class Page
         self::jsLoad('js/prepend.js') .
         self::jsLoad('js/jquery/jquery.js') .
         (
-            DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+            dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
                 'mute' => (empty(dotclear()->blog) || dotclear()->blog->settings->system->jquery_migrate_mute),
             ]) .
@@ -1360,7 +1360,7 @@ abstract class Page
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? md5(uniqid()) : ($v ?: DOTCLEAR_CORE_VERSION));
+            'v=' . (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
     }
 
     /**
@@ -1493,7 +1493,7 @@ abstract class Page
     public static function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = dotclear()::root('Admin', 'files', 'js', 'codemirror', 'theme');
+        $themes_root = root_path('Admin', 'files', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (($d = @dir($themes_root)) !== false) {
                 while (($entry = $d->read()) !== false) {

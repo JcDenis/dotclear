@@ -23,7 +23,7 @@ use Dotclear\File\Zip\Unzip;
 
 use Dotclear\Network\NetHttp\NetHttp;
 
-if (!defined('DC_RC_PATH')) {
+if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
@@ -125,7 +125,7 @@ class Update
             $http_get = function ($http_url) use (&$status, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
+                    $client->setTimeout(dotclear()->config()->query_timeout);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status = (int) $client->getStatus();
@@ -249,7 +249,7 @@ class Update
             $http_get = function ($http_url) use (&$status, $dest, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(DOTCLEAR_QUERY_TIMEOUT);
+                    $client->setTimeout(dotclear()->config()->query_timeout);
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->useGzip(false);
                     $client->setPersistReferers(false);

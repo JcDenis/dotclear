@@ -52,23 +52,19 @@ class Update extends Page
             ])
         ;
 
-        if (!defined('DOTCLEAR_BACKUP_DIR')) {
-            define('DOTCLEAR_BACKUP_DIR', DOTCLEAR_ROOT_DIR);
-        } else {
-            if (!is_dir(DOTCLEAR_BACKUP_DIR)) {
-                $this->content = sprintf('<h3>%s</h3><p>%s</p>',  __('Precheck update error'), __('Backup directory does not exist'));
-                return true;
-            }
+        if (!is_dir(dotclear()->config()->backup_dir)) {
+            $this->content = sprintf('<h3>%s</h3><p>%s</p>',  __('Precheck update error'), __('Backup directory does not exist'));
+            return true;
         }
 
-        if (!is_readable(DOTCLEAR_DIGESTS_DIR)) {
+        if (!is_readable(dotclear()->config()->digests_dir)) {
             $this->content =  sprintf('<h3>%s</h3><p>%s</p>',  __('Precheck update error'), __('Access denied'));
             return true;
         }
 
-        $this->updater     = new CoreUpdate(DOTCLEAR_CORE_UPDATE_URL, 'dotclear', DOTCLEAR_CORE_UPDATE_CHANNEL, DOTCLEAR_CACHE_DIR . '/versions');
-        $this->new_version = $this->updater->check(DOTCLEAR_CORE_VERSION, !empty($_GET['nocache']));
-        $zip_file          = $this->new_version ? DOTCLEAR_BACKUP_DIR . '/' . basename($this->updater->getFileURL()) : '';
+        $this->updater     = new CoreUpdate(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
+        $this->new_version = $this->updater->check(dotclear()->config()->core_version, !empty($_GET['nocache']));
+        $zip_file          = $this->new_version ? dotclear()->config()->backup_dir . '/' . basename($this->updater->getFileURL()) : '';
 
         # Hide "update me" message
         if (!empty($_GET['hide_msg'])) {
@@ -84,7 +80,7 @@ class Update extends Page
             $default_tab = 'files';
         }
 
-        foreach (Files::scanDir(DOTCLEAR_BACKUP_DIR) as $v) {
+        foreach (Files::scanDir(dotclear()->config()->backup_dir) as $v) {
             if (preg_match('/backup-([0-9A-Za-z\.-]+).zip/', $v)) {
                 $this->archives[] = $v;
             }
@@ -108,16 +104,16 @@ class Update extends Page
 
             try {
                 if (!empty($_POST['b_del'])) {
-                    if (!@unlink(DOTCLEAR_BACKUP_DIR . '/' . $b_file)) {
+                    if (!@unlink(dotclear()->config()->backup_dir . '/' . $b_file)) {
                         throw new AdminException(sprintf(__('Unable to delete file %s'), Html::escapeHTML($b_file)));
                     }
                     dotclear()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
 
                 if (!empty($_POST['b_revert'])) {
-                    $zip = new Unzip(DOTCLEAR_BACKUP_DIR . '/' . $b_file);
-                    $zip->unzipAll(DOTCLEAR_BACKUP_DIR . '/');
-                    @unlink(DOTCLEAR_BACKUP_DIR . '/' . $b_file);
+                    $zip = new Unzip(dotclear()->config()->backup_dir . '/' . $b_file);
+                    $zip->unzipAll(dotclear()->config()->backup_dir . '/');
+                    @unlink(dotclear()->config()->backup_dir . '/' . $b_file);
                     dotclear()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
             } catch (\Exception $e) {
@@ -156,7 +152,7 @@ class Update extends Page
                             'dotclear/src/digests',
                             DOTCLEAR_ROOT_DIR,
                             DOTCLEAR_ROOT_DIR . '/src/digests',
-                            DOTCLEAR_BACKUP_DIR . '/backup-' . DOTCLEAR_CORE_VERSION . '.zip'
+                            dotclear()->config()->backup_dir . '/backup-' . dotclear()->config()->core_version . '.zip'
                         );
                         dotclear()->adminurl->redirect('admin.update', ['step' => 'unzip']);
 
@@ -183,7 +179,7 @@ class Update extends Page
                     $msg = sprintf(
                         __('The following files of your Dotclear installation are not readable. ' .
                         'Please fix this or try to make a backup file named %s manually.'),
-                        '<strong>backup-' . DOTCLEAR_CORE_VERSION . '.zip</strong>'
+                        '<strong>backup-' . dotclear()->config()->core_version . '.zip</strong>'
                     );
                 } elseif ($e->getCode() == dcUpdate::ERR_FILES_UNWRITALBE) {
                     $msg = __('The following files of your Dotclear installation cannot be written. ' .
@@ -223,11 +219,11 @@ class Update extends Page
             echo '<div class="multi-part" id="update" title="' . __('Dotclear update') . '">';
 
             // Warning about PHP version if necessary
-            if (version_compare(phpversion(), DOTCLEAR_PHP_NEXT_REQUIRED, '<')) {
+            if (version_compare(phpversion(), dotclear()->config()->php_next_required, '<')) {
                 echo '<p class="info more-info">' .
                 sprintf(
                     __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                    DOTCLEAR_PHP_NEXT_REQUIRED,
+                    dotclear()->config()->php_next_required,
                     phpversion()
                 ) .
                 '</p>';

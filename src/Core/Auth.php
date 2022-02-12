@@ -156,7 +156,7 @@ class Auth
                 $ret = password_get_info($rs->user_pwd);
                 if (is_array($ret) && isset($ret['algo']) && $ret['algo'] == 0) {
                     // hash not done with password_hash() function, check by old fashion way
-                    if (Crypt::hmac(DOTCLEAR_MASTER_KEY, $pwd, DOTCLEAR_CRYPT_ALGO) == $rs->user_pwd) {
+                    if (Crypt::hmac(dotclear()->config()->master_key, $pwd, dotclear()->config()->crypt_algo) == $rs->user_pwd) {
                         // Password Ok, need to store it in new fashion way
                         $rs->user_pwd = $this->crypt($pwd);
                         $rehash       = true;
@@ -185,7 +185,7 @@ class Auth
             }
         } elseif ($user_key != '') {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(Http::browserUID(DOTCLEAR_MASTER_KEY . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
+            if (!hash_equals(Http::browserUID(dotclear()->config()->master_key . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
                 return false;
             }
         }
@@ -223,7 +223,7 @@ class Auth
      */
     public function cryptLegacy(string $pwd): string
     {
-        return Crypt::hmac(DOTCLEAR_MASTER_KEY, $pwd, DOTCLEAR_CRYPT_ALGO);
+        return Crypt::hmac(dotclear()->config()->master_key, $pwd, dotclear()->config()->crypt_algo);
     }
 
     /**
@@ -249,7 +249,7 @@ class Auth
      */
     public function sessionExists(): bool
     {
-        return isset($_COOKIE[DOTCLEAR_SESSION_NAME]);
+        return isset($_COOKIE[dotclear()->config()->session_name]);
     }
 
     /**
@@ -270,7 +270,7 @@ class Auth
 
         # Check here for user and IP address
         $this->checkUser($_SESSION['sess_user_id']);
-        $uid = $uid ?: Http::browserUID(DOTCLEAR_MASTER_KEY);
+        $uid = $uid ?: Http::browserUID(dotclear()->config()->master_key);
 
         $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
 
@@ -671,7 +671,7 @@ class Auth
 
     /** @name User management callbacks
     This 3 functions only matter if you extend this class and use
-    DC_AUTH_CLASS constant.
+    DOTCLEAR_AUTH_CLASS constant.
     These are called after core user management functions.
     Could be useful if you need to add/update/remove stuff in your
     LDAP directory    or other third party authentication database.

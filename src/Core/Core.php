@@ -48,6 +48,7 @@ use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
+use Dotclear\Utils\TraitConfiguration;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -55,7 +56,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Core
 {
-    use TraitError;
+    use TraitError, TraitConfiguration;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -156,6 +157,9 @@ class Core
     final public static function coreInstance(?string $blog_id = null): Core
     {
         if (null === static::$instance) {
+            # Stats
+            static::startStatistics();
+
             # Two stage instanciation (construct then process)
             static::$instance = new static();
             static::$instance->process($blog_id);
@@ -172,7 +176,10 @@ class Core
      */
     public function process()
     {
-        static::startStatistics();
+        # Avoid direct call to Core
+        if (get_class() == get_class($this)) {
+            throw new PrependException('Server error', 'Direct call to core before process starts.', 6);
+        }
 
         # Add autoloader (for modules)
         if (!$this->autoloader) {
@@ -199,7 +206,7 @@ class Core
             } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
             } else {
-                define('DOTCLEAR_CONFIG_PATH', static::root('config.php'));
+                define('DOTCLEAR_CONFIG_PATH', root_path('config.php'));
             }
         }
 
@@ -207,7 +214,7 @@ class Core
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             # Set Dotclear configuration constants for installation process
             if ($this->process == 'Install') {
-                Distrib::getCoreConstants();
+                $this->initConfiguration(Distrib::getCoreConfig());
 
                 # Stop core process here in Install process
                 return;
@@ -223,59 +230,56 @@ class Core
         }
 
         # Set plateform (user) configuration constants
-        require_once DOTCLEAR_CONFIG_PATH;
-
-        # Set Dotclear configuration constants
-        Distrib::getCoreConstants();
+        $this->initConfiguration(Distrib::getCoreConfig(), DOTCLEAR_CONFIG_PATH);
 
         # Starting from debug mode, display all errors
-        if (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {
+        if ($this->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
             ini_set('display_errors', '1');
             error_reporting(E_ALL | E_STRICT);
         }
 
-        # Set  some Http stuff
-        Http::$https_scheme_on_443 = DOTCLEAR_FORCE_SCHEME_443;
-        Http::$reverse_proxy = DOTCLEAR_REVERSE_PROXY;
+        # Set some Http stuff
+        Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
+        Http::$reverse_proxy = $this->config()->reverse_proxy;
 
         # Check cryptography algorithm
-        if ('DOTCLEAR_CRYPT_ALGO' != 'sha1') {
-            /* Check length of cryptographic algorithm result and exit if less than 40 characters long */
-            if (strlen(Crypt::hmac(DOTCLEAR_MASTER_KEY, DOTCLEAR_VENDOR_NAME, DOTCLEAR_CRYPT_ALGO)) < 40) {
+        if ($this->config()->crypt_algo != 'sha1') {
+            # Check length of cryptographic algorithm result and exit if less than 40 characters long
+            if (strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo)) < 40) {
                 if ($this->process != 'Admin') {
                     throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    throw new PrependException('Dotclear error', DOTCLEAR_CRYPT_ALGO . ' cryptographic algorithm configured is not strong enough, please change it.');
+                    throw new PrependException('Dotclear error', $this->config()->crypt_algo . ' cryptographic algorithm configured is not strong enough, please change it.');
                 }
                 exit;
             }
         }
 
         # Check existence of cache directory
-        if (!is_dir(DOTCLEAR_CACHE_DIR)) {
+        if (!is_dir($this->config()->cache_dir)) {
             /* Try to create it */
-            @Files::makeDir(DOTCLEAR_CACHE_DIR);
-            if (!is_dir(DOTCLEAR_CACHE_DIR)) {
+            @Files::makeDir($this->config()->cache_dir);
+            if (!is_dir($this->config()->cache_dir)) {
                 /* Admin must create it */
                 if (!in_array($this->process, ['Admin', 'Install'])) {
                     throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    throw new PrependException('Dotclear error', DOTCLEAR_CACHE_DIR . ' directory does not exist. Please create it.');
+                    throw new PrependException('Dotclear error', $this->config()->cache_dir . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
         }
 
         # Check existence of var directory
-        if (!is_dir(DOTCLEAR_VAR_DIR)) {
+        if (!is_dir($this->config()->var_dir)) {
             // Try to create it
-            @Files::makeDir(DOTCLEAR_VAR_DIR);
-            if (!is_dir(DOTCLEAR_VAR_DIR)) {
+            @Files::makeDir($this->config()->var_dir);
+            if (!is_dir($this->config()->var_dir)) {
                 // Admin must create it
                 if (!in_array($this->process, ['Admin', 'Install'])) {
                     throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
-                    throw new PrependException('Dotclear error', DOTCLEAR_VAR_DIR . ' directory does not exist. Please create it.');
+                    throw new PrependException('Dotclear error', $this->config()->var_dir . ' directory does not exist. Please create it.');
                 }
                 exit;
             }
@@ -292,7 +296,7 @@ class Core
             $this->behaviors = new Behaviors();
             $this->con       = $this->conInstance();
             $this->auth      = $this->authInstance();
-            $this->session   = new Session($this->con, $this->prefix . 'session', DOTCLEAR_SESSION_NAME, null, null, DOTCLEAR_ADMIN_SSL, $this->getTTL());
+            $this->session   = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
             $this->url       = new UrlHandler();
             $this->rest      = new RestServer();
             $this->meta      = new Meta();
@@ -303,7 +307,7 @@ class Core
             # Loading locales for detected language
             $dlang = Http::getAcceptLanguages();
             foreach ($dlang as $l) {
-                if ($l == 'en' || L10n::set(static::path(DOTCLEAR_L10N_DIR, $l, 'main')) !== false) {
+                if ($l == 'en' || L10n::set(implode_path($this->config()->l10n_dir, $l, 'main')) !== false) {
                     L10n::lang($l);
 
                     break;
@@ -324,10 +328,10 @@ class Core
                         '<p>If you\'re unsure what these terms mean you should probably contact ' .
                         'your host. If you still need help you can always visit the ' .
                         '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
-                        (DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+                        ($this->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
                             '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                             ''),
-                        (DOTCLEAR_DATABASE_HOST != '' ? DOTCLEAR_DATABASE_HOST : 'localhost')
+                        ($this->config()->database_host != '' ? $this->config()->database_host : 'localhost')
                     ) :
                     '',
                     20
@@ -355,15 +359,6 @@ class Core
 
         # Register Core post types
         $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
-
-        # Store upload_max_filesize in bytes
-        $u_max_size = Files::str2bytes(ini_get('upload_max_filesize'));
-        $p_max_size = Files::str2bytes(ini_get('post_max_size'));
-        if ($p_max_size < $u_max_size) {
-            $u_max_size = $p_max_size;
-        }
-        define('DOTCLEAR_MAX_UPLOAD_SIZE', $u_max_size);
-        unset($u_max_size, $p_max_size);
 
         # Register supplemental mime types
         Files::registerMimeTypes([
@@ -417,7 +412,7 @@ class Core
     private function getTTL(): ?string
     {
         # Session time
-        $ttl = DOTCLEAR_SESSION_TTL;
+        $ttl = $this->config()->session_ttl;
         if (!is_null($ttl)) {   // @phpstan-ignore-line
             $tll = (string) $ttl;
             if (substr(trim($ttl), 0, 1) != '-') {
@@ -438,8 +433,8 @@ class Core
      */
     private function conInstance(): Connection
     {
-        $prefix        = DOTCLEAR_DATABASE_PREFIX;
-        $driver        = DOTCLEAR_DATABASE_DRIVER;
+        $prefix        = $this->config()->database_prefix;
+        $driver        = $this->config()->database_driver;
         $default_class = 'Dotclear\\Database\\Connection';
 
         # You can set DOTCLEAR_CON_CLASS to whatever you want.
@@ -472,11 +467,11 @@ class Core
 
         # Create connection instance
         $con = new $class(
-            DOTCLEAR_DATABASE_HOST,
-            DOTCLEAR_DATABASE_NAME,
-            DOTCLEAR_DATABASE_USER,
-            DOTCLEAR_DATABASE_PASSWORD,
-            DOTCLEAR_DATABASE_PERSIST
+            $this->config()->database_host,
+            $this->config()->database_name,
+            $this->config()->database_user,
+            $this->config()->database_password,
+            $this->config()->database_persist
         );
 
         # Define weak_locks for mysql
@@ -509,7 +504,7 @@ class Core
      */
     private function authInstance(): Auth
     {
-        # You can set DC_AUTH_CLASS to whatever you want.
+        # You can set DOTCLEAR_AUTH_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Core\Auth class.
         $class = defined('DOTCLEAR_AUTH_CLASS') ? DOTCLEAR_AUTH_CLASS : __NAMESPACE__ . '\\Auth';
 
@@ -2051,8 +2046,8 @@ class Core
      */
     public static function emptyTemplatesCache(): void
     {
-        if (is_dir(static::path(DOTCLEAR_CACHE_DIR, 'cbtpl'))) {
-            Files::deltree(static::path(DOTCLEAR_CACHE_DIR, 'cbtpl'));
+        if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
+            Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));
         }
     }
 
@@ -2104,48 +2099,6 @@ class Core
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
 
         return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
-    }
-
-    /**
-     * Join folder function
-     *
-     * Starting from Dotclear root directory
-     *
-     * @param  string   $args   One argument per folder
-     *
-     * @return string   Directory
-     */
-    public static function root(string ...$args): string
-    {
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', __DIR__);
-        }
-
-        return implode(DIRECTORY_SEPARATOR, array_merge([DOTCLEAR_ROOT_DIR], $args));
-    }
-
-    /**
-     * Join folder function
-     *
-     * @param  string   $args   One argument per folder
-     *
-     * @return string   Directory
-     */
-    public static function path(string ...$args): string
-    {
-        return implode(DIRECTORY_SEPARATOR, $args);
-    }
-
-    /**
-     * Join sub namespace function
-     *
-     * @param  string   $args   One argument per sub namespace
-     *
-     * @return string   Namespace
-     */
-    public static function ns(string ...$args): string
-    {
-        return implode('\\', $args);
     }
     //@}
 }

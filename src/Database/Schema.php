@@ -25,7 +25,7 @@ class Schema
 
     public function __construct($con)
     {
-        $this->con = &$con;
+        $this->con = $con;
     }
 
     public static function init($con)
@@ -33,7 +33,7 @@ class Schema
         $driver       = $con->driver();
         $default_class = 'Dotclear\\Database\\Schema';
 
-        # You can set DC_Con_CLASS to whatever you want.
+        # You can set DOTCLEAR_SCH_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Database\Schema class.
         $class = defined('DOTCLEAR_SCH_CLASS') ? DOTCLEAR_SCH_CLASS : $default_class ;
 

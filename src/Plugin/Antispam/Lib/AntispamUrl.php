@@ -56,7 +56,7 @@ class AntispamUrl extends UrlHandler
         if ($type == 'spam') {
             $title .= __('Spam');
             $params['comment_status'] = -2;
-            $end_url                  = '?status=-2';
+            $end_url                  = '&status=-2';
         } else {
             $title .= __('Ham');
             $params['sql'] = ' AND comment_status IN (1,-1) ';
@@ -70,7 +70,7 @@ class AntispamUrl extends UrlHandler
         '<channel>' . "\n" .
         '<title>' . html::escapeHTML($title) . '</title>' . "\n" .
         /* @phpstan-ignore-next-line */
-        '<link>' . (DOTCLEAR_ADMIN_URL ? DOTCLEAR_ADMIN_URL . 'comments.php' . $end_url : 'about:blank') . '</link>' . "\n" .
+        '<link>' . (dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
         $rs       = dotclear()->blog->getComments($params);
@@ -80,7 +80,7 @@ class AntispamUrl extends UrlHandler
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             $nbitems++;
             /* @phpstan-ignore-next-line */
-            $uri    = DOTCLEAR_ADMIN_URL ? DOTCLEAR_ADMIN_URL . 'comment.php?id=' . $rs->comment_id : 'about:blank';
+            $uri    = dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comment&id=' . $rs->comment_id : 'about:blank';
             $author = $rs->comment_author;
             $title  = $rs->post_title . ' - ' . $author;
             if ($type == 'spam') {

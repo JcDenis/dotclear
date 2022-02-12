@@ -33,7 +33,7 @@ class ModulesTheme extends AbstractModules
     {
         dotclear()->adminurl->register(
             'admin.blog.theme',
-            dotclear()::ns('Dotclear', 'Module', 'Theme', 'Admin', 'PageTheme')
+            root_ns('Module', 'Theme', 'Admin', 'PageTheme')
         );
         dotclear()->menu->register(
             'Blog',
@@ -109,7 +109,7 @@ class ModulesTheme extends AbstractModules
             }
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
                 $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->sdotclear()) . '</p>';
             }
 
@@ -181,7 +181,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            if (in_array('repository', $cols) && DOTCLEAR_STORE_ALLOWREPO) {   // @phpstan-ignore-line
+            if (in_array('repository', $cols) && dotclear()->config()->store_allow_repo) {
                 $line .= '<span class="module-repository">' . (!empty($module->repository()) ? __('Third-party repository') : __('Official repository')) . '</span> ';
             }
 
@@ -218,7 +218,7 @@ class ModulesTheme extends AbstractModules
 
                 $line .= '<div class="current-actions">';
 
-                $config_class = dotclear()::ns('Dotclear', $module->type(), $id, 'Admin', 'Config');
+                $config_class = root_ns($module->type(), $id, 'Admin', 'Config');
                 if (is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {
@@ -284,7 +284,7 @@ class ModulesTheme extends AbstractModules
             if (in_array('select', $actions)) {
                 $submits[] = '<input type="submit" name="select[' . Html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
             }
-        } elseif (DOTCLEAR_RUN_LEVEL < DOTCLEAR_RUN_DEBUG) {
+        } elseif (dotclear()->config()->run_level < DOTCLEAR_RUN_DEBUG) {
             // Currently selected theme
             if ($pos = array_search('delete', $actions, true)) {
                 // Remove 'delete' action
@@ -324,7 +324,7 @@ class ModulesTheme extends AbstractModules
                 # Delete
                 case 'delete':
                     if (dotclear()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

@@ -23,13 +23,13 @@ trait TraitModulesPlugin
 
     public function getModulesPath(): array
     {
-        $paths = explode(PATH_SEPARATOR, DOTCLEAR_PLUGIN_DIR);
+        $paths = explode(PATH_SEPARATOR, dotclear()->config()->plugin_dir);
 
         # If a plugin directory is set for current blog, it will be added to the end of paths
         if (isset(dotclear()->blog)) {
             dotclear()->blog->settings->addNamespace('system');
             $path = trim((string) dotclear()->blog->settings->system->module_plugin_dir);
-            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : dotclear()::root($path), true))) {
+            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : root_path($path), true))) {
                 $paths[] = $dir;
             }
         }
@@ -49,6 +49,6 @@ trait TraitModulesPlugin
 
     public function getDistributedModules(): array
     {
-        return explode(',', DOTCLEAR_PLUGIN_OFFICIAL);
+        return explode(',', dotclear()->config()->plugin_official);
     }
 }

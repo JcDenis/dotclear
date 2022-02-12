@@ -105,7 +105,7 @@ class Prepend extends Core
         # Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
-            $_COOKIE[DOTCLEAR_SESSION_NAME] = DOTCLEAR_AUTH_SESS_ID;
+            $_COOKIE[dotclear()->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->auth->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
                 throw new PrependException('Invalid session data.');
@@ -211,20 +211,20 @@ class Prepend extends Core
             $this->auth->user_prefs->addWorkspace('interface');
 
             # Load resources
-            $this->adminLoadResources(DOTCLEAR_L10N_DIR);
+            $this->adminLoadResources(dotclear()->config()->l10n_dir);
 
             # Load sidebar menu
             $this->favs = new Favorites();
             $this->menu = new Menus();
 
             # Load Modules Iconsets
-            if ('' != DOTCLEAR_ICONSET_DIR) {
+            if ('' != $this->config()->iconset_dir) {
                 $this->iconsets = new ModulesIconset();
                 $this->iconsets->loadModules();
             }
 
             # Load Modules Plugins
-            if ('' != DOTCLEAR_PLUGIN_DIR) {
+            if ('' != $this->config()->plugin_dir) {
                 $this->plugins = new ModulesPlugin();
                 $this->adminLoadModules($this->plugins);
             }
@@ -280,13 +280,13 @@ class Prepend extends Core
     {
         # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
-            Files::serveFile([static::root('Admin', 'files')], 'df');
+            Files::serveFile([root_path('Admin', 'files')], 'df');
             exit;
         }
 
         # Serve var file
         if (!empty($_GET['vf'])) {
-            Files::serveFile([DOTCLEAR_VAR_DIR], 'vf');
+            Files::serveFile([dotclear()->config()->var_dir], 'vf');
             exit;
         }
 
@@ -306,7 +306,7 @@ class Prepend extends Core
         $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
 
         # Check class
-        $class = dotclear()::ns('Dotclear', 'Module', $type, 'Admin', 'Modules' . $type);
+        $class = root_ns('Module', $type, 'Admin', 'Modules' . $type);
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
             throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
         }
@@ -314,8 +314,8 @@ class Prepend extends Core
         # Get paths and serve file
         $modules = new $class($this);
         $paths   = $modules->getModulesPath();
-        $paths[] = static::root('Core', 'files', 'js');
-        $paths[] = static::root('Core', 'files', 'css');
+        $paths[] = root_path('Core', 'files', 'js');
+        $paths[] = root_path('Core', 'files', 'css');
         Files::serveFile($paths, 'mf');
         exit;
     }
@@ -325,12 +325,12 @@ class Prepend extends Core
         $this->adminGetLang();
 
         L10n::lang($this->_lang);
-        if (L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            L10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
+        if (L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(implode_path(dotclear()->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
+        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'main'));
+        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'public'));
+        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Utils::setlexicalLang('admin', $this->_lang);
@@ -345,17 +345,17 @@ class Prepend extends Core
         $__resources = $this->resources;
 
         if ($load_default) {
-            require static::path($dir, 'en', 'resources.php');
+            require implode_path($dir, 'en', 'resources.php');
         }
         if (($f = L10n::getFilePath($dir, 'resources.php', $_lang))) {
             require $f;
         }
         unset($f);
 
-        if (($hfiles = @scandir(static::path($dir, $_lang, 'help'))) !== false) {
+        if (($hfiles = @scandir(implode_path($dir, $_lang, 'help'))) !== false) {
             foreach ($hfiles as $hfile) {
                 if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                    $__resources['help'][$m[1]] = static::path($dir, $_lang, 'help', $hfile);
+                    $__resources['help'][$m[1]] = implode_path($dir, $_lang, 'help', $hfile);
                 }
             }
         }

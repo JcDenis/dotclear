@@ -23,13 +23,13 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        $paths = explode(PATH_SEPARATOR, DOTCLEAR_THEME_DIR);
+        $paths = explode(PATH_SEPARATOR, dotclear()->config()->theme_dir);
 
         # If a theme directory is set for current blog, it will be added to the end of paths
         if (isset(dotclear()->blog)) {
             dotclear()->blog->settings->addNamespace('system');
             $path = (string) dotclear()->blog->settings->system->module_theme_dir;
-            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : dotclear()::root($path), true))) {
+            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : root_path($path), true))) {
                 $paths[] = $dir;
             }
         }
@@ -49,7 +49,7 @@ trait TraitModulesTheme
 
     public function getDistributedModules(): array
     {
-        return explode(',', DOTCLEAR_THEME_OFFICIAL);
+        return explode(',', dotclear()->config()->theme_official);
     }
 
     /**

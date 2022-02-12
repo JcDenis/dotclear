@@ -45,7 +45,7 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(dotclear()::root(DOTCLEAR_L10N_DIR, $dlang, 'main'));
+            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'main'));
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
@@ -112,18 +112,18 @@ class Wizard
                 # Creates config.php file
                 $full_conf = Distrib::getConfigFile();
 
-                self::writeConfigValue('DOTCLEAR_DATABASE_DRIVER', $DBDRIVER, $full_conf);
-                self::writeConfigValue('DOTCLEAR_DATABASE_HOST', $DBHOST, $full_conf);
-                self::writeConfigValue('DOTCLEAR_DATABASE_USER', $DBUSER, $full_conf);
-                self::writeConfigValue('DOTCLEAR_DATABASE_PASSWORD', $DBPASSWORD, $full_conf);
-                self::writeConfigValue('DOTCLEAR_DATABASE_NAME', $DBNAME, $full_conf);
-                self::writeConfigValue('DOTCLEAR_DATABASE_PREFIX', $DBPREFIX, $full_conf);
+                self::writeConfigValue('database_driver', $DBDRIVER, $full_conf);
+                self::writeConfigValue('database_host', $DBHOST, $full_conf);
+                self::writeConfigValue('database_user', $DBUSER, $full_conf);
+                self::writeConfigValue('database_password', $DBPASSWORD, $full_conf);
+                self::writeConfigValue('database_name', $DBNAME, $full_conf);
+                self::writeConfigValue('database_prefix', $DBPREFIX, $full_conf);
 
                 $admin_url = $root_url . '/admin/index.php';
-                self::writeConfigValue('DOTCLEAR_ADMIN_URL', Http::getHost() . $admin_url, $full_conf);
+                self::writeConfigValue('admin_url', Http::getHost() . $admin_url, $full_conf);
                 $admin_email = !empty($ADMINMAILFROM) ? $ADMINMAILFROM : 'dotclear@' . $_SERVER['HTTP_HOST'];
-                self::writeConfigValue('DOTCLEAR_ADMIN_MAILFROM', $admin_email, $full_conf);
-                self::writeConfigValue('DOTCLEAR_MASTER_KEY', md5(uniqid()), $full_conf);
+                self::writeConfigValue('admin_mailform', $admin_email, $full_conf);
+                self::writeConfigValue('master_key', md5(uniqid()), $full_conf);
 
                 $fp = @fopen(DOTCLEAR_CONFIG_PATH, 'wb');
                 if ($fp === false) {
@@ -230,6 +230,6 @@ class Wizard
     protected static function writeConfigValue(string $name, string $val, string &$str): void
     {
         $val = str_replace("'", "\'", $val);
-        $str = preg_replace('/(\'' . $name . '\')(.*?)$/ms', '$1,\'' . $val . '\');', $str);
+        $str = preg_replace('/(\'' . $name . '\')(.*?)$/ms', '$1 => \'' . $val . '\',', $str);
     }
 }

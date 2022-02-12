@@ -64,7 +64,7 @@ class Prepend extends Core
         } catch (\Exception $e) {
             init_prepend_l10n();
             /* @phpstan-ignore-next-line */
-            throw new PrependException(__('Database problem'), DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ?
+            throw new PrependException(__('Database problem'), $this->config()->run_level >= DOTCLEAR_RUN_DEBUG ?
                 __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                 __('Something went wrong while trying to read the database.'), 620);
         }
@@ -92,7 +92,7 @@ class Prepend extends Core
         $this->context = new Context();
 
         try {
-            $this->tpl = new Template(DOTCLEAR_CACHE_DIR, 'dotclear()->tpl');
+            $this->tpl = new Template($this->config()->cache_dir, 'dotclear()->tpl');
         } catch (\Exception $e) {
             throw new PrependException(__('Can\'t create template files.'), $e->getMessage(), 640);
         }
@@ -102,12 +102,12 @@ class Prepend extends Core
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
         L10n::lang($this->_lang);
-        if (L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            L10n::set(static::path(DOTCLEAR_L10N_DIR, 'en', 'date'));
+        if (L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(implode_path($this->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'main'));
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'public'));
-        L10n::set(static::path(DOTCLEAR_L10N_DIR, $this->_lang, 'plugins'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'main'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'public'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Utils::setlexicalLang('public', $this->_lang);
@@ -163,7 +163,7 @@ class Prepend extends Core
         # Check templateset and add all path to tpl
         $tplset = $this->themes->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = static::path(__DIR__, 'Template', $tplset);
+            $tplset_dir = implode_path(__DIR__, 'Template', $tplset);
             if (is_dir($tplset_dir)) {
                 $this->tpl->setPath($path, $tplset_dir, $this->tpl->getPath());
             } else {
@@ -188,7 +188,7 @@ class Prepend extends Core
             # --BEHAVIOR-- publicAfterDocument
             $this->behaviors->call('publicAfterDocument');
         } catch (\Exception $e) {
-            throw new PrependException(__('Template problem'), DOTCLEAR_RUN_LEVEL >= DOTCLEAR_RUN_DEBUG ?
+            throw new PrependException(__('Template problem'), $this->config()->run_level >= DOTCLEAR_RUN_DEBUG ?
                 __('The following error was encountered while trying to load template file:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
                 __('Something went wrong while loading template file for your blog.'), 660);
         }
@@ -208,13 +208,13 @@ class Prepend extends Core
     {
         # Serve admin file (css, png, ...)
         if (!empty($_GET['df'])) {
-            Files::serveFile([static::root('Public', 'files')], 'df');
+            Files::serveFile([root_path('Public', 'files')], 'df');
             exit;
         }
 
         # Serve var file
         if (!empty($_GET['vf'])) {
-            Files::serveFile([DOTCLEAR_VAR_DIR], 'vf');
+            Files::serveFile([$this->config()->var_dir], 'vf');
             exit;
         }
 

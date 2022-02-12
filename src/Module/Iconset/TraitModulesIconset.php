@@ -21,7 +21,7 @@ trait TraitModulesIconset
 
     public function getModulesPath(): array
     {
-        return explode(PATH_SEPARATOR, DOTCLEAR_ICONSET_DIR);
+        return explode(PATH_SEPARATOR, dotclear()->config()->iconset_dir);
     }
 
     public function getStoreURL(): string
@@ -36,6 +36,6 @@ trait TraitModulesIconset
 
     public function getDistributedModules(): array
     {
-        return explode(',', DOTCLEAR_ICONSET_OFFICIAL);
+        return explode(',', dotclear()->config()->iconset_official);
     }
 }

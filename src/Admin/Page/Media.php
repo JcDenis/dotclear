@@ -111,7 +111,6 @@ class Media extends Page
 
         $this->media_uploader = dotclear()->auth->user_prefs->interface->enhanceduploader;
 
-
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->auth->check('media_admin', dotclear()->blog->id)) {
             try {
@@ -527,7 +526,7 @@ class Media extends Page
             '<h4>' . __('Add files') . '</h4>' .
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
             '<form id="fileupload" action="' . Html::escapeURL(dotclear()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
-            '<p>' . form::hidden(['MAX_FILE_SIZE'], DOTCLEAR_MAX_UPLOAD_SIZE) .
+            '<p>' . form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
             dotclear()->formNonce() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>';
 
@@ -540,7 +539,7 @@ class Media extends Page
             '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL(dotclear()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" /></p>';
 
             echo
-            '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) DOTCLEAR_MAX_UPLOAD_SIZE) . '</p>';
+            '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) dotclear()->config()->media_upload_maxsize) . '</p>';
 
             echo
             '<p class="one-file"><label for="upfiletitle">' . __('Title:') . '</label>' . form::field('upfiletitle', 35, 255) . '</p>' .
@@ -700,8 +699,8 @@ class Media extends Page
     public function getDirsRecord()
     {
         $dir = $this->media_dir;
-        // Remove hidden directories (unless DOTCLEAR_MEDIA_DIR_SHOWHIDDEN is set to true)
-        if (!defined('DOTCLEAR_MEDIA_DIR_SHOWHIDDEN') || (DOTCLEAR_MEDIA_DIR_SHOWHIDDEN == false)) {
+        // Remove hidden directories (unless 'media_dir_showhidden' is set to true)
+        if (dotclear()->config()->media_dir_showhidden === false) {
             for ($i = count($dir['dirs']) - 1; $i >= 0; $i--) {
                 if ($dir['dirs'][$i]->d) {
                     if (strpos($dir['dirs'][$i]->basename, '.') === 0) {
