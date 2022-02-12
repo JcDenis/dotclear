@@ -475,11 +475,4 @@ class Http
             }
         }
     }
-
-    /**
-     * Unset global variables (obsolete)
-     */
-    public static function unsetGlobals(): void
-    {
-    }
 }

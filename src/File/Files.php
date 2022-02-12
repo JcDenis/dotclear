@@ -71,6 +71,10 @@ class Files
         'ram'  => 'audio/x-pn-realaudio',
         'wav'  => 'audio/x-wav',
         'wma'  => 'audio/x-ms-wma',
+        'aac'  => 'audio/aac',
+        'ogg'  => 'audio/ogg',
+        'weba' => 'audio/webm',
+        'm4a'  => 'audio/mp4',
 
         'swf'  => 'application/x-shockwave-flash',
         'swfl' => 'application/x-shockwave-flash',
@@ -110,6 +114,9 @@ class Files
         'flv'  => 'video/x-flv',
         'avi'  => 'video/x-msvideo',
         'wmv'  => 'video/x-ms-wmv',
+        'mp4'  => 'video/mp4',
+        'm4p'  => 'video/mp4',
+        'webm' => 'video/webm',
     ];
 
     /**

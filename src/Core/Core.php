@@ -47,6 +47,7 @@ use Dotclear\Utils\Autoloader;
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Statistic;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\TraitConfiguration;
 
@@ -151,14 +152,13 @@ class Core
     /**
      * Get core unique instance
      *
-     * @param   string|null     $blog_id    Blog ID on first process call
+     * @param   string|null     $blog_id    Blog ID on first public process call
      * @return  Core                        Core (Process) instance
      */
     final public static function coreInstance(?string $blog_id = null): Core
     {
-        if (null === static::$instance) {
-            # Stats
-            static::startStatistics();
+        if (!static::$instance) {
+            Statistic::start();
 
             # Two stage instanciation (construct then process)
             static::$instance = new static();
@@ -179,11 +179,6 @@ class Core
         # Avoid direct call to Core
         if (get_class() == get_class($this)) {
             throw new PrependException('Server error', 'Direct call to core before process starts.', 6);
-        }
-
-        # Add autoloader (for modules)
-        if (!$this->autoloader) {
-            $this->autoloader = new Autoloader('', '', true);
         }
 
         # Add custom regs
@@ -241,6 +236,7 @@ class Core
         # Set some Http stuff
         Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
         Http::$reverse_proxy = $this->config()->reverse_proxy;
+        Http::trimRequest();
 
         # Check cryptography algorithm
         if ($this->config()->crypt_algo != 'sha1') {
@@ -293,16 +289,16 @@ class Core
 
         # Load Core
         try {
-            $this->behaviors = new Behaviors();
-            $this->con       = $this->conInstance();
-            $this->auth      = $this->authInstance();
-            $this->session   = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
-            $this->url       = new UrlHandler();
-            $this->rest      = new RestServer();
-            $this->meta      = new Meta();
-            $this->log       = new Log();
+            $this->autoloader = new Autoloader('', '', true);
+            $this->behaviors  = new Behaviors();
+            $this->con        = $this->conInstance();
+            $this->auth       = $this->authInstance();
+            $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
+            $this->url        = new UrlHandler();
+            $this->rest       = new RestServer();
+            $this->meta       = new Meta();
+            $this->log        = new Log();
 
-            $this->registerTopBehaviors();
         } catch (\Exception $e) {
             # Loading locales for detected language
             $dlang = Http::getAcceptLanguages();
@@ -346,32 +342,11 @@ class Core
             }
         }
 
-        # Clean up Http globals
-        Http::trimRequest();
-
-        try {
-            Http::unsetGlobals();
-        } catch (\Exception $e) {
-            header('Content-Type: text/plain');
-            echo $e->getMessage();
-            exit;
-        }
+        # Add top behaviors
+        $this->registerTopBehaviors();
 
         # Register Core post types
         $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
-
-        # Register supplemental mime types
-        Files::registerMimeTypes([
-            // Audio
-            'aac'  => 'audio/aac',
-            'ogg'  => 'audio/ogg',
-            'weba' => 'audio/webm',
-            'm4a'  => 'audio/mp4',
-            // Video
-            'mp4'  => 'video/mp4',
-            'm4p'  => 'video/mp4',
-            'webm' => 'video/webm',
-        ]);
 
         # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
@@ -386,14 +361,6 @@ class Core
      */
     public function shutdown(): void
     {
-        global $__shutdown;
-        if (is_array($__shutdown)) {
-            foreach ($__shutdown as $f) {
-                if (is_callable($f)) {
-                    call_user_func($f);
-                }
-            }
-        }
         # Explicitly close session before DB connection
         try {
             if (session_id()) {
@@ -1935,56 +1902,6 @@ class Core
         if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
             Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));
         }
-    }
-
-    /**
-     * Save start time and memory usage
-     */
-    public static function startStatistics(): void
-    {
-        # Timer and memory usage for stats and dev
-        if (!defined('DOTCLEAR_START_TIME')) {
-            define('DOTCLEAR_START_TIME',
-                microtime(true)
-            );
-        }
-        if (!defined('DOTCLEAR_START_MEMORY')) {
-            define('DOTCLEAR_START_MEMORY',
-                memory_get_usage(false)
-            );
-        }
-    }
-
-    /**
-     * Return elapsed time since script has been started
-     *
-     * @param   int|null    $mtime  Timestamp (microtime format) to evaluate delta from current time is taken if null
-     *
-     * @return  string  The elapsed time.
-     */
-    public static function getElapsedTime(?int $mtime = null): string
-    {
-        $start = defined('DOTCLEAR_START_TIME') ? DOTCLEAR_START_TIME : microtime(true);
-
-        return strval(round(($mtime === null ? microtime(true) - $start : $mtime - $start), 5));
-    }
-
-    /**
-     * Return memory consumed since script has been started
-     *
-     * @param   int|null    $mmem   Memory usage to evaluate
-     * delta from current memory usage is taken if null
-     *
-     * @return  string  The consumed memory.
-     */
-    public static function getConsumedMemory(?int $mmem = null): string
-    {
-        $start = defined('DOTCLEAR_START_MEMORY') ? DOTCLEAR_START_MEMORY : memory_get_usage(false);
-
-        $usage = $mmem === null ? memory_get_usage(false) - $start : $mmem - $start;
-        $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
-
-        return strval(round($usage / pow(1024, ($i = floor(log($usage, 1024)))), 2)) . ' ' . $unit[$i];
     }
     //@}
 }

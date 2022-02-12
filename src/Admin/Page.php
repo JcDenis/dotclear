@@ -29,6 +29,7 @@ use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 use Dotclear\File\Path;
 use Dotclear\File\Files;
+use Dotclear\Utils\Statistic;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -784,7 +785,7 @@ abstract class Page
         xdebug.profiler_output_name = timestamp
          */
         }
-        $res.= '<p>Core elapsed time: ' . dotclear()->getElapsedTime() . ' | Core consumed memory: ' . dotclear()->getConsumedMemory() . '</p>';
+        $res.= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
         $loaded_files = dotclear()->autoloader::getLoadedFiles();
         $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoloader::getRequestsCount() . ' requests)</p>';
