@@ -38,7 +38,7 @@ class Maintenance
     public function __construct()
     {
         $this->p_url = dotclear()->adminurl->get('admin.plugin.Maintenance');
-        $logs        = $this->getLogs();
+        $this->getLogs();
         $this->init();
     }
 
@@ -223,7 +223,7 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            dotclear()->log->delLogs($logs);
+            dotclear()->log()->delete($logs);
         }
 
         // Add new log
@@ -233,7 +233,7 @@ class Maintenance
         $cur->log_table = 'maintenance';
         $cur->user_id   = dotclear()->auth->userID();
 
-        dotclear()->log->addLog($cur);
+        dotclear()->log()->add($cur);
     }
 
     /**
@@ -242,7 +242,7 @@ class Maintenance
     public function delLogs()
     {
         // Retrieve logs from this task
-        $rs = dotclear()->log->getLogs([
+        $rs = dotclear()->log()->get([
             'log_table' => 'maintenance',
             'blog_id'   => '*',
         ]);
@@ -254,7 +254,7 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            dotclear()->log->delLogs($logs);
+            dotclear()->log()->delete($logs);
         }
     }
 
@@ -273,7 +273,7 @@ class Maintenance
     public function getLogs()
     {
         if ($this->logs === null) {
-            $rs = dotclear()->log->getLogs([
+            $rs = dotclear()->log()->get([
                 'log_table' => 'maintenance',
                 'blog_id'   => '*',
             ]);

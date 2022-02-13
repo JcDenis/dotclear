@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Log
- * @brief Dotclear core log class
+ * @class Dotclear\Utils\Log
+ * @brief Dotclear utils log class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,17 +11,16 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Utils;
 
-use Dotclear\Exception\CoreException;
-
-use Dotclear\Database\Connection;
-use Dotclear\Database\Record;
-use Dotclear\Database\Cursor;
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\JoinStatement;
-use Dotclear\Core\Sql\TruncateStatement;
 use Dotclear\Core\Sql\DeleteStatement;
+use Dotclear\Core\Sql\JoinStatement;
+use Dotclear\Core\Sql\SelectStatement;
+use Dotclear\Core\Sql\TruncateStatement;
+use Dotclear\Database\Connection;
+use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
+use Dotclear\Exception\CoreException;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -30,24 +29,11 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Log
 {
-    /** @var Connetion  Connection instance */
-    protected $con;
-
     /** @var string     Log table name */
-    protected $log_table;
+    protected $log_table = 'log';
 
     /** @var string     User table name */
-    protected $user_table;
-
-    /**
-     * Constructs a new instance.
-     */
-    public function __construct()
-    {
-        $this->con        = dotclear()->con;
-        $this->log_table  = dotclear()->prefix . 'log';
-        $this->user_table = dotclear()->prefix . 'user';
-    }
+    protected $user_table = 'user';
 
     /**
      * Retrieves logs. <b>$params</b> is an array taking the following
@@ -65,7 +51,7 @@ class Log
      *
      * @return     Record  The logs.
      */
-    public function getLogs(array $params = [], bool $count_only = false): Record
+    public function get(array $params = [], bool $count_only = false): Record
     {
         $sql = new SelectStatement('dcLogGetLogs');
 
@@ -87,13 +73,13 @@ class Log
             ]);
         }
 
-        $sql->from($this->log_table . ' L');
+        $sql->from(dotclear()->prefix . $this->log_table . ' L');
 
         if (!$count_only) {
             $sql->join(
                 (new JoinStatement('dcLogGetLogs'))
                 ->type('LEFT')
-                ->from($this->user_table . ' U')
+                ->from(dotclear()->prefix . $this->user_table . ' U')
                 ->on('U.user_id = L.user_id')
                 ->statement()
             );
@@ -143,16 +129,16 @@ class Log
      *
      * @return     int
      */
-    public function addLog(Cursor $cur): int
+    public function add(Cursor $cur): int
     {
-        $this->con->writeLock($this->log_table);
+        dotclear()->con->writeLock(dotclear()->prefix . $this->log_table);
 
         try {
             # Get ID
             $sql = new SelectStatement('dcLogAddLog');
             $sql
                 ->column('MAX(log_id)')
-                ->from($this->log_table);
+                ->from(dotclear()->prefix . $this->log_table);
 
             $rs = $sql->select();
 
@@ -160,15 +146,15 @@ class Log
             $cur->blog_id = (string) dotclear()->blog->id;
             $cur->log_dt  = date('Y-m-d H:i:s');
 
-            $this->getLogCursor($cur, $cur->log_id);
+            $this->cursor($cur, $cur->log_id);
 
             # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
             dotclear()->behavior()->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
-            $this->con->unlock();
+            dotclear()->con->unlock();
         } catch (\Exception $e) {
-            $this->con->unlock();
+            dotclear()->con->unlock();
 
             throw $e;
         }
@@ -185,16 +171,16 @@ class Log
      * @param      int|array    $id     The identifier
      * @param      bool         $all    Remove all logs
      */
-    public function delLogs(int|array $id, bool $all = false): void
+    public function delete(int|array $id, bool $all = false): void
     {
         if ($all) {
             $sql = new TruncateStatement('dcLogDelLogs');
             $sql
-                ->from($this->log_table);
+                ->from(dotclear()->prefix . $this->log_table);
         } else {
             $sql = new DeleteStatement('dcLogDelLogs');
             $sql
-                ->from($this->log_table)
+                ->from(dotclear()->prefix . $this->log_table)
                 ->where('log_id ' . $sql->in($id));
         }
 
@@ -209,7 +195,7 @@ class Log
      *
      * @throws     CoreException
      */
-    private function getLogCursor(Cursor $cur, ?int $log_id = null)
+    private function cursor(Cursor $cur, ?int $log_id = null)
     {
         if ($cur->log_msg === '') {
             throw new CoreException(__('No log message'));

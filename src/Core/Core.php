@@ -18,7 +18,6 @@ use Closure;
 
 use Dotclear\Core\Auth;
 use Dotclear\Core\Blog;
-use Dotclear\Core\Log;
 use Dotclear\Core\Media;
 use Dotclear\Core\Meta;
 use Dotclear\Core\RestServer;
@@ -50,6 +49,7 @@ use Dotclear\Utils\Text;
 use Dotclear\Utils\TraitBehavior;
 use Dotclear\Utils\TraitConfiguration;
 use Dotclear\Utils\TraitError;
+use Dotclear\Utils\TraitLog;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -57,7 +57,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Core
 {
-    use TraitError, TraitBehavior, TraitConfiguration;
+    use TraitError, TraitBehavior, TraitConfiguration, TraitLog;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -70,9 +70,6 @@ class Core
 
     /** @var Connection         Connetion instance */
     public $con;
-
-    /** @var Log                Log instance */
-    public $log;
 
     /** @var Media              Media instance */
     public $media;
@@ -293,7 +290,6 @@ class Core
             $this->url        = new UrlHandler();
             $this->rest       = new RestServer();
             $this->meta       = new Meta();
-            $this->log        = new Log();
 
         } catch (\Exception $e) {
             # Loading locales for detected language

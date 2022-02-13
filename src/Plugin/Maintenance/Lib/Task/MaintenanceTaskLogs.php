@@ -42,7 +42,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
                 "WHERE log_table <> 'maintenance' "
             );
         } else {
-            dotclear()->log->delLogs(null, true);
+            dotclear()->log()->delete(null, true);
         }
 
         return true;
