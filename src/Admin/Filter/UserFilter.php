@@ -36,7 +36,7 @@ class UserFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminUserFilter
-        dotclear()->behaviors->call('adminUserFilter', $filters);
+        dotclear()->behavior()->call('adminUserFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

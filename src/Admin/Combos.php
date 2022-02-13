@@ -215,7 +215,7 @@ class Combos
         $iconsets_combo = new ArrayObject([__('Default') => '']);
 
         # --BEHAVIOR-- adminPostsSortbyCombo
-        dotclear()->behaviors->call('adminIconsetCombo', $iconsets_combo);
+        dotclear()->behavior()->call('adminIconsetCombo', $iconsets_combo);
 
         return $iconsets_combo->getArrayCopy();
     }
@@ -271,7 +271,7 @@ class Combos
             __('Number of trackbacks') => 'nb_trackback'
         ]);
         # --BEHAVIOR-- adminPostsSortbyCombo
-        dotclear()->behaviors->call('adminPostsSortbyCombo', $sortby_combo);
+        dotclear()->behavior()->call('adminPostsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -288,7 +288,7 @@ class Combos
             __('Spam filter') => 'comment_spam_filter'
         ]);
         # --BEHAVIOR-- adminCommentsSortbyCombo
-        dotclear()->behaviors->call('adminCommentsSortbyCombo', $sortby_combo);
+        dotclear()->behavior()->call('adminCommentsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -302,7 +302,7 @@ class Combos
             __('Status')      => 'blog_status'
         ]);
         # --BEHAVIOR-- adminBlogsSortbyCombo
-        dotclear()->behaviors->call('adminBlogsSortbyCombo', $sortby_combo);
+        dotclear()->behavior()->call('adminBlogsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -319,7 +319,7 @@ class Combos
                 __('Number of entries') => 'nb_post'
             ]);
             # --BEHAVIOR-- adminUsersSortbyCombo
-            dotclear()->behaviors->call('adminUsersSortbyCombo', $sortby_combo);
+            dotclear()->behavior()->call('adminUsersSortbyCombo', $sortby_combo);
         }
         return $sortby_combo->getArrayCopy();
     }

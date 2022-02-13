@@ -143,12 +143,12 @@ class Category extends Page
                 # Update category
                 if ($this->cat_id) {
                     # --BEHAVIOR-- adminBeforeCategoryUpdate
-                    dotclear()->behaviors->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
+                    dotclear()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
                     dotclear()->blog->updCategory((int) $_POST['id'], $cur);
 
                     # --BEHAVIOR-- adminAfterCategoryUpdate
-                    dotclear()->behaviors->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
+                    dotclear()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
 
                     dotclear()->notices->addSuccessNotice(__('The category has been successfully updated.'));
 
@@ -157,12 +157,12 @@ class Category extends Page
                 # Create category
                 else {
                     # --BEHAVIOR-- adminBeforeCategoryCreate
-                    dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur);
+                    dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur);
 
                     $id = dotclear()->blog->addCategory($cur, (integer) $_POST['new_cat_parent']);
 
                     # --BEHAVIOR-- adminAfterCategoryCreate
-                    dotclear()->behaviors->call('adminAfterCategoryCreate', $cur, $id);
+                    dotclear()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
 
                     dotclear()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully created.'),
                         Html::escapeHTML($cur->cat_title)));
@@ -202,7 +202,7 @@ class Category extends Page
             ->setPageHead(
                 static::jsConfirmClose('category-form') .
                 static::jsLoad('js/_category.js') .
-                ($rte_flag ? dotclear()->behaviors->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
+                ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
             );
         ;
 

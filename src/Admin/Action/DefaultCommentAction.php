@@ -85,11 +85,11 @@ class DefaultCommentAction
         // Backward compatibility
         foreach ($co_ids as $comment_id) {
             # --BEHAVIOR-- adminBeforeCommentDelete
-            dotclear()->behaviors->call('adminBeforeCommentDelete', $comment_id);
+            dotclear()->behavior()->call('adminBeforeCommentDelete', $comment_id);
         }
 
         # --BEHAVIOR-- adminBeforeCommentsDelete
-        dotclear()->behaviors->call('adminBeforeCommentsDelete', $co_ids);
+        dotclear()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
 
         dotclear()->blog->delComments($co_ids);
         dotclear()->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));

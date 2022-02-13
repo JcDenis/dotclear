@@ -54,7 +54,7 @@ class Blogs extends Page
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetBlogs, ArrayObject
-        dotclear()->behaviors->call('adminGetBlogs', $params);
+        dotclear()->behavior()->call('adminGetBlogs', $params);
 
         $counter  = dotclear()->getBlogs($params, true);
         $rs       = dotclear()->getBlogs($params);

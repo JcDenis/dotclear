@@ -364,7 +364,7 @@ class Auth extends Page
 
 <?php
         # --BEHAVIOR-- loginPageHTMLHead
-        dotclear()->behaviors->call('loginPageHTMLHead');
+        dotclear()->behavior()->call('loginPageHTMLHead');
 
         echo
             self::jsJson('pwstrength', [

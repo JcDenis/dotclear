@@ -122,7 +122,7 @@ class MediaCatalog extends Catalog
             // Item
             $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
 
-            dotclear()->behaviors->call('adminMediaURLParams', $params);
+            dotclear()->behavior()->call('adminMediaURLParams', $params);
 
             $link = dotclear()->adminurl->get('admin.media.item', (array) $params);
             if ($f->media_priv) {

@@ -263,7 +263,7 @@ class MediaItem extends Page
         # Page setup
         $this->setPageHead(static::jsModal() . static::jsLoad('js/_media_item.js'));
         if ($this->popup && !empty($plugin_id)) {
-            $this->setPageHead(dotclear()->behaviors->call('adminPopupMedia', $plugin_id));
+            $this->setPageHead(dotclear()->behavior()->call('adminPopupMedia', $plugin_id));
         }
 
         $temp_params      = $this->media_page_url_params;
@@ -874,7 +874,7 @@ class MediaItem extends Page
             }
 
             # --BEHAVIOR-- adminMediaItemForm
-            dotclear()->behaviors->call('adminMediaItemForm', $this->file);
+            dotclear()->behavior()->call('adminMediaItemForm', $this->file);
         }
 
         echo

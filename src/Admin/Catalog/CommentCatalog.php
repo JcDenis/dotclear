@@ -112,7 +112,7 @@ class CommentCatalog extends Catalog
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new ArrayObject($cols);
-            dotclear()->behaviors->call('adminCommentListHeader', $this->rs, $cols, $spam);
+            dotclear()->behavior()->call('adminCommentListHeader', $this->rs, $cols, $spam);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -238,7 +238,7 @@ class CommentCatalog extends Catalog
             ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
-        dotclear()->behaviors->call('adminCommentListValue', $this->rs, $cols, $spam);
+        dotclear()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

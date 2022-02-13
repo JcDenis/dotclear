@@ -30,7 +30,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behaviors->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
+        dotclear()->behavior()->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
     }
 
     public static function adminIconsetCombo(ArrayObject $iconsets)

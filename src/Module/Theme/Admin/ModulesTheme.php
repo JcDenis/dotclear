@@ -228,7 +228,7 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= dotclear()->behaviors->call('adminCurrentThemeDetails', $module);
+                $line .= dotclear()->behavior()->call('adminCurrentThemeDetails', $module);
 
                 $line .= '</div>';
             }
@@ -358,7 +358,7 @@ class ModulesTheme extends AbstractModules
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = dotclear()->behaviors->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = dotclear()->behavior()->call('adminModulesListGetActions', $this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -395,7 +395,7 @@ class ModulesTheme extends AbstractModules
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = dotclear()->behaviors->call('adminModulesListGetGlobalActions', $this);
+                    $tmp = dotclear()->behavior()->call('adminModulesListGetGlobalActions', $this);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -457,12 +457,12 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeActivate
-                    dotclear()->behaviors->call('themeBeforeActivate', $id);
+                    dotclear()->behavior()->call('themeBeforeActivate', $id);
 
                     $this->activateModule($id);
 
                     # --BEHAVIOR-- themeAfterActivate
-                    dotclear()->behaviors->call('themeAfterActivate', $id);
+                    dotclear()->behavior()->call('themeAfterActivate', $id);
 
                     $count++;
                 }
@@ -495,12 +495,12 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeDeactivate
-                    dotclear()->behaviors->call('themeBeforeDeactivate', $module);
+                    dotclear()->behavior()->call('themeBeforeDeactivate', $module);
 
                     $this->deactivateModule($id);
 
                     # --BEHAVIOR-- themeAfterDeactivate
-                    dotclear()->behaviors->call('themeAfterDeactivate', $module);
+                    dotclear()->behavior()->call('themeAfterDeactivate', $module);
 
                     $count++;
                 }
@@ -525,12 +525,12 @@ class ModulesTheme extends AbstractModules
                     }
 
                     # --BEHAVIOR-- themeBeforeClone
-                    dotclear()->behaviors->call('themeBeforeClone', $id);
+                    dotclear()->behavior()->call('themeBeforeClone', $id);
 
                     $this->cloneModule($id);
 
                     # --BEHAVIOR-- themeAfterClone
-                    dotclear()->behaviors->call('themeAfterClone', $id);
+                    dotclear()->behavior()->call('themeAfterClone', $id);
 
                     $count++;
                 }
@@ -563,12 +563,12 @@ class ModulesTheme extends AbstractModules
                         }
 
                         # --BEHAVIOR-- themeBeforeDelete
-                        dotclear()->behaviors->call('themeBeforeDelete', $module);
+                        dotclear()->behavior()->call('themeBeforeDelete', $module);
 
                         $this->deleteModule($id);
 
                         # --BEHAVIOR-- themeAfterDelete
-                        dotclear()->behaviors->call('themeAfterDelete', $module);
+                        dotclear()->behavior()->call('themeAfterDelete', $module);
                     } else {
                         $this->deleteModule($id, true);
                     }
@@ -606,12 +606,12 @@ class ModulesTheme extends AbstractModules
                     $dest = $this->getPath() . '/' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeAdd
-                    dotclear()->behaviors->call('themeBeforeAdd', $module);
+                    dotclear()->behavior()->call('themeBeforeAdd', $module);
 
                     $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterAdd
-                    dotclear()->behaviors->call('themeAfterAdd', $module);
+                    dotclear()->behavior()->call('themeAfterAdd', $module);
 
                     $count++;
                 }
@@ -639,12 +639,12 @@ class ModulesTheme extends AbstractModules
                     $dest = $module->root() . '/../' . basename($module->file());
 
                     # --BEHAVIOR-- themeBeforeUpdate
-                    dotclear()->behaviors->call('themeBeforeUpdate', $module);
+                    dotclear()->behavior()->call('themeBeforeUpdate', $module);
 
                     $this->store->process($module->file(), $dest);
 
                     # --BEHAVIOR-- themeAfterUpdate
-                    dotclear()->behaviors->call('themeAfterUpdate', $module);
+                    dotclear()->behavior()->call('themeAfterUpdate', $module);
 
                     $count++;
                 }
@@ -678,12 +678,12 @@ class ModulesTheme extends AbstractModules
                 }
 
                 # --BEHAVIOR-- themeBeforeAdd
-                dotclear()->behaviors->call('themeBeforeAdd', null);
+                dotclear()->behavior()->call('themeBeforeAdd', null);
 
                 $ret_code = $this->store->install($dest);
 
                 # --BEHAVIOR-- themeAfterAdd
-                dotclear()->behaviors->call('themeAfterAdd', null);
+                dotclear()->behavior()->call('themeAfterAdd', null);
 
                 dotclear()->notices->addSuccessNotice(
                     $ret_code == 2 ?
@@ -694,7 +694,7 @@ class ModulesTheme extends AbstractModules
             } else {
 
                 # --BEHAVIOR-- adminModulesListDoActions
-                dotclear()->behaviors->call('adminModulesListDoActions', $this, $modules, 'theme');
+                dotclear()->behavior()->call('adminModulesListDoActions', $this, $modules, 'theme');
             }
         }
     }

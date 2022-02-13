@@ -106,7 +106,7 @@ class DefaultBlogAction
 
         if (!empty($ids)) {
             # --BEHAVIOR-- adminBeforeBlogsDelete
-            dotclear()->behaviors->call('adminBeforeBlogsDelete', $ids);
+            dotclear()->behavior()->call('adminBeforeBlogsDelete', $ids);
 
             foreach ($ids as $id) {
                 dotclear()->delBlog($id);

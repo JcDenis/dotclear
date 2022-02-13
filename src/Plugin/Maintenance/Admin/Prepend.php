@@ -44,12 +44,12 @@ class Prepend extends AbstractPrepend
         dotclear()->rest->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
 
         # Admin behaviors
-        dotclear()->behaviors->add('dcMaintenanceInit', [__CLASS__, 'behaviorDcMaintenanceInit']);
-        dotclear()->behaviors->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
-        dotclear()->behaviors->add('adminDashboardContents', [__CLASS__, 'behaviorAdminDashboardItems']);
-        dotclear()->behaviors->add('adminDashboardOptionsForm', [__CLASS__, 'behaviorAdminDashboardOptionsForm']);
-        dotclear()->behaviors->add('adminAfterDashboardOptionsUpdate', [__CLASS__, 'behaviorAdminAfterDashboardOptionsUpdate']);
-        dotclear()->behaviors->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
+        dotclear()->behavior()->add('dcMaintenanceInit', [__CLASS__, 'behaviorDcMaintenanceInit']);
+        dotclear()->behavior()->add('adminDashboardFavorites', [__CLASS__, 'behaviorAdminDashboardFavorites']);
+        dotclear()->behavior()->add('adminDashboardContents', [__CLASS__, 'behaviorAdminDashboardItems']);
+        dotclear()->behavior()->add('adminDashboardOptionsForm', [__CLASS__, 'behaviorAdminDashboardOptionsForm']);
+        dotclear()->behavior()->add('adminAfterDashboardOptionsUpdate', [__CLASS__, 'behaviorAdminAfterDashboardOptionsUpdate']);
+        dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
     }
 
     /**

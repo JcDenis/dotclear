@@ -54,7 +54,7 @@ class PagePlugin extends Page
             $this->setPageHelp('core_plugins_conf');
 
             # --BEHAVIOR-- pluginsToolsHeaders
-            $head = dotclear()->behaviors->call('pluginsToolsHeaders', true);
+            $head = dotclear()->behavior()->call('pluginsToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
@@ -92,7 +92,7 @@ class PagePlugin extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dotclear()->behaviors->call('pluginsToolsHeaders', false)
+                    (string) dotclear()->behavior()->call('pluginsToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                     __('System')             => '',
@@ -273,7 +273,7 @@ class PagePlugin extends Page
         }
 
         # --BEHAVIOR-- pluginsToolsTabs
-        dotclear()->behaviors->call('pluginsToolsTabs');
+        dotclear()->behavior()->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
         if (dotclear()->auth->isSuperAdmin() && !dotclear()->plugins->isWritablePath()) {

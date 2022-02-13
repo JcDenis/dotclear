@@ -1029,7 +1029,7 @@ trait TraitModulesAdmin
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = dotclear()->behaviors->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = dotclear()->behavior()->call('adminModulesListGetActions', $this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1098,7 +1098,7 @@ trait TraitModulesAdmin
                 case 'behavior':
 
                     # --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = dotclear()->behaviors->call('adminModulesListGetGlobalActions', $this, $with_selection);
+                    $tmp = dotclear()->behavior()->call('adminModulesListGetGlobalActions', $this, $with_selection);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1151,12 +1151,12 @@ trait TraitModulesAdmin
                     }
 
                     # --BEHAVIOR-- moduleBeforeDelete
-                    dotclear()->behaviors->call('pluginBeforeDelete', $module);
+                    dotclear()->behavior()->call('pluginBeforeDelete', $module);
 
                     $this->deleteModule($id);
 
                     # --BEHAVIOR-- moduleAfterDelete
-                    dotclear()->behaviors->call('pluginAfterDelete', $module);
+                    dotclear()->behavior()->call('pluginAfterDelete', $module);
                 } else {
                     $this->modules->deleteModule($id, true);
                 }
@@ -1196,12 +1196,12 @@ trait TraitModulesAdmin
                 $dest = $this->getPath() . '/' . basename($module->file());
 
                 # --BEHAVIOR-- moduleBeforeAdd
-                dotclear()->behaviors->call('pluginBeforeAdd', $module);
+                dotclear()->behavior()->call('pluginBeforeAdd', $module);
 
                 $this->store->process($module->file(), $dest);
 
                 # --BEHAVIOR-- moduleAfterAdd
-                dotclear()->behaviors->call('pluginAfterAdd', $module);
+                dotclear()->behavior()->call('pluginAfterAdd', $module);
 
                 $count++;
             }
@@ -1229,12 +1229,12 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeActivate
-                dotclear()->behaviors->call('pluginBeforeActivate', $id);
+                dotclear()->behavior()->call('pluginBeforeActivate', $id);
 
                 $this->activateModule($id);
 
                 # --BEHAVIOR-- moduleAfterActivate
-                dotclear()->behaviors->call('pluginAfterActivate', $id);
+                dotclear()->behavior()->call('pluginAfterActivate', $id);
 
                 $count++;
             }
@@ -1269,12 +1269,12 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeDeactivate
-                dotclear()->behaviors->call('pluginBeforeDeactivate', $module);
+                dotclear()->behavior()->call('pluginBeforeDeactivate', $module);
 
                 $this->deactivateModule($id);
 
                 # --BEHAVIOR-- moduleAfterDeactivate
-                dotclear()->behaviors->call('pluginAfterDeactivate', $module);
+                dotclear()->behavior()->call('pluginAfterDeactivate', $module);
 
                 $count++;
             }
@@ -1315,12 +1315,12 @@ trait TraitModulesAdmin
                 }
 
                 # --BEHAVIOR-- moduleBeforeUpdate
-                dotclear()->behaviors->call('pluginBeforeUpdate', $module);
+                dotclear()->behavior()->call('pluginBeforeUpdate', $module);
 
                 $this->store->process($module->file(), $dest);
 
                 # --BEHAVIOR-- moduleAfterUpdate
-                dotclear()->behaviors->call('pluginAfterUpdate', $module);
+                dotclear()->behavior()->call('pluginAfterUpdate', $module);
 
                 $count++;
             }
@@ -1354,12 +1354,12 @@ trait TraitModulesAdmin
             }
 
             # --BEHAVIOR-- moduleBeforeAdd
-            dotclear()->behaviors->call('pluginBeforeAdd', null);
+            dotclear()->behavior()->call('pluginBeforeAdd', null);
 
             $ret_code = $this->store->install($dest);
 
             # --BEHAVIOR-- moduleAfterAdd
-            dotclear()->behaviors->call('pluginAfterAdd', null);
+            dotclear()->behavior()->call('pluginAfterAdd', null);
 
             dotclear()->notices->addSuccessNotice(
                 $ret_code == 2 ?
@@ -1372,7 +1372,7 @@ trait TraitModulesAdmin
         } else {
 
             # --BEHAVIOR-- adminModulesListDoActions
-            dotclear()->behaviors->call('adminModulesListDoActions', $this, $modules, 'plugin');
+            dotclear()->behavior()->call('adminModulesListDoActions', $this, $modules, 'plugin');
         }
     }
 

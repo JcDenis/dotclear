@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behaviors->add('dcMaintenanceInit', function(Maintenance $maintenance): void {
+        dotclear()->behavior()->add('dcMaintenanceInit', function(Maintenance $maintenance): void {
             $maintenance->addTask('Dotclear\\Plugin\\Buildtools\\Admin\\MaintenanceTaskBuildtools');
         });
     }

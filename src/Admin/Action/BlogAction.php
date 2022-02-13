@@ -32,7 +32,7 @@ class BlogAction extends Action
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        dotclear()->behaviors->call('adminBlogsActionsPage', $this);
+        dotclear()->behavior()->call('adminBlogsActionsPage', $this);
 
         # Page setup
         $this

@@ -57,7 +57,7 @@ class Users extends Page
             'user_displayname' => 'user_displayname'];
 
         # --BEHAVIOR-- adminUsersSortbyLexCombo
-        dotclear()->behaviors->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        dotclear()->behavior()->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
             dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
@@ -66,7 +66,7 @@ class Users extends Page
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- adminGetUsers
-        dotclear()->behaviors->call('adminGetUsers', $params);
+        dotclear()->behavior()->call('adminGetUsers', $params);
 
         $rs       = dotclear()->getUsers($params);
         $counter  = dotclear()->getUsers($params, true);
@@ -115,7 +115,7 @@ class Users extends Page
         ];
 
         # --BEHAVIOR-- adminUsersActionsCombo
-        dotclear()->behaviors->call('adminUsersActionsCombo', [& $combo_action]);
+        dotclear()->behavior()->call('adminUsersActionsCombo', [& $combo_action]);
 
         echo '<p class="top-add"><strong><a class="button add" href="' . dotclear()->adminurl->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 

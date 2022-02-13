@@ -233,8 +233,8 @@ class Template extends BaseTemplate
     public function getData(string $________): string
     {
         # --BEHAVIOR-- tplBeforeData
-        if (dotclear()->behaviors->has('tplBeforeData')) {
-            self::$_r = dotclear()->behaviors->call('tplBeforeData');
+        if (dotclear()->behavior()->has('tplBeforeData')) {
+            self::$_r = dotclear()->behavior()->call('tplBeforeData');
             if (self::$_r) {
                 return self::$_r;
             }
@@ -243,8 +243,8 @@ class Template extends BaseTemplate
         parent::getData($________);
 
         # --BEHAVIOR-- tplAfterData
-        if (dotclear()->behaviors->has('tplAfterData')) {
-            dotclear()->behaviors->call('tplAfterData', self::$_r);
+        if (dotclear()->behavior()->has('tplAfterData')) {
+            dotclear()->behavior()->call('tplAfterData', self::$_r);
         }
 
         return self::$_r;
@@ -262,15 +262,15 @@ class Template extends BaseTemplate
         $this->current_tag = $tag;
         $attr              = new ArrayObject($attr);
         # --BEHAVIOR-- templateBeforeBlock
-        $res = dotclear()->behaviors->call('templateBeforeBlock', $this->current_tag, $attr);
+        $res = dotclear()->behavior()->call('templateBeforeBlock', $this->current_tag, $attr);
 
         # --BEHAVIOR-- templateInsideBlock
-        dotclear()->behaviors->call('templateInsideBlock', $this->current_tag, $attr, [& $content]);
+        dotclear()->behavior()->call('templateInsideBlock', $this->current_tag, $attr, [& $content]);
 
         $res .= parent::compileBlockNode($this->current_tag, $attr, $content);
 
         # --BEHAVIOR-- templateAfterBlock
-        $res .= dotclear()->behaviors->call('templateAfterBlock', $this->current_tag, $attr);
+        $res .= dotclear()->behavior()->call('templateAfterBlock', $this->current_tag, $attr);
 
         return $res;
     }
@@ -281,12 +281,12 @@ class Template extends BaseTemplate
 
         $attr = new ArrayObject($attr);
         # --BEHAVIOR-- templateBeforeValue
-        $res = dotclear()->behaviors->call('templateBeforeValue', $this->current_tag, $attr);
+        $res = dotclear()->behavior()->call('templateBeforeValue', $this->current_tag, $attr);
 
         $res .= parent::compileValueNode($this->current_tag, $attr, $str_attr);
 
         # --BEHAVIOR-- templateAfterValue
-        $res .= dotclear()->behaviors->call('templateAfterValue', $this->current_tag, $attr);
+        $res .= dotclear()->behavior()->call('templateAfterValue', $this->current_tag, $attr);
 
         return $res;
     }
@@ -364,7 +364,7 @@ class Template extends BaseTemplate
         $alias = new ArrayObject();
 
         # --BEHAVIOR-- templateCustomSortByAlias
-        dotclear()->behaviors->call('templateCustomSortByAlias', $alias);
+        dotclear()->behavior()->call('templateCustomSortByAlias', $alias);
 
         $alias = $alias->getArrayCopy();
 
@@ -529,7 +529,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Archives', 'method' => 'blog::getDates'],
             $attr,
@@ -652,7 +652,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'ArchiveNext', 'method' => 'blog::getDates'],
             $attr,
@@ -693,7 +693,7 @@ class Template extends BaseTemplate
         $p .= "\$params['previous'] = dotclear()->context->archives->dt;";
 
         $res = "<?php\n";
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'ArchivePrevious', 'method' => 'blog::getDates'],
             $attr,
@@ -1035,7 +1035,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Categories', 'method' => 'blog::getCategories'],
             $attr,
@@ -1140,7 +1140,7 @@ class Template extends BaseTemplate
             $if[] = 'dotclear()->context->categories->cat_desc ' . $sign . ' ""';
         }
 
-        dotclear()->behaviors->call('tplIfConditions', 'CategoryIf', $attr, $content, $if);
+        dotclear()->behavior()->call('tplIfConditions', 'CategoryIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -1392,7 +1392,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Entries', 'method' => 'blog::getPosts'],
             $attr,
@@ -1598,7 +1598,7 @@ class Template extends BaseTemplate
             }
         }
 
-        dotclear()->behaviors->call('tplIfConditions', 'EntryIf', $attr, $content, $if);
+        dotclear()->behavior()->call('tplIfConditions', 'EntryIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -2206,7 +2206,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Languages', 'method' => 'blog::getLangs'],
             $attr,
@@ -2303,7 +2303,7 @@ class Template extends BaseTemplate
     {
         $p = "<?php\n";
         $p .= '$params = dotclear()->context->post_params;' . "\n";
-        $p .= dotclear()->behaviors->call(
+        $p .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Pagination', 'method' => 'blog::getPosts'],
             $attr,
@@ -2369,7 +2369,7 @@ class Template extends BaseTemplate
             $if[] = $sign . 'dotclear()->context->PaginationEnd()';
         }
 
-        dotclear()->behaviors->call('tplIfConditions', 'PaginationIf', $attr, $content, $if);
+        dotclear()->behavior()->call('tplIfConditions', 'PaginationIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' && ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -2456,7 +2456,7 @@ class Template extends BaseTemplate
         }
 
         $res = "<?php\n";
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Comments', 'method' => 'blog::getComments'],
             $attr,
@@ -2654,7 +2654,7 @@ class Template extends BaseTemplate
             $if[] = $sign . 'dotclear()->context->comments->comment_trackback';
         }
 
-        dotclear()->behaviors->call('tplIfConditions', 'CommentIf', $attr, $content, $if);
+        dotclear()->behavior()->call('tplIfConditions', 'CommentIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' && ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
@@ -3093,7 +3093,7 @@ class Template extends BaseTemplate
 
         $res = "<?php\n";
         $res .= $p;
-        $res .= dotclear()->behaviors->call(
+        $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Pings', 'method' => 'blog::getComments'],
             $attr,
@@ -3166,8 +3166,8 @@ class Template extends BaseTemplate
         $b = addslashes($attr['behavior']);
 
         return
-            '<?php if (dotclear()->behaviors->has(\'' . $b . '\')) { ' .
-            'dotclear()->behaviors->call(\'' . $b . '\',dotclear()->context);' .
+            '<?php if (dotclear()->behavior()->has(\'' . $b . '\')) { ' .
+            'dotclear()->behavior()->call(\'' . $b . '\',dotclear()->context);' .
             '} ?>';
     }
 
@@ -3283,7 +3283,7 @@ class Template extends BaseTemplate
             $if[] = $sign . 'dotclear()->blog->settings->system->jquery_needed';
         }
 
-        dotclear()->behaviors->call('tplIfConditions', 'SysIf', $attr, $content, $if);
+        dotclear()->behavior()->call('tplIfConditions', 'SysIf', $attr, $content, $if);
 
         if (count($if) != 0) {
             return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';

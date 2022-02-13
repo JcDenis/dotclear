@@ -139,7 +139,7 @@ class Page extends AbstractPage
 
         # --BEHAVIOR-- adminSimpleMenuAddType
         # Should add an item to $this->sm_items[<id>] as an [<label>,<optional step (true or false)>]
-        dotclear()->behaviors->call('adminSimpleMenuAddType', $this->sm_items);
+        dotclear()->behavior()->call('adminSimpleMenuAddType', $this->sm_items);
 
         $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
 
@@ -267,7 +267,7 @@ class Page extends AbstractPage
                                 # --BEHAVIOR-- adminSimpleMenuBeforeEdit
                                 # Should modify if necessary $this->sm_item_label, $this->sm_item_descr and $this->sm_item_url
                                 # Should set if necessary $this->sm_item_select_label (displayed on further admin step only)
-                                dotclear()->behaviors->call('adminSimpleMenuBeforeEdit', $this->sm_item_type, $this->sm_item_select,
+                                dotclear()->behavior()->call('adminSimpleMenuBeforeEdit', $this->sm_item_type, $this->sm_item_select,
                                     [& $this->sm_item_label, &$this->sm_item_descr, &$this->sm_item_url, &$this->sm_item_select_label]);
 
                                 break;
@@ -514,7 +514,7 @@ class Page extends AbstractPage
                                 echo
                                 # --BEHAVIOR-- adminSimpleMenuSelect
                                 # Optional step once $this->sm_item_type known : should provide a field using 'item_select' as id
-                                dotclear()->behaviors->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
+                                dotclear()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
                         }
                         echo form::hidden('item_type', $this->sm_item_type);
                         echo '<p>' . dotclear()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';

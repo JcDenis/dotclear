@@ -65,7 +65,7 @@ class PageIconset extends Page
                 static::jsPageTabs() .
 
                 # --BEHAVIOR-- modulesToolsHeaders
-                (string) dotclear()->behaviors->call('modulesToolsHeaders', false)
+                (string) dotclear()->behavior()->call('modulesToolsHeaders', false)
             )
             ->setPageBreadcrumb([
                 __('System')             => '',
@@ -242,7 +242,7 @@ class PageIconset extends Page
         }
 
         # --BEHAVIOR-- modulesToolsTabs
-        dotclear()->behaviors->call('modulesToolsTabs');
+        dotclear()->behavior()->call('modulesToolsTabs');
 
         # -- Notice for super admin --
         if (dotclear()->auth->isSuperAdmin() && !dotclear()->iconsets->isWritablePath()) {

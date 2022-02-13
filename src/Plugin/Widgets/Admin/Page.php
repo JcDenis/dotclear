@@ -312,7 +312,7 @@ class Page extends AbstractPage
         ]) .
         static::jsLoad('?mf=Plugin/Widgets/files/js/widgets.js') .
         (!$user_dm_nodragdrop ? static::jsLoad('?mf=Plugin/Widgets/files/js/dragdrop.js') : '') .
-        ($rte_flag ? (string) dotclear()->behaviors->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
+        ($rte_flag ? (string) dotclear()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         static::jsConfirmClose('sidebarsWidgets');
     }
 

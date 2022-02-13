@@ -209,7 +209,7 @@ class Post extends Page
                 foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
                         # --BEHAVIOR-- adminBeforePingTrackback
-                        dotclear()->behaviors->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        dotclear()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (\Exception $e) {
@@ -284,7 +284,7 @@ class Post extends Page
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
-                dotclear()->behaviors->call('adminBeforePostDelete', $this->post_id);
+                dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
                 dotclear()->blog->delPost($this->post_id);
                 dotclear()->adminurl->redirect('admin.posts');
             } catch (\Exception $e) {
@@ -303,12 +303,12 @@ class Post extends Page
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+                dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
                 $this->cat_id = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                dotclear()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
+                dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
             $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
@@ -337,12 +337,12 @@ class Post extends Page
             if ($this->post_id) {
                 try {
                     # --BEHAVIOR-- adminBeforePostUpdate
-                    dotclear()->behaviors->call('adminBeforePostUpdate', $cur, $this->post_id);
+                    dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
                     dotclear()->blog->updPost($this->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
-                    dotclear()->behaviors->call('adminAfterPostUpdate', $cur, $this->post_id);
+                    dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
                     dotclear()->notices->addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
                     dotclear()->adminurl->redirect(
                         'admin.post',
@@ -356,12 +356,12 @@ class Post extends Page
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
-                    dotclear()->behaviors->call('adminBeforePostCreate', $cur);
+                    dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
                     $return_id = dotclear()->blog->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
-                    dotclear()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
+                    dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
                     dotclear()->notices->addSuccessNotice(__('Entry has been successfully created.'));
                     dotclear()->adminurl->redirect(
@@ -426,7 +426,7 @@ class Post extends Page
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(dotclear()->behaviors->call(
+                $this->setPageHead(dotclear()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -434,14 +434,14 @@ class Post extends Page
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(dotclear()->behaviors->call(
+                $this->setPageHead(dotclear()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(dotclear()->behaviors->call(
+                $this->setPageHead(dotclear()->behavior()->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -462,7 +462,7 @@ class Post extends Page
                 static::jsLoad('js/_post.js') .
                 static::jsConfirmClose('entry-form', 'comment-form') .
                 # --BEHAVIOR-- adminPostHeaders
-                dotclear()->behaviors->call('adminPostHeaders') .
+                dotclear()->behavior()->call('adminPostHeaders') .
                 static::jsPageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
@@ -539,7 +539,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostNavLinks
-            dotclear()->behaviors->call('adminPostNavLinks', $this->post ?? null, 'post');
+            dotclear()->behavior()->call('adminPostNavLinks', $this->post ?? null, 'post');
 
             echo '</p>';
         }
@@ -692,7 +692,7 @@ class Post extends Page
             );
 
             # --BEHAVIOR-- adminPostFormItems
-            dotclear()->behaviors->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
+            dotclear()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
@@ -707,7 +707,7 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostForm (may be deprecated)
-            dotclear()->behaviors->call('adminPostForm', $this->post ?? null, 'post');
+            dotclear()->behavior()->call('adminPostForm', $this->post ?? null, 'post');
 
             echo
             '<p class="border-top">' .
@@ -751,13 +751,13 @@ class Post extends Page
             }
 
             # --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            dotclear()->behaviors->call('adminPostFormSidebar', $this->post ?? null, 'post');
+            dotclear()->behavior()->call('adminPostFormSidebar', $this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             # --BEHAVIOR-- adminPostForm
-            dotclear()->behaviors->call('adminPostAfterForm', $this->post ?? null, 'post');
+            dotclear()->behavior()->call('adminPostAfterForm', $this->post ?? null, 'post');
 
             echo '</div>';
         }

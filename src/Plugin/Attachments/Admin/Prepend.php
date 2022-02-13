@@ -33,13 +33,13 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behaviors->add('adminPostFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
-        dotclear()->behaviors->add('adminPostAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
-        dotclear()->behaviors->add('adminPostHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
-        dotclear()->behaviors->add('adminPageFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
-        dotclear()->behaviors->add('adminPageAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
-        dotclear()->behaviors->add('adminPageHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
-        dotclear()->behaviors->add('adminPageHelpBlock', [__CLASS__, 'behaviorAadminPageHelpBlock']);
+        dotclear()->behavior()->add('adminPostFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
+        dotclear()->behavior()->add('adminPostAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
+        dotclear()->behavior()->add('adminPostHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
+        dotclear()->behavior()->add('adminPageFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
+        dotclear()->behavior()->add('adminPageAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
+        dotclear()->behavior()->add('adminPageHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
+        dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAadminPageHelpBlock']);
     }
 
     public static function behaviorAadminPageHelpBlock(ArrayObject $blocks): void

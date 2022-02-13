@@ -76,7 +76,7 @@ trait TraitPrependAdmin
     {
         # call once for all modules
         if (empty(static::$favorties)) {
-            dotclear()->behaviors->add('adminDashboardFavorites', function (Favorites $favs): void {
+            dotclear()->behavior()->add('adminDashboardFavorites', function (Favorites $favs): void {
                 foreach (static::$favorites as $id => $values) {
                     $favs->register($id, $values);
                 }

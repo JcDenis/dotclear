@@ -55,8 +55,8 @@ class Prepend extends Core
         parent::process();
 
         # Add Record extensions
-        $this->behaviors->add('coreBlogGetPosts', [__CLASS__, 'behaviorCoreBlogGetPosts']);
-        $this->behaviors->add('coreBlogGetComments', [__CLASS__, 'behaviorCoreBlogGetComments']);
+        $this->behavior()->add('coreBlogGetPosts', [__CLASS__, 'behaviorCoreBlogGetPosts']);
+        $this->behavior()->add('coreBlogGetComments', [__CLASS__, 'behaviorCoreBlogGetComments']);
 
         # Load blog
         try {
@@ -158,7 +158,7 @@ class Prepend extends Core
         $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'public');
 
         # --BEHAVIOR-- publicPrepend
-        $this->behaviors->call('publicPrepend');
+        $this->behavior()->call('publicPrepend');
 
         # Check templateset and add all path to tpl
         $tplset = $this->themes->getModule(array_key_last($path))->templateset();
@@ -181,12 +181,12 @@ class Prepend extends Core
 
         try {
             # --BEHAVIOR-- publicBeforeDocument
-            $this->behaviors->call('publicBeforeDocument');
+            $this->behavior()->call('publicBeforeDocument');
 
             $this->url->getDocument();
 
             # --BEHAVIOR-- publicAfterDocument
-            $this->behaviors->call('publicAfterDocument');
+            $this->behavior()->call('publicAfterDocument');
         } catch (\Exception $e) {
             throw new PrependException(__('Template problem'), $this->config()->run_level >= DOTCLEAR_RUN_DEBUG ?
                 __('The following error was encountered while trying to load template file:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :

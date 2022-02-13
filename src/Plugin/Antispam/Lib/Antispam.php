@@ -40,7 +40,7 @@ class Antispam
         $spamfilters = new ArrayObject(self::defaultFilters());
 
         # --BEHAVIOR-- antispamInitFilters , ArrayObject
-        dotclear()->behaviors->call('antispamInitFilters', $spamfilters);
+        dotclear()->behavior()->call('antispamInitFilters', $spamfilters);
         $spamfilters = $spamfilters->getArrayCopy();
 
         self::$filters = new Spamfilters();

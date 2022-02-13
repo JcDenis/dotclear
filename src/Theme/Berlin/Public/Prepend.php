@@ -29,7 +29,7 @@ class Prepend extends AbstractPrepend
     public static function loadModule(): void
     {
         if (dotclear()->blog->settings->system->theme == 'Berlin') {
-            dotclear()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+            dotclear()->behavior()->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
         }
     }
 

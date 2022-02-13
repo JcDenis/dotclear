@@ -36,7 +36,7 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites();
 
         # rte
-        dotclear()->behaviors->add('adminRteFlags', function (ArrayObject $rte): void {
+        dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
             $rte['widgets_text'] = [true, __('Widget\'s textareas')];
         });
 

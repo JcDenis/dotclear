@@ -90,7 +90,7 @@ class Favorites
     public function setup(): void
     {
         $this->initDefaultFavorites();
-        dotclear()->behaviors->call('adminDashboardFavorites', $this);
+        dotclear()->behavior()->call('adminDashboardFavorites', $this);
         $this->setUserPrefs();
     }
 
@@ -322,7 +322,7 @@ class Favorites
                 call_user_func($v['dashboard_cb'], $v);
             }
             $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
-            dotclear()->behaviors->call('adminDashboardFavsIcon', $k, $icons[$k]);
+            dotclear()->behavior()->call('adminDashboardFavsIcon', $k, $icons[$k]);
         }
     }
 

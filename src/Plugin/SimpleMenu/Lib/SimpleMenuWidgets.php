@@ -30,7 +30,7 @@ class SimpleMenuWidgets
 
     public function __construct()
     {
-        dotclear()->behaviors->add('initWidgets', [$this, 'initWidgets']);
+        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
         if (!empty(dotclear()->tpl)) {
             dotclear()->tpl->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
@@ -180,7 +180,7 @@ class SimpleMenuWidgets
                 ]);
 
                 # --BEHAVIOR-- publicSimpleMenuItem
-                dotclear()->behaviors->call('publicSimpleMenuItem', $i, $item);
+                dotclear()->behavior()->call('publicSimpleMenuItem', $i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
                     ($item['active'] ? ' active' : '') .

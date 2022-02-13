@@ -171,7 +171,7 @@ class BlogPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeBlogUpdate
-                dotclear()->behaviors->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
+                dotclear()->behavior()->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
 
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_POST['lang'])) {
                     throw new AdminException(__('Invalid language code'));
@@ -180,7 +180,7 @@ class BlogPref extends Page
                 dotclear()->updBlog($this->blog_id, $cur);
 
                 # --BEHAVIOR-- adminAfterBlogUpdate
-                dotclear()->behaviors->call('adminAfterBlogUpdate', $cur, $this->blog_id);
+                dotclear()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
 
                 if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
                     if ($this->blog_id == dotclear()->blog->id) {
@@ -245,7 +245,7 @@ class BlogPref extends Page
                 $this->blog_settings->system->put('static_home_url', $_POST['static_home_url']);
 
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                dotclear()->behaviors->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
+                dotclear()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
                 if (dotclear()->auth->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $this->blog_settings->system->put('url_scan', $_POST['url_scan']);
@@ -275,11 +275,11 @@ class BlogPref extends Page
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.')
                 ]) .
                 static::jsConfirmClose('blog-form') .
-                ($rte_flag ? dotclear()->behaviors->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+                ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
                 static::jsLoad('js/_blog_pref.js') .
 
                 # --BEHAVIOR-- adminBlogPreferencesHeaders
-                dotclear()->behaviors->call('adminBlogPreferencesHeaders') .
+                dotclear()->behavior()->call('adminBlogPreferencesHeaders') .
 
                 static::jsPageTabs()
             )
@@ -848,7 +848,7 @@ class BlogPref extends Page
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
         # --BEHAVIOR-- adminBlogPreferencesForm
-        dotclear()->behaviors->call('adminBlogPreferencesForm', $this->blog_settings);
+        dotclear()->behavior()->call('adminBlogPreferencesForm', $this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins
 

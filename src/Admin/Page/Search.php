@@ -49,19 +49,19 @@ class Search extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        dotclear()->behaviors->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
-        dotclear()->behaviors->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
+        dotclear()->behavior()->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
+        dotclear()->behavior()->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
         // posts search
-        dotclear()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
-        dotclear()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
         // comments search
-        dotclear()->behaviors->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
-        dotclear()->behaviors->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
 
         $qtype_combo = new ArrayObject();
 
         # --BEHAVIOR-- adminSearchPageCombo
-        dotclear()->behaviors->call('adminSearchPageCombo', $qtype_combo);
+        dotclear()->behavior()->call('adminSearchPageCombo', $qtype_combo);
 
         $this->qtype_combo = $qtype_combo->getArrayCopy();
         $q     = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
@@ -79,12 +79,12 @@ class Search extends Page
         $this->args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         # --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? dotclear()->behaviors->call('adminSearchPageHead', $this->args) : '';
+        $starting_scripts = $q ? dotclear()->behavior()->call('adminSearchPageHead', $this->args) : '';
 
         if ($q) {
 
             # --BEHAVIOR-- adminSearchPageProcess
-            dotclear()->behaviors->call('adminSearchPageProcess', $this->args);
+            dotclear()->behavior()->call('adminSearchPageProcess', $this->args);
         }
 
         # Page setup
@@ -121,7 +121,7 @@ class Search extends Page
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
-            dotclear()->behaviors->call('adminSearchPageDisplay', $this->args);
+            dotclear()->behavior()->call('adminSearchPageDisplay', $this->args);
 
             $res = ob_get_contents();
             ob_end_clean();

@@ -71,7 +71,7 @@ class Blog extends Page
 
             try {
                 # --BEHAVIOR-- adminBeforeBlogCreate
-                dotclear()->behaviors->call('adminBeforeBlogCreate', $cur, $this->blog_id);
+                dotclear()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
 
                 dotclear()->addBlog($cur);
 
@@ -88,7 +88,7 @@ class Blog extends Page
                 }
 
                 # --BEHAVIOR-- adminAfterBlogCreate
-                dotclear()->behaviors->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
+                dotclear()->behavior()->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
                 static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->blog_name)));
                 dotclear()->adminurl->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);

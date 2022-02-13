@@ -59,7 +59,7 @@ class Comments extends Page
             'comment_spam_filter' => 'comment_spam_filter'];
 
         # --BEHAVIOR-- adminCommentsSortbyLexCombo
-        dotclear()->behaviors->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
+        dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
             dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
@@ -147,7 +147,7 @@ class Comments extends Page
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
             # --BEHAVIOR-- adminCommentsSpamForm
-            dotclear()->behaviors->call('adminCommentsSpamForm');
+            dotclear()->behavior()->call('adminCommentsSpamForm');
 
             echo '</form>';
         }

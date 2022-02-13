@@ -103,7 +103,7 @@ class PostCatalog extends Catalog
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
             $cols = new ArrayObject($cols);
-            dotclear()->behaviors->call('adminPostListHeader', $this->rs, $cols);
+            dotclear()->behavior()->call('adminPostListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -237,7 +237,7 @@ class PostCatalog extends Catalog
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
         $cols = new ArrayObject($cols);
-        dotclear()->behaviors->call('adminPostListValue', $this->rs, $cols);
+        dotclear()->behavior()->call('adminPostListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

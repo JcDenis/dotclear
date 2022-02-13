@@ -77,7 +77,7 @@ class UserAction extends Page
             }
 
             # --BEHAVIOR-- adminUsersActions
-            dotclear()->behaviors->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->redir);
+            dotclear()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->redir);
 
             # Delete users
             if ($this->user_action == 'deleteuser' && !empty($this->users)) {
@@ -88,7 +88,7 @@ class UserAction extends Page
                         }
 
                         # --BEHAVIOR-- adminBeforeUserDelete
-                        dotclear()->behaviors->call('adminBeforeUserDelete', $u);
+                        dotclear()->behavior()->call('adminBeforeUserDelete', $u);
 
                         dotclear()->delUser($u);
                     } catch (\Exception $e) {
@@ -153,7 +153,7 @@ class UserAction extends Page
             ->setPageHead(
                 static::jsLoad('js/_users_actions.js') .
                 # --BEHAVIOR-- adminUsersActionsHeaders
-                dotclear()->behaviors->call('adminUsersActionsHeaders')
+                dotclear()->behavior()->call('adminUsersActionsHeaders')
             )
         ;
 
@@ -185,7 +185,7 @@ class UserAction extends Page
         echo '<p><a class="back" href="' . Html::escapeURL($this->redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
 
         # --BEHAVIOR-- adminUsersActionsContent
-        dotclear()->behaviors->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
+        dotclear()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
 
         # Blog list where to set permissions
         if (!empty($this->users) && empty($this->blogs) && $this->user_action == 'blogs') {

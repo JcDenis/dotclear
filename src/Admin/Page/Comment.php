@@ -67,12 +67,12 @@ class Comment extends Page
                 $cur->post_id         = (integer) $_POST['post_id'];
 
                 # --BEHAVIOR-- adminBeforeCommentCreate
-                dotclear()->behaviors->call('adminBeforeCommentCreate', $cur);
+                dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
 
                 $this->comment_id = dotclear()->blog->addComment($cur);
 
                 # --BEHAVIOR-- adminAfterCommentCreate
-                dotclear()->behaviors->call('adminAfterCommentCreate', $cur, $this->comment_id);
+                dotclear()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
                 dotclear()->notices->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (\Exception $e) {
@@ -143,12 +143,12 @@ class Comment extends Page
 
                 try {
                     # --BEHAVIOR-- adminBeforeCommentUpdate
-                    dotclear()->behaviors->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
+                    dotclear()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
                     dotclear()->blog->updComment($this->comment_id, $cur);
 
                     # --BEHAVIOR-- adminAfterCommentUpdate
-                    dotclear()->behaviors->call('adminAfterCommentUpdate', $cur, $this->comment_id);
+                    dotclear()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully updated.'));
                     dotclear()->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
@@ -160,7 +160,7 @@ class Comment extends Page
             if (!empty($_POST['delete']) && $this->can_delete) {
                 try {
                     # --BEHAVIOR-- adminBeforeCommentDelete
-                    dotclear()->behaviors->call('adminBeforeCommentDelete', $this->comment_id);
+                    dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
                     dotclear()->blog->delComment($this->comment_id);
 
@@ -189,10 +189,10 @@ class Comment extends Page
             ->setPageHead(
                 static::jsConfirmClose('comment-form') .
                 static::jsLoad('js/_comment.js') .
-                dotclear()->behaviors->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
+                dotclear()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
                 # --BEHAVIOR-- adminCommentHeaders
-                dotclear()->behaviors->call('adminCommentHeaders')
+                dotclear()->behavior()->call('adminCommentHeaders')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog->name) => '',
@@ -266,7 +266,7 @@ class Comment extends Page
         '</p>' .
 
         # --BEHAVIOR-- adminAfterCommentDesc
-        //!dotclear()->behaviors->call('adminAfterCommentDesc', $rs) .
+        //!dotclear()->behavior()->call('adminAfterCommentDesc', $rs) .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
         Form::textarea('comment_content', 50, 10,

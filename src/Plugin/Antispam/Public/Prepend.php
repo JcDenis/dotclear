@@ -37,8 +37,8 @@ class Prepend extends AbstractPrepend
         dotclear()->url->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$class, 'hamFeed']);
 
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\Antispam';
-        dotclear()->behaviors->add('publicBeforeCommentCreate', [$class, 'isSpam']);
-        dotclear()->behaviors->add('publicBeforeTrackbackCreate', [$class, 'isSpam']);
-        dotclear()->behaviors->add('publicBeforeDocument', [$class, 'purgeOldSpam']);
+        dotclear()->behavior()->add('publicBeforeCommentCreate', [$class, 'isSpam']);
+        dotclear()->behavior()->add('publicBeforeTrackbackCreate', [$class, 'isSpam']);
+        dotclear()->behavior()->add('publicBeforeDocument', [$class, 'purgeOldSpam']);
     }
 }

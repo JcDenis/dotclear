@@ -494,12 +494,12 @@ class Trackback
         $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate
-        dotclear()->behaviors->call('publicBeforeTrackbackCreate', $cur);
+        dotclear()->behavior()->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->post_id) {
             $comment_id = dotclear()->blog->addComment($cur);
 
             # --BEHAVIOR-- publicAfterTrackbackCreate
-            dotclear()->behaviors->call('publicAfterTrackbackCreate', $cur, $comment_id);
+            dotclear()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);
         }
     }
 

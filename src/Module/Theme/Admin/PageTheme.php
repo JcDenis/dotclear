@@ -53,7 +53,7 @@ class PageTheme extends Page
             $this->setPageHelp('core_blog_theme_conf');
 
             # --BEHAVIOR-- themessToolsHeaders
-            $head = dotclear()->behaviors->call('themessToolsHeaders', true);
+            $head = dotclear()->behavior()->call('themessToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
@@ -91,7 +91,7 @@ class PageTheme extends Page
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dotclear()->behaviors->call('themesToolsHeaders', false)
+                    (string) dotclear()->behavior()->call('themesToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                         Html::escapeHTML(dotclear()->blog->name)                       => '',
@@ -274,7 +274,7 @@ class PageTheme extends Page
         }
 
         # --BEHAVIOR-- themessToolsTabs
-        dotclear()->behaviors->call('themesToolsTabs');
+        dotclear()->behavior()->call('themesToolsTabs');
 
         # -- Notice for super admin --
         if (dotclear()->auth->isSuperAdmin() && !dotclear()->themes->isWritablePath()) {

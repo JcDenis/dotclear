@@ -194,7 +194,7 @@ class Update extends Page
 
                 dotclear()->error($msg);
 
-                dotclear()->behaviors->call('adminDCUpdateException', $e);
+                dotclear()->behavior()->call('adminDCUpdateException', $e);
             }
         }
 

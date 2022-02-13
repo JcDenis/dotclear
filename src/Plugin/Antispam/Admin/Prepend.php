@@ -55,23 +55,23 @@ class Prepend extends AbstractPrepend
 
         # Core behaviors
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\Antispam';
-        dotclear()->behaviors->add('coreAfterCommentUpdate', [$class, 'trainFilters']);
-        dotclear()->behaviors->add('adminAfterCommentDesc', [$class, 'statusMessage']);
-        dotclear()->behaviors->add('adminDashboardHeaders', [$class, 'dashboardHeaders']);
-        dotclear()->behaviors->add('adminCommentsActionsPage', [$class, 'commentsActionsPage']);
-        dotclear()->behaviors->add('coreBlogGetComments', [$class, 'blogGetComments']);
-        dotclear()->behaviors->add('adminCommentListHeader', [$class, 'commentListHeader']);
-        dotclear()->behaviors->add('adminCommentListValue', [$class, 'commentListValue']);
+        dotclear()->behavior()->add('coreAfterCommentUpdate', [$class, 'trainFilters']);
+        dotclear()->behavior()->add('adminAfterCommentDesc', [$class, 'statusMessage']);
+        dotclear()->behavior()->add('adminDashboardHeaders', [$class, 'dashboardHeaders']);
+        dotclear()->behavior()->add('adminCommentsActionsPage', [$class, 'commentsActionsPage']);
+        dotclear()->behavior()->add('coreBlogGetComments', [$class, 'blogGetComments']);
+        dotclear()->behavior()->add('adminCommentListHeader', [$class, 'commentListHeader']);
+        dotclear()->behavior()->add('adminCommentListValue', [$class, 'commentListValue']);
 
 
         # Admin behaviors
-        dotclear()->behaviors->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
+        dotclear()->behavior()->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
 
         if (!DC_ANTISPAM_CONF_SUPER || dotclear()->auth->isSuperAdmin()) {
-            dotclear()->behaviors->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
-            dotclear()->behaviors->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
-            dotclear()->behaviors->add('adminCommentsSpamForm', [__CLASS__, 'behaviorAdminCommentsSpamForm']);
-            dotclear()->behaviors->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
+            dotclear()->behavior()->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
+            dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
+            dotclear()->behavior()->add('adminCommentsSpamForm', [__CLASS__, 'behaviorAdminCommentsSpamForm']);
+            dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
         }
     }
 

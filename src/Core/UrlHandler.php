@@ -65,7 +65,7 @@ class UrlHandler
 
     public function getURLFor($type, $value = '')
     {
-        $url  = dotclear()->behaviors->call('publicGetURLFor', $type, $value);
+        $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ($value) {
@@ -83,7 +83,7 @@ class UrlHandler
     {
         $args = new ArrayObject(func_get_args());
 
-        dotclear()->behaviors->call('publicRegisterURL', $args);
+        dotclear()->behavior()->call('publicRegisterURL', $args);
 
         $this->types[$args[0]] = [
             'url'            => $args[1],
@@ -155,7 +155,7 @@ class UrlHandler
         dotclear()->context->http_cache   = $http_cache;
         dotclear()->context->http_etag    = $http_etag;
 
-        dotclear()->behaviors->call('urlHandlerBeforeGetData', dotclear()->context);
+        dotclear()->behavior()->call('urlHandlerBeforeGetData', dotclear()->context);
 
         if (dotclear()->context->http_cache) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
@@ -184,7 +184,7 @@ class UrlHandler
         }
 
         # --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        dotclear()->behaviors->call('urlHandlerServeDocumentHeaders', $headers);
+        dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any
         foreach ($headers as $header) {
@@ -199,7 +199,7 @@ class UrlHandler
         $result['headers']      = headers_list();
 
         # --BEHAVIOR-- urlHandlerServeDocument
-        dotclear()->behaviors->call('urlHandlerServeDocument', $result);
+        dotclear()->behavior()->call('urlHandlerServeDocument', $result);
 
         if (dotclear()->context->http_cache && dotclear()->context->http_etag) {
             Http::etag($result['content'], Http::getSelfURI());
@@ -243,7 +243,7 @@ class UrlHandler
         $this->getArgs($part, $type, $this->args);
 
         # --BEHAVIOR-- urlHandlerGetArgsDocument
-        dotclear()->behaviors->call('urlHandlerGetArgsDocument', $this);
+        dotclear()->behavior()->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -378,7 +378,7 @@ class UrlHandler
         echo dotclear()->tpl->getData(dotclear()->context->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
-        dotclear()->behaviors->call('publicAfterDocument');
+        dotclear()->behavior()->call('publicAfterDocument');
 
         exit;
     }
@@ -437,7 +437,7 @@ class UrlHandler
             $GLOBALS['_search'] = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
-                dotclear()->behaviors->call('publicBeforeSearchCount', $params);
+                dotclear()->behavior()->call('publicBeforeSearchCount', $params);
                 $GLOBALS['_search_count'] = dotclear()->blog->getPosts($params, true)->f(0);
             }
 
@@ -451,7 +451,7 @@ class UrlHandler
         $params = new ArrayObject([
             'lang' => $args]);
 
-        dotclear()->behaviors->call('publicLangBeforeGetLangs', $params, $args);
+        dotclear()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
 
         dotclear()->context->langs = dotclear()->blog->getLangs($params);
 
@@ -480,7 +480,7 @@ class UrlHandler
                 'post_type'     => 'post',
                 'without_empty' => false]);
 
-            dotclear()->behaviors->call('publicCategoryBeforeGetCategories', $params, $args);
+            dotclear()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
 
             dotclear()->context->categories = dotclear()->blog->getCategories($params);
 
@@ -507,7 +507,7 @@ class UrlHandler
                 'month' => $m[2],
                 'type'  => 'month']);
 
-            dotclear()->behaviors->call('publicArchiveBeforeGetDates', $params, $args);
+            dotclear()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
 
             dotclear()->context->archives = dotclear()->blog->getDates($params->getArrayCopy());
 
@@ -534,7 +534,7 @@ class UrlHandler
             $params = new ArrayObject([
                 'post_url' => $args]);
 
-            dotclear()->behaviors->call('publicPostBeforeGetPosts', $params, $args);
+            dotclear()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
 
             dotclear()->context->posts = dotclear()->blog->getPosts($params);
 
@@ -605,7 +605,7 @@ class UrlHandler
 
                     if ($content != '') {
                         # --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = dotclear()->behaviors->call('publicBeforeCommentTransform', $content);
+                        $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
@@ -627,7 +627,7 @@ class UrlHandler
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        dotclear()->behaviors->call('publicBeforeCommentPreview', dotclear()->context->comment_preview);
+                        dotclear()->behavior()->call('publicBeforeCommentPreview', dotclear()->context->comment_preview);
 
                         dotclear()->context->comment_preview['preview'] = true;
                     } else {
@@ -650,12 +650,12 @@ class UrlHandler
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
-                            dotclear()->behaviors->call('publicBeforeCommentCreate', $cur);
+                            dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->post_id) {
                                 $comment_id = dotclear()->blog->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
-                                dotclear()->behaviors->call('publicAfterCommentCreate', $cur, $comment_id);
+                                dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if ($cur->comment_status == 1) {
@@ -664,7 +664,7 @@ class UrlHandler
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var(dotclear()->behaviors->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var(dotclear()->behavior()->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (\Exception $e) {
@@ -720,7 +720,7 @@ class UrlHandler
 
             $args = $m[3];
 
-            dotclear()->behaviors->call('publicFeedBeforeGetLangs', $params, $args);
+            dotclear()->behavior()->call('publicFeedBeforeGetLangs', $params, $args);
 
             dotclear()->context->langs = dotclear()->blog->getLangs($params);
 
@@ -763,7 +763,7 @@ class UrlHandler
                 'cat_url'   => $cat_url,
                 'post_type' => 'post']);
 
-            dotclear()->behaviors->call('publicFeedBeforeGetCategories', $params, $args);
+            dotclear()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
 
             dotclear()->context->categories = dotclear()->blog->getCategories($params);
 
@@ -780,7 +780,7 @@ class UrlHandler
                 'post_id'   => $post_id,
                 'post_type' => '']);
 
-            dotclear()->behaviors->call('publicFeedBeforeGetPosts', $params, $args);
+            dotclear()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
 
             dotclear()->context->posts = dotclear()->blog->getPosts($params);
 
@@ -834,7 +834,7 @@ class UrlHandler
             $args['type']    = 'trackback';
 
             # --BEHAVIOR-- publicBeforeReceiveTrackback
-            dotclear()->behaviors->call('publicBeforeReceiveTrackback', $args);
+            dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
             $tb = new Trackback();
             $tb->receiveTrackback($post_id);
@@ -850,7 +850,7 @@ class UrlHandler
         $args['type'] = 'webmention';
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        dotclear()->behaviors->call('publicBeforeReceiveTrackback', $args);
+        dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
         $tb = new Trackback();
         $tb->receiveWebmention();

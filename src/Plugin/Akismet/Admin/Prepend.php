@@ -30,7 +30,7 @@ class Prepend extends AbstractPrepend
     {
         dotclear()->blog->settings->addNamespace('akismet');
 
-        dotclear()->behaviors->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
+        dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
             $spamfilters[] = 'Dotclear\\Plugin\\Akismet\\Lib\\FilterAkismet';
         });
     }

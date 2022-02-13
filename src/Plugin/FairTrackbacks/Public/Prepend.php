@@ -29,7 +29,7 @@ class Prepend extends AbstractPrepend
     public static function loadModule(): void
     {
         if (defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE) { // @phpstan-ignore-line
-            dotclear()->behaviors->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
+            dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
                 $spamfilters[] = 'Dotclear\\Plugin\\FairTrackbacks\\Lib\\FilterFairtrackbacks';
             });
         }

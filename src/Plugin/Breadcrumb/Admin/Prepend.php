@@ -29,8 +29,8 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behaviors->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
-        dotclear()->behaviors->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
+        dotclear()->behavior()->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
+        dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
     }
 
     public static function behaviorAdminBlogPreferencesForm(Settings $settings): void

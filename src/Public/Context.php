@@ -157,12 +157,12 @@ class Context
         $args[0] = &$str;
 
         # --BEHAVIOR-- publicBeforeContentFilter
-        $res = dotclear()->behaviors->call('publicBeforeContentFilter', $tag, $args);
+        $res = dotclear()->behavior()->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             # --BEHAVIOR-- publicContentFilter
-            switch (dotclear()->behaviors->call('publicContentFilter', $tag, $args, $filter)) {
+            switch (dotclear()->behavior()->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -177,7 +177,7 @@ class Context
         }
 
         # --BEHAVIOR-- publicAfterContentFilter
-        $res = dotclear()->behaviors->call('publicAfterContentFilter', $tag, $args);
+        $res = dotclear()->behavior()->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;

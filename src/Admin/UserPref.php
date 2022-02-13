@@ -58,7 +58,7 @@ class UserPref
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists
-        dotclear()->behaviors->call('adminColumnsLists', $cols);
+        dotclear()->behavior()->call('adminColumnsLists', $cols);
 
         # Load user settings
         $cols_user = @dotclear()->auth->user_prefs->interface->cols;
@@ -163,7 +163,7 @@ class UserPref
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists
-            dotclear()->behaviors->call('adminFiltersLists', $sorts);
+            dotclear()->behavior()->call('adminFiltersLists', $sorts);
 
             if (dotclear()->auth->user_prefs->interface === null) {
                 dotclear()->auth->user_prefs->addWorkspace('interface');

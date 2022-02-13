@@ -50,7 +50,7 @@ class MediaFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        dotclear()->behaviors->call('adminMediaFilter', $filters);
+        dotclear()->behavior()->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -66,7 +66,7 @@ class MediaFilter extends Filter
     {
         $values = new ArrayObject($this->values());
 
-        dotclear()->behaviors->call('adminMediaURLParams', $values);
+        dotclear()->behavior()->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {

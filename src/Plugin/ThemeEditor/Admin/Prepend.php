@@ -34,9 +34,9 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behaviors->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
-        dotclear()->behaviors->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'behaviorAdminBeforeUserOptionsUpdate']);
-        dotclear()->behaviors->add('adminPreferencesForm', [__CLASS__, 'behaviorAdminPreferencesForm']);
+        dotclear()->behavior()->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
+        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'behaviorAdminBeforeUserOptionsUpdate']);
+        dotclear()->behavior()->add('adminPreferencesForm', [__CLASS__, 'behaviorAdminPreferencesForm']);
     }
 
     public static function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string

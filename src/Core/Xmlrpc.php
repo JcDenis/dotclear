@@ -425,12 +425,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         if ($cur->post_type == 'post') {
             # --BEHAVIOR-- xmlrpcBeforeNewPost
-            dotclear()->behaviors->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
+            dotclear()->behavior()->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
             $post_id = dotclear()->blog->addPost($cur);
 
             # --BEHAVIOR-- xmlrpcAfterNewPost
-            dotclear()->behaviors->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dotclear()->behavior()->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ($cur->post_type == 'page') {
             if (isset($struct['wp_page_order'])) {
                 $cur->post_position = (integer) $struct['wp_page_order'];
@@ -521,12 +521,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         if ($cur->post_type == 'post') {
             # --BEHAVIOR-- xmlrpcBeforeEditPost
-            dotclear()->behaviors->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dotclear()->behavior()->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
 
             dotclear()->blog->updPost($post_id, $cur);
 
             # --BEHAVIOR-- xmlrpcAfterEditPost
-            dotclear()->behaviors->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
+            dotclear()->behavior()->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ($cur->post_type == 'page') {
             if (isset($struct['wp_page_order'])) {
                 $cur->post_position = (integer) $struct['wp_page_order'];
@@ -578,7 +578,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         }
 
         # --BEHAVIOR-- xmlrpcGetPostInfo
-        dotclear()->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$res]);
+        dotclear()->behavior()->call('xmlrpcGetPostInfo', $this, $type, [&$res]);
 
         return $res;
     }
@@ -641,7 +641,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             }
 
             # --BEHAVIOR-- xmlrpcGetPostInfo
-            dotclear()->behaviors->call('xmlrpcGetPostInfo', $this, $type, [&$tres]);
+            dotclear()->behavior()->call('xmlrpcGetPostInfo', $this, $type, [&$tres]);
 
             $res[] = $tres;
         }
@@ -772,12 +772,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->getPostRS($post_id, $user, $pwd);
 
         # --BEHAVIOR-- xmlrpcBeforePublishPost
-        dotclear()->behaviors->call('xmlrpcBeforePublishPost', $this, $post_id);
+        dotclear()->behavior()->call('xmlrpcBeforePublishPost', $this, $post_id);
 
         dotclear()->blog->updPostStatus($post_id, 1);
 
         # --BEHAVIOR-- xmlrpcAfterPublishPost
-        dotclear()->behaviors->call('xmlrpcAfterPublishPost', $this, $post_id);
+        dotclear()->behavior()->call('xmlrpcAfterPublishPost', $this, $post_id);
 
         return true;
     }
@@ -1013,7 +1013,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             ];
 
             # --BEHAVIOR-- xmlrpcGetPageInfo
-            dotclear()->behaviors->call('xmlrpcGetPageInfo', $this, [&$tres]);
+            dotclear()->behavior()->call('xmlrpcGetPageInfo', $this, [&$tres]);
 
             $res[] = $tres;
         }
@@ -1662,7 +1662,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setBlog(true);
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
-        dotclear()->behaviors->call('publicBeforeReceiveTrackback', $args);
+        dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
         $tb = new Trackback();
 

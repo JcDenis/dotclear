@@ -49,7 +49,7 @@ class CommentAction extends Action
         // We could have added a behavior here, but we want default action
         // to be setup first
         DefaultCommentAction::CommentAction($this);
-        dotclear()->behaviors->call('adminCommentsActionsPage', $this);
+        dotclear()->behavior()->call('adminCommentsActionsPage', $this);
     }
 
     public function error(\Exception $e)

@@ -38,7 +38,7 @@ class BlogFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
-        dotclear()->behaviors->call('adminBlogFilter', $filters);
+        dotclear()->behavior()->call('adminBlogFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

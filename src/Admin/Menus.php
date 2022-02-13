@@ -188,7 +188,7 @@ class Menus extends ArrayObject
     public function setup()
     {
         $this->initDefaultMenus();
-        dotclear()->behaviors->call('adminMenus', $this);
+        dotclear()->behavior()->call('adminMenus', $this);
     }
 
     protected function initDefaultMenus()

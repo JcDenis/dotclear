@@ -203,7 +203,7 @@ class Prepend extends AbstractPrepend
                 $ret = '<a id="bc-home" href="' . dotclear()->blog->url . '">' . __('Home') . '</a>';
                 # --BEHAVIOR-- publicBreadcrumb
                 # Should specific breadcrumb if any, will be added after home page url
-                $special = dotclear()->behaviors->call('publicBreadcrumb', dotclear()->url->type, $separator);
+                $special = dotclear()->behavior()->call('publicBreadcrumb', dotclear()->url->type, $separator);
                 if ($special) {
                     $ret .= $separator . $special;
                 }

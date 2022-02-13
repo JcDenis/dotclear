@@ -39,10 +39,10 @@ class Prepend extends AbstractPrepend
             dotclear()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml, 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
-            dotclear()->behaviors->add('adminPostEditor', [$class, 'adminPostEditor']);
-            dotclear()->behaviors->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-            dotclear()->behaviors->add('adminPopupLink', [$class, 'adminPopupLink']);
-            dotclear()->behaviors->add('adminPopupPosts', [$class, 'adminPopupPosts']);
+            dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);
+            dotclear()->behavior()->add('adminPopupMedia', [$class, 'adminPopupMedia']);
+            dotclear()->behavior()->add('adminPopupLink', [$class, 'adminPopupLink']);
+            dotclear()->behavior()->add('adminPopupPosts', [$class, 'adminPopupPosts']);
         }
     }
 

@@ -48,7 +48,7 @@ class PostAction extends Action
         // We could have added a behavior here, but we want default action
         // to be setup first
         DefaultPostAction::PostAction($this);
-        dotclear()->behaviors->call('adminPostsActionsPage', $this);
+        dotclear()->behavior()->call('adminPostsActionsPage', $this);
     }
 
     public function error(Exception $e)

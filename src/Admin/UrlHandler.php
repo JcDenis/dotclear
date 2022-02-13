@@ -207,7 +207,7 @@ class UrlHandler
     public function setup()
     {
         $this->initDefaultURLs();
-        dotclear()->behaviors->call('adminURLs', $this);
+        dotclear()->behavior()->call('adminURLs', $this);
     }
 
     protected function initDefaultURLs()

@@ -115,7 +115,7 @@ class Home extends Page
                 $post_editor = dotclear()->auth->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
                     // context is not post because of tags not available
-                    $admin_post_behavior = dotclear()->behaviors->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+                    $admin_post_behavior = dotclear()->behavior()->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
                 }
             }
         }
@@ -174,11 +174,11 @@ class Home extends Page
             }
         }
 
-        dotclear()->behaviors->call('adminDashboardItems', $__dashboard_items);
+        dotclear()->behavior()->call('adminDashboardItems', $__dashboard_items);
 
         # Dashboard content
         $__dashboard_contents = new ArrayObject([new ArrayObject, new ArrayObject]);
-        dotclear()->behaviors->call('adminDashboardContents', $__dashboard_contents);
+        dotclear()->behavior()->call('adminDashboardContents', $__dashboard_contents);
 
         $dragndrop      = '';
         if (!dotclear()->auth->user_prefs->accessibility->nodragdrop) {

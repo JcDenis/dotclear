@@ -42,7 +42,7 @@ class CommentFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminCommentFilter
-        dotclear()->behaviors->call('adminCommentFilter', $filters);
+        dotclear()->behavior()->call('adminCommentFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

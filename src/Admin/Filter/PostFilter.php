@@ -59,7 +59,7 @@ class PostFilter extends Filter
         ]);
 
         # --BEHAVIOR-- adminPostFilter
-        dotclear()->behaviors->call('adminPostFilter', $filters);
+        dotclear()->behavior()->call('adminPostFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

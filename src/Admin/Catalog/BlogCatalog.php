@@ -66,7 +66,7 @@ class BlogCatalog extends Catalog
             ];
 
             $cols = new ArrayObject($cols);
-            dotclear()->behaviors->call('adminBlogListHeader', $this->rs, $cols);
+            dotclear()->behavior()->call('adminBlogListHeader', $this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -158,7 +158,7 @@ class BlogCatalog extends Catalog
         ];
 
         $cols = new ArrayObject($cols);
-        dotclear()->behaviors->call('adminBlogListValue', $this->rs, $cols);
+        dotclear()->behavior()->call('adminBlogListValue', $this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

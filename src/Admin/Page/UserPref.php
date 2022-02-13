@@ -154,7 +154,7 @@ class UserPref extends Page
             'cat_descr'  => [true, __('Category description')],
         ];
         $this->rte = new ArrayObject($rte);
-        dotclear()->behaviors->call('adminRteFlags', $this->rte);
+        dotclear()->behavior()->call('adminRteFlags', $this->rte);
         # Load user settings
         $rte_flags = @dotclear()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags)) {
@@ -205,7 +205,7 @@ class UserPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeUserUpdate
-                dotclear()->behaviors->call('adminBeforeUserProfileUpdate', $cur, dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->auth->userID());
 
                 # Udate user
                 dotclear()->updUser(dotclear()->auth->userID(), $cur);
@@ -223,7 +223,7 @@ class UserPref extends Page
                 dotclear()->auth->user_prefs->profile->put('urls', $urls, 'string');
 
                 # --BEHAVIOR-- adminAfterUserUpdate
-                dotclear()->behaviors->call('adminAfterUserProfileUpdate', $cur, dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminAfterUserProfileUpdate', $cur, dotclear()->auth->userID());
 
                 dotclear()->notices->addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -259,7 +259,7 @@ class UserPref extends Page
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behaviors->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->auth->userID());
 
                 # Update user prefs
                 dotclear()->auth->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
@@ -326,7 +326,7 @@ class UserPref extends Page
                 dotclear()->updUser(dotclear()->auth->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behaviors->call('adminAfterUserOptionsUpdate', $cur, dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->auth->userID());
 
                 dotclear()->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-options');
@@ -339,7 +339,7 @@ class UserPref extends Page
         if (isset($_POST['db-options'])) {
             try {
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behaviors->call('adminBeforeDashboardOptionsUpdate', dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminBeforeDashboardOptionsUpdate', dotclear()->auth->userID());
 
                 # Update user prefs
                 dotclear()->auth->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
@@ -353,7 +353,7 @@ class UserPref extends Page
                 dotclear()->auth->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behaviors->call('adminAfterDashboardOptionsUpdate', dotclear()->auth->userID());
+                dotclear()->behavior()->call('adminAfterDashboardOptionsUpdate', dotclear()->auth->userID());
 
                 dotclear()->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
@@ -480,7 +480,7 @@ class UserPref extends Page
                 static::jsConfirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
                 # --BEHAVIOR-- adminPreferencesHeaders
-                dotclear()->behaviors->call('adminPreferencesHeaders')
+                dotclear()->behavior()->call('adminPreferencesHeaders')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->auth->userID()) => '',
@@ -796,7 +796,7 @@ class UserPref extends Page
         '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         # --BEHAVIOR-- adminPreferencesForm
-        dotclear()->behaviors->call('adminPreferencesForm');
+        dotclear()->behavior()->call('adminPreferencesForm');
 
         echo
         '<p class="clear vertical-separator">' .
@@ -983,7 +983,7 @@ class UserPref extends Page
         echo '</div>';
 
         # --BEHAVIOR-- adminDashboardOptionsForm
-        dotclear()->behaviors->call('adminDashboardOptionsForm', dotclear());
+        dotclear()->behavior()->call('adminDashboardOptionsForm', dotclear());
 
         echo
         '<p>' .

@@ -80,7 +80,7 @@ class PostsPopup extends Page
             ->setPageHead(
                 static::jsLoad('js/_posts_list.js') .
                 static::jsLoad('js/_popup_posts.js') .
-                dotclear()->behaviors->call('adminPopupPosts', $this->plugin_id)
+                dotclear()->behavior()->call('adminPopupPosts', $this->plugin_id)
             )
         ;
 

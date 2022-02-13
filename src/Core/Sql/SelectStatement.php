@@ -187,7 +187,7 @@ class SelectStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeSelectStatement
-        dotclear()->behaviors->call('coreBeforeSelectStatement', $this);
+        dotclear()->behavior()->call('coreBeforeSelectStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -259,7 +259,7 @@ class SelectStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertSelectStatement
-        dotclear()->behaviors->call('coreAfterSelectStatement', $this, $query);
+        dotclear()->behavior()->call('coreAfterSelectStatement', $this, $query);
 
         return $query;
     }

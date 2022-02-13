@@ -17,7 +17,6 @@ use ArrayObject;
 use Closure;
 
 use Dotclear\Core\Auth;
-use Dotclear\Core\Behaviors;
 use Dotclear\Core\Blog;
 use Dotclear\Core\Log;
 use Dotclear\Core\Media;
@@ -49,6 +48,7 @@ use Dotclear\Utils\Dt;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Statistic;
 use Dotclear\Utils\Text;
+use Dotclear\Utils\TraitBehavior;
 use Dotclear\Utils\TraitConfiguration;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -57,16 +57,13 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Core
 {
-    use TraitError, TraitConfiguration;
+    use TraitError, TraitBehavior, TraitConfiguration;
 
     /** @var Auth               Auth instance */
     public $auth;
 
     /** @var string             Autoloader */
     public $autoloader;
-
-    /** @var Behaviors          Behaviors instance */
-    public $behaviors;
 
     /** @var Blog               Blog instance */
     public $blog;
@@ -290,7 +287,6 @@ class Core
         # Load Core
         try {
             $this->autoloader = new Autoloader('', '', true);
-            $this->behaviors  = new Behaviors();
             $this->con        = $this->conInstance();
             $this->auth       = $this->authInstance();
             $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
@@ -722,7 +718,7 @@ class Core
     protected function registerTopBehaviors(): void
     {
         foreach (self::$top_behaviors as $behavior) {
-            $this->behaviors->add($behavior[0], $behavior[1]);
+            $this->behavior()->add($behavior[0], $behavior[1]);
         }
     }
     //@}
@@ -1560,7 +1556,7 @@ class Core
         ]);
 
         # --BEHAVIOR-- HTMLfilter, \ArrayObject
-        $this->behaviors->call('HTMLfilter', $options);
+        $this->behavior()->call('HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
         $str    = trim($filter->apply($str));
@@ -1647,7 +1643,7 @@ class Core
         $this->wiki2xhtml->registerFunction('url:post', [$this, 'wikiPostLink']);
 
         # --BEHAVIOR-- coreInitWikiPost, Dotclear\Html\Wiki2xhtml
-        $this->behaviors->call('coreInitWikiPost', $this->wiki2xhtml);
+        $this->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 
     /**
@@ -1696,7 +1692,7 @@ class Core
         ]);
 
         # --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Html\Wiki2xhtml
-        $this->behaviors->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
+        $this->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
     }
 
     /**
@@ -1744,7 +1740,7 @@ class Core
         ]);
 
         # --BEHAVIOR-- coreInitWikiComment, Dotclear\Html\Wiki2xhtml
-        $this->behaviors->call('coreInitWikiComment', $this->wiki2xhtml);
+        $this->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
     }
 
     /**

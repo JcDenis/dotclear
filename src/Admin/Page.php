@@ -343,7 +343,7 @@ abstract class Page
             $csp['frame-src'] = '*';
 
             # --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
-            dotclear()->behaviors->call('adminPageHTTPHeaderCSP', $csp);
+            dotclear()->behavior()->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -360,7 +360,7 @@ abstract class Page
         }
 
         # --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
-        dotclear()->behaviors->call('adminPageHTTPHeaders', $headers);
+        dotclear()->behavior()->call('adminPageHTTPHeaders', $headers);
 
         foreach ($headers as $key => $value) {
             header($value);
@@ -412,7 +412,7 @@ abstract class Page
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
-        dotclear()->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
         "</head>\n" .
@@ -529,7 +529,7 @@ abstract class Page
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
-        dotclear()->behaviors->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo
             "</head>\n" .
@@ -611,7 +611,7 @@ abstract class Page
         $args = new ArrayObject($this->page_help);
 
         # --BEHAVIOR-- adminPageHelpBlock, ArrayObject
-        dotclear()->behaviors->call('adminPageHelpBlock', $args);
+        dotclear()->behavior()->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
@@ -713,7 +713,7 @@ abstract class Page
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->core_version);
 
         # --BEHAVIOR-- adminPageFooter, string
-        $textAlt = dotclear()->behaviors->call('adminPageFooter', $text);
+        $textAlt = dotclear()->behavior()->call('adminPageFooter', $text);
         if ($textAlt != '') {
             $text = $textAlt;
         }

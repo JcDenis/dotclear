@@ -181,7 +181,7 @@ class RestMethods
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
-            dotclear()->behaviors->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
+            dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
                 throw new AdminException('Unknown store type');
@@ -317,12 +317,12 @@ class RestMethods
             $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
             # --BEHAVIOR-- adminBeforeCategoryCreate
-            dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+            dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
             $post['cat_id'] = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
 
             # --BEHAVIOR-- adminAfterCategoryCreate
-            dotclear()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
+            dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
         }
 
         $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
@@ -338,12 +338,12 @@ class RestMethods
         $cur->post_open_tb      = (int) dotclear()->blog->settings->system->allow_trackbacks;
 
         # --BEHAVIOR-- adminBeforePostCreate
-        dotclear()->behaviors->call('adminBeforePostCreate', $cur);
+        dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
         $return_id = dotclear()->blog->addPost($cur);
 
         # --BEHAVIOR-- adminAfterPostCreate
-        dotclear()->behaviors->call('adminAfterPostCreate', $cur, $return_id);
+        dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
         $rsp     = new XmlTag('post');
         $rsp->id = $return_id;

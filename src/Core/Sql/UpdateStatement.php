@@ -101,7 +101,7 @@ class UpdateStatement extends SqlStatement
     public function whereStatement(): string
     {
         # --BEHAVIOR-- coreBeforeUpdateWhereStatement
-        dotclear()->behaviors->call('coreBeforeUpdateWhereStatement', $this);
+        dotclear()->behavior()->call('coreBeforeUpdateWhereStatement', $this);
 
         $query = '';
 
@@ -126,7 +126,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertUpdateWhereStatement
-        dotclear()->behaviors->call('coreAfterUpdateWhereStatement', $this, $query);
+        dotclear()->behavior()->call('coreAfterUpdateWhereStatement', $this, $query);
 
         return $query;
     }
@@ -139,7 +139,7 @@ class UpdateStatement extends SqlStatement
     public function statement(): string
     {
         # --BEHAVIOR-- coreBeforeUpdateStatement
-        dotclear()->behaviors->call('coreBeforeUpdateStatement', $this);
+        dotclear()->behavior()->call('coreBeforeUpdateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -180,7 +180,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         # --BEHAVIOR-- coreAfertUpdateStatement
-        dotclear()->behaviors->call('coreAfterUpdateStatement', $this, $query);
+        dotclear()->behavior()->call('coreAfterUpdateStatement', $this, $query);
 
         return $query;
     }

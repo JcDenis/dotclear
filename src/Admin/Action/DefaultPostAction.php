@@ -166,11 +166,11 @@ class DefaultPostAction
         // Backward compatibility
         foreach ($posts_ids as $post_id) {
             # --BEHAVIOR-- adminBeforePostDelete
-            dotclear()->behaviors->call('adminBeforePostDelete', (integer) $post_id);
+            dotclear()->behavior()->call('adminBeforePostDelete', (integer) $post_id);
         }
 
         # --BEHAVIOR-- adminBeforePostsDelete
-        dotclear()->behaviors->call('adminBeforePostsDelete', $posts_ids);
+        dotclear()->behavior()->call('adminBeforePostsDelete', $posts_ids);
 
         dotclear()->blog->delPosts($posts_ids);
         dotclear()->notices->addSuccessNotice(sprintf(
@@ -203,12 +203,12 @@ class DefaultPostAction
                 $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate
-                dotclear()->behaviors->call('adminBeforeCategoryCreate', $cur_cat);
+                dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
                 $new_cat_id = dotclear()->blog->addCategory($cur_cat, (integer) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
-                dotclear()->behaviors->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
+                dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
             }
 
             dotclear()->blog->updPostsCategory($posts_ids, $new_cat_id);

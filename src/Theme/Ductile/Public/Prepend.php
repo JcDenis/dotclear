@@ -38,8 +38,8 @@ class Prepend extends AbstractPrepend
         self::$Ductile_config = new ConfigTheme();
 
         # Behaviors
-        dotclear()->behaviors->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
-        dotclear()->behaviors->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
+        dotclear()->behavior()->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        dotclear()->behavior()->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
 
         # Templates
         dotclear()->tpl->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);

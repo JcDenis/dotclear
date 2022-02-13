@@ -169,7 +169,7 @@ class Notices
             $this->cursor($cur, $cur->notice_id);
 
             # --BEHAVIOR-- coreBeforeNoticeCreate
-            dotclear()->behaviors->call('adminBeforeNoticeCreate', $this, $cur);
+            dotclear()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
             dotclear()->con->unlock();
@@ -180,7 +180,7 @@ class Notices
         }
 
         # --BEHAVIOR-- coreAfterNoticeCreate
-        dotclear()->behaviors->call('adminAfterNoticeCreate', $this, $cur);
+        dotclear()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
 
         return $cur->notice_id;
     }
@@ -242,7 +242,7 @@ class Notices
         if (dotclear()->error()->flag() && !$this->error_displayed) {
 
             # --BEHAVIOR-- adminPageNotificationError
-            $notice_error = dotclear()->behaviors->call('adminPageNotificationError');
+            $notice_error = dotclear()->behavior()->call('adminPageNotificationError');
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
@@ -293,7 +293,7 @@ class Notices
                         $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
                     }
                     # --BEHAVIOR-- adminPageNotification, array
-                    $notice = dotclear()->behaviors->call('adminPageNotification', $notification);
+                    $notice = dotclear()->behavior()->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }

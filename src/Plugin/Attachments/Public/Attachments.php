@@ -35,7 +35,7 @@ class Attachments
         dotclear()->tpl->addBlock('AttachmentIf', [__CLASS__, 'AttachmentIf']);
         dotclear()->tpl->addValue('EntryAttachmentCount', [__CLASS__, 'EntryAttachmentCount']);
 
-        dotclear()->behaviors->add('tplIfConditions', [__CLASS__, 'tplIfConditions']);
+        dotclear()->behavior()->add('tplIfConditions', [__CLASS__, 'tplIfConditions']);
     }
 
     /*dtd

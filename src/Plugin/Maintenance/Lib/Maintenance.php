@@ -52,7 +52,7 @@ class Maintenance
     protected function init()
     {
         # --BEHAVIOR-- dcMaintenanceInit
-        dotclear()->behaviors->call('dcMaintenanceInit', $this);
+        dotclear()->behavior()->call('dcMaintenanceInit', $this);
     }
 
     /// @name Tab methods

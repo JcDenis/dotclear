@@ -121,7 +121,7 @@ class User extends Page
                 # Udate user
                 if ($this->container->getId()) {
                     # --BEHAVIOR-- adminBeforeUserUpdate
-                    dotclear()->behaviors->call('adminBeforeUserUpdate', $cur, $this->container->getId());
+                    dotclear()->behavior()->call('adminBeforeUserUpdate', $cur, $this->container->getId());
 
                     $new_id = dotclear()->updUser($this->container->getId(), $cur);
 
@@ -140,7 +140,7 @@ class User extends Page
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserUpdate
-                    dotclear()->behaviors->call('adminAfterUserUpdate', $cur, $new_id);
+                    dotclear()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
 
                     if ($this->container->getId() == dotclear()->auth->userID() && $this->container->getId() != $new_id) {
                         dotclear()->session->destroy();
@@ -156,7 +156,7 @@ class User extends Page
                     }
 
                     # --BEHAVIOR-- adminBeforeUserCreate
-                    dotclear()->behaviors->call('adminBeforeUserCreate', $cur);
+                    dotclear()->behavior()->call('adminBeforeUserCreate', $cur);
 
                     $new_id = dotclear()->addUser($cur);
 
@@ -175,7 +175,7 @@ class User extends Page
                     $user_prefs->profile->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserCreate
-                    dotclear()->behaviors->call('adminAfterUserCreate', $cur, $new_id);
+                    dotclear()->behavior()->call('adminAfterUserCreate', $cur, $new_id);
 
                     dotclear()->notices->addSuccessNotice(__('User has been successfully created.'));
                     dotclear()->notices->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
@@ -203,7 +203,7 @@ class User extends Page
                 ]) .
                 static::jsLoad('js/pwstrength.js') .
                 static::jsLoad('js/_user.js') .
-                dotclear()->behaviors->call('adminUserHeaders')
+                dotclear()->behavior()->call('adminUserHeaders')
             )
             ->setPageBreadcrumb([
                 __('System') => '',
@@ -372,7 +372,7 @@ class User extends Page
             '</p>';
 
         # --BEHAVIOR-- adminUserForm
-        dotclear()->behaviors->call('adminUserForm', $rs ?? null);
+        dotclear()->behavior()->call('adminUserForm', $rs ?? null);
 
         echo
             '</div>' .
