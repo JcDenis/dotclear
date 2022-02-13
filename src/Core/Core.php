@@ -35,7 +35,6 @@ use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Html\HtmlFilter;
-use Dotclear\Html\Wiki2xhtml;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Autoloader;
 use Dotclear\Utils\Crypt;
@@ -83,9 +82,6 @@ class Core
 
     /** @var string             Current Process */
     protected $process;
-
-    /** @var array              top behaviors */
-    protected static $top_behaviors = [];
 
     /** @var array              formaters container */
     private $formaters  = [];
@@ -657,33 +653,6 @@ class Core
         }
 
         return $str;
-    }
-    //@}
-
-    /// @name Behaviors methods
-    //@{
-    /**
-     * Add Top Behavior statically before Core instance
-     *
-     * Dotclear\Core\Core::addTopBehavior('MyBehavior', 'MyFunction');
-     * also work from other child class
-     *
-     * @param  string           $behavior   The behavior
-     * @param  string|array     $callback   The function
-     */
-    public static function addTopBehavior(string $behavior, string|array $callback): void
-    {
-        array_push(self::$top_behaviors, [$behavior, $callback]);
-    }
-
-    /**
-     * Register Top Behaviors into Core instance behaviors
-     */
-    protected function registerTopBehaviors(): void
-    {
-        foreach (self::$top_behaviors as $behavior) {
-            $this->behavior()->add($behavior[0], $behavior[1]);
-        }
     }
     //@}
 

@@ -24,6 +24,9 @@ trait TraitBehavior
     /** @var    Behavior    Behavior instance */
     private $behavior;
 
+    /** @var array              top behaviors */
+    protected static $top_behaviors = [];
+
     /**
      * Get instance
      *
@@ -36,5 +39,31 @@ trait TraitBehavior
         }
 
         return $this->behavior;
+    }
+
+    /**
+     * Add Top Behavior statically before class instanciate
+     *
+     * ::addTopBehavior('MyBehavior', 'MyFunction');
+     * also work from other child class.
+     * Do not add top behavior on trait class but on class that
+     * contains trait.
+     *
+     * @param  string           $behavior   The behavior
+     * @param  string|array     $callback   The function
+     */
+    public static function addTopBehavior(string $behavior, string|array $callback): void
+    {
+        array_push(self::$top_behaviors, [$behavior, $callback]);
+    }
+
+    /**
+     * Register Top Behaviors into class instance behaviors
+     */
+    protected function registerTopBehaviors(): void
+    {
+        foreach (self::$top_behaviors as $behavior) {
+            $this->behavior()->add($behavior[0], $behavior[1]);
+        }
     }
 }
