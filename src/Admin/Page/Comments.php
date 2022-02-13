@@ -117,7 +117,7 @@ class Comments extends Page
 
         $combo_action = [];
         $default      = '';
-        if (dotclear()->auth->check('delete,contentadmin', dotclear()->blog->id) && $this->filter->status == -2) {
+        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog->id) && $this->filter->status == -2) {
             $default = 'delete';
         }
 
@@ -174,7 +174,7 @@ class Comments extends Page
             '</form>',
             $this->filter->show(),
             ($this->filter->show() || ($this->filter->status == -2)),
-            dotclear()->auth->check('contentadmin', dotclear()->blog->id)
+            dotclear()->auth()->check('contentadmin', dotclear()->blog->id)
         );
     }
 }

@@ -61,8 +61,8 @@ class MaintenanceTask
         $this->init();
         $this->id = null;
 
-        if ($this->perm() === null && !dotclear()->auth->isSuperAdmin()
-            || !dotclear()->auth->check((string) $this->perm(), dotclear()->blog->id)) {
+        if ($this->perm() === null && !dotclear()->auth()->isSuperAdmin()
+            || !dotclear()->auth()->check((string) $this->perm(), dotclear()->blog->id)) {
             return;
         }
 

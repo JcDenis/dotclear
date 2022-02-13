@@ -31,7 +31,7 @@ class ModulesIconset extends AbstractModules
             __('Iconset management'),
             'admin.iconset',
             'images/menu/no-icon.svg',
-            dotclear()->auth->isSuperAdmin()
+            dotclear()->auth()->isSuperAdmin()
         );
         dotclear()->favs->register('iconsets', [
             'title'      => __('Iconsets management'),

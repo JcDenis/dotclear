@@ -38,7 +38,7 @@ class ModulesTheme extends AbstractModules
             __('Blog appearance'),
             'admin.blog.theme',
             ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
-            dotclear()->auth->check('admin', dotclear()->blog->id)
+            dotclear()->auth()->check('admin', dotclear()->blog->id)
         );
         dotclear()->favs->register('blog_theme', [
             'title'       => __('Blog appearance'),
@@ -255,7 +255,7 @@ class ModulesTheme extends AbstractModules
         if (!$count && $this->getSearch() === null) {
             echo
             '<p class="message">' . __('No themes matched your search.') . '</p>';
-        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && dotclear()->auth->isSuperAdmin()) {
+        } elseif ((in_array('checkbox', $cols) || $count > 1) && !empty($actions) && dotclear()->auth()->isSuperAdmin()) {
             $buttons = $this->getGlobalActions($actions, in_array('checkbox', $cols));
 
             if (!empty($buttons)) {
@@ -307,7 +307,7 @@ class ModulesTheme extends AbstractModules
 
                 # Deactivate
                 case 'activate':
-                    if (dotclear()->auth->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
+                    if (dotclear()->auth()->isSuperAdmin() && $module->writable() && empty($module->depMissing())) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
 
@@ -315,7 +315,7 @@ class ModulesTheme extends AbstractModules
 
                 # Activate
                 case 'deactivate':
-                    if (dotclear()->auth->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
+                    if (dotclear()->auth()->isSuperAdmin() && $module->writable() && empty($module->depChildren())) {
                         $submits[] = '<input type="submit" name="deactivate[' . Html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
                     }
 
@@ -323,7 +323,7 @@ class ModulesTheme extends AbstractModules
 
                 # Delete
                 case 'delete':
-                    if (dotclear()->auth->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
+                    if (dotclear()->auth()->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
                         $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
@@ -332,7 +332,7 @@ class ModulesTheme extends AbstractModules
 
                 # Clone
                 case 'clone':
-                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth()->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" class="button clone" name="clone[' . Html::escapeHTML($id) . ']" value="' . __('Clone') . '" />';
                     }
 
@@ -340,7 +340,7 @@ class ModulesTheme extends AbstractModules
 
                 # Install (from store)
                 case 'install':
-                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth()->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="install[' . Html::escapeHTML($id) . ']" value="' . __('Install') . '" />';
                     }
 
@@ -348,7 +348,7 @@ class ModulesTheme extends AbstractModules
 
                 # Update (from store)
                 case 'update':
-                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth()->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update[' . Html::escapeHTML($id) . ']" value="' . __('Update') . '" />';
                     }
 
@@ -381,7 +381,7 @@ class ModulesTheme extends AbstractModules
                 # Update (from store)
                 case 'update':
 
-                    if (dotclear()->auth->isSuperAdmin() && $this->path_writable) {
+                    if (dotclear()->auth()->isSuperAdmin() && $this->path_writable) {
                         $submits[] = '<input type="submit" name="update" value="' . (
                             $with_selection ?
                             __('Update selected themes') :
@@ -440,7 +440,7 @@ class ModulesTheme extends AbstractModules
                 return;
             }
 
-            if (dotclear()->auth->isSuperAdmin() && !empty($_POST['activate'])) {
+            if (dotclear()->auth()->isSuperAdmin() && !empty($_POST['activate'])) {
                 if (is_array($_POST['activate'])) {
                     $modules = array_keys($_POST['activate']);
                 }
@@ -471,7 +471,7 @@ class ModulesTheme extends AbstractModules
                     __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['deactivate'])) {
+            } elseif (dotclear()->auth()->isSuperAdmin() && !empty($_POST['deactivate'])) {
                 if (is_array($_POST['deactivate'])) {
                     $modules = array_keys($_POST['deactivate']);
                 }
@@ -513,7 +513,7 @@ class ModulesTheme extends AbstractModules
                     );
                 }
                 Http::redirect($this->getURL());
-            } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['clone'])) {
+            } elseif (dotclear()->auth()->isSuperAdmin() && !empty($_POST['clone'])) {
                 if (is_array($_POST['clone'])) {
                     $modules = array_keys($_POST['clone']);
                 }
@@ -539,7 +539,7 @@ class ModulesTheme extends AbstractModules
                     __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['delete'])) {
+            } elseif (dotclear()->auth()->isSuperAdmin() && !empty($_POST['delete'])) {
                 if (is_array($_POST['delete'])) {
                     $modules = array_keys($_POST['delete']);
                 }
@@ -586,7 +586,7 @@ class ModulesTheme extends AbstractModules
                     );
                 }
                 Http::redirect($this->getURL());
-            } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['install'])) {
+            } elseif (dotclear()->auth()->isSuperAdmin() && !empty($_POST['install'])) {
                 if (is_array($_POST['install'])) {
                     $modules = array_keys($_POST['install']);
                 }
@@ -620,7 +620,7 @@ class ModulesTheme extends AbstractModules
                     __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
                 );
                 Http::redirect($this->getURL());
-            } elseif (dotclear()->auth->isSuperAdmin() && !empty($_POST['update'])) {
+            } elseif (dotclear()->auth()->isSuperAdmin() && !empty($_POST['update'])) {
                 if (is_array($_POST['update'])) {
                     $modules = array_keys($_POST['update']);
                 }
@@ -660,7 +660,7 @@ class ModulesTheme extends AbstractModules
             # Manual actions
             elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
                 || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
-                if (empty($_POST['your_pwd']) || !dotclear()->auth->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dotclear()->auth()->checkPassword($_POST['your_pwd'])) {
                     throw new ModuleException(__('Password verification failed'));
                 }
 

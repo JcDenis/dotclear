@@ -31,7 +31,7 @@ class ModulesPlugin extends AbstractModules
             __('Plugins management'),
             'admin.plugins',
             ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
-            dotclear()->auth->isSuperAdmin()
+            dotclear()->auth()->isSuperAdmin()
         );
         dotclear()->favs->register('plugins', [
             'title'      => __('Plugins management'),

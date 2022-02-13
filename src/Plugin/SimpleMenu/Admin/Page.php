@@ -364,8 +364,8 @@ class Page extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        dotclear()->auth->user_prefs->addWorkspace('accessibility');
-                        if (dotclear()->auth->user_prefs->accessibility->nodragdrop) {
+                        dotclear()->auth()->user_prefs->addWorkspace('accessibility');
+                        if (dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
                             # Order menu items
                             $order = [];
                             if (empty($_POST['im_order']) && !empty($_POST['order'])) {
@@ -411,7 +411,7 @@ class Page extends AbstractPage
             ->setPageHelp('simpleMenu')
             ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
-        if (!dotclear()->auth->user_prefs->accessibility->nodragdrop) {
+        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
@@ -531,14 +531,14 @@ class Page extends AbstractPage
                     __('Label of item menu:') . '</label>' .
                     form::field('item_label', 20, 255, [
                         'default'    => $this->sm_item_label,
-                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
                     ]) .
                         '</p>';
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Description of item menu:') . '</label>' . form::field('item_descr', 30, 255,
                         [
                             'default'    => $this->sm_item_descr,
-                            'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</p>';
                     echo '<p class="field"><label for="item_url" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('URL of item menu:') . '</label>' .
@@ -627,12 +627,12 @@ class Page extends AbstractPage
                     echo '<td class="nowrap" scope="row">' . form::field(['items_label[]', 'iml-' . $i], null, 255,
                         [
                             'default'    => Html::escapeHTML($m['label']),
-                            'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_descr[]', 'imd-' . $i], 30, 255,
                         [
                             'default'    => Html::escapeHTML($m['descr']),
-                            'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                            'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
                         ]) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_url[]', 'imu-' . $i], 30, 255, Html::escapeHTML($m['url'])) . '</td>';
                     echo '<td class="nowrap">' . form::checkbox('items_targetBlank' . $i, 'blank', $targetBlank) . '</td>';

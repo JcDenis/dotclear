@@ -294,13 +294,13 @@ class Page extends AbstractPage
     private function widgetsHead(): string
     {
 
-        $widget_editor = dotclear()->auth->getOption('editor');
+        $widget_editor = dotclear()->auth()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @dotclear()->auth->user_prefs->interface->rte_flags;
+        $rte_flags     = @dotclear()->auth()->user_prefs->interface->rte_flags;
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = dotclear()->auth->user_prefs->accessibility->nodragdrop;
+        $user_dm_nodragdrop = dotclear()->auth()->user_prefs->accessibility->nodragdrop;
 
         return
         static::cssLoad('?mf=Plugin/Widgets/files/style.css') .

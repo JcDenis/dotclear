@@ -310,7 +310,7 @@ class Combos
     public function getUsersSortbyCombo()
     {
         $sortby_combo = new ArrayObject([]);
-        if (dotclear()->auth->isSuperAdmin()) {
+        if (dotclear()->auth()->isSuperAdmin()) {
             $sortby_combo = new ArrayObject([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',

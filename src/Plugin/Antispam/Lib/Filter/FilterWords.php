@@ -89,7 +89,7 @@ class FilterWords extends Spamfilter
 
         # Adding a word
         if (!empty($_POST['swa'])) {
-            $globalsw = !empty($_POST['globalsw']) && dotclear()->auth->isSuperAdmin();
+            $globalsw = !empty($_POST['globalsw']) && dotclear()->auth()->isSuperAdmin();
 
             try {
                 $this->addRule($_POST['swa'], $globalsw);
@@ -116,7 +116,7 @@ class FilterWords extends Spamfilter
         $res = '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
         '<p><label class="classic" for="swa">' . __('Add a word ') . '</label> ' . Form::field('swa', 20, 128);
 
-        if (dotclear()->auth->isSuperAdmin()) {
+        if (dotclear()->auth()->isSuperAdmin()) {
             $res .= '<label class="classic" for="globalsw">' . Form::checkbox('globalsw', 1) .
             __('Global word (used for all blogs)') . '</label> ';
         }
@@ -142,7 +142,7 @@ class FilterWords extends Spamfilter
                 $p_style = '';
 
                 if (!$rs->blog_id) {
-                    $disabled_word = !dotclear()->auth->isSuperAdmin();
+                    $disabled_word = !dotclear()->auth()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
@@ -179,7 +179,7 @@ class FilterWords extends Spamfilter
                 '</form>';
         }
 
-        if (dotclear()->auth->isSuperAdmin()) {
+        if (dotclear()->auth()->isSuperAdmin()) {
             $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
             '<p><input type="submit" value="' . __('Create default wordlist') . '" />' .
             Form::hidden(['spamwords'], 1) .
@@ -221,7 +221,7 @@ class FilterWords extends Spamfilter
         $cur->rule_type    = 'word';
         $cur->rule_content = (string) $content;
 
-        if ($general && dotclear()->auth->isSuperAdmin()) {
+        if ($general && dotclear()->auth()->isSuperAdmin()) {
             $cur->blog_id = null;
         } else {
             $cur->blog_id = dotclear()->blog->id;
@@ -250,7 +250,7 @@ class FilterWords extends Spamfilter
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 
-        if (!dotclear()->auth->isSuperAdmin()) {
+        if (!dotclear()->auth()->isSuperAdmin()) {
             $strReq .= "AND blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' ";
         }
 

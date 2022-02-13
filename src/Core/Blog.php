@@ -406,7 +406,7 @@ class Blog
         if (isset($params['without_empty']) && ($params['without_empty'] == false)) {
             $without_empty = false;
         } else {
-            $without_empty = dotclear()->auth->userID() == false; # Get all categories if in admin display
+            $without_empty = dotclear()->auth()->userID() == false; # Get all categories if in admin display
         }
 
         $start = isset($params['start']) ? (int) $params['start'] : 0;
@@ -579,7 +579,7 @@ class Blog
         'JOIN ' . $this->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . $this->con->escape($this->id) . "' ) " .
         "WHERE C.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!dotclear()->auth->userID()) {
+        if (!dotclear()->auth()->userID()) {
             $strReq .= 'AND P.post_status = 1 ';
         }
 
@@ -610,7 +610,7 @@ class Blog
      */
     public function addCategory(Cursor $cur, int $parent = 0): int
     {
-        if (!dotclear()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth()->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to add categories'));
         }
 
@@ -666,7 +666,7 @@ class Blog
      */
     public function updCategory(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth()->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to update categories'));
         }
 
@@ -746,7 +746,7 @@ class Blog
      */
     public function delCategory(int $id): void
     {
-        if (!dotclear()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth()->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to delete categories'));
         }
 
@@ -770,7 +770,7 @@ class Blog
      */
     public function resetCategoriesOrder(): void
     {
-        if (!dotclear()->auth->check('categories', $this->id)) {
+        if (!dotclear()->auth()->check('categories', $this->id)) {
             throw new CoreException(__('You are not allowed to reset categories order'));
         }
 
@@ -963,7 +963,7 @@ class Blog
 
         $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -971,8 +971,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
+            if (dotclear()->auth()->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1204,7 +1204,7 @@ class Blog
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
 
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -1212,8 +1212,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth->userID()) {
-                $strReq .= "OR user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
+            if (dotclear()->auth()->userID()) {
+                $strReq .= "OR user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1298,7 +1298,7 @@ class Blog
         "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' " .
             $catReq;
 
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if ($this->without_password) {
@@ -1306,8 +1306,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
+            if (dotclear()->auth()->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1376,7 +1376,7 @@ class Blog
      */
     public function addPost(Cursor $cur): int
     {
-        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
@@ -1393,7 +1393,7 @@ class Blog
             $cur->blog_id     = (string) $this->id;
             $cur->post_creadt = date('Y-m-d H:i:s');
             $cur->post_upddt  = date('Y-m-d H:i:s');
-            $cur->post_tz     = dotclear()->auth->getInfo('user_tz');
+            $cur->post_tz     = dotclear()->auth()->getInfo('user_tz');
 
             # Post excerpt and content
             $this->getPostContent($cur, $cur->post_id);
@@ -1402,7 +1402,7 @@ class Blog
 
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $cur->post_id);
 
-            if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
+            if (!dotclear()->auth()->check('publish,contentadmin', $this->id)) {
                 $cur->post_status = -2;
             }
 
@@ -1437,7 +1437,7 @@ class Blog
      */
     public function updPost(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update entries'));
         }
 
@@ -1456,18 +1456,18 @@ class Blog
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $id);
         }
 
-        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('publish,contentadmin', $this->id)) {
             $cur->unsetField('post_status');
         }
 
         $cur->post_upddt = date('Y-m-d H:i:s');
 
         #If user is only "usage", we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . $this->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+            "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
 
             $rs = $this->con->select($strReq);
 
@@ -1510,7 +1510,7 @@ class Blog
      */
     public function updPostsStatus($ids, int $status): void
     {
-        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
@@ -1521,8 +1521,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         #If user can only publish, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1557,7 +1557,7 @@ class Blog
      */
     public function updPostsSelected($ids, $selected): void
     {
-        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -1568,8 +1568,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1602,7 +1602,7 @@ class Blog
      */
     public function updPostsCategory($ids, $cat_id): void
     {
-        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -1613,8 +1613,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
 
         $cur = $this->con->openCursor($this->prefix . 'post');
@@ -1636,7 +1636,7 @@ class Blog
      */
     public function changePostsCategory(?int $old_cat_id, ?int $new_cat_id): void
     {
-        if (!dotclear()->auth->check('contentadmin,categories', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin,categories', $this->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
         }
 
@@ -1674,7 +1674,7 @@ class Blog
      */
     public function delPosts($ids): void
     {
-        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
@@ -1689,8 +1689,8 @@ class Blog
         'AND post_id ' . $this->con->in($posts_ids);
 
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
 
         $this->con->execute($strReq);
@@ -1895,7 +1895,7 @@ class Blog
         }
 
         if ($cur->post_dt == '') {
-            $offset       = Dt::getTimeOffset(dotclear()->auth->getInfo('user_tz'));
+            $offset       = Dt::getTimeOffset(dotclear()->auth()->getInfo('user_tz'));
             $now          = time() + $offset;
             $cur->post_dt = date('Y-m-d H:i:00', $now);
         }
@@ -2166,7 +2166,7 @@ class Blog
 
         $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
 
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((comment_status = 1 AND P.post_status = 1 ';
 
             if ($this->without_password) {
@@ -2174,8 +2174,8 @@ class Blog
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "')";
+            if (dotclear()->auth()->userID()) {
+                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -2339,7 +2339,7 @@ class Blog
      */
     public function updComment(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth->check('usage,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
         }
 
@@ -2356,8 +2356,8 @@ class Blog
         }
 
         #If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            if ($rs->user_id != dotclear()->auth->userID()) {
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            if ($rs->user_id != dotclear()->auth()->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
@@ -2366,7 +2366,7 @@ class Blog
 
         $cur->comment_upddt = date('Y-m-d H:i:s');
 
-        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('publish,contentadmin', $this->id)) {
             $cur->unsetField('comment_status');
         }
 
@@ -2403,7 +2403,7 @@ class Blog
      */
     public function updCommentsStatus($ids, int $status): void
     {
-        if (!dotclear()->auth->check('publish,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('publish,contentadmin', $this->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
@@ -2416,8 +2416,8 @@ class Blog
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);
@@ -2444,7 +2444,7 @@ class Blog
      */
     public function delComments($ids): void
     {
-        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -2473,8 +2473,8 @@ class Blog
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);
@@ -2489,7 +2489,7 @@ class Blog
      */
     public function delJunkComments():void
     {
-        if (!dotclear()->auth->check('delete,contentadmin', $this->id)) {
+        if (!dotclear()->auth()->check('delete,contentadmin', $this->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -2499,8 +2499,8 @@ class Blog
         'FROM ' . $this->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth->userID()) . "' ";
+        if (!dotclear()->auth()->check('contentadmin', $this->id)) {
+            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
         $this->con->execute($strReq);

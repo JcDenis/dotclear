@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Auth
+ * @class Dotclear\Core\Instance\Auth
  * @brief Dotclear core auth class
  *
  * @package Dotclear
@@ -11,19 +11,17 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
-use Dotclear\Exception\CoreException;
-
+use Dotclear\Container\User;
+use Dotclear\Core\Prefs;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\UpdateStatement;
-
-use Dotclear\Container\User as ContainerUser;
-
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
-use Dotclear\Utils\Crypt;
+use Dotclear\Exception\CoreException;
 use Dotclear\Network\Http;
+use Dotclear\Utils\Crypt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -34,7 +32,7 @@ class Auth
     /** @var Connection     Connection instance */
     protected $con;
 
-    /** @var ContainerUser  User container instance */
+    /** @var User           User container instance */
     protected $container;
 
     /** @var string         User table name */
@@ -70,7 +68,7 @@ class Auth
     public function __construct()
     {
         $this->con        = dotclear()->con;
-        $this->container  = new ContainerUser();
+        $this->container  = new User();
         $this->blog_table = dotclear()->prefix . 'blog';
         $this->user_table = dotclear()->prefix . 'user';
         $this->perm_table = dotclear()->prefix . 'permissions';

@@ -70,7 +70,7 @@ class Langs extends Page
         # Download a language pack
         if ($this->is_writable && !empty($_POST['pkg_url'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->auth->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dotclear()->auth()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
@@ -110,7 +110,7 @@ class Langs extends Page
         # Upload a language pack
         if ($this->is_writable && !empty($_POST['upload_pkg'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->auth->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dotclear()->auth()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 

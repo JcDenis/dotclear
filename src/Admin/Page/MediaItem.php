@@ -818,7 +818,7 @@ class MediaItem extends Page
                 255,
                 [
                     'default'    => Html::escapeHTML($this->file->media_title),
-                    'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>';
             if ($this->file->type == 'image/jpeg' || $this->file->type == 'image/webp') {
@@ -830,7 +830,7 @@ class MediaItem extends Page
                     255,
                     [
                         'default'    => Html::escapeHTML((string) $this->getImageDescription($this->file, '')),
-                        'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"',
+                        'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"',
                     ]
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';

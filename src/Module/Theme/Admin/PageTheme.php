@@ -139,7 +139,7 @@ class PageTheme extends Page
         }
 
         # -- Display modules lists --
-        if (dotclear()->auth->isSuperAdmin()) {
+        if (dotclear()->auth()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
                     dotclear()->notices->success(__('Manual checking of themes update done successfully.'));
@@ -206,7 +206,7 @@ class PageTheme extends Page
         }
 
         # Deactivated modules
-        if (dotclear()->auth->isSuperAdmin()) {
+        if (dotclear()->auth()->isSuperAdmin()) {
             $modules = dotclear()->themes->getDisabledModules();
             if (!empty($modules)) {
                 echo
@@ -228,7 +228,7 @@ class PageTheme extends Page
             }
         }
 
-        if (dotclear()->auth->isSuperAdmin() && dotclear()->themes->isWritablePath()) {
+        if (dotclear()->auth()->isSuperAdmin() && dotclear()->themes->isWritablePath()) {
 
             # New modules from repo
             $search  = dotclear()->themes->getSearch();
@@ -277,7 +277,7 @@ class PageTheme extends Page
         dotclear()->behavior()->call('themesToolsTabs');
 
         # -- Notice for super admin --
-        if (dotclear()->auth->isSuperAdmin() && !dotclear()->themes->isWritablePath()) {
+        if (dotclear()->auth()->isSuperAdmin() && !dotclear()->themes->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your themes directory to enable them.') . '</p>';
         }

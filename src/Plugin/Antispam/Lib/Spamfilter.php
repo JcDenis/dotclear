@@ -128,7 +128,7 @@ class Spamfilter
 
     public function hasGUI(): bool
     {
-        if (!dotclear()->auth->check('admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('admin', dotclear()->blog->id)) {
             return false;
         }
 

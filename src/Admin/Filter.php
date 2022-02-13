@@ -305,7 +305,7 @@ class Filter
         //return $var . Page::jsFilterControl($this->show());
         return
             Page::jsJson('filter_controls', $js) .
-            Page::jsJson('filter_options', ['auto_filter' => dotclear()->auth->user_prefs->interface->auto_filter]) .
+            Page::jsJson('filter_options', ['auto_filter' => dotclear()->auth()->user_prefs->interface->auto_filter]) .
             Page::jsLoad('js/filter-controls.js');
 
     }

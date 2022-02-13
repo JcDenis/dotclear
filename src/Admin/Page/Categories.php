@@ -124,8 +124,8 @@ class Categories extends Page
         $this->caregories = dotclear()->blog->getCategories();
 
         # Page setup
-        if (!dotclear()->auth->user_prefs->accessibility->nodragdrop
-            && dotclear()->auth->check('categories', dotclear()->blog->id)
+        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop
+            && dotclear()->auth()->check('categories', dotclear()->blog->id)
             && $this->caregories->count() > 1) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
@@ -231,8 +231,8 @@ class Categories extends Page
 
             echo '<div class="clear">';
 
-            if (dotclear()->auth->check('categories', dotclear()->blog->id) && $this->caregories->count() > 1) {
-                if (!dotclear()->auth->user_prefs->accessibility->nodragdrop) {
+            if (dotclear()->auth()->check('categories', dotclear()->blog->id) && $this->caregories->count() > 1) {
+                if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
                 echo

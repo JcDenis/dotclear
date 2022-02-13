@@ -67,7 +67,7 @@ class Prepend extends AbstractPrepend
         # Admin behaviors
         dotclear()->behavior()->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
 
-        if (!DC_ANTISPAM_CONF_SUPER || dotclear()->auth->isSuperAdmin()) {
+        if (!DC_ANTISPAM_CONF_SUPER || dotclear()->auth()->isSuperAdmin()) {
             dotclear()->behavior()->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
             dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
             dotclear()->behavior()->add('adminCommentsSpamForm', [__CLASS__, 'behaviorAdminCommentsSpamForm']);

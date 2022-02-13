@@ -287,7 +287,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     --------------------------------------------------- */
     private function setUser($user_id, $pwd)
     {
-        if (empty($pwd) || dotclear()->auth->checkUser($user_id, $pwd) !== true) {
+        if (empty($pwd) || dotclear()->auth()->checkUser($user_id, $pwd) !== true) {
             throw new CoreException('Login error');
         }
 
@@ -313,7 +313,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Blog does not exist.');
         }
 
-        if (!$bypass && (!dotclear()->blog->settings->system->enable_xmlrpc || !dotclear()->auth->check('usage,contentadmin', dotclear()->blog->id))) {
+        if (!$bypass && (!dotclear()->blog->settings->system->enable_xmlrpc || !dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id))) {
             dotclear()->blog = null;
 
             throw new CoreException('Not enough permissions on this blog.');
@@ -382,8 +382,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
 
-        $cur->user_id            = dotclear()->auth->userID();
-        $cur->post_lang          = dotclear()->auth->getInfo('user_lang');
+        $cur->user_id            = dotclear()->auth()->userID();
+        $cur->post_lang          = dotclear()->auth()->getInfo('user_lang');
         $cur->post_title         = trim($title);
         $cur->post_content       = $content;
         $cur->post_excerpt       = $excerpt;
@@ -666,12 +666,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
 
         return [
-            'userid'    => dotclear()->auth->userID(),
-            'firstname' => dotclear()->auth->getInfo('user_firstname'),
-            'lastname'  => dotclear()->auth->getInfo('user_name'),
-            'nickname'  => dotclear()->auth->getInfo('user_displayname'),
-            'email'     => dotclear()->auth->getInfo('user_email'),
-            'url'       => dotclear()->auth->getInfo('user_url')
+            'userid'    => dotclear()->auth()->userID(),
+            'firstname' => dotclear()->auth()->getInfo('user_firstname'),
+            'lastname'  => dotclear()->auth()->getInfo('user_name'),
+            'nickname'  => dotclear()->auth()->getInfo('user_displayname'),
+            'email'     => dotclear()->auth()->getInfo('user_email'),
+            'url'       => dotclear()->auth()->getInfo('user_url')
         ];
     }
 
@@ -957,7 +957,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Pages management is not available on this blog.');
         }
 
-        if (!dotclear()->auth->check('pages,contentadmin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('pages,contentadmin', dotclear()->blog->id)) {
             throw new CoreException('Not enough permissions to edit pages.', 401);
         }
     }
@@ -1268,9 +1268,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $cur = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
 
-        $cur->comment_author = dotclear()->auth->getInfo('user_cn');
-        $cur->comment_email  = dotclear()->auth->getInfo('user_email');
-        $cur->comment_site   = dotclear()->auth->getInfo('user_url');
+        $cur->comment_author = dotclear()->auth()->getInfo('user_cn');
+        $cur->comment_email  = dotclear()->auth()->getInfo('user_email');
+        $cur->comment_site   = dotclear()->auth()->getInfo('user_url');
 
         $cur->comment_content = $struct['content'];
         $cur->post_id         = (integer) $post_id;
@@ -1550,7 +1550,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($username, $password);
         $this->setBlog();
 
-        if (!dotclear()->auth->check('admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('admin', dotclear()->blog->id)) {
             throw new CoreException('Not enough permissions to edit options.', 401);
         }
 

@@ -188,9 +188,9 @@ class Category extends Page
         }
         $elements[$title] = '';
 
-        $category_editor = dotclear()->auth->getOption('editor');
+        $category_editor = dotclear()->auth()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = @dotclear()->auth->user_prefs->interface->rte_flags;
+        $rte_flags       = @dotclear()->auth()->user_prefs->interface->rte_flags;
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }

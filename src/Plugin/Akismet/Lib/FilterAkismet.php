@@ -38,7 +38,7 @@ class FilterAkismet extends Spamfilter
     {
         parent::__construct();
 
-        if (defined('DC_AKISMET_SUPER') && DC_AKISMET_SUPER && !dotclear()->auth->isSuperAdmin()) {
+        if (defined('DC_AKISMET_SUPER') && DC_AKISMET_SUPER && !dotclear()->auth()->isSuperAdmin()) {
             $this->has_gui = false;
         }
     }

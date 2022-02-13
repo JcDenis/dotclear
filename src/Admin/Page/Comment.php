@@ -116,14 +116,14 @@ class Comment extends Page
 
         $this->can_edit = $this->can_delete = $this->can_publish = false;
         if (!dotclear()->error()->flag() && isset($rs)) {
-            $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->auth->check('contentadmin', dotclear()->blog->id);
+            $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->auth()->check('contentadmin', dotclear()->blog->id);
 
-            if (!dotclear()->auth->check('contentadmin', dotclear()->blog->id) && dotclear()->auth->userID() == $rs->user_id) {
+            if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id) && dotclear()->auth()->userID() == $rs->user_id) {
                 $this->can_edit = true;
-                if (dotclear()->auth->check('delete', dotclear()->blog->id)) {
+                if (dotclear()->auth()->check('delete', dotclear()->blog->id)) {
                     $this->can_delete = true;
                 }
-                if (dotclear()->auth->check('publish', dotclear()->blog->id)) {
+                if (dotclear()->auth()->check('publish', dotclear()->blog->id)) {
                     $this->can_publish = true;
                 }
             }
@@ -181,7 +181,7 @@ class Comment extends Page
         }
 
         # Page setup
-        $comment_editor = dotclear()->auth->getOption('editor');
+        $comment_editor = dotclear()->auth()->getOption('editor');
 
         $this
             ->setPageTitle(__('Edit comment'))
@@ -231,7 +231,7 @@ class Comment extends Page
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
-        $show_ip = dotclear()->auth->check('contentadmin', dotclear()->blog->id);
+        $show_ip = dotclear()->auth()->check('contentadmin', dotclear()->blog->id);
         if ($show_ip) {
             echo
             '<p>' . __('IP address:') . ' ' .
@@ -272,7 +272,7 @@ class Comment extends Page
         Form::textarea('comment_content', 50, 10,
             [
                 'default'    => Html::escapeHTML($this->comment_content),
-                'extra_html' => 'lang="' . dotclear()->auth->getInfo('user_lang') . '" spellcheck="true"'
+                'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
             ]) .
         '</p>' .
 

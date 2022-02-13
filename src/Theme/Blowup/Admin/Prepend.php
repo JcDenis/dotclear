@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
     public static function loadModule(): void
     {
         dotclear()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
-            return $module->id() == 'Blowup' && dotclear()->auth->check('admin', dotclear()->blog->id) ?
+            return $module->id() == 'Blowup' && dotclear()->auth()->check('admin', dotclear()->blog->id) ?
                 '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });

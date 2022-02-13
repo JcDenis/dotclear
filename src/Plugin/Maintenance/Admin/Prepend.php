@@ -37,7 +37,7 @@ class Prepend extends AbstractPrepend
         static::addStandardMenu('Plugins');
 
         # Workspace
-        dotclear()->auth->user_prefs->addWorkspace('maintenance');
+        dotclear()->auth()->user_prefs->addWorkspace('maintenance');
         dotclear()->blog->settings->addNamespace('maintenance');
 
         # Rest service
@@ -127,7 +127,7 @@ class Prepend extends AbstractPrepend
     public static function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
     {
         # Check user option
-        if (!dotclear()->auth->user_prefs->maintenance->dashboard_icon) {
+        if (!dotclear()->auth()->user_prefs->maintenance->dashboard_icon) {
             return;
         }
 
@@ -155,7 +155,7 @@ class Prepend extends AbstractPrepend
      */
     public static function behaviorAdminDashboardItems(ArrayObject $items): void
     {
-        if (!dotclear()->auth->user_prefs->maintenance->dashboard_item) {
+        if (!dotclear()->auth()->user_prefs->maintenance->dashboard_item) {
             return;
         }
 
@@ -205,11 +205,11 @@ class Prepend extends AbstractPrepend
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->auth->user_prefs->maintenance->dashboard_icon) .
+        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->auth()->user_prefs->maintenance->dashboard_icon) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->auth->user_prefs->maintenance->dashboard_item) .
+        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->auth()->user_prefs->maintenance->dashboard_item) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -226,8 +226,8 @@ class Prepend extends AbstractPrepend
             return;
         }
 
-        dotclear()->auth->user_prefs->maintenance->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
-        dotclear()->auth->user_prefs->maintenance->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
+        dotclear()->auth()->user_prefs->maintenance->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
+        dotclear()->auth()->user_prefs->maintenance->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
     }
 
     /**

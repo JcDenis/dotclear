@@ -161,8 +161,8 @@ class Antispam
 
     public static function getUserCode(): string
     {
-        $code = pack('a32', dotclear()->auth->userID()) .
-        hash(dotclear()->config()->crypt_algo, dotclear()->auth->cryptLegacy(dotclear()->auth->getInfo('user_pwd')));
+        $code = pack('a32', dotclear()->auth()->userID()) .
+        hash(dotclear()->config()->crypt_algo, dotclear()->auth()->cryptLegacy(dotclear()->auth()->getInfo('user_pwd')));
 
         return bin2hex($code);
     }
@@ -188,7 +188,7 @@ class Antispam
             return false;
         }
 
-        if (hash(dotclear()->config()->crypt_algo, dotclear()->auth->cryptLegacy($rs->user_pwd)) != $pwd) {
+        if (hash(dotclear()->config()->crypt_algo, dotclear()->auth()->cryptLegacy($rs->user_pwd)) != $pwd) {
             return false;
         }
 
@@ -316,7 +316,7 @@ class Antispam
 
         if ($ip_filter_active) {
             $blocklist_actions = [__('Blocklist IP') => 'blocklist'];
-            if (dotclear()->auth->isSuperAdmin()) {
+            if (dotclear()->auth()->isSuperAdmin()) {
                 $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
             }
 
@@ -335,7 +335,7 @@ class Antispam
             throw new AdminException(__('No comment selected'));
         }
 
-        $global = !empty($action) && $action == 'blocklist_global' && dotclear()->auth->isSuperAdmin();
+        $global = !empty($action) && $action == 'blocklist_global' && dotclear()->auth()->isSuperAdmin();
 
         $rs = $ap->getRS();
 

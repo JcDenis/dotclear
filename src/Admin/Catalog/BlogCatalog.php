@@ -56,7 +56,7 @@ class BlogCatalog extends Catalog
 
             $cols = [
                 'blog' => '<th' .
-                (dotclear()->auth->isSuperAdmin() ? ' colspan="2"' : '') .
+                (dotclear()->auth()->isSuperAdmin() ? ' colspan="2"' : '') .
                 ' scope="col" abbr="comm" class="first nowrap">' . __('Blog id') . '</th>',
                 'name'   => '<th scope="col" abbr="name">' . __('Blog name') . '</th>',
                 'url'    => '<th scope="col" class="nowrap">' . __('URL') . '</th>',
@@ -122,12 +122,12 @@ class BlogCatalog extends Catalog
         $blog_id = Html::escapeHTML($this->rs->blog_id);
 
         $cols = [
-            'check' => (dotclear()->auth->isSuperAdmin() ?
+            'check' => (dotclear()->auth()->isSuperAdmin() ?
                 '<td class="nowrap">' .
                 Form::checkbox(['blogs[]'], $this->rs->blog_id, $checked) .
                 '</td>' : ''),
             'blog' => '<td class="nowrap">' .
-            (dotclear()->auth->isSuperAdmin() ?
+            (dotclear()->auth()->isSuperAdmin() ?
                 '<a href="' . dotclear()->adminurl->get('admin.blog', ['id' => $blog_id]) . '"  ' .
                 'title="' . sprintf(__('Edit blog settings for %s'), $blog_id) . '">' .
                 '<img src="?df=images/edit-mini.png" alt="' . __('Edit blog settings') . '" /> ' . $blog_id . '</a> ' :
@@ -146,7 +146,7 @@ class BlogCatalog extends Catalog
             dotclear()->countBlogPosts($this->rs->blog_id) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset(dotclear()->auth->getInfo('user_tz'))) .
+            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset(dotclear()->auth()->getInfo('user_tz'))) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(

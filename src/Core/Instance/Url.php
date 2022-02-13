@@ -688,7 +688,7 @@ class Url
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
-            if (!dotclear()->auth->checkUser($user_id, null, $user_key)) {
+            if (!dotclear()->auth()->checkUser($user_id, null, $user_key)) {
                 # The user has no access to the entry.
                 $this->p404();
             } else {
