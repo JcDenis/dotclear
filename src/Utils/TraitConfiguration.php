@@ -30,15 +30,11 @@ trait TraitConfiguration
     /**
      * Get Configuration instance or value
      *
-     * Call key value from: config('my_key'); or config()->my_key;
-     *
-     * @param   string  The key
-     *
-     * @return  mixed   The value or Configuration instance
+     * @return  mixed   Configuration instance
      */
-    public function config(string $key = '')
+    public function config(): ?Configuration
     {
-        return empty($key) ? $this->config : $this->config->{$key};
+        return $this->config;
     }
 
     /**
