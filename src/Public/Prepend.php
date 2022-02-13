@@ -83,7 +83,7 @@ class Prepend extends Core
 
         # Load media
         try {
-            $this->mediaInstance();
+            $this->media();
         } catch (\Exception $e) {
             throw new PrependException(__('Can\'t load media.'), $e->getMessage(), 640);
         }

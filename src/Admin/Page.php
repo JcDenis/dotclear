@@ -333,8 +333,8 @@ abstract class Page
                 $csp['style-src']   .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);
             }
             # Cope with media display in media manager (via public URL)
-            if (!is_null(dotclear()->media)) {
-                $csp['img-src'] .= ' ' . parse_url(dotclear()->media->root_url, PHP_URL_HOST);
+            if (!is_null(dotclear()->media())) { //! allways false now
+                $csp['img-src'] .= ' ' . parse_url(dotclear()->media()->root_url, PHP_URL_HOST);
             } elseif (!is_null(dotclear()->blog->host)) {
                 // Let's try with the blog URL
                 $csp['img-src'] .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);

@@ -38,16 +38,15 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
     public function execute()
     {
         // Instance media
-        dotclear()->mediaInstance();
-        dotclear()->media->chdir('');
-        dotclear()->media->getDir();
+        dotclear()->media()->chdir('');
+        dotclear()->media()->getDir();
 
         // Create zip
         @set_time_limit(300);
         $fp  = fopen('php://output', 'wb');
         $zip = new Zip($fp);
         $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-        $zip->addDirectory(dotclear()->media->root . '/', '', true);
+        $zip->addDirectory(dotclear()->media()->root . '/', '', true);
 
         // Log task execution here as we sent file and stop script
         $this->log();

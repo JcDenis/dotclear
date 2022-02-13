@@ -504,7 +504,7 @@ class ConfigTheme
         if (is_writable(dirname($img))) {
             // Delete thumbnails if any
             try {
-                dotclear()->mediaInstance()->imageThumbRemove($img);
+                dotclear()->media()->imageThumbRemove($img);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

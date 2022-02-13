@@ -408,8 +408,7 @@ class RestMethods
         $file = null;
 
         try {
-            dotclear()->mediaInstance();
-            $file = dotclear()->media->getFile($id);
+            $file = dotclear()->media()->getFile($id);
         } catch (\Exception $e) {
         }
 
@@ -418,7 +417,7 @@ class RestMethods
         }
 
         $rsp     = new XmlTag('result');
-        $content = dotclear()->media->getZipContent($file);
+        $content = dotclear()->media()->getZipContent($file);
 
         foreach ($content as $k => $v) {
             $rsp->file($k);

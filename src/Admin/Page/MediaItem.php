@@ -79,26 +79,24 @@ class MediaItem extends Page
         $this->dirs_combo = [];
 
         try {
-            dotclear()->mediaInstance();
-
             if ($this->id) {
-                $this->file = dotclear()->media->getFile($this->id);
+                $this->file = dotclear()->media()->getFile($this->id);
             }
 
             if ($this->file === null) {
                 throw new AdminException(__('Not a valid file'));
             }
 
-            dotclear()->media->chdir(dirname($this->file->relname));
-            $this->media_writable = dotclear()->media->writable();
+            dotclear()->media()->chdir(dirname($this->file->relname));
+            $this->media_writable = dotclear()->media()->writable();
 
             # Prepare directories combo box
-            foreach (dotclear()->media->getDBDirs() as $v) {
+            foreach (dotclear()->media()->getDBDirs() as $v) {
                 $this->dirs_combo['/' . $v] = $v;
             }
             # Add parent and direct childs directories if any
-            dotclear()->media->getFSDir();
-            foreach (dotclear()->media->dir['dirs'] as $k => $v) {
+            dotclear()->media()->getFSDir();
+            foreach (dotclear()->media()->dir['dirs'] as $k => $v) {
                 $this->dirs_combo['/' . $v->relname] = $v->relname;
             }
             ksort($this->dirs_combo);
@@ -111,7 +109,7 @@ class MediaItem extends Page
         if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                dotclear()->media->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
+                dotclear()->media()->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
 
                 dotclear()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
@@ -165,7 +163,7 @@ class MediaItem extends Page
             }
 
             try {
-                dotclear()->media->updateFile($this->file, $newFile);
+                dotclear()->media()->updateFile($this->file, $newFile);
 
                 dotclear()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
@@ -179,7 +177,7 @@ class MediaItem extends Page
         if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $this->media_writable) {
             try {
                 $foo = null;
-                dotclear()->media->mediaFireRecreateEvent($this->file);
+                dotclear()->media()->mediaFireRecreateEvent($this->file);
 
                 dotclear()->notices->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
@@ -192,7 +190,7 @@ class MediaItem extends Page
         # Unzip file
         if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $this->media_writable) {
             try {
-                $unzip_dir = dotclear()->media->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
+                $unzip_dir = dotclear()->media()->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
 
                 dotclear()->notices->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
@@ -243,7 +241,7 @@ class MediaItem extends Page
                 $prefs['legend'] = $_POST['pref_legend'];
             }
 
-            $local = dotclear()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
+            $local = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
             if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
                 dotclear()->notices->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
             }
@@ -252,7 +250,7 @@ class MediaItem extends Page
 
         # Delete media insertion settings for the folder (.mediadef and .mediadef.json)
         if (!empty($_POST['remove_folder_prefs'])) {
-            $local      = dotclear()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+            $local      = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
                 dotclear()->notices->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
@@ -268,7 +266,7 @@ class MediaItem extends Page
 
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
-        $breadcrumb       = dotclear()->media->breadCrumb(dotclear()->adminurl->get('admin.media', $temp_params, '&amp;', true)) .
+        $breadcrumb       = dotclear()->media()->breadCrumb(dotclear()->adminurl->get('admin.media', $temp_params, '&amp;', true)) .
             ($this->file === null ? '' : '<span class="page-title">' . $this->file->basename . '</span>');
         $temp_params['d'] = '';
         $home_url         = dotclear()->adminurl->get('admin.media', $temp_params);
@@ -348,7 +346,7 @@ class MediaItem extends Page
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dotclear()->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -412,7 +410,7 @@ class MediaItem extends Page
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dotclear()->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -563,7 +561,7 @@ class MediaItem extends Page
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
 
-                $local = dotclear()->media->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+                $local = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -603,7 +601,7 @@ class MediaItem extends Page
         if ($this->file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
-            if (!isset(dotclear()->media->thumb_sizes[$thumb_size]) && $thumb_size != 'o') {
+            if (!isset(dotclear()->media()->thumb_sizes[$thumb_size]) && $thumb_size != 'o') {
                 $thumb_size = 's';
             }
 
@@ -626,7 +624,7 @@ class MediaItem extends Page
                 printf($strong_link, '<a href="' . dotclear()->adminurl->get('admin.media.item', array_merge(
                     $this->page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
-                )) . '">' . dotclear()->media->thumb_sizes[$s][2] . '</a> | ');
+                )) . '">' . dotclear()->media()->thumb_sizes[$s][2] . '</a> | ');
             }
             echo '<a href="' . dotclear()->adminurl->get('admin.media.item', array_merge($this->page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
@@ -636,7 +634,7 @@ class MediaItem extends Page
                 $alpha      = ($p['extension'] == 'png') || ($p['extension'] == 'PNG');
                 $alpha      = strtolower($p['extension']) === 'png';
                 $webp       = strtolower($p['extension']) === 'webp';
-                $thumb_tp   = ($alpha ? dotclear()->media->thumb_tp_alpha : ($webp ? dotclear()->media->thumb_tp_webp : dotclear()->media->thumb_tp));
+                $thumb_tp   = ($alpha ? dotclear()->media()->thumb_tp_alpha : ($webp ? dotclear()->media()->thumb_tp_webp : dotclear()->media()->thumb_tp));
                 $thumb      = sprintf($thumb_tp, $p['dirname'], $p['base'], '%s');
                 $thumb_file = sprintf($thumb, $thumb_size);
                 $T          = getimagesize($thumb_file);
@@ -955,7 +953,7 @@ class MediaItem extends Page
         ];
 
         try {
-            $local = dotclear()->media->root . '/' . dirname($file->relname) . '/' . '.mediadef';
+            $local = dotclear()->media()->root . '/' . dirname($file->relname) . '/' . '.mediadef';
             if (!file_exists($local)) {
                 $local .= '.json';
             }

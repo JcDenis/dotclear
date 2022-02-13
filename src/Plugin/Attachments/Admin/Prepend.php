@@ -66,7 +66,7 @@ class Prepend extends AbstractPrepend
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
     {
         if ($post !== null) {
-            $post_media = dotclear()->mediaInstance()->getPostMedia($post->post_id, null, 'attachment');
+            $post_media = dotclear()->media()->getPostMedia($post->post_id, null, 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);
             $item       = '<h5 class="clear s-attachments">' . $title . '</h5>';

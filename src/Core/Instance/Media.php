@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Media
+ * @class Dotclear\Core\Instance\Media
  * @brief Dotclear core media class
  *
  * This class handles Dotclear media items.
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Exception\CoreException;
 

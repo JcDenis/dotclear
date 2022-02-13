@@ -44,8 +44,8 @@ class Attachments
     public static function Attachments($attr, $content)
     {
         $res = "<?php\n" .
-            'if (dotclear()->context->posts !== null && dotclear()->media) {' . "\n" .
-            'dotclear()->context->attachments = new ArrayObject(dotclear()->media->getPostMedia(dotclear()->context->posts->post_id,null,"attachment"));' . "\n" .
+            'if (dotclear()->context->posts !== null) {' . "\n" .
+            'dotclear()->context->attachments = new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context->posts->post_id,null,"attachment"));' . "\n" .
             "?>\n" .
 
             '<?php foreach (dotclear()->context->attachments as $attach_i => $attach_f) : ' .

@@ -493,8 +493,7 @@ class Context
     public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
         try {
-            $media = dotclear()->mediaInstance();
-            $sizes = implode('|', array_keys($media->thumb_sizes)) . '|o';
+            $sizes = implode('|', array_keys(dotclear()->media()->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
@@ -567,8 +566,7 @@ class Context
         $res = false;
 
         try {
-            $media = dotclear()->mediaInstance();
-            $sizes = implode('|', array_keys($media->thumb_sizes));
+            $sizes = implode('|', array_keys(dotclear()->media()->thumb_sizes));
             if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
                 $base = $m[1];
             }

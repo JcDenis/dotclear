@@ -798,7 +798,6 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $media     = dotclear()->mediaInstance();
         $dir_name  = Path::clean(dirname($file_name));
         $file_name = basename($file_name);
         $dir_name  = preg_replace('!^/!', '', $dir_name);
@@ -808,14 +807,14 @@ class XmlRpc extends xmlrpcIntrospectionServer
             foreach ($dir as $v) {
                 $v = Files::tidyFileName($v);
                 $cwd .= $v . '/';
-                $media->makeDir($v);
-                $media->chdir($cwd);
+                dotclear()->media()->makeDir($v);
+                dotclear()->media()->chdir($cwd);
             }
         }
 
-        $media_id = $media->uploadBits($file_name, $file_bits);
+        $media_id = dotclear()->media()->uploadBits($file_name, $file_bits);
 
-        $f = $media->getFile($media_id);
+        $f = dotclear()->media()->getFile($media_id);
 
         return [
             'file' => $file_name,

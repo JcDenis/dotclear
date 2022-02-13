@@ -172,8 +172,8 @@ class Post extends Page
                     );
                 }
 
-                try {
-                    dotclear()->mediaInstance();
+                try { //!
+                    dotclear()->media();
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }

@@ -144,7 +144,7 @@ if (!empty($_REQUEST['id'])) {
 
         try {
             $core->media = new dcMedia($core);
-            $post_media  = $core->media->getPostMedia($post_id);
+            $post_media  = $core->media()->getPostMedia($post_id);
         } catch (Exception $e) {
             $core->error->add($e->getMessage());
         }

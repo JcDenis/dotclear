@@ -31,7 +31,6 @@ class L10nFaker
     public function __construct()
     {
         $this->bundled_plugins = explode(',', dotclear()->config()->plugin_official);
-        dotclear()->mediaInstance();
     }
 
     protected function fake_l10n($str)
@@ -45,7 +44,7 @@ class L10nFaker
         $main   = "<?php\n";
         $plugin = "<?php\n";
         $main .= "# Media sizes\n\n";
-        foreach (dotclear()->media->thumb_sizes as $k => $v) {
+        foreach (dotclear()->media()->thumb_sizes as $k => $v) {
             $main .= $this->fake_l10n($v[2]);
         }
         $post_types = dotclear()->getPostTypes();

@@ -29,6 +29,7 @@ use Dotclear\Core\Instance\TraitBehavior;
 use Dotclear\Core\Instance\TraitConfiguration;
 use Dotclear\Core\Instance\TraitError;
 use Dotclear\Core\Instance\TraitLog;
+use Dotclear\Core\Instance\TraitMedia;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Database\Connection;
@@ -57,7 +58,8 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Core
 {
-    use TraitError, TraitBehavior, TraitConfiguration, TraitLog;
+    use TraitError, TraitBehavior, TraitConfiguration;
+    use TraitLog, TraitMedia;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -70,9 +72,6 @@ class Core
 
     /** @var Connection         Connetion instance */
     public $con;
-
-    /** @var Media              Media instance */
-    public $media;
 
     /** @var Meta               Meta instance */
     public $meta;
@@ -478,25 +477,6 @@ class Core
         }
 
         return new $class();
-    }
-    //@}
-
-    /// @name Optionnal Core init methods
-    //@{
-    /**
-     * Instanciate media manager into Core
-     *
-     * @param   bool    $reload     Force to reload instance
-     *
-     * @return  Media               Media instance
-     */
-    public function mediaInstance(bool $reload = false): Media
-    {
-        if (!($this->media instanceof Media) || $reload) {
-            $this->media = new Media();
-        }
-
-        return $this->media;
     }
     //@}
 

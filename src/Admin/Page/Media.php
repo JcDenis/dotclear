@@ -73,27 +73,26 @@ class Media extends Page
     {
         // try to load core media and themes
         try {
-            dotclear()->mediaInstance();
-            dotclear()->media->setFileSort($this->filter->sortby . '-' . $this->filter->order);
+            dotclear()->media()->setFileSort($this->filter->sortby . '-' . $this->filter->order);
 
             if ($this->filter->q != '') {
-                $this->media_has_query = dotclear()->media->searchMedia($this->filter->q);
+                $this->media_has_query = dotclear()->media()->searchMedia($this->filter->q);
             }
             if (!$this->media_has_query) {
                 $try_d = $this->filter->d;
                 // Reset current dir
                 $this->filter->d = null;
                 // Change directory (may cause an exception if directory doesn't exist)
-                dotclear()->media->chdir($try_d);
+                dotclear()->media()->chdir($try_d);
                 // Restore current dir variable
                 $this->filter->d = $try_d;
-                dotclear()->media->getDir();
+                dotclear()->media()->getDir();
             } else {
                 $this->filter->d = null;
-                dotclear()->media->chdir('');
+                dotclear()->media()->chdir('');
             }
-            $this->media_writable = dotclear()->media->writable();
-            $this->media_dir      = &dotclear()->media->dir;
+            $this->media_writable = dotclear()->media()->writable();
+            $this->media_dir      = &dotclear()->media()->dir;
 
             $rs = $this->getDirsRecord();
 
@@ -114,13 +113,13 @@ class Media extends Page
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->auth->check('media_admin', dotclear()->blog->id)) {
             try {
-                if (strpos(realpath(dotclear()->media->root . '/' . $this->filter->d), realpath(dotclear()->media->root)) === 0) {
+                if (strpos(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root)) === 0) {
                     // Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-                    $zip->addDirectory(dotclear()->media->root . '/' . $this->filter->d, '', true);
+                    $zip->addDirectory(dotclear()->media()->root . '/' . $this->filter->d, '', true);
 
                     header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog->id . '-' . ($this->filter->d ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
@@ -129,7 +128,7 @@ class Media extends Page
                     exit;
                 }
                 $this->filter->d = null;
-                dotclear()->media->chdir($this->filter->d);
+                dotclear()->media()->chdir($this->filter->d);
 
                 throw new \Exception(__('Not a valid directory'));
             } catch (\Exception $e) {
@@ -159,7 +158,7 @@ class Media extends Page
                 ));
             } else {
                 try {
-                    dotclear()->media->makeDir($_POST['newdir']);
+                    dotclear()->media()->makeDir($_POST['newdir']);
                     dotclear()->notices->addSuccessNotice(sprintf(
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
@@ -189,7 +188,7 @@ class Media extends Page
 
                 try {
                     Files::uploadStatus($upfile);
-                    $new_file_id = dotclear()->media->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
+                    $new_file_id = dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
 
                     $message['files'][] = [
                         'name' => $upfile['name'],
@@ -213,7 +212,7 @@ class Media extends Page
                 $f_title   = (isset($_POST['upfiletitle']) ? Html::escapeHTML($_POST['upfiletitle']) : '');
                 $f_private = ($_POST['upfilepriv'] ?? false);
 
-                dotclear()->media->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
+                dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
 
                 dotclear()->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
@@ -226,7 +225,7 @@ class Media extends Page
         if ($this->getDirs() && !empty($_POST['medias']) && !empty($_POST['delete_medias'])) {
             try {
                 foreach ($_POST['medias'] as $media) {
-                    dotclear()->media->removeItem(rawurldecode($media));
+                    dotclear()->media()->removeItem(rawurldecode($media));
                 }
                 dotclear()->notices->addSuccessNotice(
                     sprintf(__('Successfully delete one media.',
@@ -248,14 +247,14 @@ class Media extends Page
             $forget          = false;
 
             try {
-                if (is_dir(Path::real(dotclear()->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
+                if (is_dir(Path::real(dotclear()->media()->getPwd() . '/' . Path::clean($_POST['remove'])))) {
                     $msg = __('Directory has been successfully removed.');
                     # Remove dir from recents/favs if necessary
                     $forget = true;
                 } else {
                     $msg = __('File has been successfully removed.');
                 }
-                dotclear()->media->removeItem($_POST['remove']);
+                dotclear()->media()->removeItem($_POST['remove']);
                 if ($forget) {
                     $this->updateLast($this->filter->d . '/' . Path::clean($_POST['remove']), true);
                     $this->updateFav($this->filter->d . '/' . Path::clean($_POST['remove']), true);
@@ -270,7 +269,7 @@ class Media extends Page
         # Rebuild directory
         if ($this->getDirs() && dotclear()->auth->isSuperAdmin() && !empty($_POST['rebuild'])) {
             try {
-                dotclear()->media->rebuild($this->filter->d);
+                dotclear()->media()->rebuild($this->filter->d);
 
                 dotclear()->notices->success(sprintf(
                     __('Directory "%s" has been successfully rebuilt.'),
@@ -603,7 +602,7 @@ class Media extends Page
     {
         $option = $param = [];
 
-        if (empty($element) && isset(dotclear()->media)) {
+        if (empty($element)) {
             $param = [
                 'd' => '',
                 'q' => ''
@@ -615,7 +614,7 @@ class Media extends Page
                 $element[__('Search:') . ' ' . $this->filter->q . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
                 $bc_url   = dotclear()->adminurl->get('admin.media', array_merge($this->filter->values(true), ['d' => '%s']), '&');
-                $bc_media = dotclear()->media->breadCrumb($bc_url, '<span class="page-title">%s</span>');
+                $bc_media = dotclear()->media()->breadCrumb($bc_url, '<span class="page-title">%s</span>');
                 if ($bc_media != '') {
                     $element[$bc_media] = '';
                     $option['hl']       = true;
@@ -723,7 +722,7 @@ class Media extends Page
      */
     public function mediaLine($file_id)
     {
-        return MediaCatalog::mediaLine($this->filter, dotclear()->media->getFile($file_id), 1, $this->media_has_query);
+        return MediaCatalog::mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query);
     }
 
     /**

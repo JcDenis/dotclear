@@ -62,7 +62,7 @@ class PostMedia extends Page
                 Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $post_id, false));
             }
 
-            $f = dotclear()->mediaInstance()->getPostMedia($post_id, $media_id, $link_type);
+            $f = dotclear()->media()->getPostMedia($post_id, $media_id, $link_type);
             if (empty($f)) {
                 $post_id = $media_id = null;
 

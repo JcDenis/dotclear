@@ -363,9 +363,8 @@ class BlogPref extends Page
         $img_default_size_combo = [];
 
         try {
-            $media                                  = dotclear()->mediaInstance();
             $img_default_size_combo[__('original')] = 'o';
-            foreach ($media->thumb_sizes as $code => $size) {
+            foreach (dotclear()->media()->thumb_sizes as $code => $size) {
                 $img_default_size_combo[__($size[2])] = $code;
             }
         } catch (\Exception $e) {
