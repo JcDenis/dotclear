@@ -312,8 +312,8 @@ class Home extends Page
         if (!dotclear()->auth->user_prefs->dashboard->nofavicons) {
             # Dashboard icons
             $dashboardIcons = '<div id="icons">';
-            foreach ($__dashboard_icons as $i) {
-                $dashboardIcons .= '<p><a href="' . $i[1] . '">' . dotclear()->menu->getIconTheme($i[2]) .
+            foreach ($__dashboard_icons as $dib => $i) {
+                $dashboardIcons .= '<p id="db-icon-'. $dib . '"><a href="' . $i[1] . '">' . dotclear()->menu->getIconTheme($i[2]) .
                     '<br /><span class="db-icon-title">' . $i[0] . '</span></a></p>';
             }
             $dashboardIcons .= '</div>';

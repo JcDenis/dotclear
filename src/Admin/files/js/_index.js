@@ -197,12 +197,12 @@ $(() => {
   });
 
   // check if store update available, if db has icon
-  if ($('#dashboard-main #icons p a[href="plugins.php"]').length) {
-    const plugins_db_icon = $('#dashboard-main #icons p a[href="plugins.php"]').parent();
+  if ($('#dashboard-main #icons #db-icon-plugins').length) {
+    const plugins_db_icon = $('#dashboard-main #icons #db-icon-plugins');
     dotclear.dbStoreUpdate('plugins', plugins_db_icon);
   }
-  if ($('#dashboard-main #icons p a[href="blog_theme.php"]').length) {
-    const themes_db_icon = $('#dashboard-main #icons p a[href="blog_theme.php"]').parent();
+  if ($('#dashboard-main #icons #db-icon-themes').length) {
+    const themes_db_icon = $('#dashboard-main #icons #db-icon-themes');
     dotclear.dbStoreUpdate('themes', themes_db_icon);
   }
 

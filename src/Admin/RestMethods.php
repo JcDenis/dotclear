@@ -13,16 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin;
 
-use Dotclear\Exception\AdminException;
-
 use Dotclear\Core\Update;
-
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Text;
+use Dotclear\Core\Store;
+use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
 use Dotclear\Html\Validator;
 use Dotclear\Html\XmlTag;
 use Dotclear\Network\Feed\Reader;
+use Dotclear\Utils\Dt;
+use Dotclear\Utils\Text;
 
 class RestMethods
 {
@@ -189,7 +188,7 @@ class RestMethods
             }
         }
 
-        $repo = new dcStore($mod, $url);
+        $repo = new Store($mod, $url);
         $upd  = $repo->get(true);
         if (!empty($upd)) {
             $ret        = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
