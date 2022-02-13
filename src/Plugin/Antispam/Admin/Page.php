@@ -116,7 +116,7 @@ class Page extends AbstractPage
                 dotclear()->adminurl->redirect('admin.plugin.Antispam');
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # Page setup

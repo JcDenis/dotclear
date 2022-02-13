@@ -30,7 +30,7 @@ trait TraitConfiguration
     /**
      * Get Configuration instance or value
      *
-     * @return  mixed   Configuration instance
+     * @return  Configuration|null  Configuration instance or null
      */
     public function config(): ?Configuration
     {

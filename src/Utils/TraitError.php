@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Html\TraitError
+ * @class Dotclear\Utils\TraitError
  * @brief Dotclear trait error
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html;
+namespace Dotclear\Utils;
 
-use Dotclear\Html\Error;
+use Dotclear\Utils\Error;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -25,19 +25,14 @@ trait TraitError
     private $error;
 
     /**
-     * Get Error instance
+     * Get instance
      *
-     * @param   string|null     $msg    Error message
-     * @return  Error                   Error instance
+     * @return  Error   Error instance
      */
-    public function error(?string $msg = null): Error
+    public function error(): Error
     {
         if (!($this->error instanceof Error)) {
             $this->error = new Error();
-        }
-
-        if ($msg) {
-            $this->error->add($msg);
         }
 
         return $this->error;

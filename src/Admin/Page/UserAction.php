@@ -73,7 +73,7 @@ class UserAction extends Page
             }
 
             if (empty($this->users)) {
-                dotclear()->error(__('No blog or user given.'));
+                dotclear()->error()->add(__('No blog or user given.'));
             }
 
             # --BEHAVIOR-- adminUsersActions
@@ -92,7 +92,7 @@ class UserAction extends Page
 
                         dotclear()->delUser($u);
                     } catch (\Exception $e) {
-                        dotclear()->error($e->getMessage());
+                        dotclear()->error()->add($e->getMessage());
                     }
                 }
                 if (!dotclear()->error()->flag()) {
@@ -124,7 +124,7 @@ class UserAction extends Page
                         }
                     }
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
                 if (!dotclear()->error()->flag()) {
                     dotclear()->notices->addSuccessNotice(__('User has been successfully updated.'));

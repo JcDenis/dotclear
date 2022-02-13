@@ -47,7 +47,7 @@ class PageIconset extends Page
         try {
             dotclear()->iconsets->doActions();
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # -- Plugin install --

@@ -1456,7 +1456,7 @@ trait TraitModulesAdmin
         # Check module
         $module = $this->getModule($id);
         if (!$module) {
-            dotclear()->error(__('Unknown module ID'));
+            dotclear()->error()->add(__('Unknown module ID'));
 
             return false;
         }
@@ -1464,7 +1464,7 @@ trait TraitModulesAdmin
         # Check config
         $class  = root_ns($module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
         if (!is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
-            dotclear()->error(__('This module has no configuration file.'));
+            dotclear()->error()->add(__('This module has no configuration file.'));
 
             return false;
         }
@@ -1473,7 +1473,7 @@ trait TraitModulesAdmin
         if (!dotclear()->auth->isSuperAdmin()
             && !dotclear()->auth->check((string) $class::getPermissions(), dotclear()->blog->id)
         ) {
-            dotclear()->error(__('Insufficient permissions'));
+            dotclear()->error()->add(__('Insufficient permissions'));
 
             return false;
         }
@@ -1511,7 +1511,7 @@ trait TraitModulesAdmin
             ob_end_clean();
         } catch (\Exception $e) {
             ob_end_clean();
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         return !empty($this->config_content);

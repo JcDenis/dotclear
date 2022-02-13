@@ -39,7 +39,6 @@ use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Html\HtmlFilter;
-use Dotclear\Html\TraitError;
 use Dotclear\Html\Wiki2xhtml;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Autoloader;
@@ -50,6 +49,7 @@ use Dotclear\Utils\Statistic;
 use Dotclear\Utils\Text;
 use Dotclear\Utils\TraitBehavior;
 use Dotclear\Utils\TraitConfiguration;
+use Dotclear\Utils\TraitError;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

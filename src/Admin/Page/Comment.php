@@ -76,7 +76,7 @@ class Comment extends Page
 
                 dotclear()->notices->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
             Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
         }
@@ -106,12 +106,12 @@ class Comment extends Page
                     $this->comment_trackback   = (boolean) $rs->comment_trackback;
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
         if (!$this->comment_id && !dotclear()->error()->flag()) {
-            dotclear()->error(__('No comments'));
+            dotclear()->error()->add(__('No comments'));
         }
 
         $this->can_edit = $this->can_delete = $this->can_publish = false;
@@ -153,7 +153,7 @@ class Comment extends Page
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully updated.'));
                     dotclear()->adminurl->redirect('admin.comment', ['id' => $this->comment_id]);
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
 
@@ -167,12 +167,12 @@ class Comment extends Page
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
 
             if (!$this->can_edit) {
-                dotclear()->error(__("You can't edit this comment."));
+                dotclear()->error()->add(__("You can't edit this comment."));
             }
         }
 

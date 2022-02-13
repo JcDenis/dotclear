@@ -54,7 +54,7 @@ class CommentAction extends Action
 
     public function error(\Exception $e)
     {
-        dotclear()->error($e->getMessage());
+        dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 

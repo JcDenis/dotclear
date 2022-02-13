@@ -74,7 +74,7 @@ class PagePlugin extends Page
             try {
                 dotclear()->plugins->doActions();
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
 
             # -- Plugin install --

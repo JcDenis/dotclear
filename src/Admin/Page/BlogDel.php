@@ -41,11 +41,11 @@ class BlogDel extends Page
             try {
                 $rs = dotclear()->getBlog($_POST['blog_id']);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
 
             if ($rs->isEmpty()) {
-                dotclear()->error(__('No such blog ID'));
+                dotclear()->error()->add(__('No such blog ID'));
             } else {
                 $this->blog_id   = $rs->blog_id;
                 $this->blog_name = $rs->blog_name;
@@ -55,7 +55,7 @@ class BlogDel extends Page
         # Delete the blog
         if (!dotclear()->error()->flag() && $this->blog_id && !empty($_POST['del'])) {
             if (!dotclear()->auth->checkPassword($_POST['pwd'])) {
-                dotclear()->error(__('Password verification failed'));
+                dotclear()->error()->add(__('Password verification failed'));
             } else {
                 try {
                     dotclear()->delBlog($this->blog_id);
@@ -63,7 +63,7 @@ class BlogDel extends Page
 
                     dotclear()->adminurl->redirect('admin.blogs');
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
         }

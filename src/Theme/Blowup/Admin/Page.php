@@ -222,7 +222,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.plugin.Blowup');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

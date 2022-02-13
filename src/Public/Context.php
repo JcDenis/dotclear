@@ -551,7 +551,7 @@ class Context
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
     }
 
@@ -599,7 +599,7 @@ class Context
                 }
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         if ($res) {

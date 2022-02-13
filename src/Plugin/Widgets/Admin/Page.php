@@ -112,7 +112,7 @@ class Page extends AbstractPage
                     dotclear()->blog->triggerBlog();
                     dotclear()->adminurl->redirect('admin.plugin.Widgets');
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
         }
@@ -198,7 +198,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
                 dotclear()->adminurl->redirect('admin.plugin.Widgets');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
@@ -210,7 +210,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
                 dotclear()->adminurl->redirect('admin.plugin.Widgets');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

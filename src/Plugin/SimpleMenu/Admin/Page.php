@@ -162,7 +162,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated.'));
                 dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         } else {
             # Récupération paramètres postés
@@ -299,7 +299,7 @@ class Page extends AbstractPage
                                 dotclear()->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (\Exception $e) {
-                            dotclear()->error($e->getMessage());
+                            dotclear()->error()->add($e->getMessage());
                         }
 
                         break;
@@ -336,7 +336,7 @@ class Page extends AbstractPage
                             throw new ModuleException(__('No menu items selected.'));
                         }
                     } catch (\Exception $e) {
-                        dotclear()->error($e->getMessage());
+                        dotclear()->error()->add($e->getMessage());
                     }
                 }
 
@@ -399,7 +399,7 @@ class Page extends AbstractPage
                         dotclear()->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
                         dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
                     } catch (\Exception $e) {
-                        dotclear()->error($e->getMessage());
+                        dotclear()->error()->add($e->getMessage());
                     }
                 }
             }

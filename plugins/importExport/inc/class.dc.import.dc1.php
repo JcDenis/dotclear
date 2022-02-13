@@ -143,7 +143,7 @@ class dcImportDC1 extends dcIeModule
         try {
             $this->guiprocess($this->action);
         } catch (Exception $e) {
-            $this->error($e);
+            $this->error()->add($e);
         }
 
         # db drivers

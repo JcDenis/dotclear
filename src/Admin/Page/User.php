@@ -70,7 +70,7 @@ class User extends Page
 
                 $page_title = $this->container->getId();
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -186,7 +186,7 @@ class User extends Page
                     }
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

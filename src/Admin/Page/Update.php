@@ -117,7 +117,7 @@ class Update extends Page
                     dotclear()->adminurl->redirect('admin.update', ['tab' => 'files']);
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -192,7 +192,7 @@ class Update extends Page
                         '</strong></li></ul>';
                 }
 
-                dotclear()->error($msg);
+                dotclear()->error()->add($msg);
 
                 dotclear()->behavior()->call('adminDCUpdateException', $e);
             }

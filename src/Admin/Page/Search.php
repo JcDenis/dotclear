@@ -165,7 +165,7 @@ class Search extends Page
                 return;
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
     }
 
@@ -218,7 +218,7 @@ class Search extends Page
                 return;
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
     }
 

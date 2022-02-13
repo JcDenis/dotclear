@@ -129,7 +129,7 @@ class FilterAkismet extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -138,7 +138,7 @@ class FilterAkismet extends Spamfilter
                 $ak          = new Akismet(dotclear()->blog->url, dotclear()->blog->settings->akismet->ak_key);
                 $ak_verified = $ak->verify();
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

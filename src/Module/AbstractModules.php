@@ -17,11 +17,11 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
 use Dotclear\File\Zip\Unzip;
-use Dotclear\Html\TraitError;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\TraitError;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -209,7 +209,7 @@ abstract class AbstractModules
 
         # Stop on error in module definition
         if ($define->error()->flag()) {
-            $this->error($define->error()->getErrors());
+            $this->error()->add($define->error()->getErrors());
 
             return;
         }

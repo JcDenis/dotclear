@@ -229,7 +229,7 @@ class UserPref extends Page
 
                 dotclear()->adminurl->redirect('admin.user.pref');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -331,7 +331,7 @@ class UserPref extends Page
                 dotclear()->notices->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-options');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -358,7 +358,7 @@ class UserPref extends Page
                 dotclear()->notices->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -381,7 +381,7 @@ class UserPref extends Page
                     dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -406,7 +406,7 @@ class UserPref extends Page
                     dotclear()->adminurl->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

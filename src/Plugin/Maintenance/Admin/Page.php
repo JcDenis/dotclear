@@ -53,7 +53,7 @@ class Page extends AbstractPage
             $this->m_task = $this->m_maintenance->getTask($_REQUEST['task']);
 
             if ($this->m_task === null) {
-                dotclear()->error('Unknown task ID');
+                dotclear()->error()->add('Unknown task ID');
             }
 
             $this->m_task->code($this->m_code);
@@ -73,7 +73,7 @@ class Page extends AbstractPage
                     dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'tab' => $this->m_tab], '#' . $this->m_tab);
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -112,7 +112,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Maintenance plugin has been successfully configured.'));
                 dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -136,7 +136,7 @@ class Page extends AbstractPage
 
                 dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

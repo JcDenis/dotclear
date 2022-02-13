@@ -101,7 +101,7 @@ class Page extends AbstractPage
                 dotclear()->adminurl->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # Page setup

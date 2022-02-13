@@ -89,7 +89,7 @@ class FilterIplookup extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

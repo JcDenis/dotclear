@@ -60,7 +60,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.AboutConfig');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -81,7 +81,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

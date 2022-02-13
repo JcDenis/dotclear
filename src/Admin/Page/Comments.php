@@ -85,7 +85,7 @@ class Comments extends Page
                 $_SESSION['comments_del_spam'] = true;
                 dotclear()->adminurl->redirect('admin.comments');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

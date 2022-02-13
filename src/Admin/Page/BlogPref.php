@@ -88,7 +88,7 @@ class BlogPref extends Page
                 $this->blog_settings = new Settings($this->blog_id);
                 $this->blog_url      = $rs->blog_url;
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
 
             $this->action = dotclear()->adminurl->get('admin.blog');
@@ -254,7 +254,7 @@ class BlogPref extends Page
 
                 Http::redirect(sprintf($this->redir, $this->blog_id));
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -369,7 +369,7 @@ class BlogPref extends Page
                 $img_default_size_combo[__($size[2])] = $code;
             }
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # Image default alignment combo
@@ -766,7 +766,7 @@ class BlogPref extends Page
                     }
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
             echo '</div>';
         }

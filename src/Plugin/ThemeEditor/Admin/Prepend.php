@@ -65,7 +65,7 @@ class Prepend extends AbstractPrepend
             dotclear()->auth->user_prefs->interface->put('colorsyntax_theme',
                 (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : ''));
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
     }
 

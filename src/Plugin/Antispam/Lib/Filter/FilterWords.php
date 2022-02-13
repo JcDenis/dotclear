@@ -83,7 +83,7 @@ class FilterWords extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('Words have been successfully added.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -96,7 +96,7 @@ class FilterWords extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -107,7 +107,7 @@ class FilterWords extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

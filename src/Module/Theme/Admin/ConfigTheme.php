@@ -270,7 +270,7 @@ class ConfigTheme
         $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
-            dotclear()->error(__('The \'public\' directory does not exist.'));
+            dotclear()->error()->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
@@ -414,14 +414,14 @@ class ConfigTheme
         $imgs   = $this->imagesPath($folder);
 
         if (!function_exists('imagecreatetruecolor') || !function_exists('imagepng') || !function_exists('imagecreatefrompng')) {
-            dotclear()->error(__('At least one of the following functions is not available: ' .
+            dotclear()->error()->add(__('At least one of the following functions is not available: ' .
                 'imagecreatetruecolor, imagepng & imagecreatefrompng.'));
 
             return false;
         }
 
         if (!is_dir($public)) {
-            dotclear()->error(__('The \'public\' directory does not exist.'));
+            dotclear()->error()->add(__('The \'public\' directory does not exist.'));
 
             return false;
         }
@@ -506,7 +506,7 @@ class ConfigTheme
             try {
                 dotclear()->mediaInstance()->imageThumbRemove($img);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
             // Delete image
             @unlink($img);

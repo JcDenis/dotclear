@@ -89,7 +89,7 @@ class FilterIp extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -100,7 +100,7 @@ class FilterIp extends Spamfilter
                 dotclear()->notices->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

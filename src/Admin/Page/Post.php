@@ -115,7 +115,7 @@ class Post extends Page
             $this->post = dotclear()->blog->getPosts($params);
 
             if ($this->post->isEmpty()) {
-                dotclear()->error(__('This entry does not exist.'));
+                dotclear()->error()->add(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = (int) $this->post->post_id;
@@ -175,7 +175,7 @@ class Post extends Page
                 try {
                     dotclear()->mediaInstance();
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
 
                 # Sanitize trackbacks excerpt
@@ -213,7 +213,7 @@ class Post extends Page
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (\Exception $e) {
-                        dotclear()->error($e->getMessage());
+                        dotclear()->error()->add($e->getMessage());
                     }
                 }
 
@@ -253,7 +253,7 @@ class Post extends Page
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
 
@@ -288,7 +288,7 @@ class Post extends Page
                 dotclear()->blog->delPost($this->post_id);
                 dotclear()->adminurl->redirect('admin.posts');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -349,7 +349,7 @@ class Post extends Page
                         ['id' => $this->post_id]
                     );
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             } else {
                 $cur->user_id = dotclear()->auth->userID();
@@ -369,7 +369,7 @@ class Post extends Page
                         ['id' => $return_id]
                     );
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
         }

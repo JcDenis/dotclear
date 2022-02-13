@@ -255,7 +255,7 @@ class Page extends AbstractPage
 
                 dotclear()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

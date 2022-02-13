@@ -60,7 +60,7 @@ class Categories extends Page
                 dotclear()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -92,7 +92,7 @@ class Categories extends Page
                 ));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -117,7 +117,7 @@ class Categories extends Page
                 dotclear()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

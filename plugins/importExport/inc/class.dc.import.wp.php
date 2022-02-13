@@ -170,7 +170,7 @@ class dcImportWP extends dcIeModule
         try {
             $this->guiprocess($this->action);
         } catch (Exception $e) {
-            $this->error($e);
+            $this->error()->add($e);
         }
 
         switch ($this->step) {

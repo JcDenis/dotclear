@@ -42,7 +42,7 @@ class Home extends Page
                 dotclear()->setUserDefaultBlog(dotclear()->auth->userID(), dotclear()->blog->id);
                 dotclear()->adminurl->redirect('admin.home');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

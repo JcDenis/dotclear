@@ -70,7 +70,7 @@ class PostMedia extends Page
             }
             $f = $f[0];
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # Remove a media from en

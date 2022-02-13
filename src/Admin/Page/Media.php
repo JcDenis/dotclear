@@ -99,7 +99,7 @@ class Media extends Page
 
             return new MediaCatalog($rs, $rs->count());
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         return null;
@@ -133,7 +133,7 @@ class Media extends Page
 
                 throw new \Exception(__('Not a valid directory'));
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -166,7 +166,7 @@ class Media extends Page
                     ));
                     dotclear()->adminurl->redirect('admin.media', $this->filter->values());
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
         }
@@ -218,7 +218,7 @@ class Media extends Page
                 dotclear()->notices->addSuccessNotice(__('Files have been successfully uploaded.'));
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -238,7 +238,7 @@ class Media extends Page
                 );
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -263,7 +263,7 @@ class Media extends Page
                 dotclear()->notices->addSuccessNotice($msg);
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -278,7 +278,7 @@ class Media extends Page
                 );
                 dotclear()->adminurl->redirect('admin.media', $this->filter->values());
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

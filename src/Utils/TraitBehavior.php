@@ -21,13 +21,15 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 trait TraitBehavior
 {
-    /** @var    Configuration   Configuration instance */
+    /** @var    Behavior    Behavior instance */
     private $behavior;
 
     /**
      * Get instance
+     *
+     * @return  Behavior    Behavior instance
      */
-    public function behavior()
+    public function behavior(): Behavior
     {
         if (!($this->behavior instanceof Behavior)) {
             $this->behavior = new Behavior();

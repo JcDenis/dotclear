@@ -51,7 +51,7 @@ class Category extends Page
             try {
                 $rs = dotclear()->blog->getCategory((int) $_REQUEST['id']);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
 
             if (!dotclear()->error()->flag() && !$rs->isEmpty()) {
@@ -107,7 +107,7 @@ class Category extends Page
                     dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                     dotclear()->adminurl->redirect('admin.categories');
                 } catch (\Exception $e) {
-                    dotclear()->error($e->getMessage());
+                    dotclear()->error()->add($e->getMessage());
                 }
             }
         }
@@ -119,7 +119,7 @@ class Category extends Page
                 dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -169,7 +169,7 @@ class Category extends Page
                     dotclear()->adminurl->redirect('admin.categories');
                 }
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

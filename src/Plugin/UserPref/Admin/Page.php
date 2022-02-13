@@ -59,7 +59,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.UserPref');
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -79,7 +79,7 @@ class Page extends AbstractPage
                 dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 

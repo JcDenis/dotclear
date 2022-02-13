@@ -104,7 +104,7 @@ class MediaItem extends Page
             ksort($this->dirs_combo);
 
         } catch (\Exception $e) {
-            dotclear()->error($e->getMessage());
+            dotclear()->error()->add($e->getMessage());
         }
 
         # Upload a new file
@@ -116,7 +116,7 @@ class MediaItem extends Page
                 dotclear()->notices->addSuccessNotice(__('File has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -171,7 +171,7 @@ class MediaItem extends Page
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -185,7 +185,7 @@ class MediaItem extends Page
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl->redirect('admin.media.item', $this->page_url_params);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
@@ -198,7 +198,7 @@ class MediaItem extends Page
                 $this->media_page_url_params['d'] = $unzip_dir;
                 dotclear()->adminurl->redirect('admin.media', $this->media_page_url_params);
             } catch (\Exception $e) {
-                dotclear()->error($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
