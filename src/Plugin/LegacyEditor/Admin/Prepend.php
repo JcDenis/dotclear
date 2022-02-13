@@ -16,8 +16,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Html\wiki2xhtml;
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -31,12 +29,10 @@ class Prepend extends AbstractPrepend
         $self_ns = dotclear()->blog->settings->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            if (!(dotclear()->wiki2xhtml instanceof wiki2xhtml)) {
-                dotclear()->initWikiPost();
-            }
+            dotclear()->initWikiPost();
 
             dotclear()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            dotclear()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml, 'transform']);
+            dotclear()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml(), 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
             dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);

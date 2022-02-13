@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Html\Wiki2xhtml
+ * @class Dotclear\Core\Instance\Wiki2xhtml
  * @brief wiki to xhtml
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html;
+namespace Dotclear\Core\Instance;
 
 /*
 Contributor(s):

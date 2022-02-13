@@ -1965,7 +1965,7 @@ class Blog
     {
         if ($format == 'wiki') {
             dotclear()->initWikiPost();
-            dotclear()->wiki2xhtml->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
+            dotclear()->wiki2xhtml()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
             switch ($this->settings->system->note_title_tag) {
                 case 1:
                     $tag = 'h3';
@@ -1980,12 +1980,12 @@ class Blog
 
                     break;
             }
-            dotclear()->wiki2xhtml->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki2xhtml()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Notes') . '</' . $tag . '>%s</div>');
-            dotclear()->wiki2xhtml->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki2xhtml()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Note') . '</' . $tag . '>%s</div>');
             if (strpos($lang, 'fr') === 0) {
-                dotclear()->wiki2xhtml->setOpt('active_fr_syntax', 1);
+                dotclear()->wiki2xhtml()->setOpt('active_fr_syntax', 1);
             }
         }
 
