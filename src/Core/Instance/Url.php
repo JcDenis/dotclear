@@ -612,7 +612,7 @@ class Url
                             }
                             $content = dotclear()->wikiTransform($content);
                         }
-                        $content = dotclear()->HTMLfilter($content);
+                        $content = Html::filter($content);
                     }
 
                     dotclear()->context->comment_preview['content']    = $content;

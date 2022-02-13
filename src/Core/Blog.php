@@ -873,7 +873,7 @@ class Blog
         $cur->cat_url = $this->checkCategory($cur->cat_title, $cur->cat_url, $id);
 
         if ($cur->cat_desc !== null) {
-            $cur->cat_desc = dotclear()->HTMLfilter($cur->cat_desc);
+            $cur->cat_desc = Html::filter($cur->cat_desc);
         }
     }
     //@}
@@ -1991,14 +1991,14 @@ class Blog
 
         if ($excerpt) {
             $excerpt_xhtml = dotclear()->callEditorFormater('LegacyEditor', $format, $excerpt);
-            $excerpt_xhtml = dotclear()->HTMLfilter($excerpt_xhtml);
+            $excerpt_xhtml = Html::filter($excerpt_xhtml);
         } else {
             $excerpt_xhtml = '';
         }
 
         if ($content) {
             $content_xhtml = dotclear()->callEditorFormater('LegacyEditor', $format, $content);
-            $content_xhtml = dotclear()->HTMLfilter($content_xhtml);
+            $content_xhtml = Html::filter($content_xhtml);
         } else {
             $content_xhtml = '';
         }

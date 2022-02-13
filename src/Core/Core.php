@@ -34,7 +34,6 @@ use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Html\HtmlFilter;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Autoloader;
 use Dotclear\Utils\Crypt;
@@ -1460,41 +1459,6 @@ class Core
         }
 
         return (int) $this->con->select($strReq)->f(0);
-    }
-    //@}
-
-    /// @name HTML Filter methods
-    //@{
-    /**
-     * Filter HTML string
-     *
-     * Calls HTML filter to drop bad tags and produce valid XHTML output (if
-     * tidy extension is present). If <b>enable_html_filter</b> blog setting is
-     * false, returns not filtered string.
-     *
-     * @param   string  $str    The string
-     *
-     * @return  string
-     */
-    public function HTMLfilter(string $str): string
-    {
-        if ($this->blog instanceof Blog && !$this->blog->settings->system->enable_html_filter) {
-            return $str;
-        }
-
-        $options = new ArrayObject([
-            'keep_aria' => false,
-            'keep_data' => false,
-            'keep_js'   => false
-        ]);
-
-        # --BEHAVIOR-- HTMLfilter, \ArrayObject
-        $this->behavior()->call('HTMLfilter', $options);
-
-        $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
-        $str    = trim($filter->apply($str));
-
-        return $str;
     }
     //@}
 

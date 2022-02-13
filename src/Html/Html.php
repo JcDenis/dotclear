@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Html;
 
+use Dotclear\Html\HtmlFilter;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
@@ -188,5 +190,37 @@ class Html
         }
 
         return sprintf($link, $url);
+    }
+
+    /**
+     * Filter HTML string
+     *
+     * Calls HTML filter to drop bad tags and produce valid XHTML output (if
+     * tidy extension is present). If <b>enable_html_filter</b> blog setting is
+     * false, returns not filtered string.
+     *
+     * @param   string  $str    The string
+     *
+     * @return  string
+     */
+    public static function filter(string $str): string
+    {
+        if (!empty(dotclear()->blog) && !dotclear()->blog->settings->system->enable_html_filter) {
+            return $str;
+        }
+
+        $options = new ArrayObject([
+            'keep_aria' => false,
+            'keep_data' => false,
+            'keep_js'   => false
+        ]);
+
+        # --BEHAVIOR-- HTMLfilter, \ArrayObject
+        dotclear()->behavior()->call('HTMLfilter', $options);
+
+        $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
+        $str    = trim($filter->apply($str));
+
+        return $str;
     }
 }

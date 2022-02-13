@@ -63,8 +63,8 @@ class Comment extends Page
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);
                 $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = dotclear()->HTMLfilter($_POST['comment_content']);
-                $cur->post_id         = (integer) $_POST['post_id'];
+                $cur->comment_content = Html::filter($_POST['comment_content']);
+                $cur->post_id         = (int) $_POST['post_id'];
 
                 # --BEHAVIOR-- adminBeforeCommentCreate
                 dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
@@ -135,10 +135,10 @@ class Comment extends Page
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);
                 $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = dotclear()->HTMLfilter($_POST['comment_content']);
+                $cur->comment_content = Html::filter($_POST['comment_content']);
 
                 if (isset($_POST['comment_status'])) {
-                    $cur->comment_status = (integer) $_POST['comment_status'];
+                    $cur->comment_status = (int) $_POST['comment_status'];
                 }
 
                 try {
