@@ -79,7 +79,7 @@ class Prepend extends Core
         }
 
         # Cope with static home page option
-        $this->url()->registerDefault(['Dotclear\\Core\\UrlHandler', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
+        $this->url()->registerDefault(['Dotclear\\Core\\Instance\\Url', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
 
         # Load media
         try {

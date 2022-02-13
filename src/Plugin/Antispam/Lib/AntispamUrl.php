@@ -17,7 +17,7 @@ use ArrayObject;
 
 use Dotclear\Plugin\Antispam\Lib\Antispam;
 
-use Dotclear\Core\UrlHandler;
+use Dotclear\Core\Instance\Url;
 use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
