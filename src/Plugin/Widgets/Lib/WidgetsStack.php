@@ -52,7 +52,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -74,33 +74,33 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
         $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
             '<nav role="navigation"><ul>';
 
-        if (!dotclear()->url->isHome(dotclear()->url->type)) {
+        if (!dotclear()->url()->isHome(dotclear()->url()->type)) {
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
             '<a href="' . dotclear()->blog->url . '">' . __('Home') . '</a></li>';
             if (dotclear()->blog->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
             if (dotclear()->blog->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         }
 
         $res .= '<li class="topnav-arch">' .
-        '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('archive') . '">' .
+        '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('archive') . '">' .
         __('Archives') . '</a></li>' .
             '</ul></nav>';
 
@@ -115,7 +115,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -129,8 +129,8 @@ class WidgetsStack
         $ref_level = $level = $rs->level - 1;
         while ($rs->fetch()) {
             $class = '';
-            if ((dotclear()->url->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
-                || (dotclear()->url->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
+            if ((dotclear()->url()->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
+                || (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
                 $class = ' class="category-current"';
             }
 
@@ -144,7 +144,7 @@ class WidgetsStack
                 $res .= '</li><li' . $class . '>';
             }
 
-            $res .= '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('category', $rs->cat_url) . '">' .
+            $res .= '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', $rs->cat_url) . '">' .
             Html::escapeHTML($rs->cat_title) . '</a>' .
                 ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->nb_total : $rs->nb_post) . ')</span>' : '');
 
@@ -166,7 +166,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -187,7 +187,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->post_title) . '</a></li> ';
@@ -206,7 +206,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -227,7 +227,7 @@ class WidgetsStack
 
             $res .= ' <li>' .
             sprintf($l,
-                '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('lang', $rs->post_lang) . '" ' .
+                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('lang', $rs->post_lang) . '" ' .
                 'class="lang-' . $rs->post_lang . '">' .
                 $lang_name . '</a>') .
                 ' </li>';
@@ -246,7 +246,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -263,13 +263,13 @@ class WidgetsStack
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
-        'href="' . dotclear()->blog->url . dotclear()->url->getURLFor('feed', $type) . '" ' .
+        'href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('feed', $type) . '" ' .
         'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
         if (dotclear()->blog->settings->system->allow_comments || dotclear()->blog->settings->system->allow_trackbacks) {
             $res .= '<li><a type="' . $mime . '" ' .
-            'href="' . dotclear()->blog->url . dotclear()->url->getURLFor('feed', $type . '/comments') . '" ' .
+            'href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
             __('Comments feed') . '</a></li>';
         }
@@ -289,7 +289,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -339,7 +339,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -356,7 +356,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 
@@ -390,7 +390,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
@@ -408,7 +408,7 @@ class WidgetsStack
             return;
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url->type)) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return;
         }
 

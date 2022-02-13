@@ -715,7 +715,7 @@ class Post extends Page
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = dotclear()->blog->url . dotclear()->url->getURLFor('preview', dotclear()->auth->userID() . '/' .
+                $preview_url = dotclear()->blog->url . dotclear()->url()->getURLFor('preview', dotclear()->auth->userID() . '/' .
                     Http::browserUID(dotclear()->config()->master_key . dotclear()->auth->userID() . dotclear()->auth->cryptLegacy(dotclear()->auth->userID())) .
                     '/' . $this->post->post_url);
 

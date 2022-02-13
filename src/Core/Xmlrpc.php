@@ -708,9 +708,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
                 'description'  => $rs->cat_title,
                 'categoryName' => $rs->cat_url,
                 'htmlUrl'      => dotclear()->blog->url .
-                dotclear()->url->getURLFor('category', $rs->cat_url),
+                dotclear()->url()->getURLFor('category', $rs->cat_url),
                 'rssUrl' => dotclear()->blog->url .
-                dotclear()->url->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
+                dotclear()->url()->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
             ];
 
             $stack[] = $rs->cat_url;
@@ -1086,9 +1086,9 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $res = [];
         $url = dotclear()->blog->url .
-        dotclear()->url->getURLFor('tag', '%s');
+        dotclear()->url()->getURLFor('tag', '%s');
         $f_url = dotclear()->blog->url .
-        dotclear()->url->getURLFor('tag_feed', '%s');
+        dotclear()->url()->getURLFor('tag_feed', '%s');
         while ($tags->fetch()) {
             $res[] = [
                 'tag_id'   => $tags->meta_id,

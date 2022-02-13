@@ -59,7 +59,7 @@ class Prepend extends AbstractPrepend
         // Get current page
         $page = dotclear()->context->page_number();
 
-        switch (dotclear()->url->type) {
+        switch (dotclear()->url()->type) {
 
             case 'static':
                 // Static home
@@ -87,7 +87,7 @@ class Prepend extends AbstractPrepend
                 // Home or blog page`(page 2 to n)
                 $ret = '<a id="bc-home" href="' . dotclear()->blog->url . '">' . __('Home') . '</a>';
                 if (dotclear()->blog->settings->system->static_home) {
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('posts') . '">' . __('Blog') . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
                     if (dotclear()->context->cur_lang) {
                         $langs = L10n::getISOCodes();
@@ -103,12 +103,12 @@ class Prepend extends AbstractPrepend
                 $ret        = '<a id="bc-home" href="' . dotclear()->blog->url . '">' . __('Home') . '</a>';
                 $categories = dotclear()->blog->getCategoryParents((int) dotclear()->context->categories->cat_id);
                 while ($categories->fetch()) {
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
                 if ($page == 0) {
                     $ret .= $separator . dotclear()->context->categories->cat_title;
                 } else {
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('category', dotclear()->context->categories->cat_url) . '">' . dotclear()->context->categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', dotclear()->context->categories->cat_url) . '">' . dotclear()->context->categories->cat_title . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -121,11 +121,11 @@ class Prepend extends AbstractPrepend
                     // Parents cats of post's cat
                     $categories = dotclear()->blog->getCategoryParents((int) dotclear()->context->posts->cat_id);
                     while ($categories->fetch()) {
-                        $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                        $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                     }
                     // Post's cat
                     $categories = dotclear()->blog->getCategory((int) dotclear()->context->posts->cat_id);
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
                 $ret .= $separator . dotclear()->context->posts->post_title;
 
@@ -147,7 +147,7 @@ class Prepend extends AbstractPrepend
                     $ret .= $separator . __('Archives');
                 } else {
                     // Month archive
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('archive') . '">' . __('Archives') . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('archive') . '">' . __('Archives') . '</a>';
                     $ret .= $separator . dt::dt2str('%B %Y', dotclear()->context->archives->dt);
                 }
 
@@ -170,11 +170,11 @@ class Prepend extends AbstractPrepend
             case 'tag':
                 // Tag
                 $ret = '<a id="bc-home" href="' . dotclear()->blog->url . '">' . __('Home') . '</a>';
-                $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('tags') . '">' . __('All tags') . '</a>';
+                $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('tags') . '">' . __('All tags') . '</a>';
                 if ($page == 0) {
                     $ret .= $separator . dotclear()->context->meta->meta_id;
                 } else {
-                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url->getURLFor('tag', rawurlencode(dotclear()->context->meta->meta_id)) . '">' . dotclear()->context->meta->meta_id . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('tag', rawurlencode(dotclear()->context->meta->meta_id)) . '">' . dotclear()->context->meta->meta_id . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -203,7 +203,7 @@ class Prepend extends AbstractPrepend
                 $ret = '<a id="bc-home" href="' . dotclear()->blog->url . '">' . __('Home') . '</a>';
                 # --BEHAVIOR-- publicBreadcrumb
                 # Should specific breadcrumb if any, will be added after home page url
-                $special = dotclear()->behavior()->call('publicBreadcrumb', dotclear()->url->type, $separator);
+                $special = dotclear()->behavior()->call('publicBreadcrumb', dotclear()->url()->type, $separator);
                 if ($special) {
                     $ret .= $separator . $special;
                 }

@@ -88,7 +88,7 @@ class RsExtDates
     {
         $url = date('Y/m', strtotime($rs->dt));
 
-        return dotclear()->blog->url . dotclear()->url->getURLFor('archive', $url);
+        return dotclear()->blog->url . dotclear()->url()->getURLFor('archive', $url);
     }
 
     /**

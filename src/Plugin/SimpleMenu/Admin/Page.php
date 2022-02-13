@@ -211,21 +211,21 @@ class Page extends AbstractPage
                             case 'posts':
                                 $this->sm_item_label = __('Posts');
                                 $this->sm_item_descr = __('Recent posts');
-                                $this->sm_item_url .= dotclear()->url->getURLFor('posts');
+                                $this->sm_item_url .= dotclear()->url()->getURLFor('posts');
 
                                 break;
                             case 'lang':
                                 $this->sm_item_select_label = array_search($this->sm_item_select, $this->sm_langs_combo);
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = sprintf(__('Switch to %s language'), $this->sm_item_select_label);
-                                $this->sm_item_url .= dotclear()->url->getURLFor('lang', $this->sm_item_select);
+                                $this->sm_item_url .= dotclear()->url()->getURLFor('lang', $this->sm_item_select);
 
                                 break;
                             case 'category':
                                 $this->sm_item_select_label = $categories_label[$this->sm_item_select];
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = __('Recent Posts from this category');
-                                $this->sm_item_url .= dotclear()->url->getURLFor('category', $this->sm_item_select);
+                                $this->sm_item_url .= dotclear()->url()->getURLFor('category', $this->sm_item_select);
 
                                 break;
                             case 'archive':
@@ -233,11 +233,11 @@ class Page extends AbstractPage
                                 if ($this->sm_item_select == '-') {
                                     $this->sm_item_label = __('Archives');
                                     $this->sm_item_descr = $first_year . ($first_year != $last_year ? ' - ' . $last_year : '');
-                                    $this->sm_item_url .= dotclear()->url->getURLFor('archive');
+                                    $this->sm_item_url .= dotclear()->url()->getURLFor('archive');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Posts from %s'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= dotclear()->url->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
+                                    $this->sm_item_url .= dotclear()->url()->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
                                 }
 
                                 break;
@@ -253,11 +253,11 @@ class Page extends AbstractPage
                                 if ($this->sm_item_select == '-') {
                                     $this->sm_item_label = __('All tags');
                                     $this->sm_item_descr = '';
-                                    $this->sm_item_url .= dotclear()->url->getURLFor('tags');
+                                    $this->sm_item_url .= dotclear()->url()->getURLFor('tags');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Recent posts for %s tag'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= dotclear()->url->getURLFor('tag', $this->sm_item_select);
+                                    $this->sm_item_url .= dotclear()->url()->getURLFor('tag', $this->sm_item_select);
                                 }
 
                                 break;

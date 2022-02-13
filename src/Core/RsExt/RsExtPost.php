@@ -214,7 +214,7 @@ class RsExtPost
      */
     public static function getCategoryURL($rs)
     {
-        return dotclear()->blog->url . dotclear()->url->getURLFor('category', Html::sanitizeURL($rs->cat_url));
+        return dotclear()->blog->url . dotclear()->url()->getURLFor('category', Html::sanitizeURL($rs->cat_url));
     }
 
     /**
@@ -429,7 +429,7 @@ class RsExtPost
      */
     public static function getTrackbackLink($rs)
     {
-        return dotclear()->blog->url . dotclear()->url->getURLFor('trackback', $rs->post_id);
+        return dotclear()->blog->url . dotclear()->url()->getURLFor('trackback', $rs->post_id);
     }
 
     /**

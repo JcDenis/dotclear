@@ -90,7 +90,7 @@ class SimpleMenuWidgets
             return;
         }
 
-        if (($w->homeonly == 1 && !dotclear()->url->isHome(dotclear()->url->type)) || ($w->homeonly == 2 && dotclear()->url->isHome(dotclear()->url->type))) {
+        if (($w->homeonly == 1 && !dotclear()->url()->isHome(dotclear()->url()->type)) || ($w->homeonly == 2 && dotclear()->url()->isHome(dotclear()->url()->type))) {
             return;
         }
 

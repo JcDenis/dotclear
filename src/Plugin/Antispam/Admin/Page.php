@@ -271,11 +271,11 @@ class Page extends AbstractPage
 
         # Syndication
         if (dotclear()->config()->admin_url != '') {
-            $ham_feed = dotclear()->blog->url . dotclear()->url->getURLFor(
+            $ham_feed = dotclear()->blog->url . dotclear()->url()->getURLFor(
                 'hamfeed',
                 $code = Antispam::getUserCode()
             );
-            $spam_feed = dotclear()->blog->url . dotclear()->url->getURLFor(
+            $spam_feed = dotclear()->blog->url . dotclear()->url()->getURLFor(
                 'spamfeed',
                 $code = Antispam::getUserCode()
             );

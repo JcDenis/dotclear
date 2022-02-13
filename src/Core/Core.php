@@ -25,12 +25,6 @@ use Dotclear\Core\Session;
 use Dotclear\Core\Settings;
 use Dotclear\Core\UrlHandler;
 use Dotclear\Core\Utils;
-use Dotclear\Core\Instance\TraitBehavior;
-use Dotclear\Core\Instance\TraitConfiguration;
-use Dotclear\Core\Instance\TraitError;
-use Dotclear\Core\Instance\TraitLog;
-use Dotclear\Core\Instance\TraitMedia;
-use Dotclear\Core\Instance\TraitMeta;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Database\Connection;
@@ -59,8 +53,14 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Core
 {
-    use TraitError, TraitBehavior, TraitConfiguration;
-    use TraitLog, TraitMedia, TraitMeta;
+    # Traits
+    use \Dotclear\Core\Instance\TraitBehavior;
+    use \Dotclear\Core\Instance\TraitConfiguration;
+    use \Dotclear\Core\Instance\TraitError;
+    use \Dotclear\Core\Instance\TraitLog;
+    use \Dotclear\Core\Instance\TraitMedia;
+    use \Dotclear\Core\Instance\TraitMeta;
+    use \Dotclear\Core\Instance\TraitUrl;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -82,9 +82,6 @@ class Core
 
     /** @var Session            Session instance */
     public $session;
-
-    /** @var UrlHandler         UrlHandler instance */
-    public $url;
 
     /** @var Wiki2xhtml         Wiki2xhtml instance */
     public $wiki2xhtml;
@@ -284,7 +281,6 @@ class Core
             $this->con        = $this->conInstance();
             $this->auth       = $this->authInstance();
             $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
-            $this->url        = new UrlHandler();
             $this->rest       = new RestServer();
 
         } catch (\Exception $e) {
@@ -334,7 +330,7 @@ class Core
         $this->registerTopBehaviors();
 
         # Register Core post types
-        $this->setPostType('post', '?handler=admin.post&id=%d', $this->url->getURLFor('post', '%s'), 'Posts');
+        $this->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
 
         # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);

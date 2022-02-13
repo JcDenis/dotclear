@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\UrlHandler
+ * @class Dotclear\Core\Instance\Url
  * @brief Dotclear core url handler (public) class
  *
  * @package Dotclear
@@ -11,32 +11,30 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 
-use Dotclear\Exception\CoreException;
-
 use Dotclear\Core\Trackback;
 use Dotclear\Core\Xmlrpc;
-
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+use Dotclear\Exception\CoreException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
 use Dotclear\Utils\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class UrlHandler
+class Url
 {
     protected $types = [];
     protected $default_handler;
     protected $error_handlers = [];
 
-    public $mode;
+    public $mode = 'path_info';
     public $type = 'default';
 
     public $mod_files = [];
@@ -46,10 +44,8 @@ class UrlHandler
 
     public $args;
 
-    public function __construct(string $mode = 'path_info')
+    public function __construct()
     {
-        $this->mode = $mode;
-
         $this->initDefaulthandlers();
     }
 
@@ -371,7 +367,7 @@ class UrlHandler
 
         header('Content-Type: text/html; charset=UTF-8');
         Http::head(404, 'Not Found');
-        dotclear()->url->type    = '404';
+        dotclear()->url()->type    = '404';
         dotclear()->context->current_tpl  = '404.html';
         dotclear()->context->content_type = 'text/html';
 
@@ -393,11 +389,11 @@ class UrlHandler
             # defaults to the home page, but is not a page number.
             $this->p404();
         } else {
-            dotclear()->url->type = 'default';
+            dotclear()->url()->type = 'default';
             if ($n) {
                 dotclear()->context->page_number($n);
                 if ($n > 1) {
-                    dotclear()->url->type = 'default-page';
+                    dotclear()->url()->type = 'default-page';
                 }
             }
 
@@ -415,7 +411,7 @@ class UrlHandler
 
     public function static_home($args)
     {
-        dotclear()->url->type = 'static';
+        dotclear()->url()->type = 'static';
 
         if (empty($_GET['q'])) {
             $this->serveDocument('static.html');
@@ -432,7 +428,7 @@ class UrlHandler
             # Search is disabled for this blog.
             $this->p404();
         } else {
-            dotclear()->url->type = 'search';
+            dotclear()->url()->type = 'search';
 
             $GLOBALS['_search'] = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if ($GLOBALS['_search']) {
@@ -675,8 +671,8 @@ class UrlHandler
 
                 # The entry
                 if (dotclear()->context->posts->trackbacksActive()) {
-                    header('X-Pingback: ' . dotclear()->blog->url . dotclear()->url->getURLFor('xmlrpc', dotclear()->blog->id));
-                    header('Link: <' . dotclear()->blog->url . dotclear()->url->getURLFor('webmention') . '>; rel="webmention"');
+                    header('X-Pingback: ' . dotclear()->blog->url . dotclear()->url()->getURLFor('xmlrpc', dotclear()->blog->id));
+                    header('Link: <' . dotclear()->blog->url . dotclear()->url()->getURLFor('webmention') . '>; rel="webmention"');
                 }
                 $this->serveDocument('post.html');
             }

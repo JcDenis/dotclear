@@ -726,7 +726,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("archive")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("archive")') . '; ?>';
     }
 
     /*dtd
@@ -785,7 +785,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("feed","' . $type . '")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("feed","' . $type . '")') . '; ?>';
     }
 
     /*dtd
@@ -815,7 +815,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php if (dotclear()->context->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("lang",' .
+        return '<?php if (dotclear()->context->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("lang",' .
             'dotclear()->context->cur_lang)') . ';
             else echo ' . sprintf($f, 'dotclear()->blog->url') . '; ?>';
     }
@@ -898,7 +898,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor(\'rsd\')') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor(\'rsd\')') . '; ?>';
     }
 
     /*dtd
@@ -908,7 +908,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor(\'xmlrpc\',dotclear()->blog->id)') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor(\'xmlrpc\',dotclear()->blog->id)') . '; ?>';
     }
 
     /*dtd
@@ -961,7 +961,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, ('dotclear()->blog->settings->system->static_home ? dotclear()->blog->url.dotclear()->url->getURLFor("posts") : dotclear()->blog->url')) . '; ?>';
+        return '<?php echo ' . sprintf($f, ('dotclear()->blog->settings->system->static_home ? dotclear()->blog->url.dotclear()->url()->getURLFor("posts") : dotclear()->blog->url')) . '; ?>';
     }
 
     /*dtd
@@ -1187,7 +1187,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("feed","category/".' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("feed","category/".' .
             'dotclear()->context->categories->cat_url."/' . $type . '")') . '; ?>';
     }
 
@@ -1208,7 +1208,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("category",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("category",' .
             'dotclear()->context->categories->cat_url)') . '; ?>';
     }
 
@@ -1299,7 +1299,7 @@ class Template extends BaseTemplate
             } else {
                 // nb of entries per page not specified -> use ctx settings
                 $p .= "\$nb_entry_first_page=dotclear()->context->nb_entry_first_page; \$nb_entry_per_page = dotclear()->context->nb_entry_per_page;\n";
-                $p .= "if ((dotclear()->url->type == 'default') || (dotclear()->url->type == 'default-page')) {\n";
+                $p .= "if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {\n";
                 $p .= "    \$params['limit'] = (\$_page_number == 1 ? \$nb_entry_first_page : \$nb_entry_per_page);\n";
                 $p .= "} else {\n";
                 $p .= "    \$params['limit'] = \$nb_entry_per_page;\n";
@@ -1308,7 +1308,7 @@ class Template extends BaseTemplate
             // Set offset (aka index of first entry)
             if (!isset($attr['ignore_pagination']) || $attr['ignore_pagination'] == '0') {
                 // standard pagination, set offset
-                $p .= "if ((dotclear()->url->type == 'default') || (dotclear()->url->type == 'default-page')) {\n";
+                $p .= "if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {\n";
                 $p .= "    \$params['limit'] = [(\$_page_number == 1 ? 0 : (\$_page_number - 2) * \$nb_entry_per_page + \$nb_entry_first_page),\$params['limit']];\n";
                 $p .= "} else {\n";
                 $p .= "    \$params['limit'] = [(\$_page_number - 1) * \$nb_entry_per_page,\$params['limit']];\n";
@@ -2272,7 +2272,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url->getURLFor("lang",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("lang",' .
             'dotclear()->context->langs->post_lang)') . '; ?>';
     }
 
@@ -3229,7 +3229,7 @@ class Template extends BaseTemplate
                 $sign                 = '!';
                 $attr['current_mode'] = substr($attr['current_mode'], 1);
             }
-            $if[] = 'dotclear()->url->type ' . $sign . "= '" . addslashes($attr['current_mode']) . "'";
+            $if[] = 'dotclear()->url()->type ' . $sign . "= '" . addslashes($attr['current_mode']) . "'";
         }
 
         if (isset($attr['has_tpl'])) {

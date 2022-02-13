@@ -283,7 +283,7 @@ class Context
         }
 
         $nb_posts = $this->pagination->f(0);
-        if ((dotclear()->url->type == 'default') || (dotclear()->url->type == 'default-page')) {
+        if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {
             $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
         } else {
             $nb_pages = ceil($nb_posts / (int) $this->nb_entry_per_page);

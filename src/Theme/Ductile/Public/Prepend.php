@@ -64,7 +64,7 @@ class Prepend extends AbstractPrepend
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                switch (dotclear()->url->type) {
+                switch (dotclear()->url()->type) {
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
@@ -76,9 +76,9 @@ class Prepend extends AbstractPrepend
 
                         break;
                     default:
-                        if (isset($s[dotclear()->url->type])) {
+                        if (isset($s[dotclear()->url()->type])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (integer) $s[dotclear()->url->type];
+                            $nb_first = $nb_other = (integer) $s[dotclear()->url()->type];
                         }
 
                         break;
@@ -168,8 +168,8 @@ class Prepend extends AbstractPrepend
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                if (isset($s[dotclear()->url->type])) {
-                    $model = $s[dotclear()->url->type];
+                if (isset($s[dotclear()->url()->type])) {
+                    $model = $s[dotclear()->url()->type];
 
                     return $model;
                 }
@@ -263,7 +263,7 @@ class Prepend extends AbstractPrepend
 
         if ($default || $res == '') {
             $res = self::setSticker(1, true, __('Subscribe'), dotclear()->blog->url .
-                dotclear()->url->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
+                dotclear()->url()->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
         }
 
         if ($res != '') {

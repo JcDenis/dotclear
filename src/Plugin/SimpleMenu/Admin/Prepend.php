@@ -45,7 +45,7 @@ class Prepend extends AbstractPrepend
         $blog_url     = Html::stripHostURL(dotclear()->blog->url);
         $menu_default = [
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
-            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dotclear()->url->getURLFor('archive'), 'targetBlank' => false]
+            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dotclear()->url()->getURLFor('archive'), 'targetBlank' => false]
         ];
         dotclear()->blog->settings->system->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
         dotclear()->blog->settings->system->put('simpleMenu_active', true, 'boolean', 'Active', false, true);

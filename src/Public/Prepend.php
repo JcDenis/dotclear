@@ -79,7 +79,7 @@ class Prepend extends Core
         }
 
         # Cope with static home page option
-        $this->url->registerDefault(['Dotclear\\Core\\UrlHandler', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
+        $this->url()->registerDefault(['Dotclear\\Core\\UrlHandler', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
 
         # Load media
         try {
@@ -175,15 +175,15 @@ class Prepend extends Core
         }
 
         # Prepare the HTTP cache thing
-        $this->url->mod_files = $this->autoloader->getLoadedFiles();
-        $this->url->mod_ts    = [$this->blog->upddt];
-        $this->url->mode = (string) $this->blog->settings->system->url_scan;
+        $this->url()->mod_files = $this->autoloader->getLoadedFiles();
+        $this->url()->mod_ts    = [$this->blog->upddt];
+        $this->url()->mode = (string) $this->blog->settings->system->url_scan;
 
         try {
             # --BEHAVIOR-- publicBeforeDocument
             $this->behavior()->call('publicBeforeDocument');
 
-            $this->url->getDocument();
+            $this->url()->getDocument();
 
             # --BEHAVIOR-- publicAfterDocument
             $this->behavior()->call('publicAfterDocument');

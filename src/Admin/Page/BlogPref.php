@@ -734,7 +734,7 @@ class BlogPref extends Page
 
             try {
                 # Test URL of blog by testing it's ATOM feed
-                $file    = $this->blog_url . dotclear()->url->getURLFor('feed', 'atom');
+                $file    = $this->blog_url . dotclear()->url()->getURLFor('feed', 'atom');
                 $path    = '';
                 $status  = '404';
                 $content = '';
