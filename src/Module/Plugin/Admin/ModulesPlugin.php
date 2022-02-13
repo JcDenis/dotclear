@@ -20,7 +20,7 @@ class ModulesPlugin extends AbstractModules
 {
     use TraitModulesAdmin, TraitModulesPlugin;
 
-    protected function register(): void
+    protected function register(): bool
     {
         dotclear()->adminurl->register(
             'admin.plugins',
@@ -39,6 +39,8 @@ class ModulesPlugin extends AbstractModules
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
         ]);
+
+        return dotclear()->adminurl->called() == 'admin.plugins';
     }
 
     public function getModulesURL(array $param = []): string

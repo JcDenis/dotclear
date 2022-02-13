@@ -13,23 +13,21 @@ declare(strict_types=1);
 namespace Dotclear\Module\Theme\Admin;
 
 use Dotclear\Exception\ModuleException;
-
+use Dotclear\File\Files;
+use Dotclear\File\Path;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Theme\TraitModulesTheme;
-use Dotclear\Module\AbstractDefine;
-
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
-use Dotclear\File\Path;
-use Dotclear\File\Files;
 use Dotclear\Network\Http;
 
 class ModulesTheme extends AbstractModules
 {
     use TraitModulesAdmin, TraitModulesTheme;
 
-    protected function register(): void
+    protected function register(): bool
     {
         dotclear()->adminurl->register(
             'admin.blog.theme',
@@ -49,6 +47,8 @@ class ModulesTheme extends AbstractModules
             'large-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'permissions' => 'admin'
         ]);
+
+        return dotclear()->adminurl->called() == 'admin.blog.theme';
     }
 
     public function getModulesURL(array $param = []): string

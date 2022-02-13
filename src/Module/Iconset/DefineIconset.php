@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Iconset;
 
 use Dotclear\Module\AbstractDefine;
-use Dotclear\Module\Iconset\TraitDefineIconset;
+use Dotclear\Module\TraitDefine;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class DefineIconset extends AbstractDefine
 {
-    use TraitDefineIconset;
+    use TraitDefine;
 
     protected $type = 'Iconset';
 
@@ -37,6 +37,6 @@ class DefineIconset extends AbstractDefine
 
     protected function checkModule(): void
     {
-        $this->checkDefineIconset();
+        $this->checkDefine();
     }
 }

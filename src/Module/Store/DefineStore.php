@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store;
 
 use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\TraitDefine;
 use Dotclear\Module\Store\TraitDefineStore;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -21,12 +22,13 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class DefineStore extends AbstractDefine
 {
-    use TraitDefineStore;
+    use TraitDefineStore, TraitDefine;
 
     protected $type = 'Store';
 
     protected function checkModule(): void
     {
         $this->checkDefineStore();
+        $this->checkDefine();
     }
 }

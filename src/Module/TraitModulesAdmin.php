@@ -13,18 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Store;
-
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\AbstractDefine;
-
-use Dotclear\Admin\Notices;
 use Dotclear\Admin\Menu;
-
+use Dotclear\Admin\Notices;
+use Dotclear\Core\Store;
+use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractModules;
+use Dotclear\Module\AbstractDefine;
 use Dotclear\Network\Http;
-use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -90,7 +87,7 @@ trait TraitModulesAdmin
     protected $sort_asc   = true;
 
     /** Register module on admin url/menu/favs,... */
-    abstract protected function register(): void;
+    abstract protected function register(): bool;
 
     /** Get store url */
     abstract public function getStoreURL(): string;
@@ -110,11 +107,12 @@ trait TraitModulesAdmin
      */
     protected function loadModulesProcess(): void
     {
-        $this->register();
-        $this->setPath();
-        $this->setURL($this->getModulesURL());
-        $this->setIndex(__('other'));
-        $this->store = new Store($this, $this->getStoreURL(), $this->useStoreCache());
+        if ($this->register()) {
+            $this->setPath();
+            $this->setURL($this->getModulesURL());
+            $this->setIndex(__('other'));
+            $this->store = new Store($this, $this->getStoreURL(), $this->useStoreCache());
+        }
     }
 
     /**

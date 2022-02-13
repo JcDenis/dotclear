@@ -14,16 +14,14 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 use Dotclear\Exception\ModuleException;
-
-use Dotclear\Module\AbstractDefine;
-
-use Dotclear\Html\TraitError;
-use Dotclear\Html\Html;
-use Dotclear\Utils\L10n;
-use Dotclear\Network\Http;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
 use Dotclear\File\Zip\Unzip;
+use Dotclear\Html\TraitError;
+use Dotclear\Html\Html;
+use Dotclear\Module\AbstractDefine;
+use Dotclear\Network\Http;
+use Dotclear\Utils\L10n;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -98,7 +96,6 @@ abstract class AbstractModules
      * @return  bool                        Module is OK
      */
     abstract protected function loadModuleDefineProcess(AbstractDefine $define): bool;
-
 
     /**
      * Loads modules.
@@ -193,9 +190,6 @@ abstract class AbstractModules
                 $class::loadModule();
                 $class::unsetDefine();
             }
-
-            //! todo: here or elsewhere, load module 'parent' Prepend
-            //! see: old inc/core/class.dc.themes.php|dcThemes::loadNsFile()
         }
     }
 

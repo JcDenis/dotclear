@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 use Dotclear\Exception\ModuleException;
-
 use Dotclear\Html\TraitError;
 use Dotclear\Html\Html;
 
@@ -206,7 +205,7 @@ abstract class AbstractDefine
 
     public function __call($k, $v)
     {
-        throw new ModuleException(sprintf(__('Unknow module property "%s"'), $k));
+        throw new ModuleException(sprintf(__('Unknow module "%s" property "%s"'), $this->properties['id'], $k));
     }
 
     abstract protected function checkModule(): void;

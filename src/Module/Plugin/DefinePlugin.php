@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\Plugin\TraitModulesPlugin
+ * @class Dotclear\Module\Plugin\DefinePlugin
  *
  * @package Dotclear
  * @subpackage Module
@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin;
 
 use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\TraitDefine;
 use Dotclear\Module\Plugin\TraitDefinePlugin;
+use Dotclear\Module\Store\TraitDefineStore;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -21,12 +23,14 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class DefinePlugin extends AbstractDefine
 {
-    use TraitDefinePlugin;
+    use TraitDefinePlugin, TraitDefineStore, TraitDefine;
 
     protected $type = 'Plugin';
 
     protected function checkModule(): void
     {
         $this->checkDefinePlugin();
+        $this->checkDefineStore();
+        $this->checkDefine();
     }
 }

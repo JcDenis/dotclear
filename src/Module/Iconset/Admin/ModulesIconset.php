@@ -20,7 +20,7 @@ class ModulesIconset extends AbstractModules
 {
     use TraitModulesAdmin, TraitModulesIconset;
 
-    protected function register(): void
+    protected function register(): bool
     {
         dotclear()->adminurl->register(
             'admin.iconset',
@@ -39,6 +39,8 @@ class ModulesIconset extends AbstractModules
             'small-icon' => 'images/menu/no-icon.svg',
             'large-icon' => 'images/menu/no-icon.svg'
         ]);
+
+        return dotclear()->adminurl->called() == 'admin.iconset';
     }
 
     public function getModulesURL(array $param = []): string

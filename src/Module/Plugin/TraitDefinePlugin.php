@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin;
 
-use Dotclear\Module\AbstractDefine;
-use Dotclear\Module\Store\TraitDefineStore;
-
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -23,91 +20,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 trait TraitDefinePlugin
 {
-    use TraitDefineStore;
-
-    /**
-     * Get module permissions
-     *
-     * Use a comma separated list of permissions to use module
-     * or null for super admin.
-     *
-     * @param   string|null     The module name
-     *
-     * @return  AbstractDefine  Self instance
-     */
-    protected function setPermissions(?string $permissions): AbstractDefine
-    {
-        $this->properties['permissions'] = $permissions;
-
-        return $this;
-    }
-
-    /**
-     * Set module priority
-     *
-     * @param   int     The module priority
-     *
-     * @return  AbstractDefine  Self instance
-     */
-    protected function setPriority(int $priority): AbstractDefine
-    {
-        $this->properties['priority'] = $priority;
-
-        return $this;
-    }
-
-    /**
-     * Set module standalone configuration usage
-     *
-     * True if module has its own configuration.
-     *
-     * @param   bool    Use of standalone config
-     *
-     * @return  AbstractDefine  Self instance
-     */
-    protected function setStandaloneConfig(bool $standalone_config): AbstractDefine
-    {
-        $this->properties['standalone_config'] = $standalone_config;
-
-        return $this;
-    }
-
-    /**
-     * Set module settings endpoints
-     *
-     * Array [endpoint => suffix]. For exemple:
-     * if module has its own configuration Page and
-     * some UserPref configuration, method must returns
-     * ['self' => '', pref' => '#user-options.user_options_edition']
-     *
-     * @param   array   The module settings places
-     *
-     * @return  AbstractDefine  Self instance
-     */
-    protected function setSettings(array $settings): AbstractDefine
-    {
-        $this->properties['settings'] = $settings;
-
-        return $this;
-    }
-
-    /**
-     * Set module repository URL
-     *
-     * If module has a third party repositiory,
-     * provide URL to its dcstore.xml file here.
-     *
-     * @param   string     The module repository
-     *
-     * @return  AbstractDefine  Self instance
-     */
-    protected function setRepository(string $repository): AbstractDefine
-    {
-        $this->properties['repository'] = $repository;
-
-        return $this;
-    }
-
     public function permissions(): ?string
     {
         return $this->properties['permissions'] ?? null;
@@ -160,6 +72,5 @@ trait TraitDefinePlugin
                 Http::concatURL($this->properties['repository'], 'dcstore.xml');
         }
 
-        $this->checkDefineStore();
     }
 }
