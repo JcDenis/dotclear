@@ -184,7 +184,7 @@ class Prepend extends AbstractPrepend
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . dotclear()->menu->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . dotclear()->menu->getIconTheme(['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
