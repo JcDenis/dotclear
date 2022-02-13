@@ -1080,8 +1080,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $tags = dotclear()->meta->getMetadata(['meta_type' => 'tag']);
-        $tags = dotclear()->meta->computeMetaStats($tags);
+        $tags = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
+        $tags = dotclear()->meta()->computeMetaStats($tags);
         $tags->sort('meta_id_lower', 'asc');
 
         $res = [];

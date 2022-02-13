@@ -376,7 +376,7 @@ class WidgetsStack
 
         if ($w->tag) {
             $params['meta_id'] = $w->tag;
-            $rs                = dotclear()->meta->getPostsByMeta($params);
+            $rs                = dotclear()->meta()->getPostsByMeta($params);
         } else {
             $rs = dotclear()->blog->getPosts($params);
         }

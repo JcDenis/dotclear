@@ -100,7 +100,7 @@ class Page extends AbstractPage
 
         # Liste des tags -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs                         = dotclear()->meta->getMetadata(['meta_type' => 'tag']);
+            $rs                         = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
                 $this->sm_tags_combo[$rs->meta_id] = $rs->meta_id;

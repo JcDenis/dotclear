@@ -30,6 +30,7 @@ use Dotclear\Core\Instance\TraitConfiguration;
 use Dotclear\Core\Instance\TraitError;
 use Dotclear\Core\Instance\TraitLog;
 use Dotclear\Core\Instance\TraitMedia;
+use Dotclear\Core\Instance\TraitMeta;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Database\Connection;
@@ -59,7 +60,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Core
 {
     use TraitError, TraitBehavior, TraitConfiguration;
-    use TraitLog, TraitMedia;
+    use TraitLog, TraitMedia, TraitMeta;
 
     /** @var Auth               Auth instance */
     public $auth;
@@ -72,9 +73,6 @@ class Core
 
     /** @var Connection         Connetion instance */
     public $con;
-
-    /** @var Meta               Meta instance */
-    public $meta;
 
     /** @var string             Database table prefix */
     public $prefix;
@@ -288,7 +286,6 @@ class Core
             $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
             $this->url        = new UrlHandler();
             $this->rest       = new RestServer();
-            $this->meta       = new Meta();
 
         } catch (\Exception $e) {
             # Loading locales for detected language

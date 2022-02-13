@@ -435,12 +435,12 @@ class RestMethods
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = dotclear()->meta->getMetadata([
+        $rs = dotclear()->meta()->getMetadata([
             'meta_type' => $metaType,
             'limit'     => $limit,
             'meta_id'   => $metaId,
             'post_id'   => $postid, ]);
-        $rs = dotclear()->meta->computeMetaStats($rs);
+        $rs = dotclear()->meta()->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);
         $sort   = $sortby[0];
@@ -497,7 +497,7 @@ class RestMethods
         }
 
         # Get previous meta for post
-        $post_meta = dotclear()->meta->getMetadata([
+        $post_meta = dotclear()->meta()->getMetadata([
             'meta_type' => $post['metaType'],
             'post_id'   => $post['postId'], ]);
         $pm = [];
@@ -505,9 +505,9 @@ class RestMethods
             $pm[] = $post_meta->meta_id;
         }
 
-        foreach (dotclear()->meta->splitMetaValues($post['meta']) as $m) {
+        foreach (dotclear()->meta()->splitMetaValues($post['meta']) as $m) {
             if (!in_array($m, $pm)) {
-                dotclear()->meta->setPostMeta($post['postId'], $post['metaType'], $m);
+                dotclear()->meta()->setPostMeta($post['postId'], $post['metaType'], $m);
             }
         }
 
@@ -528,7 +528,7 @@ class RestMethods
             throw new AdminException('No meta type');
         }
 
-        dotclear()->meta->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
+        dotclear()->meta()->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
 
         return true;
     }
@@ -540,8 +540,8 @@ class RestMethods
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = dotclear()->meta->getMetadata(['meta_type' => $metaType]);
-        $rs = dotclear()->meta->computeMetaStats($rs);
+        $rs = dotclear()->meta()->getMetadata(['meta_type' => $metaType]);
+        $rs = dotclear()->meta()->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);
         $sort   = $sortby[0];
