@@ -1,17 +1,17 @@
 <?php
 /**
- * @class Dotclear\Utils\Behavior
+ * @class Dotclear\Core\Instance\Behavior
  * @brief Stack by group of callable functions
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
 use Closure;
 

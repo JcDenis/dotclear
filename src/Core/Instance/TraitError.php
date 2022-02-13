@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Utils\TraitError
+ * @class Dotclear\Core\Instance\TraitError
  * @brief Dotclear trait error
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
-use Dotclear\Utils\Error;
+use Dotclear\Core\Instance\Error;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

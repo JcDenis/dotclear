@@ -25,6 +25,10 @@ use Dotclear\Core\Session;
 use Dotclear\Core\Settings;
 use Dotclear\Core\UrlHandler;
 use Dotclear\Core\Utils;
+use Dotclear\Core\Instance\TraitBehavior;
+use Dotclear\Core\Instance\TraitConfiguration;
+use Dotclear\Core\Instance\TraitError;
+use Dotclear\Core\Instance\TraitLog;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Database\Connection;
@@ -46,10 +50,6 @@ use Dotclear\Utils\Dt;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Statistic;
 use Dotclear\Utils\Text;
-use Dotclear\Utils\TraitBehavior;
-use Dotclear\Utils\TraitConfiguration;
-use Dotclear\Utils\TraitError;
-use Dotclear\Utils\TraitLog;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

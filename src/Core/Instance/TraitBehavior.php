@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Utils\TraitBehavior
+ * @class Dotclear\UtCore\Instanceils\TraitBehavior
  * @brief Dotclear trait Behavior
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
-use Dotclear\Utils\Behavior;
+use Dotclear\Core\Instance\Behavior;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

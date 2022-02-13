@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Utils\Configuration
+ * @class Dotclear\Core\Instance\Configuration
  * @brief Dotclear trait Configuration
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
-use Dotclear\Utils\Configuration;
+use Dotclear\Core\Instance\Configuration;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

@@ -1,19 +1,19 @@
 <?php
 /**
- * @class Dotclear\Log\TraitLog
+ * @class Dotclear\Core\Instance\TraitLog
  * @brief Dotclear trait Log
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
-use Dotclear\Utils\Log;
+use Dotclear\Core\Instance\Log;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

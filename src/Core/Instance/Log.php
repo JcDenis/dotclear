@@ -1,17 +1,17 @@
 <?php
 /**
- * @class Dotclear\Utils\Log
+ * @class Dotclear\Core\Instance\Log
  * @brief Dotclear utils log class
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Core\Sql\JoinStatement;

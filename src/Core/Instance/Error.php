@@ -1,17 +1,17 @@
 <?php
 /**
- * @class Dotclear\Utils\Error
+ * @class Dotclear\Core\Instance\Error
  * @brief Dotclear error class
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

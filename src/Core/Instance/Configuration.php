@@ -1,17 +1,17 @@
 <?php
 /**
- * @class Dotclear\Utils\Configuration
+ * @class Dotclear\Core\Instance\Configuration
  * @brief Dotclear configuration stacker
  *
  * @package Dotclear
- * @subpackage Utils
+ * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Exception\UtilsException;
 

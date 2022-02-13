@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Core\Instance\TraitError;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -21,7 +22,6 @@ use Dotclear\Html\Html;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
-use Dotclear\Utils\TraitError;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

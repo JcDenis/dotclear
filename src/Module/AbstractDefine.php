@@ -18,9 +18,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Core\Instance\TraitError;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Html;
-use Dotclear\Utils\TraitError;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
