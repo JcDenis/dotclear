@@ -749,7 +749,7 @@ class RestMethods
         ];
 
         foreach($methods as $method) {
-            dotclear()->rest->addFunction($method, [__CLASS__, $method]);
+            dotclear()->rest()->addFunction($method, [__CLASS__, $method]);
         }
     }
 }

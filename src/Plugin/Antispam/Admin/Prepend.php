@@ -51,7 +51,7 @@ class Prepend extends AbstractPrepend
 
         # Rest service
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamRest';
-        dotclear()->rest->addFunction('getSpamsCount', [$class, 'restGetSpamsCount']);
+        dotclear()->rest()->addFunction('getSpamsCount', [$class, 'restGetSpamsCount']);
 
         # Core behaviors
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\Antispam';

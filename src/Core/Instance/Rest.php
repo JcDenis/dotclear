@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RestServer
+ * @class Dotclear\Core\Instance\Rest
  * @brief Dotclear core rest server class
  *
  * @package Dotclear
@@ -11,8 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
-
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Html\XmlTag;
 
@@ -20,7 +19,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class RestServer
+class Rest
 {
     /**
      * Constructs a new instance.

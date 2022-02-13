@@ -41,7 +41,7 @@ class Prepend extends AbstractPrepend
         dotclear()->blog->settings->addNamespace('maintenance');
 
         # Rest service
-        dotclear()->rest->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
+        dotclear()->rest()->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
 
         # Admin behaviors
         dotclear()->behavior()->add('dcMaintenanceInit', [__CLASS__, 'behaviorDcMaintenanceInit']);

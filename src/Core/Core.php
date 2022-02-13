@@ -55,6 +55,7 @@ class Core
     use \Dotclear\Core\Instance\TraitLog;
     use \Dotclear\Core\Instance\TraitMedia;
     use \Dotclear\Core\Instance\TraitMeta;
+    use \Dotclear\Core\Instance\TraitRest;
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
 
@@ -69,9 +70,6 @@ class Core
 
     /** @var string             Database table prefix */
     public $prefix;
-
-    /** @var RestServer         RestServer instance */
-    public $rest;
 
     /** @var Session            Session instance */
     public $session;
@@ -267,7 +265,6 @@ class Core
             $this->autoloader = new Autoloader('', '', true);
             $this->con        = $this->conInstance();
             $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
-            $this->rest       = new RestServer();
 
         } catch (\Exception $e) {
             # Loading locales for detected language

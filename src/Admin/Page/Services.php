@@ -30,7 +30,7 @@ class Services extends Page
     protected function getPagePrepend(): ?bool
     {
         RestMethods::initDefaultRestMethods();
-        dotclear()->rest->serve();
+        dotclear()->rest()->serve();
 
         return null;
     }
