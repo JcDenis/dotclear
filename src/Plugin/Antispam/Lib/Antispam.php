@@ -192,7 +192,7 @@ class Antispam
             return false;
         }
 
-        $permissions = dotclear()->getBlogPermissions(dotclear()->blog()->id);
+        $permissions = dotclear()->blogs()->getBlogPermissions(dotclear()->blog()->id);
 
         if (empty($permissions[$rs->user_id])) {
             return false;

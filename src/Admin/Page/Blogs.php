@@ -56,8 +56,8 @@ class Blogs extends Page
         # --BEHAVIOR-- adminGetBlogs, ArrayObject
         dotclear()->behavior()->call('adminGetBlogs', $params);
 
-        $counter  = dotclear()->getBlogs($params, true);
-        $rs       = dotclear()->getBlogs($params);
+        $counter  = dotclear()->blogs()->getBlogs($params, true);
+        $rs       = dotclear()->blogs()->getBlogs($params);
         $nb_blog  = $counter->f(0);
         $rsStatic = $rs->toStatic();
         if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {

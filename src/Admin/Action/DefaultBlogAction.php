@@ -109,7 +109,7 @@ class DefaultBlogAction
             dotclear()->behavior()->call('adminBeforeBlogsDelete', $ids);
 
             foreach ($ids as $id) {
-                dotclear()->delBlog($id);
+                dotclear()->blogs()->delBlog($id);
             }
 
             dotclear()->notices->addSuccessNotice(sprintf(

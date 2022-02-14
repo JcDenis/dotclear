@@ -228,7 +228,7 @@ class Combos
     public function getBlogStatusesCombo()
     {
         $status_combo = [];
-        foreach (dotclear()->getAllBlogStatus() as $k => $v) {
+        foreach (dotclear()->blogs()->getAllBlogStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 

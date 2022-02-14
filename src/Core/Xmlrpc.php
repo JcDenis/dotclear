@@ -1061,7 +1061,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $rs  = dotclear()->getBlogPermissions(dotclear()->blog()->id);
+        $rs  = dotclear()->blogs()->getBlogPermissions(dotclear()->blog()->id);
         $res = [];
 
         foreach ($rs as $k => $v) {
@@ -1594,7 +1594,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         }
 
         if ($blog_changes) {
-            dotclear()->updBlog(dotclear()->blog()->id, $cur);
+            dotclear()->blogs()->updBlog(dotclear()->blog()->id, $cur);
             dotclear()->setBlog(dotclear()->blog()->id);
         }
 

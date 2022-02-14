@@ -87,7 +87,7 @@ class BlogAction extends Action
             $params['blog_id'] = $from['blogs'];
         }
 
-        $bl = dotclear()->getBlogs($params);
+        $bl = dotclear()->blogs()->getBlogs($params);
         while ($bl->fetch()) {
             $this->entries[$bl->blog_id] = [
                 'blog' => $bl->blog_id,

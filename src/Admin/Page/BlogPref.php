@@ -75,7 +75,7 @@ class BlogPref extends Page
                 if (empty($_REQUEST['id'])) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = dotclear()->getBlog($_REQUEST['id']);
+                $rs = dotclear()->blogs()->getBlog($_REQUEST['id']);
 
                 if (!$rs) {
                     throw new AdminException(__('No such blog.'));
@@ -163,7 +163,7 @@ class BlogPref extends Page
 
             try {
                 if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
-                    $rs = dotclear()->getBlog($cur->blog_id);
+                    $rs = dotclear()->blogs()->getBlog($cur->blog_id);
 
                     if ($rs) {
                         throw new AdminException(__('This blog ID is already used.'));
@@ -177,7 +177,7 @@ class BlogPref extends Page
                     throw new AdminException(__('Invalid language code'));
                 }
 
-                dotclear()->updBlog($this->blog_id, $cur);
+                dotclear()->blogs()->updBlog($this->blog_id, $cur);
 
                 # --BEHAVIOR-- adminAfterBlogUpdate
                 dotclear()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
@@ -878,7 +878,7 @@ class BlogPref extends Page
         #
         # Users on the blog (with permissions)
 
-        $blog_users = dotclear()->getBlogPermissions($this->blog_id, dotclear()->auth()->isSuperAdmin());
+        $blog_users = dotclear()->blogs()->getBlogPermissions($this->blog_id, dotclear()->auth()->isSuperAdmin());
         $perm_types = dotclear()->auth()->getPermissionsTypes();
 
         echo

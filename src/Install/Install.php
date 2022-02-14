@@ -153,7 +153,7 @@ class Install
                 $cur->blog_id   = 'default';
                 $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
                 $cur->blog_name = __('My first blog');
-                dotclear()->addBlog($cur);
+                dotclear()->blogs()->addBlog($cur);
 
                 /* Create global blog settings */
                 Distrib::setBlogDefaultSettings();

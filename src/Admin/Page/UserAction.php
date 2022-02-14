@@ -194,7 +194,7 @@ class UserAction extends Page
             $user_list = [];
 
             try {
-                $rs      = dotclear()->getBlogs();
+                $rs      = dotclear()->blogs()->getBlogs();
                 $nb_blog = $rs->count();
             } catch (\Exception $e) {
             }
@@ -225,7 +225,7 @@ class UserAction extends Page
 
                 while ($rs->fetch()) {
                     $img_status = $rs->blog_status == 1 ? 'check-on' : ($rs->blog_status == 0 ? 'check-off' : 'check-wrn');
-                    $txt_status = dotclear()->getBlogStatus((int) $rs->blog_status);
+                    $txt_status = dotclear()->blogs()->getBlogStatus((int) $rs->blog_status);
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo
@@ -240,7 +240,7 @@ class UserAction extends Page
                     '<td class="maximal">' . Html::escapeHTML($rs->blog_name) . '</td>' .
                     '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->blog_url) . '">' . Html::escapeHTML($rs->blog_url) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . dotclear()->countBlogPosts($rs->blog_id) . '</td>' .
+                    '<td class="nowrap">' . dotclear()->blogs()->countBlogPosts($rs->blog_id) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }

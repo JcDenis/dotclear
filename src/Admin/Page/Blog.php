@@ -73,7 +73,7 @@ class Blog extends Page
                 # --BEHAVIOR-- adminBeforeBlogCreate
                 dotclear()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
 
-                dotclear()->addBlog($cur);
+                dotclear()->blogs()->addBlog($cur);
 
                 # Default settings and override some
                 $blog_settings = new Settings($cur->blog_id);

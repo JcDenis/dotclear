@@ -93,7 +93,7 @@ class Blog
     {
         $this->prefix = dotclear()->prefix;
 
-        if (($b = dotclear()->getBlog($id)) !== null) {
+        if (($b = dotclear()->blogs()->getBlog($id)) !== null) {
             $this->id     = $id;
             $this->uid    = $b->blog_uid;
             $this->name   = $b->blog_name;

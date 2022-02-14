@@ -143,7 +143,7 @@ class BlogCatalog extends Catalog
             Html::escapeHTML($this->rs->blog_url) . '">' . Html::escapeHTML($this->rs->blog_url) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            dotclear()->countBlogPosts($this->rs->blog_id) .
+            dotclear()->blogs()->countBlogPosts($this->rs->blog_id) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
             Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset(dotclear()->auth()->getInfo('user_tz'))) .
@@ -152,7 +152,7 @@ class BlogCatalog extends Catalog
             sprintf(
                 '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
                 ($this->rs->blog_status == 1 ? 'check-on' : ($this->rs->blog_status == 0 ? 'check-off' : 'check-wrn')),
-                dotclear()->getBlogStatus((int) $this->rs->blog_status)
+                dotclear()->blogs()->getBlogStatus((int) $this->rs->blog_status)
             ) .
             '</td>',
         ];

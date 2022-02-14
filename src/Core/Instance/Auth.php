@@ -437,7 +437,7 @@ class Auth
     public function getBlogCount(): int
     {
         if ($this->blog_count === null) {
-            $this->blog_count = dotclear()->getBlogs([], true)->f(0);  // @phpstan-ignore-line
+            $this->blog_count = dotclear()->blogs()->getBlogs([], true)->f(0);  // @phpstan-ignore-line
         }
 
         return (int) $this->blog_count;
