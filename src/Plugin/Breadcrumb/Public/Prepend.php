@@ -101,7 +101,7 @@ class Prepend extends AbstractPrepend
             case 'category':
                 // Category
                 $ret        = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                $categories = dotclear()->blog()->getCategoryParents((int) dotclear()->context->categories->cat_id);
+                $categories = dotclear()->blog()->categories()->getCategoryParents((int) dotclear()->context->categories->cat_id);
                 while ($categories->fetch()) {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
@@ -119,12 +119,12 @@ class Prepend extends AbstractPrepend
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                 if (dotclear()->context->posts->cat_id) {
                     // Parents cats of post's cat
-                    $categories = dotclear()->blog()->getCategoryParents((int) dotclear()->context->posts->cat_id);
+                    $categories = dotclear()->blog()->categories()->getCategoryParents((int) dotclear()->context->posts->cat_id);
                     while ($categories->fetch()) {
                         $ret .= $separator . '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                     }
                     // Post's cat
-                    $categories = dotclear()->blog()->getCategory((int) dotclear()->context->posts->cat_id);
+                    $categories = dotclear()->blog()->categories()->getCategory((int) dotclear()->context->posts->cat_id);
                     $ret .= $separator . '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
                 }
                 $ret .= $separator . dotclear()->context->posts->post_title;

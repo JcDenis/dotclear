@@ -323,7 +323,7 @@ class Home extends Page
             if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 # Getting categories
                 $categories_combo = dotclear()->combos->getCategoriesCombo(
-                    dotclear()->blog()->getCategories([])
+                    dotclear()->blog()->categories()->getCategories([])
                 );
 
                 $dashboardQuickEntry = '<div id="quick">' .

@@ -305,7 +305,7 @@ class Post extends Page
                 # --BEHAVIOR-- adminBeforeCategoryCreate
                 dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $this->cat_id = dotclear()->blog()->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
@@ -481,7 +481,7 @@ class Post extends Page
     protected function getPageContent(): void
     {
         $categories_combo = dotclear()->combos->getCategoriesCombo(
-            dotclear()->blog()->getCategories()
+            dotclear()->blog()->categories()->getCategories()
         );
 
         $status_combo = dotclear()->combos->getPostStatusesCombo();

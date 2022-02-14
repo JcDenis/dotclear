@@ -105,7 +105,7 @@ class PostFilter extends Filter
         $categories = null;
 
         try {
-            $categories = dotclear()->blog()->getCategories(['post_type' => $this->post_type]);
+            $categories = dotclear()->blog()->categories()->getCategories(['post_type' => $this->post_type]);
             if ($categories->isEmpty()) {
                 return null;
             }

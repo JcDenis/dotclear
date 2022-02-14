@@ -119,7 +119,7 @@ class WidgetsStack
             return;
         }
 
-        $rs = dotclear()->blog()->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
+        $rs = dotclear()->blog()->categories()->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
         if ($rs->isEmpty()) {
             return;
         }
@@ -516,7 +516,7 @@ class WidgetsStack
             ->addClass()
             ->addOffline();
 
-        $rs         = dotclear()->blog()->getCategories(['post_type' => 'post']);
+        $rs         = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
             $categories[str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title)] = $rs->cat_id;

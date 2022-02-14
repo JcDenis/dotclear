@@ -205,14 +205,14 @@ class DefaultPostAction
                 # --BEHAVIOR-- adminBeforeCategoryCreate
                 dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $new_cat_id = dotclear()->blog()->addCategory($cur_cat, (integer) $parent_cat);
+                $new_cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (integer) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
             }
 
             dotclear()->blog()->updPostsCategory($posts_ids, $new_cat_id);
-            $title = dotclear()->blog()->getCategory($new_cat_id);
+            $title = dotclear()->blog()->categories()->getCategory($new_cat_id);
             dotclear()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully moved to category "%s"',
@@ -225,8 +225,8 @@ class DefaultPostAction
 
             $ap->redirect(true);
         } else {
-            $categories_combo = $this->core->combos->getCategoriesCombo(
-                dotclear()->blog()->getCategories()
+            $categories_combo = dotclear()->combos->getCategoriesCombo(
+                dotclear()->blog()->categories()->getCategories()
             );
 
             $ap->setPageBreadcrumb([

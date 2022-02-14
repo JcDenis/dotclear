@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Categories
+ * @class Dotclear\Core\Instance\CategoriesTree
  * @brief Dotclear core categories tree class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Database\NestedTree;
 
@@ -19,7 +19,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Categories extends NestedTree
+class CategoriesTree extends NestedTree
 {
     protected $f_left  = 'cat_lft';
     protected $f_right = 'cat_rgt';

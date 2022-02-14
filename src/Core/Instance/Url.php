@@ -478,7 +478,7 @@ class Url
 
             dotclear()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
 
-            dotclear()->context->categories = dotclear()->blog()->getCategories($params);
+            dotclear()->context->categories = dotclear()->blog()->categories()->getCategories($params);
 
             if (dotclear()->context->categories->isEmpty()) {
                 # The specified category does no exist.
@@ -761,7 +761,7 @@ class Url
 
             dotclear()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
 
-            dotclear()->context->categories = dotclear()->blog()->getCategories($params);
+            dotclear()->context->categories = dotclear()->blog()->categories()->getCategories($params);
 
             if (dotclear()->context->categories->isEmpty()) {
                 # The specified category does no exist.

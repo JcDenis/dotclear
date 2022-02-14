@@ -46,7 +46,7 @@ class Categories extends Page
             $cat_id = (int) $keys[0];
 
             # Check if category to delete exists
-            $category = dotclear()->blog()->getCategory($cat_id);
+            $category = dotclear()->blog()->categories()->getCategory($cat_id);
             if ($category->isEmpty()) {
                 dotclear()->notices->addErrorNotice(__('This category does not exist.'));
                 dotclear()->adminurl->redirect('admin.categories');
@@ -56,7 +56,7 @@ class Categories extends Page
 
             try {
                 # Delete category
-                dotclear()->blog()->delCategory($cat_id);
+                dotclear()->blog()->categories()->delCategory($cat_id);
                 dotclear()->notices->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
@@ -75,7 +75,7 @@ class Categories extends Page
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if ($mov_cat !== null) {
-                    $category = dotclear()->blog()->getCategory($mov_cat);
+                    $category = dotclear()->blog()->categories()->getCategory($mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -102,7 +102,7 @@ class Categories extends Page
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    dotclear()->blog()->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
+                    dotclear()->blog()->categories()->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
                 }
             }
 
@@ -113,7 +113,7 @@ class Categories extends Page
         # Reset order
         if (!empty($_POST['reset'])) {
             try {
-                dotclear()->blog()->resetCategoriesOrder();
+                dotclear()->blog()->categories()->resetCategoriesOrder();
                 dotclear()->notices->addSuccessNotice(__('Categories order has been successfully reset.'));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
@@ -121,7 +121,7 @@ class Categories extends Page
             }
         }
 
-        $this->caregories = dotclear()->blog()->getCategories();
+        $this->caregories = dotclear()->blog()->categories()->getCategories();
 
         # Page setup
         if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop

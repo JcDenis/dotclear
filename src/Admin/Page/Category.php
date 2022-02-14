@@ -49,7 +49,7 @@ class Category extends Page
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = dotclear()->blog()->getCategory((int) $_REQUEST['id']);
+                $rs = dotclear()->blog()->categories()->getCategory((int) $_REQUEST['id']);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -63,13 +63,13 @@ class Category extends Page
             unset($rs);
 
             # Getting hierarchy information
-            $parents    = dotclear()->blog()->getCategoryParents($this->cat_id);
-            $rs         = dotclear()->blog()->getCategoryParent($this->cat_id);
+            $parents    = dotclear()->blog()->categories()->getCategoryParents($this->cat_id);
+            $rs         = dotclear()->blog()->categories()->getCategoryParent($this->cat_id);
             $this->cat_parent = $rs->isEmpty() ? 0 : (int) $rs->cat_id;
             unset($rs);
 
             # Allowed parents list
-            $children        = dotclear()->blog()->getCategories(['start' => $this->cat_id]);
+            $children        = dotclear()->blog()->categories()->getCategories(['start' => $this->cat_id]);
             $this->allowed_parents = [__('Top level') => 0];
 
             $p = [];
@@ -77,7 +77,7 @@ class Category extends Page
                 $p[$children->cat_id] = 1;
             }
 
-            $rs = dotclear()->blog()->getCategories();
+            $rs = dotclear()->blog()->categories()->getCategories();
             while ($rs->fetch()) {
                 if (!isset($p[$rs->cat_id])) {
                     $this->allowed_parents[] = new FormSelectOption(
@@ -89,7 +89,7 @@ class Category extends Page
             unset($rs);
 
             # Allowed siblings list
-            $rs = dotclear()->blog()->getCategoryFirstChildren($this->cat_parent);
+            $rs = dotclear()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
             while ($rs->fetch()) {
                 if ($rs->cat_id != $this->cat_id) {
                     $this->siblings[Html::escapeHTML($rs->cat_title)] = $rs->cat_id;
@@ -103,7 +103,7 @@ class Category extends Page
             $new_parent = (integer) $_POST['cat_parent'];
             if ($this->cat_parent != $new_parent) {
                 try {
-                    dotclear()->blog()->setCategoryParent($this->cat_id, $new_parent);
+                    dotclear()->blog()->categories()->setCategoryParent($this->cat_id, $new_parent);
                     dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                     dotclear()->adminurl->redirect('admin.categories');
                 } catch (\Exception $e) {
@@ -115,7 +115,7 @@ class Category extends Page
         # Changing sibling
         if ($this->cat_id && isset($_POST['cat_sibling'])) {
             try {
-                dotclear()->blog()->setCategoryPosition($this->cat_id, (integer) $_POST['cat_sibling'], $_POST['cat_move']);
+                dotclear()->blog()->categories()->setCategoryPosition($this->cat_id, (integer) $_POST['cat_sibling'], $_POST['cat_move']);
                 dotclear()->notices->addSuccessNotice(__('The category has been successfully moved'));
                 dotclear()->adminurl->redirect('admin.categories');
             } catch (\Exception $e) {
@@ -145,7 +145,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminBeforeCategoryUpdate
                     dotclear()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
-                    dotclear()->blog()->updCategory((int) $_POST['id'], $cur);
+                    dotclear()->blog()->categories()->updCategory((int) $_POST['id'], $cur);
 
                     # --BEHAVIOR-- adminAfterCategoryUpdate
                     dotclear()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
@@ -159,7 +159,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminBeforeCategoryCreate
                     dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur);
 
-                    $id = dotclear()->blog()->addCategory($cur, (integer) $_POST['new_cat_parent']);
+                    $id = dotclear()->blog()->categories()->addCategory($cur, (integer) $_POST['new_cat_parent']);
 
                     # --BEHAVIOR-- adminAfterCategoryCreate
                     dotclear()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
@@ -228,7 +228,7 @@ class Category extends Page
         ]) .
             '</p>';
         if (!$this->cat_id) {
-            $rs = dotclear()->blog()->getCategories();
+            $rs = dotclear()->blog()->categories()->getCategories();
             echo
             '<p><label for="new_cat_parent">' . __('Parent:') . ' ' .
             '<select id="new_cat_parent" name="new_cat_parent" >' .

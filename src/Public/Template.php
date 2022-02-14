@@ -1037,11 +1037,11 @@ class Template extends BaseTemplate
         $res .= $p;
         $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Categories', 'method' => 'blog::getCategories'],
+            ['tag' => 'Categories', 'method' => 'blog()->categories()->getCategories'],
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->categories = dotclear()->blog()->getCategories($params);' . "\n";
+        $res .= 'dotclear()->context->categories = dotclear()->blog()->categories()->getCategories($params);' . "\n";
         $res .= "?>\n";
         $res .= '<?php while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; unset($params); ?>';
 
@@ -1092,13 +1092,13 @@ class Template extends BaseTemplate
             if (substr($url, 0, 1) == '!') {
                 $url = substr($url, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                 } else {
                     $if[] = '(dotclear()->context->categories->cat_url != "' . $url . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                 } else {
                     $if[] = '(dotclear()->context->categories->cat_url == "' . $url . '")';
                 }
@@ -1115,13 +1115,13 @@ class Template extends BaseTemplate
                     if (substr($url, 0, 1) == '!') {
                         $url = substr($url, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                         } else {
                             $if[] = '(dotclear()->context->categories->cat_url != "' . $url . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                         } else {
                             $if[] = '(dotclear()->context->categories->cat_url == "' . $url . '")';
                         }
@@ -1156,7 +1156,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog()->getCategoryFirstChildren(dotclear()->context->categories->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->categories()->getCategoryFirstChildren(dotclear()->context->categories->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 
@@ -1167,7 +1167,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog()->getCategoryParents(dotclear()->context->categories->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context->categories->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 
@@ -1877,7 +1877,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog()->getCategoryParents(dotclear()->context->posts->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context->posts->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 

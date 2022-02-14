@@ -346,7 +346,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
     private function getCatID($cat_url)
     {
-        $rs = dotclear()->blog()->getCategories(['cat_url' => $cat_url]);
+        $rs = dotclear()->blog()->categories()->getCategories(['cat_url' => $cat_url]);
 
         return $rs->isEmpty() ? null : $rs->cat_id;
     }
@@ -679,7 +679,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     {
         $this->setUser($user, $pwd);
         $this->setBlog();
-        $rs = dotclear()->blog()->getCategories();
+        $rs = dotclear()->blog()->categories()->getCategories();
 
         $res = [];
 
@@ -1127,8 +1127,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $parent = !empty($struct['category_parent']) ? (integer) $struct['category_parent'] : 0;
 
-        $id = dotclear()->blog()->addCategory($cur, $parent);
-        $rs = dotclear()->blog()->getCategory($id);
+        $id = dotclear()->blog()->categories()->addCategory($cur, $parent);
+        $rs = dotclear()->blog()->categories()->getCategory($id);
 
         return $rs->cat_url;
     }
@@ -1138,14 +1138,14 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $c = dotclear()->blog()->getCategories(['cat_url' => $cat_id]);
+        $c = dotclear()->blog()->categories()->getCategories(['cat_url' => $cat_id]);
         if ($c->isEmpty()) {
             throw new CoreException(__('This category does not exist.'));
         }
         $cat_id = $c->cat_id;
         unset($c);
 
-        dotclear()->blog()->delCategory((integer) $cat_id);
+        dotclear()->blog()->categories()->delCategory((integer) $cat_id);
 
         return true;
     }

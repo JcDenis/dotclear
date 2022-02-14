@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Instance;
 
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS')) {

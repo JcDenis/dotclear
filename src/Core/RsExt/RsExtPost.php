@@ -504,6 +504,6 @@ class RsExtPost
      */
     public static function underCat($rs, $cat_url)
     {
-        return dotclear()->blog()->IsInCatSubtree($rs->cat_url, $cat_url);
+        return dotclear()->blog()->categories()->IsInCatSubtree($rs->cat_url, $cat_url);
     }
 }

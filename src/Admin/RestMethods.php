@@ -319,7 +319,7 @@ class RestMethods
             # --BEHAVIOR-- adminBeforeCategoryCreate
             dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-            $post['cat_id'] = dotclear()->blog()->addCategory($cur_cat, (int) $parent_cat);
+            $post['cat_id'] = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
             # --BEHAVIOR-- adminAfterCategoryCreate
             dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);

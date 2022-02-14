@@ -18,10 +18,9 @@ use ArrayObject;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 
-use Dotclear\Core\Categories;
 use Dotclear\Core\Settings;
+use Dotclear\Core\Utils;
 
-use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Html\Html;
@@ -36,11 +35,10 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
+    use \Dotclear\Core\Instance\TraitCategories;
+
     /** @var Settings   Settings instance */
     public $settings;
-
-    /** @var string     Database table prefix */
-    public $prefix;
 
     /** @var string     Blog ID */
     public $id;
@@ -78,9 +76,6 @@ class Blog
     /** @var array      comment status list */
     private $comment_status = [];
 
-    /** @var Categories Categories instance */
-    private $categories;
-
     /** @var bool       Disallow entries password protection */
     public $without_password = true;
 
@@ -91,8 +86,6 @@ class Blog
      */
     public function __construct(string $id)
     {
-        $this->prefix = dotclear()->prefix;
-
         if (($b = dotclear()->blogs()->getBlog($id)) !== null) {
             $this->id     = $id;
             $this->uid    = $b->blog_uid;
@@ -160,44 +153,6 @@ class Blog
         }
 
         return 'jquery/' . $version;
-    }
-
-    /**
-     * Returns public URL of specified plugin file.
-     *
-     * @todo remove this
-     *
-     * @param      string  $pf          plugin file
-     * @param      bool    $strip_host  Strip host in URL
-     *
-     * @return     string
-     */
-    public function getPF(string $pf, bool $strip_host = true): string
-    {
-        $ret = $this->getQmarkURL() . 'mf=Plugin/' . $pf;
-        if ($strip_host) {
-            $ret = Html::stripHostURL($ret);
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Returns public URL of specified var file.
-     *
-     * @param      string  $vf          var file
-     * @param      bool    $strip_host  Strip host in URL
-     *
-     * @return     string
-     */
-    public function getVF(string $vf, bool $strip_host = true): string
-    {
-        $ret = $this->getQmarkURL() . 'vf=' . $vf;
-        if ($strip_host) {
-            $ret = Html::stripHostURL($ret);
-        }
-
-        return $ret;
     }
 
     /**
@@ -270,7 +225,7 @@ class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = dotclear()->con()->openCursor($this->prefix . 'blog');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
@@ -307,7 +262,7 @@ class Blog
         # Get posts affected by comments edition
         if (empty($affected_posts)) {
             $strReq = 'SELECT post_id ' .
-            'FROM ' . $this->prefix . 'comment ' .
+            'FROM ' . dotclear()->prefix . 'comment ' .
             'WHERE comment_id' . dotclear()->con()->in($comments_ids) .
                 'GROUP BY post_id';
 
@@ -325,7 +280,7 @@ class Blog
 
         # Count number of comments if exists for affected posts
         $strReq = 'SELECT post_id, COUNT(post_id) AS nb_comment, comment_trackback ' .
-        'FROM ' . $this->prefix . 'comment ' .
+        'FROM ' . dotclear()->prefix . 'comment ' .
         'WHERE comment_status = 1 ' .
         'AND post_id' . dotclear()->con()->in($affected_posts) .
             'GROUP BY post_id,comment_trackback';
@@ -342,7 +297,7 @@ class Blog
         }
 
         # Update number of comments on affected posts
-        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
         foreach ($affected_posts as $post_id) {
             $cur->clean();
 
@@ -355,520 +310,6 @@ class Blog
             }
 
             $cur->update('WHERE post_id = ' . $post_id);
-        }
-    }
-    //@}
-
-    /// @name Categories management methods
-    //@{
-    /**
-     * Get Categories instance
-     *
-     * @return     Categories
-     */
-    public function categories(): Categories
-    {
-        if (!($this->categories instanceof Categories)) {
-            $this->categories = new Categories();
-        }
-
-        return $this->categories;
-    }
-
-    /**
-     * Retrieves categories. <var>$params</var> is an associative array which can
-     * take the following parameters:
-     *
-     * - post_type: Get only entries with given type (default "post")
-     * - cat_url: filter on cat_url field
-     * - cat_id: filter on cat_id field
-     * - start: start with a given category
-     * - level: categories level to retrieve
-     *
-     * @param      ArrayObject|array   $params  The parameters
-     *
-     * @return     Record  The categories. (StaticRecord)
-     */
-    public function getCategories(ArrayObject|array $params = []): Record
-    {
-        $c_params = [];
-        if (isset($params['post_type'])) {
-            $c_params['post_type'] = $params['post_type'];
-            unset($params['post_type']);
-        }
-        $counter = $this->getCategoriesCounter($c_params);
-
-        if (isset($params['without_empty']) && ($params['without_empty'] == false)) {
-            $without_empty = false;
-        } else {
-            $without_empty = dotclear()->auth()->userID() == false; # Get all categories if in admin display
-        }
-
-        $start = isset($params['start']) ? (int) $params['start'] : 0;
-        $l     = isset($params['level']) ? (int) $params['level'] : 0;
-
-        $rs = $this->categories()->getChildren($start, null, 'desc');
-
-        # Get each categories total posts count
-        $data  = [];
-        $stack = [];
-        $level = 0;
-        $cols  = $rs->columns();
-        while ($rs->fetch()) {
-            $nb_post = isset($counter[$rs->cat_id]) ? (int) $counter[$rs->cat_id] : 0;
-
-            if ($rs->level > $level) {
-                $nb_total          = $nb_post;
-                $stack[$rs->level] = (int) $nb_post;
-            } elseif ($rs->level == $level) {
-                $nb_total = $nb_post;
-                $stack[$rs->level] += $nb_post;
-            } else {
-                $nb_total = $stack[$rs->level + 1] + $nb_post;
-                if (isset($stack[$rs->level])) {
-                    $stack[$rs->level] += $nb_total;
-                } else {
-                    $stack[$rs->level] = $nb_total;
-                }
-                unset($stack[$rs->level + 1]);
-            }
-
-            if ($nb_total == 0 && $without_empty) {
-                continue;
-            }
-
-            $level = $rs->level;
-
-            $t = [];
-            foreach ($cols as $c) {
-                $t[$c] = $rs->f($c);
-            }
-            $t['nb_post']  = $nb_post;
-            $t['nb_total'] = $nb_total;
-
-            if ($l == 0 || ($l > 0 && $l == $rs->level)) {
-                array_unshift($data, $t);
-            }
-        }
-
-        # We need to apply filter after counting
-        if (isset($params['cat_id']) && $params['cat_id'] !== '') {
-            $found = false;
-            foreach ($data as $v) {
-                if ($v['cat_id'] == $params['cat_id']) {
-                    $found = true;
-                    $data  = [$v];
-
-                    break;
-                }
-            }
-            if (!$found) {
-                $data = [];
-            }
-        }
-
-        if (isset($params['cat_url']) && ($params['cat_url'] !== '')
-            && !isset($params['cat_id'])) {
-            $found = false;
-            foreach ($data as $v) {
-                if ($v['cat_url'] == $params['cat_url']) {
-                    $found = true;
-                    $data  = [$v];
-
-                    break;
-                }
-            }
-            if (!$found) {
-                $data = [];
-            }
-        }
-
-        return StaticRecord::newFromArray($data);
-    }
-
-    /**
-     * Gets the category by its ID.
-     *
-     * @param      int  $id     The category identifier
-     *
-     * @return     Record  The category. (StaticRecord)
-     */
-    public function getCategory(int $id): Record
-    {
-        return $this->getCategories(['cat_id' => $id]);
-    }
-
-    /**
-     * Gets the category parents.
-     *
-     * @param      int  $id     The category identifier
-     *
-     * @return     Record  The category parents. (StaticRecord)
-     */
-    public function getCategoryParents(int $id): Record
-    {
-        return $this->categories()->getParents($id);
-    }
-
-    /**
-     * Gets the category first parent.
-     *
-     * @param      int  $id     The category identifier
-     *
-     * @return     Record  The category parent. (StaticRecord)
-     */
-    public function getCategoryParent(int $id): Record
-    {
-        return $this->categories()->getParent($id);
-    }
-
-    /**
-     * Gets all category's first children.
-     *
-     * @param      int     $id     The category identifier
-     *
-     * @return     Record  The category first children. (StaticRecord)
-     */
-    public function getCategoryFirstChildren(int $id): Record
-    {
-        return $this->getCategories(['start' => $id, 'level' => $id == 0 ? 1 : 2]);
-    }
-
-    /**
-     * Returns true if a given category if in a given category's subtree
-     *
-     * @param      string   $cat_url    The cat url
-     * @param      string   $start_url  The top cat url
-     *
-     * @return     bool     true if cat_url is in given start_url cat subtree
-     */
-    public function IsInCatSubtree(string $cat_url, string $start_url): bool
-    {
-        // Get cat_id from start_url
-        $cat = $this->getCategories(['cat_url' => $start_url]);
-        if ($cat->fetch()) {
-            // cat_id found, get cat tree list
-            $cats = $this->getCategories(['start' => $cat->cat_id]);
-            while ($cats->fetch()) {
-                // check if post category is one of the cat or sub-cats
-                if ($cats->cat_url === $cat_url) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Gets the categories posts counter.
-     *
-     * @param      array  $params  The parameters
-     *
-     * @return     array  The categories counter.
-     */
-    private function getCategoriesCounter(array $params = []): array
-    {
-        $strReq = 'SELECT  C.cat_id, COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . $this->prefix . 'category AS C ' .
-        'JOIN ' . $this->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . dotclear()->con()->escape($this->id) . "' ) " .
-        "WHERE C.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
-
-        if (!dotclear()->auth()->userID()) {
-            $strReq .= 'AND P.post_status = 1 ';
-        }
-
-        if (!empty($params['post_type'])) {
-            $strReq .= 'AND P.post_type ' . dotclear()->con()->in($params['post_type']);
-        }
-
-        $strReq .= 'GROUP BY C.cat_id ';
-
-        $rs       = dotclear()->con()->select($strReq);
-        $counters = [];
-        while ($rs->fetch()) {
-            $counters[$rs->cat_id] = $rs->nb_post;
-        }
-
-        return $counters;
-    }
-
-    /**
-     * Adds a new category. Takes a cursor as input and returns the new category ID.
-     *
-     * @param      Cursor        $cur     The category cursor
-     * @param      int           $parent  The parent category ID
-     *
-     * @throws     CoreException
-     *
-     * @return     int  New category ID
-     */
-    public function addCategory(Cursor $cur, int $parent = 0): int
-    {
-        if (!dotclear()->auth()->check('categories', $this->id)) {
-            throw new CoreException(__('You are not allowed to add categories'));
-        }
-
-        $url = [];
-        if ($parent != 0) {
-            $rs = $this->getCategory($parent);
-            if ($rs->isEmpty()) {
-                $url = [];
-            } else {
-                $url[] = $rs->cat_url;
-            }
-        }
-
-        if ($cur->cat_url == '') {
-            $url[] = Text::tidyURL($cur->cat_title, false);
-        } else {
-            $url[] = $cur->cat_url;
-        }
-
-        $cur->cat_url = implode('/', $url);
-
-        $this->getCategoryCursor($cur);
-        $cur->blog_id = (string) $this->id;
-
-        # --BEHAVIOR-- coreBeforeCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforeCategoryCreate', $this, $cur);
-
-        $id = $this->categories()->addNode($cur, $parent);
-        if ($id !== null) {
-            # Update category's cursor
-            $rs = $this->getCategory($id);
-            if (!$rs->isEmpty()) {
-                $cur->cat_lft = $rs->cat_lft;
-                $cur->cat_rgt = $rs->cat_rgt;
-            }
-        }
-
-        # --BEHAVIOR-- coreAfterCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterCategoryCreate', $this, $cur);
-
-        $this->triggerBlog();
-
-        return (int) $cur->cat_id;
-    }
-
-    /**
-     * Updates an existing category.
-     *
-     * @param      int     $id     The category ID
-     * @param      Cursor      $cur    The category cursor
-     *
-     * @throws     CoreException
-     */
-    public function updCategory(int $id, Cursor $cur): void
-    {
-        if (!dotclear()->auth()->check('categories', $this->id)) {
-            throw new CoreException(__('You are not allowed to update categories'));
-        }
-
-        if ($cur->cat_url == '') {
-            $url = [];
-            $rs  = $this->categories()->getParents($id);
-            while ($rs->fetch()) {
-                if ($rs->index() == $rs->count() - 1) {
-                    $url[] = $rs->cat_url;
-                }
-            }
-
-            $url[]        = Text::tidyURL($cur->cat_title, false);
-            $cur->cat_url = implode('/', $url);
-        }
-
-        $this->getCategoryCursor($cur, $id);
-
-        # --BEHAVIOR-- coreBeforeCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforeCategoryUpdate', $this, $cur);
-
-        $cur->update(
-            'WHERE cat_id = ' . (int) $id . ' ' .
-            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' "
-        );
-
-        # --BEHAVIOR-- coreAfterCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterCategoryUpdate', $this, $cur);
-
-        $this->triggerBlog();
-    }
-
-    /**
-     * Set category position.
-     *
-     * @param      int  $id     The category ID
-     * @param      int  $left   The category ID before
-     * @param      int  $right  The category ID after
-     */
-    public function updCategoryPosition(int $id, int $left, int $right): void
-    {
-        $this->categories()->updatePosition($id, $left, $right);
-        $this->triggerBlog();
-    }
-
-    /**
-     * Sets the category parent.
-     *
-     * @param      int  $id      The category ID
-     * @param      int  $parent  The parent category ID
-     */
-    public function setCategoryParent(int $id, int $parent): void
-    {
-        $this->categories()->setNodeParent($id, $parent);
-        $this->triggerBlog();
-    }
-
-    /**
-     * Sets the category position.
-     *
-     * @param      int      $id       The category ID
-     * @param      int      $sibling  The sibling category ID
-     * @param      string   $move     The move (before|after)
-     */
-    public function setCategoryPosition(int $id, int $sibling, string $move): void
-    {
-        $this->categories()->setNodePosition($id, $sibling, $move);
-        $this->triggerBlog();
-    }
-
-    /**
-     * Delete a category.
-     *
-     * @param      int     $id     The category ID
-     *
-     * @throws     CoreException
-     */
-    public function delCategory(int $id): void
-    {
-        if (!dotclear()->auth()->check('categories', $this->id)) {
-            throw new CoreException(__('You are not allowed to delete categories'));
-        }
-
-        $strReq = 'SELECT COUNT(post_id) AS nb_post ' .
-        'FROM ' . $this->prefix . 'post ' .
-        'WHERE cat_id = ' . (int) $id . ' ' .
-        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
-
-        if ($rs->nb_post > 0) {
-            throw new CoreException(__('This category is not empty.'));
-        }
-
-        $this->categories()->deleteNode($id, true);
-        $this->triggerBlog();
-    }
-
-    /**
-     * Reset categories order and relocate them to first level
-     */
-    public function resetCategoriesOrder(): void
-    {
-        if (!dotclear()->auth()->check('categories', $this->id)) {
-            throw new CoreException(__('You are not allowed to reset categories order'));
-        }
-
-        $this->categories()->resetOrder();
-        $this->triggerBlog();
-    }
-
-    /**
-     * Check if the category title and url are unique.
-     *
-     * @param      string       $title  The title
-     * @param      string       $url    The url
-     * @param      null|int     $id     The identifier
-     *
-     * @return     string
-     */
-    private function checkCategory(string $title, string $url, ?int $id = null): string
-    {
-        # Let's check if URL is taken...
-        $strReq = 'SELECT cat_url FROM ' . $this->prefix . 'category ' .
-        "WHERE cat_url = '" . dotclear()->con()->escape($url) . "' " .
-        ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
-            'ORDER BY cat_url DESC';
-
-        $rs = dotclear()->con()->select($strReq);
-
-        if (!$rs->isEmpty()) {
-            if (dotclear()->con()->syntax() == 'mysql') {
-                $clause = "REGEXP '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
-            } elseif (dotclear()->con()->driver() == 'pgsql') {
-                $clause = "~ '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
-            } else {
-                $clause = "LIKE '" . dotclear()->con()->escape($url) . "%'";
-            }
-            $strReq = 'SELECT cat_url FROM ' . $this->prefix . 'category ' .
-            'WHERE cat_url ' . $clause . ' ' .
-            ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
-                'ORDER BY cat_url DESC ';
-
-            $rs = dotclear()->con()->select($strReq);
-
-            if ($rs->isEmpty()) {
-                return $url;
-            }
-
-            $a  = [];
-            while ($rs->fetch()) {
-                $a[] = $rs->cat_url;
-            }
-
-            natsort($a);
-            $t_url = end($a);
-
-            if (preg_match('/(.*?)([0-9]+)$/', $t_url, $m)) {
-                $i   = (int) $m[2];
-                $url = $m[1];
-            } else {
-                $i = 1;
-            }
-
-            return $url . ($i + 1);
-        }
-
-        # URL is empty?
-        if ($url == '') {
-            throw new CoreException(__('Empty category URL'));
-        }
-
-        return $url;
-    }
-
-    /**
-     * Gets the category cursor.
-     *
-     * @param      Cursor       $cur    The category cursor
-     * @param      null|int     $id     The category ID
-     *
-     * @throws     CoreException
-     */
-    private function getCategoryCursor(Cursor $cur, ?int $id = null): void
-    {
-        if ($cur->cat_title == '') {
-            throw new CoreException(__('You must provide a category title'));
-        }
-
-        # If we don't have any cat_url, let's do one
-        if ($cur->cat_url == '') {
-            $cur->cat_url = Text::tidyURL($cur->cat_title, false);
-        }
-
-        # Still empty ?
-        if ($cur->cat_url == '') {
-            throw new CoreException(__('You must provide a category URL'));
-        }
-        $cur->cat_url = Text::tidyURL($cur->cat_url, true);
-
-        # Check if title or url are unique
-        $cur->cat_url = $this->checkCategory($cur->cat_title, $cur->cat_url, $id);
-
-        if ($cur->cat_desc !== null) {
-            $cur->cat_desc = Html::filter($cur->cat_desc);
         }
     }
     //@}
@@ -948,9 +389,9 @@ class Blog
                 'C.cat_title, C.cat_url, C.cat_desc ';
         }
 
-        $strReq .= 'FROM ' . $this->prefix . 'post P ' .
-        'INNER JOIN ' . $this->prefix . 'user U ON U.user_id = P.user_id ' .
-        'LEFT OUTER JOIN ' . $this->prefix . 'category C ON P.cat_id = C.cat_id ';
+        $strReq .= 'FROM ' . dotclear()->prefix . 'post P ' .
+        'INNER JOIN ' . dotclear()->prefix . 'user U ON U.user_id = P.user_id ' .
+        'LEFT OUTER JOIN ' . dotclear()->prefix . 'category C ON P.cat_id = C.cat_id ';
 
         if (!empty($params['from'])) {
             $strReq .= $params['from'] . ' ';
@@ -1081,7 +522,7 @@ class Blog
             } else {
                 $strReq .= 'AND ';
             }
-            $strReq .= 'EXISTS (SELECT M.post_id FROM ' . $this->prefix . 'post_media M ' .
+            $strReq .= 'EXISTS (SELECT M.post_id FROM ' . dotclear()->prefix . 'post_media M ' .
                 'WHERE M.post_id = P.post_id ';
             if (isset($params['link_type'])) {
                 $strReq .= ' AND M.link_type ' . dotclear()->con()->in($params['link_type']) . ' ';
@@ -1194,7 +635,7 @@ class Blog
     public function getLangs(array $params = []): Record
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
-        'FROM ' . $this->prefix . 'post ' .
+        'FROM ' . dotclear()->prefix . 'post ' .
         "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
@@ -1288,7 +729,7 @@ class Blog
         $strReq = 'SELECT DISTINCT(' . dotclear()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
         $cat_field .
         ',COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . $this->prefix . 'post P LEFT JOIN ' . $this->prefix . 'category C ' .
+        'FROM ' . dotclear()->prefix . 'post P LEFT JOIN ' . dotclear()->prefix . 'category C ' .
         'ON P.cat_id = C.cat_id ' .
         "WHERE P.blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             $catReq;
@@ -1375,13 +816,13 @@ class Blog
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
-        dotclear()->con()->writeLock($this->prefix . 'post');
+        dotclear()->con()->writeLock(dotclear()->prefix . 'post');
 
         try {
             # Get ID
             $rs = dotclear()->con()->select(
                 'SELECT MAX(post_id) ' .
-                'FROM ' . $this->prefix . 'post '
+                'FROM ' . dotclear()->prefix . 'post '
             );
 
             $cur->post_id     = (int) $rs->f(0) + 1;
@@ -1460,7 +901,7 @@ class Blog
         #If user is only "usage", we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq = 'SELECT post_id ' .
-            'FROM ' . $this->prefix . 'post ' .
+            'FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
             "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
 
@@ -1520,7 +961,7 @@ class Blog
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_status = $status;
         $cur->post_upddt  = date('Y-m-d H:i:s');
@@ -1567,7 +1008,7 @@ class Blog
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_selected = (int) $selected;
         $cur->post_upddt    = date('Y-m-d H:i:s');
@@ -1612,7 +1053,7 @@ class Blog
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->cat_id     = ($cat_id ?: null);
         $cur->post_upddt = date('Y-m-d H:i:s');
@@ -1638,7 +1079,7 @@ class Blog
         $old_cat_id = (int) $old_cat_id;
         $new_cat_id = (int) $new_cat_id;
 
-        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->cat_id     = ($new_cat_id ?: null);
         $cur->post_upddt = date('Y-m-d H:i:s');
@@ -1679,7 +1120,7 @@ class Blog
             throw new CoreException(__('No such entry ID'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->prefix . 'post ' .
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'post ' .
         "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
         'AND post_id ' . dotclear()->con()->in($posts_ids);
 
@@ -1698,7 +1139,7 @@ class Blog
     public function publishScheduledEntries(): void
     {
         $strReq = 'SELECT post_id, post_dt, post_tz ' .
-        'FROM ' . $this->prefix . 'post ' .
+        'FROM ' . dotclear()->prefix . 'post ' .
         'WHERE post_status = -1 ' .
         "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
@@ -1728,7 +1169,7 @@ class Blog
             # --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
             dotclear()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
 
-            $strReq = 'UPDATE ' . $this->prefix . 'post SET ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'post SET ' .
             'post_status = 1 ' .
             "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
@@ -1761,7 +1202,7 @@ class Blog
         }
 
         if (count($to_change)) {
-            $strReq = 'UPDATE ' . $this->prefix . 'post ' .
+            $strReq = 'UPDATE ' . dotclear()->prefix . 'post ' .
             'SET post_firstpub = 1 ' .
             "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
@@ -1783,7 +1224,7 @@ class Blog
     {
         $strReq = 'SELECT P.user_id, user_name, user_firstname, ' .
         'user_displayname, user_email ' .
-        'FROM ' . $this->prefix . 'post P, ' . $this->prefix . 'user U ' .
+        'FROM ' . dotclear()->prefix . 'post P, ' . dotclear()->prefix . 'user U ' .
         'WHERE P.user_id = U.user_id ' .
         "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
@@ -1829,7 +1270,7 @@ class Blog
 
         if (!empty($sub)) {
             $rs = dotclear()->con()->select(
-                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . $this->prefix . 'category ' .
+                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . dotclear()->prefix . 'category ' .
                 "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
                 'AND ' . $field . ' ' . dotclear()->con()->in(array_keys($sub))
             );
@@ -2043,7 +1484,7 @@ class Blog
         }
 
         # Let's check if URL is taken...
-        $strReq = 'SELECT post_url FROM ' . $this->prefix . 'post ' .
+        $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
         "WHERE post_url = '" . dotclear()->con()->escape($url) . "' " .
         'AND post_id <> ' . (int) $post_id . ' ' .
         "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
@@ -2060,7 +1501,7 @@ class Blog
                 $clause = "LIKE '" .
                 dotclear()->con()->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";  // @phpstan-ignore-line
             }
-            $strReq = 'SELECT post_url FROM ' . $this->prefix . 'post ' .
+            $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_url ' . $clause . ' ' .
             'AND post_id <> ' . (int) $post_id . ' ' .
             "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
@@ -2151,9 +1592,9 @@ class Blog
                 'P.post_dt, P.user_id, U.user_email, U.user_url ';
         }
 
-        $strReq .= 'FROM ' . $this->prefix . 'comment C ' .
-        'INNER JOIN ' . $this->prefix . 'post P ON C.post_id = P.post_id ' .
-        'INNER JOIN ' . $this->prefix . 'user U ON P.user_id = U.user_id ';
+        $strReq .= 'FROM ' . dotclear()->prefix . 'comment C ' .
+        'INNER JOIN ' . dotclear()->prefix . 'post P ON C.post_id = P.post_id ' .
+        'INNER JOIN ' . dotclear()->prefix . 'user U ON P.user_id = U.user_id ';
 
         if (!empty($params['from'])) {
             $strReq .= $params['from'] . ' ';
@@ -2280,13 +1721,13 @@ class Blog
      */
     public function addComment(Cursor $cur): int
     {
-        dotclear()->con()->writeLock($this->prefix . 'comment');
+        dotclear()->con()->writeLock(dotclear()->prefix . 'comment');
 
         try {
             # Get ID
             $rs = dotclear()->con()->select(
                 'SELECT MAX(comment_id) ' .
-                'FROM ' . $this->prefix . 'comment '
+                'FROM ' . dotclear()->prefix . 'comment '
             );
 
             $cur->comment_id    = (int) $rs->f(0) + 1;
@@ -2405,11 +1846,11 @@ class Blog
         $co_ids = Utils::cleanIds($ids);
         $status = (int) $status;
 
-        $strReq = 'UPDATE ' . $this->prefix . 'comment ' .
+        $strReq = 'UPDATE ' . dotclear()->prefix . 'comment ' .
             'SET comment_status = ' . $status . ' ';
         $strReq .= 'WHERE comment_id' . dotclear()->con()->in($co_ids) .
         'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . $this->prefix . 'post tp ' .
+        'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
@@ -2452,7 +1893,7 @@ class Blog
         # Retrieve posts affected by comments edition
         $affected_posts = [];
         $strReq         = 'SELECT post_id ' .
-        'FROM ' . $this->prefix . 'comment ' .
+        'FROM ' . dotclear()->prefix . 'comment ' .
         'WHERE comment_id' . dotclear()->con()->in($co_ids) .
             'GROUP BY post_id';
 
@@ -2462,10 +1903,10 @@ class Blog
             $affected_posts[] = (int) $rs->post_id;
         }
 
-        $strReq = 'DELETE FROM ' . $this->prefix . 'comment ' .
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
         'WHERE comment_id' . dotclear()->con()->in($co_ids) . ' ' .
         'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . $this->prefix . 'post tp ' .
+        'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
@@ -2488,10 +1929,10 @@ class Blog
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->prefix . 'comment ' .
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
         'WHERE comment_status = -2 ' .
         'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . $this->prefix . 'post tp ' .
+        'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {

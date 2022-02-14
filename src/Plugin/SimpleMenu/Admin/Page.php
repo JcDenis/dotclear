@@ -57,7 +57,7 @@ class Page extends AbstractPage
     {
         # Liste des catégories
         $categories_label = [];
-        $rs               = dotclear()->blog()->getCategories(['post_type' => 'post']);
+        $rs               = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
         $this->sm_categories_combo = dotclear()->combos->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
