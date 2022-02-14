@@ -488,7 +488,7 @@ class Favorites
      */
     public static function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = (int) dotclear()->blog()->getComments([], true)->f(0);
+        $comment_count = (int) dotclear()->blog()->comments()->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }

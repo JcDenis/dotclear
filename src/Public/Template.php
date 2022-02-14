@@ -2458,12 +2458,12 @@ class Template extends BaseTemplate
         $res = "<?php\n";
         $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Comments', 'method' => 'blog::getComments'],
+            ['tag' => 'Comments', 'method' => 'blog()->comments()->getComments'],
             $attr,
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context->comments = dotclear()->blog()->getComments($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->comments = dotclear()->blog()->comments()->getComments($params); unset($params);' . "\n";
         $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
 
         if (!empty($attr['with_pings'])) {
@@ -3095,11 +3095,11 @@ class Template extends BaseTemplate
         $res .= $p;
         $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Pings', 'method' => 'blog::getComments'],
+            ['tag' => 'Pings', 'method' => 'blog()->comments()->getComments'],
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->pings = dotclear()->blog()->getComments($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->pings = dotclear()->blog()->comments()->getComments($params); unset($params);' . "\n";
         $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
         $res .= "?>\n";
 

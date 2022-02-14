@@ -250,7 +250,7 @@ class Meta
             unset($params['meta_type']);
         }
 
-        return dotclear()->blog()->getComments($params, $count_only);
+        return dotclear()->blog()->comments()->getComments($params, $count_only);
     }
 
     /**

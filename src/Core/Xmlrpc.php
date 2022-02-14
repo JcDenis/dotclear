@@ -1185,7 +1185,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'spam'                => 0,
             'total'               => 0
         ];
-        $rs = dotclear()->blog()->getComments(['post_id' => $post_id]);
+        $rs = dotclear()->blog()->comments()->getComments(['post_id' => $post_id]);
 
         while ($rs->fetch()) {
             $res['total']++;
@@ -1224,7 +1224,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $limit           = !empty($struct['number']) ? (integer) $struct['number'] : 10;
         $params['limit'] = [$offset, $limit];
 
-        $rs  = dotclear()->blog()->getComments($params);
+        $rs  = dotclear()->blog()->comments()->getComments($params);
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
@@ -1275,7 +1275,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $cur->comment_content = $struct['content'];
         $cur->post_id         = (integer) $post_id;
 
-        $id = dotclear()->blog()->addComment($cur);
+        $id = dotclear()->blog()->comments()->addComment($cur);
 
         return $id;
     }
@@ -1316,7 +1316,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $cur->comment_email = $struct['author_email'];
         }
 
-        dotclear()->blog()->updComment($comment_id, $cur);
+        dotclear()->blog()->comments()->updComment($comment_id, $cur);
 
         return true;
     }
@@ -1326,7 +1326,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        dotclear()->blog()->delComment($comment_id);
+        dotclear()->blog()->comments()->delComment($comment_id);
 
         return true;
     }

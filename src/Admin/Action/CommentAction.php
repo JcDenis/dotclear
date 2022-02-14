@@ -103,7 +103,7 @@ class CommentAction extends Action
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $params['no_content'] = true;
         }
-        $co = dotclear()->blog()->getComments($params);
+        $co = dotclear()->blog()->comments()->getComments($params);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

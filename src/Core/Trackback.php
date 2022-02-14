@@ -455,7 +455,7 @@ class Trackback
             'comment_trackback' => 1
         ];
 
-        $rs = dotclear()->blog()->getComments($params, true);
+        $rs = dotclear()->blog()->comments()->getComments($params, true);
         if ($rs && !$rs->isEmpty()) {
             return ($rs->f(0));
         }
@@ -496,7 +496,7 @@ class Trackback
         # --BEHAVIOR-- publicBeforeTrackbackCreate
         dotclear()->behavior()->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->post_id) {
-            $comment_id = dotclear()->blog()->addComment($cur);
+            $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
             # --BEHAVIOR-- publicAfterTrackbackCreate
             dotclear()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);

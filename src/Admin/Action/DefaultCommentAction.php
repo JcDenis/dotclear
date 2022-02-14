@@ -70,7 +70,7 @@ class DefaultCommentAction
                 break;
         }
 
-        dotclear()->blog()->updCommentsStatus($co_ids, $status);
+        dotclear()->blog()->comments()->updCommentsStatus($co_ids, $status);
 
         dotclear()->notices->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
@@ -91,7 +91,7 @@ class DefaultCommentAction
         # --BEHAVIOR-- adminBeforeCommentsDelete
         dotclear()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
 
-        dotclear()->blog()->delComments($co_ids);
+        dotclear()->blog()->comments()->delComments($co_ids);
         dotclear()->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }

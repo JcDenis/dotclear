@@ -211,8 +211,8 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) dotclear()->blog()->getComments($params, true)->f(0);
-            self::$list    = new CommentCatalog(dotclear()->blog()->getComments($params), self::$count);
+            self::$count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
+            self::$list    = new CommentCatalog(dotclear()->blog()->comments()->getComments($params), self::$count);
             self::$actions = new CommentAction(dotclear()->adminurl->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;

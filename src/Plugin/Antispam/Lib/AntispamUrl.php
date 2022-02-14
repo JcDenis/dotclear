@@ -73,7 +73,7 @@ class AntispamUrl extends UrlHandler
         '<link>' . (dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
-        $rs       = dotclear()->blog()->getComments($params);
+        $rs       = dotclear()->blog()->comments()->getComments($params);
         $maxitems = 20;
         $nbitems  = 0;
 

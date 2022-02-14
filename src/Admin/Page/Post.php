@@ -768,7 +768,7 @@ class Post extends Page
 
             $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments = dotclear()->blog()->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
 
             echo
             '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
@@ -855,7 +855,7 @@ class Post extends Page
             -------------------------------------------------------- */
 
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $this->trackbacks = dotclear()->blog()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $this->trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             # Actions combo box
             $combo_action = $this->comments_actions->getCombo();

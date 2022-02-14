@@ -414,7 +414,7 @@ class WidgetsStack
 
         $params['limit'] = abs((integer) $w->limit);
         $params['order'] = 'comment_dt desc';
-        $rs              = dotclear()->blog()->getComments($params);
+        $rs              = dotclear()->blog()->comments()->getComments($params);
 
         if ($rs->isEmpty()) {
             return;

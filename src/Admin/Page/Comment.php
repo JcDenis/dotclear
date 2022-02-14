@@ -69,7 +69,7 @@ class Comment extends Page
                 # --BEHAVIOR-- adminBeforeCommentCreate
                 dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
 
-                $this->comment_id = dotclear()->blog()->addComment($cur);
+                $this->comment_id = dotclear()->blog()->comments()->addComment($cur);
 
                 # --BEHAVIOR-- adminAfterCommentCreate
                 dotclear()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
@@ -90,7 +90,7 @@ class Comment extends Page
             $params['comment_id'] = $_REQUEST['id'];
 
             try {
-                $rs = dotclear()->blog()->getComments($params);
+                $rs = dotclear()->blog()->comments()->getComments($params);
                 if (!$rs->isEmpty()) {
                     $this->comment_id          = $rs->comment_id;
                     $post_id             = $rs->post_id;
@@ -145,7 +145,7 @@ class Comment extends Page
                     # --BEHAVIOR-- adminBeforeCommentUpdate
                     dotclear()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
-                    dotclear()->blog()->updComment($this->comment_id, $cur);
+                    dotclear()->blog()->comments()->updComment($this->comment_id, $cur);
 
                     # --BEHAVIOR-- adminAfterCommentUpdate
                     dotclear()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
@@ -162,7 +162,7 @@ class Comment extends Page
                     # --BEHAVIOR-- adminBeforeCommentDelete
                     dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
-                    dotclear()->blog()->delComment($this->comment_id);
+                    dotclear()->blog()->comments()->delComment($this->comment_id);
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');

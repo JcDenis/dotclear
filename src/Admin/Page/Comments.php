@@ -72,8 +72,8 @@ class Comments extends Page
         $params['no_content'] = true;
 
         return new CommentCatalog(
-            dotclear()->blog()->getComments($params),
-            dotclear()->blog()->getComments($params, true)->f(0)
+            dotclear()->blog()->comments()->getComments($params),
+            dotclear()->blog()->comments()->getComments($params, true)->f(0)
         );
     }
 
@@ -81,7 +81,7 @@ class Comments extends Page
     {
         if (!empty($_POST['delete_all_spam'])) {
             try {
-                dotclear()->blog()->delJunkComments();
+                dotclear()->blog()->comments()->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
                 dotclear()->adminurl->redirect('admin.comments');
             } catch (\Exception $e) {
@@ -126,7 +126,7 @@ class Comments extends Page
             unset($_SESSION['comments_del_spam']);
         }
 
-        $spam_count = dotclear()->blog()->getComments(['comment_status' => -2], true)->f(0);
+        $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
         if ($spam_count > 0) {
             echo
             '<form action="' . dotclear()->adminurl->get('admin.comments') . '" method="post" class="fieldset">';

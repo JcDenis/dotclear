@@ -50,7 +50,7 @@ class RestMethods
      */
     public static function getCommentsCount($get)
     {
-        $count = dotclear()->blog()->getComments([], true)->f(0);
+        $count = dotclear()->blog()->comments()->getComments([], true)->f(0);
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -273,7 +273,7 @@ class RestMethods
             throw new AdminException('No comment ID');
         }
 
-        $rs = dotclear()->blog()->getComments(['comment_id' => (int) $get['id']]);
+        $rs = dotclear()->blog()->comments()->getComments(['comment_id' => (int) $get['id']]);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No comment for this ID');

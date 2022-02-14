@@ -124,12 +124,12 @@ class Antispam
 
     public static function countSpam(): int
     {
-        return (int) dotclear()->blog()->getComments(['comment_status' => -2], true)->f(0);
+        return (int) dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
     }
 
     public static function countPublishedComments(): int
     {
-        return (int) dotclear()->blog()->getComments(['comment_status' => 1], true)->f(0);
+        return (int) dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->f(0);
     }
 
     public static function delAllSpam(?string $beforeDate = null): void

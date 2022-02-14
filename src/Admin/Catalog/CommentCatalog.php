@@ -67,10 +67,10 @@ class CommentCatalog extends Catalog
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = (int) dotclear()->blog()->getComments(['comment_status' => 1], true)->f(0);
-                $nb_spam        = (int) dotclear()->blog()->getComments(['comment_status' => -2], true)->f(0);
-                $nb_pending     = (int) dotclear()->blog()->getComments(['comment_status' => -1], true)->f(0);
-                $nb_unpublished = (int) dotclear()->blog()->getComments(['comment_status' => 0], true)->f(0);
+                $nb_published   = (int) dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->f(0);
+                $nb_spam        = (int) dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
+                $nb_pending     = (int) dotclear()->blog()->comments()->getComments(['comment_status' => -1], true)->f(0);
+                $nb_unpublished = (int) dotclear()->blog()->comments()->getComments(['comment_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?

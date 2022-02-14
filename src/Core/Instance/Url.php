@@ -648,7 +648,7 @@ class Url
                             # --BEHAVIOR-- publicBeforeCommentCreate
                             dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->post_id) {
-                                $comment_id = dotclear()->blog()->addComment($cur);
+                                $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
                                 dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
