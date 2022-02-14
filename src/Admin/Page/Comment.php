@@ -52,7 +52,7 @@ class Comment extends Page
         # Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
-                $rs = dotclear()->blog()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
+                $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
 
                 if ($rs->isEmpty()) {
                     throw new AdminException(__('Entry does not exist.'));

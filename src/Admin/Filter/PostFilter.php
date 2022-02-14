@@ -74,7 +74,7 @@ class PostFilter extends Filter
         $users = null;
 
         try {
-            $users = dotclear()->blog()->getPostsUsers($this->post_type);
+            $users = dotclear()->blog()->posts()->getPostsUsers($this->post_type);
             if ($users->isEmpty()) {
                 return null;
             }
@@ -236,7 +236,7 @@ class PostFilter extends Filter
         $dates = null;
 
         try {
-            $dates = dotclear()->blog()->getDates([
+            $dates = dotclear()->blog()->posts()->getDates([
                 'type'      => 'month',
                 'post_type' => $this->post_type
             ]);
@@ -277,7 +277,7 @@ class PostFilter extends Filter
         $langs = null;
 
         try {
-            $langs = dotclear()->blog()->getLangs(['post_type' => $this->post_type]);
+            $langs = dotclear()->blog()->posts()->getLangs(['post_type' => $this->post_type]);
             if ($langs->isEmpty()) {
                 return null;
             }

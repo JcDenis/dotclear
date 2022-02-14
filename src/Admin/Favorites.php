@@ -464,7 +464,7 @@ class Favorites
      */
     public static function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = (int) dotclear()->blog()->getPosts([], true)->f(0);
+        $post_count  = (int) dotclear()->blog()->posts()->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }

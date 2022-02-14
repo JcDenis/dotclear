@@ -84,7 +84,7 @@ class Categories extends Page
                 }
                 # Move posts
                 if ($mov_cat != $cat_id) {
-                    dotclear()->blog()->changePostsCategory($cat_id, $mov_cat);
+                    dotclear()->blog()->posts()->changePostsCategory($cat_id, $mov_cat);
                 }
                 dotclear()->notices->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),

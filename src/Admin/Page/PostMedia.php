@@ -45,7 +45,7 @@ class PostMedia extends Page
         if (!$post_id) {
             exit;
         }
-        $rs = dotclear()->blog()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+        $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
         if ($rs->isEmpty()) {
             exit;
         }

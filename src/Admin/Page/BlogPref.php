@@ -776,7 +776,7 @@ class BlogPref extends Page
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->system->post_url_format), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog()->posts()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
@@ -928,7 +928,7 @@ class BlogPref extends Page
                             'post_type' => $type,
                             'user_id'   => $k
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->getPosts($params, true)->f(0)) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->posts()->getPosts($params, true)->f(0)) . '</li>';
                     }
                     echo
                         '</ul>';

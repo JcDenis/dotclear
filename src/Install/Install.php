@@ -226,7 +226,7 @@ class Install
                 $cur->post_status        = 1;
                 $cur->post_open_comment  = 1;
                 $cur->post_open_tb       = 0;
-                $post_id                 = dotclear()->blog()->addPost($cur);
+                $post_id                 = dotclear()->blog()->posts()->addPost($cur);
 
                 /* Add a comment to it */
                 $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');

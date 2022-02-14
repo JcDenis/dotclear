@@ -49,7 +49,7 @@ class MediaItem extends Page
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = dotclear()->blog()->getPosts(['post_id' => $post_id]);
+            $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
             if ($post->isEmpty()) {
                 $post_id = null;
             }
@@ -713,7 +713,7 @@ class MediaItem extends Page
 
             $params['sql'] .= ') ';
 
-            $rs = dotclear()->blog()->getPosts($params);
+            $rs = dotclear()->blog()->posts()->getPosts($params);
 
             if ($rs->isEmpty()) {
                 echo '<p>' . __('No entry seems contain this media.') . '</p>';

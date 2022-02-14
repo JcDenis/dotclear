@@ -114,7 +114,7 @@ class DefaultPostAction
             throw new AdminException(__('Published entries cannot be set to scheduled'));
         }
         // Set status of remaining entries
-        dotclear()->blog()->updPostsStatus($posts_ids, $status);
+        dotclear()->blog()->posts()->updPostsStatus($posts_ids, $status);
         dotclear()->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully updated to status : "%s"',
@@ -122,7 +122,7 @@ class DefaultPostAction
                 count($posts_ids)
             ),
             count($posts_ids),
-            dotclear()->blog()->getPostStatus($status))
+            dotclear()->blog()->posts()->getPostStatus($status))
         );
         $ap->redirect(true);
     }
@@ -134,7 +134,7 @@ class DefaultPostAction
             throw new AdminException(__('No entry selected'));
         }
         $action = $ap->getAction();
-        dotclear()->blog()->updPostsSelected($posts_ids, $action == 'selected');
+        dotclear()->blog()->posts()->updPostsSelected($posts_ids, $action == 'selected');
         if ($action == 'selected') {
             dotclear()->notices->addSuccessNotice(sprintf(
                 __(
@@ -172,7 +172,7 @@ class DefaultPostAction
         # --BEHAVIOR-- adminBeforePostsDelete
         dotclear()->behavior()->call('adminBeforePostsDelete', $posts_ids);
 
-        dotclear()->blog()->delPosts($posts_ids);
+        dotclear()->blog()->posts()->deldPosts($posts_ids);
         dotclear()->notices->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully deleted',
@@ -211,7 +211,7 @@ class DefaultPostAction
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
             }
 
-            dotclear()->blog()->updPostsCategory($posts_ids, $new_cat_id);
+            dotclear()->blog()->posts()->updPostsCategory($posts_ids, $new_cat_id);
             $title = dotclear()->blog()->categories()->getCategory($new_cat_id);
             dotclear()->notices->addSuccessNotice(sprintf(
                 __(
@@ -353,7 +353,7 @@ class DefaultPostAction
             );
             $ap->redirect(true);
         } else {
-            $rs         = dotclear()->blog()->getLangs(['order' => 'asc']);
+            $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
             $all_langs  = L10n::getISOcodes(false, true);
             $lang_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($rs->fetch()) {

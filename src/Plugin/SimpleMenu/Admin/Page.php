@@ -66,11 +66,11 @@ class Page extends AbstractPage
 
         # Liste des langues utilisées
         $this->sm_langs_combo = dotclear()->combos->getLangscombo(
-            dotclear()->blog()->getLangs(['order' => 'asc'])
+            dotclear()->blog()->posts()->getLangs(['order' => 'asc'])
         );
 
         # Liste des mois d'archive
-        $rs           = dotclear()->blog()->getDates(['type' => 'month']);
+        $rs           = dotclear()->blog()->posts()->getDates(['type' => 'month']);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
             dotclear()->combos->getDatesCombo($rs)
@@ -90,7 +90,7 @@ class Page extends AbstractPage
 
         # Liste des pages -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs = dotclear()->blog()->getPosts(['post_type' => 'page']);
+            $rs = dotclear()->blog()->posts()->getPosts(['post_type' => 'page']);
             while ($rs->fetch()) {
                 $this->sm_pages_combo[$rs->post_title] = $rs->getURL();
             }

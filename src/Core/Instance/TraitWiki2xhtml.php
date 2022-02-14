@@ -214,7 +214,7 @@ trait TraitWiki2xhtml
             return [];
         }
 
-        $post = dotclear()->blog()->getPosts(['post_id' => $post_id]);
+        $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
         if ($post->isEmpty()) {
             return [];
         }

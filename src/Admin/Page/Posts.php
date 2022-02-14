@@ -68,8 +68,8 @@ class Posts extends Page
 
         $params['no_content'] = true;
 
-        $posts     = dotclear()->blog()->getPosts($params);
-        $counter   = dotclear()->blog()->getPosts($params, true);
+        $posts     = dotclear()->blog()->posts()->getPosts($params);
+        $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
         return new PostCatalog($posts, $counter->f(0));
     }

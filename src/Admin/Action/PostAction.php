@@ -80,7 +80,7 @@ class PostAction extends Action
             $params['post_type'] = $from['post_type'];
         }
 
-        $posts = dotclear()->blog()->getPosts($params);
+        $posts = dotclear()->blog()->posts()->getPosts($params);
         while ($posts->fetch()) {
             $this->entries[$posts->post_id] = $posts->post_title;
         }

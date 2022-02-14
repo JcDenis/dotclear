@@ -402,7 +402,7 @@ class Url
                     dotclear()->context->nb_entry_first_page = dotclear()->blog()->settings->system->nb_post_for_home;
                 }
                 $this->serveDocument('home.html');
-                dotclear()->blog()->publishScheduledEntries();
+                dotclear()->blog()->posts()->publishScheduledEntries();
             } else {
                 $this->search();
             }
@@ -415,7 +415,7 @@ class Url
 
         if (empty($_GET['q'])) {
             $this->serveDocument('static.html');
-            dotclear()->blog()->publishScheduledEntries();
+            dotclear()->blog()->posts()->publishScheduledEntries();
         } else {
             $this->search();
         }
@@ -434,7 +434,7 @@ class Url
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
                 dotclear()->behavior()->call('publicBeforeSearchCount', $params);
-                $GLOBALS['_search_count'] = dotclear()->blog()->getPosts($params, true)->f(0);
+                $GLOBALS['_search_count'] = dotclear()->blog()->posts()->getPosts($params, true)->f(0);
             }
 
             $this->serveDocument('search.html');
@@ -449,7 +449,7 @@ class Url
 
         dotclear()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
 
-        dotclear()->context->langs = dotclear()->blog()->getLangs($params);
+        dotclear()->context->langs = dotclear()->blog()->posts()->getLangs($params);
 
         if (dotclear()->context->langs->isEmpty()) {
             # The specified language does not exist.
@@ -505,7 +505,7 @@ class Url
 
             dotclear()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
 
-            dotclear()->context->archives = dotclear()->blog()->getDates($params->getArrayCopy());
+            dotclear()->context->archives = dotclear()->blog()->posts()->getDates($params->getArrayCopy());
 
             if (dotclear()->context->archives->isEmpty()) {
                 # There is no entries for the specified period.
@@ -532,7 +532,7 @@ class Url
 
             dotclear()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
 
-            dotclear()->context->posts = dotclear()->blog()->getPosts($params);
+            dotclear()->context->posts = dotclear()->blog()->posts()->getPosts($params);
 
             dotclear()->context->comment_preview               = new ArrayObject();
             dotclear()->context->comment_preview['content']    = '';
@@ -718,7 +718,7 @@ class Url
 
             dotclear()->behavior()->call('publicFeedBeforeGetLangs', $params, $args);
 
-            dotclear()->context->langs = dotclear()->blog()->getLangs($params);
+            dotclear()->context->langs = dotclear()->blog()->posts()->getLangs($params);
 
             if (dotclear()->context->langs->isEmpty()) {
                 # The specified language does not exist.
@@ -778,7 +778,7 @@ class Url
 
             dotclear()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
 
-            dotclear()->context->posts = dotclear()->blog()->getPosts($params);
+            dotclear()->context->posts = dotclear()->blog()->posts()->getPosts($params);
 
             if (dotclear()->context->posts->isEmpty()) {
                 # The specified post does not exist.
@@ -809,7 +809,7 @@ class Url
         header('X-Robots-Tag: ' . dotclear()->context->robotsPolicy(dotclear()->blog()->settings->system->robots_policy, ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
-            dotclear()->blog()->publishScheduledEntries();
+            dotclear()->blog()->posts()->publishScheduledEntries();
         }
     }
 

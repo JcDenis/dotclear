@@ -176,7 +176,7 @@ class WidgetsStack
             'order'         => 'post_dt ' . strtoupper($w->orderby)
         ];
 
-        $rs = dotclear()->blog()->getPosts($params);
+        $rs = dotclear()->blog()->posts()->getPosts($params);
 
         if ($rs->isEmpty()) {
             return;
@@ -210,7 +210,7 @@ class WidgetsStack
             return;
         }
 
-        $rs = dotclear()->blog()->getLangs();
+        $rs = dotclear()->blog()->posts()->getLangs();
 
         if ($rs->count() <= 1) {
             return;
@@ -378,7 +378,7 @@ class WidgetsStack
             $params['meta_id'] = $w->tag;
             $rs                = dotclear()->meta()->getPostsByMeta($params);
         } else {
-            $rs = dotclear()->blog()->getPosts($params);
+            $rs = dotclear()->blog()->posts()->getPosts($params);
         }
 
         if ($rs->isEmpty()) {

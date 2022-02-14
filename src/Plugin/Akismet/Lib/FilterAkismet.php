@@ -70,7 +70,7 @@ class FilterAkismet extends Spamfilter
 
         try {
             if ($ak->verify()) {
-                $post = dotclear()->blog()->getPosts(['post_id' => $post_id]);
+                $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
 
                 $c = $ak->comment_check(
                     $post->getURL(),

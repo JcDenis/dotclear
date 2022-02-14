@@ -112,7 +112,7 @@ class Post extends Page
 
             $params['post_id'] = (int) $_REQUEST['id'];
 
-            $this->post = dotclear()->blog()->getPosts($params);
+            $this->post = dotclear()->blog()->posts()->getPosts($params);
 
             if ($this->post->isEmpty()) {
                 dotclear()->error()->add(__('This entry does not exist.'));
@@ -139,8 +139,8 @@ class Post extends Page
                 $this->can_edit_post = $this->post->isEditable();
                 $this->can_delete    = $this->post->isDeletable();
 
-                $next_rs = dotclear()->blog()->getNextPost($this->post, 1);
-                $prev_rs = dotclear()->blog()->getNextPost($this->post, -1);
+                $next_rs = dotclear()->blog()->posts()->getNextPost($this->post, 1);
+                $prev_rs = dotclear()->blog()->posts()->getNextPost($this->post, -1);
 
                 if ($next_rs !== null) {
                     $this->next_link = sprintf(
@@ -269,7 +269,7 @@ class Post extends Page
                 $this->post_url = $_POST['post_url'];
             }
 
-            dotclear()->blog()->setPostContent(
+            dotclear()->blog()->posts()->setPostContent(
                 $this->post_id,
                 $this->post_format,
                 $this->post_lang,
@@ -285,7 +285,7 @@ class Post extends Page
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
                 dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
-                dotclear()->blog()->delPost($this->post_id);
+                dotclear()->blog()->posts()->deldPost($this->post_id);
                 dotclear()->adminurl->redirect('admin.posts');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -339,7 +339,7 @@ class Post extends Page
                     # --BEHAVIOR-- adminBeforePostUpdate
                     dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    dotclear()->blog()->updPost($this->post_id, $cur);
+                    dotclear()->blog()->posts()->updPost($this->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
                     dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
@@ -358,7 +358,7 @@ class Post extends Page
                     # --BEHAVIOR-- adminBeforePostCreate
                     dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
-                    $return_id = dotclear()->blog()->addPost($cur);
+                    $return_id = dotclear()->blog()->posts()->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
                     dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -486,7 +486,7 @@ class Post extends Page
 
         $status_combo = dotclear()->combos->getPostStatusesCombo();
 
-        $rs         = dotclear()->blog()->getLangs(['order' => 'asc']);
+        $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
         $lang_combo = dotclear()->combos->getLangsCombo($rs, true);
 
         $core_formaters    = dotclear()->formater()->getFormaters();

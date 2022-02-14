@@ -221,7 +221,7 @@ class Meta
 
         unset($params['meta_id']);
 
-        return dotclear()->blog()->getPosts($params, $count_only);
+        return dotclear()->blog()->posts()->getPosts($params, $count_only);
     }
 
     /**

@@ -535,7 +535,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -658,7 +658,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -700,7 +700,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -1394,12 +1394,12 @@ class Template extends BaseTemplate
         $res .= $p;
         $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Entries', 'method' => 'blog::getPosts'],
+            ['tag' => 'Entries', 'method' => 'blog()->posts()->getPosts'],
             $attr,
             $content
         );
         $res .= 'dotclear()->context->post_params = $params;' . "\n";
-        $res .= 'dotclear()->context->posts = dotclear()->blog()->getPosts($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->posts = dotclear()->blog()->posts()->getPosts($params); unset($params);' . "\n";
         $res .= "?>\n";
         $res .= '<?php while (dotclear()->context->posts->fetch()) : ?>' . $content . '<?php endwhile; ' .
             'dotclear()->context->posts = null; dotclear()->context->post_params = null; ?>';
@@ -1983,7 +1983,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $next_post = dotclear()->blog()->getNextPost(dotclear()->context->posts,1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $next_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context->posts,1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($next_post !== null) : ?>' .
 
             '<?php dotclear()->context->posts = $next_post; unset($next_post);' . "\n" .
@@ -2006,7 +2006,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $prev_post = dotclear()->blog()->getNextPost(dotclear()->context->posts,-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $prev_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context->posts,-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($prev_post !== null) : ?>' .
 
             '<?php dotclear()->context->posts = $prev_post; unset($prev_post);' . "\n" .
@@ -2208,11 +2208,11 @@ class Template extends BaseTemplate
         $res .= $p;
         $res .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Languages', 'method' => 'blog::getLangs'],
+            ['tag' => 'Languages', 'method' => 'blog()->posts()->getLangs'],
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->langs = dotclear()->blog()->getLangs($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->langs = dotclear()->blog()->posts()->getLangs($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php if (dotclear()->context->langs->count() > 1) : ' .
@@ -2305,11 +2305,11 @@ class Template extends BaseTemplate
         $p .= '$params = dotclear()->context->post_params;' . "\n";
         $p .= dotclear()->behavior()->call(
             'templatePrepareParams',
-            ['tag' => 'Pagination', 'method' => 'blog::getPosts'],
+            ['tag' => 'Pagination', 'method' => 'blog()->posts()->getPosts'],
             $attr,
             $content
         );
-        $p .= 'dotclear()->context->pagination = dotclear()->blog()->getPosts($params,true); unset($params);' . "\n";
+        $p .= 'dotclear()->context->pagination = dotclear()->blog()->posts()->getPosts($params,true); unset($params);' . "\n";
         $p .= "?>\n";
 
         if (isset($attr['no_context']) && $attr['no_context']) {

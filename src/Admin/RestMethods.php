@@ -33,7 +33,7 @@ class RestMethods
      */
     public static function getPostsCount($get)
     {
-        $count = dotclear()->blog()->getPosts([], true)->f(0);
+        $count = dotclear()->blog()->posts()->getPosts([], true)->f(0);
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -213,7 +213,7 @@ class RestMethods
             $params['post_type'] = $get['post_type'];
         }
 
-        $rs = dotclear()->blog()->getPosts($params);
+        $rs = dotclear()->blog()->posts()->getPosts($params);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No post for this ID');
@@ -340,7 +340,7 @@ class RestMethods
         # --BEHAVIOR-- adminBeforePostCreate
         dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
-        $return_id = dotclear()->blog()->addPost($cur);
+        $return_id = dotclear()->blog()->posts()->addPost($cur);
 
         # --BEHAVIOR-- adminAfterPostCreate
         dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -348,7 +348,7 @@ class RestMethods
         $rsp     = new XmlTag('post');
         $rsp->id = $return_id;
 
-        $post = dotclear()->blog()->getPosts(['post_id' => $return_id]);
+        $post = dotclear()->blog()->posts()->getPosts(['post_id' => $return_id]);
 
         $rsp->post_status = $post->post_status;
         $rsp->post_url    = $post->getURL();
@@ -381,7 +381,7 @@ class RestMethods
         $format        = $post['format'];
         $lang          = $post['lang'];
 
-        dotclear()->blog()->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
+        dotclear()->blog()->posts()->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
 
         $rsp = new XmlTag('result');
 

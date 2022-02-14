@@ -220,7 +220,7 @@ class Trackback
         }
 
         if (!$err) {
-            $post = dotclear()->blog()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
 
             if ($post->isEmpty()) {
                 $err = true;
@@ -597,7 +597,7 @@ class Trackback
             'post_type' => $p_type,
             'post_url'  => $post_url
         ];
-        $posts = dotclear()->blog()->getPosts($params);
+        $posts = dotclear()->blog()->posts()->getPosts($params);
 
         # Missed!
         if ($posts->isEmpty()) {

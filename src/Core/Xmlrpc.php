@@ -332,7 +332,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     {
         $this->setUser($user, $pwd);
         $this->setBlog();
-        $rs = dotclear()->blog()->getPosts([
+        $rs = dotclear()->blog()->posts()->getPosts([
             'post_id'   => (integer) $post_id,
             'post_type' => $post_type
         ]);
@@ -427,7 +427,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             # --BEHAVIOR-- xmlrpcBeforeNewPost
             dotclear()->behavior()->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
-            $post_id = dotclear()->blog()->addPost($cur);
+            $post_id = dotclear()->blog()->posts()->addPost($cur);
 
             # --BEHAVIOR-- xmlrpcAfterNewPost
             dotclear()->behavior()->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
@@ -438,7 +438,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
             dotclear()->blog()->settings->system->post_url_format = '{t}';
 
-            $post_id = dotclear()->blog()->addPost($cur);
+            $post_id = dotclear()->blog()->posts()->addPost($cur);
         } else {
             throw new CoreException('Invalid post type', 401);
         }
@@ -523,7 +523,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             # --BEHAVIOR-- xmlrpcBeforeEditPost
             dotclear()->behavior()->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
 
-            dotclear()->blog()->updPost($post_id, $cur);
+            dotclear()->blog()->posts()->posts()->updPost($post_id, $cur);
 
             # --BEHAVIOR-- xmlrpcAfterEditPost
             dotclear()->behavior()->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
@@ -534,7 +534,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
             dotclear()->blog()->settings->system->post_url_format = '{t}';
 
-            dotclear()->blog()->updPost($post_id, $cur);
+            dotclear()->blog()->posts()->updPost($post_id, $cur);
         } else {
             throw new CoreException('Invalid post type', 401);
         }
@@ -588,7 +588,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $post_id = (integer) $post_id;
 
         $this->getPostRS($post_id, $user, $pwd);
-        dotclear()->blog()->delPost($post_id);
+        dotclear()->blog()->posts()->deldPost($post_id);
 
         return true;
     }
@@ -607,7 +607,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $params          = [];
         $params['limit'] = $nb_post;
 
-        $posts = dotclear()->blog()->getPosts($params);
+        $posts = dotclear()->blog()->posts()->getPosts($params);
 
         $res = [];
         while ($posts->fetch()) {
@@ -760,7 +760,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $cat_id = $this->getCatID($cat_id);
         }
 
-        dotclear()->blog()->updPostCategory($post_id, (integer) $cat_id);
+        dotclear()->blog()->posts()->updPostCategory($post_id, (integer) $cat_id);
 
         return true;
     }
@@ -774,7 +774,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         # --BEHAVIOR-- xmlrpcBeforePublishPost
         dotclear()->behavior()->call('xmlrpcBeforePublishPost', $this, $post_id);
 
-        dotclear()->blog()->updPostStatus($post_id, 1);
+        dotclear()->blog()->posts()->updPostStatus($post_id, 1);
 
         # --BEHAVIOR-- xmlrpcAfterPublishPost
         dotclear()->behavior()->call('xmlrpcAfterPublishPost', $this, $post_id);
@@ -980,7 +980,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $params['limit'] = $limit;
         }
 
-        $posts = dotclear()->blog()->getPosts($params);
+        $posts = dotclear()->blog()->posts()->getPosts($params);
 
         $res = [];
         while ($posts->fetch()) {
@@ -1051,7 +1051,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $page_id = (integer) $page_id;
 
         $this->getPostRS($page_id, $user, $pwd, 'page');
-        dotclear()->blog()->delPost($page_id);
+        dotclear()->blog()->posts()->deldPost($page_id);
 
         return true;
     }
@@ -1261,7 +1261,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         } else {
             $p['post_url'] = $post_id;
         }
-        $rs = dotclear()->blog()->getPosts($p);
+        $rs = dotclear()->blog()->posts()->getPosts($p);
         if ($rs->isEmpty()) {
             throw new CoreException('Sorry, no such post.', 404);
         }

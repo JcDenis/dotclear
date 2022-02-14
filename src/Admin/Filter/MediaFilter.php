@@ -81,7 +81,7 @@ class MediaFilter extends Filter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = dotclear()->blog()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
             if ($post->isEmpty()) {
                 $post_id = null;
             }
