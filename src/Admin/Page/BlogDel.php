@@ -95,7 +95,7 @@ class BlogDel extends Page
 
         echo
         '<form action="' . dotclear()->adminurl->get('admin.blog.del') . '" method="post">' .
-        '<div>' . dotclear()->formNonce() . '</div>' .
+        '<div>' . dotclear()->nonce()->form() . '</div>' .
         '<p><label for="pwd">' . __('Your password:') . '</label> ' .
         Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
         '<p><input type="submit" class="delete" name="del" value="' . __('Delete this blog') . '" />' .

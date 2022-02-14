@@ -104,7 +104,7 @@ class ModulesTheme extends AbstractModules
                     Html::escapeHTML($module->name());
                 }
 
-                $line .= dotclear()->formNonce() .
+                $line .= dotclear()->nonce()->form() .
                     '</h4>';
             }
 
@@ -386,7 +386,7 @@ class ModulesTheme extends AbstractModules
                             $with_selection ?
                             __('Update selected themes') :
                             __('Update all themes from this list')
-                        ) . '" />' . dotclear()->formNonce();
+                        ) . '" />' . dotclear()->nonce()->form();
                     }
 
                     break;

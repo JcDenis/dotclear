@@ -733,7 +733,7 @@ class Post extends Page
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -797,7 +797,7 @@ class Post extends Page
                 Form::combo('action', $combo_action) .
                 Form::hidden(['section'], 'comments') .
                 Form::hidden(['id'], $this->post_id) .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -841,7 +841,7 @@ class Post extends Page
 
             '<p>' .
             Form::hidden('post_id', $this->post_id) .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . #constrained
 
@@ -891,7 +891,7 @@ class Post extends Page
                 Form::combo('action', $combo_action) .
                 Form::hidden('id', $this->post_id) .
                 Form::hidden(['section'], 'trackbacks') .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -914,7 +914,7 @@ class Post extends Page
                 Form::textarea('tb_excerpt', 60, 5, $this->tb_excerpt) . '</p>' .
 
                 '<p>' .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
                     (empty($_GET['tb_auto']) ?
                     '&nbsp;&nbsp;<a class="button" href="' .

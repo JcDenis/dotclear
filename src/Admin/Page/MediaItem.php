@@ -578,7 +578,7 @@ class MediaItem extends Page
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
                 dotclear()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>' . '</div>';
             }
 
@@ -779,7 +779,7 @@ class MediaItem extends Page
                 '<p class="more-info">' . __('This will create or update thumbnails for this image.') . '</p>' .
                 '<p><input type="submit" name="thumbs" value="' . __('Update thumbnails') . '" />' .
                 dotclear()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>';
             }
 
@@ -802,7 +802,7 @@ class MediaItem extends Page
                 Form::combo('inflate_mode', $inflate_combo, 'new') .
                 '<input type="submit" name="unzip" value="' . __('Extract') . '" />' .
                 dotclear()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>';
             }
 
@@ -844,7 +844,7 @@ class MediaItem extends Page
             Form::combo('media_path', $this->dirs_combo, dirname($this->file->relname)) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             dotclear()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</form>';
 
             echo
@@ -857,7 +857,7 @@ class MediaItem extends Page
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .
             dotclear()->adminurl->getHiddenFormFields('admin.media.item', $this->page_url_params) .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</form>';
 
             if ($this->file->del) {
@@ -867,7 +867,7 @@ class MediaItem extends Page
                 Form::hidden('remove', rawurlencode($this->file->basename)) .
                 Form::hidden('rmyes', 1) .
                 dotclear()->adminurl->getHiddenFormFields('admin.media', $this->media_page_url_params) .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>';
             }
 

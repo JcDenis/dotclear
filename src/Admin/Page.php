@@ -281,7 +281,7 @@ abstract class Page
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            dotclear()->formNonce() . Form::combo('switchblog', $blogs, dotclear()->blog->id) .
+            dotclear()->nonce()->form() . Form::combo('switchblog', $blogs, dotclear()->blog->id) .
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
@@ -1045,7 +1045,7 @@ abstract class Page
         }
 
         $js = [
-            'nonce' => dotclear()->getNonce(),
+            'nonce' => dotclear()->nonce()->get(),
 
             'img_plus_src' => '?df=images/expand.svg',
             'img_plus_txt' => '▶',
@@ -1209,7 +1209,7 @@ abstract class Page
         $params = array_merge($params, [
             'sess_id=' . session_id(),
             'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . dotclear()->getNonce(),
+            'xd_check=' . dotclear()->nonce()->get(),
         ]);
 
         $js_msg = [

@@ -181,7 +181,7 @@ class Page extends AbstractPage
                 echo
                 '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                 ($this->te_editor->deletableFile($this->te_file['type'], $this->te_file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                     ($this->te_file['type'] ? Form::hidden([$this->te_file['type']], $this->te_file['f']) : '') .
                     '</p>';
             } else {

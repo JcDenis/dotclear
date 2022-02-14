@@ -391,7 +391,7 @@ class User extends Page
         ($this->container->getId() != '' ? '' : ' <input type="submit" name="saveplus" value="' . __('Save and create another') . '" />') .
         ($this->container->getId() != '' ? Form::hidden('id', $this->container->getId()) : '') .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
             '</p>' .
 
             '</form>';
@@ -410,7 +410,7 @@ class User extends Page
             Form::hidden(['redir'], dotclear()->adminurl->get('admin.user', ['id' => $this->container->getId()])) .
             Form::hidden(['action'], 'blogs') .
             Form::hidden(['users[]'], $this->container->getId()) .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</p>' .
                 '</form>';
 
@@ -441,7 +441,7 @@ class User extends Page
                         Form::hidden(['action'], 'perms') .
                         Form::hidden(['users[]'], $this->container->getId()) .
                         Form::hidden(['blogs[]'], $k) .
-                        dotclear()->formNonce() .
+                        dotclear()->nonce()->form() .
                             '</p>' .
                             '</form>';
                     }

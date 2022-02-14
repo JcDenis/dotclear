@@ -620,7 +620,7 @@ class UserPref extends Page
 
         echo
         '<p class="clear vertical-separator">' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -800,7 +800,7 @@ class UserPref extends Page
 
         echo
         '<p class="clear vertical-separator">' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input name="user_options_submit" type="submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -854,7 +854,7 @@ class UserPref extends Page
             echo
             '<div class="clear">' .
             '<p>' . Form::hidden('favs_order', '') .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" /> ' .
 
             '<input type="submit" class="delete" name="removeaction" ' .
@@ -923,7 +923,7 @@ class UserPref extends Page
 
         echo
         '<p>' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>';
         echo '</div>'; # /available favorites
 
@@ -988,7 +988,7 @@ class UserPref extends Page
         echo
         '<p>' .
         Form::hidden('db-options', '-') .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -999,7 +999,7 @@ class UserPref extends Page
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
         echo
         '<p>' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>';
         echo '</div>';
         echo '</form>';

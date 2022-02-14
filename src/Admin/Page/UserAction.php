@@ -251,7 +251,7 @@ class UserAction extends Page
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
                 Form::hidden(['action'], 'perms') .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>';
             }
 
@@ -321,7 +321,7 @@ class UserAction extends Page
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
             Form::hidden(['action'], 'updateperm') .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</div>' .
                 '</form>';
         }

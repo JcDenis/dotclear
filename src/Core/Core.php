@@ -53,6 +53,7 @@ class Core
     use \Dotclear\Core\Instance\TraitLog;
     use \Dotclear\Core\Instance\TraitMedia;
     use \Dotclear\Core\Instance\TraitMeta;
+    use \Dotclear\Core\Instance\TraitNonce;
     use \Dotclear\Core\Instance\TraitRest;
     use \Dotclear\Core\Instance\TraitSession;
     use \Dotclear\Core\Instance\TraitUrl;
@@ -334,42 +335,6 @@ class Core
         $all = $this->getAllBlogStatus();
 
         return isset($all[$status_code]) ? $all[$status_code] : $all[0];
-    }
-    //@}
-
-    /// @name Admin nonce secret methods
-    //@{
-
-    /**
-     * Gets the nonce.
-     *
-     * @return  string  The nonce.
-     */
-    public function getNonce(): string
-    {
-        return $this->auth()->cryptLegacy(session_id());
-    }
-
-    /**
-     * Check the nonce
-     *
-     * @param   string  $secret     The nonce
-     *
-     * @return  bool    The success
-     */
-    public function checkNonce(string $secret): bool
-    {
-        return preg_match('/^([0-9a-f]{40,})$/i', $secret) ? $secret == $this->getNonce() : false;
-    }
-
-    /**
-     * Get the nonce HTML code
-     *
-     * @return  string|null     HTML hidden form for nonce
-     */
-    public function formNonce(): ?string
-    {
-        return session_id() ? Form::hidden(['xd_check'], $this->getNonce()) : null;
     }
     //@}
 

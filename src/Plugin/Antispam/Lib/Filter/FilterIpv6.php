@@ -131,7 +131,7 @@ class FilterIpv6 extends Spamfilter
             __('Global IP (used for all blogs)') . '</label> ';
         }
 
-        $res .= dotclear()->formNonce() .
+        $res .= dotclear()->nonce()->form() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -184,7 +184,7 @@ class FilterIpv6 extends Spamfilter
 
             $res .= '</div>' .
             '<p><input class="submit delete" type="submit" value="' . __('Delete') . '"/>' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             Form::hidden(['ip_type'], $type) .
                 '</p>' .
                 '</form>';

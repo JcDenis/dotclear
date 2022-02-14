@@ -186,7 +186,7 @@ class Page extends AbstractPage
 
         if ($spam_count > 0) {
             echo
-            '<p>' . dotclear()->formNonce() .
+            '<p>' . dotclear()->nonce()->form() .
             Form::hidden('ts', time()) .
             '<input name="delete_all" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
         }
@@ -263,7 +263,7 @@ class Page extends AbstractPage
         '<p>' .
         Form::hidden('filters_order', '') .
         Form::hidden(['handler'], 'admin.plugin.Antispam') .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" name="filters_upd" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .

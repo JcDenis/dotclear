@@ -246,7 +246,7 @@ class Categories extends Page
 
             echo
             '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</div></form>';
         }
 

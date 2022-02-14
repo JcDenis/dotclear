@@ -101,7 +101,7 @@ class FilterIplookup extends Spamfilter
         Form::textarea('bls', 40, 3, Html::escapeHTML($bls), 'maximal') .
         '</p>' .
         '<p><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>';
 
         return $res;

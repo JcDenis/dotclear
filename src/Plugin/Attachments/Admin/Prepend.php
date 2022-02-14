@@ -118,7 +118,7 @@ class Prepend extends AbstractPrepend
             form::hidden(['media_id'], '') .
             form::hidden(['link_type'], 'attachment') .
             form::hidden(['remove'], 1) .
-            dotclear()->formNonce() . '</div></form>';
+            dotclear()->nonce()->form() . '</div></form>';
         }
     }
 }

@@ -279,7 +279,7 @@ class Update extends Page
                 '</p>' .
                 '<p><input type="submit" class="delete" name="b_del" value="' . __('Delete selected file') . '" /> ' .
                 '<input type="submit" name="b_revert" value="' . __('Revert to selected file') . '" />' .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>';
 
                 echo '</div>';

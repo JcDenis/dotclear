@@ -100,7 +100,7 @@ class PostMedia extends Page
                         ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
                         Form::hidden('post_id', $post_id) .
                         Form::hidden('media_id', $media_id) .
-                        dotclear()->formNonce() . '</p>' .
+                        dotclear()->nonce()->form() . '</p>' .
                         '</form>'
                     )
                 ;

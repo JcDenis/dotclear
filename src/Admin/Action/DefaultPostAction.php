@@ -256,7 +256,7 @@ class DefaultPostAction
             }
 
             $ap->setPageContent(
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 $ap->getHiddenFields() .
                 Form::hidden(['action'], 'category') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
@@ -323,7 +323,7 @@ class DefaultPostAction
                 '<p><label for="new_auth_id" class="classic">' . __('New author (author ID):') . '</label> ' .
                 Form::field('new_auth_id', 20, 255) .
 
-                dotclear()->formNonce() . $ap->getHiddenFields() .
+                dotclear()->nonce()->form() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'author') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'
@@ -378,7 +378,7 @@ class DefaultPostAction
                 '<p><label for="new_lang" class="classic">' . __('Entry language:') . '</label> ' .
                 Form::combo('new_lang', $lang_combo) .
 
-                dotclear()->formNonce() . $ap->getHiddenFields() .
+                dotclear()->nonce()->form() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'lang') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'

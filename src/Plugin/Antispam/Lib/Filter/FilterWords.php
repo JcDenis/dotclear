@@ -121,7 +121,7 @@ class FilterWords extends Spamfilter
             __('Global word (used for all blogs)') . '</label> ';
         }
 
-        $res .= dotclear()->formNonce() .
+        $res .= dotclear()->nonce()->form() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -174,7 +174,7 @@ class FilterWords extends Spamfilter
 
             $res .= '</div>' .
             '<p>' . Form::hidden(['spamwords'], 1) .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '<input class="submit delete" type="submit" value="' . __('Delete selected words') . '"/></p>' .
                 '</form>';
         }
@@ -184,7 +184,7 @@ class FilterWords extends Spamfilter
             '<p><input type="submit" value="' . __('Create default wordlist') . '" />' .
             Form::hidden(['spamwords'], 1) .
             Form::hidden(['createlist'], 1) .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</form>';
         }
 

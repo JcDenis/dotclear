@@ -357,7 +357,7 @@ class Home extends Page
                 (dotclear()->auth()->check('publish', dotclear()->blog->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 Form::hidden('post_status', -2) .
                 Form::hidden('post_format', dotclear()->auth()->getOption('post_format')) .
                 Form::hidden('post_excerpt', '') .

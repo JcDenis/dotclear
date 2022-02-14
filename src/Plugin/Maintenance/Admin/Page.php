@@ -218,7 +218,7 @@ class Page extends AbstractPage
             Form::hidden(['task'], $this->m_task->id()) .
             Form::hidden(['code'], (int) $this->m_code) .
             Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</p>' .
                 '</form>' .
                 '</div>';
@@ -278,7 +278,7 @@ class Page extends AbstractPage
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
                     Form::hidden(['tab'], $this->m_tab_obj->id()) .
                     Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                    dotclear()->formNonce() . '</p>' .
+                    dotclear()->nonce()->form() . '</p>' .
                     '<p class="form-note info">' . __('This may take a very long time.') . '</p>' .
                         '</form>' .
                         '</div>';
@@ -301,7 +301,7 @@ class Page extends AbstractPage
                 Form::hidden(['task'], $t->id()) .
                 Form::hidden(['tab'], $t->id()) .
                 Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>' .
                     '</div>';
             }
@@ -356,7 +356,7 @@ class Page extends AbstractPage
             Form::hidden(['tab'], 'settings') .
             Form::hidden(['save_settings'], 1) .
             Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</form>' .
                 '</div>';
 
@@ -399,7 +399,7 @@ class Page extends AbstractPage
                 Form::hidden(['tab'], 'system') .
                 Form::hidden(['save_system'], 1) .
                 Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                dotclear()->formNonce() . '</p>' .
+                dotclear()->nonce()->form() . '</p>' .
                     '</form>' .
                     '</div>';
             }

@@ -116,7 +116,7 @@ class Posts extends Page
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
                 dotclear()->adminurl->getHiddenFormFields('admin.posts', $this->filter->values()) .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '</div>' .
                 '</form>',
                 $this->filter->show()

@@ -474,7 +474,7 @@ class Page extends AbstractPage
                     echo '<form id="additem" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
                     echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
-                    echo '<p>' . dotclear()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
+                    echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -517,7 +517,7 @@ class Page extends AbstractPage
                                 dotclear()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
                         }
                         echo form::hidden('item_type', $this->sm_item_type);
-                        echo '<p>' . dotclear()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
+                        echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
                         echo '</fieldset>';
                         echo '</form>';
 
@@ -550,7 +550,7 @@ class Page extends AbstractPage
                     echo form::hidden('item_type', $this->sm_item_type) . form::hidden('item_select', $this->sm_item_select);
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Open URL on a new tab') . ':</label>' . form::checkbox('item_targetBlank', 'blank') . '</p>';
-                    echo '<p>' . dotclear()->formNonce() . '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
+                    echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -563,7 +563,7 @@ class Page extends AbstractPage
             echo '<form id="settings" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">' .
             '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog->settings->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
-            '<p>' . dotclear()->formNonce() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
+            '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
@@ -572,7 +572,7 @@ class Page extends AbstractPage
         // Liste des items
         if (!$this->sm_step) {
             echo '<form id="menuitemsappend" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
-            echo '<p class="top-add">' . dotclear()->formNonce() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
+            echo '<p class="top-add">' . dotclear()->nonce()->form() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }
 
@@ -648,7 +648,7 @@ class Page extends AbstractPage
                 '</table></div>';
             if (!$this->sm_step) {
                 echo '<div class="two-cols">';
-                echo '<p class="col">' . form::hidden('im_order', '') . dotclear()->formNonce();
+                echo '<p class="col">' . form::hidden('im_order', '') . dotclear()->nonce()->form();
                 echo '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>';
                 echo '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .

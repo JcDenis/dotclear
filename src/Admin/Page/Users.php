@@ -137,7 +137,7 @@ class Users extends Page
             Form::combo('action', $combo_action) .
             '</label> ' .
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '</p>' .
             '</div>' .
             dotclear()->adminurl->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .

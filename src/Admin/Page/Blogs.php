@@ -114,7 +114,7 @@ class Blogs extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected blogs action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo(),
                     ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']) .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
 

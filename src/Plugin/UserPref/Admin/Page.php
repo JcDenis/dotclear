@@ -159,7 +159,7 @@ class Page extends AbstractPage
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
-        dotclear()->formNonce() . '</p></form>';
+        dotclear()->nonce()->form() . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -190,7 +190,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
         '</form>';
     }
 

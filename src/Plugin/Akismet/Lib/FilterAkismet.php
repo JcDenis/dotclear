@@ -158,7 +158,7 @@ class FilterAkismet extends Spamfilter
 
         $res .= '<p><a href="https://akismet.com/">' . __('Get your own API key') . '</a></p>' .
         '<p><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>';
 
         return $res;

@@ -423,7 +423,7 @@ class BlogPref extends Page
 
         echo
         '<div class="fieldset"><h4>' . __('Blog details') . '</h4>' .
-        dotclear()->formNonce();
+        dotclear()->nonce()->form();
 
         echo
         '<p><label for="blog_name" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog name:') . '</label>' .
@@ -863,7 +863,7 @@ class BlogPref extends Page
             '<form action="' . dotclear()->adminurl->get('admin.blog.del') . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
             Form::hidden(['blog_id'], $this->blog_id) .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '</form>';
         } else {
             if ($this->blog_id == dotclear()->blog->id) {
@@ -964,7 +964,7 @@ class BlogPref extends Page
                         Form::hidden(['action'], 'perms') .
                         Form::hidden(['users[]'], $k) .
                         Form::hidden(['blogs[]'], $this->blog_id) .
-                        dotclear()->formNonce() .
+                        dotclear()->nonce()->form() .
                             '</p>' .
                             '</form>';
                     }

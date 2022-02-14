@@ -277,7 +277,7 @@ class Comment extends Page
         '</p>' .
 
         '<p>' . Form::hidden('id', $this->comment_id) .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 

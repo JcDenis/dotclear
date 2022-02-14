@@ -486,7 +486,7 @@ class Page extends AbstractPage
 
         echo
         '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>';
 
     }

@@ -405,7 +405,7 @@ class Page extends AbstractPage
         Form::checkbox('preview_not_mandatory', 1, $this->Ductile_user['preview_not_mandatory']) . '</p>';
 
         echo '<p><input type="hidden" name="conf_tab" value="html" /></p>';
-        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' . dotclear()->formNonce() . '</p>';
+        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' . dotclear()->nonce()->form() . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab
@@ -558,7 +558,7 @@ class Page extends AbstractPage
         echo '</div>';
 
         echo '<p><input type="hidden" name="conf_tab" value="css" /></p>';
-        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' . dotclear()->formNonce() . '</p>';
+        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' . dotclear()->nonce()->form() . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab

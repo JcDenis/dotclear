@@ -662,7 +662,7 @@ trait TraitModulesAdmin
                 Form::hidden(['modules[' . $count . ']'], Html::escapeHTML($id));
             }
             echo
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</td>';
 
             # Display score only for debug purpose
@@ -1404,7 +1404,7 @@ trait TraitModulesAdmin
             ]
         ) . '</p>' .
         '<p><input type="submit" name="upload_pkg" value="' . __('Upload') . '" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>';
 
         # 'Fetch module' form
@@ -1427,7 +1427,7 @@ trait TraitModulesAdmin
             ]
         ) . '</p>' .
         '<p><input type="submit" name="fetch_pkg" value="' . __('Download') . '" />' .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>';
 
         return $this;
@@ -1547,7 +1547,7 @@ trait TraitModulesAdmin
         '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
         Form::hidden('module', $this->config_module->id()) .
         Form::hidden('redir', $this->getRedir()) .
-        dotclear()->formNonce() . '</p>' .
+        dotclear()->nonce()->form() . '</p>' .
             '</form>' .
 
         (empty($links) ? '' : sprintf('<hr class="clear"/><p class="right modules">%s</p>', implode(' - ', $links)));

@@ -258,7 +258,7 @@ class Page extends AbstractPage
 
         echo
         '</ul>' .
-        '<p>' . dotclear()->formNonce() . '</p>' .
+        '<p>' . dotclear()->nonce()->form() . '</p>' .
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" /></p>' .
             '</form>';
 
@@ -283,7 +283,7 @@ class Page extends AbstractPage
 
         echo
         '<p id="sidebarsControl">' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .

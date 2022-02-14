@@ -190,7 +190,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'
@@ -243,7 +243,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'

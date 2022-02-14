@@ -261,7 +261,7 @@ class Category extends Page
         '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         ($this->cat_id ? Form::hidden('id', $this->cat_id) : '') .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
             '</p>' .
             '</form>';
 
@@ -276,7 +276,7 @@ class Category extends Page
             '<p><label for="cat_parent" class="classic">' . __('Parent:') . '</label> ' .
             Form::combo('cat_parent', $this->allowed_parents, (string) $this->cat_parent) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            Form::hidden(['id'], $this->cat_id) . dotclear()->formNonce() . '</p>' .
+            Form::hidden(['id'], $this->cat_id) . dotclear()->nonce()->form() . '</p>' .
                 '</form>' .
                 '</div>';
 
@@ -290,7 +290,7 @@ class Category extends Page
                     ['extra_html' => 'title="' . __('position: ') . '"']) . ' ' .
                 Form::combo('cat_sibling', $this->siblings) . '</p>' .
                 '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-                Form::hidden(['id'], $this->cat_id) . dotclear()->formNonce() . '</p>' .
+                Form::hidden(['id'], $this->cat_id) . dotclear()->nonce()->form() . '</p>' .
                     '</form>' .
                     '</div>';
             }

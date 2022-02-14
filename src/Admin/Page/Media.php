@@ -311,7 +311,7 @@ class Media extends Page
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
             dotclear()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
             '</form>';
 
@@ -436,7 +436,7 @@ class Media extends Page
         $fmt_form_media = '<form action="' . dotclear()->adminurl->get('admin.media') . '" method="post" id="form-medias">' .
         '<div class="files-group">%s</div>' .
         '<p class="hidden">' .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
         dotclear()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
         '</p>';
 
@@ -486,7 +486,7 @@ class Media extends Page
                 '<form action="' . Html::escapeURL(dotclear()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" class="fieldset">' .
                 '<div id="new-dir-f">' .
                 '<h4 class="pretty-title">' . __('Create new directory') . '</h4>' .
-                dotclear()->formNonce() .
+                dotclear()->nonce()->form() .
                 '<p><label for="newdir">' . __('Directory Name:') . '</label>' .
                 form::field('newdir', 35, 255) . '</p>' .
                 '<p><input type="submit" value="' . __('Create') . '" />' .
@@ -526,7 +526,7 @@ class Media extends Page
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
             '<form id="fileupload" action="' . Html::escapeURL(dotclear()->adminurl->get('admin.media', $this->filter->values(), '&')) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
             '<p>' . form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
-            dotclear()->formNonce() . '</p>' .
+            dotclear()->nonce()->form() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>';
 
             echo
@@ -573,7 +573,7 @@ class Media extends Page
         form::hidden('rmyes', 1) .
         dotclear()->adminurl->getHiddenFormFields('admin.media', $this->filter->values()) .
         form::hidden('remove', '') .
-        dotclear()->formNonce() .
+        dotclear()->nonce()->form() .
             '</div>' .
             '</form>';
 

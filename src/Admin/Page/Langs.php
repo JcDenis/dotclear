@@ -224,7 +224,7 @@ class Langs extends Page
                     echo
                     '<form action="' . dotclear()->adminurl->get('admin.langs') . '" method="post">' .
                     '<div>' .
-                    dotclear()->formNonce() .
+                    dotclear()->nonce()->form() .
                     Form::hidden(['locale_id'], Html::escapeHTML($k)) .
                     '<input type="submit" class="delete" name="delete" value="' . __('Delete') . '" /> ' .
                         '</div>' .
@@ -265,7 +265,7 @@ class Langs extends Page
                     'autocomplete' => 'current-password']
             ) . '</p>' .
             '<p><input type="submit" value="' . __('Install language') . '" />' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</p>' .
                 '</form>';
         }
@@ -285,7 +285,7 @@ class Langs extends Page
                     'autocomplete' => 'current-password']
             ) . '</p>' .
             '<p><input type="submit" name="upload_pkg" value="' . __('Upload language') . '" />' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
                 '</p>' .
                 '</form>';
         }

@@ -132,7 +132,7 @@ class FilterIp extends Spamfilter
             __('Global IP (used for all blogs)') . '</label> ';
         }
 
-        $res .= dotclear()->formNonce() .
+        $res .= dotclear()->nonce()->form() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -188,7 +188,7 @@ class FilterIp extends Spamfilter
 
             $res .= '</div>' .
             '<p><input class="submit delete" type="submit" value="' . __('Delete') . '"/>' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             form::hidden(['ip_type'], $type) .
                 '</p>' .
                 '</form>';

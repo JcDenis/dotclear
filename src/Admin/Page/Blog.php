@@ -105,7 +105,7 @@ class Blog extends Page
         echo
         '<form action="' . dotclear()->adminurl->get('admin.blog') . '" method="post" id="blog-form">' .
 
-        '<div>' . dotclear()->formNonce() . '</div>' .
+        '<div>' . dotclear()->nonce()->form() . '</div>' .
         '<p><label class="required" for="blog_id"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label> ' .
         Form::field('blog_id', 30, 32,
             [

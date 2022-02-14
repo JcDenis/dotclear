@@ -143,7 +143,7 @@ class Comments extends Page
 
             echo
             '<p>' .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
             # --BEHAVIOR-- adminCommentsSpamForm
@@ -166,7 +166,7 @@ class Comments extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', $this->action->getCombo(),
                 ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']) .
-            dotclear()->formNonce() .
+            dotclear()->nonce()->form() .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
             dotclear()->adminurl->getHiddenFormFields('admin.comments', $this->filter->values(true)) .
             '</div>' .
