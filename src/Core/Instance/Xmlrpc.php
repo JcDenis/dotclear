@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Xmlrpc
+ * @class Dotclear\Core\Instance\Xmlrpc
  * @brief Xmlrpc server
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 

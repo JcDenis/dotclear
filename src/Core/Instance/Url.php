@@ -15,7 +15,6 @@ namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 
-use Dotclear\Core\Xmlrpc;
 use Dotclear\Exception\CoreException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -30,6 +29,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class Url
 {
     use \Dotclear\Core\Instance\TraitTrackback;
+    use \Dotclear\Core\Instance\TraitXmlrpc;
 
     protected $types = [];
     protected $default_handler;
@@ -884,8 +884,7 @@ class Url
     public function xmlrpc($args)
     {
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
-        $server  = new XmlRpc($blog_id);
-        $server->serve();
+        $this->xmlrpc($blog_id)->serve();
     }
 
     public function files($args)
