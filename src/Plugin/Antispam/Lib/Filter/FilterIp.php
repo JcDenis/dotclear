@@ -236,10 +236,10 @@ class FilterIp extends Spamfilter
         $content = $pattern . ':' . $ip . ':' . $mask;
 
         $old = $this->getRuleCIDR($type, $global, $ip, $mask);
-        $cur = dotclear()->con->openCursor($this->table);
+        $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = dotclear()->con->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
+            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
 
             $cur->rule_id      = $id;
             $cur->rule_type    = (string) $type;
@@ -263,32 +263,32 @@ class FilterIp extends Spamfilter
     {
         $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function getRuleCIDR($type, $global, $ip, $mask)
     {
         $strReq = 'SELECT * FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND rule_content LIKE '%:" . (int) $ip . ':' . (int) $mask . "' " .
             'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog->id . "' ");
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function checkIP($cip, $type)
     {
         $strReq = 'SELECT DISTINCT(rule_content) ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY rule_content ASC ';
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         while ($rs->fetch()) {
             list($pattern, $ip, $mask) = explode(':', $rs->rule_content);
             if ((ip2long($cip) & (int) $mask) == ((int) $ip & (int) $mask)) {
@@ -317,6 +317,6 @@ class FilterIp extends Spamfilter
             $strReq .= "AND blog_id = '" . dotclear()->blog->id . "' ";
         }
 
-        dotclear()->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 }

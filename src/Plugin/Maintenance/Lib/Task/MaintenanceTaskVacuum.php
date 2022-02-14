@@ -37,11 +37,11 @@ class MaintenanceTaskVacuum extends MaintenanceTask
 
     public function execute()
     {
-        $schema = Schema::init(dotclear()->con);
+        $schema = Schema::init(dotclear()->con());
 
         foreach ($schema->getTables() as $table) {
             if (strpos($table, dotclear()->prefix) === 0) {
-                dotclear()->con->vacuum($table);
+                dotclear()->con()->vacuum($table);
             }
         }
 

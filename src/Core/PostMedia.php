@@ -15,25 +15,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 
 class PostMedia
 {
-    /** @var Connection     Connection instance */
-    protected $con;
-
     /** @var string         post media table name */
-    protected $table;
-
-    /**
-     * Constructs a new instance.
-     */
-    public function __construct()
-    {
-        $this->con   = dotclear()->con;
-        $this->table = dotclear()->prefix . 'post_media';
-    }
+    protected $table = 'post_media';
 
     /**
      * Returns media items attached to a blog post.
@@ -52,7 +39,7 @@ class PostMedia
         }
 
         $strReq .= 'FROM ' . dotclear()->prefix . 'media M ' .
-        'INNER JOIN ' . $this->table . ' PM ON (M.media_id = PM.media_id) ';
+        'INNER JOIN ' . dotclear()->prefix . $this->table . ' PM ON (M.media_id = PM.media_id) ';
 
         if (!empty($params['from'])) {
             $strReq .= $params['from'] . ' ';
@@ -60,16 +47,16 @@ class PostMedia
 
         $where = [];
         if (isset($params['post_id'])) {
-            $where[] = 'PM.post_id ' . $this->con->in($params['post_id']);
+            $where[] = 'PM.post_id ' . dotclear()->con()->in($params['post_id']);
         }
         if (isset($params['media_id'])) {
-            $where[] = 'M.media_id ' . $this->con->in($params['media_id']);
+            $where[] = 'M.media_id ' . dotclear()->con()->in($params['media_id']);
         }
         if (isset($params['media_path'])) {
-            $where[] = 'M.media_path ' . $this->con->in($params['media_path']);
+            $where[] = 'M.media_path ' . dotclear()->con()->in($params['media_path']);
         }
         if (isset($params['link_type'])) {
-            $where[] = 'PM.link_type ' . $this->con->in($params['link_type']);
+            $where[] = 'PM.link_type ' . dotclear()->con()->in($params['link_type']);
         } else {
             $where[] = "PM.link_type='attachment'";
         }
@@ -80,7 +67,7 @@ class PostMedia
             $strReq .= $params['sql'];
         }
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         return $rs;
     }
@@ -103,7 +90,7 @@ class PostMedia
             return;
         }
 
-        $cur            = $this->con->openCursor($this->table);
+        $cur            = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
         $cur->post_id   = $post_id;
         $cur->media_id  = $media_id;
         $cur->link_type = $link_type;
@@ -124,13 +111,13 @@ class PostMedia
         $post_id  = (integer) $post_id;
         $media_id = (integer) $media_id;
 
-        $strReq = 'DELETE FROM ' . $this->table . ' ' .
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . $this->table . ' ' .
             'WHERE post_id = ' . $post_id . ' ' .
             'AND media_id = ' . $media_id . ' ';
         if ($link_type != null) {
-            $strReq .= "AND link_type = '" . $this->con->escape($link_type) . "'";
+            $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         dotclear()->blog->triggerBlog();
     }
 }

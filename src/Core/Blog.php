@@ -21,7 +21,6 @@ use Dotclear\Exception\DeprecatedException;
 use Dotclear\Core\Categories;
 use Dotclear\Core\Settings;
 
-use Dotclear\Database\Connection;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
@@ -37,9 +36,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
-    /** @var Connection Connection instance */
-    public $con;
-
     /** @var Settings   Settings instance */
     public $settings;
 
@@ -95,7 +91,6 @@ class Blog
      */
     public function __construct(string $id)
     {
-        $this->con    = dotclear()->con;
         $this->prefix = dotclear()->prefix;
 
         if (($b = dotclear()->getBlog($id)) !== null) {
@@ -275,11 +270,11 @@ class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = $this->con->openCursor($this->prefix . 'blog');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'blog');
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
-        $cur->update("WHERE blog_id = '" . $this->con->escape($this->id) . "' ");
+        $cur->update("WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' ");
 
         # --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
@@ -313,10 +308,10 @@ class Blog
         if (empty($affected_posts)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . $this->prefix . 'comment ' .
-            'WHERE comment_id' . $this->con->in($comments_ids) .
+            'WHERE comment_id' . dotclear()->con()->in($comments_ids) .
                 'GROUP BY post_id';
 
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
 
             $affected_posts = [];
             while ($rs->fetch()) {
@@ -332,10 +327,10 @@ class Blog
         $strReq = 'SELECT post_id, COUNT(post_id) AS nb_comment, comment_trackback ' .
         'FROM ' . $this->prefix . 'comment ' .
         'WHERE comment_status = 1 ' .
-        'AND post_id' . $this->con->in($affected_posts) .
+        'AND post_id' . dotclear()->con()->in($affected_posts) .
             'GROUP BY post_id,comment_trackback';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         $posts = [];
         while ($rs->fetch()) {
@@ -347,7 +342,7 @@ class Blog
         }
 
         # Update number of comments on affected posts
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
         foreach ($affected_posts as $post_id) {
             $cur->clean();
 
@@ -576,20 +571,20 @@ class Blog
     {
         $strReq = 'SELECT  C.cat_id, COUNT(P.post_id) AS nb_post ' .
         'FROM ' . $this->prefix . 'category AS C ' .
-        'JOIN ' . $this->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . $this->con->escape($this->id) . "' ) " .
-        "WHERE C.blog_id = '" . $this->con->escape($this->id) . "' ";
+        'JOIN ' . $this->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . dotclear()->con()->escape($this->id) . "' ) " .
+        "WHERE C.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
         if (!dotclear()->auth()->userID()) {
             $strReq .= 'AND P.post_status = 1 ';
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND P.post_type ' . $this->con->in($params['post_type']);
+            $strReq .= 'AND P.post_type ' . dotclear()->con()->in($params['post_type']);
         }
 
         $strReq .= 'GROUP BY C.cat_id ';
 
-        $rs       = $this->con->select($strReq);
+        $rs       = dotclear()->con()->select($strReq);
         $counters = [];
         while ($rs->fetch()) {
             $counters[$rs->cat_id] = $rs->nb_post;
@@ -690,7 +685,7 @@ class Blog
 
         $cur->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
-            "AND blog_id = '" . $this->con->escape($this->id) . "' "
+            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' "
         );
 
         # --BEHAVIOR-- coreAfterCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
@@ -753,9 +748,9 @@ class Blog
         $strReq = 'SELECT COUNT(post_id) AS nb_post ' .
         'FROM ' . $this->prefix . 'post ' .
         'WHERE cat_id = ' . (int) $id . ' ' .
-        "AND blog_id = '" . $this->con->escape($this->id) . "' ";
+        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if ($rs->nb_post > 0) {
             throw new CoreException(__('This category is not empty.'));
@@ -791,28 +786,28 @@ class Blog
     {
         # Let's check if URL is taken...
         $strReq = 'SELECT cat_url FROM ' . $this->prefix . 'category ' .
-        "WHERE cat_url = '" . $this->con->escape($url) . "' " .
+        "WHERE cat_url = '" . dotclear()->con()->escape($url) . "' " .
         ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-        "AND blog_id = '" . $this->con->escape($this->id) . "' " .
+        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             'ORDER BY cat_url DESC';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if (!$rs->isEmpty()) {
-            if ($this->con->syntax() == 'mysql') {
-                $clause = "REGEXP '^" . $this->con->escape($url) . "[0-9]+$'";
-            } elseif ($this->con->driver() == 'pgsql') {
-                $clause = "~ '^" . $this->con->escape($url) . "[0-9]+$'";
+            if (dotclear()->con()->syntax() == 'mysql') {
+                $clause = "REGEXP '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
+            } elseif (dotclear()->con()->driver() == 'pgsql') {
+                $clause = "~ '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
             } else {
-                $clause = "LIKE '" . $this->con->escape($url) . "%'";
+                $clause = "LIKE '" . dotclear()->con()->escape($url) . "%'";
             }
             $strReq = 'SELECT cat_url FROM ' . $this->prefix . 'category ' .
             'WHERE cat_url ' . $clause . ' ' .
             ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-            "AND blog_id = '" . $this->con->escape($this->id) . "' " .
+            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
                 'ORDER BY cat_url DESC ';
 
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
 
             if ($rs->isEmpty()) {
                 return $url;
@@ -961,7 +956,7 @@ class Blog
             $strReq .= $params['from'] . ' ';
         }
 
-        $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
+        $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((post_status = 1 ';
@@ -972,7 +967,7 @@ class Blog
             $strReq .= ') ';
 
             if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -981,7 +976,7 @@ class Blog
         #Adding parameters
         if (isset($params['post_type'])) {
             if (is_array($params['post_type']) || $params['post_type'] != '') {
-                $strReq .= 'AND post_type ' . $this->con->in($params['post_type']);
+                $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']);
             }
         } else {
             $strReq .= "AND post_type = 'post' ";
@@ -993,7 +988,7 @@ class Blog
             } else {
                 $params['post_id'] = [(int) $params['post_id']];
             }
-            $strReq .= 'AND P.post_id ' . $this->con->in($params['post_id']);
+            $strReq .= 'AND P.post_id ' . dotclear()->con()->in($params['post_id']);
         }
 
         if (isset($params['exclude_post_id']) && $params['exclude_post_id'] !== '') {
@@ -1002,15 +997,15 @@ class Blog
             } else {
                 $params['exclude_post_id'] = [(int) $params['exclude_post_id']];
             }
-            $strReq .= 'AND P.post_id NOT ' . $this->con->in($params['exclude_post_id']);
+            $strReq .= 'AND P.post_id NOT ' . dotclear()->con()->in($params['exclude_post_id']);
         }
 
         if (isset($params['post_url']) && $params['post_url'] !== '') {
-            $strReq .= "AND post_url = '" . $this->con->escape($params['post_url']) . "' ";
+            $strReq .= "AND post_url = '" . dotclear()->con()->escape($params['post_url']) . "' ";
         }
 
         if (!empty($params['user_id'])) {
-            $strReq .= "AND U.user_id = '" . $this->con->escape($params['user_id']) . "' ";
+            $strReq .= "AND U.user_id = '" . dotclear()->con()->escape($params['user_id']) . "' ";
         }
 
         if (isset($params['cat_id']) && $params['cat_id'] !== '') {
@@ -1045,22 +1040,22 @@ class Blog
         }
 
         if (!empty($params['post_year'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%Y') . ' = ' .
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%Y') . ' = ' .
             "'" . sprintf('%04d', $params['post_year']) . "' ";
         }
 
         if (!empty($params['post_month'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%m') . ' = ' .
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%m') . ' = ' .
             "'" . sprintf('%02d', $params['post_month']) . "' ";
         }
 
         if (!empty($params['post_day'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%d') . ' = ' .
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%d') . ' = ' .
             "'" . sprintf('%02d', $params['post_day']) . "' ";
         }
 
         if (!empty($params['post_lang'])) {
-            $strReq .= "AND P.post_lang = '" . $this->con->escape($params['post_lang']) . "' ";
+            $strReq .= "AND P.post_lang = '" . dotclear()->con()->escape($params['post_lang']) . "' ";
         }
 
         if (!empty($params['search'])) {
@@ -1074,7 +1069,7 @@ class Blog
                 }
 
                 foreach ($words as $i => $w) {
-                    $words[$i] = "post_words LIKE '%" . $this->con->escape($w) . "%'";
+                    $words[$i] = "post_words LIKE '%" . dotclear()->con()->escape($w) . "%'";
                 }
                 $strReq .= 'AND ' . implode(' AND ', $words) . ' ';
             }
@@ -1089,7 +1084,7 @@ class Blog
             $strReq .= 'EXISTS (SELECT M.post_id FROM ' . $this->prefix . 'post_media M ' .
                 'WHERE M.post_id = P.post_id ';
             if (isset($params['link_type'])) {
-                $strReq .= ' AND M.link_type ' . $this->con->in($params['link_type']) . ' ';
+                $strReq .= ' AND M.link_type ' . dotclear()->con()->in($params['link_type']) . ' ';
             }
             $strReq .= ')';
         }
@@ -1104,17 +1099,17 @@ class Blog
 
         if (!$count_only) {
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . $this->con->escape($params['order']) . ' ';
+                $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
             } else {
                 $strReq .= 'ORDER BY post_dt DESC ';
             }
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= $this->con->limit($params['limit']);
+            $strReq .= dotclear()->con()->limit($params['limit']);
         }
 
-        $rs            = $this->con->select($strReq);
+        $rs            = dotclear()->con()->select($strReq);
         $rs->_nb_media = [];
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPost');
 
@@ -1162,8 +1157,8 @@ class Blog
         $params['limit']     = 1;
         $params['order']     = 'post_dt ' . $order . ', P.post_id ' . $order;
         $params['sql']       = 'AND ( ' .
-        "   (post_dt = '" . $this->con->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
-        '   OR post_dt ' . $sign . " '" . $this->con->escape($dt) . "' " .
+        "   (post_dt = '" . dotclear()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
+        '   OR post_dt ' . $sign . " '" . dotclear()->con()->escape($dt) . "' " .
             ') ';
 
         if ($restrict_to_category) {
@@ -1171,7 +1166,7 @@ class Blog
         }
 
         if ($restrict_to_lang) {
-            $params['sql'] .= $post->post_lang ? 'AND P.post_lang = \'' . $this->con->escape($post->post_lang) . '\' ' : 'AND P.post_lang IS NULL ';
+            $params['sql'] .= $post->post_lang ? 'AND P.post_lang = \'' . dotclear()->con()->escape($post->post_lang) . '\' ' : 'AND P.post_lang IS NULL ';
         }
 
         $rs = $this->getPosts($params);
@@ -1200,7 +1195,7 @@ class Blog
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
         'FROM ' . $this->prefix . 'post ' .
-        "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
+        "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
 
@@ -1213,7 +1208,7 @@ class Blog
             $strReq .= ') ';
 
             if (dotclear()->auth()->userID()) {
-                $strReq .= "OR user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
+                $strReq .= "OR user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -1221,14 +1216,14 @@ class Blog
 
         if (isset($params['post_type'])) {
             if ($params['post_type'] != '') {
-                $strReq .= "AND post_type = '" . $this->con->escape($params['post_type']) . "' ";
+                $strReq .= "AND post_type = '" . dotclear()->con()->escape($params['post_type']) . "' ";
             }
         } else {
             $strReq .= "AND post_type = 'post' ";
         }
 
         if (isset($params['lang'])) {
-            $strReq .= "AND post_lang = '" . $this->con->escape($params['lang']) . "' ";
+            $strReq .= "AND post_lang = '" . dotclear()->con()->escape($params['lang']) . "' ";
         }
 
         $strReq .= 'GROUP BY post_lang ';
@@ -1239,7 +1234,7 @@ class Blog
         }
         $strReq .= 'ORDER BY post_lang ' . $order . ' ';
 
-        return $this->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     /**
@@ -1283,19 +1278,19 @@ class Blog
             $catReq    = 'AND P.cat_id = ' . (int) $params['cat_id'] . ' ';
             $cat_field = ', C.cat_url ';
         } elseif (isset($params['cat_url']) && $params['cat_url'] !== '') {
-            $catReq    = "AND C.cat_url = '" . $this->con->escape($params['cat_url']) . "' ";
+            $catReq    = "AND C.cat_url = '" . dotclear()->con()->escape($params['cat_url']) . "' ";
             $cat_field = ', C.cat_url ';
         }
         if (!empty($params['post_lang'])) {
             $catReq = 'AND P.post_lang = \'' . $params['post_lang'] . '\' ';
         }
 
-        $strReq = 'SELECT DISTINCT(' . $this->con->dateFormat('post_dt', $dt_f) . ') AS dt ' .
+        $strReq = 'SELECT DISTINCT(' . dotclear()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
         $cat_field .
         ',COUNT(P.post_id) AS nb_post ' .
         'FROM ' . $this->prefix . 'post P LEFT JOIN ' . $this->prefix . 'category C ' .
         'ON P.cat_id = C.cat_id ' .
-        "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' " .
+        "WHERE P.blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             $catReq;
 
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
@@ -1307,28 +1302,28 @@ class Blog
             $strReq .= ') ';
 
             if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type ' . $this->con->in($params['post_type']) . ' ';
+            $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']) . ' ';
         } else {
             $strReq .= "AND post_type = 'post' ";
         }
 
         if (!empty($params['year'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%Y') . " = '" . sprintf('%04d', $params['year']) . "' ";
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%Y') . " = '" . sprintf('%04d', $params['year']) . "' ";
         }
 
         if (!empty($params['month'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%m') . " = '" . sprintf('%02d', $params['month']) . "' ";
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%m') . " = '" . sprintf('%02d', $params['month']) . "' ";
         }
 
         if (!empty($params['day'])) {
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
         }
 
         # Get next or previous date
@@ -1345,8 +1340,8 @@ class Blog
 
             $dt = date('YmdHis', strtotime($dt));
 
-            $strReq .= 'AND ' . $this->con->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
-            $limit = $this->con->limit(1);
+            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
+            $limit = dotclear()->con()->limit(1);
         }
 
         $strReq .= 'GROUP BY dt ' . $cat_field;
@@ -1359,7 +1354,7 @@ class Blog
         $strReq .= 'ORDER BY dt ' . $order . ' ' .
             $limit;
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtDates');
 
         return $rs;
@@ -1380,11 +1375,11 @@ class Blog
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
-        $this->con->writeLock($this->prefix . 'post');
+        dotclear()->con()->writeLock($this->prefix . 'post');
 
         try {
             # Get ID
-            $rs = $this->con->select(
+            $rs = dotclear()->con()->select(
                 'SELECT MAX(post_id) ' .
                 'FROM ' . $this->prefix . 'post '
             );
@@ -1410,9 +1405,9 @@ class Blog
             dotclear()->behavior()->call('coreBeforePostCreate', $this, $cur);
 
             $cur->insert();
-            $this->con->unlock();
+            dotclear()->con()->unlock();
         } catch (\Exception $e) {
-            $this->con->unlock();
+            dotclear()->con()->unlock();
 
             throw $e;
         }
@@ -1467,9 +1462,9 @@ class Blog
             $strReq = 'SELECT post_id ' .
             'FROM ' . $this->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
 
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
 
             if ($rs->isEmpty()) {
                 throw new CoreException(__('You are not allowed to edit this entry'));
@@ -1517,15 +1512,15 @@ class Blog
         $posts_ids = Utils::cleanIds($ids);
         $status    = (int) $status;
 
-        $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-        'AND post_id ' . $this->con->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+        'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         #If user can only publish, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
 
         $cur->post_status = $status;
         $cur->post_upddt  = date('Y-m-d H:i:s');
@@ -1564,15 +1559,15 @@ class Blog
         $posts_ids = Utils::cleanIds($ids);
         $selected  = (bool) $selected;
 
-        $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-        'AND post_id ' . $this->con->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+        'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
 
         $cur->post_selected = (int) $selected;
         $cur->post_upddt    = date('Y-m-d H:i:s');
@@ -1609,15 +1604,15 @@ class Blog
         $posts_ids = Utils::cleanIds($ids);
         $cat_id    = (int) $cat_id;
 
-        $strReq = "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-        'AND post_id ' . $this->con->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+        'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
 
         $cur->cat_id     = ($cat_id ?: null);
         $cur->post_upddt = date('Y-m-d H:i:s');
@@ -1643,14 +1638,14 @@ class Blog
         $old_cat_id = (int) $old_cat_id;
         $new_cat_id = (int) $new_cat_id;
 
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = dotclear()->con()->openCursor($this->prefix . 'post');
 
         $cur->cat_id     = ($new_cat_id ?: null);
         $cur->post_upddt = date('Y-m-d H:i:s');
 
         $cur->update(
             'WHERE cat_id = ' . $old_cat_id . ' ' .
-            "AND blog_id = '" . $this->con->escape($this->id) . "' "
+            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' "
         );
         $this->triggerBlog();
     }
@@ -1685,15 +1680,15 @@ class Blog
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'post ' .
-        "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-        'AND post_id ' . $this->con->in($posts_ids);
+        "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+        'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         $this->triggerBlog();
     }
 
@@ -1705,9 +1700,9 @@ class Blog
         $strReq = 'SELECT post_id, post_dt, post_tz ' .
         'FROM ' . $this->prefix . 'post ' .
         'WHERE post_status = -1 ' .
-        "AND blog_id = '" . $this->con->escape($this->id) . "' ";
+        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         $now       = Dt::toUTC(time());
         $to_change = new ArrayObject();
@@ -1735,9 +1730,9 @@ class Blog
 
             $strReq = 'UPDATE ' . $this->prefix . 'post SET ' .
             'post_status = 1 ' .
-            "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-            'AND post_id ' . $this->con->in((array) $to_change) . ' ';
-            $this->con->execute($strReq);
+            "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+            'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
+            dotclear()->con()->execute($strReq);
             $this->triggerBlog();
 
             # --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
@@ -1768,9 +1763,9 @@ class Blog
         if (count($to_change)) {
             $strReq = 'UPDATE ' . $this->prefix . 'post ' .
             'SET post_firstpub = 1 ' .
-            "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-            'AND post_id ' . $this->con->in((array) $to_change) . ' ';
-            $this->con->execute($strReq);
+            "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+            'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
+            dotclear()->con()->execute($strReq);
 
             # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog, array
             dotclear()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
@@ -1790,15 +1785,15 @@ class Blog
         'user_displayname, user_email ' .
         'FROM ' . $this->prefix . 'post P, ' . $this->prefix . 'user U ' .
         'WHERE P.user_id = U.user_id ' .
-        "AND blog_id = '" . $this->con->escape($this->id) . "' ";
+        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . $this->con->escape($post_type) . "' ";
+            $strReq .= "AND post_type = '" . dotclear()->con()->escape($post_type) . "' ";
         }
 
         $strReq .= 'GROUP BY P.user_id, user_name, user_firstname, user_displayname, user_email ';
 
-        return $this->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function getPostsCategoryFilter(array $arr, string $field = 'cat_id'): string
@@ -1828,15 +1823,15 @@ class Blog
                     $queries[$id] = 'P.cat_id = ' . (int) $id;
                 }
             } else {
-                $queries[$id] = "C.cat_url = '" . $this->con->escape($id) . "' ";
+                $queries[$id] = "C.cat_url = '" . dotclear()->con()->escape($id) . "' ";
             }
         }
 
         if (!empty($sub)) {
-            $rs = $this->con->select(
+            $rs = dotclear()->con()->select(
                 'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . $this->prefix . 'category ' .
-                "WHERE blog_id = '" . $this->con->escape($this->id) . "' " .
-                'AND ' . $field . ' ' . $this->con->in(array_keys($sub))
+                "WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
+                'AND ' . $field . ' ' . dotclear()->con()->in(array_keys($sub))
             );
 
             while ($rs->fetch()) {
@@ -2049,29 +2044,29 @@ class Blog
 
         # Let's check if URL is taken...
         $strReq = 'SELECT post_url FROM ' . $this->prefix . 'post ' .
-        "WHERE post_url = '" . $this->con->escape($url) . "' " .
+        "WHERE post_url = '" . dotclear()->con()->escape($url) . "' " .
         'AND post_id <> ' . (int) $post_id . ' ' .
-        "AND blog_id = '" . $this->con->escape($this->id) . "' " .
+        "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
             'ORDER BY post_url DESC';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if (!$rs->isEmpty()) {
-            if ($this->con->syntax() == 'mysql') {
-                $clause = "REGEXP '^" . $this->con->escape(preg_quote($url)) . "[0-9]+$'";
-            } elseif ($this->con->driver() == 'pgsql') {
-                $clause = "~ '^" . $this->con->escape(preg_quote($url)) . "[0-9]+$'";
+            if (dotclear()->con()->syntax() == 'mysql') {
+                $clause = "REGEXP '^" . dotclear()->con()->escape(preg_quote($url)) . "[0-9]+$'";
+            } elseif (dotclear()->con()->driver() == 'pgsql') {
+                $clause = "~ '^" . dotclear()->con()->escape(preg_quote($url)) . "[0-9]+$'";
             } else {
                 $clause = "LIKE '" .
-                $this->con->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";  // @phpstan-ignore-line
+                dotclear()->con()->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";  // @phpstan-ignore-line
             }
             $strReq = 'SELECT post_url FROM ' . $this->prefix . 'post ' .
             'WHERE post_url ' . $clause . ' ' .
             'AND post_id <> ' . (int) $post_id . ' ' .
-            "AND blog_id = '" . $this->con->escape($this->id) . "' " .
+            "AND blog_id = '" . dotclear()->con()->escape($this->id) . "' " .
                 'ORDER BY post_url DESC ';
 
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
             $a  = [];
             while ($rs->fetch()) {
                 $a[] = $rs->post_url;
@@ -2164,7 +2159,7 @@ class Blog
             $strReq .= $params['from'] . ' ';
         }
 
-        $strReq .= "WHERE P.blog_id = '" . $this->con->escape($this->id) . "' ";
+        $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
 
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
             $strReq .= 'AND ((comment_status = 1 AND P.post_status = 1 ';
@@ -2175,14 +2170,14 @@ class Blog
             $strReq .= ') ';
 
             if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "')";
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type ' . $this->con->in($params['post_type']);
+            $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']);
         }
 
         if (isset($params['post_id']) && $params['post_id'] !== '') {
@@ -2199,16 +2194,16 @@ class Blog
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
-            $strReq .= 'AND comment_id ' . $this->con->in($params['comment_id']);
+            $strReq .= 'AND comment_id ' . dotclear()->con()->in($params['comment_id']);
         }
 
         if (isset($params['comment_email'])) {
-            $comment_email = $this->con->escape(str_replace('*', '%', $params['comment_email']));
+            $comment_email = dotclear()->con()->escape(str_replace('*', '%', $params['comment_email']));
             $strReq .= "AND comment_email LIKE '" . $comment_email . "' ";
         }
 
         if (isset($params['comment_site'])) {
-            $comment_site = $this->con->escape(str_replace('*', '%', $params['comment_site']));
+            $comment_site = dotclear()->con()->escape(str_replace('*', '%', $params['comment_site']));
             $strReq .= "AND comment_site LIKE '" . $comment_site . "' ";
         }
 
@@ -2225,12 +2220,12 @@ class Blog
         }
 
         if (isset($params['comment_ip'])) {
-            $comment_ip = $this->con->escape(str_replace('*', '%', $params['comment_ip']));
+            $comment_ip = dotclear()->con()->escape(str_replace('*', '%', $params['comment_ip']));
             $strReq .= "AND comment_ip LIKE '" . $comment_ip . "' ";
         }
 
         if (isset($params['q_author'])) {
-            $q_author = $this->con->escape(str_replace('*', '%', strtolower($params['q_author'])));
+            $q_author = dotclear()->con()->escape(str_replace('*', '%', strtolower($params['q_author'])));
             $strReq .= "AND LOWER(comment_author) LIKE '" . $q_author . "' ";
         }
 
@@ -2245,7 +2240,7 @@ class Blog
                 }
 
                 foreach ($words as $i => $w) {
-                    $words[$i] = "comment_words LIKE '%" . $this->con->escape($w) . "%'";
+                    $words[$i] = "comment_words LIKE '%" . dotclear()->con()->escape($w) . "%'";
                 }
                 $strReq .= 'AND ' . implode(' AND ', $words) . ' ';
             }
@@ -2257,17 +2252,17 @@ class Blog
 
         if (!$count_only) {
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . $this->con->escape($params['order']) . ' ';
+                $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
             } else {
                 $strReq .= 'ORDER BY comment_dt DESC ';
             }
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= $this->con->limit($params['limit']);
+            $strReq .= dotclear()->con()->limit($params['limit']);
         }
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtComment');
 
         # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
@@ -2285,11 +2280,11 @@ class Blog
      */
     public function addComment(Cursor $cur): int
     {
-        $this->con->writeLock($this->prefix . 'comment');
+        dotclear()->con()->writeLock($this->prefix . 'comment');
 
         try {
             # Get ID
-            $rs = $this->con->select(
+            $rs = dotclear()->con()->select(
                 'SELECT MAX(comment_id) ' .
                 'FROM ' . $this->prefix . 'comment '
             );
@@ -2311,9 +2306,9 @@ class Blog
             dotclear()->behavior()->call('coreBeforeCommentCreate', $this, $cur);
 
             $cur->insert();
-            $this->con->unlock();
+            dotclear()->con()->unlock();
         } catch (\Exception $e) {
-            $this->con->unlock();
+            dotclear()->con()->unlock();
 
             throw $e;
         }
@@ -2412,15 +2407,15 @@ class Blog
 
         $strReq = 'UPDATE ' . $this->prefix . 'comment ' .
             'SET comment_status = ' . $status . ' ';
-        $strReq .= 'WHERE comment_id' . $this->con->in($co_ids) .
+        $strReq .= 'WHERE comment_id' . dotclear()->con()->in($co_ids) .
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . $this->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
+        "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         $this->triggerComments($co_ids);
         $this->triggerBlog();
     }
@@ -2458,26 +2453,26 @@ class Blog
         $affected_posts = [];
         $strReq         = 'SELECT post_id ' .
         'FROM ' . $this->prefix . 'comment ' .
-        'WHERE comment_id' . $this->con->in($co_ids) .
+        'WHERE comment_id' . dotclear()->con()->in($co_ids) .
             'GROUP BY post_id';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         while ($rs->fetch()) {
             $affected_posts[] = (int) $rs->post_id;
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'comment ' .
-        'WHERE comment_id' . $this->con->in($co_ids) . ' ' .
+        'WHERE comment_id' . dotclear()->con()->in($co_ids) . ' ' .
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . $this->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
+        "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         $this->triggerComments($co_ids, true, $affected_posts);
         $this->triggerBlog();
     }
@@ -2497,13 +2492,13 @@ class Blog
         'WHERE comment_status = -2 ' .
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . $this->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . $this->con->escape($this->id) . "' ";
+        "WHERE tp.blog_id = '" . dotclear()->con()->escape($this->id) . "' ";
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->auth()->check('contentadmin', $this->id)) {
-            $strReq .= "AND tp.user_id = '" . $this->con->escape(dotclear()->auth()->userID()) . "' ";
+            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
         $strReq .= ')';
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         $this->triggerBlog();
     }
 

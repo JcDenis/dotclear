@@ -24,9 +24,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Workspace
 {
-    /** @var    Connection  Database connection object */
-    protected $con;
-
     /** @var    string      Preferences table name */
     protected $table;
 
@@ -68,7 +65,6 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->con     = dotclear()->con;
         $this->table   = dotclear()->prefix . 'pref';
         $this->user_id = $user_id;
 
@@ -76,7 +72,7 @@ class Workspace
             $this->getPrefs($rs);
         } catch (\Exception $e) {
             if (version_compare(dotclear()->getVersion('core'), '2.3', '>')) {
-                trigger_error(__('Unable to retrieve prefs:') . ' ' . $this->con->error(), E_USER_ERROR);
+                trigger_error(__('Unable to retrieve prefs:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
         }
     }
@@ -87,13 +83,13 @@ class Workspace
             $strReq = 'SELECT user_id, pref_id, pref_value, ' .
             'pref_type, pref_label, pref_ws ' .
             'FROM ' . $this->table . ' ' .
-            "WHERE (user_id = '" . $this->con->escape($this->user_id) . "' " .
+            "WHERE (user_id = '" . dotclear()->con()->escape($this->user_id) . "' " .
             'OR user_id IS NULL) ' .
-            "AND pref_ws = '" . $this->con->escape($this->ws) . "' " .
+            "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' " .
                 'ORDER BY pref_id ASC ';
 
             try {
-                $rs = $this->con->select($strReq);
+                $rs = dotclear()->con()->select($strReq);
             } catch (\Exception $e) {
                 throw $e;
             }
@@ -302,7 +298,7 @@ class Workspace
             $value = json_encode($value);
         }
 
-        $cur             = $this->con->openCursor($this->table);
+        $cur             = dotclear()->con()->openCursor($this->table);
         $cur->pref_value = ($type == 'boolean') ? (string) (int) $value : (string) $value;
         $cur->pref_type  = $type;
         $cur->pref_label = $label;
@@ -324,10 +320,10 @@ class Workspace
             if ($global) {
                 $where = 'WHERE user_id IS NULL ';
             } else {
-                $where = "WHERE user_id = '" . $this->con->escape($this->user_id) . "' ";
+                $where = "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
             }
 
-            $cur->update($where . "AND pref_id = '" . $this->con->escape($id) . "' AND pref_ws = '" . $this->con->escape($this->ws) . "' ");
+            $cur->update($where . "AND pref_id = '" . dotclear()->con()->escape($id) . "' AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ");
         } else {
             $cur->pref_id = $id;
             $cur->user_id = $global ? null : $this->user_id;
@@ -367,10 +363,10 @@ class Workspace
 
         // Rename the pref in the database
         $strReq = 'UPDATE ' . $this->table .
-        " SET pref_id = '" . $this->con->escape($newId) . "' " .
-        " WHERE pref_ws = '" . $this->con->escape($this->ws) . "' " .
-        " AND pref_id = '" . $this->con->escape($oldId) . "' ";
-        $this->con->execute($strReq);
+        " SET pref_id = '" . dotclear()->con()->escape($newId) . "' " .
+        " WHERE pref_ws = '" . dotclear()->con()->escape($this->ws) . "' " .
+        " AND pref_id = '" . dotclear()->con()->escape($oldId) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }
@@ -395,14 +391,14 @@ class Workspace
             $strReq .= 'WHERE user_id IS NULL ';
             $global = true;
         } else {
-            $strReq .= "WHERE user_id = '" . $this->con->escape($this->user_id) . "' ";
+            $strReq .= "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
             $global = false;
         }
 
-        $strReq .= "AND pref_id = '" . $this->con->escape($id) . "' ";
-        $strReq .= "AND pref_ws = '" . $this->con->escape($this->ws) . "' ";
+        $strReq .= "AND pref_id = '" . dotclear()->con()->escape($id) . "' ";
+        $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
 
         if ($this->prefExists($id, $global)) {
             $array = $global ? 'global' : 'local';
@@ -431,9 +427,9 @@ class Workspace
         if (!$global) {
             $strReq .= 'user_id IS NOT NULL AND ';
         }
-        $strReq .= "pref_id = '" . $this->con->escape($id) . "' AND pref_ws = '" . $this->con->escape($this->ws) . "' ";
+        $strReq .= "pref_id = '" . dotclear()->con()->escape($id) . "' AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     /**
@@ -455,13 +451,13 @@ class Workspace
             $strReq .= 'WHERE user_id IS NULL ';
             $global = true;
         } else {
-            $strReq .= "WHERE user_id = '" . $this->con->escape($this->user_id) . "' ";
+            $strReq .= "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
             $global = false;
         }
 
-        $strReq .= "AND pref_ws = '" . $this->con->escape($this->ws) . "' ";
+        $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_prefs'});

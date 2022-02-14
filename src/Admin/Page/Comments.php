@@ -62,7 +62,7 @@ class Comments extends Page
         dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dotclear()->con()->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         # default filter ? do not display spam

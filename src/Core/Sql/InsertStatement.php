@@ -133,8 +133,8 @@ class InsertStatement extends SqlStatement
      */
     public function insert(): bool
     {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
+        if (($sql = $this->statement())) {
+            return dotclear()->con()->execute($sql);
         }
 
         return false;

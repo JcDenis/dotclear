@@ -2436,7 +2436,7 @@ class Template extends BaseTemplate
                 "}\n";
 
             $p .= 'if (dotclear()->context->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->blog->con->escape(dotclear()->context->langs->post_lang).\"' \"; " .
+                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context->langs->post_lang).\"' \"; " .
                 "}\n";
         }
 
@@ -3076,7 +3076,7 @@ class Template extends BaseTemplate
                 "}\n";
 
             $p .= 'if (dotclear()->context->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->blog->con->escape(dotclear()->context->langs->post_lang).\"' \"; " .
+                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context->langs->post_lang).\"' \"; " .
                 "}\n";
         }
 

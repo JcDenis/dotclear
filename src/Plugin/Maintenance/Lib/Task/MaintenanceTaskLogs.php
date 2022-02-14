@@ -37,7 +37,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
     public function execute()
     {
         if (static::$keep_maintenance_logs) {
-            dotclear()->con->execute(
+            dotclear()->con()->execute(
                 'DELETE FROM ' . dotclear()->prefix . 'log ' .
                 "WHERE log_table <> 'maintenance' "
             );

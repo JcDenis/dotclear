@@ -34,36 +34,15 @@ class Session
      * Constructor
      *
      * This method creates an instance of sessionDB class.
-     *
-     * @param Connection    $con            Layer inherited database instance
-     * @param string        $table          Table name
-     * @param string        $cookie_name    Session cookie name
-     * @param string|null   $cookie_path    Session cookie path
-     * @param string|null   $cookie_domain  Session cookie domaine
-     * @param boolean       $cookie_secure  Session cookie is available only through SSL if true
-     * @param string|null   $ttl            TTL (default -120 minutes)
-     * @param boolean       $transient      Transient session : no db optimize on session destruction if true
      */
-    public function __construct(
-        Connection $con,
-        string $table,
-        string $cookie_name,
-        ?string $cookie_path = null,
-        ?string $cookie_domain = null,
-        bool $cookie_secure = false,
-        ?string $ttl = null,
-        bool $transient = false
-    ) {
-        $this->con           = $con;
-        $this->table         = $table;
-        $this->cookie_name   = $cookie_name;
-        $this->cookie_path   = is_null($cookie_path) ? '/' : $cookie_path;
-        $this->cookie_domain = is_null($cookie_domain) ? '' : $cookie_domain;
-        $this->cookie_secure = $cookie_secure;
-        if (!is_null($ttl)) {
-            $this->ttl = $ttl;
-        }
-        $this->transient = $transient;
+    public function __construct() {
+        $this->con           = dotclear()->con();
+        $this->table         = dotclear()->prefix . 'session';
+        $this->cookie_name   = dotclear()->config()->session_name;
+        $this->cookie_path   = '/';
+        $this->cookie_domain = '';
+        $this->cookie_secure = dotclear()->config()->admin_ssl;
+        $this->getTTL();
 
         if (function_exists('ini_set')) {
             @ini_set('session.use_cookies', '1');
@@ -73,6 +52,27 @@ class Session
             @ini_set('session.cookie_path', $this->cookie_path);
             @ini_set('session.cookie_domain', $this->cookie_domain);
             @ini_set('session.cookie_secure', (string) $this->cookie_secure);
+        }
+    }
+
+    /**
+     * Get session ttl
+     *
+     * @return  string|null  The TTL
+     */
+    private function getTTL(): void
+    {
+        # Session time
+        $ttl = dotclear()->config()->session_ttl;
+        if (!is_null($ttl)) {   // @phpstan-ignore-line
+            $tll = (string) $ttl;
+            if (substr(trim($ttl), 0, 1) != '-') {
+                // We requires negative session TTL
+                $ttl = '-' . trim($ttl);
+            }
+        }
+        if (!is_null($ttl)) {
+            $this->ttl = $ttl;
         }
     }
 

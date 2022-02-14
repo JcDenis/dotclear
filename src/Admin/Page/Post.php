@@ -296,7 +296,7 @@ class Post extends Page
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
             if (!empty($_POST['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog->id)) {
-                $cur_cat            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
+                $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $_POST['new_cat_title'];
                 $cur_cat->cat_url   = '';
 
@@ -311,7 +311,7 @@ class Post extends Page
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
-            $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
             $cur->cat_id             = ($this->cat_id ?: null);
             $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';

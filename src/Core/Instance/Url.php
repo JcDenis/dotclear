@@ -628,7 +628,7 @@ class Url
                         dotclear()->context->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+                        $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
                         $cur->comment_author  = $name;
                         $cur->comment_site    = Html::clean($site);
                         $cur->comment_email   = Html::clean($mail);

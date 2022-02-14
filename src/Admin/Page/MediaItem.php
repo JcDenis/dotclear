@@ -693,8 +693,8 @@ class MediaItem extends Page
                 'from'      => 'LEFT OUTER JOIN ' . dotclear()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
                 'PM.media_id = ' . (int) $this->id . ' ' .
-                "OR post_content_xhtml LIKE '%" . dotclear()->con->escape($this->file->relname) . "%' " .
-                "OR post_excerpt_xhtml LIKE '%" . dotclear()->con->escape($this->file->relname) . "%' ",
+                "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($this->file->relname) . "%' " .
+                "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($this->file->relname) . "%' ",
             ];
 
             if ($this->file->media_image) {
@@ -706,8 +706,8 @@ class MediaItem extends Page
                 }
                 foreach ($this->file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
-                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . dotclear()->con->escape($v) . "%' ";
-                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . dotclear()->con->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
                 }
             }
 

@@ -106,7 +106,7 @@ class BlogPref extends Page
             # Status combo
             $status_combo = dotclear()->combos->getBlogStatusescombo();
 
-            $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
+            $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
             $cur->blog_id   = $_POST['blog_id'];
             $cur->blog_url  = preg_replace('/\?+$/', '?', $_POST['blog_url']);
             $cur->blog_name = $_POST['blog_name'];

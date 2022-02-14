@@ -485,10 +485,10 @@ class RsExtPost
             'FROM ' . dotclear()->prefix . 'post_media ' .
             'WHERE post_id = ' . (integer) $rs->post_id . ' ';
         if ($link_type != null) {
-            $strReq .= "AND link_type = '" . dotclear()->con->escape($link_type) . "'";
+            $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
 
-        $res                         = (integer) dotclear()->con->select($strReq)->f(0);
+        $res                         = (integer) dotclear()->con()->select($strReq)->f(0);
         $rs->_nb_media[$rs->index()] = $res;
 
         return $res;

@@ -68,7 +68,6 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->con     = dotclear()->con;
         $this->table   = dotclear()->prefix . 'setting';
         $this->blog_id = $blog_id;
 
@@ -81,15 +80,15 @@ class Settingspace
             $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
             'setting_type, setting_label, setting_ns ' .
             'FROM ' . $this->table . ' ' .
-            "WHERE (blog_id = '" . $this->con->escape($this->blog_id) . "' " .
+            "WHERE (blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' " .
             'OR blog_id IS NULL) ' .
-            "AND setting_ns = '" . $this->con->escape($this->ns) . "' " .
+            "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' " .
                 'ORDER BY setting_id DESC ';
 
             try {
-                $rs = $this->con->select($strReq);
+                $rs = dotclear()->con()->select($strReq);
             } catch (\Exception $e) {
-                trigger_error(__('Unable to retrieve settings:') . ' ' . $this->con->error(), E_USER_ERROR);
+                trigger_error(__('Unable to retrieve settings:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
         }
         while ($rs->fetch()) {
@@ -296,7 +295,7 @@ class Settingspace
             $value = json_encode($value);
         }
 
-        $cur                = $this->con->openCursor($this->table);
+        $cur                = dotclear()->con()->openCursor($this->table);
         $cur->setting_value = ($type == 'boolean') ? (string) (int) $value : (string) $value;
         $cur->setting_type  = $type;
         $cur->setting_label = $label;
@@ -318,10 +317,10 @@ class Settingspace
             if ($global) {
                 $where = 'WHERE blog_id IS NULL ';
             } else {
-                $where = "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' ";
+                $where = "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
             }
 
-            $cur->update($where . "AND setting_id = '" . $this->con->escape($id) . "' AND setting_ns = '" . $this->con->escape($this->ns) . "' ");
+            $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($id) . "' AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ");
         } else {
             $cur->setting_id = $id;
             $cur->blog_id    = $global ? null : $this->blog_id;
@@ -361,10 +360,10 @@ class Settingspace
 
         // Rename the setting in the database
         $strReq = 'UPDATE ' . $this->table .
-        " SET setting_id = '" . $this->con->escape($newId) . "' " .
-        " WHERE setting_ns = '" . $this->con->escape($this->ns) . "' " .
-        " AND setting_id = '" . $this->con->escape($oldId) . "' ";
-        $this->con->execute($strReq);
+        " SET setting_id = '" . dotclear()->con()->escape($newId) . "' " .
+        " WHERE setting_ns = '" . dotclear()->con()->escape($this->ns) . "' " .
+        " AND setting_id = '" . dotclear()->con()->escape($oldId) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }
@@ -387,13 +386,13 @@ class Settingspace
         if ($this->blog_id === null) {
             $strReq .= 'WHERE blog_id IS NULL ';
         } else {
-            $strReq .= "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' ";
+            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
         }
 
-        $strReq .= "AND setting_id = '" . $this->con->escape($id) . "' ";
-        $strReq .= "AND setting_ns = '" . $this->con->escape($this->ns) . "' ";
+        $strReq .= "AND setting_id = '" . dotclear()->con()->escape($id) . "' ";
+        $strReq .= "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     /**
@@ -414,9 +413,9 @@ class Settingspace
         if (!$global) {
             $strReq .= 'blog_id IS NOT NULL AND ';
         }
-        $strReq .= "setting_id = '" . $this->con->escape($id) . "' AND setting_ns = '" . $this->con->escape($this->ns) . "' ";
+        $strReq .= "setting_id = '" . dotclear()->con()->escape($id) . "' AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     /**
@@ -438,13 +437,13 @@ class Settingspace
             $strReq .= 'WHERE blog_id IS NULL ';
             $global = true;
         } else {
-            $strReq .= "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' ";
+            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
             $global = false;
         }
 
-        $strReq .= "AND setting_ns = '" . $this->con->escape($this->ns) . "' ";
+        $strReq .= "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_settings'});

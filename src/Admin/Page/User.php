@@ -81,7 +81,7 @@ class User extends Page
                     throw new AdminException(__('Password verification failed'));
                 }
 
-                $cur = dotclear()->con->openCursor(dotclear()->prefix . 'user');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
                 $cur->user_id          = $this->container->setId($_POST['user_id']);
                 $cur->user_super       = $this->container->setSuper(!empty($_POST['user_super']));

@@ -21,7 +21,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Prefs
 {
-    protected $con;     ///< <b>connection</b> Database connection object
     protected $table;   ///< <b>string</b> Prefs table name
     protected $user_id; ///< <b>string</b> User ID
 
@@ -40,7 +39,6 @@ class Prefs
      */
     public function __construct($user_id, $workspace = null)
     {
-        $this->con     = dotclear()->con;
         $this->table   = dotclear()->prefix . 'pref';
         $this->user_id = $user_id;
 
@@ -48,7 +46,7 @@ class Prefs
             $this->loadPrefs($workspace);
         } catch (\Exception $e) {
             if (version_compare(dotclear()->getVersion('core'), '2.3', '>')) {
-                trigger_error(__('Unable to retrieve workspaces:') . ' ' . $this->con->error(), E_USER_ERROR);
+                trigger_error(__('Unable to retrieve workspaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
         }
     }
@@ -61,14 +59,14 @@ class Prefs
         $strReq = 'SELECT user_id, pref_id, pref_value, ' .
         'pref_type, pref_label, pref_ws ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE (user_id = '" . $this->con->escape($this->user_id) . "' " . 'OR user_id IS NULL ) ';
+        "WHERE (user_id = '" . dotclear()->con()->escape($this->user_id) . "' " . 'OR user_id IS NULL ) ';
         if ($workspace !== null) {
-            $strReq .= "AND pref_ws = '" . $this->con->escape($workspace) . "' ";
+            $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($workspace) . "' ";
         }
         $strReq .= 'ORDER BY pref_ws ASC, pref_id ASC';
 
         try {
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -131,9 +129,9 @@ class Prefs
 
         // Rename the workspace in the database
         $strReq = 'UPDATE ' . $this->table .
-        " SET pref_ws = '" . $this->con->escape($newWs) . "' " .
-        " WHERE pref_ws = '" . $this->con->escape($oldWs) . "' ";
-        $this->con->execute($strReq);
+        " SET pref_ws = '" . dotclear()->con()->escape($newWs) . "' " .
+        " WHERE pref_ws = '" . dotclear()->con()->escape($oldWs) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }
@@ -156,8 +154,8 @@ class Prefs
 
         // Delete all preferences from the workspace in the database
         $strReq = 'DELETE FROM ' . $this->table .
-        " WHERE pref_ws = '" . $this->con->escape($ws) . "' ";
-        $this->con->execute($strReq);
+        " WHERE pref_ws = '" . dotclear()->con()->escape($ws) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }

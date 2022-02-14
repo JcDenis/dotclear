@@ -60,7 +60,7 @@ class Users extends Page
         dotclear()->behavior()->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            dotclear()->con->lexFields($sortby_lex[$this->filter->sortby]) :
+            dotclear()->con()->lexFields($sortby_lex[$this->filter->sortby]) :
             $this->filter->sortby) . ' ' . $this->filter->order;
 
         $params = new ArrayObject($params);

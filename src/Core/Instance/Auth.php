@@ -29,9 +29,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Auth
 {
-    /** @var Connection     Connection instance */
-    protected $con;
-
     /** @var User           User container instance */
     protected $container;
 
@@ -67,7 +64,6 @@ class Auth
      */
     public function __construct()
     {
-        $this->con        = dotclear()->con;
         $this->container  = new User();
         $this->blog_table = dotclear()->prefix . 'blog';
         $this->user_table = dotclear()->prefix . 'user';
@@ -173,7 +169,7 @@ class Auth
             }
             if ($rehash) {
                 // Store new hash in DB
-                $cur           = $this->con->openCursor($this->user_table);
+                $cur           = dotclear()->con()->openCursor($this->user_table);
                 $cur->user_pwd = (string) $rs->user_pwd;
 
                 $sql = new UpdateStatement('coreAuthCheckUser');
@@ -615,7 +611,7 @@ class Auth
 
         $key = md5(uniqid('', true));
 
-        $cur                   = $this->con->openCursor($this->user_table);
+        $cur                   = dotclear()->con()->openCursor($this->user_table);
         $cur->user_recover_key = $key;
 
         $sql = new UpdateStatement('coreAuthSetRecoverKey');
@@ -653,7 +649,7 @@ class Auth
 
         $new_pass = Crypt::createPassword();
 
-        $cur                   = $this->con->openCursor($this->user_table);
+        $cur                   = dotclear()->con()->openCursor($this->user_table);
         $cur->user_pwd         = $this->crypt($new_pass);
         $cur->user_recover_key = null;
         $cur->user_change_pwd  = 1; // User will have to change this temporary password at next login

@@ -26,9 +26,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Settings
 {
-    /** @var    Connection  Connection instance */
-    protected $con;
-
     /** @var    string  Setting table name */
     protected $table;
 
@@ -53,7 +50,6 @@ class Settings
      */
     public function __construct(?string $blog_id)
     {
-        $this->con     = dotclear()->con;
         $this->table   = dotclear()->prefix . 'setting';
         $this->blog_id = $blog_id;
         $this->loadSettings();
@@ -69,16 +65,16 @@ class Settings
         $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
         'setting_type, setting_label, setting_ns ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' " .
+        "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' " .
             'OR blog_id IS NULL ' .
             'ORDER BY setting_ns ASC, setting_id DESC';
 
         $rs = null;
 
         try {
-            $rs = $this->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
         } catch (\Exception $e) {
-            trigger_error(__('Unable to retrieve namespaces:') . ' ' . $this->con->error(), E_USER_ERROR);
+            trigger_error(__('Unable to retrieve namespaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
         }
 
         /* Prevent empty tables (install phase, for instance) */
@@ -141,9 +137,9 @@ class Settings
 
         // Rename the namespace in the database
         $strReq = 'UPDATE ' . $this->table .
-        " SET setting_ns = '" . $this->con->escape($newNs) . "' " .
-        " WHERE setting_ns = '" . $this->con->escape($oldNs) . "' ";
-        $this->con->execute($strReq);
+        " SET setting_ns = '" . dotclear()->con()->escape($newNs) . "' " .
+        " WHERE setting_ns = '" . dotclear()->con()->escape($oldNs) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }
@@ -166,8 +162,8 @@ class Settings
 
         // Delete all settings from the namespace in the database
         $strReq = 'DELETE FROM ' . $this->table .
-        " WHERE setting_ns = '" . $this->con->escape($ns) . "' ";
-        $this->con->execute($strReq);
+        " WHERE setting_ns = '" . dotclear()->con()->escape($ns) . "' ";
+        dotclear()->con()->execute($strReq);
 
         return true;
     }
@@ -237,14 +233,14 @@ class Settings
         $strReq = 'SELECT * from ' . $this->table . ' ';
         $where  = [];
         if (!empty($params['ns'])) {
-            $where[] = "setting_ns = '" . $this->con->escape($params['ns']) . "'";
+            $where[] = "setting_ns = '" . dotclear()->con()->escape($params['ns']) . "'";
         }
         if (!empty($params['id'])) {
-            $where[] = "setting_id = '" . $this->con->escape($params['id']) . "'";
+            $where[] = "setting_id = '" . dotclear()->con()->escape($params['id']) . "'";
         }
         if (isset($params['blog_id'])) {
             if (!empty($params['blog_id'])) {
-                $where[] = "blog_id = '" . $this->con->escape($params['blog_id']) . "'";
+                $where[] = "blog_id = '" . dotclear()->con()->escape($params['blog_id']) . "'";
             } else {
                 $where[] = 'blog_id IS NULL';
             }
@@ -254,7 +250,7 @@ class Settings
         }
         $strReq .= ' ORDER by blog_id';
 
-        return $this->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     /**
@@ -264,7 +260,7 @@ class Settings
      */
     public function updateSetting(Record $rs): void
     {
-        $cur                = $this->con->openCursor($this->table);
+        $cur                = dotclear()->con()->openCursor($this->table);
         $cur->setting_id    = $rs->setting_id;
         $cur->setting_value = $rs->setting_value;
         $cur->setting_type  = $rs->setting_type;
@@ -274,9 +270,9 @@ class Settings
         if ($cur->blog_id == null) {
             $where = 'WHERE blog_id IS NULL ';
         } else {
-            $where = "WHERE blog_id = '" . $this->con->escape($cur->blog_id) . "' ";
+            $where = "WHERE blog_id = '" . dotclear()->con()->escape($cur->blog_id) . "' ";
         }
-        $cur->update($where . "AND setting_id = '" . $this->con->escape($cur->setting_id) . "' AND setting_ns = '" . $this->con->escape($cur->setting_ns) . "' ");
+        $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($cur->setting_id) . "' AND setting_ns = '" . dotclear()->con()->escape($cur->setting_ns) . "' ");
     }
 
     /**
@@ -292,10 +288,10 @@ class Settings
         if ($rs->blog_id == null) {
             $strReq .= 'WHERE blog_id IS NULL ';
         } else {
-            $strReq .= "WHERE blog_id = '" . $this->con->escape($rs->blog_id) . "' ";
+            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($rs->blog_id) . "' ";
         }
-        $strReq .= "AND setting_id = '" . $this->con->escape($rs->setting_id) . "' AND setting_ns = '" . $this->con->escape($rs->setting_ns) . "' ";
+        $strReq .= "AND setting_id = '" . dotclear()->con()->escape($rs->setting_id) . "' AND setting_ns = '" . dotclear()->con()->escape($rs->setting_ns) . "' ";
 
-        return $this->con->execute($strReq);
+        return dotclear()->con()->execute($strReq);
     }
 }

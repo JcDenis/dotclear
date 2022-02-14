@@ -57,7 +57,7 @@ class Install
         }
 
         /* Check if dotclear is already installed */
-        $schema = Schema::init(dotclear()->con);
+        $schema = Schema::init(dotclear()->con());
         if (in_array(dotclear()->prefix . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';
@@ -65,7 +65,7 @@ class Install
 
         /* Check system capabilites */
         $_e = [];
-        if (!Distrib::checkRequirements(dotclear()->con, $_e)) { //! no need to con, and change _e to arrayobject
+        if (!Distrib::checkRequirements(dotclear()->con(), $_e)) { //! no need to con, and change _e to arrayobject
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }
@@ -125,14 +125,14 @@ class Install
                 }
 
                 /* Create schema */
-                $_s = new Structure(dotclear()->con, dotclear()->prefix);
+                $_s = new Structure(dotclear()->con(), dotclear()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(dotclear()->con, dotclear()->prefix);
+                $si      = new Structure(dotclear()->con(), dotclear()->prefix);
                 $changes = $si->synchronize($_s);
 
                 # Create user
-                $cur                 = dotclear()->con->openCursor(dotclear()->prefix . 'user');
+                $cur                 = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
                 $cur->user_id        = $u_login;
                 $cur->user_super     = 1;
                 $cur->user_pwd       = dotclear()->auth()->crypt($u_pwd);
@@ -149,7 +149,7 @@ class Install
                 dotclear()->auth()->checkUser($u_login);
 
                 /* Create blog */
-                $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
+                $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
                 $cur->blog_id   = 'default';
                 $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
                 $cur->blog_name = __('My first blog');
@@ -192,8 +192,8 @@ class Install
                 /* SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                 so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
                  */
-                $csp_prefix = dotclear()->con->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
-                $csp_suffix = dotclear()->con->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
+                $csp_prefix = dotclear()->con()->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
+                $csp_suffix = dotclear()->con()->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
                 $blog_settings->system->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
                 $blog_settings->system->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
@@ -207,7 +207,7 @@ class Install
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:", 'string', 'CSP img-src directive', true, true);
 
                 /* Add Dotclear version */
-                $cur          = dotclear()->con->openCursor(dotclear()->prefix . 'version');
+                $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
                 $cur->module  = 'core';
                 $cur->version = (string) dotclear()->config()->core_version;
                 $cur->insert();
@@ -215,7 +215,7 @@ class Install
                 /* Create first post */
                 dotclear()->setBlog('default');
 
-                $cur               = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+                $cur               = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
                 $cur->user_id      = $u_login;
                 $cur->post_format  = 'xhtml';
                 $cur->post_lang    = $dlang;
@@ -229,7 +229,7 @@ class Install
                 $post_id                 = dotclear()->blog->addPost($cur);
 
                 /* Add a comment to it */
-                $cur                  = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+                $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
                 $cur->post_id         = $post_id;
                 $cur->comment_tz      = $default_tz;
                 $cur->comment_author  = __('Dotclear Team');

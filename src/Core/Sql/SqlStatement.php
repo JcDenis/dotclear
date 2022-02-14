@@ -12,8 +12,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
  */
 class SqlStatement
 {
-    protected $con;
-
     protected $ctx; // Context (may be useful for behaviour's callback)
 
     protected $columns;
@@ -29,7 +27,6 @@ class SqlStatement
      */
     public function __construct($ctx = null)
     {
-        $this->con  = dotclear()->con;
         $this->ctx  = $ctx;
 
         $this->columns = $this->from = $this->where = $this->cond = $this->sql = [];
@@ -371,7 +368,7 @@ class SqlStatement
      */
     public function escape(string $value): string
     {
-        return $this->con->escape($value);
+        return dotclear()->con()->escape($value);
     }
 
     /**
@@ -384,7 +381,7 @@ class SqlStatement
      */
     public function quote($value, bool $escape = true): string
     {
-        return "'" . ($escape ? $this->con->escape($value) : $value) . "'";
+        return "'" . ($escape ? dotclear()->con()->escape($value) : $value) . "'";
     }
 
     /**
@@ -396,7 +393,7 @@ class SqlStatement
      */
     public function in($list): string
     {
-        return $this->con->in($list);
+        return dotclear()->con()->in($list);
     }
 
     /**
@@ -409,7 +406,7 @@ class SqlStatement
      */
     public function dateFormat(string $field, string $pattern): string
     {
-        return $this->con->dateFormat($field, $pattern);
+        return dotclear()->con()->dateFormat($field, $pattern);
     }
 
     /**
@@ -434,9 +431,9 @@ class SqlStatement
      */
     public function regexp(string $value): string
     {
-        if ($this->con->syntax() == 'mysql') {
+        if (dotclear()->con()->syntax() == 'mysql') {
             $clause = "REGEXP '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
-        } elseif ($this->con->syntax() == 'postgresql') {
+        } elseif (dotclear()->con()->syntax() == 'postgresql') {
             $clause = "~ '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
         } else {
             $clause = "LIKE '" .

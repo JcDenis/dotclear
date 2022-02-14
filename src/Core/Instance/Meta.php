@@ -153,9 +153,9 @@ class Meta
             $strReq = 'SELECT post_id ' .
             'FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_id = ' . $post_id . ' ' .
-            "AND user_id = '" . dotclear()->con->escape(dotclear()->auth()->userID()) . "' ";
+            "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
 
-            $rs = dotclear()->con->select($strReq);
+            $rs = dotclear()->con()->select($strReq);
 
             if ($rs->isEmpty()) {
                 throw new CoreException(__('You are not allowed to change this entry status'));
@@ -176,7 +176,7 @@ class Meta
         'FROM ' . dotclear()->prefix . $this->table . ' ' .
             'WHERE post_id = ' . $post_id . ' ';
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         $meta = [];
         while ($rs->fetch()) {
@@ -185,7 +185,7 @@ class Meta
 
         $post_meta = serialize($meta);
 
-        $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+        $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
         $cur->post_meta = $post_meta;
 
         $cur->update('WHERE post_id = ' . $post_id);
@@ -212,10 +212,10 @@ class Meta
         $params['from'] = ', ' . dotclear()->prefix . $this->table . ' META ';
         $params['sql']  = 'AND META.post_id = P.post_id ';
 
-        $params['sql'] .= "AND META.meta_id = '" . dotclear()->con->escape($params['meta_id']) . "' ";
+        $params['sql'] .= "AND META.meta_id = '" . dotclear()->con()->escape($params['meta_id']) . "' ";
 
         if (!empty($params['meta_type'])) {
-            $params['sql'] .= "AND META.meta_type = '" . dotclear()->con->escape($params['meta_type']) . "' ";
+            $params['sql'] .= "AND META.meta_type = '" . dotclear()->con()->escape($params['meta_type']) . "' ";
             unset($params['meta_type']);
         }
 
@@ -243,10 +243,10 @@ class Meta
 
         $params['from'] = ', ' . dotclear()->prefix . $this->table . ' META ';
         $params['sql']  = 'AND META.post_id = P.post_id ';
-        $params['sql'] .= "AND META.meta_id = '" . dotclear()->con->escape($params['meta_id']) . "' ";
+        $params['sql'] .= "AND META.meta_id = '" . dotclear()->con()->escape($params['meta_id']) . "' ";
 
         if (!empty($params['meta_type'])) {
-            $params['sql'] .= "AND META.meta_type = '" . dotclear()->con->escape($params['meta_type']) . "' ";
+            $params['sql'] .= "AND META.meta_type = '" . dotclear()->con()->escape($params['meta_type']) . "' ";
             unset($params['meta_type']);
         }
 
@@ -279,18 +279,18 @@ class Meta
 
         $strReq .= 'FROM ' . dotclear()->prefix . $this->table . ' M LEFT JOIN ' . dotclear()->prefix . 'post P ' .
         'ON M.post_id = P.post_id ' .
-        "WHERE P.blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' ";
+        "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' ";
 
         if (isset($params['meta_type'])) {
-            $strReq .= " AND meta_type = '" . dotclear()->con->escape($params['meta_type']) . "' ";
+            $strReq .= " AND meta_type = '" . dotclear()->con()->escape($params['meta_type']) . "' ";
         }
 
         if (isset($params['meta_id'])) {
-            $strReq .= " AND meta_id = '" . dotclear()->con->escape($params['meta_id']) . "' ";
+            $strReq .= " AND meta_id = '" . dotclear()->con()->escape($params['meta_id']) . "' ";
         }
 
         if (isset($params['post_id'])) {
-            $strReq .= ' AND P.post_id ' . dotclear()->con->in($params['post_id']) . ' ';
+            $strReq .= ' AND P.post_id ' . dotclear()->con()->in($params['post_id']) . ' ';
         }
 
         if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id)) {
@@ -302,7 +302,7 @@ class Meta
             $strReq .= ') ';
 
             if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con->escape(dotclear()->auth()->userID()) . "')";
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -317,11 +317,11 @@ class Meta
                 'ORDER BY ' . $params['order'];
 
             if (isset($params['limit'])) {
-                $strReq .= dotclear()->con->limit($params['limit']);
+                $strReq .= dotclear()->con()->limit($params['limit']);
             }
         }
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         return $rs;
     }
@@ -380,7 +380,7 @@ class Meta
             return;
         }
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . $this->table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
 
         $cur->post_id   = (int) $post_id;
         $cur->meta_id   = (string) $value;
@@ -407,14 +407,14 @@ class Meta
             'WHERE post_id = ' . $post_id;
 
         if ($type !== null) {
-            $strReq .= " AND meta_type = '" . dotclear()->con->escape($type) . "' ";
+            $strReq .= " AND meta_type = '" . dotclear()->con()->escape($type) . "' ";
         }
 
         if ($meta_id !== null) {
-            $strReq .= " AND meta_id = '" . dotclear()->con->escape($meta_id) . "' ";
+            $strReq .= " AND meta_id = '" . dotclear()->con()->escape($meta_id) . "' ";
         }
 
-        dotclear()->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
         $this->updatePostMeta((int) $post_id);
     }
 
@@ -439,14 +439,14 @@ class Meta
         $getReq = 'SELECT M.post_id ' .
         'FROM ' . dotclear()->prefix . $this->table . ' M, ' . dotclear()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
+        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
             "AND meta_id = '%s' ";
 
         if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id)) {
-            $getReq .= "AND P.user_id = '" . dotclear()->con->escape(dotclear()->auth()->userID()) . "' ";
+            $getReq .= "AND P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
         if ($post_type !== null) {
-            $getReq .= "AND P.post_type = '" . dotclear()->con->escape($post_type) . "' ";
+            $getReq .= "AND P.post_type = '" . dotclear()->con()->escape($post_type) . "' ";
         }
 
         $delReq = 'DELETE FROM ' . dotclear()->prefix . $this->table . ' ' .
@@ -467,10 +467,10 @@ class Meta
 
         $to_update = $to_remove = [];
 
-        $rs = dotclear()->con->select(sprintf(
+        $rs = dotclear()->con()->select(sprintf(
             $getReq,
-            dotclear()->con->escape($meta_id),
-            dotclear()->con->escape($type)
+            dotclear()->con()->escape($meta_id),
+            dotclear()->con()->escape($type)
         ));
 
         while ($rs->fetch()) {
@@ -481,7 +481,7 @@ class Meta
             return false;
         }
 
-        $rs = dotclear()->con->select(sprintf($getReq, $new_meta_id, $type));
+        $rs = dotclear()->con()->select(sprintf($getReq, $new_meta_id, $type));
         while ($rs->fetch()) {
             if (in_array($rs->post_id, $to_update)) {
                 $to_remove[] = $rs->post_id;
@@ -491,11 +491,11 @@ class Meta
 
         # Delete duplicate meta
         if (!empty($to_remove)) {
-            dotclear()->con->execute(sprintf(
+            dotclear()->con()->execute(sprintf(
                 $delReq,
                 implode(',', $to_remove),
-                dotclear()->con->escape($meta_id),
-                dotclear()->con->escape($type)
+                dotclear()->con()->escape($meta_id),
+                dotclear()->con()->escape($type)
             ));
 
             foreach ($to_remove as $post_id) {
@@ -505,12 +505,12 @@ class Meta
 
         # Update meta
         if (!empty($to_update)) {
-            dotclear()->con->execute(sprintf(
+            dotclear()->con()->execute(sprintf(
                 $updReq,
-                dotclear()->con->escape($new_meta_id),
+                dotclear()->con()->escape($new_meta_id),
                 implode(',', $to_update),
-                dotclear()->con->escape($meta_id),
-                dotclear()->con->escape($type)
+                dotclear()->con()->escape($meta_id),
+                dotclear()->con()->escape($type)
             ));
 
             foreach ($to_update as $post_id) {
@@ -535,18 +535,18 @@ class Meta
         $strReq = 'SELECT M.post_id ' .
         'FROM ' . dotclear()->prefix . $this->table . ' M, ' . dotclear()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
-        "AND meta_id = '" . dotclear()->con->escape($meta_id) . "' ";
+        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
+        "AND meta_id = '" . dotclear()->con()->escape($meta_id) . "' ";
 
         if ($type !== null) {
-            $strReq .= " AND meta_type = '" . dotclear()->con->escape($type) . "' ";
+            $strReq .= " AND meta_type = '" . dotclear()->con()->escape($type) . "' ";
         }
 
         if ($post_type !== null) {
-            $strReq .= " AND P.post_type = '" . dotclear()->con->escape($post_type) . "' ";
+            $strReq .= " AND P.post_type = '" . dotclear()->con()->escape($post_type) . "' ";
         }
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if ($rs->isEmpty()) {
             return [];
@@ -559,13 +559,13 @@ class Meta
 
         $strReq = 'DELETE FROM ' . dotclear()->prefix . $this->table . ' ' .
         'WHERE post_id IN (' . implode(',', $ids) . ') ' .
-        "AND meta_id = '" . dotclear()->con->escape($meta_id) . "' ";
+        "AND meta_id = '" . dotclear()->con()->escape($meta_id) . "' ";
 
         if ($type !== null) {
-            $strReq .= " AND meta_type = '" . dotclear()->con->escape($type) . "' ";
+            $strReq .= " AND meta_type = '" . dotclear()->con()->escape($type) . "' ";
         }
 
-        $rs = dotclear()->con->execute($strReq);
+        $rs = dotclear()->con()->execute($strReq);
 
         foreach ($ids as $post_id) {
             $this->updatePostMeta($post_id);

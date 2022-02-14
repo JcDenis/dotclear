@@ -152,7 +152,7 @@ class Notices
      */
     public function add(Cursor $cur): int
     {
-        dotclear()->con->writeLock($this->table);
+        dotclear()->con()->writeLock($this->table);
 
         try {
             # Get ID
@@ -172,9 +172,9 @@ class Notices
             dotclear()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con->unlock();
+            dotclear()->con()->unlock();
         } catch (\Exception $e) {
-            dotclear()->con->unlock();
+            dotclear()->con()->unlock();
 
             throw $e;
         }
@@ -315,7 +315,7 @@ class Notices
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = dotclear()->con->openCursor($this->table());
+        $cur = dotclear()->con()->openCursor($this->table());
 
         $cur->notice_type    = $type;
         $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');

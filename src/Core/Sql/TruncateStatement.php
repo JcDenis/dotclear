@@ -13,16 +13,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class TruncateStatement extends SqlStatement
 {
     /**
-     * Class constructor
-     *
-     * @param mixed     $ctx    optional context
-     */
-    public function __construct($ctx = null)
-    {
-        parent::__construct($ctx);
-    }
-
-    /**
      * Returns the truncate statement
      *
      * @return string the statement
@@ -60,8 +50,8 @@ class TruncateStatement extends SqlStatement
      */
     public function truncate(): bool
     {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
+        if (($sql = $this->statement())) {
+            return dotclear()->con()->execute($sql);
         }
 
         return false;

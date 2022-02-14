@@ -63,7 +63,7 @@ class Blog extends Page
 
         # Create a blog
         if (!isset($_POST['id']) && (isset($_POST['create']))) {
-            $cur       = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
+            $cur       = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
             $this->blog_id   = $cur->blog_id   = $_POST['blog_id'];
             $this->blog_url  = $cur->blog_url  = $_POST['blog_url'];
             $this->blog_name = $cur->blog_name = $_POST['blog_name'];

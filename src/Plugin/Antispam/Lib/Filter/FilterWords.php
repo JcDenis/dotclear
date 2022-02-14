@@ -196,28 +196,28 @@ class FilterWords extends Spamfilter
         $strReq = 'SELECT rule_id, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
         "WHERE rule_type = 'word' " .
-        "AND ( blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
+        "AND ( blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
             'OR blog_id IS NULL ) ' .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function addRule($content, $general = false)
     {
         $strReq = 'SELECT rule_id FROM ' . $this->table . ' ' .
         "WHERE rule_type = 'word' " .
-        "AND rule_content = '" . dotclear()->con->escape($content) . "' ";
+        "AND rule_content = '" . dotclear()->con()->escape($content) . "' ";
         if (!$general) {
             $strReq .= ' AND blog_id = \'' . dotclear()->blog->id . '\'';
         }
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if (!$rs->isEmpty() && !$general) {
             throw new \Exception(__('This word exists'));
         }
 
-        $cur               = dotclear()->con->openCursor($this->table);
+        $cur               = dotclear()->con()->openCursor($this->table);
         $cur->rule_type    = 'word';
         $cur->rule_content = (string) $content;
 
@@ -230,7 +230,7 @@ class FilterWords extends Spamfilter
         if (!$rs->isEmpty() && $general) {
             $cur->update('WHERE rule_id = ' . $rs->rule_id);
         } else {
-            $rs_max       = dotclear()->con->select('SELECT MAX(rule_id) FROM ' . $this->table);
+            $rs_max       = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table);
             $cur->rule_id = (integer) $rs_max->f(0) + 1;
             $cur->insert();
         }
@@ -251,10 +251,10 @@ class FilterWords extends Spamfilter
         }
 
         if (!dotclear()->auth()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' ";
+            $strReq .= "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' ";
         }
 
-        dotclear()->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     public function defaultWordsList()

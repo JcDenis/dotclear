@@ -131,7 +131,7 @@ class Log
      */
     public function add(Cursor $cur): int
     {
-        dotclear()->con->writeLock(dotclear()->prefix . $this->log_table);
+        dotclear()->con()->writeLock(dotclear()->prefix . $this->log_table);
 
         try {
             # Get ID
@@ -152,9 +152,9 @@ class Log
             dotclear()->behavior()->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con->unlock();
+            dotclear()->con()->unlock();
         } catch (\Exception $e) {
-            dotclear()->con->unlock();
+            dotclear()->con()->unlock();
 
             throw $e;
         }

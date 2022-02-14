@@ -380,7 +380,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->user_id            = dotclear()->auth()->userID();
         $cur->post_lang          = dotclear()->auth()->getInfo('user_lang');
@@ -479,7 +479,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_type          = $post_type;
         $cur->post_title         = trim($title);
@@ -1112,7 +1112,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('You mus give a category name.');
         }
 
-        $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
+        $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
         $cur->cat_title = $struct['name'];
 
         if (!empty($struct['slug'])) {
@@ -1157,11 +1157,11 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $strReq = 'SELECT cat_id, cat_title, cat_url ' .
         'FROM ' . dotclear()->prefix . 'category ' .
-        "WHERE blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
-        "AND LOWER(cat_title) LIKE LOWER('%" . dotclear()->con->escape($category) . "%') " .
-            ($limit > 0 ? dotclear()->con->limit($limit) : '');
+        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
+        "AND LOWER(cat_title) LIKE LOWER('%" . dotclear()->con()->escape($category) . "%') " .
+            ($limit > 0 ? dotclear()->con()->limit($limit) : '');
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         $res = [];
         while ($rs->fetch()) {
@@ -1266,7 +1266,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Sorry, no such post.', 404);
         }
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
         $cur->comment_author = dotclear()->auth()->getInfo('user_cn');
         $cur->comment_email  = dotclear()->auth()->getInfo('user_email');
@@ -1285,7 +1285,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
         if (isset($struct['status'])) {
             $cur->comment_status = $this->translateWpCommentstatus($struct['status']);
@@ -1558,7 +1558,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $done         = [];
         $blog_changes = false;
-        $cur          = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
+        $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
 
         dotclear()->blog->settings->addNamespace('system');
 

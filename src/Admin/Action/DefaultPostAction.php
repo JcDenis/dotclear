@@ -195,7 +195,7 @@ class DefaultPostAction
             $new_cat_id = (int) $post['new_cat_id'];
             if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog->id)) {
                 //to do: check for duplicate category and throw clean Exception
-                $cur_cat            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
+                $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $post['new_cat_title'];
                 $cur_cat->cat_url   = '';
                 $title              = $cur_cat->cat_title;
@@ -277,9 +277,9 @@ class DefaultPostAction
                 throw new AdminException(__('This user does not exist'));
             }
 
-            $cur          = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+            $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
             $cur->user_id = $new_user_id;
-            $cur->update('WHERE post_id ' . dotclear()->con->in($posts_ids));
+            $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
             dotclear()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to user "%s"',
@@ -339,9 +339,9 @@ class DefaultPostAction
         }
         if (isset($post['new_lang'])) {
             $new_lang       = $post['new_lang'];
-            $cur            = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+            $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
             $cur->post_lang = $new_lang;
-            $cur->update('WHERE post_id ' . dotclear()->con->in($posts_ids));
+            $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
             dotclear()->notices->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to language "%s"',

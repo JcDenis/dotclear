@@ -271,8 +271,8 @@ class SelectStatement extends SqlStatement
      */
     public function select()
     {
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->select($sql);
+        if (($sql = $this->statement())) {
+            return dotclear()->con()->select($sql);
         }
 
         return null;

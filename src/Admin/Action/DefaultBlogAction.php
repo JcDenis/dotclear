@@ -71,10 +71,10 @@ class DefaultBlogAction
                 break;
         }
 
-        $cur              = dotclear()->con->openCursor(dotclear()->prefix . 'blog');
+        $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
         $cur->blog_status = $status;
         //$cur->blog_upddt = date('Y-m-d H:i:s');
-        $cur->update('WHERE blog_id ' . dotclear()->con->in($ids));
+        $cur->update('WHERE blog_id ' . dotclear()->con()->in($ids));
 
         dotclear()->notices->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);

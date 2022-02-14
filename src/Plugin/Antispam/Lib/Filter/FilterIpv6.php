@@ -200,10 +200,10 @@ class FilterIpv6 extends Spamfilter
         $pattern = $this->compact($pattern);
 
         $old = $this->getRuleCIDR($type, $global, $pattern);
-        $cur = dotclear()->con->openCursor($this->table);
+        $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = dotclear()->con->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
+            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->f(0) + 1;
 
             $cur->rule_id      = $id;
             $cur->rule_type    = (string) $type;
@@ -227,11 +227,11 @@ class FilterIpv6 extends Spamfilter
     {
         $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function getRuleCIDR($type, $global, $pattern)
@@ -241,22 +241,22 @@ class FilterIpv6 extends Spamfilter
         $ip = $this->long2ip_v6($ip);
 
         $strReq = 'SELECT * FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND rule_content LIKE '" . $ip . "%' " .
         'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog->id . "' ");
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     private function checkIP($cip, $type)
     {
         $strReq = 'SELECT DISTINCT(rule_content) ' .
         'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con->escape($type) . "' " .
+        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
             'ORDER BY rule_content ASC ';
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         while ($rs->fetch()) {
             $pattern = $rs->rule_content;
             if ($this->inrange($cip, $pattern)) {
@@ -285,7 +285,7 @@ class FilterIpv6 extends Spamfilter
             $strReq .= "AND blog_id = '" . dotclear()->blog->id . "' ";
         }
 
-        dotclear()->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     private function compact($pattern)

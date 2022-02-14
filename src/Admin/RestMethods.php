@@ -310,7 +310,7 @@ class RestMethods
     {
         # Create category
         if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog->id)) {
-            $cur_cat            = dotclear()->con->openCursor(dotclear()->prefix . 'category');
+            $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
             $cur_cat->cat_title = $post['new_cat_title'];
             $cur_cat->cat_url   = '';
 
@@ -325,7 +325,7 @@ class RestMethods
             dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
         }
 
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'post');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_title        = !empty($post['post_title']) ? $post['post_title'] : '';
         $cur->user_id           = dotclear()->auth()->userID();

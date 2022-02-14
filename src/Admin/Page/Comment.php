@@ -58,7 +58,7 @@ class Comment extends Page
                     throw new AdminException(__('Entry does not exist.'));
                 }
 
-                $cur = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);
@@ -130,7 +130,7 @@ class Comment extends Page
 
             # update comment
             if (!empty($_POST['update']) && $this->can_edit) {
-                $cur = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
                 $cur->comment_author  = $_POST['comment_author'];
                 $cur->comment_email   = Html::clean($_POST['comment_email']);

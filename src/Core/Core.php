@@ -23,7 +23,6 @@ use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
-use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Schema;
@@ -51,6 +50,7 @@ class Core
     use \Dotclear\Core\Instance\TraitAuth;
     use \Dotclear\Core\Instance\TraitBehavior;
     use \Dotclear\Core\Instance\TraitConfiguration;
+    use \Dotclear\Core\Instance\TraitConnection;
     use \Dotclear\Core\Instance\TraitError;
     use \Dotclear\Core\Instance\TraitLog;
     use \Dotclear\Core\Instance\TraitMedia;
@@ -64,12 +64,6 @@ class Core
 
     /** @var Blog               Blog instance */
     public $blog;
-
-    /** @var Connection         Connetion instance */
-    public $con;
-
-    /** @var string             Database table prefix */
-    public $prefix;
 
     /** @var Session            Session instance */
     public $session;
@@ -260,53 +254,18 @@ class Core
         # Define current process for files check
         define('DOTCLEAR_PROCESS', $this->process);
 
+        ##
+        # Not call to trait methods before here.
+        ##
+
         # Load Core
         try {
             $this->autoloader = new Autoloader('', '', true);
-            $this->con        = $this->conInstance();
-            $this->session    = new Session($this->con, $this->prefix . 'session', $this->config()->session_name, null, null, $this->config()->admin_ssl, $this->getTTL());
+            $this->session    = new Session();
 
         } catch (\Exception $e) {
-            # Loading locales for detected language
-            $dlang = Http::getAcceptLanguages();
-            foreach ($dlang as $l) {
-                if ($l == 'en' || L10n::set(implode_path($this->config()->l10n_dir, $l, 'main')) !== false) {
-                    L10n::lang($l);
-
-                    break;
-                }
-            }
-            if (in_array($this->process, ['Admin', 'Install'])) {
-                throw new PrependException(
-                    __('Unable to connect to database'),
-                    $e->getCode() == 0 ?
-                    sprintf(
-                        __('<p>This either means that the username and password information in ' .
-                        'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
-                        'the database server at "<em>%s</em>". This could mean your ' .
-                        'host\'s database server is down.</p> ' .
-                        '<ul><li>Are you sure you have the correct username and password?</li>' .
-                        '<li>Are you sure that you have typed the correct hostname?</li>' .
-                        '<li>Are you sure that the database server is running?</li></ul>' .
-                        '<p>If you\'re unsure what these terms mean you should probably contact ' .
-                        'your host. If you still need help you can always visit the ' .
-                        '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
-                        ($this->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
-                            '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
-                            ''),
-                        ($this->config()->database_host != '' ? $this->config()->database_host : 'localhost')
-                    ) :
-                    '',
-                    20
-                );
-            } else {
-                throw new PrependException(
-                    __('Site temporarily unavailable'),
-                    __('<p>We apologize for this temporary unavailability.<br />' .
-                        'Thank you for your understanding.</p>'),
-                    20
-                );
-            }
+            throw $e;
+            //temp
         }
 
         # Add top behaviors
@@ -335,100 +294,8 @@ class Core
             }
         } catch (\Exception $e) {    // @phpstan-ignore-line
         }
-        $this->con->close();
+        $this->con()->close();
     }
-
-    /**
-     * Get session ttl
-     *
-     * @return  string|null  The TTL
-     */
-    private function getTTL(): ?string
-    {
-        # Session time
-        $ttl = $this->config()->session_ttl;
-        if (!is_null($ttl)) {   // @phpstan-ignore-line
-            $tll = (string) $ttl;
-            if (substr(trim($ttl), 0, 1) != '-') {
-                // We requires negative session TTL
-                $ttl = '-' . trim($ttl);
-            }
-        }
-
-        return $ttl;
-    }
-
-    /**
-     * Instanciate database connection
-     *
-     * @throws  CoreException
-     *
-     * @return  Connection      Database connection instance
-     */
-    private function conInstance(): Connection
-    {
-        $prefix        = $this->config()->database_prefix;
-        $driver        = $this->config()->database_driver;
-        $default_class = 'Dotclear\\Database\\Connection';
-
-        # You can set DOTCLEAR_CON_CLASS to whatever you want.
-        # Your new class *should* inherits Dotclear\Database\Connection class.
-        $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
-
-        if (!class_exists($class)) {
-            throw new CoreException('Database connection class ' . $class . ' does not exist.');
-        }
-
-        if ($class != $default_class && !is_subclass_of($class, $default_class)) {
-            throw new CoreException('Database connection class ' . $class . ' does not inherit ' . $default_class);
-        }
-
-        # PHP 7.0 mysql driver is obsolete, map to mysqli
-        if ($driver === 'mysql') {
-            $driver = 'mysqli';
-        }
-
-        # Set full namespace of distributed database driver
-        if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
-            $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
-        }
-
-        # Check if database connection class exists
-        if (!class_exists($class)) {
-            trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
-            exit(1);
-        }
-
-        # Create connection instance
-        $con = new $class(
-            $this->config()->database_host,
-            $this->config()->database_name,
-            $this->config()->database_user,
-            $this->config()->database_password,
-            $this->config()->database_persist
-        );
-
-        # Define weak_locks for mysql
-        if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
-            $con::$weak_locks = true;
-        }
-
-        # Define searchpath for postgresql
-        if ($driver == 'pgsql') {
-            $searchpath = explode('.', $prefix, 2);
-            if (count($searchpath) > 1) {
-                $prefix = $searchpath[1];
-                $sql    = 'SET search_path TO ' . $searchpath[0] . ',public;';
-                $con->execute($sql);
-            }
-        }
-
-        # Set table prefix in core
-        $this->prefix = $prefix;
-
-        return $con;
-    }
-    //@}
 
     /// @name Blog init methods
     //@{
@@ -728,14 +595,14 @@ class Core
      */
     public function setVersion(string $module, string $version): void
     {
-        $cur          = $this->con->openCursor($this->prefix . 'version');
+        $cur          = $this->con()->openCursor($this->prefix . 'version');
         $cur->module  = $module;
         $cur->version = $version;
 
         if ($this->getVersion($module) === null) {
             $cur->insert();
         } else {
-            $cur->update("WHERE module='" . $this->con->escape($module) . "'");
+            $cur->update("WHERE module='" . $this->con()->escape($module) . "'");
         }
 
         $this->versions[$module] = $version;
@@ -750,7 +617,7 @@ class Core
     {
         $sql = new DeleteStatement('CoreCoreDelVersion');
         $sql->from($this->prefix . 'version')
-            ->where("module = '" . $this->con->escape($module) . "'")
+            ->where("module = '" . $this->con()->escape($module) . "'")
             ->delete();
 
         if (is_array($this->versions)) {
@@ -815,7 +682,7 @@ class Core
         }
 
         if (!empty($params['q'])) {
-            $q = $this->con->escape(str_replace('*', '%', strtolower($params['q'])));
+            $q = $this->con()->escape(str_replace('*', '%', strtolower($params['q'])));
             $strReq .= 'AND (' .
                 "LOWER(U.user_id) LIKE '" . $q . "' " .
                 "OR LOWER(user_name) LIKE '" . $q . "' " .
@@ -824,7 +691,7 @@ class Core
         }
 
         if (!empty($params['user_id'])) {
-            $strReq .= "AND U.user_id = '" . $this->con->escape($params['user_id']) . "' ";
+            $strReq .= "AND U.user_id = '" . $this->con()->escape($params['user_id']) . "' ";
         }
 
         if (!$count_only) {
@@ -839,9 +706,9 @@ class Core
                     } else {
                         $table_prefix = ''; // order = nb_post (asc|desc)
                     }
-                    $strReq .= 'ORDER BY ' . $table_prefix . $this->con->escape($params['order']) . ' ';
+                    $strReq .= 'ORDER BY ' . $table_prefix . $this->con()->escape($params['order']) . ' ';
                 } else {
-                    $strReq .= 'ORDER BY ' . $this->con->escape($params['order']) . ' ';
+                    $strReq .= 'ORDER BY ' . $this->con()->escape($params['order']) . ' ';
                 }
             } else {
                 $strReq .= 'ORDER BY U.user_id ASC ';
@@ -849,9 +716,9 @@ class Core
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= $this->con->limit($params['limit']);
+            $strReq .= $this->con()->limit($params['limit']);
         }
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
 
         return $rs;
@@ -911,7 +778,7 @@ class Core
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $cur->update("WHERE user_id = '" . $this->con->escape($user_id) . "' ");
+        $cur->update("WHERE user_id = '" . $this->con()->escape($user_id) . "' ");
 
         $this->auth()->afterUpdUser($user_id, $cur);
 
@@ -920,9 +787,9 @@ class Core
         }
 
         # Updating all user's blogs
-        $rs = $this->con->select(
+        $rs = $this->con()->select(
             'SELECT DISTINCT(blog_id) FROM ' . $this->prefix . 'post ' .
-            "WHERE user_id = '" . $this->con->escape($user_id) . "' "
+            "WHERE user_id = '" . $this->con()->escape($user_id) . "' "
         );
 
         while ($rs->fetch()) {
@@ -958,9 +825,9 @@ class Core
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'user ' .
-        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
+        "WHERE user_id = '" . $this->con()->escape($user_id) . "' ";
 
-        $this->con->execute($strReq);
+        $this->con()->execute($strReq);
 
         $this->auth()->afterDelUser($user_id);
     }
@@ -976,9 +843,9 @@ class Core
     {
         $strReq = 'SELECT user_id ' .
         'FROM ' . $this->prefix . 'user ' .
-        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
+        "WHERE user_id = '" . $this->con()->escape($user_id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
 
         return !$rs->isEmpty();
     }
@@ -1002,9 +869,9 @@ class Core
         $strReq = 'SELECT B.blog_id, blog_name, blog_url, permissions ' .
         'FROM ' . $this->prefix . 'permissions P ' .
         'INNER JOIN ' . $this->prefix . 'blog B ON P.blog_id = B.blog_id ' .
-        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
+        "WHERE user_id = '" . $this->con()->escape($user_id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
 
         $res = [];
 
@@ -1038,9 +905,9 @@ class Core
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'permissions ' .
-        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
+        "WHERE user_id = '" . $this->con()->escape($user_id) . "' ";
 
-        $this->con->execute($strReq);
+        $this->con()->execute($strReq);
 
         foreach ($perms as $blog_id => $p) {
             $this->setUserBlogPermissions($user_id, $blog_id, $p, false);
@@ -1067,7 +934,7 @@ class Core
 
         $perms = '|' . implode('|', array_keys($perms)) . '|';
 
-        $cur = $this->con->openCursor($this->prefix . 'permissions');
+        $cur = $this->con()->openCursor($this->prefix . 'permissions');
 
         $cur->user_id     = $user_id;
         $cur->blog_id     = $blog_id;
@@ -1075,10 +942,10 @@ class Core
 
         if ($delete_first || $no_perm) {
             $strReq = 'DELETE FROM ' . $this->prefix . 'permissions ' .
-            "WHERE blog_id = '" . $this->con->escape($blog_id) . "' " .
-            "AND user_id = '" . $this->con->escape($user_id) . "' ";
+            "WHERE blog_id = '" . $this->con()->escape($blog_id) . "' " .
+            "AND user_id = '" . $this->con()->escape($user_id) . "' ";
 
-            $this->con->execute($strReq);
+            $this->con()->execute($strReq);
         }
 
         if (!$no_perm) {
@@ -1096,11 +963,11 @@ class Core
      */
     public function setUserDefaultBlog(string $user_id, string $blog_id): void
     {
-        $cur = $this->con->openCursor($this->prefix . 'user');
+        $cur = $this->con()->openCursor($this->prefix . 'user');
 
         $cur->user_default_blog = $blog_id;
 
-        $cur->update("WHERE user_id = '" . $this->con->escape($user_id) . "'");
+        $cur->update("WHERE user_id = '" . $this->con()->escape($user_id) . "'");
     }
 
     /**
@@ -1169,7 +1036,7 @@ class Core
         'user_displayname, user_email, permissions ' .
         'FROM ' . $this->prefix . 'user U ' .
         'JOIN ' . $this->prefix . 'permissions P ON U.user_id = P.user_id ' .
-        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
+        "WHERE blog_id = '" . $this->con()->escape($blog_id) . "' ";
 
         if ($with_super) {
             $strReq .= 'UNION ' .
@@ -1179,7 +1046,7 @@ class Core
                 'WHERE user_super = 1 ';
         }
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
 
         $res = [];
 
@@ -1257,19 +1124,19 @@ class Core
                 '%2$s ';
 
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . $this->con->escape($params['order']) . ' ';
+                $strReq .= 'ORDER BY ' . $this->con()->escape($params['order']) . ' ';
             } else {
                 $strReq .= 'ORDER BY B.blog_id ASC ';
             }
 
             if (!empty($params['limit'])) {
-                $strReq .= $this->con->limit($params['limit']);
+                $strReq .= $this->con()->limit($params['limit']);
             }
         }
 
         if ($this->auth()->userID() && !$this->auth()->isSuperAdmin()) {
             $join  = 'INNER JOIN ' . $this->prefix . 'permissions PE ON B.blog_id = PE.blog_id ';
-            $where = "AND PE.user_id = '" . $this->con->escape($this->auth()->userID()) . "' " .
+            $where = "AND PE.user_id = '" . $this->con()->escape($this->auth()->userID()) . "' " .
                 "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
                 'AND blog_status IN (1,0) ';
         } elseif (!$this->auth()->userID()) {
@@ -1284,21 +1151,21 @@ class Core
             if (!is_array($params['blog_id'])) {
                 $params['blog_id'] = [$params['blog_id']];
             }
-            $where .= 'AND B.blog_id ' . $this->con->in($params['blog_id']);
+            $where .= 'AND B.blog_id ' . $this->con()->in($params['blog_id']);
         }
 
         if (!empty($params['q'])) {
             $params['q'] = strtolower(str_replace('*', '%', $params['q']));
             $where .= 'AND (' .
-            "LOWER(B.blog_id) LIKE '" . $this->con->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_name) LIKE '" . $this->con->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_url) LIKE '" . $this->con->escape($params['q']) . "' " .
+            "LOWER(B.blog_id) LIKE '" . $this->con()->escape($params['q']) . "' " .
+            "OR LOWER(B.blog_name) LIKE '" . $this->con()->escape($params['q']) . "' " .
+            "OR LOWER(B.blog_url) LIKE '" . $this->con()->escape($params['q']) . "' " .
                 ') ';
         }
 
         $strReq = sprintf($strReq, $join, $where);
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtBlog');
 
         return $rs;
@@ -1338,7 +1205,7 @@ class Core
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
-        $cur->update("WHERE blog_id = '" . $this->con->escape($blog_id) . "'");
+        $cur->update("WHERE blog_id = '" . $this->con()->escape($blog_id) . "'");
     }
 
     /**
@@ -1384,9 +1251,9 @@ class Core
         }
 
         $strReq = 'DELETE FROM ' . $this->prefix . 'blog ' .
-        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
+        "WHERE blog_id = '" . $this->con()->escape($blog_id) . "' ";
 
-        $this->con->execute($strReq);
+        $this->con()->execute($strReq);
     }
 
     /**
@@ -1400,9 +1267,9 @@ class Core
     {
         $strReq = 'SELECT blog_id ' .
         'FROM ' . $this->prefix . 'blog ' .
-        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
+        "WHERE blog_id = '" . $this->con()->escape($blog_id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
 
         return !$rs->isEmpty();
     }
@@ -1419,13 +1286,13 @@ class Core
     {
         $strReq = 'SELECT COUNT(post_id) ' .
         'FROM ' . $this->prefix . 'post ' .
-        "WHERE blog_id = '" . $this->con->escape($blog_id) . "' ";
+        "WHERE blog_id = '" . $this->con()->escape($blog_id) . "' ";
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . $this->con->escape($post_type) . "' ";
+            $strReq .= "AND post_type = '" . $this->con()->escape($post_type) . "' ";
         }
 
-        return (int) $this->con->select($strReq)->f(0);
+        return (int) $this->con()->select($strReq)->f(0);
     }
     //@}
 
@@ -1443,19 +1310,19 @@ class Core
     {
         $strReq = 'SELECT COUNT(post_id) ' .
         'FROM ' . $this->prefix . 'post';
-        $rs    = $this->con->select($strReq);
+        $rs    = $this->con()->select($strReq);
         $count = $rs->f(0);
 
         $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
         'FROM ' . $this->prefix . 'post ';
 
         if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
+            $strReq .= $this->con()->limit($start, $limit);
         }
 
-        $rs = $this->con->select($strReq, true);
+        $rs = $this->con()->select($strReq, true);
 
-        $cur = $this->con->openCursor($this->prefix . 'post');
+        $cur = $this->con()->openCursor($this->prefix . 'post');
 
         while ($rs->fetch()) {
             $words = $rs->post_title . ' ' . $rs->post_excerpt_xhtml . ' ' .
@@ -1485,19 +1352,19 @@ class Core
     {
         $strReq = 'SELECT COUNT(comment_id) ' .
         'FROM ' . $this->prefix . 'comment';
-        $rs    = $this->con->select($strReq);
+        $rs    = $this->con()->select($strReq);
         $count = $rs->f(0);
 
         $strReq = 'SELECT comment_id, comment_content ' .
         'FROM ' . $this->prefix . 'comment ';
 
         if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
+            $strReq .= $this->con()->limit($start, $limit);
         }
 
-        $rs = $this->con->select($strReq);
+        $rs = $this->con()->select($strReq);
 
-        $cur = $this->con->openCursor($this->prefix . 'comment');
+        $cur = $this->con()->openCursor($this->prefix . 'comment');
 
         while ($rs->fetch()) {
             $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
@@ -1529,8 +1396,8 @@ class Core
             'WHERE C.post_id = P.post_id AND C.comment_trackback = 1 ' .
             'AND C.comment_status = 1 ' .
             ')';
-        $this->con->execute($updCommentReq);
-        $this->con->execute($updTrackbackReq);
+        $this->con()->execute($updCommentReq);
+        $this->con()->execute($updTrackbackReq);
     }
 
     /**

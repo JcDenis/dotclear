@@ -137,13 +137,13 @@ class Antispam
         $strReq = 'SELECT comment_id ' .
         'FROM ' . dotclear()->prefix . 'comment C ' .
         'JOIN ' . dotclear()->prefix . 'post P ON P.post_id = C.post_id ' .
-        "WHERE blog_id = '" . dotclear()->con->escape(dotclear()->blog->id) . "' " .
+        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
             'AND comment_status = -2 ';
         if ($beforeDate) {
             $strReq .= 'AND comment_dt < \'' . $beforeDate . '\' ';
         }
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         $r  = [];
         while ($rs->fetch()) {
             $r[] = (int) $rs->comment_id;
@@ -154,9 +154,9 @@ class Antispam
         }
 
         $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_id ' . dotclear()->con->in($r) . ' ';
+        'WHERE comment_id ' . dotclear()->con()->in($r) . ' ';
 
-        dotclear()->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
     }
 
     public static function getUserCode(): string
@@ -180,9 +180,9 @@ class Antispam
 
         $strReq = 'SELECT user_id, user_pwd ' .
         'FROM ' . dotclear()->prefix . 'user ' .
-        "WHERE user_id = '" . dotclear()->con->escape($user_id) . "' ";
+        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if ($rs->isEmpty()) {
             return false;
@@ -237,7 +237,7 @@ class Antispam
 
     public static function installModule(): ?bool
     {
-        $s = new Structure(dotclear()->con, dotclear()->prefix);
+        $s = new Structure(dotclear()->con(), dotclear()->prefix);
 
         $s->comment
             ->comment_spam_status('varchar', 128, true, 0)
@@ -261,7 +261,7 @@ class Antispam
         }
 
         # Schema installation
-        $si      = new Structure(dotclear()->con, dotclear()->prefix);
+        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
         $changes = $si->synchronize($s);
 
         # Creating default wordslist

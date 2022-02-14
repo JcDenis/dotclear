@@ -55,7 +55,7 @@ class Trackback
         'FROM ' . $this->table . ' ' .
         'WHERE post_id = ' . (integer) $post_id;
 
-        return dotclear()->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
     /**
@@ -82,9 +82,9 @@ class Trackback
         # Check for previously done trackback
         $strReq = 'SELECT post_id, ping_url FROM ' . $this->table . ' ' .
         'WHERE post_id = ' . $post_id . ' ' .
-        "AND ping_url = '" . dotclear()->con->escape($url) . "' ";
+        "AND ping_url = '" . dotclear()->con()->escape($url) . "' ";
 
-        $rs = dotclear()->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if (!$rs->isEmpty()) {
             throw new CoreException(sprintf(__('%s has still been pinged'), $url));
@@ -165,7 +165,7 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
-        $cur           = dotclear()->con->openCursor($this->table);
+        $cur           = dotclear()->con()->openCursor($this->table);
         $cur->post_id  = $post_id;
         $cur->ping_url = $url;
         $cur->ping_dt  = date('Y-m-d H:i:s');
@@ -484,7 +484,7 @@ class Trackback
             '<p><strong>' . ($title ?: $blog_name) . "</strong></p>\n" .
             '<p>' . $excerpt . '</p>';
 
-        $cur                    = dotclear()->con->openCursor(dotclear()->prefix . 'comment');
+        $cur                    = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
         $cur->comment_author    = (string) $blog_name;
         $cur->comment_site      = (string) $url;
         $cur->comment_content   = (string) $comment;
@@ -511,10 +511,10 @@ class Trackback
      */
     private function delBacklink($post_id, $url)
     {
-        dotclear()->con->execute(
+        dotclear()->con()->execute(
             'DELETE FROM ' . dotclear()->prefix . 'comment ' .
             'WHERE post_id = ' . ((integer) $post_id) . ' ' .
-            "AND comment_site = '" . dotclear()->con->escape((string) $url) . "' " .
+            "AND comment_site = '" . dotclear()->con()->escape((string) $url) . "' " .
             'AND comment_trackback = 1 '
         );
     }

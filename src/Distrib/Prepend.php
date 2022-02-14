@@ -49,16 +49,16 @@ class Prepend extends Core
         parent::process();
 
         echo "Starting upgrade process\n";
-        $this->con->begin();
+        $this->con()->begin();
 
         try {
             $changes = Upgrade::dotclearUpgrade();
         } catch (\Exception $e) {
-            $this->con->rollback();
+            $this->con()->rollback();
 
             throw $e;
         }
-        $this->con->commit();
+        $this->con()->commit();
         echo 'Upgrade process successfully completed (' . $changes . "). \n";
         exit(0);
     }

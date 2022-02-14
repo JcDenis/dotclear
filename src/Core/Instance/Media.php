@@ -35,7 +35,6 @@ use Dotclear\Utils\ImageMeta;
 
 class Media extends Manager
 {
-    protected $con;   ///< <b>connection</b> Database connection
     protected $table; ///< <b>string</b> Media table name
     protected $type;  ///< <b>string</b> Media type filter
     protected $file_sort = 'name-asc';
@@ -77,7 +76,6 @@ class Media extends Manager
      */
     public function __construct($type = '')
     {
-        $this->con       = dotclear()->con;
         $this->postmedia = new PostMedia();
 
         if (dotclear()->blog == null) {
@@ -842,7 +840,7 @@ class Media extends Manager
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $name) : Path::clean($name);
         $media_type = Files::getMimeType($name);
 
-        $cur = $this->con->openCursor($this->table);
+        $cur = dotclear()->con()->openCursor($this->table);
 
         $sql = new SelectStatement('dcMediaCreateFile');
         $sql
@@ -854,7 +852,7 @@ class Media extends Manager
         $rs = $sql->select();
 
         if ($rs->isEmpty()) {
-            $this->con->writeLock($this->table);
+            dotclear()->con()->writeLock($this->table);
 
             try {
                 $sql = new SelectStatement('dcMediaCreateFile');
@@ -889,9 +887,9 @@ class Media extends Manager
 
                     throw $e;
                 }
-                $this->con->unlock();
+                dotclear()->con()->unlock();
             } catch (\Exception $e) {
-                $this->con->unlock();
+                dotclear()->con()->unlock();
 
                 throw $e;
             }
@@ -936,7 +934,7 @@ class Media extends Manager
             throw new CoreException(__('You are not the file owner.'));
         }
 
-        $cur = $this->con->openCursor($this->table);
+        $cur = dotclear()->con()->openCursor($this->table);
 
         # We need to tidy newFile basename. If dir isn't empty, concat to basename
         $newFile->relname = Files::tidyFileName($newFile->basename);
@@ -1054,7 +1052,7 @@ class Media extends Manager
 
         $sql->delete();
 
-        if ($this->con->changes() == 0) {
+        if (dotclear()->con()->changes() == 0) {
             throw new CoreException(__('File does not exist in the database.'));
         }
 
@@ -1328,7 +1326,7 @@ class Media extends Manager
         $meta = ImageMeta::readMeta($file);
         $xml->insertNode($meta);
 
-        $c             = dotclear()->con->openCursor($this->table);
+        $c             = dotclear()->con()->openCursor($this->table);
         $c->media_meta = $xml->toXML();
 
         if ($cur->media_title !== null && $cur->media_title == basename($cur->media_file)) {

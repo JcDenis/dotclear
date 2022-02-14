@@ -198,8 +198,8 @@ class UpdateStatement extends SqlStatement
             return $cur->update($this->whereStatement());
         }
 
-        if ($this->con && ($sql = $this->statement())) {
-            return $this->con->execute($sql);
+        if (($sql = $this->statement())) {
+            return dotclear()->con()->execute($sql);
         }
 
         return false;

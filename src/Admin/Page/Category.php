@@ -125,7 +125,7 @@ class Category extends Page
 
         # Create or update a category
         if (isset($_POST['cat_title'])) {
-            $cur = dotclear()->con->openCursor(dotclear()->prefix . 'category');
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
 
             $cur->cat_title = $this->cat_title = $_POST['cat_title'];
 

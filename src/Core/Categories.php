@@ -32,10 +32,11 @@ class Categories extends NestedTree
      */
     public function __construct()
     {
-        $this->con           = dotclear()->con;
+        parent::__construct(dotclear()->con());
+
         $this->blog_id       = dotclear()->blog->id;
         $this->table         = dotclear()->prefix . 'category';
-        $this->add_condition = ['blog_id' => "'" . $this->con->escape($this->blog_id) . "'"];
+        $this->add_condition = ['blog_id' => "'" . dotclear()->con()->escape($this->blog_id) . "'"];
     }
 
     /**

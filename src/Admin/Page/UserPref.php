@@ -180,7 +180,7 @@ class UserPref extends Page
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
-                $cur = dotclear()->con->openCursor(dotclear()->prefix . 'user');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
                 $cur->user_name        = $this->container->setName($_POST['user_name']);
                 $cur->user_firstname   = $this->container->setFirstname($_POST['user_firstname']);
@@ -236,7 +236,7 @@ class UserPref extends Page
         # Update user options
         if (isset($_POST['user_options_submit'])) {
             try {
-                $cur = dotclear()->con->openCursor(dotclear()->prefix . 'user');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
                 $cur->user_name        = $this->container->getName();
                 $cur->user_firstname   = $this->container->getFirstname();

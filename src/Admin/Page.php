@@ -314,8 +314,8 @@ abstract class Page
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = dotclear()->con->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
-            $csp_suffix = dotclear()->con->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_prefix = dotclear()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_suffix = dotclear()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
             $csp['default-src'] = dotclear()->blog->settings->system->csp_admin_default ?:
             $csp_prefix . "'self'" . $csp_suffix;

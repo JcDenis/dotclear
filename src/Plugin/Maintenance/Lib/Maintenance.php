@@ -209,10 +209,10 @@ class Maintenance
         }
 
         // Get logs from this task
-        $rs = dotclear()->con->select(
+        $rs = dotclear()->con()->select(
             'SELECT log_id ' .
             'FROM ' . dotclear()->prefix . 'log ' .
-            "WHERE log_msg = '" . dotclear()->con->escape($id) . "' " .
+            "WHERE log_msg = '" . dotclear()->con()->escape($id) . "' " .
             "AND log_table = 'maintenance' "
         );
 
@@ -227,7 +227,7 @@ class Maintenance
         }
 
         // Add new log
-        $cur = dotclear()->con->openCursor(dotclear()->prefix . 'log');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'log');
 
         $cur->log_msg   = $id;
         $cur->log_table = 'maintenance';

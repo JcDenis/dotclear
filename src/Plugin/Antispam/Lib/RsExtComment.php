@@ -39,7 +39,7 @@ class RsExtComment
 
     private static function spamField(Record $rs, string $field): ? string
     {
-        $rspam = dotclear()->con->select('SELECT ' . $field . ' FROM ' . dotclear()->prefix . "comment WHERE comment_id = " . $rs->comment_id . " LIMIT 1 ");
+        $rspam = dotclear()->con()->select('SELECT ' . $field . ' FROM ' . dotclear()->prefix . "comment WHERE comment_id = " . $rs->comment_id . " LIMIT 1 ");
 
         return $rspam->isEmpty() ? null : $rspam->{$field};
     }

@@ -44,7 +44,7 @@ abstract class NestedTree
      */
     public function __construct(Connection $con)
     {
-        $this->con = &$con;
+        $this->con = $con;
     }
 
     /**
