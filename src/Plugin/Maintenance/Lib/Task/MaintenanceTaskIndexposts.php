@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Utils\Text;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -40,7 +41,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
 
     public function execute()
     {
-        $this->code = dotclear()->indexAllPosts($this->code, $this->limit);
+        $this->code = $this->indexAllPosts($this->code, $this->limit);
 
         return $this->code ?: true;
     }
@@ -58,5 +59,47 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
     public function success()
     {
         return $this->code ? sprintf($this->step, $this->code - $this->limit, $this->code) : $this->success;
+    }
+
+    /**
+     * Recreates entries search engine index.
+     *
+     * @param   int|null    $start  The start entry index
+     * @param   int|null    $limit  The limit of entry to index
+     *
+     * @return  int|null    Sum of <var>$start</var> and <var>$limit</var>
+     */
+    public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
+    {
+        $strReq = 'SELECT COUNT(post_id) ' .
+        'FROM ' . dotclear()->prefix . 'post';
+        $rs    = dotclear()->con()->select($strReq);
+        $count = $rs->f(0);
+
+        $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
+        'FROM ' . dotclear()->prefix . 'post ';
+
+        if ($start !== null && $limit !== null) {
+            $strReq .= dotclear()->con()->limit($start, $limit);
+        }
+
+        $rs = dotclear()->con()->select($strReq, true);
+
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+
+        while ($rs->fetch()) {
+            $words = $rs->post_title . ' ' . $rs->post_excerpt_xhtml . ' ' .
+            $rs->post_content_xhtml;
+
+            $cur->post_words = implode(' ', Text::splitWords($words));
+            $cur->update('WHERE post_id = ' . (int) $rs->post_id);
+            $cur->clean();
+        }
+
+        if ($start + $limit > $count) {
+            return null;
+        }
+
+        return $start + $limit;
     }
 }

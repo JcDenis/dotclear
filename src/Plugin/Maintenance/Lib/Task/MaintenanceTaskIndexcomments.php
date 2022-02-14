@@ -15,6 +15,8 @@ namespace Dotclear\Plugin\Maintenance\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
 
+use Dotclear\Utils\Text;
+
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -40,7 +42,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
 
     public function execute()
     {
-        $this->code = dotclear()->indexAllComments($this->code, $this->limit);
+        $this->code = $this->indexAllComments($this->code, $this->limit);
 
         return $this->code ?: true;
     }
@@ -58,5 +60,44 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
     public function success()
     {
         return $this->code ? sprintf($this->step, $this->code - $this->limit, $this->code) : $this->success;
+    }
+
+    /**
+     * Recreates comments search engine index.
+     *
+     * @param  int|null     $start  The start comment index
+     * @param  int|null     $limit  The limit of comment to index
+     *
+     * @return int|null     Sum of <var>$start</var> and <var>$limit</var>
+     */
+    public function indexAllComments(?int $start = null, ?int $limit = null): ?int
+    {
+        $strReq = 'SELECT COUNT(comment_id) ' .
+        'FROM ' . dotclear()->prefix . 'comment';
+        $rs    = dotclear()->con()->select($strReq);
+        $count = $rs->f(0);
+
+        $strReq = 'SELECT comment_id, comment_content ' .
+        'FROM ' . dotclear()->prefix . 'comment ';
+
+        if ($start !== null && $limit !== null) {
+            $strReq .= dotclear()->con()->limit($start, $limit);
+        }
+
+        $rs = dotclear()->con()->select($strReq);
+
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+
+        while ($rs->fetch()) {
+            $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
+            $cur->update('WHERE comment_id = ' . (int) $rs->comment_id);
+            $cur->clean();
+        }
+
+        if ($start + $limit > $count) {
+            return null;
+        }
+
+        return $start + $limit;
     }
 }

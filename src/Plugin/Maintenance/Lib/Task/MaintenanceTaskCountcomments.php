@@ -34,8 +34,29 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
 
     public function execute()
     {
-        dotclear()->countAllComments();
+        $this->countAllComments();
 
         return true;
+    }
+
+    /**
+     * Reinits nb_comment and nb_trackback in post table.
+     */
+    public function countAllComments(): void
+    {
+        $updCommentReq = 'UPDATE ' . dotclear()->prefix . 'post P ' .
+        'SET nb_comment = (' .
+        'SELECT COUNT(C.comment_id) from ' . dotclear()->prefix . 'comment C ' .
+            'WHERE C.post_id = P.post_id AND C.comment_trackback <> 1 ' .
+            'AND C.comment_status = 1 ' .
+            ')';
+        $updTrackbackReq = 'UPDATE ' . dotclear()->prefix . 'post P ' .
+        'SET nb_trackback = (' .
+        'SELECT COUNT(C.comment_id) from ' . dotclear()->prefix . 'comment C ' .
+            'WHERE C.post_id = P.post_id AND C.comment_trackback = 1 ' .
+            'AND C.comment_status = 1 ' .
+            ')';
+        dotclear()->con()->execute($updCommentReq);
+        dotclear()->con()->execute($updTrackbackReq);
     }
 }
