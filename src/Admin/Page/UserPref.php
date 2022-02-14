@@ -130,7 +130,7 @@ class UserPref extends Page
         }
 
         # Format by editors
-        $formaters         = dotclear()->getFormaters();
+        $formaters         = dotclear()->formater()->getFormaters();
         $this->format_by_editors = [];
         foreach ($formaters as $editor => $formats) {
             foreach ($formats as $format) {

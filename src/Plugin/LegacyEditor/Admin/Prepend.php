@@ -31,8 +31,8 @@ class Prepend extends AbstractPrepend
         if ($self_ns->active) {
             dotclear()->initWikiPost();
 
-            dotclear()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            dotclear()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml(), 'transform']);
+            dotclear()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+            dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml(), 'transform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
             dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);

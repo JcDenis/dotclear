@@ -173,7 +173,7 @@ class Combos
     public function getEditorsCombo()
     {
         $editors_combo = [];
-        foreach (dotclear()->getEditors() as $v) {
+        foreach (dotclear()->formater()->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -191,11 +191,11 @@ class Combos
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
-            foreach (dotclear()->getFormaters($editor_id) as $formater) {
+            foreach (dotclear()->formater()->getFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach (dotclear()->getFormaters() as $editor => $formaters) {
+            foreach (dotclear()->formater()->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }

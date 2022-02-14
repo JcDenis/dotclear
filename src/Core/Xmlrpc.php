@@ -373,8 +373,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $title = Text::cutString(Html::clean($content), 25) . '...';
         }
 
-        $excerpt_xhtml = dotclear()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
-        $content_xhtml = dotclear()->callEditorFormater('LegacyEditor', 'xhtml', $content);
+        $excerpt_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
+        $content_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', 'xhtml', $content);
 
         if (empty($content)) {
             throw new CoreException('Cannot create an empty entry');
@@ -472,8 +472,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $title = Text::cutString(Html::clean($content), 25) . '...';
         }
 
-        $excerpt_xhtml = dotclear()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
-        $content_xhtml = dotclear()->callEditorFormater('LegacyEditor', 'xhtml', $content);
+        $excerpt_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', 'xhtml', $excerpt);
+        $content_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', 'xhtml', $content);
 
         if (empty($content)) {
             throw new CoreException('Cannot create an empty entry');

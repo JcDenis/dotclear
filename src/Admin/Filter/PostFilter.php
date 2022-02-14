@@ -153,7 +153,7 @@ class PostFilter extends Filter
      */
     public function getPostFormatFilter(): DefaultFilter
     {
-        $core_formaters    = dotclear()->getFormaters();
+        $core_formaters    = dotclear()->formater()->getFormaters();
         $available_formats = [];
         foreach ($core_formaters as $editor => $formats) {
             foreach ($formats as $format) {
