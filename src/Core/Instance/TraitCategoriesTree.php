@@ -29,7 +29,7 @@ trait TraitCategoriesTree
      *
      * @return  CategoriesTree   CategoriesTree instance
      */
-    public function categoriestree(): CategoriesTree
+    protected function categoriestree(): CategoriesTree
     {
         if (!($this->categoriestree instanceof CategoriesTree)) {
             $this->categoriestree = new CategoriesTree();
