@@ -59,7 +59,7 @@ class User extends Page
         # Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = dotclear()->getUser($_REQUEST['id']);
+                $rs = dotclear()->users()->getUser($_REQUEST['id']);
 
                 $this->container->fromRecord($rs);
 
@@ -123,7 +123,7 @@ class User extends Page
                     # --BEHAVIOR-- adminBeforeUserUpdate
                     dotclear()->behavior()->call('adminBeforeUserUpdate', $cur, $this->container->getId());
 
-                    $new_id = dotclear()->updUser($this->container->getId(), $cur);
+                    $new_id = dotclear()->users()->updUser($this->container->getId(), $cur);
 
                     # Update profile
                     # Sanitize list of secondary mails and urls if any
@@ -151,14 +151,14 @@ class User extends Page
                 }
                 # Add user
                 else {
-                    if (dotclear()->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
+                    if (dotclear()->users()->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->user_id)));
                     }
 
                     # --BEHAVIOR-- adminBeforeUserCreate
                     dotclear()->behavior()->call('adminBeforeUserCreate', $cur);
 
-                    $new_id = dotclear()->addUser($cur);
+                    $new_id = dotclear()->users()->addUser($cur);
 
                     # Update profile
                     # Sanitize list of secondary mails and urls if any
@@ -414,7 +414,7 @@ class User extends Page
                 '</p>' .
                 '</form>';
 
-            $permissions = dotclear()->getUserPermissions($this->container->getId());
+            $permissions = dotclear()->users()->getUserPermissions($this->container->getId());
             $perm_types  = dotclear()->auth()->getPermissionsTypes();
 
             if (count($permissions) == 0) {

@@ -68,8 +68,8 @@ class Users extends Page
         # --BEHAVIOR-- adminGetUsers
         dotclear()->behavior()->call('adminGetUsers', $params);
 
-        $rs       = dotclear()->getUsers($params);
-        $counter  = dotclear()->getUsers($params, true);
+        $rs       = dotclear()->users()->getUsers($params);
+        $counter  = dotclear()->users()->getUsers($params, true);
         $rsStatic = $rs->toStatic();
         if ($this->filter->sortby != 'nb_post') {
             // Sort user list using lexical order if necessary

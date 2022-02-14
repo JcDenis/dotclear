@@ -107,7 +107,7 @@ class UserCatalog extends Catalog
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $p = dotclear()->getUserPermissions($this->rs->user_id);
+        $p = dotclear()->users()->getUserPermissions($this->rs->user_id);
 
         if (isset($p[dotclear()->blog()->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');

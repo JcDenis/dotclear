@@ -42,7 +42,7 @@ class UserAction extends Page
         $this->users = [];
         if (!empty($_POST['users']) && is_array($_POST['users'])) {
             foreach ($_POST['users'] as $u) {
-                if (dotclear()->userExists($u)) {
+                if (dotclear()->users()->userExists($u)) {
                     $this->users[] = $u;
                 }
             }
@@ -90,7 +90,7 @@ class UserAction extends Page
                         # --BEHAVIOR-- adminBeforeUserDelete
                         dotclear()->behavior()->call('adminBeforeUserDelete', $u);
 
-                        dotclear()->delUser($u);
+                        dotclear()->users()->delUser($u);
                     } catch (\Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
@@ -120,7 +120,7 @@ class UserAction extends Page
                                 }
                             }
 
-                            dotclear()->setUserBlogPermissions($u, $b, $set_perms, true);
+                            dotclear()->users()->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
                 } catch (\Exception $e) {
@@ -259,7 +259,7 @@ class UserAction extends Page
         } elseif (!empty($this->blogs) && !empty($this->users) && $this->user_action == 'perms') {
             $user_perm = [];
             if (count($this->users) == 1) {
-                $user_perm = dotclear()->getUserPermissions($this->users[0]);
+                $user_perm = dotclear()->users()->getUserPermissions($this->users[0]);
             }
 
             foreach ($this->users as $u) {

@@ -252,7 +252,7 @@ class Auth extends Page
             $cur                  = dotclear()->con->openCursor(dotclear()->prefix . 'user');
             $cur->user_change_pwd = 0;
             $cur->user_pwd        = $_POST['new_pwd'];
-            dotclear()->updUser(dotclear()->auth()->userID(), $cur);
+            dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
 
             dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;

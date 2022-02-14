@@ -273,7 +273,7 @@ class DefaultPostAction
             if (empty($posts_ids)) {
                 throw new AdminException(__('No entry selected'));
             }
-            if (dotclear()->getUser($new_user_id)->isEmpty()) {
+            if (dotclear()->users()->getUser($new_user_id)->isEmpty()) {
                 throw new AdminException(__('This user does not exist'));
             }
 
@@ -298,7 +298,7 @@ class DefaultPostAction
                     'limit' => 100,
                     'order' => 'nb_post DESC'
                 ];
-                $rs       = dotclear()->getUsers($params);
+                $rs       = dotclear()->users()->getUsers($params);
                 $rsStatic = $rs->toStatic();
                 $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
                 $rsStatic = $rsStatic->toExtStatic();

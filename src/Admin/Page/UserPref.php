@@ -82,7 +82,7 @@ class UserPref extends Page
 
         $this->container = new ContainerUser();
 
-        $this->container->fromRecord(dotclear()->getUser(dotclear()->auth()->userID()));
+        $this->container->fromRecord(dotclear()->users()->getUser(dotclear()->auth()->userID()));
 
         if (empty($this->container->getOption('editor'))) {
             $this->container->setOption('editor', []);
@@ -208,7 +208,7 @@ class UserPref extends Page
                 dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->auth()->userID());
 
                 # Udate user
-                dotclear()->updUser(dotclear()->auth()->userID(), $cur);
+                dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
 
                 # Update profile
                 # Sanitize list of secondary mails and urls if any
@@ -323,7 +323,7 @@ class UserPref extends Page
                 dotclear()->auth()->user_prefs->interface->put('rte_flags', $rf, 'array');
 
                 # Update user
-                dotclear()->updUser(dotclear()->auth()->userID(), $cur);
+                dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
                 dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->auth()->userID());

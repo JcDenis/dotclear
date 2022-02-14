@@ -39,7 +39,7 @@ class Home extends Page
         # Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
-                dotclear()->setUserDefaultBlog(dotclear()->auth()->userID(), dotclear()->blog()->id);
+                dotclear()->users()->setUserDefaultBlog(dotclear()->auth()->userID(), dotclear()->blog()->id);
                 dotclear()->adminurl->redirect('admin.home');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
