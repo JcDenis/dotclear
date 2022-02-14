@@ -41,7 +41,7 @@ class Upgrade
 
     protected function doUpgrade()
     {
-        $version = dotclear()->getVersion('core');
+        $version = dotclear()->version()->get('core');
 
         if ($version === null) {
             return false;
@@ -895,7 +895,7 @@ class Upgrade
             }
         }
 
-        dotclear()->setVersion('core', dotclear()->config()->core_version);
+        dotclear()->version()->set('core', dotclear()->config()->core_version);
         Distrib::setBlogDefaultSettings();
 
         return $cleanup_sessions;

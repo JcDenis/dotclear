@@ -56,6 +56,7 @@ class Core
     use \Dotclear\Core\Instance\TraitRest;
     use \Dotclear\Core\Instance\TraitSession;
     use \Dotclear\Core\Instance\TraitUrl;
+    use \Dotclear\Core\Instance\TraitVersion;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
 
     /** @var Blog               Blog instance */
@@ -69,9 +70,6 @@ class Core
 
     /** @var array              posts types container */
     private $post_types = [];
-
-    /** @var array              versions container */
-    private $versions   = null;
 
     /** @var Core               Core singleton instance */
     private static $instance;
@@ -248,7 +246,7 @@ class Core
         define('DOTCLEAR_PROCESS', $this->process);
 
         ##
-        # Not call to trait methods before here.
+        # No call to trait methods before here.
         ##
 
         # Force database connection instanciation
@@ -542,73 +540,6 @@ class Core
     public function getPostTypes(): array
     {
         return $this->post_types;
-    }
-    //@}
-
-    /// @name Versions management methods
-    //@{
-    /**
-     * Gets the version of a module.
-     *
-     * @param   string  $module     The module
-     *
-     * @return  string|null  The version.
-     */
-    public function getVersion(string $module = 'core'): ?string
-    {
-        # Fetch versions if needed
-        if (!is_array($this->versions)) {
-            $sql = new SelectStatement('CoreCoreGetVersion');
-            $sql
-                ->columns(['module', 'version'])
-                ->from($this->prefix . 'version');
-
-            $rs = $sql->select();
-
-            while ($rs->fetch()) {
-                $this->versions[$rs->module] = $rs->version;
-            }
-        }
-
-        return isset($this->versions[$module]) ? (string) $this->versions[$module] : null;
-    }
-
-    /**
-     * Sets the version of a module.
-     *
-     * @param   string  $module     The module
-     * @param   string  $version    The version
-     */
-    public function setVersion(string $module, string $version): void
-    {
-        $cur          = $this->con()->openCursor($this->prefix . 'version');
-        $cur->module  = $module;
-        $cur->version = $version;
-
-        if ($this->getVersion($module) === null) {
-            $cur->insert();
-        } else {
-            $cur->update("WHERE module='" . $this->con()->escape($module) . "'");
-        }
-
-        $this->versions[$module] = $version;
-    }
-
-    /**
-     * Remove a module version entry
-     *
-     * @param   string  $module     The module
-     */
-    public function delVersion(string $module): void
-    {
-        $sql = new DeleteStatement('CoreCoreDelVersion');
-        $sql->from($this->prefix . 'version')
-            ->where("module = '" . $this->con()->escape($module) . "'")
-            ->delete();
-
-        if (is_array($this->versions)) {
-            unset($this->versions[$module]);
-        }
     }
     //@}
 

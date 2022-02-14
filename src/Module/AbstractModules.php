@@ -486,7 +486,7 @@ abstract class AbstractModules
         }
 
         # Check module version in db
-        if (version_compare((string) dotclear()->getVersion($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
+        if (version_compare((string) dotclear()->version()->get($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
             return null;
         }
 
@@ -503,7 +503,7 @@ abstract class AbstractModules
             $class::unsetDefine();
 
             # Update module version in db
-            dotclear()->setVersion($id, $this->modules_enabled[$id]->version());
+            dotclear()->version()->set($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
         } catch (\Exception $e) {

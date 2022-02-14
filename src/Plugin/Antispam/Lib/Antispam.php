@@ -265,7 +265,7 @@ class Antispam
         $changes = $si->synchronize($s);
 
         # Creating default wordslist
-        if (dotclear()->getVersion('Antispam') === null) {
+        if (dotclear()->version()->get('Antispam') === null) {
             $_o = new FilterWords();
             $_o->defaultWordsList();
             unset($_o);

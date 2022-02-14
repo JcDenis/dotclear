@@ -71,7 +71,7 @@ class Workspace
         try {
             $this->getPrefs($rs);
         } catch (\Exception $e) {
-            if (version_compare(dotclear()->getVersion('core'), '2.3', '>')) {
+            if (version_compare(dotclear()->version()->get('core'), '2.3', '>')) {
                 trigger_error(__('Unable to retrieve prefs:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
         }
