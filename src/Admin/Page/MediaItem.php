@@ -720,7 +720,7 @@ class MediaItem extends Page
             } else {
                 echo '<ul>';
                 while ($rs->fetch()) {
-                    $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" />';
+                    $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
                     $img_status = '';
                     switch ($rs->post_status) {
                         case 1:

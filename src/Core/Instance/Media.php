@@ -17,7 +17,6 @@ namespace Dotclear\Core\Instance;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\PostMedia;
 use Dotclear\Core\Sql\SelectStatement;
 use Dotclear\Core\Sql\DeleteStatement;
 use Dotclear\Core\Sql\UpdateStatement;
@@ -35,6 +34,8 @@ use Dotclear\Utils\ImageMeta;
 
 class Media extends Manager
 {
+    use \Dotclear\Core\Instance\TraitPostMedia;
+
     protected $table; ///< <b>string</b> Media table name
     protected $type;  ///< <b>string</b> Media type filter
     protected $file_sort = 'name-asc';
@@ -43,8 +44,6 @@ class Media extends Manager
     protected $relpwd;
 
     protected $file_handler = []; ///< <b>array</b> Array of callbacks
-
-    protected $postmedia;
 
     public $thumb_tp       = '%s/.%s_%s.jpg';  ///< <b>string</b> Thumbnail file pattern
     public $thumb_tp_alpha = '%s/.%s_%s.png';  ///< <b>string</b> Thumbnail file pattern (with alpha layer)
@@ -76,8 +75,6 @@ class Media extends Manager
      */
     public function __construct($type = '')
     {
-        $this->postmedia = new PostMedia();
-
         if (dotclear()->blog() == null) {
             throw new CoreException(__('No blog defined.'));
         }
@@ -722,7 +719,7 @@ class Media extends Manager
         if ($link_type) {
             $params['link_type'] = $link_type;
         }
-        $rs = $this->postmedia->getPostMedia($params);
+        $rs = $this->postmedia()->getPostMedia($params);
 
         $res = [];
 

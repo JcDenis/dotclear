@@ -15,9 +15,6 @@ namespace Dotclear\Admin\Page;
 
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Media;
-use Dotclear\Core\PostMedia as CorePostMedia;
-
 use Dotclear\Admin\Page;
 
 use Dotclear\Html\Form;
@@ -31,6 +28,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class PostMedia extends Page
 {
+    use \Dotclear\Core\Instance\TraitPostMedia;
+
     protected function getPermissions(): string|null|false
     {
         return 'usage,contentadmin';
@@ -52,8 +51,7 @@ class PostMedia extends Page
 
         try {
             if ($post_id && $media_id && !empty($_REQUEST['attach'])) { // @phpstan-ignore-line
-                $pm = new CorePostMedia();
-                $pm->addPostMedia($post_id, $media_id, $link_type);
+                $this->postmedia()->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
                     echo json_encode(['url' => dotclear()->posttype()->getPostAdminURL($rs->post_type, $post_id, false)]);
@@ -76,8 +74,7 @@ class PostMedia extends Page
         # Remove a media from en
         if (($post_id && $media_id) || dotclear()->error()->flag()) {
             if (!empty($_POST['remove'])) {
-                $pm = new CorePostMedia(dotclear());
-                $pm->removePostMedia($post_id, $media_id, $link_type);
+                $this->postmedia()->removePostMedia($post_id, $media_id, $link_type);
 
                 dotclear()->notices->addSuccessNotice(__('Attachment has been successfully removed.'));
                 Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $post_id, false));
