@@ -121,6 +121,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminBlogPreferencesForm(Settings $settings)
     {
+        $settings->addNamespace('antispam');
         $ttl = $settings->antispam->antispam_moderation_ttl;
         echo
         '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
@@ -135,6 +136,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
     {
+        $settings->addNamespace('antispam');
         $settings->antispam->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
     }
 
