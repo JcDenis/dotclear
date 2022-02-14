@@ -122,7 +122,7 @@ class DefaultPostAction
                 count($posts_ids)
             ),
             count($posts_ids),
-            dotclear()->blog()->posts()->getPostStatus($status))
+            dotclear()->blog()->getPostStatus($status))
         );
         $ap->redirect(true);
     }
