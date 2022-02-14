@@ -15,7 +15,6 @@ namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 
-use Dotclear\Core\Trackback;
 use Dotclear\Core\Xmlrpc;
 use Dotclear\Exception\CoreException;
 use Dotclear\File\Files;
@@ -30,6 +29,8 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Url
 {
+    use \Dotclear\Core\Instance\TraitTrackback;
+
     protected $types = [];
     protected $default_handler;
     protected $error_handlers = [];
@@ -832,8 +833,7 @@ class Url
             # --BEHAVIOR-- publicBeforeReceiveTrackback
             dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
-            $tb = new Trackback();
-            $tb->receiveTrackback($post_id);
+            $this->trackback()->receiveTrackback($post_id);
         }
     }
 
@@ -848,8 +848,7 @@ class Url
         # --BEHAVIOR-- publicBeforeReceiveTrackback
         dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
-        $tb = new Trackback();
-        $tb->receiveWebmention();
+        $this->trackback()->receiveWebmention();
     }
 
     public function rsd($args)

@@ -19,9 +19,6 @@ use Dotclear\Exception\CoreException;
 
 use Dotclear\Container\User as ContainerUser;
 
-use Dotclear\Core\Media;
-use Dotclear\Core\Trackback;
-
 use Dotclear\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Network\Xmlrpc\Date as XmlrpcDate;
 
@@ -38,6 +35,8 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class XmlRpc extends xmlrpcIntrospectionServer
 {
+    use \Dotclear\Core\Instance\TraitTrackback;
+
     private $blog_id;
     private $blog_loaded    = false;
     private $debug          = false;
@@ -1653,7 +1652,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
     --------------------------------------------------- */
     public function pingback_ping($from_url, $to_url)
     {
-        Trackback::checkURLs($from_url, $to_url);
+        $this->trackback()->checkURLs($from_url, $to_url);
 
         $args = ['type' => 'pingback', 'from_url' => $from_url, 'to_url' => $to_url];
 
@@ -1663,8 +1662,6 @@ class XmlRpc extends xmlrpcIntrospectionServer
         # --BEHAVIOR-- publicBeforeReceiveTrackback
         dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
-        $tb = new Trackback();
-
-        return $tb->receivePingback($from_url, $to_url);
+        return $this->trackback()->receivePingback($from_url, $to_url);
     }
 }

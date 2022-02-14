@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Trackback
+ * @class Dotclear\Core\Instance\Trackback
  * @brief Trackbacks/Pingbacks sender and server
  *
  * Sends and receives trackbacks/pingbacks.
@@ -14,7 +14,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Exception\CoreException;
 
@@ -30,15 +30,8 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Trackback
 {
-    public $table; ///< <b>string</b> done pings table name
-
-    /**
-     * Object constructor
-     */
-    public function __construct()
-    {
-        $this->table = dotclear()->prefix . 'ping';
-    }
+    /** @var    string  Trackback table name */
+    public $table = 'ping';
 
     /// @name Send
     //@{
@@ -52,7 +45,7 @@ class Trackback
     public function getPostPings($post_id)
     {
         $strReq = 'SELECT ping_url, ping_dt ' .
-        'FROM ' . $this->table . ' ' .
+        'FROM ' . dotclear()->prefix . $this->table . ' ' .
         'WHERE post_id = ' . (integer) $post_id;
 
         return dotclear()->con()->select($strReq);
@@ -80,7 +73,7 @@ class Trackback
         $post_id = (integer) $post_id;
 
         # Check for previously done trackback
-        $strReq = 'SELECT post_id, ping_url FROM ' . $this->table . ' ' .
+        $strReq = 'SELECT post_id, ping_url FROM ' . dotclear()->prefix . $this->table . ' ' .
         'WHERE post_id = ' . $post_id . ' ' .
         "AND ping_url = '" . dotclear()->con()->escape($url) . "' ";
 
@@ -165,7 +158,7 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
-        $cur           = dotclear()->con()->openCursor($this->table);
+        $cur           = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
         $cur->post_id  = $post_id;
         $cur->ping_url = $url;
         $cur->ping_dt  = date('Y-m-d H:i:s');
@@ -827,7 +820,7 @@ class Trackback
      *
      * @throws     Exception
      */
-    public static function checkURLs($from_url, $to_url)
+    public function checkURLs($from_url, $to_url)
     {
         if (!(filter_var($from_url, FILTER_VALIDATE_URL) && preg_match('!^https?://!', $from_url))) {
             throw new CoreException(__('No valid source URL provided? Try again!'), 0);

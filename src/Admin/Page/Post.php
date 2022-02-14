@@ -17,9 +17,6 @@ use ArrayObject;
 
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Media;
-use Dotclear\Core\Trackback;
-
 use Dotclear\Admin\Page;
 use Dotclear\Admin\Action\CommentAction;
 
@@ -35,6 +32,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Post extends Page
 {
+    use \Dotclear\Core\Instance\TraitTrackback;
+
     private $post_id            = null;
     private $cat_id             = '';
     private $post_dt            = '';
@@ -102,8 +101,6 @@ class Post extends Page
         }
 
         $this->img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-
-        $this->trackback      = new Trackback();
 
         # Get entry informations
 
@@ -211,7 +208,7 @@ class Post extends Page
                         # --BEHAVIOR-- adminBeforePingTrackback
                         dotclear()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
-                        $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        $this->trackback()->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (\Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
@@ -862,7 +859,7 @@ class Post extends Page
             $has_action   = !empty($combo_action) && !$this->trackbacks->isEmpty();
 
             if (!empty($_GET['tb_auto'])) {
-                $this->tb_urls = implode("\n", $this->trackback->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
+                $this->tb_urls = implode("\n", $this->trackback()->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
             }
 
             # Display tab
@@ -924,7 +921,7 @@ class Post extends Page
                     '</p>' .
                     '</form>';
 
-                $pings = $this->trackback->getPostPings($this->post_id);
+                $pings = $this->trackback()->getPostPings($this->post_id);
 
                 if (!$pings->isEmpty()) {
                     echo '<h3>' . __('Previously sent pings') . '</h3>';
