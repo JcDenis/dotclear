@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use ArrayObject;
-use Closure;
 
 use Dotclear\Core\Blog;
 use Dotclear\Core\Settings;
@@ -55,6 +54,7 @@ class Core
     use \Dotclear\Core\Instance\TraitMedia;
     use \Dotclear\Core\Instance\TraitMeta;
     use \Dotclear\Core\Instance\TraitNonce;
+    use \Dotclear\Core\Instance\TraitPostType;
     use \Dotclear\Core\Instance\TraitRest;
     use \Dotclear\Core\Instance\TraitSession;
     use \Dotclear\Core\Instance\TraitUrl;
@@ -66,9 +66,6 @@ class Core
 
     /** @var string             Current Process */
     protected $process;
-
-    /** @var array              posts types container */
-    private $post_types = [];
 
     /** @var Core               Core singleton instance */
     private static $instance;
@@ -255,7 +252,7 @@ class Core
         $this->registerTopBehaviors();
 
         # Register Core post types
-        $this->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
+        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
 
         # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
@@ -333,76 +330,6 @@ class Core
         $all = $this->getAllBlogStatus();
 
         return isset($all[$status_code]) ? $all[$status_code] : $all[0];
-    }
-    //@}
-
-    /// @name Post types URLs management
-    //@{
-    /**
-     * Gets the post admin url.
-     *
-     * @param   string      $type       The type
-     * @param   string|int  $post_id    The post identifier
-     * @param   bool        $escaped    Escape the URL
-     *
-     * @return  string  The post admin url.
-     */
-    public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
-    {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        $url = sprintf($this->post_types[$type]['admin_url'], $post_id);
-
-        return $escaped ? Html::escapeURL($url) : $url;
-    }
-
-    /**
-     * Gets the post public url.
-     *
-     * @param  string   $type       The type
-     * @param  string   $post_url   The post url
-     * @param  bool     $escaped    Escape the URL
-     *
-     * @return string   The post public url.
-     */
-    public function getPostPublicURL(string $type, string $post_url, bool $escaped = true): string
-    {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        $url = sprintf($this->post_types[$type]['public_url'], $post_url);
-
-        return $escaped ? Html::escapeURL($url) : $url;
-    }
-
-    /**
-     * Sets the post type.
-     *
-     * @param   string  $type           The type
-     * @param   string  $admin_url      The admin url
-     * @param   string  $public_url     The public url
-     * @param   string  $label          The label
-     */
-    public function setPostType(string $type, string $admin_url, string $public_url, string $label = ''): void
-    {
-        $this->post_types[$type] = [
-            'admin_url'  => $admin_url,
-            'public_url' => $public_url,
-            'label'      => ($label != '' ? $label : $type)
-        ];
-    }
-
-    /**
-     * Gets the post types.
-     *
-     * @return  array   The post types.
-     */
-    public function getPostTypes(): array
-    {
-        return $this->post_types;
     }
     //@}
 

@@ -78,7 +78,7 @@ class Comment extends Page
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
-            Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
+            Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
         }
 
         $rs         = null;
@@ -165,7 +165,7 @@ class Comment extends Page
                     dotclear()->blog->delComment($this->comment_id);
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect(dotclear()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
+                    Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
@@ -196,7 +196,7 @@ class Comment extends Page
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog->name) => '',
-                Html::escapeHTML($post_title)          => dotclear()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
+                Html::escapeHTML($post_title)          => dotclear()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
                 __('Edit comment')                     => ''
             ])
         ;

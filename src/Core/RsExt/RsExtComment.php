@@ -195,7 +195,7 @@ class RsExtComment
      */
     public static function getPostURL($rs)
     {
-        return dotclear()->blog->url . dotclear()->getPostPublicURL(
+        return dotclear()->blog->url . dotclear()->posttype()->getPostPublicURL(
             $rs->post_type, Html::sanitizeURL($rs->post_url)
         );
     }

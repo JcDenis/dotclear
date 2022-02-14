@@ -227,7 +227,7 @@ class PostCatalog extends Catalog
             ) .
             '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            dotclear()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
+            dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date'       => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
             'category'   => '<td class="nowrap">' . $cat_title . '</td>',

@@ -133,7 +133,7 @@ class PostMiniCatalog extends Catalog
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            dotclear()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
+            dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
             'title="' . Html::escapeHTML($this->rs->getURL()) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',

@@ -403,7 +403,7 @@ class Media extends Page
         } else {
             if ($this->filter->post_id) {
                 echo '<div class="form-note info"><p>' . sprintf(__('Choose a file to attach to entry %s by clicking on %s'),
-                    '<a href="' . dotclear()->getPostAdminURL($this->filter->getPostType(), $this->filter->post_id) . '">' . Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
+                    '<a href="' . dotclear()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->post_id) . '">' . Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />');
                 if ($this->mediaWritable()) {
                     echo ' ' . __('or') . ' ' . sprintf('<a href="#fileupload">%s</a>', __('upload a new file'));

@@ -740,7 +740,7 @@ class MediaItem extends Page
 
                             break;
                     }
-                    echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
+                    echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
                     $rs->post_title . '</a>' .
                     ($rs->post_type != 'post' ? ' (' . Html::escapeHTML($rs->post_type) . ')' : '') .
                     ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->post_dt) . '</li>';

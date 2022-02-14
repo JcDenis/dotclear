@@ -169,7 +169,7 @@ class CommentCatalog extends Catalog
             'author' => $this->rs->comment_author,
         ]);
 
-        $post_url = dotclear()->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
+        $post_url = dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
 
         $comment_url = dotclear()->adminurl->get('admin.comment', ['id' => $this->rs->comment_id]);
 
