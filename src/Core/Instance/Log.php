@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Instance;
 
-use Dotclear\Core\Sql\DeleteStatement;
-use Dotclear\Core\Sql\JoinStatement;
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\TruncateStatement;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\TruncateStatement;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;

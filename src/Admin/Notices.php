@@ -15,8 +15,8 @@ namespace Dotclear\Admin;
 
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\DeleteStatement;
 
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;

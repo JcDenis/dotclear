@@ -17,9 +17,9 @@ namespace Dotclear\Core\Instance;
 
 use Dotclear\Exception\CoreException;
 
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\DeleteStatement;
-use Dotclear\Core\Sql\UpdateStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 
 use Dotclear\File\Files;
 use Dotclear\File\Path;

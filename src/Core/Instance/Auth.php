@@ -15,8 +15,8 @@ namespace Dotclear\Core\Instance;
 
 use Dotclear\Container\User;
 use Dotclear\Core\Prefs;
-use Dotclear\Core\Sql\SelectStatement;
-use Dotclear\Core\Sql\UpdateStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;

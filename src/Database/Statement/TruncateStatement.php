@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Dotclear\Core\Sql;
+namespace Dotclear\Database\Statement;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
