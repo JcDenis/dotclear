@@ -58,7 +58,7 @@ class SimpleMenuWidgets
     # Template function
     public function simpleMenu($attr)
     {
-        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog()->settings->system->simpleMenu_active) {
             return '';
         }
 
@@ -82,7 +82,7 @@ class SimpleMenuWidgets
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog()->settings->system->simpleMenu_active) {
             return;
         }
 
@@ -111,18 +111,18 @@ class SimpleMenuWidgets
     {
         $ret = '';
 
-        if (!(boolean) dotclear()->blog->settings->system->simpleMenu_active) {
+        if (!(boolean) dotclear()->blog()->settings->system->simpleMenu_active) {
             return $ret;
         }
 
-        $menu = dotclear()->blog->settings->system->simpleMenu;
+        $menu = dotclear()->blog()->settings->system->simpleMenu;
         if (is_array($menu)) {
             // Current relative URL
             $url     = $_SERVER['REQUEST_URI'];
             $abs_url = http::getHost() . $url;
 
             // Home recognition var
-            $home_url       = html::stripHostURL(dotclear()->blog->url);
+            $home_url       = html::stripHostURL(dotclear()->blog()->url);
             $home_directory = dirname($home_url);
             if ($home_directory != '/') {
                 $home_directory = $home_directory . '/';

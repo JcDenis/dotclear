@@ -61,12 +61,12 @@ class BlogPref extends Page
     {
         # Blog params
         if ($this->standalone) {
-            $this->blog_id       = dotclear()->blog->id;
-            $this->blog_status   = dotclear()->blog->status;
-            $this->blog_name     = dotclear()->blog->name;
-            $this->blog_desc     = dotclear()->blog->desc;
-            $this->blog_settings = dotclear()->blog->settings;
-            $this->blog_url      = dotclear()->blog->url;
+            $this->blog_id       = dotclear()->blog()->id;
+            $this->blog_status   = dotclear()->blog()->status;
+            $this->blog_name     = dotclear()->blog()->name;
+            $this->blog_desc     = dotclear()->blog()->desc;
+            $this->blog_settings = dotclear()->blog()->settings;
+            $this->blog_url      = dotclear()->blog()->url;
 
             $this->action = dotclear()->adminurl->get('admin.blog.pref');
             $this->redir  = dotclear()->adminurl->get('admin.blog.pref');
@@ -183,10 +183,10 @@ class BlogPref extends Page
                 dotclear()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
 
                 if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
-                    if ($this->blog_id == dotclear()->blog->id) {
+                    if ($this->blog_id == dotclear()->blog()->id) {
                         dotclear()->setBlog($cur->blog_id);
                         $_SESSION['sess_blog_id'] = $cur->blog_id;
-                        $this->blog_settings            = dotclear()->blog->settings;
+                        $this->blog_settings            = dotclear()->blog()->settings;
                     } else {
                         $this->blog_settings = new Settings($cur->blog_id);
                     }
@@ -776,7 +776,7 @@ class BlogPref extends Page
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->system->post_url_format), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
@@ -793,7 +793,7 @@ class BlogPref extends Page
             '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog->url, dotclear()->blog->id) . // @phpstan-ignore-line
+            sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog()->url, dotclear()->blog()->id) . // @phpstan-ignore-line
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
             '<li>' . __('User name:') . ' <strong><code>' . dotclear()->auth()->userID() . '</code></strong></li>' .
@@ -858,7 +858,7 @@ class BlogPref extends Page
             '</p>' .
             '</form>';
 
-        if (dotclear()->auth()->isSuperAdmin() && $this->blog_id != dotclear()->blog->id) {
+        if (dotclear()->auth()->isSuperAdmin() && $this->blog_id != dotclear()->blog()->id) {
             echo
             '<form action="' . dotclear()->adminurl->get('admin.blog.del') . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
@@ -866,7 +866,7 @@ class BlogPref extends Page
             dotclear()->nonce()->form() . '</p>' .
                 '</form>';
         } else {
-            if ($this->blog_id == dotclear()->blog->id) {
+            if ($this->blog_id == dotclear()->blog()->id) {
                 echo '<p class="message">' . __('The current blog cannot be deleted.') . '</p>';
             } else {
                 echo '<p class="message">' . __('Only superadmin can delete a blog.') . '</p>';
@@ -898,8 +898,8 @@ class BlogPref extends Page
             Utils::lexicalKeySort($blog_users);
 
             $post_type       = dotclear()->getPostTypes();
-            $current_blog_id = dotclear()->blog->id;
-            if ($this->blog_id != dotclear()->blog->id) {
+            $current_blog_id = dotclear()->blog()->id;
+            if ($this->blog_id != dotclear()->blog()->id) {
                 dotclear()->setBlog($this->blog_id);
             }
 
@@ -928,7 +928,7 @@ class BlogPref extends Page
                             'post_type' => $type,
                             'user_id'   => $k
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog->getPosts($params, true)->f(0)) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->getPosts($params, true)->f(0)) . '</li>';
                     }
                     echo
                         '</ul>';
@@ -972,7 +972,7 @@ class BlogPref extends Page
                 }
             }
             echo '</div>';
-            if ($current_blog_id != dotclear()->blog->id) {
+            if ($current_blog_id != dotclear()->blog()->id) {
                 dotclear()->setBlog($current_blog_id);
             }
         }

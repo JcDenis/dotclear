@@ -66,7 +66,7 @@ class Combos
     public function getPostStatusesCombo()
     {
         $status_combo = [];
-        foreach (dotclear()->blog->getAllPostStatus() as $k => $v) {
+        foreach (dotclear()->blog()->getAllPostStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -243,7 +243,7 @@ class Combos
     public function getCommentStatusesCombo()
     {
         $status_combo = [];
-        foreach (dotclear()->blog->getAllCommentStatus() as $k => $v) {
+        foreach (dotclear()->blog()->getAllCommentStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 

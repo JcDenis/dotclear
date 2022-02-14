@@ -125,7 +125,7 @@ class Page extends AbstractPage
             dotclear()->error()->reset();
         }
 
-        $Blowup_style = (string) dotclear()->blog->settings->themes->Blowup_style;
+        $Blowup_style = (string) dotclear()->blog()->settings->themes->Blowup_style;
         $Blowup_user = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
@@ -215,9 +215,9 @@ class Page extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dotclear()->blog->settings->addNamespace('themes');
-                dotclear()->blog->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
-                dotclear()->blog->triggerBlog();
+                dotclear()->blog()->settings->addNamespace('themes');
+                dotclear()->blog()->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
+                dotclear()->blog()->triggerBlog();
 
                 dotclear()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 dotclear()->adminurl->redirect('admin.plugin.Blowup');
@@ -243,7 +243,7 @@ class Page extends AbstractPage
                 static::jsLoad('?mf=Theme/Blowup/files/js/config.js')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')               => dotclear()->adminurl->get('admin.blog.theme'),
                 __('Blowup configuration')          => ''
             ])
@@ -328,7 +328,7 @@ class Page extends AbstractPage
 
         if ($this->Blowup_can_write_images) {
             if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
-                $preview_image = Http::concatURL(dotclear()->blog->url, $this->Blowup_config->imagesURL() . '/page-t.png');
+                $preview_image = Http::concatURL(dotclear()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?mf=Theme/Blowup/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }

@@ -241,7 +241,7 @@ class ConfigTheme
      */
     public function cssPath($folder)
     {
-        return Path::real(dotclear()->blog->public_path) . '/' . $folder;
+        return Path::real(dotclear()->blog()->public_path) . '/' . $folder;
     }
 
     /**
@@ -253,7 +253,7 @@ class ConfigTheme
      */
     public function cssURL($folder)
     {
-        return dotclear()->blog->settings->system->public_url . '/' . $folder;
+        return dotclear()->blog()->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -266,7 +266,7 @@ class ConfigTheme
      */
     public function canWriteCss($folder, $create = false)
     {
-        $public = Path::real(dotclear()->blog->public_path);
+        $public = Path::real(dotclear()->blog()->public_path);
         $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
@@ -367,7 +367,7 @@ class ConfigTheme
      */
     public function publicCssUrlHelper($folder)
     {
-        $theme = dotclear()->blog->settings->system->theme;
+        $theme = dotclear()->blog()->settings->system->theme;
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 
@@ -385,7 +385,7 @@ class ConfigTheme
      */
     public function imagesPath($folder)
     {
-        return Path::real(dotclear()->blog->public_path) . '/' . $folder;
+        return Path::real(dotclear()->blog()->public_path) . '/' . $folder;
     }
 
     /**
@@ -397,7 +397,7 @@ class ConfigTheme
      */
     public function imagesURL($folder)
     {
-        return dotclear()->blog->settings->system->public_url . '/' . $folder;
+        return dotclear()->blog()->settings->system->public_url . '/' . $folder;
     }
 
     /**
@@ -410,7 +410,7 @@ class ConfigTheme
      */
     public function canWriteImages($folder, $create = false)
     {
-        $public = Path::real(dotclear()->blog->public_path);
+        $public = Path::real(dotclear()->blog()->public_path);
         $imgs   = $this->imagesPath($folder);
 
         if (!function_exists('imagecreatetruecolor') || !function_exists('imagepng') || !function_exists('imagecreatefrompng')) {

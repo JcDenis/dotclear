@@ -34,7 +34,7 @@ class RsExtPostPublic extends RsExtPost
             return $c;
         }
 
-        if (dotclear()->blog->settings->system->use_smilies) {
+        if (dotclear()->blog()->settings->system->use_smilies) {
             return self::smilies($rs, parent::getContent($rs, $absolute_urls));
         }
 
@@ -43,7 +43,7 @@ class RsExtPostPublic extends RsExtPost
 
     public static function getExcerpt($rs, $absolute_urls = false)
     {
-        if (dotclear()->blog->settings->system->use_smilies) {
+        if (dotclear()->blog()->settings->system->use_smilies) {
             return self::smilies($rs, parent::getExcerpt($rs, $absolute_urls));
         }
 

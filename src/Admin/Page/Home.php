@@ -39,7 +39,7 @@ class Home extends Page
         # Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
-                dotclear()->setUserDefaultBlog(dotclear()->auth()->userID(), dotclear()->blog->id);
+                dotclear()->setUserDefaultBlog(dotclear()->auth()->userID(), dotclear()->blog()->id);
                 dotclear()->adminurl->redirect('admin.home');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -110,7 +110,7 @@ class Home extends Page
         # Editor stuff
         $admin_post_behavior = '';
         if (dotclear()->auth()->user_prefs->dashboard->quickentry) {
-            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id)) {
+            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 $post_format = dotclear()->auth()->getOption('post_format');
                 $post_editor = dotclear()->auth()->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
@@ -137,7 +137,7 @@ class Home extends Page
         );
         $this->setPageBreadcrumb(
             [
-                __('Dashboard') . ' : ' . Html::escapeHTML(dotclear()->blog->name) => ''
+                __('Dashboard') . ' : ' . Html::escapeHTML(dotclear()->blog()->name) => ''
             ],
             ['home_link' => false]
         );
@@ -191,14 +191,14 @@ class Home extends Page
                 '</label>';
         }
 
-        if (dotclear()->auth()->getInfo('user_default_blog') != dotclear()->blog->id && dotclear()->auth()->getBlogCount() > 1) {
+        if (dotclear()->auth()->getInfo('user_default_blog') != dotclear()->blog()->id && dotclear()->auth()->getBlogCount() > 1) {
             echo
             '<p><a href="' . dotclear()->adminurl->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
         }
 
-        if (dotclear()->blog->status == 0) {
+        if (dotclear()->blog()->status == 0) {
             echo '<p class="static-msg">' . __('This blog is offline') . '.</p>';
-        } elseif (dotclear()->blog->status == -1) {
+        } elseif (dotclear()->blog()->status == -1) {
             echo '<p class="static-msg">' . __('This blog is removed') . '.</p>';
         }
 
@@ -233,11 +233,11 @@ class Home extends Page
 
         # Check public directory
         if (dotclear()->auth()->isSuperAdmin()) {
-            if (!is_dir(dotclear()->blog->public_path) || !is_writable(dotclear()->blog->public_path)) {
+            if (!is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).') . '</p>';
             }
         } else {
-            if (!is_dir(dotclear()->blog->public_path) || !is_writable(dotclear()->blog->public_path)) {
+            if (!is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable root directory for the media manager. You should contact your administrator.') . '</p>';
             }
         }
@@ -320,10 +320,10 @@ class Home extends Page
             $__dashboard_main[] = $dashboardIcons;
         }
         if (dotclear()->auth()->user_prefs->dashboard->quickentry) {
-            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id)) {
+            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 # Getting categories
                 $categories_combo = dotclear()->combos->getCategoriesCombo(
-                    dotclear()->blog->getCategories([])
+                    dotclear()->blog()->getCategories([])
                 );
 
                 $dashboardQuickEntry = '<div id="quick">' .
@@ -342,7 +342,7 @@ class Home extends Page
                 '</div>' .
                 '<p><label for="cat_id" class="classic">' . __('Category:') . '</label> ' .
                 Form::combo('cat_id', $categories_combo) . '</p>' .
-                (dotclear()->auth()->check('categories', dotclear()->blog->id)
+                (dotclear()->auth()->check('categories', dotclear()->blog()->id)
                     ? '<div>' .
                     '<p id="new_cat" class="q-cat">' . __('Add a new category') . '</p>' .
                     '<p class="q-cat"><label for="new_cat_title">' . __('Title:') . '</label> ' .
@@ -354,7 +354,7 @@ class Home extends Page
                     '</div>'
                     : '') .
                 '<p><input type="submit" value="' . __('Save') . '" name="save" /> ' .
-                (dotclear()->auth()->check('publish', dotclear()->blog->id)
+                (dotclear()->auth()->check('publish', dotclear()->blog()->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
                 dotclear()->nonce()->form() .

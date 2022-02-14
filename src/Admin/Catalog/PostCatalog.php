@@ -58,10 +58,10 @@ class PostCatalog extends Catalog
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = (int) dotclear()->blog->getPosts(['post_status' => 1], true)->f(0);
-                $nb_pending     = (int) dotclear()->blog->getPosts(['post_status' => -2], true)->f(0);
-                $nb_programmed  = (int) dotclear()->blog->getPosts(['post_status' => -1], true)->f(0);
-                $nb_unpublished = (int) dotclear()->blog->getPosts(['post_status' => 0], true)->f(0);
+                $nb_published   = (int) dotclear()->blog()->getPosts(['post_status' => 1], true)->f(0);
+                $nb_pending     = (int) dotclear()->blog()->getPosts(['post_status' => -2], true)->f(0);
+                $nb_programmed  = (int) dotclear()->blog()->getPosts(['post_status' => -1], true)->f(0);
+                $nb_unpublished = (int) dotclear()->blog()->getPosts(['post_status' => 0], true)->f(0);
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .
                     ($nb_published ?
@@ -153,7 +153,7 @@ class PostCatalog extends Catalog
      */
     private function postLine($checked)
     {
-        if (dotclear()->auth()->check('categories', dotclear()->blog->id)) {
+        if (dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
             $cat_link = '<a href="' . dotclear()->adminurl->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
         } else {
             $cat_link = '%2$s';

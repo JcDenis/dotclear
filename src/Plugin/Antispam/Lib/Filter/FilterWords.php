@@ -196,7 +196,7 @@ class FilterWords extends Spamfilter
         $strReq = 'SELECT rule_id, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
         "WHERE rule_type = 'word' " .
-        "AND ( blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
+        "AND ( blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             'OR blog_id IS NULL ) ' .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
@@ -209,7 +209,7 @@ class FilterWords extends Spamfilter
         "WHERE rule_type = 'word' " .
         "AND rule_content = '" . dotclear()->con()->escape($content) . "' ";
         if (!$general) {
-            $strReq .= ' AND blog_id = \'' . dotclear()->blog->id . '\'';
+            $strReq .= ' AND blog_id = \'' . dotclear()->blog()->id . '\'';
         }
         $rs = dotclear()->con()->select($strReq);
 
@@ -224,7 +224,7 @@ class FilterWords extends Spamfilter
         if ($general && dotclear()->auth()->isSuperAdmin()) {
             $cur->blog_id = null;
         } else {
-            $cur->blog_id = dotclear()->blog->id;
+            $cur->blog_id = dotclear()->blog()->id;
         }
 
         if (!$rs->isEmpty() && $general) {
@@ -251,7 +251,7 @@ class FilterWords extends Spamfilter
         }
 
         if (!dotclear()->auth()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' ";
+            $strReq .= "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
         }
 
         dotclear()->con()->execute($strReq);

@@ -96,7 +96,7 @@ class PostMedia
         $cur->link_type = $link_type;
 
         $cur->insert();
-        dotclear()->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
     }
 
     /**
@@ -118,6 +118,6 @@ class PostMedia
             $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
         dotclear()->con()->execute($strReq);
-        dotclear()->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
     }
 }

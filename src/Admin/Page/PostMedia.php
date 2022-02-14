@@ -45,7 +45,7 @@ class PostMedia extends Page
         if (!$post_id) {
             exit;
         }
-        $rs = dotclear()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+        $rs = dotclear()->blog()->getPosts(['post_id' => $post_id, 'post_type' => '']);
         if ($rs->isEmpty()) {
             exit;
         }
@@ -89,7 +89,7 @@ class PostMedia extends Page
                 $this
                     ->setPageTitle(__('Remove attachment'))
                     ->setPageBreadcrumb([
-                        Html::escapeHTML(dotclear()->blog->name) => '',
+                        Html::escapeHTML(dotclear()->blog()->name) => '',
                         __('Posts')                            => ''
                     ])
                     ->setPageContent(

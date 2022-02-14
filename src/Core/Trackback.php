@@ -73,7 +73,7 @@ class Trackback
      */
     public function ping($url, $post_id, $post_title, $post_excerpt, $post_url)
     {
-        if (dotclear()->blog === null) {
+        if (dotclear()->blog() === null) {
             return false;
         }
 
@@ -123,7 +123,7 @@ class Trackback
                 'title'     => $post_title,
                 'excerpt'   => $post_excerpt,
                 'url'       => $post_url,
-                'blog_name' => trim(Html::escapeHTML(Html::clean(dotclear()->blog->name)))
+                'blog_name' => trim(Html::escapeHTML(Html::clean(dotclear()->blog()->name)))
                 //,'__debug' => false
             ];
 
@@ -208,7 +208,7 @@ class Trackback
         $err = false;
         $msg = '';
 
-        if (dotclear()->blog === null) {
+        if (dotclear()->blog() === null) {
             $err = true;
             $msg = 'No blog.';
         } elseif ($url == '') {
@@ -220,7 +220,7 @@ class Trackback
         }
 
         if (!$err) {
-            $post = dotclear()->blog->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = dotclear()->blog()->getPosts(['post_id' => $post_id, 'post_type' => '']);
 
             if ($post->isEmpty()) {
                 $err = true;
@@ -427,7 +427,7 @@ class Trackback
             $this->addBacklink($post_id, $from_url, '', $title, $excerpt, $comment);
 
             # All done, thanks
-            $code = dotclear()->blog->settings->system->trackbacks_pub ? 200 : 202;
+            $code = dotclear()->blog()->settings->system->trackbacks_pub ? 200 : 202;
             Http::head($code);
 
             return;
@@ -455,7 +455,7 @@ class Trackback
             'comment_trackback' => 1
         ];
 
-        $rs = dotclear()->blog->getComments($params, true);
+        $rs = dotclear()->blog()->getComments($params, true);
         if ($rs && !$rs->isEmpty()) {
             return ($rs->f(0));
         }
@@ -490,13 +490,13 @@ class Trackback
         $cur->comment_content   = (string) $comment;
         $cur->post_id           = $post_id;
         $cur->comment_trackback = 1;
-        $cur->comment_status    = dotclear()->blog->settings->system->trackbacks_pub ? 1 : -1;
+        $cur->comment_status    = dotclear()->blog()->settings->system->trackbacks_pub ? 1 : -1;
         $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate
         dotclear()->behavior()->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->post_id) {
-            $comment_id = dotclear()->blog->addComment($cur);
+            $comment_id = dotclear()->blog()->addComment($cur);
 
             # --BEHAVIOR-- publicAfterTrackbackCreate
             dotclear()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);
@@ -565,7 +565,7 @@ class Trackback
      */
     private function getTargetPost($to_url)
     {
-        $reg  = '!^' . preg_quote(dotclear()->blog->url) . '(.*)!';
+        $reg  = '!^' . preg_quote(dotclear()->blog()->url) . '(.*)!';
         $type = $args = $next = '';
 
         # Are you dumb?
@@ -597,7 +597,7 @@ class Trackback
             'post_type' => $p_type,
             'post_url'  => $post_url
         ];
-        $posts = dotclear()->blog->getPosts($params);
+        $posts = dotclear()->blog()->getPosts($params);
 
         # Missed!
         if ($posts->isEmpty()) {

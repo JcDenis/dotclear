@@ -80,7 +80,7 @@ class Page extends AbstractPage
         # Save settings
         if (!empty($_POST['save_settings'])) {
             try {
-                dotclear()->blog->settings->maintenance->put(
+                dotclear()->blog()->settings->maintenance->put(
                     'plugin_message',
                     !empty($_POST['settings_plugin_message']),
                     'boolean',
@@ -99,7 +99,7 @@ class Page extends AbstractPage
                     } else {
                         $ts = empty($_POST['settings_ts_' . $t->id()]) ? 0 : $_POST['settings_ts_' . $t->id()];
                     }
-                    dotclear()->blog->settings->maintenance->put(
+                    dotclear()->blog()->settings->maintenance->put(
                         'ts_' . $t->id(),
                         abs((integer) $ts),
                         'integer',
@@ -120,17 +120,17 @@ class Page extends AbstractPage
         if (!empty($_POST['save_system'])) {
             try {
                 // Default (global) settings
-                dotclear()->blog->settings->system->put('csp_admin_on', !empty($_POST['system_csp_global']), null, null, true, true);
-                dotclear()->blog->settings->system->put('csp_admin_report_only', !empty($_POST['system_csp_global_report_only']), null, null, true, true);
+                dotclear()->blog()->settings->system->put('csp_admin_on', !empty($_POST['system_csp_global']), null, null, true, true);
+                dotclear()->blog()->settings->system->put('csp_admin_report_only', !empty($_POST['system_csp_global_report_only']), null, null, true, true);
                 // Current blog settings
-                dotclear()->blog->settings->system->put('csp_admin_on', !empty($_POST['system_csp']));
-                dotclear()->blog->settings->system->put('csp_admin_report_only', !empty($_POST['system_csp_report_only']));
+                dotclear()->blog()->settings->system->put('csp_admin_on', !empty($_POST['system_csp']));
+                dotclear()->blog()->settings->system->put('csp_admin_report_only', !empty($_POST['system_csp_report_only']));
 
                 dotclear()->notices->addSuccessNotice(__('System settings have been saved.'));
 
                 if (!empty($_POST['system_csp_reset'])) {
-                    dotclear()->blog->settings->system->dropEvery('csp_admin_on');
-                    dotclear()->blog->settings->system->dropEvery('csp_admin_report_only');
+                    dotclear()->blog()->settings->system->dropEvery('csp_admin_on');
+                    dotclear()->blog()->settings->system->dropEvery('csp_admin_report_only');
                     dotclear()->notices->addSuccessNotice(__('All blog\'s Content-Security-Policy settings have been reset to default.'));
                 }
 
@@ -241,7 +241,7 @@ class Page extends AbstractPage
 
                         // Expired task alert message
                         $ts = $t->expired();
-                        if (dotclear()->blog->settings->maintenance->plugin_message && $ts !== false) {
+                        if (dotclear()->blog()->settings->maintenance->plugin_message && $ts !== false) {
                             if ($ts === null) {
                                 $res_task .= '<br /> <span class="warn">' .
                                 __('This task has never been executed.') . ' ' .
@@ -249,8 +249,8 @@ class Page extends AbstractPage
                             } else {
                                 $res_task .= '<br /> <span class="warn">' . sprintf(
                                     __('Last execution of this task was on %s.'),
-                                    Dt::str(dotclear()->blog->settings->system->date_format, $ts) . ' ' .
-                                    Dt::str(dotclear()->blog->settings->system->time_format, $ts)
+                                    Dt::str(dotclear()->blog()->settings->system->date_format, $ts) . ' ' .
+                                    Dt::str(dotclear()->blog()->settings->system->time_format, $ts)
                                 ) . ' ' .
                                 __('You should execute it now.') . '</span>';
                             }
@@ -314,7 +314,7 @@ class Page extends AbstractPage
 
             '<h4 class="pretty-title">' . __('Activation') . '</h4>' .
             '<p><label for="settings_plugin_message" class="classic">' .
-            Form::checkbox('settings_plugin_message', 1, dotclear()->blog->settings->maintenance->plugin_message) .
+            Form::checkbox('settings_plugin_message', 1, dotclear()->blog()->settings->maintenance->plugin_message) .
             __('Display alert messages on late tasks') . '</label></p>' .
 
             '<p class="info">' . sprintf(
@@ -373,19 +373,19 @@ class Page extends AbstractPage
 
                 '<div class="col">' .
                 '<p><label for="system_csp" class="classic">' .
-                Form::checkbox('system_csp', '1', dotclear()->blog->settings->system->csp_admin_on) .
+                Form::checkbox('system_csp', '1', dotclear()->blog()->settings->system->csp_admin_on) .
                 __('Enable Content-Security-Policy system') . '</label></p>' .
                 '<p><label for="system_csp_report_only" class="classic">' .
-                Form::checkbox('system_csp_report_only', '1', dotclear()->blog->settings->system->csp_admin_report_only) .
+                Form::checkbox('system_csp_report_only', '1', dotclear()->blog()->settings->system->csp_admin_report_only) .
                 __('Enable Content-Security-Policy report only') . '</label></p>' .
                 '</div>' .
 
                 '<div class="col">' .
                 '<p><label for="system_csp_global" class="classic">' .
-                Form::checkbox('system_csp_global', '1', dotclear()->blog->settings->system->getGlobal('csp_admin_on')) .
+                Form::checkbox('system_csp_global', '1', dotclear()->blog()->settings->system->getGlobal('csp_admin_on')) .
                 __('Enable Content-Security-Policy system by default') . '</label></p>' .
                 '<p><label for="system_csp_global_report_only" class="classic">' .
-                Form::checkbox('system_csp_global_report_only', '1', dotclear()->blog->settings->system->getGlobal('csp_admin_report_only')) .
+                Form::checkbox('system_csp_global_report_only', '1', dotclear()->blog()->settings->system->getGlobal('csp_admin_report_only')) .
                 __('Enable Content-Security-Policy report only by default') . '</label></p>' .
                 '<p><label for="system_csp_reset" class="classic">' .
                 Form::checkbox('system_csp_reset', '1', 0) .

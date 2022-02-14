@@ -33,7 +33,7 @@ class RestMethods
      */
     public static function getPostsCount($get)
     {
-        $count = dotclear()->blog->getPosts([], true)->f(0);
+        $count = dotclear()->blog()->getPosts([], true)->f(0);
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -50,7 +50,7 @@ class RestMethods
      */
     public static function getCommentsCount($get)
     {
-        $count = dotclear()->blog->getComments([], true)->f(0);
+        $count = dotclear()->blog()->getComments([], true)->f(0);
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -174,10 +174,10 @@ class RestMethods
 
         if ($post['store'] == 'themes') {
             $mod = dotclear()->themes;
-            $url = dotclear()->blog->settings->system->store_theme_url;
+            $url = dotclear()->blog()->settings->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {
             $mod = dotclear()->plugins;
-            $url = dotclear()->blog->settings->system->store_plugin_url;
+            $url = dotclear()->blog()->settings->system->store_plugin_url;
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
@@ -213,7 +213,7 @@ class RestMethods
             $params['post_type'] = $get['post_type'];
         }
 
-        $rs = dotclear()->blog->getPosts($params);
+        $rs = dotclear()->blog()->getPosts($params);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No post for this ID');
@@ -273,7 +273,7 @@ class RestMethods
             throw new AdminException('No comment ID');
         }
 
-        $rs = dotclear()->blog->getComments(['comment_id' => (int) $get['id']]);
+        $rs = dotclear()->blog()->getComments(['comment_id' => (int) $get['id']]);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No comment for this ID');
@@ -309,7 +309,7 @@ class RestMethods
     public static function quickPost($get, $post)
     {
         # Create category
-        if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog->id)) {
+        if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
             $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
             $cur_cat->cat_title = $post['new_cat_title'];
             $cur_cat->cat_url   = '';
@@ -319,7 +319,7 @@ class RestMethods
             # --BEHAVIOR-- adminBeforeCategoryCreate
             dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-            $post['cat_id'] = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
+            $post['cat_id'] = dotclear()->blog()->addCategory($cur_cat, (int) $parent_cat);
 
             # --BEHAVIOR-- adminAfterCategoryCreate
             dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
@@ -334,13 +334,13 @@ class RestMethods
         $cur->post_format       = !empty($post['post_format']) ? $post['post_format'] : 'xhtml';
         $cur->post_lang         = !empty($post['post_lang']) ? $post['post_lang'] : '';
         $cur->post_status       = !empty($post['post_status']) ? (int) $post['post_status'] : 0;
-        $cur->post_open_comment = (int) dotclear()->blog->settings->system->allow_comments;
-        $cur->post_open_tb      = (int) dotclear()->blog->settings->system->allow_trackbacks;
+        $cur->post_open_comment = (int) dotclear()->blog()->settings->system->allow_comments;
+        $cur->post_open_tb      = (int) dotclear()->blog()->settings->system->allow_trackbacks;
 
         # --BEHAVIOR-- adminBeforePostCreate
         dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
-        $return_id = dotclear()->blog->addPost($cur);
+        $return_id = dotclear()->blog()->addPost($cur);
 
         # --BEHAVIOR-- adminAfterPostCreate
         dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -348,7 +348,7 @@ class RestMethods
         $rsp     = new XmlTag('post');
         $rsp->id = $return_id;
 
-        $post = dotclear()->blog->getPosts(['post_id' => $return_id]);
+        $post = dotclear()->blog()->getPosts(['post_id' => $return_id]);
 
         $rsp->post_status = $post->post_status;
         $rsp->post_url    = $post->getURL();
@@ -381,7 +381,7 @@ class RestMethods
         $format        = $post['format'];
         $lang          = $post['lang'];
 
-        dotclear()->blog->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
+        dotclear()->blog()->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
 
         $rsp = new XmlTag('result');
 
@@ -401,7 +401,7 @@ class RestMethods
 
         $id = (int) $get['id'];
 
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new AdminException('Permission denied');
         }
 
@@ -699,7 +699,7 @@ class RestMethods
         } elseif ($list == 'plugin-new') {
             $store = new Store(
                 dotclear()->plugins,
-                dotclear()->blog->settings->system->store_plugin_url
+                dotclear()->blog()->settings->system->store_plugin_url
             );
             $store->check();
 

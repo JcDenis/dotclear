@@ -42,7 +42,7 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites('admin');
 
         # Settings
-        dotclear()->blog->settings->addNamespace('antispam');
+        dotclear()->blog()->settings->addNamespace('antispam');
 
         # Url
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamUrl';
@@ -110,7 +110,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminCommentsSpamForm(): void
     {
-        $ttl = dotclear()->blog->settings->antispam->antispam_moderation_ttl;
+        $ttl = dotclear()->blog()->settings->antispam->antispam_moderation_ttl;
         if ($ttl != null && $ttl >= 0) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $ttl) . ' ' .
             sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl->get('admin.blog.pref') .

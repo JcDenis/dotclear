@@ -164,12 +164,12 @@ abstract class Page
         }
 
         # Has required permissions
-        if (is_string($permissions) && dotclear()->blog && dotclear()->auth()->check($this->getPermissions(), dotclear()->blog->id)) {
+        if (is_string($permissions) && dotclear()->blog() && dotclear()->auth()->check($this->getPermissions(), dotclear()->blog()->id)) {
             return;
         }
 
         # Check if dashboard is not the current page and if it is granted for the user
-        if (!$this->isHome && dotclear()->blog && dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id)) {
+        if (!$this->isHome && dotclear()->blog() && dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
             # Go back to the dashboard
             dotclear()->adminurl->redirect('admin.home');
         }
@@ -221,9 +221,9 @@ abstract class Page
 
     private function pageNamespaces(): void
     {
-        if (!empty($this->namespaces) && dotclear()->blog->id) {
+        if (!empty($this->namespaces) && dotclear()->blog()->id) {
             foreach($this->namespaces as $ns) {
-                dotclear()->blog->settings->addNamespace($ns);
+                dotclear()->blog()->settings->addNamespace($ns);
             }
         }
     }
@@ -267,8 +267,8 @@ abstract class Page
 
         # List of user's blogs
         if (dotclear()->auth()->getBlogCount() == 1 || dotclear()->auth()->getBlogCount() > 20) {
-            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog->url) . '">' .
-            Html::escapeHTML(dotclear()->blog->name) . '</strong>';
+            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog()->url) . '">' .
+            Html::escapeHTML(dotclear()->blog()->name) . '</strong>';
 
             if (dotclear()->auth()->getBlogCount() > 20) {
                 $blog_box .= ' - <a href="' . dotclear()->adminurl->get('admin.blogs') . '">' . __('Change blog') . '</a>';
@@ -281,7 +281,7 @@ abstract class Page
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            dotclear()->nonce()->form() . Form::combo('switchblog', $blogs, dotclear()->blog->id) .
+            dotclear()->nonce()->form() . Form::combo('switchblog', $blogs, dotclear()->blog()->id) .
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
@@ -308,7 +308,7 @@ abstract class Page
         $headers['floc'] = 'Permissions-Policy: interest-cohort=()';
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!$safe_mode && dotclear()->blog->settings->system->csp_admin_on) {
+        if (!$safe_mode && dotclear()->blog()->settings->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject([]);
 
@@ -317,27 +317,27 @@ abstract class Page
             $csp_prefix = dotclear()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
             $csp_suffix = dotclear()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = dotclear()->blog->settings->system->csp_admin_default ?:
+            $csp['default-src'] = dotclear()->blog()->settings->system->csp_admin_default ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = dotclear()->blog->settings->system->csp_admin_script ?:
+            $csp['script-src'] = dotclear()->blog()->settings->system->csp_admin_script ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = dotclear()->blog->settings->system->csp_admin_style ?:
+            $csp['style-src'] = dotclear()->blog()->settings->system->csp_admin_style ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = dotclear()->blog->settings->system->csp_admin_img ?:
+            $csp['img-src'] = dotclear()->blog()->settings->system->csp_admin_img ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             # Cope with blog post preview (via public URL in iframe)
-            if (!is_null(dotclear()->blog->host)) {
-                $csp['default-src'] .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);
-                $csp['script-src']  .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);
-                $csp['style-src']   .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);
+            if (!is_null(dotclear()->blog()->host)) {
+                $csp['default-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
+                $csp['script-src']  .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
+                $csp['style-src']   .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
             }
             # Cope with media display in media manager (via public URL)
             if (!is_null(dotclear()->media())) { //! allways false now
                 $csp['img-src'] .= ' ' . parse_url(dotclear()->media()->root_url, PHP_URL_HOST);
-            } elseif (!is_null(dotclear()->blog->host)) {
+            } elseif (!is_null(dotclear()->blog()->host)) {
                 // Let's try with the blog URL
-                $csp['img-src'] .= ' ' . parse_url(dotclear()->blog->host, PHP_URL_HOST);
+                $csp['img-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
             }
             # Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
@@ -354,7 +354,7 @@ abstract class Page
             }
             if (count($directives)) {
                 $directives[]   = 'report-uri ' . dotclear()->config()->admin_url . '?handler=admin.cspreport';
-                $report_only    = (dotclear()->blog->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
+                $report_only    = (dotclear()->blog()->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
@@ -376,7 +376,7 @@ abstract class Page
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
 
         echo self::preload('style/default.css') . self::cssLoad('style/default.css');
 
@@ -401,7 +401,7 @@ abstract class Page
 
         $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
 
-        $js['showIp'] = dotclear()->blog && dotclear()->blog->id ? dotclear()->auth()->check('contentadmin', dotclear()->blog->id) : false;
+        $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->auth()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -434,7 +434,7 @@ abstract class Page
         echo
         '<form action="' . dotclear()->adminurl->get('admin.home') . '" method="post" id="top-info-blog">' .
         $blog_box .
-        '<p><a href="' . dotclear()->blog->url . '" class="outgoing" title="' . __('Go to site') .
+        '<p><a href="' . dotclear()->blog()->url . '" class="outgoing" title="' . __('Go to site') .
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
         '<ul id="top-info-user">' .
@@ -498,7 +498,7 @@ abstract class Page
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
@@ -1133,7 +1133,7 @@ abstract class Page
         (
             dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
-                'mute' => (empty(dotclear()->blog) || dotclear()->blog->settings->system->jquery_migrate_mute),
+                'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings->system->jquery_migrate_mute),
             ]) .
             self::jsLoad('js/jquery-mute.js') .
             self::jsLoad('js/jquery/jquery-migrate.js') :

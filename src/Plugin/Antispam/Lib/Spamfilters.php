@@ -123,15 +123,15 @@ class Spamfilters
     public function saveFilterOpts(array $opts, bool $global = false): void
     {
         if ($global) {
-            dotclear()->blog->settings->antispam->drop('antispam_filters');
+            dotclear()->blog()->settings->antispam->drop('antispam_filters');
         }
-        dotclear()->blog->settings->antispam->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
+        dotclear()->blog()->settings->antispam->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
     }
 
     private function setFilterOpts(): void
     {
-        if (dotclear()->blog->settings->antispam->antispam_filters !== null) {
-            $this->filters_opt = dotclear()->blog->settings->antispam->antispam_filters;
+        if (dotclear()->blog()->settings->antispam->antispam_filters !== null) {
+            $this->filters_opt = dotclear()->blog()->settings->antispam->antispam_filters;
         }
 
         # Create default options if needed

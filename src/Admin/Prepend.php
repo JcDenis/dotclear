@@ -126,7 +126,7 @@ class Prepend extends Core
             $this->adminLoadLocales();
 
             $this->setBlog($_SESSION['sess_blog_id']);
-            if (!$this->blog->id) {
+            if (!$this->blog()->id) {
                 throw new PrependException('Permission denied.');
             }
         } elseif ($this->auth()->sessionExists()) {
@@ -206,7 +206,7 @@ class Prepend extends Core
         $this->adminServeFile();
 
         # User session exists
-        if (!empty($this->auth()->userID()) && $this->blog !== null) {
+        if (!empty($this->auth()->userID()) && $this->blog() !== null) {
 
             $this->auth()->user_prefs->addWorkspace('interface');
 
@@ -241,15 +241,15 @@ class Prepend extends Core
             $this->menu->setup();
 
             # Set jquery stuff
-            if (empty($this->blog->settings->system->jquery_migrate_mute)) {
-                $this->blog->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+            if (empty($this->blog()->settings->system->jquery_migrate_mute)) {
+                $this->blog()->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
             }
-            if (empty($this->blog->settings->system->jquery_allow_old_version)) {
-                $this->blog->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+            if (empty($this->blog()->settings->system->jquery_allow_old_version)) {
+                $this->blog()->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
             }
 
             # Ensure theme's settings namespace exists
-            $this->blog->settings->addNamespace('themes');
+            $this->blog()->settings->addNamespace('themes');
 
             # add some behaviors
             $this->behavior()->add('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);

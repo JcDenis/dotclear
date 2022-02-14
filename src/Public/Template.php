@@ -32,8 +32,8 @@ class Template extends BaseTemplate
     {
         parent::__construct($cache_dir, $self_name);
 
-        $this->remove_php = !dotclear()->blog->settings->system->tpl_allow_php;
-        $this->use_cache  = dotclear()->blog->settings->system->tpl_use_cache;
+        $this->remove_php = !dotclear()->blog()->settings->system->tpl_allow_php;
+        $this->use_cache  = dotclear()->blog()->settings->system->tpl_use_cache;
 
         # Transitional tags
         $this->addValue('EntryTrackbackCount', [$this, 'EntryPingCount']);
@@ -535,7 +535,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->archives = dotclear()->blog->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -658,7 +658,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->archives = dotclear()->blog->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -700,7 +700,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context->archives = dotclear()->blog->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->archives = dotclear()->blog()->getDates($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->archives = null; ?>';
@@ -726,7 +726,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("archive")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("archive")') . '; ?>';
     }
 
     /*dtd
@@ -736,7 +736,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->copyright_notice') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->copyright_notice') . '; ?>';
     }
 
     /*dtd
@@ -746,7 +746,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->desc') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->desc') . '; ?>';
     }
 
     /*dtd
@@ -756,7 +756,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->editor') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->editor') . '; ?>';
     }
 
     /*dtd
@@ -766,7 +766,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '"urn:md5:".dotclear()->blog->uid') . '; ?>';
+        return '<?php echo ' . sprintf($f, '"urn:md5:".dotclear()->blog()->uid') . '; ?>';
     }
 
     /*dtd
@@ -785,7 +785,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("feed","' . $type . '")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("feed","' . $type . '")') . '; ?>';
     }
 
     /*dtd
@@ -795,7 +795,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->name') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->name') . '; ?>';
     }
 
     /*dtd
@@ -805,7 +805,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->lang') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->lang') . '; ?>';
     }
 
     /*dtd
@@ -815,9 +815,9 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php if (dotclear()->context->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("lang",' .
+        return '<?php if (dotclear()->context->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("lang",' .
             'dotclear()->context->cur_lang)') . ';
-            else echo ' . sprintf($f, 'dotclear()->blog->url') . '; ?>';
+            else echo ' . sprintf($f, 'dotclear()->blog()->url') . '; ?>';
     }
 
     /*dtd
@@ -827,7 +827,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->getQmarkURL()."files/"') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()."files/"') . '; ?>';
     }
 
     /*dtd
@@ -837,7 +837,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->getQmarkURL()."tf="') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()."tf="') . '; ?>';
     }
 
     /*dtd
@@ -847,7 +847,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->public_url') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->public_url') . '; ?>';
     }
 
     /*dtd
@@ -873,12 +873,12 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         if ($rfc822) {
-            return '<?php echo ' . sprintf($f, "dotclear()->blog->getUpdateDate('rfc822')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('rfc822')") . '; ?>';
         } elseif ($iso8601) {
-            return '<?php echo ' . sprintf($f, "dotclear()->blog->getUpdateDate('iso8601')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('iso8601')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dotclear()->blog->getUpdateDate('". $format . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('". $format . "')") . '; ?>';
     }
 
     /*dtd
@@ -888,7 +888,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->id') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->id') . '; ?>';
     }
 
     /*dtd
@@ -898,7 +898,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor(\'rsd\')') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor(\'rsd\')') . '; ?>';
     }
 
     /*dtd
@@ -908,7 +908,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor(\'xmlrpc\',dotclear()->blog->id)') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor(\'xmlrpc\',dotclear()->blog()->id)') . '; ?>';
     }
 
     /*dtd
@@ -918,7 +918,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url') . '; ?>';
     }
 
     /*dtd
@@ -928,7 +928,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->getQmarkURL()') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()') . '; ?>';
     }
 
     /*dtd
@@ -941,7 +941,7 @@ class Template extends BaseTemplate
     {
         $robots = isset($attr['robots']) ? addslashes($attr['robots']) : '';
 
-        return "<?php echo dotclear()->context->robotsPolicy(dotclear()->blog->settings->system->robots_policy,'" . $robots . "'); ?>";
+        return "<?php echo dotclear()->context->robotsPolicy(dotclear()->blog()->settings->system->robots_policy,'" . $robots . "'); ?>";
     }
 
     /*dtd
@@ -951,7 +951,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->getJsJQuery()') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getJsJQuery()') . '; ?>';
     }
 
     /*dtd
@@ -961,7 +961,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, ('dotclear()->blog->settings->system->static_home ? dotclear()->blog->url.dotclear()->url()->getURLFor("posts") : dotclear()->blog->url')) . '; ?>';
+        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings->system->static_home ? dotclear()->blog()->url.dotclear()->url()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
     }
 
     /*dtd
@@ -970,7 +970,7 @@ class Template extends BaseTemplate
     public function IfBlogStaticEntryURL($attr, $content)
     {
         return
-            "<?php if (dotclear()->blog->settings->system->static_home_url != '') : ?>" .
+            "<?php if (dotclear()->blog()->settings->system->static_home_url != '') : ?>" .
             $content .
             '<?php endif; ?>';
     }
@@ -983,7 +983,7 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         $p = "\$params['post_type'] = array_keys(dotclear()->getPostTypes());\n";
-        $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog->settings->system->static_home_url)') . ";\n";
+        $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog()->settings->system->static_home_url)') . ";\n";
 
         return "<?php\n" . $p . ' ?>';
     }
@@ -995,7 +995,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->nb_post_for_home') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->nb_post_for_home') . '; ?>';
     }
 
     /*dtd
@@ -1005,7 +1005,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->settings->system->nb_post_per_page') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings->system->nb_post_per_page') . '; ?>';
     }
 
     /* Categories ----------------------------------------- */
@@ -1041,7 +1041,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->categories = dotclear()->blog->getCategories($params);' . "\n";
+        $res .= 'dotclear()->context->categories = dotclear()->blog()->getCategories($params);' . "\n";
         $res .= "?>\n";
         $res .= '<?php while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; unset($params); ?>';
 
@@ -1092,13 +1092,13 @@ class Template extends BaseTemplate
             if (substr($url, 0, 1) == '!') {
                 $url = substr($url, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!dotclear()->blog->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(!dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                 } else {
                     $if[] = '(dotclear()->context->categories->cat_url != "' . $url . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(dotclear()->blog->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                 } else {
                     $if[] = '(dotclear()->context->categories->cat_url == "' . $url . '")';
                 }
@@ -1115,13 +1115,13 @@ class Template extends BaseTemplate
                     if (substr($url, 0, 1) == '!') {
                         $url = substr($url, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!dotclear()->blog->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(!dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                         } else {
                             $if[] = '(dotclear()->context->categories->cat_url != "' . $url . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(dotclear()->blog->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(dotclear()->blog()->IsInCatSubtree(dotclear()->context->categories->cat_url, "' . $url . '"))';
                         } else {
                             $if[] = '(dotclear()->context->categories->cat_url == "' . $url . '")';
                         }
@@ -1156,7 +1156,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog->getCategoryFirstChildren(dotclear()->context->categories->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->getCategoryFirstChildren(dotclear()->context->categories->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 
@@ -1167,7 +1167,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog->getCategoryParents(dotclear()->context->categories->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->getCategoryParents(dotclear()->context->categories->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 
@@ -1187,7 +1187,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("feed","category/".' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("feed","category/".' .
             'dotclear()->context->categories->cat_url."/' . $type . '")') . '; ?>';
     }
 
@@ -1208,7 +1208,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("category",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("category",' .
             'dotclear()->context->categories->cat_url)') . '; ?>';
     }
 
@@ -1354,7 +1354,7 @@ class Template extends BaseTemplate
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (dotclear()->context->exists("categories")) { ' .
-                    "\$params['cat_id'] = dotclear()->context->categories->cat_id.(dotclear()->blog->settings->system->inc_subcats?' ?sub':'');" .
+                    "\$params['cat_id'] = dotclear()->context->categories->cat_id.(dotclear()->blog()->settings->system->inc_subcats?' ?sub':'');" .
                     "}\n";
             }
 
@@ -1399,7 +1399,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= 'dotclear()->context->post_params = $params;' . "\n";
-        $res .= 'dotclear()->context->posts = dotclear()->blog->getPosts($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->posts = dotclear()->blog()->getPosts($params); unset($params);' . "\n";
         $res .= "?>\n";
         $res .= '<?php while (dotclear()->context->posts->fetch()) : ?>' . $content . '<?php endwhile; ' .
             'dotclear()->context->posts = null; dotclear()->context->post_params = null; ?>';
@@ -1877,7 +1877,7 @@ class Template extends BaseTemplate
     {
         return
             "<?php\n" .
-            'dotclear()->context->categories = dotclear()->blog->getCategoryParents(dotclear()->context->posts->cat_id);' . "\n" .
+            'dotclear()->context->categories = dotclear()->blog()->getCategoryParents(dotclear()->context->posts->cat_id);' . "\n" .
             'while (dotclear()->context->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->categories = null; ?>';
     }
 
@@ -1966,7 +1966,7 @@ class Template extends BaseTemplate
         '<?php if (dotclear()->context->posts->post_lang) { ' .
         'echo ' . sprintf($f, 'dotclear()->context->posts->post_lang') . '; ' .
         '} else {' .
-        'echo ' . sprintf($f, 'dotclear()->blog->settings->system->lang') . '; ' .
+        'echo ' . sprintf($f, 'dotclear()->blog()->settings->system->lang') . '; ' .
             '} ?>';
     }
 
@@ -1983,7 +1983,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $next_post = dotclear()->blog->getNextPost(dotclear()->context->posts,1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $next_post = dotclear()->blog()->getNextPost(dotclear()->context->posts,1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($next_post !== null) : ?>' .
 
             '<?php dotclear()->context->posts = $next_post; unset($next_post);' . "\n" .
@@ -2006,7 +2006,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $prev_post = dotclear()->blog->getNextPost(dotclear()->context->posts,-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $prev_post = dotclear()->blog()->getNextPost(dotclear()->context->posts,-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($prev_post !== null) : ?>' .
 
             '<?php dotclear()->context->posts = $prev_post; unset($prev_post);' . "\n" .
@@ -2212,7 +2212,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->langs = dotclear()->blog->getLangs($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context->langs = dotclear()->blog()->getLangs($params); unset($params);' . "\n";
         $res .= "?>\n";
 
         $res .= '<?php if (dotclear()->context->langs->count() > 1) : ' .
@@ -2272,7 +2272,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog->url.dotclear()->url()->getURLFor("lang",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("lang",' .
             'dotclear()->context->langs->post_lang)') . '; ?>';
     }
 
@@ -2289,7 +2289,7 @@ class Template extends BaseTemplate
         'elseif (dotclear()->context->exists("posts") && dotclear()->context->posts->exists("post_lang")) ' . "\n" .
         '   { echo ' . sprintf($f, 'dotclear()->context->posts->post_lang') . '; }' . "\n" .
         'else ' . "\n" .
-        '   { echo ' . sprintf($f, 'dotclear()->blog->settings->system->lang') . '; } ?>';
+        '   { echo ' . sprintf($f, 'dotclear()->blog()->settings->system->lang') . '; } ?>';
     }
 
     /* Pagination ------------------------------------- */
@@ -2309,7 +2309,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $p .= 'dotclear()->context->pagination = dotclear()->blog->getPosts($params,true); unset($params);' . "\n";
+        $p .= 'dotclear()->context->pagination = dotclear()->blog()->getPosts($params,true); unset($params);' . "\n";
         $p .= "?>\n";
 
         if (isset($attr['no_context']) && $attr['no_context']) {
@@ -2429,7 +2429,7 @@ class Template extends BaseTemplate
         if (empty($attr['no_context'])) {
             $p .= 'if (dotclear()->context->posts !== null) { ' .
                 "\$params['post_id'] = dotclear()->context->posts->post_id; " .
-                "dotclear()->blog->withoutPassword(false);\n" .
+                "dotclear()->blog()->withoutPassword(false);\n" .
                 "}\n";
             $p .= 'if (dotclear()->context->exists("categories")) { ' .
                 "\$params['cat_id'] = dotclear()->context->categories->cat_id; " .
@@ -2463,8 +2463,8 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context->comments = dotclear()->blog->getComments($params); unset($params);' . "\n";
-        $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog->withoutPassword(true);}\n";
+        $res .= 'dotclear()->context->comments = dotclear()->blog()->getComments($params); unset($params);' . "\n";
+        $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
 
         if (!empty($attr['with_pings'])) {
             $res .= 'dotclear()->context->pings = dotclear()->context->comments;' . "\n";
@@ -2780,7 +2780,7 @@ class Template extends BaseTemplate
     public function CommentHelp($attr, $content)
     {
         return
-            "<?php if (dotclear()->blog->settings->system->wiki_comments) {\n" .
+            "<?php if (dotclear()->blog()->settings->system->wiki_comments) {\n" .
             "  echo __('Comments can be formatted using a simple wiki syntax.');\n" .
             "} else {\n" .
             "  echo __('HTML code is displayed as text and web addresses are automatically converted.');\n" .
@@ -2794,7 +2794,7 @@ class Template extends BaseTemplate
     public function IfCommentPreviewOptional($attr, $content)
     {
         return
-            '<?php if (dotclear()->blog->settings->system->comment_preview_optional || (dotclear()->context->comment_preview !== null && dotclear()->context->comment_preview["preview"])) : ?>' .
+            '<?php if (dotclear()->blog()->settings->system->comment_preview_optional || (dotclear()->context->comment_preview !== null && dotclear()->context->comment_preview["preview"])) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -3018,7 +3018,7 @@ class Template extends BaseTemplate
     public function PingNoFollow($attr)
     {
         return
-            '<?php if(dotclear()->blog->settings->system->comments_nofollow) { ' .
+            '<?php if(dotclear()->blog()->settings->system->comments_nofollow) { ' .
             'echo \' rel="nofollow"\';' .
             '} ?>';
     }
@@ -3054,7 +3054,7 @@ class Template extends BaseTemplate
     {
         $p = 'if (dotclear()->context->posts !== null) { ' .
             "\$params['post_id'] = dotclear()->context->posts->post_id; " .
-            "dotclear()->blog->withoutPassword(false);\n" .
+            "dotclear()->blog()->withoutPassword(false);\n" .
             "}\n";
 
         $p .= "\$params['comment_trackback'] = true;\n";
@@ -3099,8 +3099,8 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context->pings = dotclear()->blog->getComments($params); unset($params);' . "\n";
-        $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog->withoutPassword(true);}\n";
+        $res .= 'dotclear()->context->pings = dotclear()->blog()->getComments($params); unset($params);' . "\n";
+        $res .= "if (dotclear()->context->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
         $res .= "?>\n";
 
         $res .= '<?php while (dotclear()->context->pings->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context->pings = null; ?>';
@@ -3211,7 +3211,7 @@ class Template extends BaseTemplate
                 $sign              = '!';
                 $attr['blog_lang'] = substr($attr['blog_lang'], 1);
             }
-            $if[] = 'dotclear()->blog->settings->system->lang ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
+            $if[] = 'dotclear()->blog()->settings->system->lang ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
         }
 
         if (isset($attr['current_tpl'])) {
@@ -3256,22 +3256,22 @@ class Template extends BaseTemplate
                 $sign            = '!';
                 $attr['blog_id'] = substr($attr['blog_id'], 1);
             }
-            $if[] = $sign . "(dotclear()->blog->id == '" . addslashes($attr['blog_id']) . "')";
+            $if[] = $sign . "(dotclear()->blog()->id == '" . addslashes($attr['blog_id']) . "')";
         }
 
         if (isset($attr['comments_active'])) {
             $sign = (bool) $attr['comments_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog->settings->system->allow_comments';
+            $if[] = $sign . 'dotclear()->blog()->settings->system->allow_comments';
         }
 
         if (isset($attr['pings_active'])) {
             $sign = (bool) $attr['pings_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog->settings->system->allow_trackbacks';
+            $if[] = $sign . 'dotclear()->blog()->settings->system->allow_trackbacks';
         }
 
         if (isset($attr['wiki_comments'])) {
             $sign = (bool) $attr['wiki_comments'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog->settings->system->wiki_comments';
+            $if[] = $sign . 'dotclear()->blog()->settings->system->wiki_comments';
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
@@ -3280,7 +3280,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['jquery_needed'])) {
             $sign = (bool) $attr['jquery_needed'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog->settings->system->jquery_needed';
+            $if[] = $sign . 'dotclear()->blog()->settings->system->jquery_needed';
         }
 
         dotclear()->behavior()->call('tplIfConditions', 'SysIf', $attr, $content, $if);

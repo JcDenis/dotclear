@@ -99,7 +99,7 @@ class Behaviors
         $js = [
             'dialog_url'            => 'popup.php',
             'iframe_css'            => $css,
-            'base_url'              => dotclear()->blog->host,
+            'base_url'              => dotclear()->blog()->host,
             'switcher_visual_title' => __('visual'),
             'switcher_source_title' => __('source'),
             'legend_msg'            => __('You can use the following shortcuts to format your text.'),
@@ -153,7 +153,7 @@ class Behaviors
             ],
             'toolbar_bottom' => dotclear()->auth()->getOption('toolbar_bottom'),
         ];
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             $js['elements']['img_select']['disabled'] = true;
         }
 

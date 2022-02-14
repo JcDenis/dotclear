@@ -29,7 +29,7 @@ class Prepend extends AbstractPrepend
     public static function loadModule(): void
     {
         # Settings
-        dotclear()->blog->settings->addNamespace('antispam');
+        dotclear()->blog()->settings->addNamespace('antispam');
 
         # Url
         $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamUrl';

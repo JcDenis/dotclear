@@ -124,7 +124,7 @@ class Favorites
             if (is_bool($fattr['permissions']) && !$fattr['permissions']) {
                 return [];
             }
-            if (!dotclear()->auth()->check($fattr['permissions'], dotclear()->blog->id)) {
+            if (!dotclear()->auth()->check($fattr['permissions'], dotclear()->blog()->id)) {
                 return [];
             }
         } elseif (!dotclear()->auth()->isSuperAdmin()) {
@@ -464,7 +464,7 @@ class Favorites
      */
     public static function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = (int) dotclear()->blog->getPosts([], true)->f(0);
+        $post_count  = (int) dotclear()->blog()->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -488,7 +488,7 @@ class Favorites
      */
     public static function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = (int) dotclear()->blog->getComments([], true)->f(0);
+        $comment_count = (int) dotclear()->blog()->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }

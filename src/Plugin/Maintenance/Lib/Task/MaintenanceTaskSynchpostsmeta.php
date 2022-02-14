@@ -83,7 +83,7 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
             $cur->post_meta = serialize($meta);
             $cur->update('WHERE post_id = ' . $rs->post_id);
         }
-        dotclear()->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
 
         // Return next step
         return $start + $limit > $count ? null : $start + $limit;

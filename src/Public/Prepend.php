@@ -69,17 +69,17 @@ class Prepend extends Core
                 __('Something went wrong while trying to read the database.'), 620);
         }
 
-        if ($this->blog->id == null) {
+        if ($this->blog()->id == null) {
             throw new PrependException(__('Blog is not defined.'), __('Did you change your Blog ID?'), 630);
         }
 
-        if ((boolean) !$this->blog->status) {
+        if ((bool) !$this->blog()->status) {
             $this->unsetBlog();
             throw new PrependException(__('Blog is offline.'), __('This blog is offline. Please try again later.'), 670);
         }
 
         # Cope with static home page option
-        $this->url()->registerDefault(['Dotclear\\Core\\Instance\\Url', (bool) $this->blog->settings->system->static_home ? 'static_home' : 'home']);
+        $this->url()->registerDefault(['Dotclear\\Core\\Instance\\Url', (bool) $this->blog()->settings->system->static_home ? 'static_home' : 'home']);
 
         # Load media
         try {
@@ -98,7 +98,7 @@ class Prepend extends Core
         }
 
         # Load locales
-        $_lang = $this->blog->settings->system->lang;
+        $_lang = $this->blog()->settings->system->lang;
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
         L10n::lang($this->_lang);
@@ -151,7 +151,7 @@ class Prepend extends Core
         }
 
         # Ensure theme's settings namespace exists
-        $this->blog->settings->addNamespace('themes');
+        $this->blog()->settings->addNamespace('themes');
 
         # Themes locales
         $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'main');
@@ -176,8 +176,8 @@ class Prepend extends Core
 
         # Prepare the HTTP cache thing
         $this->url()->mod_files = $this->autoload()->getLoadedFiles();
-        $this->url()->mod_ts    = [$this->blog->upddt];
-        $this->url()->mode = (string) $this->blog->settings->system->url_scan;
+        $this->url()->mod_ts    = [$this->blog()->upddt];
+        $this->url()->mode = (string) $this->blog()->settings->system->url_scan;
 
         try {
             # --BEHAVIOR-- publicBeforeDocument

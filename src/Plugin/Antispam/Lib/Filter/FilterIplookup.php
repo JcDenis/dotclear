@@ -84,8 +84,8 @@ class FilterIplookup extends Spamfilter
 
         if (isset($_POST['bls'])) {
             try {
-                dotclear()->blog->settings->addNamespace('antispam');
-                dotclear()->blog->settings->antispam->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
+                dotclear()->blog()->settings->addNamespace('antispam');
+                dotclear()->blog()->settings->antispam->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
                 dotclear()->notices->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
@@ -109,10 +109,10 @@ class FilterIplookup extends Spamfilter
 
     private function getServers()
     {
-        $bls = dotclear()->blog->settings->antispam->antispam_dnsbls;
+        $bls = dotclear()->blog()->settings->antispam->antispam_dnsbls;
         if ($bls === null) {
-            dotclear()->blog->settings->addNamespace('antispam');
-            dotclear()->blog->settings->antispam->put('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
+            dotclear()->blog()->settings->addNamespace('antispam');
+            dotclear()->blog()->settings->antispam->put('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
 
             return $this->default_bls;
         }

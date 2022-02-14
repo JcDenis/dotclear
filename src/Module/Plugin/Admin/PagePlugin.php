@@ -59,7 +59,7 @@ class PagePlugin extends Page
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name)                            => '',
+                Html::escapeHTML(dotclear()->blog()->name)                            => '',
                 __('Plugins management')                                             => dotclear()->plugins->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>' => ''
             ]);

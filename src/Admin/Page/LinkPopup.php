@@ -53,7 +53,7 @@ class LinkPopup extends Page
         $title     = !empty($_GET['title']) ? $_GET['title'] : '';
 
         # Languages combo
-        $rs         = dotclear()->blog->getLangs(['order' => 'asc']);
+        $rs         = dotclear()->blog()->getLangs(['order' => 'asc']);
         $lang_combo = dotclear()->combos->getLangsCombo($rs, true);
 
         echo

@@ -15,7 +15,6 @@ namespace Dotclear\Core;
 
 use ArrayObject;
 
-use Dotclear\Core\Blog;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 use Dotclear\Core\Sql\SelectStatement;
@@ -46,6 +45,7 @@ class Core
     use \Dotclear\Core\Instance\TraitAuth;
     use \Dotclear\Core\Instance\TraitAutoload;
     use \Dotclear\Core\Instance\TraitBehavior;
+    use \Dotclear\Core\Instance\TraitBlog;
     use \Dotclear\Core\Instance\TraitConfiguration;
     use \Dotclear\Core\Instance\TraitConnection;
     use \Dotclear\Core\Instance\TraitError;
@@ -60,9 +60,6 @@ class Core
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitVersion;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
-
-    /** @var Blog               Blog instance */
-    public $blog;
 
     /** @var string             Current Process */
     protected $process;
@@ -276,27 +273,6 @@ class Core
         }
         $this->con()->close();
     }
-
-    /// @name Blog init methods
-    //@{
-    /**
-     * Sets the blog to use.
-     *
-     * @param   string  $blog_id    The blog ID
-     */
-    public function setBlog(string $blog_id): void
-    {
-        $this->blog = new Blog($blog_id);
-    }
-
-    /**
-     * Unsets blog property
-     */
-    public function unsetBlog(): void
-    {
-        $this->blog = null;
-    }
-    //@}
 
     /// @name Blog status methods
     //@{

@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (dotclear()->blog->settings->system->theme == 'Blowup') {
+        if (dotclear()->blog()->settings->system->theme == 'Blowup') {
             dotclear()->behavior()->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
         }
     }

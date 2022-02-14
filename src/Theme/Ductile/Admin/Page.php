@@ -113,19 +113,19 @@ class Page extends AbstractPage
             }
         }
 
-        $ductile_user = (string) dotclear()->blog->settings->themes->get(dotclear()->blog->settings->system->theme . '_style');
+        $ductile_user = (string) dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_style');
         $ductile_user = @unserialize($ductile_user);
         if (is_array($ductile_user)) {
             $this->Ductile_user = array_merge($this->Ductile_user, $ductile_user);
         }
 
-        $ductile_lists = (string) dotclear()->blog->settings->themes->get(dotclear()->blog->settings->system->theme . '_entries_lists');
+        $ductile_lists = (string) dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_entries_lists');
         $ductile_lists = @unserialize($ductile_lists);
         if (is_array($ductile_lists)) {
             $this->Ductile_lists = array_merge($this->Ductile_lists, $ductile_lists);
         }
 
-        $ductile_counts = (string) dotclear()->blog->settings->themes->get(dotclear()->blog->settings->system->theme . '_entries_counts');
+        $ductile_counts = (string) dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_entries_counts');
         $ductile_counts = @unserialize($ductile_counts);
         if (is_array($ductile_counts)) {
             $this->Ductile_counts = array_merge($this->Ductile_counts, $ductile_counts);
@@ -133,12 +133,12 @@ class Page extends AbstractPage
 
         $this->Ductile_stickers = [[
             'label' => __('Subscribe'),
-            'url'   => dotclear()->blog->url .
+            'url'   => dotclear()->blog()->url .
             dotclear()->url()->getURLFor('feed', 'atom'),
             'image' => 'sticker-feed.png'
         ]];
 
-        $ductile_stickers = (string) dotclear()->blog->settings->themes->get(dotclear()->blog->settings->system->theme . '_stickers');
+        $ductile_stickers = (string) dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_stickers');
         $ductile_stickers = @unserialize($ductile_stickers);
         if (is_array($ductile_stickers)) {
             $this->Ductile_stickers = $ductile_stickers;
@@ -245,12 +245,12 @@ class Page extends AbstractPage
                     $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
                 }
 
-                dotclear()->blog->settings->themes->put(dotclear()->blog->settings->system->theme . '_style', serialize($this->Ductile_user));
-                dotclear()->blog->settings->themes->put(dotclear()->blog->settings->system->theme . '_stickers', serialize($this->Ductile_stickers));
-                dotclear()->blog->settings->themes->put(dotclear()->blog->settings->system->theme . '_entries_lists', serialize($this->Ductile_lists));
-                dotclear()->blog->settings->themes->put(dotclear()->blog->settings->system->theme . '_entries_counts', serialize($this->Ductile_counts));
+                dotclear()->blog()->settings->themes->put(dotclear()->blog()->settings->system->theme . '_style', serialize($this->Ductile_user));
+                dotclear()->blog()->settings->themes->put(dotclear()->blog()->settings->system->theme . '_stickers', serialize($this->Ductile_stickers));
+                dotclear()->blog()->settings->themes->put(dotclear()->blog()->settings->system->theme . '_entries_lists', serialize($this->Ductile_lists));
+                dotclear()->blog()->settings->themes->put(dotclear()->blog()->settings->system->theme . '_entries_counts', serialize($this->Ductile_counts));
 
-                dotclear()->blog->triggerBlog();
+                dotclear()->blog()->triggerBlog();
                 dotclear()->emptyTemplatesCache();
 
                 dotclear()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
@@ -265,7 +265,7 @@ class Page extends AbstractPage
             ->setPageHelp('ductile')
             ->setPageHead(static::jsPageTabs())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')               => dotclear()->adminurl->get('admin.blog.theme'),
                 __('Ductile configuration')          => ''
             ])
@@ -313,7 +313,7 @@ class Page extends AbstractPage
             __('stylesheet (Google)') => 'css',
         ];
 
-        $img_url = dotclear()->blog->url . 'files/img/';
+        $img_url = dotclear()->blog()->url . 'files/img/';
 
         # HTML Tab
 

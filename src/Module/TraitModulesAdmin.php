@@ -123,7 +123,7 @@ trait TraitModulesAdmin
     {
         if (!$define->permissions() && !dotclear()->auth()->isSuperAdmin()) {
             return false;
-        } elseif ($define->permissions() && !dotclear()->auth()->check($define->permissions(), dotclear()->blog->id)) {
+        } elseif ($define->permissions() && !dotclear()->auth()->check($define->permissions(), dotclear()->blog()->id)) {
             return false;
         }
 
@@ -895,7 +895,7 @@ trait TraitModulesAdmin
         }
         if ($config || $index || !empty($settings)) {
             if ($config) {
-                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog->id)) {
+                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog()->id)) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig() && !$self) {
                         $params['redir'] = $this->getModuleURL($id);
@@ -909,7 +909,7 @@ trait TraitModulesAdmin
                 foreach ($settings as $sk => $sv) {
                     switch ($sk) {
                         case 'blog':
-                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('admin', dotclear()->blog->id)) {
+                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('admin', dotclear()->blog()->id)) {
                                 $st['blog'] = '<a class="module-config" href="' .
                                 dotclear()->adminurl->get('admin.blog.pref') . $sv .
                                 '">' . __('Module settings (in blog parameters)') . '</a>';
@@ -917,7 +917,7 @@ trait TraitModulesAdmin
 
                             break;
                         case 'pref':
-                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id)) {
+                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
                                 $st['pref'] = '<a class="module-config" href="' .
                                 dotclear()->adminurl->get('admin.user.pref') . $sv .
                                 '">' . __('Module settings (in user preferences)') . '</a>';
@@ -926,7 +926,7 @@ trait TraitModulesAdmin
                             break;
                         case 'self':
                             if ($self) {
-                                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog->id)) {
+                                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog()->id)) {
                                     $st['self'] = '<a class="module-config" href="' .
                                     $this->getModuleURL($id) . $sv .
                                     '">' . __('Module settings') . '</a>';
@@ -937,7 +937,7 @@ trait TraitModulesAdmin
 
                             break;
                         case 'other':
-                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog->id)) {
+                            if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog()->id)) {
                                 $st['other'] = '<a class="module-config" href="' .
                                 $sv .
                                 '">' . __('Module settings') . '</a>';
@@ -948,7 +948,7 @@ trait TraitModulesAdmin
                 }
             }
             if ($index && $self) {
-                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog->id)) {
+                if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check($module->permissions(), dotclear()->blog()->id)) {
                     $st['index'] = '<a class="module-config" href="' .
                     $this->getModuleURL($id) .
                     '">' . __('Module settings') . '</a>';
@@ -1471,7 +1471,7 @@ trait TraitModulesAdmin
 
         # Check permissions
         if (!dotclear()->auth()->isSuperAdmin()
-            && !dotclear()->auth()->check((string) $class::getPermissions(), dotclear()->blog->id)
+            && !dotclear()->auth()->check((string) $class::getPermissions(), dotclear()->blog()->id)
         ) {
             dotclear()->error()->add(__('Insufficient permissions'));
 

@@ -205,7 +205,7 @@ trait TraitWiki2xhtml
      */
     public function wikiPostLink(string $url, string $content): array
     {
-        if (!dotclear()->blog) {
+        if (!dotclear()->blog()) {
             return [];
         }
 
@@ -214,7 +214,7 @@ trait TraitWiki2xhtml
             return [];
         }
 
-        $post = dotclear()->blog->getPosts(['post_id' => $post_id]);
+        $post = dotclear()->blog()->getPosts(['post_id' => $post_id]);
         if ($post->isEmpty()) {
             return [];
         }

@@ -72,8 +72,8 @@ class Comments extends Page
         $params['no_content'] = true;
 
         return new CommentCatalog(
-            dotclear()->blog->getComments($params),
-            dotclear()->blog->getComments($params, true)->f(0)
+            dotclear()->blog()->getComments($params),
+            dotclear()->blog()->getComments($params, true)->f(0)
         );
     }
 
@@ -81,7 +81,7 @@ class Comments extends Page
     {
         if (!empty($_POST['delete_all_spam'])) {
             try {
-                dotclear()->blog->delJunkComments();
+                dotclear()->blog()->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
                 dotclear()->adminurl->redirect('admin.comments');
             } catch (\Exception $e) {
@@ -95,7 +95,7 @@ class Comments extends Page
             ->setPageHelp('core_comments')
             ->setPageHead(static::jsLoad('js/_comments.js') . $this->filter->js())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Comments and trackbacks')             => ''
             ])
         ;
@@ -117,7 +117,7 @@ class Comments extends Page
 
         $combo_action = [];
         $default      = '';
-        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog->id) && $this->filter->status == -2) {
+        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id) && $this->filter->status == -2) {
             $default = 'delete';
         }
 
@@ -126,7 +126,7 @@ class Comments extends Page
             unset($_SESSION['comments_del_spam']);
         }
 
-        $spam_count = dotclear()->blog->getComments(['comment_status' => -2], true)->f(0);
+        $spam_count = dotclear()->blog()->getComments(['comment_status' => -2], true)->f(0);
         if ($spam_count > 0) {
             echo
             '<form action="' . dotclear()->adminurl->get('admin.comments') . '" method="post" class="fieldset">';
@@ -174,7 +174,7 @@ class Comments extends Page
             '</form>',
             $this->filter->show(),
             ($this->filter->show() || ($this->filter->status == -2)),
-            dotclear()->auth()->check('contentadmin', dotclear()->blog->id)
+            dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)
         );
     }
 }

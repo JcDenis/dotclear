@@ -23,7 +23,7 @@ class DefaultCommentAction
 {
     public static function CommentAction(Action $ap)
     {
-        if (dotclear()->auth()->check('publish,contentadmin', dotclear()->blog->id)) {
+        if (dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -35,7 +35,7 @@ class DefaultCommentAction
             );
         }
 
-        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog->id)) {
+        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
@@ -70,7 +70,7 @@ class DefaultCommentAction
                 break;
         }
 
-        dotclear()->blog->updCommentsStatus($co_ids, $status);
+        dotclear()->blog()->updCommentsStatus($co_ids, $status);
 
         dotclear()->notices->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
@@ -91,7 +91,7 @@ class DefaultCommentAction
         # --BEHAVIOR-- adminBeforeCommentsDelete
         dotclear()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
 
-        dotclear()->blog->delComments($co_ids);
+        dotclear()->blog()->delComments($co_ids);
         dotclear()->notices->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }

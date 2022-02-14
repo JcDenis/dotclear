@@ -38,7 +38,7 @@ class Prepend extends AbstractPrepend
 
         # Workspace
         dotclear()->auth()->user_prefs->addWorkspace('maintenance');
-        dotclear()->blog->settings->addNamespace('maintenance');
+        dotclear()->blog()->settings->addNamespace('maintenance');
 
         # Rest service
         dotclear()->rest()->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
@@ -172,8 +172,8 @@ class Prepend extends AbstractPrepend
                 __('This task has never been executed.')
                 :
                 sprintf(__('Last execution of this task was on %s.'),
-                    dt::dt2str(dotclear()->blog->settings->system->date_format, (string) $ts) . ' ' .
-                    dt::dt2str(dotclear()->blog->settings->system->time_format, (string) $ts)
+                    dt::dt2str(dotclear()->blog()->settings->system->date_format, (string) $ts) . ' ' .
+                    dt::dt2str(dotclear()->blog()->settings->system->time_format, (string) $ts)
                 )
             ) . '">' . $t->task() . '</li>';
         }

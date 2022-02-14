@@ -52,7 +52,7 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
         $this->log();
 
         // Send zip
-        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog->id . '-' . 'media.zip');
+        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog()->id . '-' . 'media.zip');
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);

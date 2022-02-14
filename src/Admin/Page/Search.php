@@ -93,7 +93,7 @@ class Search extends Page
             ->setPageHelp('core_search')
             ->setPageHead($starting_scripts)
             ->setPageBreadcrumb([
-                    Html::escapeHTML(dotclear()->blog->name) => '',
+                    Html::escapeHTML(dotclear()->blog()->name) => '',
                     __('Search')                        => ''
             ])
         ;
@@ -158,8 +158,8 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) dotclear()->blog->getPosts($params, true)->f(0);
-            self::$list    = new PostCatalog(dotclear()->blog->getPosts($params), self::$count);
+            self::$count   = (int) dotclear()->blog()->getPosts($params, true)->f(0);
+            self::$list    = new PostCatalog(dotclear()->blog()->getPosts($params), self::$count);
             self::$actions = new PostAction(dotclear()->adminurl->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;
@@ -211,8 +211,8 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) dotclear()->blog->getComments($params, true)->f(0);
-            self::$list    = new CommentCatalog(dotclear()->blog->getComments($params), self::$count);
+            self::$count   = (int) dotclear()->blog()->getComments($params, true)->f(0);
+            self::$list    = new CommentCatalog(dotclear()->blog()->getComments($params), self::$count);
             self::$actions = new CommentAction(dotclear()->adminurl->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;

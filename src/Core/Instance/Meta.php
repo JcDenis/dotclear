@@ -144,12 +144,12 @@ class Meta
     {
         $post_id = (int) $post_id;
 
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         #�If user can only publish, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_id = ' . $post_id . ' ' .
@@ -189,7 +189,7 @@ class Meta
         $cur->post_meta = $post_meta;
 
         $cur->update('WHERE post_id = ' . $post_id);
-        dotclear()->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
     }
 
     /**
@@ -221,7 +221,7 @@ class Meta
 
         unset($params['meta_id']);
 
-        return dotclear()->blog->getPosts($params, $count_only);
+        return dotclear()->blog()->getPosts($params, $count_only);
     }
 
     /**
@@ -250,7 +250,7 @@ class Meta
             unset($params['meta_type']);
         }
 
-        return dotclear()->blog->getComments($params, $count_only);
+        return dotclear()->blog()->getComments($params, $count_only);
     }
 
     /**
@@ -279,7 +279,7 @@ class Meta
 
         $strReq .= 'FROM ' . dotclear()->prefix . $this->table . ' M LEFT JOIN ' . dotclear()->prefix . 'post P ' .
         'ON M.post_id = P.post_id ' .
-        "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' ";
+        "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
 
         if (isset($params['meta_type'])) {
             $strReq .= " AND meta_type = '" . dotclear()->con()->escape($params['meta_type']) . "' ";
@@ -293,10 +293,10 @@ class Meta
             $strReq .= ' AND P.post_id ' . dotclear()->con()->in($params['post_id']) . ' ';
         }
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
-            if (dotclear()->blog->without_password) {
+            if (dotclear()->blog()->without_password) {
                 $strReq .= 'AND post_password IS NULL ';
             }
             $strReq .= ') ';
@@ -439,10 +439,10 @@ class Meta
         $getReq = 'SELECT M.post_id ' .
         'FROM ' . dotclear()->prefix . $this->table . ' M, ' . dotclear()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
+        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             "AND meta_id = '%s' ";
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
             $getReq .= "AND P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
         }
         if ($post_type !== null) {
@@ -535,7 +535,7 @@ class Meta
         $strReq = 'SELECT M.post_id ' .
         'FROM ' . dotclear()->prefix . $this->table . ' M, ' . dotclear()->prefix . 'post P ' .
         'WHERE P.post_id = M.post_id ' .
-        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog->id) . "' " .
+        "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         "AND meta_id = '" . dotclear()->con()->escape($meta_id) . "' ";
 
         if ($type !== null) {

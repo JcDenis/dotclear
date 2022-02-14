@@ -78,17 +78,17 @@ class Media extends Manager
     {
         $this->postmedia = new PostMedia();
 
-        if (dotclear()->blog == null) {
+        if (dotclear()->blog() == null) {
             throw new CoreException(__('No blog defined.'));
         }
 
         $this->table = dotclear()->prefix . 'media';
-        $root        = dotclear()->blog->public_path;
+        $root        = dotclear()->blog()->public_path;
 
-        if (preg_match('#^http(s)?://#', dotclear()->blog->settings->system->public_url)) {
-            $root_url = rawurldecode(dotclear()->blog->settings->system->public_url);
+        if (preg_match('#^http(s)?://#', dotclear()->blog()->settings->system->public_url)) {
+            $root_url = rawurldecode(dotclear()->blog()->settings->system->public_url);
         } else {
-            $root_url = rawurldecode(dotclear()->blog->host . Path::clean(dotclear()->blog->settings->system->public_url));
+            $root_url = rawurldecode(dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings->system->public_url));
         }
 
         if (!is_dir($root)) {
@@ -106,12 +106,12 @@ class Media extends Manager
 
         $this->chdir('');
 
-        $this->path = dotclear()->blog->settings->system->public_path;
+        $this->path = dotclear()->blog()->settings->system->public_path;
 //!
         $this->addExclusion(DOTCLEAR_ROOT_DIR);
         $this->addExclusion(__DIR__ . '/../');
 
-        $this->exclude_pattern = dotclear()->blog->settings->system->media_exclusion;
+        $this->exclude_pattern = dotclear()->blog()->settings->system->media_exclusion;
 
         # Event handlers
         $this->addFileHandler('image/jpeg', 'create', [$this, 'imageThumbCreate']);
@@ -138,9 +138,9 @@ class Media extends Manager
         $this->addFileHandler('image/webp', 'recreate', [$this, 'imageThumbCreate']);
 
         # Thumbnails sizes
-        $this->thumb_sizes['m'][0] = abs(dotclear()->blog->settings->system->media_img_m_size);
-        $this->thumb_sizes['s'][0] = abs(dotclear()->blog->settings->system->media_img_s_size);
-        $this->thumb_sizes['t'][0] = abs(dotclear()->blog->settings->system->media_img_t_size);
+        $this->thumb_sizes['m'][0] = abs(dotclear()->blog()->settings->system->media_img_m_size);
+        $this->thumb_sizes['s'][0] = abs(dotclear()->blog()->settings->system->media_img_s_size);
+        $this->thumb_sizes['t'][0] = abs(dotclear()->blog()->settings->system->media_img_t_size);
 
         # Thumbnails sizes names
         $this->thumb_sizes['m'][2]  = __($this->thumb_sizes['m'][2]);
@@ -245,7 +245,7 @@ class Media extends Manager
 
             $f->media_image = false;
 
-            if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)
+            if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)
                 && dotclear()->auth()->userID() != $f->media_user) {
                 $f->del      = false;
                 $f->editable = false;
@@ -477,7 +477,7 @@ class Media extends Manager
             ->where('media_path = ' . $sql->quote($this->path))
             ->and('media_dir = ' . $sql->quote($media_dir, true));
 
-        if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
             $list = ['media_private <> 1'];
             if ($user_id = dotclear()->auth()->userID()) {
                 $list[] = 'user_id = ' . $sql->quote($user_id, true);
@@ -580,7 +580,7 @@ class Media extends Manager
         }
 
         # Check files that don't exist in database and create them
-        if (dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             foreach ($p_dir['files'] as $f) {
                 // Warning a file may exist in DB but in private mode for the user, so we don't have to recreate it
                 if (!isset($f_reg[$f->relname]) && !in_array($f->relname, $privates)) {
@@ -624,7 +624,7 @@ class Media extends Manager
             ->where('media_path = ' . $sql->quote($this->path))
             ->and('media_id = ' . (int) $id);
 
-        if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
             $list = ['media_private <> 1'];
             if ($user_id = dotclear()->auth()->userID()) {
                 $list[] = 'user_id = ' . $sql->quote($user_id, true);
@@ -672,7 +672,7 @@ class Media extends Manager
                 $sql->like('media_meta', '%<Description>%' . $sql->escape($query) . '%</Description>%'),
             ]));
 
-        if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
             $list = ['media_private <> 1'];
             if ($user_id = dotclear()->auth()->userID()) {
                 $list[] = 'user_id = ' . $sql->quote($user_id, true);
@@ -828,7 +828,7 @@ class Media extends Manager
      */
     public function createFile($name, $title = null, $private = false, $dt = null, $force = true)
     {
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
         }
 
@@ -919,7 +919,7 @@ class Media extends Manager
      */
     public function updateFile($file, $newFile)
     {
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
         }
 
@@ -929,7 +929,7 @@ class Media extends Manager
             throw new CoreException('No file ID');
         }
 
-        if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)
+        if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)
             && dotclear()->auth()->userID() != $file->media_user) {
             throw new CoreException(__('You are not the file owner.'));
         }
@@ -991,7 +991,7 @@ class Media extends Manager
      */
     public function uploadFile($tmp, $name, $title = null, $private = false, $overwrite = false)
     {
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
         }
 
@@ -1014,7 +1014,7 @@ class Media extends Manager
      */
     public function uploadBits($name, $bits)
     {
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
         }
 
@@ -1034,7 +1034,7 @@ class Media extends Manager
      */
     public function removeFile($f)
     {
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
         }
 
@@ -1046,7 +1046,7 @@ class Media extends Manager
             ->where('media_path = ' . $sql->quote($this->path, true))
             ->and('media_file = ' . $sql->quote($media_file));
 
-        if (!dotclear()->auth()->check('media_admin', dotclear()->blog->id)) {
+        if (!dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
             $sql->and('user_id = ' . $sql->quote(dotclear()->auth()->userID(), true));
         }
 

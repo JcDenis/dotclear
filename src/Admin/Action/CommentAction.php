@@ -38,7 +38,7 @@ class CommentAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog->name) => '',
+            Html::escapeHTML(dotclear()->blog()->name) => '',
             __('Comments')                            => dotclear()->adminurl->get('admin.comments'),
             __('Comments actions')                    => ''
         ]);
@@ -103,7 +103,7 @@ class CommentAction extends Action
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $params['no_content'] = true;
         }
-        $co = dotclear()->blog->getComments($params);
+        $co = dotclear()->blog()->getComments($params);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

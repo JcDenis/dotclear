@@ -68,8 +68,8 @@ class Posts extends Page
 
         $params['no_content'] = true;
 
-        $posts     = dotclear()->blog->getPosts($params);
-        $counter   = dotclear()->blog->getPosts($params, true);
+        $posts     = dotclear()->blog()->getPosts($params);
+        $counter   = dotclear()->blog()->getPosts($params, true);
 
         return new PostCatalog($posts, $counter->f(0));
     }
@@ -83,7 +83,7 @@ class Posts extends Page
             static::jsLoad('js/_posts_list.js')
         );
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog->name) => '',
+            Html::escapeHTML(dotclear()->blog()->name) => '',
             __('Posts')                               => ''
         ]);
 

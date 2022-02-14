@@ -50,7 +50,7 @@ class AntispamUrl extends UrlHandler
 
         header('Content-Type: application/xml; charset=UTF-8');
 
-        $title   = dotclear()->blog->name . ' - ' . __('Spam moderation') . ' - ';
+        $title   = dotclear()->blog()->name . ' - ' . __('Spam moderation') . ' - ';
         $params  = [];
         $end_url = '';
         if ($type == 'spam') {
@@ -73,7 +73,7 @@ class AntispamUrl extends UrlHandler
         '<link>' . (dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
-        $rs       = dotclear()->blog->getComments($params);
+        $rs       = dotclear()->blog()->getComments($params);
         $maxitems = 20;
         $nbitems  = 0;
 

@@ -111,7 +111,7 @@ class Media extends Page
         $this->media_uploader = dotclear()->auth()->user_prefs->interface->enhanceduploader;
 
         # Zip download
-        if (!empty($_GET['zipdl']) && dotclear()->auth()->check('media_admin', dotclear()->blog->id)) {
+        if (!empty($_GET['zipdl']) && dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
             try {
                 if (strpos(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root)) === 0) {
                     // Media folder or one of it's sub-folder(s)
@@ -121,7 +121,7 @@ class Media extends Page
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
                     $zip->addDirectory(dotclear()->media()->root . '/' . $this->filter->d, '', true);
 
-                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog->id . '-' . ($this->filter->d ?: 'media') . '.zip');
+                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog()->id . '-' . ($this->filter->d ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
                     unset($zip);
@@ -623,7 +623,7 @@ class Media extends Page
         }
 
         $elements = [
-            Html::escapeHTML(dotclear()->blog->name) => '',
+            Html::escapeHTML(dotclear()->blog()->name) => '',
             __('Media manager')                       => empty($param) ? '' :
                 dotclear()->adminurl->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param)))
         ];
@@ -667,7 +667,7 @@ class Media extends Page
         if ($this->media_archivable === null) {
             $rs = $this->getDirsRecord();
 
-            $this->media_archivable = dotclear()->auth()->check('media_admin', dotclear()->blog->id)
+            $this->media_archivable = dotclear()->auth()->check('media_admin', dotclear()->blog()->id)
                 && !(count($rs) == 0 || (count($rs) == 1 && $rs->__data[0]->parent));
         }
 

@@ -62,7 +62,7 @@ class MaintenanceTask
         $this->id = null;
 
         if ($this->perm() === null && !dotclear()->auth()->isSuperAdmin()
-            || !dotclear()->auth()->check((string) $this->perm(), dotclear()->blog->id)) {
+            || !dotclear()->auth()->check((string) $this->perm(), dotclear()->blog()->id)) {
             return;
         }
 
@@ -79,7 +79,7 @@ class MaintenanceTask
             $this->success = __('Task successfully executed.');
         }
 
-        $ts = dotclear()->blog->settings->maintenance->get('ts_' . $this->id);
+        $ts = dotclear()->blog()->settings->maintenance->get('ts_' . $this->id);
 
         $this->ts = abs((int) $ts);
     }

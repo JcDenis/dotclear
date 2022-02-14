@@ -37,7 +37,7 @@ class PostAction extends Action
         $this->setPageType($this->in_plugin ? 'plugin' : null);
         $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog->name) => '',
+            Html::escapeHTML(dotclear()->blog()->name) => '',
             $this->getCallerTitle()                   => $this->getRedirection(true),
             __('Posts actions')                       => ''
         ]);
@@ -80,7 +80,7 @@ class PostAction extends Action
             $params['post_type'] = $from['post_type'];
         }
 
-        $posts = dotclear()->blog->getPosts($params);
+        $posts = dotclear()->blog()->getPosts($params);
         while ($posts->fetch()) {
             $this->entries[$posts->post_id] = $posts->post_title;
         }

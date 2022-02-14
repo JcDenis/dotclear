@@ -85,12 +85,12 @@ class Post extends Page
         $this->post_editor        = dotclear()->auth()->getOption('editor');
         $this->post_lang          = dotclear()->auth()->getInfo('user_lang');
         $this->post_status        = dotclear()->auth()->getInfo('user_post_status');
-        $this->post_open_comment  = dotclear()->blog->settings->system->allow_comments;
-        $this->post_open_tb       = dotclear()->blog->settings->system->allow_trackbacks;
+        $this->post_open_comment  = dotclear()->blog()->settings->system->allow_comments;
+        $this->post_open_tb       = dotclear()->blog()->settings->system->allow_trackbacks;
 
-        $this->can_view_ip   = dotclear()->auth()->check('contentadmin', dotclear()->blog->id);
-        $this->can_edit_post = dotclear()->auth()->check('usage,contentadmin', dotclear()->blog->id);
-        $this->can_publish   = dotclear()->auth()->check('publish,contentadmin', dotclear()->blog->id);
+        $this->can_view_ip   = dotclear()->auth()->check('contentadmin', dotclear()->blog()->id);
+        $this->can_edit_post = dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id);
+        $this->can_publish   = dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id);
 
         $this->post_headlink = '<link rel="%s" title="%s" href="' . dotclear()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
         $this->post_link     = '<a href="' . dotclear()->adminurl->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
@@ -112,7 +112,7 @@ class Post extends Page
 
             $params['post_id'] = (int) $_REQUEST['id'];
 
-            $this->post = dotclear()->blog->getPosts($params);
+            $this->post = dotclear()->blog()->getPosts($params);
 
             if ($this->post->isEmpty()) {
                 dotclear()->error()->add(__('This entry does not exist.'));
@@ -139,8 +139,8 @@ class Post extends Page
                 $this->can_edit_post = $this->post->isEditable();
                 $this->can_delete    = $this->post->isDeletable();
 
-                $next_rs = dotclear()->blog->getNextPost($this->post, 1);
-                $prev_rs = dotclear()->blog->getNextPost($this->post, -1);
+                $next_rs = dotclear()->blog()->getNextPost($this->post, 1);
+                $prev_rs = dotclear()->blog()->getNextPost($this->post, -1);
 
                 if ($next_rs !== null) {
                     $this->next_link = sprintf(
@@ -269,7 +269,7 @@ class Post extends Page
                 $this->post_url = $_POST['post_url'];
             }
 
-            dotclear()->blog->setPostContent(
+            dotclear()->blog()->setPostContent(
                 $this->post_id,
                 $this->post_format,
                 $this->post_lang,
@@ -285,7 +285,7 @@ class Post extends Page
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
                 dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
-                dotclear()->blog->delPost($this->post_id);
+                dotclear()->blog()->delPost($this->post_id);
                 dotclear()->adminurl->redirect('admin.posts');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -295,7 +295,7 @@ class Post extends Page
         # Create or update post
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
-            if (!empty($_POST['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog->id)) {
+            if (!empty($_POST['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
                 $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $_POST['new_cat_title'];
                 $cur_cat->cat_url   = '';
@@ -305,7 +305,7 @@ class Post extends Page
                 # --BEHAVIOR-- adminBeforeCategoryCreate
                 dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $this->cat_id = dotclear()->blog->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = dotclear()->blog()->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
@@ -339,7 +339,7 @@ class Post extends Page
                     # --BEHAVIOR-- adminBeforePostUpdate
                     dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    dotclear()->blog->updPost($this->post_id, $cur);
+                    dotclear()->blog()->updPost($this->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate
                     dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
@@ -358,7 +358,7 @@ class Post extends Page
                     # --BEHAVIOR-- adminBeforePostCreate
                     dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
-                    $return_id = dotclear()->blog->addPost($cur);
+                    $return_id = dotclear()->blog()->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate
                     dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -467,11 +467,11 @@ class Post extends Page
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name)         => '',
+                Html::escapeHTML(dotclear()->blog()->name)         => '',
                 __('Posts')                                        => dotclear()->adminurl->get('admin.posts'),
                 ($this->post_id ? $page_title_edit : $page_title) => '',
             ], [
-                'x-frame-allow' => dotclear()->blog->url,
+                'x-frame-allow' => dotclear()->blog()->url,
             ])
         ;
 
@@ -481,12 +481,12 @@ class Post extends Page
     protected function getPageContent(): void
     {
         $categories_combo = dotclear()->combos->getCategoriesCombo(
-            dotclear()->blog->getCategories()
+            dotclear()->blog()->getCategories()
         );
 
         $status_combo = dotclear()->combos->getPostStatusesCombo();
 
-        $rs         = dotclear()->blog->getLangs(['order' => 'asc']);
+        $rs         = dotclear()->blog()->getLangs(['order' => 'asc']);
         $lang_combo = dotclear()->combos->getLangsCombo($rs, true);
 
         $core_formaters    = dotclear()->formater()->getFormaters();
@@ -591,7 +591,7 @@ class Post extends Page
                         '<p><label for="cat_id">' . __('Category:') . '</label>' .
                         Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
                         '</p>' .
-                        (dotclear()->auth()->check('categories', dotclear()->blog->id) ?
+                        (dotclear()->auth()->check('categories', dotclear()->blog()->id) ?
                             '<div>' .
                             '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
                             '<p><label for="new_cat_title">' . __('Title:') . ' ' .
@@ -610,7 +610,7 @@ class Post extends Page
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (dotclear()->blog->settings->system->allow_comments ?
+                        (dotclear()->blog()->settings->system->allow_comments ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -620,7 +620,7 @@ class Post extends Page
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (dotclear()->blog->settings->system->allow_trackbacks ?
+                        (dotclear()->blog()->settings->system->allow_trackbacks ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -715,7 +715,7 @@ class Post extends Page
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = dotclear()->blog->url . dotclear()->url()->getURLFor('preview', dotclear()->auth()->userID() . '/' .
+                $preview_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('preview', dotclear()->auth()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->master_key . dotclear()->auth()->userID() . dotclear()->auth()->cryptLegacy(dotclear()->auth()->userID())) .
                     '/' . $this->post->post_url);
 
@@ -768,7 +768,7 @@ class Post extends Page
 
             $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments = dotclear()->blog->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = dotclear()->blog()->getComments(array_merge($params, ['comment_trackback' => 0]));
 
             echo
             '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
@@ -855,7 +855,7 @@ class Post extends Page
             -------------------------------------------------------- */
 
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $this->trackbacks = dotclear()->blog->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $this->trackbacks = dotclear()->blog()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             # Actions combo box
             $combo_action = $this->comments_actions->getCombo();
@@ -952,11 +952,11 @@ class Post extends Page
             return true;
         }
         if ($com) {
-            if ((dotclear()->blog->settings->system->comments_ttl == 0) || (time() - dotclear()->blog->settings->system->comments_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings->system->comments_ttl == 0) || (time() - dotclear()->blog()->settings->system->comments_ttl * 86400 < $dt)) {
                 return true;
             }
         } else {
-            if ((dotclear()->blog->settings->system->trackbacks_ttl == 0) || (time() - dotclear()->blog->settings->system->trackbacks_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings->system->trackbacks_ttl == 0) || (time() - dotclear()->blog()->settings->system->trackbacks_ttl * 86400 < $dt)) {
                 return true;
             }
         }

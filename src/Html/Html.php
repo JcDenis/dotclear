@@ -205,7 +205,7 @@ class Html
      */
     public static function filter(string $str): string
     {
-        if (!empty(dotclear()->blog) && !dotclear()->blog->settings->system->enable_html_filter) {
+        if (!empty(dotclear()->blog()) && !dotclear()->blog()->settings->system->enable_html_filter) {
             return $str;
         }
 

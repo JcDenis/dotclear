@@ -88,7 +88,7 @@ class RsExtDates
     {
         $url = date('Y/m', strtotime($rs->dt));
 
-        return dotclear()->blog->url . dotclear()->url()->getURLFor('archive', $url);
+        return dotclear()->blog()->url . dotclear()->url()->getURLFor('archive', $url);
     }
 
     /**
@@ -148,7 +148,7 @@ class RsExtDates
     public static function getDate(Record $rs, string $format = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog->settings->system->date_format;
+            $format = dotclear()->blog()->settings->system->date_format;
         }
 
         return Dt::dt2str($format, $rs->dt);

@@ -248,7 +248,7 @@ class FilterIp extends Spamfilter
             if ($global && dotclear()->auth()->isSuperAdmin()) {
                 $cur->blog_id = null;
             } else {
-                $cur->blog_id = dotclear()->blog->id;
+                $cur->blog_id = dotclear()->blog()->id;
             }
 
             $cur->insert();
@@ -264,7 +264,7 @@ class FilterIp extends Spamfilter
         $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
         'FROM ' . $this->table . ' ' .
         "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
+        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
             'ORDER BY blog_id ASC, rule_content ASC ';
 
         return dotclear()->con()->select($strReq);
@@ -275,7 +275,7 @@ class FilterIp extends Spamfilter
         $strReq = 'SELECT * FROM ' . $this->table . ' ' .
         "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
         "AND rule_content LIKE '%:" . (int) $ip . ':' . (int) $mask . "' " .
-            'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog->id . "' ");
+            'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog()->id . "' ");
 
         return dotclear()->con()->select($strReq);
     }
@@ -285,7 +285,7 @@ class FilterIp extends Spamfilter
         $strReq = 'SELECT DISTINCT(rule_content) ' .
         'FROM ' . $this->table . ' ' .
         "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog->id . "' OR blog_id IS NULL) " .
+        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
             'ORDER BY rule_content ASC ';
 
         $rs = dotclear()->con()->select($strReq);
@@ -314,7 +314,7 @@ class FilterIp extends Spamfilter
         }
 
         if (!dotclear()->auth()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->blog->id . "' ";
+            $strReq .= "AND blog_id = '" . dotclear()->blog()->id . "' ";
         }
 
         dotclear()->con()->execute($strReq);

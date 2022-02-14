@@ -58,7 +58,7 @@ class PageTheme extends Page
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name)                            => '',
+                Html::escapeHTML(dotclear()->blog()->name)                            => '',
                 __('Blog appearance')                                             => dotclear()->themes->getURL('', false),
                 '<span class="page-title">' . __('Theme configuration') . '</span>' => ''
             ]);
@@ -94,7 +94,7 @@ class PageTheme extends Page
                     (string) dotclear()->behavior()->call('themesToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
-                        Html::escapeHTML(dotclear()->blog->name)                       => '',
+                        Html::escapeHTML(dotclear()->blog()->name)                       => '',
                         '<span class="page-title">' . __('Blog appearance') . '</span>' => '',
                 ])
             ;

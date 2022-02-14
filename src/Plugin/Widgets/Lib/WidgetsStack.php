@@ -44,7 +44,7 @@ class WidgetsStack
     //@{
     public function search($w)
     {
-        if (dotclear()->blog->settings->system->no_search) {
+        if (dotclear()->blog()->settings->system->no_search) {
             return;
         }
 
@@ -60,7 +60,7 @@ class WidgetsStack
 
         return $w->renderDiv($w->content_only, $w->class, 'id="search"',
             ($w->title ? $w->renderTitle('<label for="q">' . Html::escapeHTML($w->title) . '</label>') : '') .
-            '<form action="' . dotclear()->blog->url . '" method="get" role="search">' .
+            '<form action="' . dotclear()->blog()->url . '" method="get" role="search">' .
             '<p><input type="text" size="10" maxlength="255" id="q" name="q" value="' . $value . '" ' .
             ($w->placeholder ? 'placeholder="' . Html::escapeHTML($w->placeholder) . '"' : '') .
             ' aria-label="' . __('Search') . '"/> ' .
@@ -84,23 +84,23 @@ class WidgetsStack
         if (!dotclear()->url()->isHome(dotclear()->url()->type)) {
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
-            '<a href="' . dotclear()->blog->url . '">' . __('Home') . '</a></li>';
-            if (dotclear()->blog->settings->system->static_home) {
+            '<a href="' . dotclear()->blog()->url . '">' . __('Home') . '</a></li>';
+            if (dotclear()->blog()->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
-            if (dotclear()->blog->settings->system->static_home) {
+            if (dotclear()->blog()->settings->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         }
 
         $res .= '<li class="topnav-arch">' .
-        '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('archive') . '">' .
+        '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('archive') . '">' .
         __('Archives') . '</a></li>' .
             '</ul></nav>';
 
@@ -119,7 +119,7 @@ class WidgetsStack
             return;
         }
 
-        $rs = dotclear()->blog->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
+        $rs = dotclear()->blog()->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
         if ($rs->isEmpty()) {
             return;
         }
@@ -144,7 +144,7 @@ class WidgetsStack
                 $res .= '</li><li' . $class . '>';
             }
 
-            $res .= '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('category', $rs->cat_url) . '">' .
+            $res .= '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('category', $rs->cat_url) . '">' .
             Html::escapeHTML($rs->cat_title) . '</a>' .
                 ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->nb_total : $rs->nb_post) . ')</span>' : '');
 
@@ -176,7 +176,7 @@ class WidgetsStack
             'order'         => 'post_dt ' . strtoupper($w->orderby)
         ];
 
-        $rs = dotclear()->blog->getPosts($params);
+        $rs = dotclear()->blog()->getPosts($params);
 
         if ($rs->isEmpty()) {
             return;
@@ -210,7 +210,7 @@ class WidgetsStack
             return;
         }
 
-        $rs = dotclear()->blog->getLangs();
+        $rs = dotclear()->blog()->getLangs();
 
         if ($rs->count() <= 1) {
             return;
@@ -227,7 +227,7 @@ class WidgetsStack
 
             $res .= ' <li>' .
             sprintf($l,
-                '<a href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('lang', $rs->post_lang) . '" ' .
+                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('lang', $rs->post_lang) . '" ' .
                 'class="lang-' . $rs->post_lang . '">' .
                 $lang_name . '</a>') .
                 ' </li>';
@@ -263,13 +263,13 @@ class WidgetsStack
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
-        'href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('feed', $type) . '" ' .
+        'href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('feed', $type) . '" ' .
         'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
-        if (dotclear()->blog->settings->system->allow_comments || dotclear()->blog->settings->system->allow_trackbacks) {
+        if (dotclear()->blog()->settings->system->allow_comments || dotclear()->blog()->settings->system->allow_trackbacks) {
             $res .= '<li><a type="' . $mime . '" ' .
-            'href="' . dotclear()->blog->url . dotclear()->url()->getURLFor('feed', $type . '/comments') . '" ' .
+            'href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
             __('Comments feed') . '</a></li>';
         }
@@ -378,7 +378,7 @@ class WidgetsStack
             $params['meta_id'] = $w->tag;
             $rs                = dotclear()->meta()->getPostsByMeta($params);
         } else {
-            $rs = dotclear()->blog->getPosts($params);
+            $rs = dotclear()->blog()->getPosts($params);
         }
 
         if ($rs->isEmpty()) {
@@ -414,7 +414,7 @@ class WidgetsStack
 
         $params['limit'] = abs((integer) $w->limit);
         $params['order'] = 'comment_dt desc';
-        $rs              = dotclear()->blog->getComments($params);
+        $rs              = dotclear()->blog()->getComments($params);
 
         if ($rs->isEmpty()) {
             return;
@@ -516,7 +516,7 @@ class WidgetsStack
             ->addClass()
             ->addOffline();
 
-        $rs         = dotclear()->blog->getCategories(['post_type' => 'post']);
+        $rs         = dotclear()->blog()->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
             $categories[str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title)] = $rs->cat_id;
@@ -589,8 +589,8 @@ class WidgetsStack
     public function widgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog->settings->addNameSpace('widgets');
-        $widgets = dotclear()->blog->settings->widgets->{$wtype};
+        dotclear()->blog()->settings->addNameSpace('widgets');
+        $widgets = dotclear()->blog()->settings->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
@@ -641,8 +641,8 @@ class WidgetsStack
     public function ifWidgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog->settings->addNameSpace('widgets');
-        $widgets = dotclear()->blog->settings->widgets->{$wtype};
+        dotclear()->blog()->settings->addNameSpace('widgets');
+        $widgets = dotclear()->blog()->settings->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults

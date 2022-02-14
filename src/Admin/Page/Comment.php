@@ -52,7 +52,7 @@ class Comment extends Page
         # Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
-                $rs = dotclear()->blog->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
+                $rs = dotclear()->blog()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
 
                 if ($rs->isEmpty()) {
                     throw new AdminException(__('Entry does not exist.'));
@@ -69,7 +69,7 @@ class Comment extends Page
                 # --BEHAVIOR-- adminBeforeCommentCreate
                 dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
 
-                $this->comment_id = dotclear()->blog->addComment($cur);
+                $this->comment_id = dotclear()->blog()->addComment($cur);
 
                 # --BEHAVIOR-- adminAfterCommentCreate
                 dotclear()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
@@ -90,7 +90,7 @@ class Comment extends Page
             $params['comment_id'] = $_REQUEST['id'];
 
             try {
-                $rs = dotclear()->blog->getComments($params);
+                $rs = dotclear()->blog()->getComments($params);
                 if (!$rs->isEmpty()) {
                     $this->comment_id          = $rs->comment_id;
                     $post_id             = $rs->post_id;
@@ -116,14 +116,14 @@ class Comment extends Page
 
         $this->can_edit = $this->can_delete = $this->can_publish = false;
         if (!dotclear()->error()->flag() && isset($rs)) {
-            $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->auth()->check('contentadmin', dotclear()->blog->id);
+            $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->auth()->check('contentadmin', dotclear()->blog()->id);
 
-            if (!dotclear()->auth()->check('contentadmin', dotclear()->blog->id) && dotclear()->auth()->userID() == $rs->user_id) {
+            if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id) && dotclear()->auth()->userID() == $rs->user_id) {
                 $this->can_edit = true;
-                if (dotclear()->auth()->check('delete', dotclear()->blog->id)) {
+                if (dotclear()->auth()->check('delete', dotclear()->blog()->id)) {
                     $this->can_delete = true;
                 }
-                if (dotclear()->auth()->check('publish', dotclear()->blog->id)) {
+                if (dotclear()->auth()->check('publish', dotclear()->blog()->id)) {
                     $this->can_publish = true;
                 }
             }
@@ -145,7 +145,7 @@ class Comment extends Page
                     # --BEHAVIOR-- adminBeforeCommentUpdate
                     dotclear()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
-                    dotclear()->blog->updComment($this->comment_id, $cur);
+                    dotclear()->blog()->updComment($this->comment_id, $cur);
 
                     # --BEHAVIOR-- adminAfterCommentUpdate
                     dotclear()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
@@ -162,7 +162,7 @@ class Comment extends Page
                     # --BEHAVIOR-- adminBeforeCommentDelete
                     dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
-                    dotclear()->blog->delComment($this->comment_id);
+                    dotclear()->blog()->delComment($this->comment_id);
 
                     dotclear()->notices->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
@@ -195,7 +195,7 @@ class Comment extends Page
                 dotclear()->behavior()->call('adminCommentHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
                 Html::escapeHTML($post_title)          => dotclear()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
                 __('Edit comment')                     => ''
             ])
@@ -220,7 +220,7 @@ class Comment extends Page
         $comment_mailto = '';
         if ($this->comment_email) {
             $comment_mailto = '<a href="mailto:' . Html::escapeHTML($this->comment_email)
-            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), dotclear()->blog->name))
+            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), dotclear()->blog()->name))
             . '&amp;body='
             . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->post_url))
             . '">' . __('Send an e-mail') . '</a>';
@@ -231,7 +231,7 @@ class Comment extends Page
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
-        $show_ip = dotclear()->auth()->check('contentadmin', dotclear()->blog->id);
+        $show_ip = dotclear()->auth()->check('contentadmin', dotclear()->blog()->id);
         if ($show_ip) {
             echo
             '<p>' . __('IP address:') . ' ' .

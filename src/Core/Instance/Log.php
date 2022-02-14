@@ -91,7 +91,7 @@ class Log
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
-            $sql->where('L.blog_id = ' . $sql->quote(dotclear()->blog->id));
+            $sql->where('L.blog_id = ' . $sql->quote(dotclear()->blog()->id));
         }
 
         if (!empty($params['user_id'])) {
@@ -143,7 +143,7 @@ class Log
             $rs = $sql->select();
 
             $cur->log_id  = (int) $rs->f(0) + 1;
-            $cur->blog_id = (string) dotclear()->blog->id;
+            $cur->blog_id = (string) dotclear()->blog()->id;
             $cur->log_dt  = date('Y-m-d H:i:s');
 
             $this->cursor($cur, $cur->log_id);

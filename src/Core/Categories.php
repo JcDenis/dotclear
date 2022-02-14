@@ -34,7 +34,7 @@ class Categories extends NestedTree
     {
         parent::__construct(dotclear()->con());
 
-        $this->blog_id       = dotclear()->blog->id;
+        $this->blog_id       = dotclear()->blog()->id;
         $this->table         = dotclear()->prefix . 'category';
         $this->add_condition = ['blog_id' => "'" . dotclear()->con()->escape($this->blog_id) . "'"];
     }

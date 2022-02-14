@@ -49,7 +49,7 @@ class FilterFairtrackbacks extends Spamfilter
             }
 
             # Check incomink link page
-            $post     = dotclear()->blog->getPosts(['post_id' => $post_id]);
+            $post     = dotclear()->blog()->getPosts(['post_id' => $post_id]);
             $post_url = $post->getURL();
             $P        = array_merge($default_parse, parse_url($post_url));
 

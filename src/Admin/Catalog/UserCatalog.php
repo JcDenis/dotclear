@@ -109,7 +109,7 @@ class UserCatalog extends Catalog
 
         $p = dotclear()->getUserPermissions($this->rs->user_id);
 
-        if (isset($p[dotclear()->blog->id]['p']['admin'])) {
+        if (isset($p[dotclear()->blog()->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
         if ($this->rs->user_super) {

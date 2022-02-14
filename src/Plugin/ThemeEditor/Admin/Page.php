@@ -51,7 +51,7 @@ class Page extends AbstractPage
                 ->setPageTitle(__('Edit theme files'))
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
-                    Html::escapeHTML(dotclear()->blog->name) => '',
+                    Html::escapeHTML(dotclear()->blog()->name) => '',
                     __('Blog appearance')                  => dotclear()->adminurl->get('admin.blog.theme'),
                     __('Edit theme files')                 => ''
                 ])
@@ -66,7 +66,7 @@ class Page extends AbstractPage
         $user_ui_colorsyntax = dotclear()->auth()->user_prefs->interface->colorsyntax;
 
         # Loading themes
-        $this->te_theme = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
+        $this->te_theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings->system->theme);
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -110,7 +110,7 @@ class Page extends AbstractPage
             ->setPageHelp('themeEditor')
             ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog->name) => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')                  => dotclear()->adminurl->get('admin.blog.theme'),
                 __('Edit theme files')                 => ''
             ])
@@ -154,7 +154,7 @@ class Page extends AbstractPage
         echo
         '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
-        if (dotclear()->blog->settings->system->theme == 'default') {
+        if (dotclear()->blog()->settings->system->theme == 'default') {
             echo '<div class="error"><p>' .  __("You can't edit default theme.") . '</p></div>';
 
             return;
@@ -227,7 +227,7 @@ class Page extends AbstractPage
 
     private function isEditableTheme()
     {
-        $theme = dotclear()->themes->getModule((string) dotclear()->blog->settings->system->theme);
+        $theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings->system->theme);
         if ($theme && $theme->id() != 'default' && dotclear()->auth()->isSuperAdmin()) {
             $path = dotclear()->themes->getModulesPath();
 

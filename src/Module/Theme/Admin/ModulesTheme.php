@@ -38,7 +38,7 @@ class ModulesTheme extends AbstractModules
             __('Blog appearance'),
             'admin.blog.theme',
             ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
-            dotclear()->auth()->check('admin', dotclear()->blog->id)
+            dotclear()->auth()->check('admin', dotclear()->blog()->id)
         );
         dotclear()->favs->register('blog_theme', [
             'title'       => __('Blog appearance'),
@@ -87,7 +87,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            $current = dotclear()->blog->settings->system->theme == $id && $this->hasModule($id);
+            $current = dotclear()->blog()->settings->system->theme == $id && $this->hasModule($id);
             $distrib = $this->isDistributedModule($id) ? ' dc-box' : '';
             $line    = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
 
@@ -211,7 +211,7 @@ class ModulesTheme extends AbstractModules
                 # _GET actions
                 foreach($this->getModulesPath() as $psstyle) {
                     if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
-                        $line .= '<p><a href="' . dotclear()->blog->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                        $line .= '<p><a href="' . dotclear()->blog()->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
                         break;
                     }
                 }
@@ -277,8 +277,8 @@ class ModulesTheme extends AbstractModules
     {
         $submits = [];
 
-        dotclear()->blog->settings->addNamespace('system');
-        if ($id != dotclear()->blog->settings->system->theme) {
+        dotclear()->blog()->settings->addNamespace('system');
+        if ($id != dotclear()->blog()->settings->system->theme) {
 
             # Select theme to use on curent blog
             if (in_array('select', $actions)) {
@@ -427,9 +427,9 @@ class ModulesTheme extends AbstractModules
                     throw new ModuleException(__('No such theme.'));
                 }
 
-                dotclear()->blog->settings->addNamespace('system');
-                dotclear()->blog->settings->system->put('theme', $id);
-                dotclear()->blog->triggerBlog();
+                dotclear()->blog()->settings->addNamespace('system');
+                dotclear()->blog()->settings->system->put('theme', $id);
+                dotclear()->blog()->triggerBlog();
 
                 $module = $this->getModule($id);
                 dotclear()->notices->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));

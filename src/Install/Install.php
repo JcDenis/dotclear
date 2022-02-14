@@ -226,7 +226,7 @@ class Install
                 $cur->post_status        = 1;
                 $cur->post_open_comment  = 1;
                 $cur->post_open_tb       = 0;
-                $post_id                 = dotclear()->blog->addPost($cur);
+                $post_id                 = dotclear()->blog()->addPost($cur);
 
                 /* Add a comment to it */
                 $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
@@ -237,7 +237,7 @@ class Install
                 $cur->comment_site    = 'https://dotclear.org/';
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
-                dotclear()->blog->addComment($cur);
+                dotclear()->blog()->addComment($cur);
 
                 /*  Plugins initialization */
                 # Only if plugin has Install/Prepend.php file using Install process

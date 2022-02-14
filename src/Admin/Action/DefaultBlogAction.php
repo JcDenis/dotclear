@@ -97,7 +97,7 @@ class DefaultBlogAction
 
         $ids = [];
         foreach ($ap_ids as $id) {
-            if ($id == dotclear()->blog->id) {
+            if ($id == dotclear()->blog()->id) {
                 dotclear()->notices->addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;

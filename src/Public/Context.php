@@ -331,7 +331,7 @@ class Context
 
         $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
-        $url = dotclear()->blog->url . $args;
+        $url = dotclear()->blog()->url . $args;
 
         if ($n > 1) {
             $url = preg_replace('#/$#', '', $url);
@@ -378,9 +378,9 @@ class Context
         }
 
         # Check first blog public path
-        $file = dotclear()->blog->public_path . '/smilies/smilies.txt';
+        $file = dotclear()->blog()->public_path . '/smilies/smilies.txt';
         if (file_exists($file)) {
-            $base_url = dotclear()->blog->host . Path::clean(dotclear()->blog->settings->system->public_url) . '/smilies/';
+            $base_url = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings->system->public_url) . '/smilies/';
             $this->smilies = $this->smiliesDefinition($file, $base_url);
 
             return true;
@@ -388,7 +388,7 @@ class Context
         } else {
             $path       = dotclear()->themes->getThemePath('files/smilies/smilies.txt');
             $path[]     = __DIR__ . '/files/smilies/smilies.txt';
-            $base_url   = dotclear()->blog->url . 'files/smilies/';
+            $base_url   = dotclear()->blog()->url . 'files/smilies/';
 
             foreach ($path as $file) {
                 if ($file && file_exists($file)) {
@@ -497,9 +497,9 @@ class Context
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = dotclear()->blog->settings->system->public_url;
-            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog->url);
-            $p_root = dotclear()->blog->public_path;
+            $p_url  = dotclear()->blog()->settings->system->public_url;
+            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog()->url);
+            $p_root = dotclear()->blog()->public_path;
 
             $pattern = '(?:' . preg_quote($p_site, '/') . ')?' . preg_quote($p_url, '/');
             $pattern = sprintf('/<img.+?src="%s(.*?\.(?:jpg|jpeg|gif|png|svg|webp))"[^>]+/msui', $pattern);

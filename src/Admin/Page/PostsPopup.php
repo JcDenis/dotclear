@@ -67,8 +67,8 @@ class PostsPopup extends Page
         }
 
         return new PostMiniCatalog(
-            dotclear()->blog->getPosts($params),
-            dotclear()->blog->getPosts($params, true)->f(0)
+            dotclear()->blog()->getPosts($params),
+            dotclear()->blog()->getPosts($params, true)->f(0)
         );
     }
 
