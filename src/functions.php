@@ -39,11 +39,11 @@ if (!function_exists('dotclear_run')) {
         $file = dirname(__DIR__) . '/vendor/autoload.php';
         if (file_exists($file)) {
             require $file;
-        # Dotclear autoloader
+        # Dotclear autoload
         } else {
-            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoloader.php']);
-            $autoloader = new Dotclear\Utils\Autoloader();
-            $autoloader->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
+            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoload.php']);
+            $autoload = new Dotclear\Utils\Autoload();
+            $autoload->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
         }
 
         # Find process (Admin|Public|Install|...)

@@ -787,8 +787,8 @@ abstract class Page
         }
         $res.= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
-        $loaded_files = dotclear()->autoloader::getLoadedFiles();
-        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoloader::getRequestsCount() . ' requests)</p>';
+        $loaded_files = dotclear()->autoload()::getLoadedFiles();
+        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoload()::getRequestsCount() . ' requests)</p>';
         //$res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .

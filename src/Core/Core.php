@@ -17,8 +17,6 @@ use ArrayObject;
 use Closure;
 
 use Dotclear\Core\Blog;
-use Dotclear\Core\RestServer;
-use Dotclear\Core\Session;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 use Dotclear\Core\Sql\SelectStatement;
@@ -33,7 +31,6 @@ use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Utils\Autoloader;
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\L10n;
@@ -48,6 +45,7 @@ class Core
 {
     # Traits
     use \Dotclear\Core\Instance\TraitAuth;
+    use \Dotclear\Core\Instance\TraitAutoload;
     use \Dotclear\Core\Instance\TraitBehavior;
     use \Dotclear\Core\Instance\TraitConfiguration;
     use \Dotclear\Core\Instance\TraitConnection;
@@ -59,9 +57,6 @@ class Core
     use \Dotclear\Core\Instance\TraitSession;
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
-
-    /** @var string             Autoloader */
-    public $autoloader;
 
     /** @var Blog               Blog instance */
     public $blog;
@@ -256,11 +251,8 @@ class Core
         # Not call to trait methods before here.
         ##
 
-        # Make a call to database connection to test it.
+        # Force database connection instanciation
         dotclear()->con();
-
-        # Core autoloader (we know what we have)
-        $this->autoloader = new Autoloader('', '', true);
 
         # Add top behaviors
         $this->registerTopBehaviors();

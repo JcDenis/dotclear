@@ -137,7 +137,7 @@ abstract class AbstractModules
 
                     # Add module namespace
                     if ($entry_enabled) {
-                        dotclear()->autoloader->addNamespace(root_ns($this->getModulesType(), $this->id), $entry_path);
+                        dotclear()->autoload()->addNamespace(root_ns($this->getModulesType(), $this->id), $entry_path);
                     # Save module in disabled list
                     } elseif ($this->disabled_meta) {
                         $this->disabled_mode       = false;

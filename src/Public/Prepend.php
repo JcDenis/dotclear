@@ -175,7 +175,7 @@ class Prepend extends Core
         }
 
         # Prepare the HTTP cache thing
-        $this->url()->mod_files = $this->autoloader->getLoadedFiles();
+        $this->url()->mod_files = $this->autoload()->getLoadedFiles();
         $this->url()->mod_ts    = [$this->blog->upddt];
         $this->url()->mode = (string) $this->blog->settings->system->url_scan;
 

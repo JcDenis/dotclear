@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Autoloader
+ * @class Dotclear\Utils\Autoload
  * @brief Helper to autoload class using php namespace
  *
  * Based on PSR-4 Autoloader
@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Autoloader
+class Autoload
 {
     /** Directory separator */
     public const DIR_SEP = DIRECTORY_SEPARATOR;
