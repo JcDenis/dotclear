@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Instance;
 
-use Dotclear\Core\Instance\Blog;
+use Dotclear\Core\Instance\Blogs;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -21,13 +21,13 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 trait TraitBlogs
 {
-    /** @var    Blog   Blog instance */
+    /** @var    Blogs   Blogs instance */
     private $blogs = null;
 
     /**
      * Get instance
      *
-     * @return  Blog   Blog instance
+     * @return  Blogs   Blogs instance
      */
     public function blogs(): Blogs
     {
