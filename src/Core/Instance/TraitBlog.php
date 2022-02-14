@@ -27,14 +27,10 @@ trait TraitBlog
     /**
      * Get instance
      *
-     * @return  Blog   Blog instance
+     * @return  Blog|null   Blog instance
      */
-    public function blog(): Blog
+    public function blog(): ?Blog
     {
-        if (!($this->blog instanceof Blog)) {
-            $this->blog = new Blog();
-        }
-
         return $this->blog;
     }
 
