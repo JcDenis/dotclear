@@ -569,7 +569,7 @@ class Trackback
         # Does the targeted URL look like a registered post type?
         $url_part   = $m[1];
         $p_type     = '';
-        $post_types = dotclear()->getPostTypes();
+        $post_types = dotclear()->posttype()->getPostTypes();
         $post_url   = '';
         foreach ($post_types as $k => $v) {
             $reg = '!^' . preg_quote(str_replace('%s', '', $v['public_url'])) . '(.*)!';

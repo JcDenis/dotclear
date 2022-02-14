@@ -47,7 +47,7 @@ class L10nFaker
         foreach (dotclear()->media()->thumb_sizes as $k => $v) {
             $main .= $this->fake_l10n($v[2]);
         }
-        $post_types = dotclear()->getPostTypes();
+        $post_types = dotclear()->posttype()->getPostTypes();
         $main .= "\n# Post types\n\n";
         foreach ($post_types as $k => $v) {
             $main .= $this->fake_l10n($v['label']);

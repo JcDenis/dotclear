@@ -45,7 +45,7 @@ class PostsPopup extends Page
         $this->page      = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
         $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
 
-        $post_types = dotclear()->getPostTypes();
+        $post_types = dotclear()->posttype()->getPostTypes();
         foreach ($post_types as $k => $v) {
             $this->type_combo[__($k)] = (string) $k;
         }

@@ -897,7 +897,7 @@ class BlogPref extends Page
             # Sort users list on user_id key
             Utils::lexicalKeySort($blog_users);
 
-            $post_type       = dotclear()->getPostTypes();
+            $post_type       = dotclear()->posttype()->getPostTypes();
             $current_blog_id = dotclear()->blog()->id;
             if ($this->blog_id != dotclear()->blog()->id) {
                 dotclear()->setBlog($this->blog_id);

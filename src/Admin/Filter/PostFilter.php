@@ -38,7 +38,7 @@ class PostFilter extends Filter
     {
         parent::__construct($type);
 
-        if (!empty($post_type) && array_key_exists($post_type, dotclear()->getPostTypes())) {
+        if (!empty($post_type) && array_key_exists($post_type, dotclear()->posttype()->getPostTypes())) {
             $this->post_type = $post_type;
             $this->add((new DefaultFilter('post_type', $post_type))->param('post_type'));
         }

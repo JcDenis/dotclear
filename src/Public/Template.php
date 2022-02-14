@@ -982,7 +982,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        $p = "\$params['post_type'] = array_keys(dotclear()->getPostTypes());\n";
+        $p = "\$params['post_type'] = array_keys(dotclear()->posttype()->getPostTypes());\n";
         $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog()->settings->system->static_home_url)') . ";\n";
 
         return "<?php\n" . $p . ' ?>';
