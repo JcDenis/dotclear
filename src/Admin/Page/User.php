@@ -143,7 +143,7 @@ class User extends Page
                     dotclear()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
 
                     if ($this->container->getId() == dotclear()->auth()->userID() && $this->container->getId() != $new_id) {
-                        dotclear()->session->destroy();
+                        dotclear()->session()->destroy();
                     }
 
                     dotclear()->notices->addSuccessNotice(__('User has been successfully updated.'));

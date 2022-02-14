@@ -134,7 +134,7 @@ class Prepend extends Core
             try {
                 if (!$this->auth()->checkSession()) {
                     # Avoid loop caused by old cookie
-                    $p    = $this->session->getCookieParameters(false, -600);
+                    $p    = $this->session()->getCookieParameters(false, -600);
                     $p[3] = '/';
                     call_user_func_array('setcookie', $p);
 
@@ -196,7 +196,7 @@ class Prepend extends Core
             if (isset($_SESSION['sess_blog_id'])) {
                 $this->setBlog($_SESSION['sess_blog_id']);
             } else {
-                $this->session->destroy();
+                $this->session()->destroy();
                 $this->adminurl->redirect('admin.auth');
                 exit;
             }

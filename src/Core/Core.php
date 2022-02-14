@@ -56,6 +56,7 @@ class Core
     use \Dotclear\Core\Instance\TraitMedia;
     use \Dotclear\Core\Instance\TraitMeta;
     use \Dotclear\Core\Instance\TraitRest;
+    use \Dotclear\Core\Instance\TraitSession;
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
 
@@ -64,9 +65,6 @@ class Core
 
     /** @var Blog               Blog instance */
     public $blog;
-
-    /** @var Session            Session instance */
-    public $session;
 
     /** @var string             Current Process */
     protected $process;
@@ -258,15 +256,11 @@ class Core
         # Not call to trait methods before here.
         ##
 
-        # Load Core
-        try {
-            $this->autoloader = new Autoloader('', '', true);
-            $this->session    = new Session();
+        # Make a call to database connection to test it.
+        dotclear()->con();
 
-        } catch (\Exception $e) {
-            throw $e;
-            //temp
-        }
+        # Core autoloader (we know what we have)
+        $this->autoloader = new Autoloader('', '', true);
 
         # Add top behaviors
         $this->registerTopBehaviors();

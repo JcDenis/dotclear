@@ -48,7 +48,7 @@ class Home extends Page
 
         # Logout
         if (!empty($_GET['logout'])) {
-            dotclear()->session->destroy();
+            dotclear()->session()->destroy();
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
                 setcookie('dc_admin', '', -600, '', '', dotclear()->config()->admin_ssl);

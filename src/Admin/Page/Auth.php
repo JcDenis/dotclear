@@ -254,7 +254,7 @@ class Auth extends Page
             $cur->user_pwd        = $_POST['new_pwd'];
             dotclear()->updUser(dotclear()->auth()->userID(), $cur);
 
-            dotclear()->session->start();
+            dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->master_key);
 
@@ -297,7 +297,7 @@ class Auth extends Page
         } elseif ($check_perms && !empty($_POST['safe_mode']) && !dotclear()->auth()->isSuperAdmin()) {
             $this->err = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
-            dotclear()->session->start();
+            dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->master_key);
 

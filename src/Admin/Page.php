@@ -176,7 +176,7 @@ abstract class Page
 
         # Not enought permissions
         if (session_id()) {
-            dotclear()->session->destroy();
+            dotclear()->session()->destroy();
         }
         # Go to auth page
         dotclear()->adminurl->redirect('admin.auth');

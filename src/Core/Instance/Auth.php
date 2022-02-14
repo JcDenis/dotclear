@@ -253,11 +253,11 @@ class Auth
      */
     public function checkSession(?string $uid = null): bool
     {
-        dotclear()->session->start();
+        dotclear()->session()->start();
 
         # If session does not exist, logout.
         if (!isset($_SESSION['sess_user_id'])) {
-            dotclear()->session->destroy();
+            dotclear()->session()->destroy();
 
             return false;
         }
@@ -269,7 +269,7 @@ class Auth
         $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
 
         if (!$user_can_log) {
-            dotclear()->session->destroy();
+            dotclear()->session()->destroy();
 
             return false;
         }

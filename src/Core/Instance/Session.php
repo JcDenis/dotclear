@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Session
+ * @class Dotclear\Core\Instance\Session
  * @brief Dotclear core session class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Instance;
 
 use Dotclear\Database\Connection;
 
@@ -21,7 +21,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Session
 {
-    private $con;
     private $table;
     private $cookie_name;
     private $cookie_path;
@@ -35,8 +34,8 @@ class Session
      *
      * This method creates an instance of sessionDB class.
      */
-    public function __construct() {
-        $this->con           = dotclear()->con();
+    public function __construct()
+    {
         $this->table         = dotclear()->prefix . 'session';
         $this->cookie_name   = dotclear()->config()->session_name;
         $this->cookie_path   = '/';
@@ -176,7 +175,7 @@ class Session
         $strReq = 'SELECT ses_value FROM ' . $this->table . ' ' .
         'WHERE ses_id = \'' . $this->checkID($ses_id) . '\' ';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         if ($rs->isEmpty()) {
             return '';
@@ -191,9 +190,9 @@ class Session
         'FROM ' . $this->table . ' ' .
         "WHERE ses_id = '" . $this->checkID($ses_id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
-        $cur            = $this->con->openCursor($this->table);
+        $cur            = dotclear()->con()->openCursor($this->table);
         $cur->ses_time  = (string) time();
         $cur->ses_value = (string) $data;
 
@@ -214,7 +213,7 @@ class Session
         $strReq = 'DELETE FROM ' . $this->table . ' ' .
         'WHERE ses_id = \'' . $this->checkID($ses_id) . '\' ';
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
 
         if (!$this->transient) {
             $this->_optimize();
@@ -230,9 +229,9 @@ class Session
         $strReq = 'DELETE FROM ' . $this->table . ' ' .
             'WHERE ses_time < ' . $ses_life . ' ';
 
-        $this->con->execute($strReq);
+        dotclear()->con()->execute($strReq);
 
-        if ($this->con->changes() > 0) {
+        if (dotclear()->con()->changes() > 0) {
             $this->_optimize();
         }
 
@@ -241,7 +240,7 @@ class Session
 
     private function _optimize()
     {
-        $this->con->vacuum($this->table);
+        dotclear()->con()->vacuum($this->table);
     }
 
     private function checkID($id)
