@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Store
+ * @class Dotclear\Module\Store\Repository\Repository
  * @brief Repository modules manager
  *
  * @package Dotclear
@@ -11,14 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Module\Store\Repository;
 
-use Dotclear\Exception\CoreException;
-
-use Dotclear\Core\StoreReader;
-
+use Dotclear\Exception\ModuleException;
 use Dotclear\Module\AbstractModules;
-
+use Dotclear\Module\Store\Repository\RepositoryReader;
 use Dotclear\Network\Http;
 use Dotclear\Network\NetHttp\NetHttp;
 
@@ -26,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Store
+class Repository
 {
     /** @var    Modules     Modules instance */
     public $modules;
@@ -79,7 +76,7 @@ class Store
         }
 
         try {
-            $parser = dotclear()->config()->store_update_noauto ? false : StoreReader::quickParse($this->xml_url, dotclear()->config()->cache_dir, $force);
+            $parser = dotclear()->config()->store_update_noauto ? false : RepositoryReader::quickParse($this->xml_url, dotclear()->config()->cache_dir, $force);
         } catch (\Exception $e) {
             return false;
         }
@@ -112,7 +109,7 @@ class Store
             if (!empty($module->repository()) && dotclear()->config()->store_allow_repo) {
                 try {
                     ;
-                    if (false !== ($dcs_parser = StoreReader::quickParse($module->repository(), dotclear()->config()->cache_dir, $force))) {
+                    if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->cache_dir, $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && self::compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || self::compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
@@ -277,10 +274,10 @@ class Store
             } catch (\Exception $e) {
                 unset($client);
 
-                throw new CoreException(__('An error occurred while downloading the file.'));
+                throw new ModuleException(__('An error occurred while downloading the file.'));
             }
         } else {
-            throw new CoreException(__('An error occurred while downloading the file.'));
+            throw new ModuleException(__('An error occurred while downloading the file.'));
         }
     }
 

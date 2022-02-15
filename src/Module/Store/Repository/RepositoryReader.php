@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\StoreReader
+ * @class Dotclear\Module\Store\Repository\RepositoryReader
  * @brief Repository modules XML feed reader
  *
  * Provides an object to parse XML feed of modules from repository.
@@ -13,19 +13,17 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
-
-
-use Dotclear\Core\StoreParser;
+namespace Dotclear\Module\Store\Repository;
 
 use Dotclear\File\Files;
+use Dotclear\Module\Store\Repository\RepositoryParser;
 use Dotclear\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class StoreReader extends NetHttp
+class RepositoryReader extends NetHttp
 {
     /** @var    string    User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
@@ -63,11 +61,11 @@ class StoreReader extends NetHttp
     /**
      * Parse modules feed.
      *
-     * @param   string              $url    XML feed URL
+     * @param   string  $url                XML feed URL
      *
-     * @return  StoreParser|false   StoreParser instance
+     * @return  RepositoryParser|false     RepositoryParser instance
      */
-    public function parse(string $url): StoreParser|false
+    public function parse(string $url): RepositoryParser|false
     {
         $this->validators = [];
 
@@ -77,19 +75,19 @@ class StoreReader extends NetHttp
             return false;
         }
 
-        return new StoreParser($this->getContent());
+        return new RepositoryParser($this->getContent());
     }
 
     /**
      * Quick parse modules feed.
      *
-     * @param   string  $url        XML feed URL
-     * @param   string  $cache_dir  Cache directoy or null for no cache
-     * @param   bool    $force      Force query repository
+     * @param   string  $url                XML feed URL
+     * @param   string  $cache_dir          Cache directoy or null for no cache
+     * @param   bool    $force              Force query repository
      *
-     * @return  StoreParser|false   StoreParser instance
+     * @return  RepositoryParser|false     RepositoryParser instance
      */
-    public static function quickParse(string $url, ?string $cache_dir = null, bool $force = false): StoreParser|false
+    public static function quickParse(string $url, ?string $cache_dir = null, bool $force = false): RepositoryParser|false
     {
         $parser = new self();
         if ($cache_dir) {
@@ -175,11 +173,11 @@ class StoreReader extends NetHttp
     /**
      * Get repository modules list using cache.
      *
-     * @param   string              $url    XML feed URL
+     * @param   string  $url                XML feed URL
      *
-     * @return  StoreParser|false           Feed content or False on fail
+     * @return  RepositoryParser|false     Feed content or False on fail
      */
-    protected function withCache(string $url): StoreParser|false
+    protected function withCache(string $url): RepositoryParser|false
     {
         $url_md5     = md5($url);
         $cached_file = sprintf(
@@ -227,7 +225,7 @@ class StoreReader extends NetHttp
                 return unserialize(file_get_contents($cached_file));
             # Ok, parse feed
             case '200':
-                $modules = new StoreParser($this->getContent());
+                $modules = new RepositoryParser($this->getContent());
 
                 try {
                     Files::makeDir(dirname($cached_file), true);

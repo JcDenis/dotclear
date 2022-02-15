@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Store;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -109,7 +109,7 @@ trait TraitModulesAdmin
             $this->setPath();
             $this->setURL($this->getModulesURL());
             $this->setIndex(__('other'));
-            $this->store = new Store($this, $this->getStoreURL(), $this->useStoreCache());
+            $this->store = new Repository($this, $this->getStoreURL(), $this->useStoreCache());
         }
     }
 

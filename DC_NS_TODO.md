@@ -12,6 +12,9 @@
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
 - [ ] use array instead of constant for all DOTLCEAR_xxx stuff
+- [ ] fix admin popup
+- [ ] Use trait for Core/Utils Admin/Page cssLoad...
+
 
 ### Idea
 

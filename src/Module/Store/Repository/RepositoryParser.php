@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\StoreParser
+ * @class Dotclear\Module\Store\Repository\RepositoryParser
  * @brief Repository modules XML feed parse
  *
  * Provides an object to parse XML feed of modules from repository.
@@ -13,19 +13,18 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Module\Store\Repository;
 
 use SimpleXMLElement;
 
-use Dotclear\Exception\CoreException;
-
 use Dotclear\Core\Utils;
+use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class StoreParser
+class RepositoryParser
 {
     /** @var    SimpleXMLElement    XML object of feed contents */
     protected $xml;

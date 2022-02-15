@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page\Service;
 
 use Dotclear\Core\Update;
-use Dotclear\Core\Store;
+use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
 use Dotclear\Html\Validator;
@@ -188,7 +188,7 @@ class RestMethods
             }
         }
 
-        $repo = new Store($mod, $url);
+        $repo = new Repository($mod, $url);
         $upd  = $repo->get(true);
         if (!empty($upd)) {
             $ret        = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
@@ -697,7 +697,7 @@ class RestMethods
             }
             $module = $modules[$id];
         } elseif ($list == 'plugin-new') {
-            $store = new Store(
+            $store = new Repository(
                 dotclear()->plugins,
                 dotclear()->blog()->settings->system->store_plugin_url
             );
