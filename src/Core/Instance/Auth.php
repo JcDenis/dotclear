@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Instance;
 
 use Dotclear\Container\User;
-use Dotclear\Core\Prefs;
+use Dotclear\Core\User\Preference;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Connection;
@@ -186,7 +186,7 @@ class Auth
 
         $this->container->fromRecord($rs);
 
-        $this->user_prefs = new Prefs($this->container->getId());
+        $this->user_prefs = new Preference($this->container->getId());
 
         # Get permissions on blogs
         if ($check_blog && ($this->findUserBlog() === false)) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Workspace
+ * @class Dotclear\Core\User\Workspace
  * @brief Dotclear core workspace class
  *
  * @package Dotclear
@@ -11,12 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
-
-use Dotclear\Exception\CoreException;
+namespace Dotclear\Core\User;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
+use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

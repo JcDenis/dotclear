@@ -20,7 +20,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\Utils;
-use Dotclear\Core\Prefs;
+use Dotclear\Core\User\Preference;
 
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -288,7 +288,7 @@ class RsExtComment
      */
     public static function isMe($rs)
     {
-        $user_prefs = new Prefs($rs->user_id, 'profile');
+        $user_prefs = new Preference($rs->user_id, 'profile');
         $user_prefs->addWorkspace('profile');
         $user_profile_mails = $user_prefs->profile->mails ?
             array_map('trim', explode(',', $user_prefs->profile->mails)) :

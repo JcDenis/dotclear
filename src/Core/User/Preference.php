@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Prefs
- * @brief Dotclear core prefs class
+ * @class Dotclear\Core\User\Preference
+ * @brief Dotclear core user preference class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,15 +11,16 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\User;
 
+use Dotclear\Core\User\Workspace;
 use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Prefs
+class Preference
 {
     protected $table;   ///< <b>string</b> Prefs table name
     protected $user_id; ///< <b>string</b> User ID
@@ -92,7 +93,7 @@ class Prefs
      *
      * @param      string  $ws     Workspace name
      *
-     * @return     dcWorkspace
+     * @return     Workspace
      */
     public function addWorkspace($ws)
     {
