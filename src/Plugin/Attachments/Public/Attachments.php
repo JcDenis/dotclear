@@ -44,15 +44,15 @@ class Attachments
     public static function Attachments($attr, $content)
     {
         $res = "<?php\n" .
-            'if (dotclear()->context->posts !== null) {' . "\n" .
-            'dotclear()->context->attachments = new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context->posts->post_id,null,"attachment"));' . "\n" .
+            'if (dotclear()->context()->posts !== null) {' . "\n" .
+            'dotclear()->context()->attachments = new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context()->posts->post_id,null,"attachment"));' . "\n" .
             "?>\n" .
 
-            '<?php foreach (dotclear()->context->attachments as $attach_i => $attach_f) : ' .
+            '<?php foreach (dotclear()->context()->attachments as $attach_i => $attach_f) : ' .
             '$GLOBALS[\'attach_i\'] = $attach_i; $GLOBALS[\'attach_f\'] = $attach_f;' .
-            'dotclear()->context->file_url = $attach_f->file_url; ?>' .
+            'dotclear()->context()->file_url = $attach_f->file_url; ?>' .
             $content .
-            '<?php endforeach; dotclear()->context->attachments = null; unset($attach_i,$attach_f,dotclear()->context->file_url); ?>' .
+            '<?php endforeach; dotclear()->context()->attachments = null; unset($attach_i,$attach_f,dotclear()->context()->file_url); ?>' .
 
             "<?php } ?>\n";
 
@@ -76,7 +76,7 @@ class Attachments
     public static function AttachmentsFooter($attr, $content)
     {
         return
-            '<?php if ($attach_i+1 == count(dotclear()->context->attachments)) : ?>' .
+            '<?php if ($attach_i+1 == count(dotclear()->context()->attachments)) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -227,7 +227,7 @@ class Attachments
     {
         $f = dotclear()->tpl->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->context->file_url') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->context()->file_url') . '; ?>';
     }
 
     /*dtd
@@ -241,7 +241,7 @@ class Attachments
     public static function EntryAttachmentCount($attr)
     {
         return dotclear()->tpl->displayCounter(
-            'dotclear()->context->posts->countMedia(\'attachment\')',
+            'dotclear()->context()->posts->countMedia(\'attachment\')',
             [
                 'none' => 'no attachments',
                 'one'  => 'one attachment',
@@ -256,7 +256,7 @@ class Attachments
     {
         if ($tag == 'EntryIf' && isset($attr['has_attachment'])) {
             $sign = (boolean) $attr['has_attachment'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context->posts->countMedia(\'attachment\')';
+            $if[] = $sign . 'dotclear()->context()->posts->countMedia(\'attachment\')';
         }
     }
 }

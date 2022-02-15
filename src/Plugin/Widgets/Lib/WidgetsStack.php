@@ -109,7 +109,7 @@ class WidgetsStack
 
     public function categories($w)
     {
-        $context = dotclear()->context;
+        $context = dotclear()->context();
 
         if ($w->offline) {
             return;
@@ -160,7 +160,7 @@ class WidgetsStack
 
     public function bestof($w)
     {
-        $context = dotclear()->context;
+        $context = dotclear()->context();
 
         if ($w->offline) {
             return;
@@ -200,7 +200,7 @@ class WidgetsStack
 
     public function langs($w)
     {
-        $context = dotclear()->context;
+        $context = dotclear()->context();
 
         if ($w->offline) {
             return;
@@ -240,7 +240,7 @@ class WidgetsStack
 
     public function subscribe($w)
     {
-        $context = dotclear()->context;
+        $context = dotclear()->context();
 
         if ($w->offline) {
             return;
@@ -350,7 +350,7 @@ class WidgetsStack
 
     public function lastposts($w)
     {
-        $context = dotclear()->context;
+        $context = dotclear()->context();
 
         if ($w->offline) {
             return;

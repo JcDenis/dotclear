@@ -22,7 +22,7 @@ class RsExtPostPublic extends RsExtPost
     public static function getContent($rs, $absolute_urls = false)
     {
         # Not very nice hack but it does the job :)
-        if (isset(dotclear()->context) && dotclear()->context->short_feed_items === true) {
+        if (dotclear()->context() && dotclear()->context()->short_feed_items === true) {
             $c    = parent::getContent($rs, $absolute_urls);
             $c    = dotclear()->conText::remove_html($c);
             $c    = dotclear()->conText::cut_string($c, 350);
@@ -52,8 +52,8 @@ class RsExtPostPublic extends RsExtPost
 
     protected static function smilies($rs, $c)
     {
-        dotclear()->context->getSmilies();
+        dotclear()->context()->getSmilies();
 
-        return dotclear()->context->addSmilies($c);
+        return dotclear()->context()->addSmilies($c);
     }
 }

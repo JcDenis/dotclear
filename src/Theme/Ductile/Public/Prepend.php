@@ -94,10 +94,10 @@ class Prepend extends AbstractPrepend
         }
 
         if ($nb_other > 0) {
-            dotclear()->context->nb_entry_per_page = $nb_other;
+            dotclear()->context()->nb_entry_per_page = $nb_other;
         }
         if ($nb_first > 0) {
-            dotclear()->context->nb_entry_first_page = $nb_first;
+            dotclear()->context()->nb_entry_first_page = $nb_first;
         }
     }
 
@@ -118,8 +118,8 @@ class Prepend extends AbstractPrepend
         $full               = dotclear()->tpl->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return '<?php if (strlen(' . sprintf($full, 'dotclear()->context->posts->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, 'dotclear()->context->posts->getContent(' . $urls . ')') . ')) : ?>' .
+        return '<?php if (strlen(' . sprintf($full, 'dotclear()->context()->posts->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'dotclear()->context()->posts->getContent(' . $urls . ')') . ')) : ?>' .
             $content .
             '<?php endif; ?>';
     }

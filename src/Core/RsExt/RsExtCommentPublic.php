@@ -19,12 +19,12 @@ class RsExtCommentPublic extends RsExtComment
 {
     public static function getContent($rs, $absolute_urls = false)
     {
-        if (isset(dotclear()->context) && dotclear()->blog()->settings->system->use_smilies) {
+        if (dotclear()->context() && dotclear()->blog()->settings->system->use_smilies) {
             $c = parent::getContent($rs, $absolute_urls);
 
-            dotclear()->context->getSmilies();
+            dotclear()->context()->getSmilies();
 
-            return dotclear()->context->addSmilies($c);
+            return dotclear()->context()->addSmilies($c);
         }
 
         return parent::getContent($rs, $absolute_urls);

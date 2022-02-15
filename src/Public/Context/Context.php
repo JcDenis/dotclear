@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Public\Context
+ * @class Dotclear\Public\Context\Context
  *
  * @package Dotclear
  * @subpackage Public
@@ -10,16 +10,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Public;
-
-
-use Dotclear\Core\Media;
+namespace Dotclear\Public\Context;
 
 use Dotclear\Database\Record;
-
-use Dotclear\Utils\Text;
-use Dotclear\Html\Html;
 use Dotclear\File\Path;
+use Dotclear\Html\Html;
+use Dotclear\Utils\Text;
 
 class Context
 {

@@ -13,21 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Public;
 
-use Dotclear\Exception\PrependException;
-
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
-
 use Dotclear\Database\Record;
-
-use Dotclear\Public\Context;
+use Dotclear\Exception\PrependException;
 use Dotclear\Public\Template;
-
 use Dotclear\Module\Plugin\Public\ModulesPlugin;
 use Dotclear\Module\Theme\Public\ModulesTheme;
-
-use Dotclear\Utils\L10n;
 use Dotclear\File\Files;
+use Dotclear\Utils\L10n;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -35,6 +29,8 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
+    use \Dotclear\Public\Context\TraitContext;
+
     protected $process = 'Public';
 
     /** @var ModulesPlugin|null ModulesPlugin instance */
@@ -44,7 +40,6 @@ class Prepend extends Core
     public $themes = null;
 
     public $tpl;
-    public $context;
 
     public function process(string $blog_id = null)
     {
@@ -87,9 +82,6 @@ class Prepend extends Core
         } catch (\Exception $e) {
             throw new PrependException(__('Can\'t load media.'), $e->getMessage(), 640);
         }
-
-        # Create template context
-        $this->context = new Context();
 
         try {
             $this->tpl = new Template($this->config()->cache_dir, 'dotclear()->tpl');
