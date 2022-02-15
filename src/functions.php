@@ -35,13 +35,13 @@ if (!function_exists('dotclear_run')) {
             define('DOTCLEAR_ROOT_DIR', __DIR__);
         }
 
-        # Composer autoload
+        # Third party autoload (PSR-4 compliant)
         $file = dirname(__DIR__) . '/vendor/autoload.php';
         if (file_exists($file)) {
             require $file;
         # Dotclear autoload
         } else {
-            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Utils', 'Autoload.php']);
+            require_once root_path('Utils', 'Autoload.php');
             $autoload = new Dotclear\Utils\Autoload();
             $autoload->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
         }
