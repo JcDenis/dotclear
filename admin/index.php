@@ -1,13 +1,12 @@
 <?php
 /**
- * @brief Dotclear process example
+ * @brief Dotclear admin process
  *
  * This file is the admin (backend) access point
  * of the blogs plateform.
  *
- * If you move admin access point,
- * constant DOTCLEAR_ADMIN_URL must be modified
- * according to your new admin URL.
+ * If you move admin access point (this file),
+ * require path below must match functions.php file.
  *
  * @package Dotclear
  * @subpackage Process
