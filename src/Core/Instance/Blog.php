@@ -192,7 +192,7 @@ class Blog
      *
      * @param   bool|null   $v
      */
-    public function withoutPassword(?bool $v): bool
+    public function withoutPassword(?bool $v = null): bool
     {
         if (null !== $v) {
             $this->without_password = $v;
