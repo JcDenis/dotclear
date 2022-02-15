@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Admin\Menu;
-use Dotclear\Admin\Notices;
 use Dotclear\Core\Store;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
@@ -327,7 +325,7 @@ trait TraitModulesAdmin
         '<form action="' . $this->getURL() . '" method="get">' .
         '<p><label for="m_search" class="classic">' . __('Search in repository:') . '&nbsp;</label><br />' .
         Form::field('m_search', 30, 255, Html::escapeHTML($query)) .
-        Form::hidden('handler', dotclear()->adminurl->called()) .
+        Form::hidden('handler', dotclear()->adminurl()->called()) .
         '<input type="submit" value="' . __('OK') . '" /> ';
 
         if ($query) {
@@ -639,7 +637,7 @@ trait TraitModulesAdmin
 
                 echo
                 '<td class="module-icon nowrap">' .
-                dotclear()->menu->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
+                dotclear()->summary()->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
                 '</td>';
             }
 
@@ -911,7 +909,7 @@ trait TraitModulesAdmin
                         case 'blog':
                             if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('admin', dotclear()->blog()->id)) {
                                 $st['blog'] = '<a class="module-config" href="' .
-                                dotclear()->adminurl->get('admin.blog.pref') . $sv .
+                                dotclear()->adminurl()->get('admin.blog.pref') . $sv .
                                 '">' . __('Module settings (in blog parameters)') . '</a>';
                             }
 
@@ -919,7 +917,7 @@ trait TraitModulesAdmin
                         case 'pref':
                             if (!$check || dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
                                 $st['pref'] = '<a class="module-config" href="' .
-                                dotclear()->adminurl->get('admin.user.pref') . $sv .
+                                dotclear()->adminurl()->get('admin.user.pref') . $sv .
                                 '">' . __('Module settings (in user preferences)') . '</a>';
                             }
 
@@ -1167,9 +1165,9 @@ trait TraitModulesAdmin
             if (!$count && $failed) {
                 throw new AdminException(__("You don't have permissions to delete this plugin."));
             } elseif ($failed) {
-                dotclear()->notices->addWarningNotice(__('Some plugins have not been delete.'));
+                dotclear()->notice()->addWarningNotice(__('Some plugins have not been delete.'));
             } else {
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Plugin has been successfully deleted.', 'Plugins have been successuflly deleted.', $count)
                 );
             }
@@ -1206,7 +1204,7 @@ trait TraitModulesAdmin
                 $count++;
             }
 
-            dotclear()->notices->addSuccessNotice(
+            dotclear()->notice()->addSuccessNotice(
                 __('Plugin has been successfully installed.', 'Plugins have been successfully installed.', $count)
             );
             Http::redirect($this->getURL());
@@ -1239,7 +1237,7 @@ trait TraitModulesAdmin
                 $count++;
             }
 
-            dotclear()->notices->addSuccessNotice(
+            dotclear()->notice()->addSuccessNotice(
                 __('Plugin has been successfully activated.', 'Plugins have been successuflly activated.', $count)
             );
             Http::redirect($this->getURL());
@@ -1280,9 +1278,9 @@ trait TraitModulesAdmin
             }
 
             if ($failed) {
-                dotclear()->notices->addWarningNotice(__('Some plugins have not been deactivated.'));
+                dotclear()->notice()->addWarningNotice(__('Some plugins have not been deactivated.'));
             } else {
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Plugin has been successfully deactivated.', 'Plugins have been successuflly deactivated.', $count)
                 );
             }
@@ -1327,7 +1325,7 @@ trait TraitModulesAdmin
 
             $tab = $count && $count == count($list) ? '#plugins' : '#update';
 
-            dotclear()->notices->addSuccessNotice(
+            dotclear()->notice()->addSuccessNotice(
                 __('Plugin has been successfully updated.', 'Plugins have been successfully updated.', $count)
             );
             Http::redirect($this->getURL() . $tab);
@@ -1361,7 +1359,7 @@ trait TraitModulesAdmin
             # --BEHAVIOR-- moduleAfterAdd
             dotclear()->behavior()->call('pluginAfterAdd', null);
 
-            dotclear()->notices->addSuccessNotice(
+            dotclear()->notice()->addSuccessNotice(
                 $ret_code == 2 ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')

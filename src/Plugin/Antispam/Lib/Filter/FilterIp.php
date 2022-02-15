@@ -86,7 +86,7 @@ class FilterIp extends Spamfilter
                 $global = !empty($_POST['globalip']) && dotclear()->auth()->isSuperAdmin();
 
                 $this->addIP($ip_type, $_POST['addip'], $global);
-                dotclear()->notices->addSuccessNotice(__('IP address has been successfully added.'));
+                dotclear()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -97,7 +97,7 @@ class FilterIp extends Spamfilter
         if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
             try {
                 $this->removeRule($_POST['delip']);
-                dotclear()->notices->addSuccessNotice(__('IP addresses have been successfully removed.'));
+                dotclear()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());

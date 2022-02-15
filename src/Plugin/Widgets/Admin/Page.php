@@ -110,7 +110,7 @@ class Page extends AbstractPage
                     dotclear()->blog()->settings->widgets->put('widgets_extra', $this->widgets_extra->store());
                     dotclear()->blog()->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
                     dotclear()->blog()->triggerBlog();
-                    dotclear()->adminurl->redirect('admin.plugin.Widgets');
+                    dotclear()->adminurl()->redirect('admin.plugin.Widgets');
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
@@ -195,8 +195,8 @@ class Page extends AbstractPage
                 dotclear()->blog()->settings->widgets->put('widgets_custom', $this->widgets_custom->store());
                 dotclear()->blog()->triggerBlog();
 
-                dotclear()->notices->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
-                dotclear()->adminurl->redirect('admin.plugin.Widgets');
+                dotclear()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Widgets');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -207,8 +207,8 @@ class Page extends AbstractPage
                 dotclear()->blog()->settings->widgets->put('widgets_custom', '');
                 dotclear()->blog()->triggerBlog();
 
-                dotclear()->notices->addSuccessNotice(__('Sidebars have been resetting.'));
-                dotclear()->adminurl->redirect('admin.plugin.Widgets');
+                dotclear()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Widgets');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -232,7 +232,7 @@ class Page extends AbstractPage
     {
         # All widgets
         echo
-        '<form id="listWidgets" action="' . dotclear()->adminurl->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
+        '<form id="listWidgets" action="' . dotclear()->adminurl()->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
@@ -262,7 +262,7 @@ class Page extends AbstractPage
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" /></p>' .
             '</form>';
 
-        echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl->get('admin.plugin.Widgets') . '" method="post">';
+        echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl()->get('admin.plugin.Widgets') . '" method="post">';
         # Nav sidebar
         echo
         '<div id="sidebarNav" class="widgets fieldset">' .

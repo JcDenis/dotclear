@@ -35,11 +35,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gp_nav'])) {
-            dotclear()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+            dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            dotclear()->adminurl->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+            dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
             exit;
         }
 
@@ -56,8 +56,8 @@ class Page extends AbstractPage
                     }
                 }
 
-                dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                dotclear()->adminurl->redirect('admin.plugin.UserPref');
+                dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
+                dotclear()->adminurl()->redirect('admin.plugin.UserPref');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -76,8 +76,8 @@ class Page extends AbstractPage
                     }
                 }
 
-                dotclear()->notices->addSuccessNotice(__('Preferences successfully updated'));
-                dotclear()->adminurl->redirect('admin.plugin.UserPref', ['part' => 'global']);
+                dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
+                dotclear()->adminurl()->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -154,7 +154,7 @@ class Page extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dotclear()->adminurl->get('admin.plugin.UserPref') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->get('admin.plugin.UserPref') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
@@ -176,7 +176,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl->get('admin.plugin.UserPref') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl()->get('admin.plugin.UserPref') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);

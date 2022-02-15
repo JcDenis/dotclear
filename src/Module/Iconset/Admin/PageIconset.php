@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Iconset\Admin;
 
 
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 
 use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;
 
@@ -40,7 +40,7 @@ class PageIconset extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->iconsets->disableModulesDependencies(dotclear()->adminurl->get('admin.iconset'))) {
+        if (dotclear()->iconsets->disableModulesDependencies(dotclear()->adminurl()->get('admin.iconset'))) {
             exit;
         }
         # -- Execute actions --
@@ -112,7 +112,7 @@ class PageIconset extends Page
         if (dotclear()->auth()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notices->success(__('Manual checking of modules update done successfully.'));
+                    dotclear()->notice()->success(__('Manual checking of modules update done successfully.'));
                 }
             }
 
@@ -149,7 +149,7 @@ class PageIconset extends Page
                 '<form action="' . dotclear()->iconsets->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
-                Form::hidden('handler', dotclear()->adminurl->called()) .
+                Form::hidden('handler', dotclear()->adminurl()->called()) .
                     '</form>';
             }
         }

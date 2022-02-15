@@ -4,7 +4,7 @@
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage PlugniUserPref
+ * @subpackage PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 use Dotclear\Utils\l10n;
 
 class Behaviors

@@ -180,7 +180,7 @@ abstract class AbstractModules
             if (DOTCLEAR_PROCESS == 'Admin') {
                 $page = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
                 if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
-                    dotclear()->adminurl->register('admin.plugin.' . $id, $page);
+                    dotclear()->adminurl()->register('admin.plugin.' . $id, $page);
                 }
             }
 
@@ -540,7 +540,7 @@ abstract class AbstractModules
                 __('The following modules have been disabled :'),
                 join('', $reason)
             );
-            dotclear()->notices->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            dotclear()->notice()->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 

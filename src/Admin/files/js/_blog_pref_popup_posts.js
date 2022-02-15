@@ -2,7 +2,7 @@
 'use strict';
 
 // Get context
-Object.assign(dotclear, dotclear.getData('admin.blog_pref'));
+Object.assign(dotclear, dotclear.getData('admin.blog.pref'));
 
 $(() => {
   $('#link-insert-cancel').on('click', () => {

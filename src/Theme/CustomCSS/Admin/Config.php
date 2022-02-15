@@ -46,7 +46,7 @@ class Config extends AbstractConfig
             fwrite($fp, $post['css']);
             fclose($fp);
 
-            dotclear()->notices->addSuccessNotice(__('Style sheet upgraded.'));
+            dotclear()->notice()->addSuccessNotice(__('Style sheet upgraded.'));
             Http::redirect($redir);
         }
     }

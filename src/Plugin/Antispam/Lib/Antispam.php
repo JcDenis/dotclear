@@ -24,7 +24,7 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Structure;
 use Dotclear\Core\Blog;
-use Dotclear\Admin\Action;
+use Dotclear\Admin\Page\Action\Action;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -110,7 +110,7 @@ class Antispam
         if (($count = self::countSpam()) > 0) {
             $str = ($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)');
 
-            return '</span></a> <a href="' . dotclear()->adminurl->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
+            return '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
             sprintf($str, $count);
         }
 
@@ -352,7 +352,7 @@ class Antispam
             }
         }
 
-        dotclear()->notices->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        dotclear()->notice()->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
         $ap->redirect(true);
     }
 }

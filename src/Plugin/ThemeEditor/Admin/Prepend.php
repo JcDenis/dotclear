@@ -20,7 +20,7 @@ use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Database\Cursor;
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 use Dotclear\Html\Form;
 use Dotclear\File\Path;
 
@@ -48,7 +48,7 @@ class Prepend extends AbstractPrepend
                 || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
                 || !dotclear()->themes->isDistributedModule($theme->id())
             ) {
-                return '<p><a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
+                return '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
             }
         }
 

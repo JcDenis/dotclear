@@ -68,8 +68,8 @@ class Page extends AbstractPage
 
                 Antispam::delAllSpam(dotclear(), $ts);
 
-                dotclear()->notices->addSuccessNotice(__('Spam comments have been successfully deleted.'));
-                dotclear()->adminurl->redirect('admin.plugin.Antispam');
+                dotclear()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Antispam');
             }
 
             # Update filters
@@ -112,8 +112,8 @@ class Page extends AbstractPage
 
                 Antispam::$filters->saveFilterOpts($filters_opt);
 
-                dotclear()->notices->addSuccessNotice(__('Filters configuration has been successfully saved.'));
-                dotclear()->adminurl->redirect('admin.plugin.Antispam');
+                dotclear()->notice()->addSuccessNotice(__('Filters configuration has been successfully saved.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Antispam');
             }
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
@@ -141,7 +141,7 @@ class Page extends AbstractPage
             $this
                 ->setPageBreadcrumb([
                     __('Plugins')                                         => '',
-                    __('Antispam')                                        => dotclear()->adminurl->get('admin.plugin.Antispam'),
+                    __('Antispam')                                        => dotclear()->adminurl()->get('admin.plugin.Antispam'),
                     sprintf(__('%s filter configuration'), $filter->name) => ''
                 ])
                 ->setPageHelp($filter->help)
@@ -162,7 +162,7 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         if ($this->a_gui !== false) {
-            echo '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Antispam') . '" class="back">' . __('Back to filters list') . '</a></p>' . $this->a_gui;
+            echo '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" class="back">' . __('Back to filters list') . '</a></p>' . $this->a_gui;
 
             return;
         }
@@ -173,14 +173,14 @@ class Page extends AbstractPage
         $moderationTTL   = dotclear()->blog()->settings->antispam->antispam_moderation_ttl;
 
         echo
-        '<form action="' . dotclear()->adminurl->get('admin.plugin.Antispam') . '" method="post" class="fieldset">' .
+        '<form action="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" method="post" class="fieldset">' .
         '<h3>' . __('Information') . '</h3>';
 
         echo
         '<ul class="spaminfo">' .
-        '<li class="spamcount"><a href="' . dotclear()->adminurl->get('admin.comments', ['status' => '-2']) . '">' . __('Junk comments:') . '</a> ' .
+        '<li class="spamcount"><a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '">' . __('Junk comments:') . '</a> ' .
         '<strong>' . $spam_count . '</strong></li>' .
-        '<li class="hamcount"><a href="' . dotclear()->adminurl->get('admin.comments', ['status' => '1']) . '">' . __('Published comments:') . '</a> ' .
+        '<li class="hamcount"><a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '1']) . '">' . __('Published comments:') . '</a> ' .
             $published_count . '</li>' .
             '</ul>';
 
@@ -192,7 +192,7 @@ class Page extends AbstractPage
         }
         if ($moderationTTL != null && $moderationTTL >= 0) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $moderationTTL) . ' ' .
-            sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl->get('admin.blog.pref') .
+            sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
                 '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
                 '.</p>';
         }
@@ -202,10 +202,10 @@ class Page extends AbstractPage
 
         # Filters
         echo
-            '<form action="' . dotclear()->adminurl->get('admin.plugin.Antispam') . '" method="post" id="filters-list-form">';
+            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" method="post" id="filters-list-form">';
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notices->success(__('Filters configuration has been successfully saved.'));
+            dotclear()->notice()->success(__('Filters configuration has been successfully saved.'));
         }
 
         echo

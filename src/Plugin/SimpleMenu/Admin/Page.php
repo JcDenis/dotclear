@@ -58,14 +58,14 @@ class Page extends AbstractPage
         # Liste des catégories
         $categories_label = [];
         $rs               = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
-        $this->sm_categories_combo = dotclear()->combos->getCategoriesCombo($rs, false, true);
+        $this->sm_categories_combo = dotclear()->combo()->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
             $categories_label[$rs->cat_url] = Html::escapeHTML($rs->cat_title);
         }
 
         # Liste des langues utilisées
-        $this->sm_langs_combo = dotclear()->combos->getLangscombo(
+        $this->sm_langs_combo = dotclear()->combo()->getLangscombo(
             dotclear()->blog()->posts()->getLangs(['order' => 'asc'])
         );
 
@@ -73,7 +73,7 @@ class Page extends AbstractPage
         $rs           = dotclear()->blog()->posts()->getDates(['type' => 'month']);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
-            dotclear()->combos->getDatesCombo($rs)
+            dotclear()->combo()->getDatesCombo($rs)
         );
 
         $first_year = $last_year = 0;
@@ -159,8 +159,8 @@ class Page extends AbstractPage
                 dotclear()->blog()->triggerBlog();
 
                 // All done successfully, return to menu items list
-                dotclear()->notices->addSuccessNotice(__('Configuration successfully updated.'));
-                dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
+                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated.'));
+                dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -291,12 +291,12 @@ class Page extends AbstractPage
                                 dotclear()->blog()->triggerBlog();
 
                                 // All done successfully, return to menu items list
-                                dotclear()->notices->addSuccessNotice(__('Menu item has been successfully added.'));
-                                dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
+                                dotclear()->notice()->addSuccessNotice(__('Menu item has been successfully added.'));
+                                dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
                             } else {
                                 $this->sm_step              = 3;
                                 $this->sm_item_select_label = $this->sm_item_label;
-                                dotclear()->notices->addErrorNotice(__('Label and URL of menu item are mandatory.'));
+                                dotclear()->notice()->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (\Exception $e) {
                             dotclear()->error()->add($e->getMessage());
@@ -330,8 +330,8 @@ class Page extends AbstractPage
                             dotclear()->blog()->triggerBlog();
 
                             // All done successfully, return to menu items list
-                            dotclear()->notices->addSuccessNotice(__('Menu items have been successfully removed.'));
-                            dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
+                            dotclear()->notice()->addSuccessNotice(__('Menu items have been successfully removed.'));
+                            dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
                         } else {
                             throw new ModuleException(__('No menu items selected.'));
                         }
@@ -396,8 +396,8 @@ class Page extends AbstractPage
                         dotclear()->blog()->triggerBlog();
 
                         // All done successfully, return to menu items list
-                        dotclear()->notices->addSuccessNotice(__('Menu items have been successfully updated.'));
-                        dotclear()->adminurl->redirect('admin.plugin.SimpleMenu');
+                        dotclear()->notice()->addSuccessNotice(__('Menu items have been successfully updated.'));
+                        dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
                     } catch (\Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
@@ -444,7 +444,7 @@ class Page extends AbstractPage
             $this->setPageBreadcrumb(
                 [
                     Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Simple menu')                         => dotclear()->adminurl->get('admin.plugin.SimpleMenu'),
+                    __('Simple menu')                         => dotclear()->adminurl()->get('admin.plugin.SimpleMenu'),
                     __('Add item')                            => '',
                     $step_label                               => ''
                 ],
@@ -471,7 +471,7 @@ class Page extends AbstractPage
                         $items_combo[$v[0]] = $k;
                     }
                     // Selection du type d'item
-                    echo '<form id="additem" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
+                    echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
                     echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
                     echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
@@ -482,7 +482,7 @@ class Page extends AbstractPage
                 case 2:
                     if ($this->sm_items[$this->sm_item_type][1]) {
                         // Choix à faire
-                        echo '<form id="additem" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=3" method="post">';
+                        echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=3" method="post">';
                         echo '<fieldset><legend>' . $this->sm_item_type_label . '</legend>';
                         switch ($this->sm_item_type) {
                             case 'lang':
@@ -525,7 +525,7 @@ class Page extends AbstractPage
                     }
                 case 3:
                     // Libellé et description
-                    echo '<form id="additem" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=4" method="post">';
+                    echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=4" method="post">';
                     echo '<fieldset><legend>' . $this->sm_item_type_label . ($this->sm_item_select_label != '' ? ' (' . $this->sm_item_select_label . ')' : '') . '</legend>';
                     echo '<p class="field"><label for="item_label" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('Label of item menu:') . '</label>' .
@@ -560,7 +560,7 @@ class Page extends AbstractPage
 
         // Formulaire d'activation
         if (!$this->sm_step) {
-            echo '<form id="settings" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">' .
+            echo '<form id="settings" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '" method="post">' .
             '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog()->settings->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
             '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
@@ -571,14 +571,14 @@ class Page extends AbstractPage
 
         // Liste des items
         if (!$this->sm_step) {
-            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
+            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
             echo '<p class="top-add">' . dotclear()->nonce()->form() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }
 
         if (count($this->sm_menu)) {
             if (!$this->sm_step) {
-                echo '<form id="menuitems" action="' . dotclear()->adminurl->get('admin.plugin.SimpleMenu') . '" method="post">';
+                echo '<form id="menuitems" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '" method="post">';
             }
             // Entête table
             echo

@@ -29,7 +29,7 @@ class Prepend extends AbstractPrepend
     {
         dotclear()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
             return $module->id() == 'Blowup' && dotclear()->auth()->check('admin', dotclear()->blog()->id) ?
-                '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+                '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });
     }

@@ -80,7 +80,7 @@ class FilterWords extends Spamfilter
         if (!empty($_POST['createlist'])) {
             try {
                 $this->defaultWordsList();
-                dotclear()->notices->addSuccessNotice(__('Words have been successfully added.'));
+                dotclear()->notice()->addSuccessNotice(__('Words have been successfully added.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -93,7 +93,7 @@ class FilterWords extends Spamfilter
 
             try {
                 $this->addRule($_POST['swa'], $globalsw);
-                dotclear()->notices->addSuccessNotice(__('Word has been successfully added.'));
+                dotclear()->notice()->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -104,7 +104,7 @@ class FilterWords extends Spamfilter
         if (!empty($_POST['swd']) && is_array($_POST['swd'])) {
             try {
                 $this->removeRule($_POST['swd']);
-                dotclear()->notices->addSuccessNotice(__('Words have been successfully removed.'));
+                dotclear()->notice()->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());

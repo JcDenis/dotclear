@@ -15,27 +15,16 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
-use Dotclear\Exception\PrependException;
-
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
-
+use Dotclear\Exception\PrependException;
+use Dotclear\File\Files;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Module\Iconset\Admin\ModulesIconset;
 use Dotclear\Module\Theme\Admin\ModulesTheme;
-
-use Dotclear\Admin\UrlHandler;
-Use Dotclear\Admin\Favorites;
-Use Dotclear\Admin\Menus;
-Use Dotclear\Admin\Notices;
-Use Dotclear\Admin\Combos;
-Use Dotclear\Admin\UserPref;
-
-use Dotclear\Utils\L10n;
-use Dotclear\File\Path;
-use Dotclear\File\Files;
 use Dotclear\Network\Http;
+use Dotclear\Utils\L10n;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -43,16 +32,14 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
+    use \Dotclear\Admin\AdminUrl\TraitAdminUrl;
+    use \Dotclear\Admin\Combo\TraitCombo;
+    use \Dotclear\Admin\Favorite\TraitFavorite;
+    use \Dotclear\Admin\Menu\TraitSummary;
+    use \Dotclear\Admin\Notice\TraitNotice;
+    use \Dotclear\Admin\Preference\TraitPreference;
+
     protected $process = 'Admin';
-
-    /** @var Notices            Notices instance */
-    public $notices;
-
-    /** @var UserPref           UserPref instance */
-    public $userpref;
-
-    /** @var Combos             Combos instance */
-    public $combos;
 
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
@@ -62,15 +49,6 @@ class Prepend extends Core
 
     /** @var ModulesTheme|null ModulesTheme instance */
     public $themes = null;
-
-    /** @var UrlHandler UrlHandler instance */
-    public $adminurl;
-
-    /** @var Favorites  Favorites instance */
-    public $favs;
-
-    /** @var ArrayObject sidebar menu */
-    public $menu;
 
     /** @var string     user lang */
     public $_lang = 'en';
@@ -83,21 +61,16 @@ class Prepend extends Core
         # Load core prepend and so on
         parent::process();
 
-        $this->notices  = new Notices();
-        $this->combos   = new Combos();
-        $this->userpref = new UserPref();
-
         # Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); # HTTP/1.1
         header('Pragma: no-cache'); # HTTP/1.0
 
         # Register default admin URLs
-        $this->adminurl = new UrlHandler();
-        $this->adminurl->setup();
+        $this->adminurl()->setup();
 
         # csp report do not need extra stuff
-        if ($this->adminurl->called() == 'admin.cspreport') {
+        if ($this->adminurl()->called() == 'admin.cspreport') {
             $this->adminLoadPage();
             exit;
         }
@@ -138,7 +111,7 @@ class Prepend extends Core
                     $p[3] = '/';
                     call_user_func_array('setcookie', $p);
 
-                    $this->adminurl->redirect('admin.auth');
+                    $this->adminurl()->redirect('admin.auth');
                     exit;
                 }
             } catch (\Exception $e) { #DatabaseException?
@@ -197,7 +170,7 @@ class Prepend extends Core
                 $this->setBlog($_SESSION['sess_blog_id']);
             } else {
                 $this->session()->destroy();
-                $this->adminurl->redirect('admin.auth');
+                $this->adminurl()->redirect('admin.auth');
                 exit;
             }
         }
@@ -212,10 +185,6 @@ class Prepend extends Core
 
             # Load resources
             $this->adminLoadResources(dotclear()->config()->l10n_dir);
-
-            # Load sidebar menu
-            $this->favs = new Favorites();
-            $this->menu = new Menus();
 
             # Load Modules Iconsets
             if ('' != $this->config()->iconset_dir) {
@@ -234,11 +203,11 @@ class Prepend extends Core
             $this->adminLoadModules($this->themes);
 
             # Add default top menus
-            $this->favs->setup();
+            $this->favorite()->setup();
             if (!$this->auth()->user_prefs->interface->nofavmenu) {
-                $this->favs->appendMenu($this->menu);
+                $this->favorite()->appendMenu($this->summary());
             }
-            $this->menu->setup();
+            $this->summary()->setup();
 
             # Set jquery stuff
             if (empty($this->blog()->settings->system->jquery_migrate_mute)) {
@@ -251,12 +220,9 @@ class Prepend extends Core
             # Ensure theme's settings namespace exists
             $this->blog()->settings->addNamespace('themes');
 
-            # add some behaviors
-            $this->behavior()->add('adminPopupPosts', ['Dotclear\\Admin\\BlogPref', 'adminPopupPosts']);
-
         # No user session and not on auth page, go on
-        } elseif ($this->adminurl->called() != 'admin.auth') {
-            $this->adminurl->redirect('admin.auth');
+        } elseif ($this->adminurl()->called() != 'admin.auth') {
+            $this->adminurl()->redirect('admin.auth');
             exit;
         }
 
@@ -382,8 +348,8 @@ class Prepend extends Core
 
         # Create page instance
         try {
-            $class = $this->adminurl->getBase($handler);
-            if (!is_subclass_of($class, 'Dotclear\\Admin\\Page')) {
+            $class = $this->adminurl()->getBase($handler);
+            if (!is_subclass_of($class, 'Dotclear\\Admin\\Page\\Page')) {
                 throw new PrependException(__('Unknow URL'), sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler), 404);
             }
             $page = new $class($handler);

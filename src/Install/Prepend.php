@@ -25,6 +25,8 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
+    use \Dotclear\Admin\Favorite\TraitFavorite;
+
     protected $process = 'Install';
 
     public function process()

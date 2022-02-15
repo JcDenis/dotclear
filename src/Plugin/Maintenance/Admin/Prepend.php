@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Admin\Favorites;
+use Dotclear\Admin\Favorite\Favorite;
 use Dotclear\Plugin\Maintenance\Lib\Maintenance;
 use Dotclear\Html\Form;
 use Dotclear\Utils\Dt;
@@ -91,13 +91,13 @@ class Prepend extends AbstractPrepend
     /**
      * Favorites
      *
-     * @param   Favorites   $favs   Favorites instance
+     * @param   Favorite   $favs   Favorite instance
      */
-    public static function behaviorAdminDashboardFavorites(Favorites $favs): void
+    public static function behaviorAdminDashboardFavorites(Favorite $favs): void
     {
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
-            'url'          => dotclear()->adminurl->get('admin.plugin.Maintenance'),
+            'url'          => dotclear()->adminurl()->get('admin.plugin.Maintenance'),
             'small-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
             'large-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
@@ -113,7 +113,7 @@ class Prepend extends AbstractPrepend
      */
     public static function behaviorAdminDashboardFavoritesActive(): bool
     {
-        return dotclear()->adminurl->called() == 'admin.plugin.Maintenance';
+        return dotclear()->adminurl()->called() == 'admin.plugin.Maintenance';
     }
 
     /**
@@ -184,10 +184,10 @@ class Prepend extends AbstractPrepend
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . dotclear()->menu->getIconTheme(['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . dotclear()->summary()->getIconTheme(['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
-            '<p><a href="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
+            '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
             '</div>'
         ]);
     }

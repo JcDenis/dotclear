@@ -22,34 +22,34 @@ class ModulesPlugin extends AbstractModules
 
     protected function register(): bool
     {
-        dotclear()->adminurl->register(
+        dotclear()->adminurl()->register(
             'admin.plugins',
             root_ns('Module', 'Plugin', 'Admin', 'PagePlugin')
         );
-        dotclear()->menu->register(
+        dotclear()->summary()->register(
             'System',
             __('Plugins management'),
             'admin.plugins',
             ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             dotclear()->auth()->isSuperAdmin()
         );
-        dotclear()->favs->register('plugins', [
+        dotclear()->favorite()->register('plugins', [
             'title'      => __('Plugins management'),
-            'url'        => dotclear()->adminurl->get('admin.plugins'),
+            'url'        => dotclear()->adminurl()->get('admin.plugins'),
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
         ]);
 
-        return dotclear()->adminurl->called() == 'admin.plugins';
+        return dotclear()->adminurl()->called() == 'admin.plugins';
     }
 
     public function getModulesURL(array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.plugins', $param);
+        return dotclear()->adminurl()->get('admin.plugins', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.plugin.' . $id, $param);
+        return dotclear()->adminurl()->get('admin.plugin.' . $id, $param);
     }
 }

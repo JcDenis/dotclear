@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
-use Dotclear\Admin\Favorites;
 use Dotclear\Container\User as ContainerUser;
 use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
@@ -261,9 +260,8 @@ class Install
                 dotclear()->auth()->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 /* Add default favorites */
-                dotclear()->favs = new Favorites();
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
-                dotclear()->favs->setFavoriteIDs($init_favs, true);
+                dotclear()->favorite()->setFavoriteIDs($init_favs, true);
 
                 $step = 1;
             } catch (\Exception $e) {

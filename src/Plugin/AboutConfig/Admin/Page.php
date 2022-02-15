@@ -4,7 +4,7 @@
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage PluginUserPref
+ * @subpackage PluginAboutConfig
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -35,11 +35,11 @@ class Page extends AbstractPage
     {
         # Local navigation
         if (!empty($_POST['gs_nav'])) {
-            dotclear()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+            dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
-            dotclear()->adminurl->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+            dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
             exit;
         }
 
@@ -57,8 +57,8 @@ class Page extends AbstractPage
                     dotclear()->blog()->triggerBlog();
                 }
 
-                dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
-                dotclear()->adminurl->redirect('admin.plugin.AboutConfig');
+                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
+                dotclear()->adminurl()->redirect('admin.plugin.AboutConfig');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -78,8 +78,8 @@ class Page extends AbstractPage
                     dotclear()->blog()->triggerBlog();
                 }
 
-                dotclear()->notices->addSuccessNotice(__('Configuration successfully updated'));
-                dotclear()->adminurl->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
+                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
+                dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -156,7 +156,7 @@ class Page extends AbstractPage
     private function settingMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dotclear()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->get('admin.plugin.AboutConfig') . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
@@ -178,7 +178,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl->get('admin.plugin.AboutConfig') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl()->get('admin.plugin.AboutConfig') . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);

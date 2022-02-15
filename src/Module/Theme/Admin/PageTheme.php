@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Theme\Admin;
 
 
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 
 use Dotclear\Module\Theme\Admin\ModulesTheme as Modules;
 
@@ -39,7 +39,7 @@ class PageTheme extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->themes->disableModulesDependencies(dotclear()->adminurl->get('admin.blog.theme'))) {
+        if (dotclear()->themes->disableModulesDependencies(dotclear()->adminurl()->get('admin.blog.theme'))) {
             exit;
         }
 
@@ -142,7 +142,7 @@ class PageTheme extends Page
         if (dotclear()->auth()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notices->success(__('Manual checking of themes update done successfully.'));
+                    dotclear()->notice()->success(__('Manual checking of themes update done successfully.'));
                 }
             }
 
@@ -179,7 +179,7 @@ class PageTheme extends Page
                 '<form action="' . dotclear()->themes->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of themes') . '" /></p>' .
-                Form::hidden('handler', dotclear()->adminurl->called()) .
+                Form::hidden('handler', dotclear()->adminurl()->called()) .
                     '</form>';
             }
         }

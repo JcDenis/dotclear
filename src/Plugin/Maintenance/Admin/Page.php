@@ -69,8 +69,8 @@ class Page extends AbstractPage
                 if (true === $this->m_code) {
                     $this->m_maintenance->setLog($this->m_task->id());
 
-                    dotclear()->notices->addSuccessNotice($this->m_task->success());
-                    dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'tab' => $this->m_tab], '#' . $this->m_tab);
+                    dotclear()->notice()->addSuccessNotice($this->m_task->success());
+                    dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'tab' => $this->m_tab], '#' . $this->m_tab);
                 }
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -109,8 +109,8 @@ class Page extends AbstractPage
                     );
                 }
 
-                dotclear()->notices->addSuccessNotice(__('Maintenance plugin has been successfully configured.'));
-                dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
+                dotclear()->notice()->addSuccessNotice(__('Maintenance plugin has been successfully configured.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -126,15 +126,15 @@ class Page extends AbstractPage
                 dotclear()->blog()->settings->system->put('csp_admin_on', !empty($_POST['system_csp']));
                 dotclear()->blog()->settings->system->put('csp_admin_report_only', !empty($_POST['system_csp_report_only']));
 
-                dotclear()->notices->addSuccessNotice(__('System settings have been saved.'));
+                dotclear()->notice()->addSuccessNotice(__('System settings have been saved.'));
 
                 if (!empty($_POST['system_csp_reset'])) {
                     dotclear()->blog()->settings->system->dropEvery('csp_admin_on');
                     dotclear()->blog()->settings->system->dropEvery('csp_admin_report_only');
-                    dotclear()->notices->addSuccessNotice(__('All blog\'s Content-Security-Policy settings have been reset to default.'));
+                    dotclear()->notice()->addSuccessNotice(__('All blog\'s Content-Security-Policy settings have been reset to default.'));
                 }
 
-                dotclear()->adminurl->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
+                dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -170,7 +170,7 @@ class Page extends AbstractPage
             $this->setPageBreadcrumb(
                 [
                     __('Plugins')                                                                                           => '',
-                    '<a href="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '">' . __('Maintenance') . '</a>' => '',
+                    '<a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Maintenance') . '</a>' => '',
                     Html::escapeHTML($this->m_task->name())                                                                 => ''
                 ]
             );
@@ -208,10 +208,10 @@ class Page extends AbstractPage
             echo
             '<div class="step-box" id="' . $this->m_task->id() . '">' .
             '<p class="step-back">' .
-            '<a class="back" href="' . dotclear()->adminurl->get('admin.plugin.Maintenance', ['tab' => $this->m_task->tab()]) . '#' . $this->m_task->tab() . '">' . __('Back') . '</a>' .
+            '<a class="back" href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance', ['tab' => $this->m_task->tab()]) . '#' . $this->m_task->tab() . '">' . __('Back') . '</a>' .
             '</p>' .
             '<h3>' . Html::escapeHTML($this->m_task->name()) . '</h3>' .
-            '<form action="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
             $res .
             '<p class="step-submit">' .
             '<input type="submit" value="' . $this->m_task->task() . '" /> ' .
@@ -272,7 +272,7 @@ class Page extends AbstractPage
                     '<div id="' . $this->m_tab_obj->id() . '" class="multi-part" title="' . $this->m_tab_obj->name() . '">' .
                     '<h3>' . $this->m_tab_obj->name() . '</h3>' .
                     // ($this->m_tab_obj->option('summary') ? '<p>'.$this->m_tab_obj->option('summary').'</p>' : '').
-                    '<form action="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '" method="post">' .
+                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
                     $res_group .
                     '<p><input type="submit" value="' . __('Execute task') . '" /> ' .
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
@@ -294,7 +294,7 @@ class Page extends AbstractPage
                 echo
                 '<div id="' . $t->id() . '" class="multi-part" title="' . $t->name() . '">' .
                 '<h3>' . $t->name() . '</h3>' .
-                '<form action="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '" method="post">' .
+                '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
                 $t->content() .
                 '<p><input type="submit" value="' . __('Execute task') . '" /> ' .
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
@@ -310,7 +310,7 @@ class Page extends AbstractPage
             echo
             '<div id="settings" class="multi-part" title="' . __('Alert settings') . '">' .
             '<h3>' . __('Alert settings') . '</h3>' .
-            '<form action="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
 
             '<h4 class="pretty-title">' . __('Activation') . '</h4>' .
             '<p><label for="settings_plugin_message" class="classic">' .
@@ -319,7 +319,7 @@ class Page extends AbstractPage
 
             '<p class="info">' . sprintf(
                 __('You can place list of late tasks on your %s.'),
-                '<a href="' . dotclear()->adminurl->get('admin.user.pref') . '#user-favorites">' . __('Dashboard') . '</a>'
+                '<a href="' . dotclear()->adminurl()->get('admin.user.pref') . '#user-favorites">' . __('Dashboard') . '</a>'
             ) . '</p>' .
 
             '<h4 class="pretty-title vertical-separator">' . __('Frequency') . '</h4>' .
@@ -365,7 +365,7 @@ class Page extends AbstractPage
                 echo
                 '<div id="system" class="multi-part" title="' . __('System') . '">' .
                 '<h3>' . __('System settings') . '</h3>' .
-                    '<form action="' . dotclear()->adminurl->get('admin.plugin.Maintenance') . '" method="post">';
+                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">';
 
                 echo
                 '<div class="fieldset two-cols clearfix">' .

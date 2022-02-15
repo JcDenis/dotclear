@@ -219,8 +219,8 @@ class Page extends AbstractPage
                 dotclear()->blog()->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
                 dotclear()->blog()->triggerBlog();
 
-                dotclear()->notices->addSuccessNotice(__('Theme configuration has been successfully updated.'));
-                dotclear()->adminurl->redirect('admin.plugin.Blowup');
+                dotclear()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));
+                dotclear()->adminurl()->redirect('admin.plugin.Blowup');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -244,7 +244,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')               => dotclear()->adminurl->get('admin.blog.theme'),
+                __('Blog appearance')               => dotclear()->adminurl()->get('admin.blog.theme'),
                 __('Blowup configuration')          => ''
             ])
         ;
@@ -255,14 +255,14 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         echo
-        '<p><a class="back" href="' . dotclear()->adminurl->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
+        '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
             Notices::message(__('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
                 $this->Blowup_notices, false, true);
         }
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl->get('admin.plugin.Blowup') . '" method="post" enctype="multipart/form-data">';
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Blowup') . '" method="post" enctype="multipart/form-data">';
 
         echo '<div class="fieldset"><h3>' . __('Customization') . '</h3>' .
         '<h4>' . __('General') . '</h4>';

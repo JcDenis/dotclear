@@ -4,7 +4,7 @@
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage PlugniUserPref
+ * @subpackage PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

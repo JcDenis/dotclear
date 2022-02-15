@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin\Admin;
 
 
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 
 use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
 
@@ -40,7 +40,7 @@ class PagePlugin extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->plugins->disableModulesDependencies(dotclear()->adminurl->get('admin.plugins'))) {
+        if (dotclear()->plugins->disableModulesDependencies(dotclear()->adminurl()->get('admin.plugins'))) {
             exit;
         }
 
@@ -143,7 +143,7 @@ class PagePlugin extends Page
         if (dotclear()->auth()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notices->success(__('Manual checking of plugins update done successfully.'));
+                    dotclear()->notice()->success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 
@@ -180,7 +180,7 @@ class PagePlugin extends Page
                 '<form action="' . dotclear()->plugins->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
-                Form::hidden('handler', dotclear()->adminurl->called()) .
+                Form::hidden('handler', dotclear()->adminurl()->called()) .
                     '</form>';
             }
         }

@@ -52,7 +52,7 @@ class Page extends AbstractPage
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
                     Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Blog appearance')                  => dotclear()->adminurl->get('admin.blog.theme'),
+                    __('Blog appearance')                  => dotclear()->adminurl()->get('admin.blog.theme'),
                     __('Edit theme files')                 => ''
                 ])
             ;
@@ -97,8 +97,8 @@ class Page extends AbstractPage
             # Delete file
             if (!empty($_POST['delete'])) {
                 $this->te_editor->deleteFile($this->te_file['type'], $this->te_file['f']);
-                dotclear()->notices->addSuccessNotice(__('The file has been reset.'));
-                dotclear()->adminurl->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
+                dotclear()->notice()->addSuccessNotice(__('The file has been reset.'));
+                dotclear()->adminurl()->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
             }
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
@@ -111,7 +111,7 @@ class Page extends AbstractPage
             ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')                  => dotclear()->adminurl->get('admin.blog.theme'),
+                __('Blog appearance')                  => dotclear()->adminurl()->get('admin.blog.theme'),
                 __('Edit theme files')                 => ''
             ])
         ;
@@ -168,7 +168,7 @@ class Page extends AbstractPage
             echo '<p>' . __('Please select a file to edit.') . '</p>';
         } else {
             echo
-            '<form id="file-form" action="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '" method="post">' .
+            '<form id="file-form" action="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '" method="post">' .
             '<div class="fieldset"><h3>' . __('File editor') . '</h3>' .
             '<p><label for="file_content">' . sprintf(__('Editing file %s'), '<strong>' . $this->te_file['f']) . '</strong></label></p>' .
             '<p>' . Form::textarea('file_content', 72, 25, [
@@ -209,19 +209,19 @@ class Page extends AbstractPage
 
         <div id="file-chooser">' .
         '<h3>' . __('Templates files') . '</h3>' .
-        $this->te_editor->filesList('tpl', '<a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '&amp;tpl=%2$s" class="tpl-link">%1$s</a>') .
+        $this->te_editor->filesList('tpl', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;tpl=%2$s" class="tpl-link">%1$s</a>') .
 
         '<h3>' . __('CSS files') . '</h3>' .
-        $this->te_editor->filesList('css', '<a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '&amp;css=%2$s" class="css-link">%1$s</a>') .
+        $this->te_editor->filesList('css', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;css=%2$s" class="css-link">%1$s</a>') .
 
         '<h3>' . __('JavaScript files') . '</h3>' .
-        $this->te_editor->filesList('js', '<a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '&amp;js=%2$s" class="js-link">%1$s</a>') .
+        $this->te_editor->filesList('js', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;js=%2$s" class="js-link">%1$s</a>') .
 
         '<h3>' . __('Locales files') . '</h3>' .
-        $this->te_editor->filesList('po', '<a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor'). '&amp;po=%2$s" class="po-link">%1$s</a>') .
+        $this->te_editor->filesList('po', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor'). '&amp;po=%2$s" class="po-link">%1$s</a>') .
 
         '<h3>' . __('PHP files') . '</h3>' .
-        $this->te_editor->filesList('php', '<a href="' . dotclear()->adminurl->get('admin.plugin.ThemeEditor') . '&amp;php=%2$s" class="php-link">%1$s</a>') .
+        $this->te_editor->filesList('php', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;php=%2$s" class="php-link">%1$s</a>') .
         '</div>';
     }
 

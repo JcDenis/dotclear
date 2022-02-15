@@ -4,7 +4,7 @@
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage PlugniUserPref
+ * @subpackage PluginAttachments
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Admin\Page;
+use Dotclear\Admin\Page\Page;
 use Dotclear\Database\Record;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
@@ -76,17 +76,17 @@ class Prepend extends AbstractPrepend
                     $ftitle = substr($ftitle, 0, 16) . '...';
                 }
                 $item .= '<div class="media-item s-attachments">' .
-                '<a class="media-icon" href="' . dotclear()->adminurl->get('admin.media.item', ['id' => $f->media_id]) . '">' .
+                '<a class="media-icon" href="' . dotclear()->adminurl()->get('admin.media.item', ['id' => $f->media_id]) . '">' .
                 '<img src="' . $f->media_icon . '" alt="" title="' . $f->basename . '" /></a>' .
                 '<ul>' .
-                '<li><a class="media-link" href="' . dotclear()->adminurl->get('admin.media.item', ['id' => $f->media_id]) . '" ' .
+                '<li><a class="media-link" href="' . dotclear()->adminurl()->get('admin.media.item', ['id' => $f->media_id]) . '" ' .
                 'title="' . $f->basename . '">' . $ftitle . '</a></li>' .
                 '<li>' . $f->media_dtstr . '</li>' .
                 '<li>' . Files::size($f->size) . ' - ' .
                 '<a href="' . $f->file_url . '">' . __('open') . '</a>' . '</li>' .
 
                 '<li class="media-action"><a class="attachment-remove" id="attachment-' . $f->media_id . '" ' .
-                'href="' . dotclear()->adminurl->get('admin.post.media', [
+                'href="' . dotclear()->adminurl()->get('admin.post.media', [
                     'post_id'   => $post->post_id,
                     'media_id'  => $f->media_id,
                     'link_type' => 'attachment',
@@ -103,7 +103,7 @@ class Prepend extends AbstractPrepend
             if (empty($post_media)) {
                 $item .= '<p class="form-note s-attachments">' . __('No attachment.') . '</p>';
             }
-            $item .= '<p class="s-attachments"><a class="button" href="' . dotclear()->adminurl->get('admin.media', ['post_id' => $post->post_id, 'link_type' => 'attachment']) . '">' .
+            $item .= '<p class="s-attachments"><a class="button" href="' . dotclear()->adminurl()->get('admin.media', ['post_id' => $post->post_id, 'link_type' => 'attachment']) . '">' .
             __('Add files to this entry') . '</a></p>';
             $sidebar['metas-box']['items']['attachments'] = $item;
         }
@@ -113,7 +113,7 @@ class Prepend extends AbstractPrepend
     {
         if ($post !== null) {
             echo
-            '<form action="' . dotclear()->adminurl->get('admin.post.media') . '" id="attachment-remove-hide" method="post">' .
+            '<form action="' . dotclear()->adminurl()->get('admin.post.media') . '" id="attachment-remove-hide" method="post">' .
             '<div>' . form::hidden(['post_id'], $post->post_id) .
             form::hidden(['media_id'], '') .
             form::hidden(['link_type'], 'attachment') .

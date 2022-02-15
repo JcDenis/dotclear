@@ -37,7 +37,7 @@ class Maintenance
      */
     public function __construct()
     {
-        $this->p_url = dotclear()->adminurl->get('admin.plugin.Maintenance');
+        $this->p_url = dotclear()->adminurl()->get('admin.plugin.Maintenance');
         $this->getLogs();
         $this->init();
     }

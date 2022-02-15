@@ -22,35 +22,35 @@ class ModulesIconset extends AbstractModules
 
     protected function register(): bool
     {
-        dotclear()->adminurl->register(
+        dotclear()->adminurl()->register(
             'admin.iconset',
             root_ns('Module', 'Iconset', 'Admin', 'PageIconset')
         );
-        dotclear()->menu->register(
+        dotclear()->summary()->register(
             'System',
             __('Iconset management'),
             'admin.iconset',
             'images/menu/no-icon.svg',
             dotclear()->auth()->isSuperAdmin()
         );
-        dotclear()->favs->register('iconsets', [
+        dotclear()->favorite()->register('iconsets', [
             'title'      => __('Iconsets management'),
-            'url'        => dotclear()->adminurl->get('admin.iconset'),
+            'url'        => dotclear()->adminurl()->get('admin.iconset'),
             'small-icon' => 'images/menu/no-icon.svg',
             'large-icon' => 'images/menu/no-icon.svg'
         ]);
 
-        return dotclear()->adminurl->called() == 'admin.iconset';
+        return dotclear()->adminurl()->called() == 'admin.iconset';
     }
 
     public function getModulesURL(array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.iconset', $param);
+        return dotclear()->adminurl()->get('admin.iconset', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.iconset.' . $id, $param);
+        return dotclear()->adminurl()->get('admin.iconset.' . $id, $param);
     }
 /*
     public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): AbstractModules

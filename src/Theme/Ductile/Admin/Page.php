@@ -253,7 +253,7 @@ class Page extends AbstractPage
                 dotclear()->blog()->triggerBlog();
                 dotclear()->emptyTemplatesCache();
 
-                dotclear()->notices->addSuccessNotice(__('Theme configuration upgraded.'));
+                dotclear()->notice()->addSuccessNotice(__('Theme configuration upgraded.'));
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -266,7 +266,7 @@ class Page extends AbstractPage
             ->setPageHead(static::jsPageTabs())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')               => dotclear()->adminurl->get('admin.blog.theme'),
+                __('Blog appearance')               => dotclear()->adminurl()->get('admin.blog.theme'),
                 __('Ductile configuration')          => ''
             ])
         ;
@@ -320,7 +320,7 @@ class Page extends AbstractPage
         echo '<div class="multi-part" id="themes-list-html" title="' . __('Content') . '">' .
         '<h3>' . __('Content') . '</h3>';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl->get('admin.plugin.Ductile') . '#themes-list-html' .
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Ductile') . '#themes-list-html' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h4>' . __('Header') . '</h4>' .
@@ -330,7 +330,7 @@ class Page extends AbstractPage
         Form::field('logo_src', 40, 255, $this->Ductile_user['logo_src']) . '</p>';
         if (dotclear()->plugins->hasModule('SimpleMenu')) {
             echo '<p>' . sprintf(__('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
-                dotclear()->adminurl->get('admin.plugin.SimpleMenu')) . '</p>';
+                dotclear()->adminurl()->get('admin.plugin.SimpleMenu')) . '</p>';
         }
 
         echo '<h4 class="border-top pretty-title">' . __('Stickers') . '</h4>';
@@ -414,7 +414,7 @@ class Page extends AbstractPage
 
         echo '<div class="multi-part" id="themes-list-css' . '" title="' . __('Presentation') . '">';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl->get('admin.plugin.Ductile') . '#themes-list-css' .
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Ductile') . '#themes-list-css' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h3>' . __('General settings') . '</h3>';

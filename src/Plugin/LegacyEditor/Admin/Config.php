@@ -4,7 +4,7 @@
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage PlugniUserPref
+ * @subpackage PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -29,7 +29,7 @@ class Config extends AbstractConfig
         dotclear()->blog()->settings->addNameSpace('LegacyEditor');
         dotclear()->blog()->settings->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
 
-        dotclear()->notices->addSuccessNotice(__('The configuration has been updated.'));
+        dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
         Http::redirect($redir);
     }
 

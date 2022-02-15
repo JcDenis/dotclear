@@ -29,36 +29,36 @@ class ModulesTheme extends AbstractModules
 
     protected function register(): bool
     {
-        dotclear()->adminurl->register(
+        dotclear()->adminurl()->register(
             'admin.blog.theme',
             root_ns('Module', 'Theme', 'Admin', 'PageTheme')
         );
-        dotclear()->menu->register(
+        dotclear()->summary()->register(
             'Blog',
             __('Blog appearance'),
             'admin.blog.theme',
             ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             dotclear()->auth()->check('admin', dotclear()->blog()->id)
         );
-        dotclear()->favs->register('blog_theme', [
+        dotclear()->favorite()->register('blog_theme', [
             'title'       => __('Blog appearance'),
-            'url'         => dotclear()->adminurl->get('admin.blog.theme'),
+            'url'         => dotclear()->adminurl()->get('admin.blog.theme'),
             'small-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'large-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'permissions' => 'admin'
         ]);
 
-        return dotclear()->adminurl->called() == 'admin.blog.theme';
+        return dotclear()->adminurl()->called() == 'admin.blog.theme';
     }
 
     public function getModulesURL(array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.blog.theme', $param);
+        return dotclear()->adminurl()->get('admin.blog.theme', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dotclear()->adminurl->get('admin.blog.theme', array_merge(['id' => $id], $param));
+        return dotclear()->adminurl()->get('admin.blog.theme', array_merge(['id' => $id], $param));
     }
 
     public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): AbstractModules
@@ -432,7 +432,7 @@ class ModulesTheme extends AbstractModules
                 dotclear()->blog()->triggerBlog();
 
                 $module = $this->getModule($id);
-                dotclear()->notices->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
+                dotclear()->notice()->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
         } else {
@@ -467,7 +467,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Theme has been successfully activated.', 'Themes have been successuflly activated.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -506,9 +506,9 @@ class ModulesTheme extends AbstractModules
                 }
 
                 if ($failed) {
-                    dotclear()->notices->addWarningNotice(__('Some themes have not been deactivated.'));
+                    dotclear()->notice()->addWarningNotice(__('Some themes have not been deactivated.'));
                 } else {
-                    dotclear()->notices->addSuccessNotice(
+                    dotclear()->notice()->addSuccessNotice(
                         __('Theme has been successfully deactivated.', 'Themes have been successuflly deactivated.', $count)
                     );
                 }
@@ -535,7 +535,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Theme has been successfully cloned.', 'Themes have been successuflly cloned.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -579,9 +579,9 @@ class ModulesTheme extends AbstractModules
                 if (!$count && $failed) {
                     throw new ModuleException(__("You don't have permissions to delete this theme."));
                 } elseif ($failed) {
-                    dotclear()->notices->addWarningNotice(__('Some themes have not been delete.'));
+                    dotclear()->notice()->addWarningNotice(__('Some themes have not been delete.'));
                 } else {
-                    dotclear()->notices->addSuccessNotice(
+                    dotclear()->notice()->addSuccessNotice(
                         __('Theme has been successfully deleted.', 'Themes have been successuflly deleted.', $count)
                     );
                 }
@@ -616,7 +616,7 @@ class ModulesTheme extends AbstractModules
                     $count++;
                 }
 
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Theme has been successfully installed.', 'Themes have been successfully installed.', $count)
                 );
                 Http::redirect($this->getURL());
@@ -651,7 +651,7 @@ class ModulesTheme extends AbstractModules
 
                 $tab = $count && $count == count($list) ? '#themes' : '#update';
 
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     __('Theme has been successfully updated.', 'Themes have been successfully updated.', $count)
                 );
                 Http::redirect($this->getURL() . $tab);
@@ -685,7 +685,7 @@ class ModulesTheme extends AbstractModules
                 # --BEHAVIOR-- themeAfterAdd
                 dotclear()->behavior()->call('themeAfterAdd', null);
 
-                dotclear()->notices->addSuccessNotice(
+                dotclear()->notice()->addSuccessNotice(
                     $ret_code == 2 ?
                     __('The theme has been successfully updated.') :
                     __('The theme has been successfully installed.')

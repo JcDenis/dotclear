@@ -126,7 +126,7 @@ class FilterAkismet extends Spamfilter
 
                 dotclear()->blog()->settings->akismet->put('ak_key', $ak_key, 'string');
 
-                dotclear()->notices->addSuccessNotice(__('Filter configuration have been successfully saved.'));
+                dotclear()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
