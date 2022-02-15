@@ -30,6 +30,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Prepend extends Core
 {
     use \Dotclear\Public\Context\TraitContext;
+    use \Dotclear\Public\Template\TraitTemplate;
 
     protected $process = 'Public';
 
@@ -38,8 +39,6 @@ class Prepend extends Core
 
     /** @var ModulesTheme|null ModulesTheme instance */
     public $themes = null;
-
-    public $tpl;
 
     public function process(string $blog_id = null)
     {
@@ -84,7 +83,7 @@ class Prepend extends Core
         }
 
         try {
-            $this->tpl = new Template($this->config()->cache_dir, 'dotclear()->tpl');
+            $this->template($this->config()->cache_dir, 'dotclear()->template()');
         } catch (\Exception $e) {
             throw new PrependException(__('Can\'t create template files.'), $e->getMessage(), 640);
         }
@@ -155,15 +154,15 @@ class Prepend extends Core
         # Check templateset and add all path to tpl
         $tplset = $this->themes->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = implode_path(__DIR__, 'Template', $tplset);
+            $tplset_dir = implode_path(__DIR__, 'Template', 'Template', $tplset);
             if (is_dir($tplset_dir)) {
-                $this->tpl->setPath($path, $tplset_dir, $this->tpl->getPath());
+                $this->template()->setPath($path, $tplset_dir, $this->template()->getPath());
             } else {
                 $tplset = null;
             }
         }
         if (empty($tplset)) {
-            $this->tpl->setPath($path, $this->tpl->getPath());
+            $this->template()->setPath($path, $this->template()->getPath());
         }
 
         # Prepare the HTTP cache thing

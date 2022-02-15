@@ -1,6 +1,6 @@
 <?php
 /**
- * @class tplNode
+ * @class Dotclear\Public\Template\Engine\TplNode
  * @brief Template nodes, for parsing purposes
  *
  * Generic list node, this one may only be instanciated once for root element
@@ -13,11 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Template;
+namespace Dotclear\Public\Template\Engine;
 
 use ArrayObject;
 
-use Dotclear\Template\Template;
+use Dotclear\Public\Template\Engine\Template;
 
 class TplNode
 {

@@ -42,11 +42,11 @@ class Prepend extends AbstractPrepend
         dotclear()->behavior()->add('publicInsideFooter', [__CLASS__, 'behaviorPublicInsideFooter']);
 
         # Templates
-        dotclear()->tpl->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
-        dotclear()->tpl->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
-        dotclear()->tpl->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
-        dotclear()->tpl->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
-        dotclear()->tpl->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
+        dotclear()->template()->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
+        dotclear()->template()->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
+        dotclear()->template()->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
+        dotclear()->template()->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
+        dotclear()->template()->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
     }
 
     public static function ductileNbEntryPerPage($attr)
@@ -112,10 +112,10 @@ class Prepend extends AbstractPrepend
             $urls = '1';
         }
 
-        $short              = dotclear()->tpl->getFilters($attr);
+        $short              = dotclear()->template()->getFilters($attr);
         $cut                = $attr['cut_string'];
         $attr['cut_string'] = 0;
-        $full               = dotclear()->tpl->getFilters($attr);
+        $full               = dotclear()->template()->getFilters($attr);
         $attr['cut_string'] = $cut;
 
         return '<?php if (strlen(' . sprintf($full, 'dotclear()->context()->posts->getContent(' . $urls . ')') . ') > ' .
@@ -151,7 +151,7 @@ class Prepend extends AbstractPrepend
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
             '?>' . "\n" .
-            dotclear()->tpl->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
+            dotclear()->template()->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
                 '<?php ' . "\n" .
                 '       break;' . "\n";
         }

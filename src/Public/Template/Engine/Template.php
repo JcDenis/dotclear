@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Public\Template\Engine\Template
  * @class template
  *
  * @package Clearbricks
@@ -10,12 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Template;
+namespace Dotclear\Public\Template\Engine;
 
 use Dotclear\Exception\TemplateException;
-
-use Dotclear\File\Path;
 use Dotclear\File\Files;
+use Dotclear\File\Path;
 use Dotclear\Html\Html;
 
 class Template

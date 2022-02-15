@@ -29,7 +29,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->tpl->addValue('Breadcrumb', [__CLASS__, 'tplValueBreadcrumb']);
+        dotclear()->template()->addValue('Breadcrumb', [__CLASS__, 'tplValueBreadcrumb']);
     }
 
     # Template function

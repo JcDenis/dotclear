@@ -1,6 +1,6 @@
 <?php
 /**
- * @class tplNodeText
+ * @class Dotclear\Public\Template\Engine\TplNodeText
  * @brief Text node, for any non-tpl content
  *
  * @package Clearbricks
@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Template;
+namespace Dotclear\Public\Template\Engine;
 
-use Dotclear\Template\Template;
-use Dotclear\Template\TplNode;
+use Dotclear\Public\Template\Engine\Template;
+use Dotclear\Public\Template\Engine\TplNode;
 
 class TplNodeText extends TplNode
 {

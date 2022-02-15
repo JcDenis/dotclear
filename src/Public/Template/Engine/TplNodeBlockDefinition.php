@@ -1,6 +1,6 @@
 <?php
 /**
- * @class tplNodeBlockDefinition
+ * @class Dotclear\Public\Template\Engine\TplNodeBlockDefinition
  * @brief Block node, for all <tpl:Tag>...</tpl:Tag>
  *
  * @package Clearbricks
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Template;
+namespace Dotclear\Public\Template\Engine;
 
 use ArrayObject;
 
-use Dotclear\Template\Template;
-use Dotclear\Template\TplNodeBlock;
+use Dotclear\Public\Template\Engine\Template;
+use Dotclear\Public\Template\Engine\TplNodeBlock;
 
 class TplNodeBlockDefinition extends TplNodeBlock
 {

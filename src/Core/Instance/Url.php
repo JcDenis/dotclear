@@ -141,7 +141,7 @@ class Url
             dotclear()->context()->nb_entry_first_page = dotclear()->context()->nb_entry_per_page;
         }
 
-        $tpl_file = dotclear()->tpl->getFilePath($tpl);
+        $tpl_file = dotclear()->template()->getFilePath($tpl);
         if (!$tpl_file) {
             throw new CoreException('Unable to find template ');
         }
@@ -189,7 +189,7 @@ class Url
         }
 
         $result                 = new ArrayObject();
-        $result['content']      = dotclear()->tpl->getData(dotclear()->context()->current_tpl);
+        $result['content']      = dotclear()->template()->getData(dotclear()->context()->current_tpl);
         $result['content_type'] = dotclear()->context()->content_type;
         $result['tpl']          = dotclear()->context()->current_tpl;
         $result['blogupddt']    = dotclear()->blog()->upddt;
@@ -372,7 +372,7 @@ class Url
         dotclear()->context()->current_tpl  = '404.html';
         dotclear()->context()->content_type = 'text/html';
 
-        echo dotclear()->tpl->getData(dotclear()->context()->current_tpl);
+        echo dotclear()->template()->getData(dotclear()->context()->current_tpl);
 
         # --BEHAVIOR-- publicAfterDocument
         dotclear()->behavior()->call('publicAfterDocument');

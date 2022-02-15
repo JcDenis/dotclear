@@ -33,10 +33,10 @@ class WidgetsStack
         $this->initWidgets();
         self::$stack = $this;
 
-        if (!empty(dotclear()->tpl)) {
-            dotclear()->tpl->addValue('Widgets', [$this, 'tplWidgets']);
-            dotclear()->tpl->addBlock('Widget', [$this, 'tplWidget']);
-            dotclear()->tpl->addBlock('IfWidgets', [$this, 'tplIfWidgets']);
+        if (DOTCLEAR_PROCESS == "Public") {
+            dotclear()->template()->addValue('Widgets', [$this, 'tplWidgets']);
+            dotclear()->template()->addBlock('Widget', [$this, 'tplWidget']);
+            dotclear()->template()->addBlock('IfWidgets', [$this, 'tplIfWidgets']);
         }
     }
 

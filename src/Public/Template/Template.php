@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Public\Template\Tempalte
  * @brief Dotclear public core prepend class
  *
  * @package Dotclear
@@ -10,12 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Public;
+namespace Dotclear\Public\Template;
 
 use ArrayObject;
 
-use Dotclear\Template\Template as BaseTemplate;
-
+use Dotclear\Public\Template\Engine\Template as BaseTemplate;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
@@ -3236,7 +3236,7 @@ class Template extends BaseTemplate
                 $sign            = '!';
                 $attr['has_tpl'] = substr($attr['has_tpl'], 1);
             }
-            $if[] = $sign . "dotclear()->tpl->getFilePath('" . addslashes($attr['has_tpl']) . "') !== false";
+            $if[] = $sign . "dotclear()->template()->getFilePath('" . addslashes($attr['has_tpl']) . "') !== false";
         }
 
         if (isset($attr['has_tag'])) {
@@ -3245,7 +3245,7 @@ class Template extends BaseTemplate
                 $sign            = 'false';
                 $attr['has_tag'] = substr($attr['has_tag'], 1);
             }
-            $if[] = "dotclear()->tpl->tagExists('" . addslashes($attr['has_tag']) . "') === " . $sign;
+            $if[] = "dotclear()->template()->tagExists('" . addslashes($attr['has_tag']) . "') === " . $sign;
         }
 
         if (isset($attr['blog_id'])) {

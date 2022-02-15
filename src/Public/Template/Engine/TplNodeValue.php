@@ -1,6 +1,6 @@
 <?php
 /**
- * @class tplNodeValue
+ * @class Dotclear\Public\Template\Engine\TplNodeValue
  * @brief Value node, for all {{tpl:Tag}}
  *
  * @package Clearbricks
@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Template;
+namespace Dotclear\Public\Template\Engine;
 
-use Dotclear\Template\Template;
-use Dotclear\Template\TplNode;
+use Dotclear\Public\Template\Engine\Template;
+use Dotclear\Public\Template\Engine\TplNode;
 
 class TplNodeValue extends TplNode
 {
