@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Admin\Preference\Preference
- * @brief Admin user preference library
+ * @class Dotclear\Admin\ListOption\ListOption
+ * @brief Admin user list option preference library
  *
  * Dotclear utility class that provides reuseable user preference
  * across all admin page with lists and filters
@@ -14,7 +14,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Admin\Preference;
+namespace Dotclear\Admin\ListOption;
 
 use ArrayObject;
 
@@ -22,7 +22,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Preference
+class ListOption
 {
     /** @var    ArrayObject     Sorts filters preferences*/
     protected $sorts = null;

@@ -37,7 +37,7 @@ class Prepend extends Core
     use \Dotclear\Admin\Favorite\TraitFavorite;
     use \Dotclear\Admin\Menu\TraitSummary;
     use \Dotclear\Admin\Notice\TraitNotice;
-    use \Dotclear\Admin\Preference\TraitPreference;
+    use \Dotclear\Admin\ListOption\TraitListOption;
 
     protected $process = 'Admin';
 

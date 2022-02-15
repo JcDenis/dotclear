@@ -644,7 +644,7 @@ class RestMethods
             throw new AdminException('No list name');
         }
 
-        $sorts = dotclear()->preference()->getUserFilters();
+        $sorts = dotclear()->listoption()->getUserFilters();
 
         if (!isset($sorts[$post['id']])) {
             throw new AdminException('List name invalid');

@@ -63,7 +63,7 @@ class Filter
      */
     public function userOptions(?string $option = null)
     {
-        return dotclear()->preference()->getUserFilters($this->type, $option);
+        return dotclear()->listoption()->getUserFilters($this->type, $option);
     }
 
     /**
@@ -71,7 +71,7 @@ class Filter
      */
     protected function parseOptions()
     {
-        $options = dotclear()->preference()->getUserFilters($this->type);
+        $options = dotclear()->listoption()->getUserFilters($this->type);
         if (!empty($options)) {
             $this->has_user_pref = true;
         }

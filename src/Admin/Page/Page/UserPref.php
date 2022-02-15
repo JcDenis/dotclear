@@ -161,10 +161,10 @@ class UserPref extends Page
         }
 
         # Get default colums (admin lists)
-        $this->cols = dotclear()->preference()->getUserColumns();
+        $this->cols = dotclear()->listoption()->getUserColumns();
 
         # Get default sortby, order, nbperpage (admin lists)
-        $this->sorts = dotclear()->preference()->getUserFilters();
+        $this->sorts = dotclear()->listoption()->getUserFilters();
 
         # Add or update user
         if (isset($_POST['user_name'])) {

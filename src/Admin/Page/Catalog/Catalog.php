@@ -46,6 +46,6 @@ class Catalog
      */
     public function userColumns($type, $cols)
     {
-        $cols = dotclear()->preference()->getUserColumns($type, $cols);
+        $cols = dotclear()->listoption()->getUserColumns($type, $cols);
     }
 }

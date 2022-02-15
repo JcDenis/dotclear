@@ -69,7 +69,7 @@ class Search extends Page
         }
 
         $page = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
-        $nb = dotclear()->preference()->getUserFilters('search', 'nb');
+        $nb = dotclear()->listoption()->getUserFilters('search', 'nb');
         if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
             $nb = (integer) $_GET['nb'];
         }
