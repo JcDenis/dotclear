@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\TraitBlog
+ * @class Dotclear\Core\Blog\TraitBlog
  * @brief Dotclear trait Log
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog;
 
-use Dotclear\Core\Instance\Blog;
+use Dotclear\Core\Blog\Blog;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

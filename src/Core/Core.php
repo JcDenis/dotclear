@@ -29,10 +29,10 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Core
 {
     # Traits
+    use \Dotclear\Core\Blog\TraitBlog;
     use \Dotclear\Core\Instance\TraitAuth;
     use \Dotclear\Core\Instance\TraitAutoload;
     use \Dotclear\Core\Instance\TraitBehavior;
-    use \Dotclear\Core\Instance\TraitBlog;
     use \Dotclear\Core\Instance\TraitBlogs;
     use \Dotclear\Core\Instance\TraitConfiguration;
     use \Dotclear\Core\Instance\TraitConnection;
@@ -264,7 +264,7 @@ class Core
     /**
      * Empty templates cache directory
      */
-    public static function emptyTemplatesCache(): void
+    public static function emptyTemplatesCache(): void //! move this
     {
         if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
             Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));

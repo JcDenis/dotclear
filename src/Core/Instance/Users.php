@@ -15,7 +15,7 @@ namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 
-use Dotclear\Core\Instance\Blog;
+use Dotclear\Core\Blog\Blog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
