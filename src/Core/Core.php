@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use Dotclear\Distrib\Distrib;
 use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
@@ -150,7 +149,7 @@ class Core
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             # Set Dotclear configuration constants for installation process
             if ($this->process == 'Install') {
-                $this->initConfiguration(Distrib::getCoreConfig());
+                $this->initConfiguration(self::getDefaultConfig());
 
                 # Stop core process here in Install process
                 return;
@@ -166,7 +165,7 @@ class Core
         }
 
         # Set plateform (user) configuration constants
-        $this->initConfiguration(Distrib::getCoreConfig(), DOTCLEAR_CONFIG_PATH);
+        $this->initConfiguration(self::getDefaultConfig(), DOTCLEAR_CONFIG_PATH);
 
         # Starting from debug mode, display all errors
         if ($this->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
@@ -270,5 +269,61 @@ class Core
         if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
             Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));
         }
+    }
+
+    private static function getDefaultConfig(): array
+    {
+        return [
+            'admin_mailform'        => [null, ''],
+            'admin_ssl'             => [null, true],
+            'admin_url'             => [null, ''],
+            'backup_dir'            => [null, root_path()],
+            'base_dir'              => [null, root_path('..')],
+            'cache_dir'             => [null, root_path('..', 'cache')],
+            'core_update_channel'   => [null, 'stable'],
+            'core_update_noauto'    => [null, false],
+            'core_update_url'       => [null, 'https://download.dotclear.org/versions.xml'],
+            'core_version'          => [false, trim(file_get_contents(root_path('version')))],
+            'core_version_break'    => [false, '3.0'],
+            'crypt_algo'            => [null, 'sha1'],
+            'database_driver'       => [true, ''],
+            'database_host'         => [true, ''],
+            'database_name'         => [true, ''],
+            'database_password'     => [true, ''],
+            'database_persist'      => [null, true],
+            'database_prefix'       => [null, 'dc_'],
+            'database_user'         => [true, ''],
+            'digests_dir'           => [null, root_path('..', 'digests')],
+            'force_scheme_443'      => [null, true],
+            'iconset_dir'           => [null, root_path('Iconset')],
+            'iconset_official'      => [false, 'Legacy,ThomasDaveluy'],
+            'iconset_update_url'    => [null, ''],
+            'jquery_default'        => [null, '3.6.0'],
+            'l10n_dir'              => [null, root_path('locales')],
+            'l10n_update_url'       => [null, 'https://services.dotclear.net/dc2.l10n/?version=%s'],
+            'media_dir_showhidden'  => [null, false],
+            'media_upload_maxsize'  => [false, Files::getMaxUploadFilesize()],
+            'master_key'            => [true, ''],
+            'module_allow_multi'    => [null, false],
+            'php_next_required'     => [false, '7.4'],
+            'plugin_dir'            => [null, root_path('Plugin')],
+            'plugin_official'       => [false, 'AboutConfig,Akismet,Antispam,Attachments,Blogroll,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'],
+            'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
+            'query_timeout'         => [null, 4],
+            'reverse_proxy'         => [null, true],
+            'run_level'             => [null, 0],
+            'root_dir'              => [false, root_path()], //Alias for DOTCLEAR_ROOT_DIR
+            'session_name'          => [null, 'dcxd'],
+            'session_ttl'           => [null, '-120 minutes'],
+            'store_allow_repo'      => [null, true],
+            'store_update_noauto'   => [null, false],
+            'template_default'      => [null, 'Mustek'],
+            'theme_dir'             => [null, root_path('Theme')],
+            'theme_official'        => [false, 'Berlin,BlueSilence,Blowup,CustomCSS,Ductile'],
+            'theme_update_url'      => [null, 'https://update.dotaddict.org/dc2/themes.xml'],
+            'var_dir'               => [null, root_path('..', 'var')],
+            'vendor_name'           => [null, 'Dotclear'],
+            'xmlrpc_url'            => [null, '%1$sxmlrpc/%2$s'],
+        ];
     }
 }
