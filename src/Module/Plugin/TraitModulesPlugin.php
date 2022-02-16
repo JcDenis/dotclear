@@ -27,8 +27,8 @@ trait TraitModulesPlugin
 
         # If a plugin directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
-            dotclear()->blog()->settings->addNamespace('system');
-            $path = trim((string) dotclear()->blog()->settings->system->module_plugin_dir);
+            dotclear()->blog()->settings()->addNamespace('system');
+            $path = trim((string) dotclear()->blog()->settings()->system->module_plugin_dir);
             if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : root_path($path), true))) {
                 $paths[] = $dir;
             }
@@ -39,7 +39,7 @@ trait TraitModulesPlugin
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings->system->store_plugin_url;
+        return (string) dotclear()->blog()->settings()->system->store_plugin_url;
     }
 
     public function useStoreCache(): bool

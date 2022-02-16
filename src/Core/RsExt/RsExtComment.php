@@ -44,7 +44,7 @@ class RsExtComment
     public static function getDate($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings->system->date_format;
+            $format = dotclear()->blog()->settings()->system->date_format;
         }
 
         if ($type == 'upddt') {
@@ -67,7 +67,7 @@ class RsExtComment
     public static function getTime($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings->system->time_format;
+            $format = dotclear()->blog()->settings()->system->time_format;
         }
 
         if ($type == 'upddt') {
@@ -141,7 +141,7 @@ class RsExtComment
     {
         $res = $rs->comment_content;
 
-        if (dotclear()->blog()->settings->system->comments_nofollow) {
+        if (dotclear()->blog()->settings()->system->comments_nofollow) {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'noFollowURL'], $res);
         } else {
             $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'UgcURL'], $res);
@@ -216,7 +216,7 @@ class RsExtComment
         }
 
         $rel = 'ugc';
-        if (dotclear()->blog()->settings->system->comments_nofollow) {
+        if (dotclear()->blog()->settings()->system->comments_nofollow) {
             $rel .= ' nofollow';
         }
 

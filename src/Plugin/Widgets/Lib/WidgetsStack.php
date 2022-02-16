@@ -44,7 +44,7 @@ class WidgetsStack
     //@{
     public function search($w)
     {
-        if (dotclear()->blog()->settings->system->no_search) {
+        if (dotclear()->blog()->settings()->system->no_search) {
             return;
         }
 
@@ -85,14 +85,14 @@ class WidgetsStack
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
             '<a href="' . dotclear()->blog()->url . '">' . __('Home') . '</a></li>';
-            if (dotclear()->blog()->settings->system->static_home) {
+            if (dotclear()->blog()->settings()->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
                 '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
-            if (dotclear()->blog()->settings->system->static_home) {
+            if (dotclear()->blog()->settings()->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
                 '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
@@ -267,7 +267,7 @@ class WidgetsStack
         'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
-        if (dotclear()->blog()->settings->system->allow_comments || dotclear()->blog()->settings->system->allow_trackbacks) {
+        if (dotclear()->blog()->settings()->system->allow_comments || dotclear()->blog()->settings()->system->allow_trackbacks) {
             $res .= '<li><a type="' . $mime . '" ' .
             'href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
@@ -589,8 +589,8 @@ class WidgetsStack
     public function widgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog()->settings->addNameSpace('widgets');
-        $widgets = dotclear()->blog()->settings->widgets->{$wtype};
+        dotclear()->blog()->settings()->addNamespace('widgets');
+        $widgets = dotclear()->blog()->settings()->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
@@ -641,8 +641,8 @@ class WidgetsStack
     public function ifWidgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog()->settings->addNameSpace('widgets');
-        $widgets = dotclear()->blog()->settings->widgets->{$wtype};
+        dotclear()->blog()->settings()->addNamespace('widgets');
+        $widgets = dotclear()->blog()->settings()->widgets->{$wtype};
 
         if (!$widgets) {
             // If widgets value is empty, get defaults

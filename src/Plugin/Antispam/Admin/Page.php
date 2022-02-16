@@ -64,7 +64,7 @@ class Page extends AbstractPage
 
             # Remove all spam
             if (!empty($_POST['delete_all'])) {
-                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings->system->blog_timezone);
+                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->system->blog_timezone);
 
                 Antispam::delAllSpam(dotclear(), $ts);
 
@@ -170,7 +170,7 @@ class Page extends AbstractPage
         # Information
         $spam_count      = Antispam::countSpam();
         $published_count = Antispam::countPublishedComments();
-        $moderationTTL   = dotclear()->blog()->settings->antispam->antispam_moderation_ttl;
+        $moderationTTL   = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
 
         echo
         '<form action="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" method="post" class="fieldset">' .

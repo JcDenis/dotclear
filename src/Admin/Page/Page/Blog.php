@@ -15,7 +15,7 @@ namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Admin\Page\Page\BlogPref;
-use Dotclear\Core\Settings;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

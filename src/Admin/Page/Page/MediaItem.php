@@ -204,16 +204,16 @@ class MediaItem extends Page
                 if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
                     $s = 'o';
                 }
-                dotclear()->blog()->settings->system->put('media_img_default_size', $s);
+                dotclear()->blog()->settings()->system->put('media_img_default_size', $s);
             }
             if (!empty($_POST['pref_alignment'])) {
-                dotclear()->blog()->settings->system->put('media_img_default_alignment', $_POST['pref_alignment']);
+                dotclear()->blog()->settings()->system->put('media_img_default_alignment', $_POST['pref_alignment']);
             }
             if (!empty($_POST['pref_insertion'])) {
-                dotclear()->blog()->settings->system->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
+                dotclear()->blog()->settings()->system->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
             }
             if (!empty($_POST['pref_legend'])) {
-                dotclear()->blog()->settings->system->put('media_img_default_legend', $_POST['pref_legend']);
+                dotclear()->blog()->settings()->system->put('media_img_default_legend', $_POST['pref_legend']);
             }
 
             dotclear()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
@@ -327,9 +327,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    dotclear()->blog()->settings->system->media_img_title_pattern,
-                    dotclear()->blog()->settings->system->media_img_use_dto_first,
-                    dotclear()->blog()->settings->system->media_img_no_date_alone
+                    dotclear()->blog()->settings()->system->media_img_title_pattern,
+                    dotclear()->blog()->settings()->system->media_img_use_dto_first,
+                    dotclear()->blog()->settings()->system->media_img_no_date_alone
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -391,9 +391,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    dotclear()->blog()->settings->system->media_img_title_pattern,
-                    dotclear()->blog()->settings->system->media_img_use_dto_first,
-                    dotclear()->blog()->settings->system->media_img_no_date_alone
+                    dotclear()->blog()->settings()->system->media_img_title_pattern,
+                    dotclear()->blog()->settings()->system->media_img_use_dto_first,
+                    dotclear()->blog()->settings()->system->media_img_no_date_alone
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -507,9 +507,9 @@ class MediaItem extends Page
                 '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
-                Form::number('video_w', 0, 9999, dotclear()->blog()->settings->system->media_video_width) . '  ' .
+                Form::number('video_w', 0, 9999, dotclear()->blog()->settings()->system->media_video_width) . '  ' .
                 '<label for="video_h" class="classic">' . __('Height:') . '</label> ' .
-                Form::number('video_h', 0, 9999, dotclear()->blog()->settings->system->media_video_height) .
+                Form::number('video_h', 0, 9999, dotclear()->blog()->settings()->system->media_video_height) .
                     '</p>' .
                     '</div>';
 
@@ -697,10 +697,10 @@ class MediaItem extends Page
 
             if ($this->file->media_image) {
                 # We look for thumbnails too
-                if (preg_match('#^http(s)?://#', dotclear()->blog()->settings->system->public_url)) {
-                    $media_root = dotclear()->blog()->settings->system->public_url;
+                if (preg_match('#^http(s)?://#', dotclear()->blog()->settings()->system->public_url)) {
+                    $media_root = dotclear()->blog()->settings()->system->public_url;
                 } else {
-                    $media_root = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings->system->public_url) . '/';
+                    $media_root = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url) . '/';
                 }
                 foreach ($this->file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
@@ -943,10 +943,10 @@ class MediaItem extends Page
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => (string) dotclear()->blog()->settings->system->media_img_default_size ?: 'm',
-            'alignment' => (string) dotclear()->blog()->settings->system->media_img_default_alignment ?: 'none',
-            'link'      => (bool) dotclear()->blog()->settings->system->media_img_default_link,
-            'legend'    => (string) dotclear()->blog()->settings->system->media_img_default_legend ?: 'legend',
+            'size'      => (string) dotclear()->blog()->settings()->system->media_img_default_size ?: 'm',
+            'alignment' => (string) dotclear()->blog()->settings()->system->media_img_default_alignment ?: 'none',
+            'link'      => (bool) dotclear()->blog()->settings()->system->media_img_default_link,
+            'legend'    => (string) dotclear()->blog()->settings()->system->media_img_default_legend ?: 'legend',
             'mediadef'  => false,
         ];
 

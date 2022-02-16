@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Settings
- * @brief Dotclear core settings class
+ * @class Dotclear\Core\Blog\Settings\Settings
+ * @brief Dotclear core blog settings class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,14 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Core\Blog\Settings;
 
-use Dotclear\Exception\CoreException;
-
-use Dotclear\Core\Settingspace;
-
+use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
+use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

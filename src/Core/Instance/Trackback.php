@@ -420,7 +420,7 @@ class Trackback
             $this->addBacklink($post_id, $from_url, '', $title, $excerpt, $comment);
 
             # All done, thanks
-            $code = dotclear()->blog()->settings->system->trackbacks_pub ? 200 : 202;
+            $code = dotclear()->blog()->settings()->system->trackbacks_pub ? 200 : 202;
             Http::head($code);
 
             return;
@@ -483,7 +483,7 @@ class Trackback
         $cur->comment_content   = (string) $comment;
         $cur->post_id           = $post_id;
         $cur->comment_trackback = 1;
-        $cur->comment_status    = dotclear()->blog()->settings->system->trackbacks_pub ? 1 : -1;
+        $cur->comment_status    = dotclear()->blog()->settings()->system->trackbacks_pub ? 1 : -1;
         $cur->comment_ip        = Http::realIP();
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate

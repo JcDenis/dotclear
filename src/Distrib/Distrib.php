@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Distrib;
 
-use Dotclear\Core\Settings;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\Connection;
 use Dotclear\Database\Structure;
 use Dotclear\File\Files;

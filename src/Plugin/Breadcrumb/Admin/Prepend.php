@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Breadcrumb\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Core\Settings;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -35,7 +35,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminBlogPreferencesForm(Settings $settings): void
     {
-        $settings->addNameSpace('breadcrumb');
+        $settings->addNamespace('breadcrumb');
         echo
         '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
         '<p><label class="classic">' .
@@ -49,7 +49,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
-        $settings->addNameSpace('breadcrumb');
+        $settings->addNamespace('breadcrumb');
         $settings->breadcrumb->put('breadcrumb_enabled', !empty($_POST['breadcrumb_enabled']), 'boolean');
         $settings->breadcrumb->put('breadcrumb_alone', !empty($_POST['breadcrumb_alone']), 'boolean');
     }

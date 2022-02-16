@@ -225,9 +225,9 @@ class Comments
             $cur->comment_id    = (int) $rs->f(0) + 1;
             $cur->comment_upddt = date('Y-m-d H:i:s');
 
-            $offset          = Dt::getTimeOffset(dotclear()->blog()->settings->system->blog_timezone);
+            $offset          = Dt::getTimeOffset(dotclear()->blog()->settings()->system->blog_timezone);
             $cur->comment_dt = date('Y-m-d H:i:s', time() + $offset);
-            $cur->comment_tz = dotclear()->blog()->settings->system->blog_timezone;
+            $cur->comment_tz = dotclear()->blog()->settings()->system->blog_timezone;
 
             $this->getCommentCursor($cur);
 
@@ -465,7 +465,7 @@ class Comments
         }
 
         if ($cur->comment_status === null) {
-            $cur->comment_status = (int) dotclear()->blog()->settings->system->comments_pub;
+            $cur->comment_status = (int) dotclear()->blog()->settings()->system->comments_pub;
         }
 
         # Words list

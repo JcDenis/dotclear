@@ -15,7 +15,6 @@ namespace Dotclear\Core\Instance;
 
 use ArrayObject;
 
-use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
 use Dotclear\File\Path;
 use Dotclear\Network\Http;
@@ -30,9 +29,7 @@ class Blog
     use \Dotclear\Core\Instance\TraitComments;
     use \Dotclear\Core\Instance\TraitCategories;
     use \Dotclear\Core\Instance\TraitPosts;
-
-    /** @var Settings   Settings instance */
-    public $settings;
+    use \Dotclear\Core\Blog\Settings\TraitSettings;
 
     /** @var string     Blog ID */
     public $id;
@@ -91,9 +88,9 @@ class Blog
             $this->upddt  = (int) strtotime($b->blog_upddt);
             $this->status = (int) $b->blog_status;
 
-            $this->settings = new Settings($this->id);
+            $this->settings($this->id);
 
-            $this->public_path = Path::fullFromRoot($this->settings->system->public_path, dotclear()->config()->base_dir);
+            $this->public_path = Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir);
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
@@ -133,12 +130,12 @@ class Blog
      */
     public function getJsJQuery(): string
     {
-        $version = $this->settings->system->jquery_version;
+        $version = $this->settings()->system->jquery_version;
         if ($version == '') {
             // Version not set, use default one
             $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
         } else {
-            if (!$this->settings->system->jquery_allow_old_version) {
+            if (!$this->settings()->system->jquery_allow_old_version) {
                 // Use the blog defined version only if more recent than default
                 if (version_compare($version, dotclear()->config()->jquery_default, '<')) {
                     $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
@@ -204,9 +201,9 @@ class Blog
     public function getUpdateDate(string $format = ''): string
     {
         if ($format == 'rfc822') {
-            return Dt::rfc822($this->upddt, $this->settings->system->blog_timezone);
+            return Dt::rfc822($this->upddt, $this->settings()->system->blog_timezone);
         } elseif ($format == 'iso8601') {
-            return Dt::iso8601($this->upddt, $this->settings->system->blog_timezone);
+            return Dt::iso8601($this->upddt, $this->settings()->system->blog_timezone);
         } elseif (!$format) {
             return Dt::str($format, $this->upddt);
         }

@@ -87,7 +87,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            $current = dotclear()->blog()->settings->system->theme == $id && $this->hasModule($id);
+            $current = dotclear()->blog()->settings()->system->theme == $id && $this->hasModule($id);
             $distrib = $this->isDistributedModule($id) ? ' dc-box' : '';
             $line    = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
 
@@ -277,8 +277,8 @@ class ModulesTheme extends AbstractModules
     {
         $submits = [];
 
-        dotclear()->blog()->settings->addNamespace('system');
-        if ($id != dotclear()->blog()->settings->system->theme) {
+        dotclear()->blog()->settings()->addNamespace('system');
+        if ($id != dotclear()->blog()->settings()->system->theme) {
 
             # Select theme to use on curent blog
             if (in_array('select', $actions)) {
@@ -427,8 +427,8 @@ class ModulesTheme extends AbstractModules
                     throw new ModuleException(__('No such theme.'));
                 }
 
-                dotclear()->blog()->settings->addNamespace('system');
-                dotclear()->blog()->settings->system->put('theme', $id);
+                dotclear()->blog()->settings()->addNamespace('system');
+                dotclear()->blog()->settings()->system->put('theme', $id);
                 dotclear()->blog()->triggerBlog();
 
                 $module = $this->getModule($id);

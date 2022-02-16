@@ -55,11 +55,11 @@ class FilterAkismet extends Spamfilter
 
     private function akInit()
     {
-        if (!dotclear()->blog()->settings->akismet->ak_key) {
+        if (!dotclear()->blog()->settings()->akismet->ak_key) {
             return false;
         }
 
-        return new Akismet($blog->url, dotclear()->blog()->settings->akismet->ak_key);
+        return new Akismet($blog->url, dotclear()->blog()->settings()->akismet->ak_key);
     }
 
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
@@ -116,15 +116,15 @@ class FilterAkismet extends Spamfilter
 
     public function gui(string $url): string
     {
-        dotclear()->blog()->settings->addNamespace('akismet');
-        $ak_key      = dotclear()->blog()->settings->akismet->ak_key;
+        dotclear()->blog()->settings()->addNamespace('akismet');
+        $ak_key      = dotclear()->blog()->settings()->akismet->ak_key;
         $ak_verified = null;
 
         if (isset($_POST['ak_key'])) {
             try {
                 $ak_key = $_POST['ak_key'];
 
-                dotclear()->blog()->settings->akismet->put('ak_key', $ak_key, 'string');
+                dotclear()->blog()->settings()->akismet->put('ak_key', $ak_key, 'string');
 
                 dotclear()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
@@ -133,9 +133,9 @@ class FilterAkismet extends Spamfilter
             }
         }
 
-        if (dotclear()->blog()->settings->akismet->ak_key) {
+        if (dotclear()->blog()->settings()->akismet->ak_key) {
             try {
-                $ak          = new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings->akismet->ak_key);
+                $ak          = new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings()->akismet->ak_key);
                 $ak_verified = $ak->verify();
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());

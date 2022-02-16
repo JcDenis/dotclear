@@ -82,8 +82,8 @@ class Post extends Page
         $this->post_editor        = dotclear()->auth()->getOption('editor');
         $this->post_lang          = dotclear()->auth()->getInfo('user_lang');
         $this->post_status        = dotclear()->auth()->getInfo('user_post_status');
-        $this->post_open_comment  = dotclear()->blog()->settings->system->allow_comments;
-        $this->post_open_tb       = dotclear()->blog()->settings->system->allow_trackbacks;
+        $this->post_open_comment  = dotclear()->blog()->settings()->system->allow_comments;
+        $this->post_open_tb       = dotclear()->blog()->settings()->system->allow_trackbacks;
 
         $this->can_view_ip   = dotclear()->auth()->check('contentadmin', dotclear()->blog()->id);
         $this->can_edit_post = dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id);
@@ -605,7 +605,7 @@ class Post extends Page
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (dotclear()->blog()->settings->system->allow_comments ?
+                        (dotclear()->blog()->settings()->system->allow_comments ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -615,7 +615,7 @@ class Post extends Page
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (dotclear()->blog()->settings->system->allow_trackbacks ?
+                        (dotclear()->blog()->settings()->system->allow_trackbacks ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -947,11 +947,11 @@ class Post extends Page
             return true;
         }
         if ($com) {
-            if ((dotclear()->blog()->settings->system->comments_ttl == 0) || (time() - dotclear()->blog()->settings->system->comments_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings()->system->comments_ttl == 0) || (time() - dotclear()->blog()->settings()->system->comments_ttl * 86400 < $dt)) {
                 return true;
             }
         } else {
-            if ((dotclear()->blog()->settings->system->trackbacks_ttl == 0) || (time() - dotclear()->blog()->settings->system->trackbacks_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings()->system->trackbacks_ttl == 0) || (time() - dotclear()->blog()->settings()->system->trackbacks_ttl * 86400 < $dt)) {
                 return true;
             }
         }

@@ -82,10 +82,10 @@ class Media extends Manager
         $this->table = dotclear()->prefix . 'media';
         $root        = dotclear()->blog()->public_path;
 
-        if (preg_match('#^http(s)?://#', dotclear()->blog()->settings->system->public_url)) {
-            $root_url = rawurldecode(dotclear()->blog()->settings->system->public_url);
+        if (preg_match('#^http(s)?://#', dotclear()->blog()->settings()->system->public_url)) {
+            $root_url = rawurldecode(dotclear()->blog()->settings()->system->public_url);
         } else {
-            $root_url = rawurldecode(dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings->system->public_url));
+            $root_url = rawurldecode(dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url));
         }
 
         if (!is_dir($root)) {
@@ -103,12 +103,12 @@ class Media extends Manager
 
         $this->chdir('');
 
-        $this->path = dotclear()->blog()->settings->system->public_path;
+        $this->path = dotclear()->blog()->settings()->system->public_path;
 //!
         $this->addExclusion(DOTCLEAR_ROOT_DIR);
         $this->addExclusion(__DIR__ . '/../');
 
-        $this->exclude_pattern = dotclear()->blog()->settings->system->media_exclusion;
+        $this->exclude_pattern = dotclear()->blog()->settings()->system->media_exclusion;
 
         # Event handlers
         $this->addFileHandler('image/jpeg', 'create', [$this, 'imageThumbCreate']);
@@ -135,9 +135,9 @@ class Media extends Manager
         $this->addFileHandler('image/webp', 'recreate', [$this, 'imageThumbCreate']);
 
         # Thumbnails sizes
-        $this->thumb_sizes['m'][0] = abs(dotclear()->blog()->settings->system->media_img_m_size);
-        $this->thumb_sizes['s'][0] = abs(dotclear()->blog()->settings->system->media_img_s_size);
-        $this->thumb_sizes['t'][0] = abs(dotclear()->blog()->settings->system->media_img_t_size);
+        $this->thumb_sizes['m'][0] = abs(dotclear()->blog()->settings()->system->media_img_m_size);
+        $this->thumb_sizes['s'][0] = abs(dotclear()->blog()->settings()->system->media_img_s_size);
+        $this->thumb_sizes['t'][0] = abs(dotclear()->blog()->settings()->system->media_img_t_size);
 
         # Thumbnails sizes names
         $this->thumb_sizes['m'][2]  = __($this->thumb_sizes['m'][2]);

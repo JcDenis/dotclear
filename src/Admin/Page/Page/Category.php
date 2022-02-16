@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
-use Dotclear\Core\Settings;
 use Dotclear\Html\Form;
 use Dotclear\Html\FormSelectOption;
 use Dotclear\Html\Html;
@@ -212,16 +211,13 @@ class Category extends Page
             dotclear()->notice()->success(__('Category has been successfully updated.'));
         }
 
-        $blog_settings = new Settings(dotclear()->blog()->id);
-        $blog_lang     = $blog_settings->system->lang;
-
         echo
         '<form action="' . dotclear()->adminurl()->get('admin.category') . '" method="post" id="category-form">' .
         '<h3>' . __('Category information') . '</h3>' .
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . $blog_lang . '" spellcheck="true"'
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog->settings()->system->lang. '" spellcheck="true"'
         ]) .
             '</p>';
         if (!$this->cat_id) {

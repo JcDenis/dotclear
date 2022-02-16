@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->blog()->settings->addNamespace('akismet');
+        dotclear()->blog()->settings()->addNamespace('akismet');
 
         dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
             $spamfilters[] = 'Dotclear\\Plugin\\Akismet\\Lib\\FilterAskimet';

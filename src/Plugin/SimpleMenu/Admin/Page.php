@@ -113,7 +113,7 @@ class Page extends AbstractPage
         $this->sm_items         = new ArrayObject();
         $this->sm_items['home'] = new ArrayObject([__('Home'), false]);
 
-        if (dotclear()->blog()->settings->system->static_home) {
+        if (dotclear()->blog()->settings()->system->static_home) {
             $this->sm_items['posts'] = new ArrayObject([__('Posts'), false]);
         }
 
@@ -144,7 +144,7 @@ class Page extends AbstractPage
         $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
 
         # Lecture menu existant
-        $menu = dotclear()->blog()->settings->system->get('simpleMenu');
+        $menu = dotclear()->blog()->settings()->system->get('simpleMenu');
         if (is_array($menu)) {
             $this->sm_menu = $menu;
         }
@@ -155,7 +155,7 @@ class Page extends AbstractPage
         if (!empty($_POST['saveconfig'])) {
             try {
                 $menu_active = (empty($_POST['active'])) ? false : true;
-                dotclear()->blog()->settings->system->put('simpleMenu_active', $menu_active, 'boolean');
+                dotclear()->blog()->settings()->system->put('simpleMenu_active', $menu_active, 'boolean');
                 dotclear()->blog()->triggerBlog();
 
                 // All done successfully, return to menu items list
@@ -205,7 +205,7 @@ class Page extends AbstractPage
                         switch ($this->sm_item_type) {
                             case 'home':
                                 $this->sm_item_label = __('Home');
-                                $this->sm_item_descr = dotclear()->blog()->settings->system->static_home ? __('Home page') : __('Recent posts');
+                                $this->sm_item_descr = dotclear()->blog()->settings()->system->static_home ? __('Home page') : __('Recent posts');
 
                                 break;
                             case 'posts':
@@ -287,7 +287,7 @@ class Page extends AbstractPage
                                 ];
 
                                 // Save menu in blog settings
-                                dotclear()->blog()->settings->system->put('simpleMenu', $this->sm_menu);
+                                dotclear()->blog()->settings()->system->put('simpleMenu', $this->sm_menu);
                                 dotclear()->blog()->triggerBlog();
 
                                 // All done successfully, return to menu items list
@@ -326,7 +326,7 @@ class Page extends AbstractPage
                             }
                             $this->sm_menu = $newmenu;
                             // Save menu in blog settings
-                            dotclear()->blog()->settings->system->put('simpleMenu', $this->sm_menu);
+                            dotclear()->blog()->settings()->system->put('simpleMenu', $this->sm_menu);
                             dotclear()->blog()->triggerBlog();
 
                             // All done successfully, return to menu items list
@@ -392,7 +392,7 @@ class Page extends AbstractPage
                         }
 
                         // Save menu in blog settings
-                        dotclear()->blog()->settings->system->put('simpleMenu', $this->sm_menu);
+                        dotclear()->blog()->settings()->system->put('simpleMenu', $this->sm_menu);
                         dotclear()->blog()->triggerBlog();
 
                         // All done successfully, return to menu items list
@@ -561,7 +561,7 @@ class Page extends AbstractPage
         // Formulaire d'activation
         if (!$this->sm_step) {
             echo '<form id="settings" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '" method="post">' .
-            '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog()->settings->system->simpleMenu_active) .
+            '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog()->settings()->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
             '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .

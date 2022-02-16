@@ -210,15 +210,15 @@ class Prepend extends Core
             $this->summary()->setup();
 
             # Set jquery stuff
-            if (empty($this->blog()->settings->system->jquery_migrate_mute)) {
-                $this->blog()->settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+            if (empty($this->blog()->settings()->system->jquery_migrate_mute)) {
+                $this->blog()->settings()->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
             }
-            if (empty($this->blog()->settings->system->jquery_allow_old_version)) {
-                $this->blog()->settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+            if (empty($this->blog()->settings()->system->jquery_allow_old_version)) {
+                $this->blog()->settings()->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
             }
 
             # Ensure theme's settings namespace exists
-            $this->blog()->settings->addNamespace('themes');
+            $this->blog()->settings()->addNamespace('themes');
 
         # No user session and not on auth page, go on
         } elseif ($this->adminurl()->called() != 'admin.auth') {

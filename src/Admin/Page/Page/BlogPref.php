@@ -15,8 +15,8 @@ namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Container\User as ContainerUser;
-use Dotclear\Core\Settings;
 use Dotclear\Core\Utils;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -60,7 +60,7 @@ class BlogPref extends Page
             $this->blog_status   = dotclear()->blog()->status;
             $this->blog_name     = dotclear()->blog()->name;
             $this->blog_desc     = dotclear()->blog()->desc;
-            $this->blog_settings = dotclear()->blog()->settings;
+            $this->blog_settings = dotclear()->blog()->settings();
             $this->blog_url      = dotclear()->blog()->url;
 
             $this->action = dotclear()->adminurl()->get('admin.blog.pref');
@@ -189,7 +189,7 @@ class BlogPref extends Page
                     $this->blog_id = $cur->blog_id;
                 }
 
-                $this->blog_settings->addNameSpace('system');
+                $this->blog_settings->addNamespace('system');
 
                 $this->blog_settings->system->put('editor', $_POST['editor']);
                 $this->blog_settings->system->put('copyright_notice', $_POST['copyright_notice']);

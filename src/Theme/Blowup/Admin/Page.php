@@ -125,7 +125,7 @@ class Page extends AbstractPage
             dotclear()->error()->reset();
         }
 
-        $Blowup_style = (string) dotclear()->blog()->settings->themes->Blowup_style;
+        $Blowup_style = (string) dotclear()->blog()->settings()->themes->Blowup_style;
         $Blowup_user = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
@@ -215,8 +215,8 @@ class Page extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dotclear()->blog()->settings->addNamespace('themes');
-                dotclear()->blog()->settings->themes->put('Blowup_style', serialize($this->Blowup_user));
+                dotclear()->blog()->settings()->addNamespace('themes');
+                dotclear()->blog()->settings()->themes->put('Blowup_style', serialize($this->Blowup_user));
                 dotclear()->blog()->triggerBlog();
 
                 dotclear()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));

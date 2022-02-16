@@ -1116,7 +1116,7 @@ class Posts
         if ($format == 'wiki') {
             dotclear()->initWikiPost();
             dotclear()->wiki2xhtml()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
-            switch (dotclear()->blog()->settings->system->note_title_tag) {
+            switch (dotclear()->blog()->settings()->system->note_title_tag) {
                 case 1:
                     $tag = 'h3';
 
@@ -1191,7 +1191,7 @@ class Posts
             $url = str_replace(
                 array_keys($url_patterns),
                 array_values($url_patterns),
-                dotclear()->blog()->settings->system->post_url_format
+                dotclear()->blog()->settings()->system->post_url_format
             );
         } else {
             $url = Text::tidyURL($url);

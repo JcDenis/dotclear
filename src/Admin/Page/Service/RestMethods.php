@@ -174,10 +174,10 @@ class RestMethods
 
         if ($post['store'] == 'themes') {
             $mod = dotclear()->themes;
-            $url = dotclear()->blog()->settings->system->store_theme_url;
+            $url = dotclear()->blog()->settings()->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {
             $mod = dotclear()->plugins;
-            $url = dotclear()->blog()->settings->system->store_plugin_url;
+            $url = dotclear()->blog()->settings()->system->store_plugin_url;
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
@@ -334,8 +334,8 @@ class RestMethods
         $cur->post_format       = !empty($post['post_format']) ? $post['post_format'] : 'xhtml';
         $cur->post_lang         = !empty($post['post_lang']) ? $post['post_lang'] : '';
         $cur->post_status       = !empty($post['post_status']) ? (int) $post['post_status'] : 0;
-        $cur->post_open_comment = (int) dotclear()->blog()->settings->system->allow_comments;
-        $cur->post_open_tb      = (int) dotclear()->blog()->settings->system->allow_trackbacks;
+        $cur->post_open_comment = (int) dotclear()->blog()->settings()->system->allow_comments;
+        $cur->post_open_tb      = (int) dotclear()->blog()->settings()->system->allow_trackbacks;
 
         # --BEHAVIOR-- adminBeforePostCreate
         dotclear()->behavior()->call('adminBeforePostCreate', $cur);
@@ -699,7 +699,7 @@ class RestMethods
         } elseif ($list == 'plugin-new') {
             $store = new Repository(
                 dotclear()->plugins,
-                dotclear()->blog()->settings->system->store_plugin_url
+                dotclear()->blog()->settings()->system->store_plugin_url
             );
             $store->check();
 

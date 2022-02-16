@@ -376,7 +376,7 @@ class Context
         # Check first blog public path
         $file = dotclear()->blog()->public_path . '/smilies/smilies.txt';
         if (file_exists($file)) {
-            $base_url = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings->system->public_url) . '/smilies/';
+            $base_url = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url) . '/smilies/';
             $this->smilies = $this->smiliesDefinition($file, $base_url);
 
             return true;
@@ -493,7 +493,7 @@ class Context
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = dotclear()->blog()->settings->system->public_url;
+            $p_url  = dotclear()->blog()->settings()->system->public_url;
             $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog()->url);
             $p_root = dotclear()->blog()->public_path;
 

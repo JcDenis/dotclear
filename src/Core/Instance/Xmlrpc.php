@@ -312,7 +312,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Blog does not exist.');
         }
 
-        if (!$bypass && (!dotclear()->blog()->settings->system->enable_xmlrpc || !dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id))) {
+        if (!$bypass && (!dotclear()->blog()->settings()->system->enable_xmlrpc || !dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id))) {
             dotclear()->blog() = null;
 
             throw new CoreException('Not enough permissions on this blog.');
@@ -435,7 +435,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
                 $cur->post_position = (integer) $struct['wp_page_order'];
             }
 
-            dotclear()->blog()->settings->system->post_url_format = '{t}';
+            dotclear()->blog()->settings()->system->post_url_format = '{t}';
 
             $post_id = dotclear()->blog()->posts()->addPost($cur);
         } else {
@@ -531,7 +531,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
                 $cur->post_position = (integer) $struct['wp_page_order'];
             }
 
-            dotclear()->blog()->settings->system->post_url_format = '{t}';
+            dotclear()->blog()->settings()->system->post_url_format = '{t}';
 
             dotclear()->blog()->posts()->updPost($post_id, $cur);
         } else {
@@ -861,8 +861,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
     private function translateWpOptions($options = [])
     {
         $timezone = 0;
-        if (dotclear()->blog()->settings->system->blog_timezone) {
-            $timezone = Dt::getTimeOffset(dotclear()->blog()->settings->system->blog_timezone) / 3600;
+        if (dotclear()->blog()->settings()->system->blog_timezone) {
+            $timezone = Dt::getTimeOffset(dotclear()->blog()->settings()->system->blog_timezone) / 3600;
         }
 
         $res = [
@@ -899,12 +899,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
             'date_format' => [
                 'desc'     => 'Date Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings->system->date_format
+                'value'    => dotclear()->blog()->settings()->system->date_format
             ],
             'time_format' => [
                 'desc'     => 'Time Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings->system->time_format
+                'value'    => dotclear()->blog()->settings()->system->time_format
             ]
         ];
 
@@ -1559,7 +1559,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $blog_changes = false;
         $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
 
-        dotclear()->blog()->settings->addNamespace('system');
+        dotclear()->blog()->settings()->addNamespace('system');
 
         foreach ($options as $name => $value) {
             if (!isset($opt[$name]) || $opt[$name]['readonly']) {
@@ -1580,12 +1580,12 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
                     break;
                 case 'date_format':
-                    dotclear()->blog()->settings->system->put('date_format', $value);
+                    dotclear()->blog()->settings()->system->put('date_format', $value);
                     $done[] = $name;
 
                     break;
                 case 'time_format':
-                    dotclear()->blog()->settings->system->put('time_format', $value);
+                    dotclear()->blog()->settings()->system->put('time_format', $value);
                     $done[] = $name;
 
                     break;

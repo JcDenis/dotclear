@@ -134,9 +134,9 @@ class RsExtPost
     public static function commentsActive($rs)
     {
         return
-        dotclear()->blog()->settings->system->allow_comments
+        dotclear()->blog()->settings()->system->allow_comments
             && $rs->post_open_comment
-            && (dotclear()->blog()->settings->system->comments_ttl == 0 || time() - (dotclear()->blog()->settings->system->comments_ttl * 86400) < $rs->getTS());
+            && (dotclear()->blog()->settings()->system->comments_ttl == 0 || time() - (dotclear()->blog()->settings()->system->comments_ttl * 86400) < $rs->getTS());
     }
 
     /**
@@ -149,9 +149,9 @@ class RsExtPost
     public static function trackbacksActive($rs)
     {
         return
-        dotclear()->blog()->settings->system->allow_trackbacks
+        dotclear()->blog()->settings()->system->allow_trackbacks
             && $rs->post_open_tb
-            && (dotclear()->blog()->settings->system->trackbacks_ttl == 0 || time() - (dotclear()->blog()->settings->system->trackbacks_ttl * 86400) < $rs->getTS());
+            && (dotclear()->blog()->settings()->system->trackbacks_ttl == 0 || time() - (dotclear()->blog()->settings()->system->trackbacks_ttl * 86400) < $rs->getTS());
     }
 
     /**
@@ -295,7 +295,7 @@ class RsExtPost
     public static function getDate($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings->system->date_format;
+            $format = dotclear()->blog()->settings()->system->date_format;
         }
 
         if ($type == 'upddt') {
@@ -320,7 +320,7 @@ class RsExtPost
     public static function getTime($rs, $format, $type = '')
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings->system->time_format;
+            $format = dotclear()->blog()->settings()->system->time_format;
         }
 
         if ($type == 'upddt') {

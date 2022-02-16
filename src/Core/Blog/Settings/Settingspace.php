@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Settingspace
+ * @class Dotclear\Core\Blog\Settings\Settingspace
  * @brief Dotclear core nspace (namespace) class
  *
  * @package Dotclear
@@ -11,12 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
-
-use Dotclear\Exception\CoreException;
+namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
+use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

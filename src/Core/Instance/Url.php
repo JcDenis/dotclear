@@ -52,7 +52,7 @@ class Url
 
     protected function getHomeType()
     {
-        return dotclear()->blog()->settings->system->static_home ? 'static' : 'default';
+        return dotclear()->blog()->settings()->system->static_home ? 'static' : 'default';
     }
 
     public function isHome($type)
@@ -135,7 +135,7 @@ class Url
     protected function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
     {
         if (dotclear()->context()->nb_entry_per_page === null) {
-            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings->system->nb_post_per_page;
+            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_page;
         }
         if (dotclear()->context()->nb_entry_first_page === null) {
             dotclear()->context()->nb_entry_first_page = dotclear()->context()->nb_entry_per_page;
@@ -163,7 +163,7 @@ class Url
 
         // Additional headers
         $headers = new ArrayObject();
-        if (dotclear()->blog()->settings->system->prevents_clickjacking) {
+        if (dotclear()->blog()->settings()->system->prevents_clickjacking) {
             if (dotclear()->context()->exists('xframeoption')) {
                 $url    = parse_url(dotclear()->context()->xframeoption);
                 $header = sprintf(
@@ -176,7 +176,7 @@ class Url
             }
             $headers->append($header);
         }
-        if (dotclear()->blog()->settings->system->prevents_floc) {
+        if (dotclear()->blog()->settings()->system->prevents_floc) {
             $headers->append('Permissions-Policy: interest-cohort=()');
         }
 
@@ -399,8 +399,8 @@ class Url
             }
 
             if (empty($_GET['q'])) {
-                if (dotclear()->blog()->settings->system->nb_post_for_home !== null) {
-                    dotclear()->context()->nb_entry_first_page = dotclear()->blog()->settings->system->nb_post_for_home;
+                if (dotclear()->blog()->settings()->system->nb_post_for_home !== null) {
+                    dotclear()->context()->nb_entry_first_page = dotclear()->blog()->settings()->system->nb_post_for_home;
                 }
                 $this->serveDocument('home.html');
                 dotclear()->blog()->posts()->publishScheduledEntries();
@@ -424,7 +424,7 @@ class Url
 
     public function search()
     {
-        if (dotclear()->blog()->settings->system->no_search) {
+        if (dotclear()->blog()->settings()->system->no_search) {
 
             # Search is disabled for this blog.
             $this->p404();
@@ -606,7 +606,7 @@ class Url
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
-                            if (dotclear()->blog()->settings->system->wiki_comments) {
+                            if (dotclear()->blog()->settings()->system->wiki_comments) {
                                 dotclear()->initWikiComment();
                             } else {
                                 dotclear()->initWikiSimpleComment();
@@ -635,11 +635,11 @@ class Url
                         $cur->comment_email   = Html::clean($mail);
                         $cur->comment_content = $content;
                         $cur->post_id         = dotclear()->context()->posts->post_id;
-                        $cur->comment_status  = dotclear()->blog()->settings->system->comments_pub ? 1 : -1;
+                        $cur->comment_status  = dotclear()->blog()->settings()->system->comments_pub ? 1 : -1;
                         $cur->comment_ip      = Http::realIP();
 
                         $redir = dotclear()->context()->posts->getURL();
-                        $redir .= dotclear()->blog()->settings->system->url_scan == 'query_string' ? '&' : '?';
+                        $redir .= dotclear()->blog()->settings()->system->url_scan == 'query_string' ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->comment_email)) {
@@ -794,10 +794,10 @@ class Url
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings->system->nb_comment_per_feed;
+            dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->system->nb_comment_per_feed;
         } else {
-            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings->system->nb_post_per_feed;
-            dotclear()->context()->short_feed_items  = dotclear()->blog()->settings->system->short_feed_items;
+            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_feed;
+            dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->system->short_feed_items;
         }
         $tpl .= '.xml';
 
@@ -807,7 +807,7 @@ class Url
 
         dotclear()->context()->feed_subtitle = $subtitle;
 
-        header('X-Robots-Tag: ' . dotclear()->context()->robotsPolicy(dotclear()->blog()->settings->system->robots_policy, ''));
+        header('X-Robots-Tag: ' . dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->system->robots_policy, ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
             dotclear()->blog()->posts()->publishScheduledEntries();
@@ -864,7 +864,7 @@ class Url
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
         '  <homePageLink>' . Html::escapeHTML(dotclear()->blog()->url) . "</homePageLink>\n";
 
-        if (dotclear()->blog()->settings->system->enable_xmlrpc) {
+        if (dotclear()->blog()->settings()->system->enable_xmlrpc) {
             $u = sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog()->url, dotclear()->blog()->id); // @phpstan-ignore-line
 
             echo

@@ -253,7 +253,7 @@ class ConfigTheme
      */
     public function cssURL($folder)
     {
-        return dotclear()->blog()->settings->system->public_url . '/' . $folder;
+        return dotclear()->blog()->settings()->system->public_url . '/' . $folder;
     }
 
     /**
@@ -367,7 +367,7 @@ class ConfigTheme
      */
     public function publicCssUrlHelper($folder)
     {
-        $theme = dotclear()->blog()->settings->system->theme;
+        $theme = dotclear()->blog()->settings()->system->theme;
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 
@@ -397,7 +397,7 @@ class ConfigTheme
      */
     public function imagesURL($folder)
     {
-        return dotclear()->blog()->settings->system->public_url . '/' . $folder;
+        return dotclear()->blog()->settings()->system->public_url . '/' . $folder;
     }
 
     /**

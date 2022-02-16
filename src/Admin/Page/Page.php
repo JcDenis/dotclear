@@ -220,7 +220,7 @@ abstract class Page
     {
         if (!empty($this->namespaces) && dotclear()->blog()->id) {
             foreach($this->namespaces as $ns) {
-                dotclear()->blog()->settings->addNamespace($ns);
+                dotclear()->blog()->settings()->addNamespace($ns);
             }
         }
     }
@@ -305,7 +305,7 @@ abstract class Page
         $headers['floc'] = 'Permissions-Policy: interest-cohort=()';
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!$safe_mode && dotclear()->blog()->settings->system->csp_admin_on) {
+        if (!$safe_mode && dotclear()->blog()->settings()->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject([]);
 
@@ -314,13 +314,13 @@ abstract class Page
             $csp_prefix = dotclear()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
             $csp_suffix = dotclear()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = dotclear()->blog()->settings->system->csp_admin_default ?:
+            $csp['default-src'] = dotclear()->blog()->settings()->system->csp_admin_default ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = dotclear()->blog()->settings->system->csp_admin_script ?:
+            $csp['script-src'] = dotclear()->blog()->settings()->system->csp_admin_script ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = dotclear()->blog()->settings->system->csp_admin_style ?:
+            $csp['style-src'] = dotclear()->blog()->settings()->system->csp_admin_style ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = dotclear()->blog()->settings->system->csp_admin_img ?:
+            $csp['img-src'] = dotclear()->blog()->settings()->system->csp_admin_img ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             # Cope with blog post preview (via public URL in iframe)
@@ -351,7 +351,7 @@ abstract class Page
             }
             if (count($directives)) {
                 $directives[]   = 'report-uri ' . dotclear()->config()->admin_url . '?handler=admin.cspreport';
-                $report_only    = (dotclear()->blog()->settings->system->csp_admin_report_only) ? '-Report-Only' : '';
+                $report_only    = (dotclear()->blog()->settings()->system->csp_admin_report_only) ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
@@ -1130,7 +1130,7 @@ abstract class Page
         (
             dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
             self::jsJson('dotclear_jquery', [
-                'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings->system->jquery_migrate_mute),
+                'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
             ]) .
             self::jsLoad('js/jquery-mute.js') .
             self::jsLoad('js/jquery/jquery-migrate.js') :

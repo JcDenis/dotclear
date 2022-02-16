@@ -31,7 +31,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (!dotclear()->blog()->settings->system->theme == 'Ductile') {
+        if (!dotclear()->blog()->settings()->system->theme == 'Ductile') {
             return;
         }
 
@@ -60,7 +60,7 @@ class Prepend extends AbstractPrepend
     {
         $nb_other = $nb_first = 0;
 
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_entries_counts');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_counts');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -164,7 +164,7 @@ class Prepend extends AbstractPrepend
 
     public static function ductileEntriesListHelper($default)
     {
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_entries_lists');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_lists');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -188,7 +188,7 @@ class Prepend extends AbstractPrepend
     {
         $img_url = dotclear()->blog()->url . 'files/img/logo.png';
 
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
         if ($s === null) {
             // no settings yet, return default logo
             return $img_url;
@@ -218,7 +218,7 @@ class Prepend extends AbstractPrepend
 
     public static function IfPreviewIsNotMandatory($attr, $content)
     {
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -239,7 +239,7 @@ class Prepend extends AbstractPrepend
         $default = false;
         $img_url = dotclear()->blog()->url . 'files/img/';
 
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_stickers');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_stickers');
 
         if ($s === null) {
             $default = true;
@@ -312,7 +312,7 @@ class Prepend extends AbstractPrepend
 
     public static function ductileWebfontHelper()
     {
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
 
         if ($s === null) {
             return;
@@ -383,7 +383,7 @@ class Prepend extends AbstractPrepend
 
     public static function ductileStyleHelper()
     {
-        $s = dotclear()->blog()->settings->themes->get(dotclear()->blog()->settings->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
 
         if ($s === null) {
             return;

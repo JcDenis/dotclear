@@ -47,12 +47,12 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ns => $s) {
-                    dotclear()->blog()->settings->addNamespace($ns);
+                    dotclear()->blog()->settings()->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings->$ns->put($k, $v);
+                        dotclear()->blog()->settings()->$ns->put($k, $v);
                     }
                     dotclear()->blog()->triggerBlog();
                 }
@@ -68,12 +68,12 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ns => $s) {
-                    dotclear()->blog()->settings->addNamespace($ns);
+                    dotclear()->blog()->settings()->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings->$ns->put($k, $v, null, null, true, true);
+                        dotclear()->blog()->settings()->$ns->put($k, $v, null, null, true, true);
                     }
                     dotclear()->blog()->triggerBlog();
                 }
@@ -110,7 +110,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog()->settings()->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -133,7 +133,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog()->settings()->dumpNamespaces() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
