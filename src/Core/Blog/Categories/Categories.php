@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\Categories
- * @brief Dotclear core Categories class
+ * @class Dotclear\Core\Blog\Categories\Categories
+ * @brief Dotclear core blog categories class
  *
  * @package Dotclear
  * @subpackage Instance
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Categories;
 
 use ArrayObject;
 
@@ -28,7 +28,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Categories
 {
-    use \Dotclear\Core\Instance\TraitCategoriesTree;
+    use \Dotclear\Core\Blog\Categories\TraitCategoriesTree;
 
     /**
      * Retrieves categories. <var>$params</var> is an associative array which can

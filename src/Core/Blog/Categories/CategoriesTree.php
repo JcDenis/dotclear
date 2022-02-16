@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\CategoriesTree
- * @brief Dotclear core categories tree class
+ * @class Dotclear\Core\Blog\Categories\CategoriesTree
+ * @brief Dotclear core blog categories tree class
  *
  * @package Dotclear
  * @subpackage Core
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Categories;
 
 use Dotclear\Database\NestedTree;
 

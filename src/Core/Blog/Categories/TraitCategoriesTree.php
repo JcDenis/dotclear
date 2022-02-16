@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\TraitCategoriesTree
- * @brief Dotclear trait Categories nested tree
+ * @class Dotclear\Core\Blog\Categories\TraitCategoriesTree
+ * @brief Dotclear trait blog categories nested tree
  *
  * @package Dotclear
  * @subpackage Instance
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Categories;
 
-use Dotclear\Core\Instance\CategoriesTree;
+use Dotclear\Core\Blog\Categories\CategoriesTree;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

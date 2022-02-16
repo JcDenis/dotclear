@@ -1,7 +1,7 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\TraitCategories
- * @brief Dotclear trait Categories
+ * @class Dotclear\Core\Blog\Categories\TraitCategories
+ * @brief Dotclear trait blog categories
  *
  * @package Dotclear
  * @subpackage Instance
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Categories;
 
-use Dotclear\Core\Instance\Categories;
+use Dotclear\Core\Blog\Categories\Categories;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
