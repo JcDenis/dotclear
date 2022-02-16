@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\TraitComments
+ * @class Dotclear\Core\Blog\CommentsTraitComments
  * @brief Dotclear trait comments
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Comments;
 
-use Dotclear\Core\Instance\Comments;
+use Dotclear\Core\Blog\Comments\Comments;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

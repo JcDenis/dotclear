@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\Comments
+ * @class Dotclear\Core\Blog\Comments\Comments
  * @brief Dotclear core blog Comments class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Comments;
 
 use ArrayObject;
 

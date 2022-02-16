@@ -26,7 +26,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
-    use \Dotclear\Core\Instance\TraitComments;
+    use \Dotclear\Core\Blog\Comments\TraitComments;
     use \Dotclear\Core\Instance\TraitCategories;
     use \Dotclear\Core\Instance\TraitPosts;
     use \Dotclear\Core\Blog\Settings\TraitSettings;
