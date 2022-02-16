@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Update
+ * @class  Dotclear\Admin\Page\Service\Updater
  * @brief Dotclear core update
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core;
+namespace Dotclear\Admin\Page\Service;
 
 use Dotclear\Exception\CoreException;
 
@@ -27,7 +27,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Update
+class Updater
 {
     public const ERR_FILES_CHANGED    = 101;
     public const ERR_FILES_UNREADABLE = 102;

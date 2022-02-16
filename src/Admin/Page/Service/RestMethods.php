@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Service;
 
-use Dotclear\Core\Update;
+use Dotclear\Admin\Page\Service\Updater;
 use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
@@ -114,7 +114,7 @@ class RestMethods
 
         /* @phpstan-ignore-next-line */
         if (dotclear()->auth()->isSuperAdmin() && !dotclear()->config()->core_update_noauto && is_readable(dotclear()->config()->digests_dir) && !dotclear()->auth()->user_prefs->dashboard->nodcupdate) {
-            $updater      = new Update(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
+            $updater      = new Updater(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
             $new_v        = $updater->check(dotclear()->config()->core_version);
             $version_info = $new_v ? $updater->getInfoURL() : '';
 

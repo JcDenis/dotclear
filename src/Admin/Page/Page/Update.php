@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
-use Dotclear\Core\Update as CoreUpdate;
+use  Dotclear\Admin\Page\Service\Updater;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Zip\Unzip;
@@ -59,7 +59,7 @@ class Update extends Page
             return true;
         }
 
-        $this->updater     = new CoreUpdate(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
+        $this->updater     = new Updater(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
         $this->new_version = $this->updater->check(dotclear()->config()->core_version, !empty($_GET['nocache']));
         $zip_file          = $this->new_version ? dotclear()->config()->backup_dir . '/' . basename($this->updater->getFileURL()) : '';
 
@@ -168,17 +168,17 @@ class Update extends Page
             } catch (\Exception $e) {
                 $msg = $e->getMessage();
 
-                if ($e->getCode() == dcUpdate::ERR_FILES_CHANGED) {
+                if ($e->getCode() == Updater::ERR_FILES_CHANGED) {
                     $msg = __('The following files of your Dotclear installation ' .
                         'have been modified so we won\'t try to update your installation. ' .
                         'Please try to <a href="https://dotclear.org/download">update manually</a>.');
-                } elseif ($e->getCode() == dcUpdate::ERR_FILES_UNREADABLE) {
+                } elseif ($e->getCode() == Updater::ERR_FILES_UNREADABLE) {
                     $msg = sprintf(
                         __('The following files of your Dotclear installation are not readable. ' .
                         'Please fix this or try to make a backup file named %s manually.'),
                         '<strong>backup-' . dotclear()->config()->core_version . '.zip</strong>'
                     );
-                } elseif ($e->getCode() == dcUpdate::ERR_FILES_UNWRITALBE) {
+                } elseif ($e->getCode() == Updater::ERR_FILES_UNWRITALBE) {
                     $msg = __('The following files of your Dotclear installation cannot be written. ' .
                         'Please fix this or try to <a href="https://dotclear.org/download">update manually</a>.');
                 }
