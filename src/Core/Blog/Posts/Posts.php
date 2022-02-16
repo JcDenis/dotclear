@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\Posts
+ * @class Dotclear\Core\Blog\Posts\Posts
  * @brief Dotclear core posts class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\Blog\Posts;
 
 use ArrayObject;
 

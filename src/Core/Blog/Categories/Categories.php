@@ -15,6 +15,7 @@ namespace Dotclear\Core\Blog\Categories;
 
 use ArrayObject;
 
+use Dotclear\Core\Blog\Categories\CategoriesTree;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
@@ -28,7 +29,22 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Categories
 {
-    use \Dotclear\Core\Blog\Categories\TraitCategoriesTree;
+    /** @var    CategoriesTree   CategoriesTree instance */
+    private $categoriestree;
+
+    /**
+     * Get instance
+     *
+     * @return  CategoriesTree   CategoriesTree instance
+     */
+    protected function categoriestree(): CategoriesTree
+    {
+        if (!($this->categoriestree instanceof CategoriesTree)) {
+            $this->categoriestree = new CategoriesTree();
+        }
+
+        return $this->categoriestree;
+    }
 
     /**
      * Retrieves categories. <var>$params</var> is an associative array which can

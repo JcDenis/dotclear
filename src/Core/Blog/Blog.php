@@ -16,6 +16,10 @@ namespace Dotclear\Core\Blog;
 use ArrayObject;
 
 use Dotclear\Core\Utils;
+use Dotclear\Core\Blog\Categories\Categories;
+use Dotclear\Core\Blog\Comments\Comments;
+use Dotclear\Core\Blog\Posts\Posts;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\File\Path;
 use Dotclear\Network\Http;
 use Dotclear\Utils\Dt;
@@ -26,10 +30,17 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Blog
 {
-    use \Dotclear\Core\Blog\Comments\TraitComments;
-    use \Dotclear\Core\Blog\Categories\TraitCategories;
-    use \Dotclear\Core\Instance\TraitPosts;
-    use \Dotclear\Core\Blog\Settings\TraitSettings;
+    /** @var    Categories   Categories instance */
+    private $categories;
+
+    /** @var    Comments   Comments instance */
+    private $comments;
+
+    /** @var    Posts   Posts instance */
+    private $posts;
+
+    /** @var    Settings   Settings instance */
+    private $settings;
 
     /** @var string     Blog ID */
     public $id;
@@ -88,8 +99,6 @@ class Blog
             $this->upddt  = (int) strtotime($b->blog_upddt);
             $this->status = (int) $b->blog_status;
 
-            $this->settings($this->id);
-
             $this->public_path = Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir);
 
             $this->post_status['-2'] = __('Pending');
@@ -106,6 +115,65 @@ class Blog
             dotclear()->behavior()->call('coreBlogConstruct', $this);
         }
     }
+
+    /// @name Blog sub instances methods
+    //@{
+    /**
+     * Get instance
+     *
+     * @return  Categories   Categories instance
+     */
+    public function categories(): Categories
+    {
+        if (!($this->categories instanceof Categories)) {
+            $this->categories = new Categories();
+        }
+
+        return $this->categories;
+    }
+
+    /**
+     * Get instance
+     *
+     * @return  Comments   Comments instance
+     */
+    public function comments(): Comments
+    {
+        if (!($this->comments instanceof Comments)) {
+            $this->comments = new Comments();
+        }
+
+        return $this->comments;
+    }
+
+    /**
+     * Get instance
+     *
+     * @return  Posts   Posts instance
+     */
+    public function posts(): Posts
+    {
+        if (!($this->posts instanceof Posts)) {
+            $this->posts = new Posts();
+        }
+
+        return $this->posts;
+    }
+    /**
+     * Get settings instance
+     *
+     * @return  Settings   Settings instance
+     */
+    public function settings(): Settings
+    {
+        if (!($this->settings instanceof Settings)) {
+            $this->settings = new Settings($this->id);
+        }
+
+        return $this->settings;
+    }
+
+    //@}
 
     /// @name Common public methods
     //@{
