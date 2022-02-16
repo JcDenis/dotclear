@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+use Dotclear\Core\Blog\Blog;
 use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
@@ -29,7 +30,6 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Core
 {
     # Traits
-    use \Dotclear\Core\Blog\TraitBlog;
     use \Dotclear\Core\Instance\TraitAuth;
     use \Dotclear\Core\Instance\TraitAutoload;
     use \Dotclear\Core\Instance\TraitBehavior;
@@ -49,6 +49,9 @@ class Core
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitVersion;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
+
+    /** @var    Blog   Blog instance */
+    private $blog = null;
 
     /** @var string             Current Process */
     protected $process;
@@ -244,6 +247,36 @@ class Core
         register_shutdown_function([$this, 'shutdown']);
     }
 
+    /// @name Core blog instance methods
+    //@{
+    /**
+     * Get blog instance
+     *
+     * @return  Blog|null   Blog instance
+     */
+    public function blog(): ?Blog
+    {
+        return $this->blog;
+    }
+
+    /**
+     * Sets the blog to use.
+     *
+     * @param   string  $blog_id    The blog ID
+     */
+    public function setBlog(string $blog_id): void
+    {
+        $this->blog = new Blog($blog_id);
+    }
+
+    /**
+     * Unsets blog property
+     */
+    public function unsetBlog(): void
+    {
+        $this->blog = null;
+    }
+
     /**
      * Shutdown function
      *
@@ -260,6 +293,7 @@ class Core
         }
         $this->con()->close();
     }
+    //@}
 
     /**
      * Empty templates cache directory
