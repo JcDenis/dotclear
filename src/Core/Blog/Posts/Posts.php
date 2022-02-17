@@ -1114,8 +1114,8 @@ class Posts
     public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ($format == 'wiki') {
-            dotclear()->initWikiPost();
-            dotclear()->wiki2xhtml()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
+            dotclear()->wiki()->initWikiPost();
+            dotclear()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
             switch (dotclear()->blog()->settings()->system->note_title_tag) {
                 case 1:
                     $tag = 'h3';
@@ -1130,12 +1130,12 @@ class Posts
 
                     break;
             }
-            dotclear()->wiki2xhtml()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Notes') . '</' . $tag . '>%s</div>');
-            dotclear()->wiki2xhtml()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            dotclear()->wiki()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Note') . '</' . $tag . '>%s</div>');
             if (strpos($lang, 'fr') === 0) {
-                dotclear()->wiki2xhtml()->setOpt('active_fr_syntax', 1);
+                dotclear()->wiki()->setOpt('active_fr_syntax', 1);
             }
         }
 

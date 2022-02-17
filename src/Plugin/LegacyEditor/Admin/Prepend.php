@@ -29,10 +29,10 @@ class Prepend extends AbstractPrepend
         $self_ns = dotclear()->blog()->settings()->addNamespace('LegacyEditor');
 
         if ($self_ns->active) {
-            dotclear()->initWikiPost();
+            dotclear()->wiki()->initWikiPost();
 
             dotclear()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki2xhtml(), 'transform']);
+            dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki(), 'wikiTransform']);
 
             $class = __NAMESPACE__ . '\\Behaviors';
             dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);

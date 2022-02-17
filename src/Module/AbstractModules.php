@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Instance\TraitError;
+use Dotclear\Utils\ErrorTrait;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -29,7 +29,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 abstract class AbstractModules
 {
-    use TraitError;
+    use ErrorTrait;
 
     /** @var    bool    Safe mode is active */
     protected $safe_mode;

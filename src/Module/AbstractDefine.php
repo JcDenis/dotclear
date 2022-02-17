@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Core\Instance\TraitError;
+use Dotclear\Utils\ErrorTrait;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Html;
 
@@ -28,7 +28,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 abstract class AbstractDefine
 {
-    use TraitError;
+    use ErrorTrait;
 
     /** @var    array   Module cleaned properties */
     protected $properties = [

@@ -17,14 +17,14 @@ use ArrayObject;
 
 use Dotclear\Plugin\Antispam\Lib\Antispam;
 
-use Dotclear\Core\Instance\Url;
+use Dotclear\Core\Url\Url;
 use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class AntispamUrl extends UrlHandler
+class AntispamUrl extends Url
 {
     public static function hamFeed($args)
     {

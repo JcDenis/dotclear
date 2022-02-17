@@ -62,9 +62,9 @@ if (!function_exists('dotclear_run')) {
         } catch (\Exception $e) {
             ob_end_clean();
 
-            if (!empty(dotclear()->has_config) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
+            if (!empty(dotclear()->config()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
                 dotclear_error(get_class($e), $e->getMessage() . "\n\n" . $e->getTraceAsString(), $e->getCode());
-            } elseif (!empty(dotclear()->has_config) && dotclear()->config()->run_level > DOTCLEAR_RUN_PRODUCTION) {
+            } elseif (!empty(dotclear()->config()) && dotclear()->config()->run_level > DOTCLEAR_RUN_PRODUCTION) {
                 dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
             } else {
                 dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
@@ -123,8 +123,6 @@ if (!function_exists('dotclear_error')) {
 
         # Display error through an internal error page
         } else {
-            $vendor = $code != 6 && !empty(dotclear()->has_config) ?
-                htmlspecialchars(dotclear()->config()->vendor_name, ENT_COMPAT, "UTF-8") : 'Dotclear';
             $detail = str_replace("\n", '<br />', $detail);
 
             header('Content-Type: text/html; charset=utf-8');
@@ -175,7 +173,7 @@ if (!function_exists('dotclear_error')) {
 
 <body>
 <div id="content">
-<h1><?php echo $vendor; ?></h1>
+<h1>Dotclear</h1>
 <h2><?php echo $message; ?></h2>
 <?php echo $detail; ?></div>
 </body>

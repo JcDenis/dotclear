@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
+use DOtclear\Core\Xmlrpc\Xmlrpc;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -22,8 +23,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Xmlrpc extends Page
 {
-    use \Dotclear\Core\Instance\TraitXmlrpc;
-
     protected function getPermissions(): string|null|false
     {
         return false;
@@ -50,7 +49,8 @@ class Xmlrpc extends Page
         dotclear()->setBlog($blog_id);
 
         # Start XML-RPC server
-        $this->xmlrpc($blog_id)->serve();
+        $xmlrpc = new Xmlrpc($blog_id);
+        $xmlrpc->serve();
 
         return null;
     }

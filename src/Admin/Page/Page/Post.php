@@ -17,6 +17,7 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Admin\Page\Action\Action\CommentAction;
+use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -30,8 +31,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Post extends Page
 {
-    use \Dotclear\Core\Instance\TraitTrackback;
-
     private $post_id            = null;
     private $cat_id             = '';
     private $post_dt            = '';
@@ -77,6 +76,8 @@ class Post extends Page
     protected function getPagePrepend(): ? bool
     {
         $page_title = __('New post');
+
+        $this->trackback = new Trackback();
 
         $this->post_format        = dotclear()->user()->getOption('post_format');
         $this->post_editor        = dotclear()->user()->getOption('editor');
@@ -206,7 +207,7 @@ class Post extends Page
                         # --BEHAVIOR-- adminBeforePingTrackback
                         dotclear()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
-                        $this->trackback()->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (\Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
@@ -850,14 +851,14 @@ class Post extends Page
             -------------------------------------------------------- */
 
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $this->trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             # Actions combo box
             $combo_action = $this->comments_actions->getCombo();
-            $has_action   = !empty($combo_action) && !$this->trackbacks->isEmpty();
+            $has_action   = !empty($combo_action) && !$trackbacks->isEmpty();
 
             if (!empty($_GET['tb_auto'])) {
-                $this->tb_urls = implode("\n", $this->trackback()->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
+                $this->tb_urls = implode("\n", $this->trackback->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
             }
 
             # Display tab
@@ -871,8 +872,8 @@ class Post extends Page
 
             echo '<h3>' . __('Trackbacks received') . '</h3>';
 
-            if (!$this->trackbacks->isEmpty()) {
-                $this->showComments($this->trackbacks, $has_action, true);
+            if (!$trackbacks->isEmpty()) {
+                $this->showComments($trackbacks, $has_action, true);
             } else {
                 echo '<p>' . __('No trackback') . '</p>';
             }
@@ -919,7 +920,7 @@ class Post extends Page
                     '</p>' .
                     '</form>';
 
-                $pings = $this->trackback()->getPostPings($this->post_id);
+                $pings = $this->trackback->getPostPings($this->post_id);
 
                 if (!$pings->isEmpty()) {
                     echo '<h3>' . __('Previously sent pings') . '</h3>';
