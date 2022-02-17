@@ -77,41 +77,41 @@ class UserPref extends Page
 
         $this->container = new ContainerUser();
 
-        $this->container->fromRecord(dotclear()->users()->getUser(dotclear()->auth()->userID()));
+        $this->container->fromRecord(dotclear()->users()->getUser(dotclear()->user()->userID()));
 
         if (empty($this->container->getOption('editor'))) {
             $this->container->setOption('editor', []);
         }
 
-        $this->user_profile_mails = dotclear()->auth()->user_prefs->profile->mails;
-        $this->user_profile_urls  = dotclear()->auth()->user_prefs->profile->urls;
+        $this->user_profile_mails = dotclear()->user()->preference()->profile->mails;
+        $this->user_profile_urls  = dotclear()->user()->preference()->profile->urls;
 
-        $this->user_dm_doclinks   = dotclear()->auth()->user_prefs->dashboard->doclinks;
-        $this->user_dm_dcnews     = dotclear()->auth()->user_prefs->dashboard->dcnews;
-        $this->user_dm_quickentry = dotclear()->auth()->user_prefs->dashboard->quickentry;
-        $this->user_dm_nofavicons = dotclear()->auth()->user_prefs->dashboard->nofavicons;
+        $this->user_dm_doclinks   = dotclear()->user()->preference()->dashboard->doclinks;
+        $this->user_dm_dcnews     = dotclear()->user()->preference()->dashboard->dcnews;
+        $this->user_dm_quickentry = dotclear()->user()->preference()->dashboard->quickentry;
+        $this->user_dm_nofavicons = dotclear()->user()->preference()->dashboard->nofavicons;
         $this->user_dm_nodcupdate = false;
-        if (dotclear()->auth()->isSuperAdmin()) {
-            $this->user_dm_nodcupdate = dotclear()->auth()->user_prefs->dashboard->nodcupdate;
+        if (dotclear()->user()->isSuperAdmin()) {
+            $this->user_dm_nodcupdate = dotclear()->user()->preference()->dashboard->nodcupdate;
         }
 
-        $this->user_acc_nodragdrop = dotclear()->auth()->user_prefs->accessibility->nodragdrop;
+        $this->user_acc_nodragdrop = dotclear()->user()->preference()->accessibility->nodragdrop;
 
-        $this->user_ui_theme            = dotclear()->auth()->user_prefs->interface->theme;
-        $this->user_ui_enhanceduploader = dotclear()->auth()->user_prefs->interface->enhanceduploader;
-        $this->user_ui_blank_preview    = dotclear()->auth()->user_prefs->interface->blank_preview;
-        $this->user_ui_hidemoreinfo     = dotclear()->auth()->user_prefs->interface->hidemoreinfo;
-        $this->user_ui_hidehelpbutton   = dotclear()->auth()->user_prefs->interface->hidehelpbutton;
-        $this->user_ui_showajaxloader   = dotclear()->auth()->user_prefs->interface->showajaxloader;
-        $this->user_ui_htmlfontsize     = dotclear()->auth()->user_prefs->interface->htmlfontsize;
+        $this->user_ui_theme            = dotclear()->user()->preference()->interface->theme;
+        $this->user_ui_enhanceduploader = dotclear()->user()->preference()->interface->enhanceduploader;
+        $this->user_ui_blank_preview    = dotclear()->user()->preference()->interface->blank_preview;
+        $this->user_ui_hidemoreinfo     = dotclear()->user()->preference()->interface->hidemoreinfo;
+        $this->user_ui_hidehelpbutton   = dotclear()->user()->preference()->interface->hidehelpbutton;
+        $this->user_ui_showajaxloader   = dotclear()->user()->preference()->interface->showajaxloader;
+        $this->user_ui_htmlfontsize     = dotclear()->user()->preference()->interface->htmlfontsize;
         $this->user_ui_hide_std_favicon = false;
-        if (dotclear()->auth()->isSuperAdmin()) {
-            $this->user_ui_hide_std_favicon = dotclear()->auth()->user_prefs->interface->hide_std_favicon;
+        if (dotclear()->user()->isSuperAdmin()) {
+            $this->user_ui_hide_std_favicon = dotclear()->user()->preference()->interface->hide_std_favicon;
         }
-        $this->user_ui_iconset            = @dotclear()->auth()->user_prefs->interface->iconset;
-        $this->user_ui_nofavmenu          = dotclear()->auth()->user_prefs->interface->nofavmenu;
-        $this->user_ui_media_nb_last_dirs = dotclear()->auth()->user_prefs->interface->media_nb_last_dirs;
-        $this->user_ui_nocheckadblocker   = dotclear()->auth()->user_prefs->interface->nocheckadblocker;
+        $this->user_ui_iconset            = @dotclear()->user()->preference()->interface->iconset;
+        $this->user_ui_nofavmenu          = dotclear()->user()->preference()->interface->nofavmenu;
+        $this->user_ui_media_nb_last_dirs = dotclear()->user()->preference()->interface->media_nb_last_dirs;
+        $this->user_ui_nocheckadblocker   = dotclear()->user()->preference()->interface->nocheckadblocker;
 
         $default_tab = !empty($_GET['tab']) ? Html::escapeHTML($_GET['tab']) : 'user-profile';
 
@@ -151,7 +151,7 @@ class UserPref extends Page
         $this->rte = new ArrayObject($rte);
         dotclear()->behavior()->call('adminRteFlags', $this->rte);
         # Load user settings
-        $rte_flags = @dotclear()->auth()->user_prefs->interface->rte_flags;
+        $rte_flags = @dotclear()->user()->preference()->interface->rte_flags;
         if (is_array($rte_flags)) {
             foreach ($rte_flags as $fk => $fv) {
                 if (isset($this->rte[$fk])) {
@@ -169,9 +169,9 @@ class UserPref extends Page
         # Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->auth()->checkPassword($_POST['cur_pwd']);
+                $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->user()->checkPassword($_POST['cur_pwd']);
 
-                if (dotclear()->auth()->allowPassChange() && !$pwd_check && $this->container->getEmail() != $_POST['user_email']) {
+                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->container->getEmail() != $_POST['user_email']) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
@@ -187,7 +187,7 @@ class UserPref extends Page
 
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
-                if (dotclear()->auth()->allowPassChange() && !empty($_POST['new_pwd'])) {
+                if (dotclear()->user()->allowPassChange() && !empty($_POST['new_pwd'])) {
                     if (!$pwd_check) {
                         throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                     }
@@ -200,10 +200,10 @@ class UserPref extends Page
                 }
 
                 # --BEHAVIOR-- adminBeforeUserUpdate
-                dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->user()->userID());
 
                 # Udate user
-                dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
+                dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
                 # Update profile
                 # Sanitize list of secondary mails and urls if any
@@ -214,11 +214,11 @@ class UserPref extends Page
                 if (!empty($_POST['user_profile_urls'])) {
                     $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                 }
-                dotclear()->auth()->user_prefs->profile->put('mails', $mails, 'string');
-                dotclear()->auth()->user_prefs->profile->put('urls', $urls, 'string');
+                dotclear()->user()->preference()->profile->put('mails', $mails, 'string');
+                dotclear()->user()->preference()->profile->put('urls', $urls, 'string');
 
                 # --BEHAVIOR-- adminAfterUserUpdate
-                dotclear()->behavior()->call('adminAfterUserProfileUpdate', $cur, dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminAfterUserProfileUpdate', $cur, dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -254,25 +254,25 @@ class UserPref extends Page
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->user()->userID());
 
                 # Update user prefs
-                dotclear()->auth()->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('theme', $_POST['user_ui_theme'], 'string');
-                dotclear()->auth()->user_prefs->interface->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
-                dotclear()->auth()->user_prefs->interface->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
-                if (dotclear()->auth()->isSuperAdmin()) {
+                dotclear()->user()->preference()->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
+                dotclear()->user()->preference()->interface->put('theme', $_POST['user_ui_theme'], 'string');
+                dotclear()->user()->preference()->interface->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
+                dotclear()->user()->preference()->interface->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
+                dotclear()->user()->preference()->interface->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
+                dotclear()->user()->preference()->interface->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
+                dotclear()->user()->preference()->interface->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
+                dotclear()->user()->preference()->interface->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
+                if (dotclear()->user()->isSuperAdmin()) {
                     # Applied to all users
-                    dotclear()->auth()->user_prefs->interface->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
+                    dotclear()->user()->preference()->interface->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
                 }
-                dotclear()->auth()->user_prefs->interface->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
-                dotclear()->auth()->user_prefs->interface->put('media_last_dirs', [], 'array', null, false);
-                dotclear()->auth()->user_prefs->interface->put('media_fav_dirs', [], 'array', null, false);
-                dotclear()->auth()->user_prefs->interface->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
+                dotclear()->user()->preference()->interface->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
+                dotclear()->user()->preference()->interface->put('media_last_dirs', [], 'array', null, false);
+                dotclear()->user()->preference()->interface->put('media_fav_dirs', [], 'array', null, false);
+                dotclear()->user()->preference()->interface->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
 
                 # Update user columns (lists)
                 $cu = [];
@@ -285,7 +285,7 @@ class UserPref extends Page
                         $cu[$col_type] = $ct;
                     }
                 }
-                dotclear()->auth()->user_prefs->interface->put('cols', $cu, 'array');
+                dotclear()->user()->preference()->interface->put('cols', $cu, 'array');
 
                 # Update user lists options
                 $su = [];
@@ -306,22 +306,22 @@ class UserPref extends Page
                         $su[$sort_type][2] = isset($_POST[$k]) ? abs((int) $_POST[$k]) : $sort_data[4][1];
                     }
                 }
-                dotclear()->auth()->user_prefs->interface->put('sorts', $su, 'array');
+                dotclear()->user()->preference()->interface->put('sorts', $su, 'array');
                 // All filters
-                dotclear()->auth()->user_prefs->interface->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
+                dotclear()->user()->preference()->interface->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
 
                 # Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
                     $rf[$rk] = isset($_POST['rte_flags']) && in_array($rk, $_POST['rte_flags'], true) ? true : false;
                 }
-                dotclear()->auth()->user_prefs->interface->put('rte_flags', $rf, 'array');
+                dotclear()->user()->preference()->interface->put('rte_flags', $rf, 'array');
 
                 # Update user
-                dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
+                dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-options');
@@ -334,21 +334,21 @@ class UserPref extends Page
         if (isset($_POST['db-options'])) {
             try {
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behavior()->call('adminBeforeDashboardOptionsUpdate', dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminBeforeDashboardOptionsUpdate', dotclear()->user()->userID());
 
                 # Update user prefs
-                dotclear()->auth()->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
-                dotclear()->auth()->user_prefs->dashboard->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
-                dotclear()->auth()->user_prefs->dashboard->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
-                dotclear()->auth()->user_prefs->dashboard->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
-                if (dotclear()->auth()->isSuperAdmin()) {
-                    dotclear()->auth()->user_prefs->dashboard->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
+                dotclear()->user()->preference()->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
+                dotclear()->user()->preference()->dashboard->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
+                dotclear()->user()->preference()->dashboard->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
+                dotclear()->user()->preference()->dashboard->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
+                if (dotclear()->user()->isSuperAdmin()) {
+                    dotclear()->user()->preference()->dashboard->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
                 }
-                dotclear()->auth()->user_prefs->interface->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
-                dotclear()->auth()->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
+                dotclear()->user()->preference()->interface->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
+                dotclear()->user()->preference()->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behavior()->call('adminAfterDashboardOptionsUpdate', dotclear()->auth()->userID());
+                dotclear()->behavior()->call('adminAfterDashboardOptionsUpdate', dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -429,7 +429,7 @@ class UserPref extends Page
         }
 
         # Replace default favorites by current set (super admin only)
-        if (!empty($_POST['replace']) && dotclear()->auth()->isSuperAdmin()) {
+        if (!empty($_POST['replace']) && dotclear()->user()->isSuperAdmin()) {
             $user_favs = dotclear()->favorite()->getFavoriteIDs(false);
             dotclear()->favorite()->setFavoriteIDs($user_favs, true);
 
@@ -441,10 +441,10 @@ class UserPref extends Page
 
         # Reset dashboard items order
         if (!empty($_POST['resetorder'])) {
-            dotclear()->auth()->user_prefs->dashboard->drop('main_order');
-            dotclear()->auth()->user_prefs->dashboard->drop('boxes_order');
-            dotclear()->auth()->user_prefs->dashboard->drop('boxes_items_order');
-            dotclear()->auth()->user_prefs->dashboard->drop('boxes_contents_order');
+            dotclear()->user()->preference()->dashboard->drop('main_order');
+            dotclear()->user()->preference()->dashboard->drop('boxes_order');
+            dotclear()->user()->preference()->dashboard->drop('boxes_items_order');
+            dotclear()->user()->preference()->dashboard->drop('boxes_contents_order');
 
             if (!dotclear()->error()->flag()) {
                 dotclear()->notice()->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
@@ -478,7 +478,7 @@ class UserPref extends Page
                 dotclear()->behavior()->call('adminPreferencesHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->auth()->userID()) => '',
+                Html::escapeHTML(dotclear()->user()->userID()) => '',
                 $page_title                                   => '',
             ])
         ;
@@ -509,7 +509,7 @@ class UserPref extends Page
             __('Largest')  => '87.5%',
         ];
 
-        $auto_filter = dotclear()->auth()->user_prefs->interface->auto_filter;
+        $auto_filter = dotclear()->user()->preference()->interface->auto_filter;
 
         # User profile
         echo '<div class="multi-part" id="user-profile" title="' . __('My profile') . '">';
@@ -574,7 +574,7 @@ class UserPref extends Page
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
         Form::combo('user_tz', Dt::getZones(true, true), $this->container->getTZ()) . '</p>';
 
-        if (dotclear()->auth()->allowPassChange()) {
+        if (dotclear()->user()->allowPassChange()) {
             echo
             '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
 
@@ -670,7 +670,7 @@ class UserPref extends Page
         Form::number('user_ui_media_nb_last_dirs', 0, 999, (string) $this->user_ui_media_nb_last_dirs, '', '', false, 'aria-describedby="user_ui_media_nb_last_dirs_help"') . '</p>' .
         '<p class="clear form-note" id="user_ui_media_nb_last_dirs_help">' . __('Leave empty to ignore, displayed only if Javascript is enabled in your browser.') . '</p>';
 
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo
             '<p><label for="user_ui_hide_std_favicon" class="classic">' .
             Form::checkbox('user_ui_hide_std_favicon', 1, $this->user_ui_hide_std_favicon, '', '', false, 'aria-describedby="user_ui_hide_std_favicon_help"') . ' ' .
@@ -858,7 +858,7 @@ class UserPref extends Page
                 __('Are you sure you want to remove selected favorites?')
             ) . '\');" /></p>' .
 
-                (dotclear()->auth()->isSuperAdmin() ?
+                (dotclear()->user()->isSuperAdmin() ?
                 '<div class="info">' .
                 '<p>' . __('If you are a super administrator, you may define this set of favorites to be used by default on all blogs of this installation.') . '</p>' .
                 '<p><input class="reset" type="submit" name="replace" value="' . __('Define as default favorites') . '" />' . '</p>' .
@@ -968,7 +968,7 @@ class UserPref extends Page
         Form::checkbox('user_dm_quickentry', 1, $this->user_dm_quickentry) . ' ' .
         __('Display quick entry form') . '</label></p>';
 
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo
             '<p><label for="user_dm_nodcupdate" class="classic">' .
             Form::checkbox('user_dm_nodcupdate', 1, $this->user_dm_nodcupdate) . ' ' .

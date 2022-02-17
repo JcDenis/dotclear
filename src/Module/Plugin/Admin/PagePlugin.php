@@ -140,7 +140,7 @@ class PagePlugin extends Page
         }
 
         # -- Display modules lists --
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
                     dotclear()->notice()->success(__('Manual checking of plugins update done successfully.'));
@@ -192,7 +192,7 @@ class PagePlugin extends Page
         $modules = dotclear()->plugins->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . (dotclear()->auth()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
+            '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
             dotclear()->plugins
@@ -206,7 +206,7 @@ class PagePlugin extends Page
         }
 
         # Deactivated modules
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             $modules = dotclear()->plugins->getDisabledModules();
             if (!empty($modules)) {
                 echo
@@ -227,7 +227,7 @@ class PagePlugin extends Page
         echo
             '</div>';
 
-        if (dotclear()->auth()->isSuperAdmin() && dotclear()->plugins->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && dotclear()->plugins->isWritablePath()) {
 
             # New modules from repo
             $search  = dotclear()->plugins->getSearch();
@@ -276,7 +276,7 @@ class PagePlugin extends Page
         dotclear()->behavior()->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
-        if (dotclear()->auth()->isSuperAdmin() && !dotclear()->plugins->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && !dotclear()->plugins->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }

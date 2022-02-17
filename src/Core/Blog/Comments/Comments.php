@@ -94,7 +94,7 @@ class Comments
 
         $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((comment_status = 1 AND P.post_status = 1 ';
 
             if (dotclear()->blog()->withoutPassword()) {
@@ -102,8 +102,8 @@ class Comments
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
+            if (dotclear()->user()->userID()) {
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -267,7 +267,7 @@ class Comments
      */
     public function updComment(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
         }
 
@@ -284,8 +284,8 @@ class Comments
         }
 
         #If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            if ($rs->user_id != dotclear()->auth()->userID()) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            if ($rs->user_id != dotclear()->user()->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
@@ -294,7 +294,7 @@ class Comments
 
         $cur->comment_upddt = date('Y-m-d H:i:s');
 
-        if (!dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $cur->unsetField('comment_status');
         }
 
@@ -331,7 +331,7 @@ class Comments
      */
     public function updCommentsStatus($ids, int $status): void
     {
-        if (!dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
@@ -344,8 +344,8 @@ class Comments
         'AND post_id in (SELECT tp.post_id ' .
         'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
         $strReq .= ')';
         dotclear()->con()->execute($strReq);
@@ -372,7 +372,7 @@ class Comments
      */
     public function delComments($ids): void
     {
-        if (!dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -401,8 +401,8 @@ class Comments
         'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
         $strReq .= ')';
         dotclear()->con()->execute($strReq);
@@ -417,7 +417,7 @@ class Comments
      */
     public function delJunkComments():void
     {
-        if (!dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -427,8 +427,8 @@ class Comments
         'FROM ' . dotclear()->prefix . 'post tp ' .
         "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
         $strReq .= ')';
         dotclear()->con()->execute($strReq);

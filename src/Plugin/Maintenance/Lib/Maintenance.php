@@ -231,7 +231,7 @@ class Maintenance
 
         $cur->log_msg   = $id;
         $cur->log_table = 'maintenance';
-        $cur->user_id   = dotclear()->auth()->userID();
+        $cur->user_id   = dotclear()->user()->userID();
 
         dotclear()->log()->add($cur);
     }

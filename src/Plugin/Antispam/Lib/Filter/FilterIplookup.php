@@ -36,7 +36,7 @@ class FilterIplookup extends Spamfilter
     {
         parent::__construct();
 
-        if (defined('DC_DNSBL_SUPER') && DC_DNSBL_SUPER && !dotclear()->auth()->isSuperAdmin()) {
+        if (defined('DC_DNSBL_SUPER') && DC_DNSBL_SUPER && !dotclear()->user()->isSuperAdmin()) {
             $this->has_gui = false;
         }
     }

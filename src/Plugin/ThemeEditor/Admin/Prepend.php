@@ -41,7 +41,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
     {
-        if ($theme->id() != 'default' && dotclear()->auth()->isSuperAdmin()) {
+        if ($theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = dotclear()->themes->getModulesPath();
             if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
@@ -58,11 +58,11 @@ class Prepend extends AbstractPrepend
     public static function behaviorAdminBeforeUserOptionsUpdate(Cursor $cur, string $userID): void
     {
         // Get and store user's prefs for plugin options
-        dotclear()->auth()->user_prefs->addWorkspace('interface');
+        dotclear()->user()->preference()->addWorkspace('interface');
 
         try {
-            dotclear()->auth()->user_prefs->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
-            dotclear()->auth()->user_prefs->interface->put('colorsyntax_theme',
+            dotclear()->user()->preference()->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
+            dotclear()->user()->preference()->interface->put('colorsyntax_theme',
                 (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : ''));
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
@@ -72,7 +72,7 @@ class Prepend extends AbstractPrepend
     public static function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        dotclear()->auth()->user_prefs->addWorkspace('interface');
+        dotclear()->user()->preference()->addWorkspace('interface');
 
         $themes_list  = Page::getCodeMirrorThemes();
         $themes_combo = [__('Default') => ''];
@@ -86,7 +86,7 @@ class Prepend extends AbstractPrepend
         echo
         '<div class="col">' .
         '<p><label for="colorsyntax" class="classic">' .
-        Form::checkbox('colorsyntax', 1, (int) dotclear()->auth()->user_prefs->interface->colorsyntax) . '</label>' .
+        Form::checkbox('colorsyntax', 1, (int) dotclear()->user()->preference()->interface->colorsyntax) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
         if (count($themes_combo) > 1) {
@@ -94,7 +94,7 @@ class Prepend extends AbstractPrepend
             '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
             Form::combo('colorsyntax_theme', $themes_combo,
                 [
-                    'default' => (string) dotclear()->auth()->user_prefs->interface->colorsyntax_theme
+                    'default' => (string) dotclear()->user()->preference()->interface->colorsyntax_theme
                 ]) .
                 '</p>';
         } else {
@@ -121,7 +121,7 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea>';
         echo
-        Page::jsJson('theme_editor_current', ['theme' => dotclear()->auth()->user_prefs->interface->colorsyntax_theme != '' ? dotclear()->auth()->user_prefs->interface->colorsyntax_theme : 'default']) .
+        Page::jsJson('theme_editor_current', ['theme' => dotclear()->user()->preference()->interface->colorsyntax_theme != '' ? dotclear()->user()->preference()->interface->colorsyntax_theme : 'default']) .
         Page::jsLoad('?mf=Plugin/ThemeEditor/files/js/theme.js');
         echo '</div>';
         echo '</div>';

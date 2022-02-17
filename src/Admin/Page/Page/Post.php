@@ -78,16 +78,16 @@ class Post extends Page
     {
         $page_title = __('New post');
 
-        $this->post_format        = dotclear()->auth()->getOption('post_format');
-        $this->post_editor        = dotclear()->auth()->getOption('editor');
-        $this->post_lang          = dotclear()->auth()->getInfo('user_lang');
-        $this->post_status        = dotclear()->auth()->getInfo('user_post_status');
+        $this->post_format        = dotclear()->user()->getOption('post_format');
+        $this->post_editor        = dotclear()->user()->getOption('editor');
+        $this->post_lang          = dotclear()->user()->getInfo('user_lang');
+        $this->post_status        = dotclear()->user()->getInfo('user_post_status');
         $this->post_open_comment  = dotclear()->blog()->settings()->system->allow_comments;
         $this->post_open_tb       = dotclear()->blog()->settings()->system->allow_trackbacks;
 
-        $this->can_view_ip   = dotclear()->auth()->check('contentadmin', dotclear()->blog()->id);
-        $this->can_edit_post = dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id);
-        $this->can_publish   = dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id);
+        $this->can_view_ip   = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
+        $this->can_edit_post = dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id);
+        $this->can_publish   = dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id);
 
         $this->post_headlink = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
         $this->post_link     = '<a href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
@@ -290,7 +290,7 @@ class Post extends Page
         # Create or update post
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
-            if (!empty($_POST['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+            if (!empty($_POST['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
                 $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $_POST['new_cat_title'];
                 $cur_cat->cat_url   = '';
@@ -347,7 +347,7 @@ class Post extends Page
                     dotclear()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->user_id = dotclear()->auth()->userID();
+                $cur->user_id = dotclear()->user()->userID();
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
@@ -586,7 +586,7 @@ class Post extends Page
                         '<p><label for="cat_id">' . __('Category:') . '</label>' .
                         Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
                         '</p>' .
-                        (dotclear()->auth()->check('categories', dotclear()->blog()->id) ?
+                        (dotclear()->user()->check('categories', dotclear()->blog()->id) ?
                             '<div>' .
                             '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
                             '<p><label for="new_cat_title">' . __('Title:') . ' ' .
@@ -663,7 +663,7 @@ class Post extends Page
                     Form::textarea(
                         'post_content',
                         50,
-                        (int) dotclear()->auth()->getOption('edit_size'),
+                        (int) dotclear()->user()->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
@@ -710,12 +710,12 @@ class Post extends Page
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('preview', dotclear()->auth()->userID() . '/' .
-                    Http::browserUID(dotclear()->config()->master_key . dotclear()->auth()->userID() . dotclear()->auth()->cryptLegacy(dotclear()->auth()->userID())) .
+                $preview_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('preview', dotclear()->user()->userID() . '/' .
+                    Http::browserUID(dotclear()->config()->master_key . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
                     '/' . $this->post->post_url);
 
-                dotclear()->auth()->user_prefs->addWorkspace('interface');
-                $blank_preview = dotclear()->auth()->user_prefs->interface->blank_preview;
+                dotclear()->user()->preference()->addWorkspace('interface');
+                $blank_preview = dotclear()->user()->preference()->interface->blank_preview;
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -808,17 +808,17 @@ class Post extends Page
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML(dotclear()->auth()->getInfo('user_cn')),
+                'default'    => Html::escapeHTML(dotclear()->user()->getInfo('user_cn')),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .
 
             '<p><label for="comment_email">' . __('Email:') . '</label>' .
-            Form::email('comment_email', 30, 255, Html::escapeHTML(dotclear()->auth()->getInfo('user_email'))) .
+            Form::email('comment_email', 30, 255, Html::escapeHTML(dotclear()->user()->getInfo('user_email'))) .
             '</p>' .
 
             '<p><label for="comment_site">' . __('Web site:') . '</label>' .
-            Form::url('comment_site', 30, 255, Html::escapeHTML(dotclear()->auth()->getInfo('user_url'))) .
+            Form::url('comment_site', 30, 255, Html::escapeHTML(dotclear()->user()->getInfo('user_url'))) .
             '</p>' .
 
             '<p class="area"><label for="comment_content" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' .
@@ -828,7 +828,7 @@ class Post extends Page
                 50,
                 8,
                 [
-                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . dotclear()->auth()->getInfo('user_lang') .
+                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . dotclear()->user()->getInfo('user_lang') .
                         '" spellcheck="true"',
                 ]
             ) .

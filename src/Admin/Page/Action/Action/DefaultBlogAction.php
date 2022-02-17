@@ -21,7 +21,7 @@ class DefaultBlogAction
 {
     public static function BlogsAction(Action $ap): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             return;
         }
 
@@ -42,7 +42,7 @@ class DefaultBlogAction
 
     public static function doChangeBlogStatus(Action $ap, $post): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             return;
         }
 
@@ -81,7 +81,7 @@ class DefaultBlogAction
 
     public static function doDeleteBlog(Action $ap, $post): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             return;
         }
 
@@ -90,7 +90,7 @@ class DefaultBlogAction
             throw new AdminException(__('No blog selected'));
         }
 
-        if (!dotclear()->auth()->checkPassword($_POST['pwd'])) {
+        if (!dotclear()->user()->checkPassword($_POST['pwd'])) {
             throw new AdminException(__('Password verification failed'));
         }
 

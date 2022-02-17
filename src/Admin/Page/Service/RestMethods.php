@@ -67,7 +67,7 @@ class RestMethods
         $rsp->check = false;
         $ret        = __('Dotclear news not available');
 
-        if (dotclear()->auth()->user_prefs->dashboard->dcnews) {
+        if (dotclear()->user()->preference()->dashboard->dcnews) {
             try {
                 if (empty(dotclear()->resources['rss_news'])) {
                     throw new AdminException();
@@ -113,7 +113,7 @@ class RestMethods
         $ret        = __('Dotclear update not available');
 
         /* @phpstan-ignore-next-line */
-        if (dotclear()->auth()->isSuperAdmin() && !dotclear()->config()->core_update_noauto && is_readable(dotclear()->config()->digests_dir) && !dotclear()->auth()->user_prefs->dashboard->nodcupdate) {
+        if (dotclear()->user()->isSuperAdmin() && !dotclear()->config()->core_update_noauto && is_readable(dotclear()->config()->digests_dir) && !dotclear()->user()->preference()->dashboard->nodcupdate) {
             $updater      = new Updater(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
             $new_v        = $updater->check(dotclear()->config()->core_version);
             $version_info = $new_v ? $updater->getInfoURL() : '';
@@ -139,7 +139,7 @@ class RestMethods
                 $rsp->check = true;
             } else {
                 if (version_compare(phpversion(), dotclear()->config()->php_next_required, '<')) {
-                    if (!dotclear()->auth()->user_prefs->interface->hidemoreinfo) {
+                    if (!dotclear()->user()->preference()->interface->hidemoreinfo) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
@@ -297,7 +297,7 @@ class RestMethods
 
         $rsp->comment_display_content($rs->getContent(true));
 
-        if (dotclear()->auth()->userID()) {
+        if (dotclear()->user()->userID()) {
             $rsp->comment_ip($rs->comment_ip);
             $rsp->comment_email($rs->comment_email);
 //!            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
@@ -309,7 +309,7 @@ class RestMethods
     public static function quickPost($get, $post)
     {
         # Create category
-        if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (!empty($post['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
             $cur_cat->cat_title = $post['new_cat_title'];
             $cur_cat->cat_url   = '';
@@ -328,7 +328,7 @@ class RestMethods
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         $cur->post_title        = !empty($post['post_title']) ? $post['post_title'] : '';
-        $cur->user_id           = dotclear()->auth()->userID();
+        $cur->user_id           = dotclear()->user()->userID();
         $cur->post_content      = !empty($post['post_content']) ? $post['post_content'] : '';
         $cur->cat_id            = !empty($post['cat_id']) ? (int) $post['cat_id'] : null;
         $cur->post_format       = !empty($post['post_format']) ? $post['post_format'] : 'xhtml';
@@ -401,7 +401,7 @@ class RestMethods
 
         $id = (int) $get['id'];
 
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new AdminException('Permission denied');
         }
 
@@ -590,13 +590,13 @@ class RestMethods
         if (empty($post['section'])) {
             throw new AdminException('No section name');
         }
-        if (dotclear()->auth()->user_prefs->toggles === null) {
-            dotclear()->auth()->user_prefs->addWorkspace('toggles');
+        if (dotclear()->user()->preference()->toggles === null) {
+            dotclear()->user()->preference()->addWorkspace('toggles');
         }
         $section = $post['section'];
         $status  = isset($post['value']) && ($post['value'] != 0);
-        if (dotclear()->auth()->user_prefs->toggles->prefExists('unfolded_sections')) {
-            $toggles = explode(',', trim((string) dotclear()->auth()->user_prefs->toggles->unfolded_sections));
+        if (dotclear()->user()->preference()->toggles->prefExists('unfolded_sections')) {
+            $toggles = explode(',', trim((string) dotclear()->user()->preference()->toggles->unfolded_sections));
         } else {
             $toggles = [];
         }
@@ -612,7 +612,7 @@ class RestMethods
                 $toggles[] = $section;
             };
         }
-        dotclear()->auth()->user_prefs->toggles->put('unfolded_sections', join(',', $toggles));
+        dotclear()->user()->preference()->toggles->put('unfolded_sections', join(',', $toggles));
 
         return true;
     }
@@ -626,14 +626,14 @@ class RestMethods
             throw new AdminException('No sorted list of id');
         }
 
-        if (dotclear()->auth()->user_prefs->dashboard === null) {
-            dotclear()->auth()->user_prefs->addWorkspace('dashboard');
+        if (dotclear()->user()->preference()->dashboard === null) {
+            dotclear()->user()->preference()->addWorkspace('dashboard');
         }
 
         $zone  = $post['id'];
         $order = $post['list'];
 
-        dotclear()->auth()->user_prefs->dashboard->put($zone, $order);
+        dotclear()->user()->preference()->dashboard->put($zone, $order);
 
         return true;
     }
@@ -667,10 +667,10 @@ class RestMethods
                 $su[$sort_type][2] = $sort_type == $post['id'] && isset($post[$k]) ? abs((int) $post[$k]) : $sort_data[4][1];
             }
         }
-        if (dotclear()->auth()->user_prefs->interface === null) {
-            dotclear()->auth()->user_prefs->addWorkspace('interface');
+        if (dotclear()->user()->preference()->interface === null) {
+            dotclear()->user()->preference()->addWorkspace('interface');
         }
-        dotclear()->auth()->user_prefs->interface->put('sorts', $su, 'array');
+        dotclear()->user()->preference()->interface->put('sorts', $su, 'array');
 
         $res->msg = __('List options saved');
 

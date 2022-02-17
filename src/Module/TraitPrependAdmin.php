@@ -65,7 +65,7 @@ trait TraitPrependAdmin
                 '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon-dark.svg',
             ],
             dotclear()->adminurl()->called() == 'admin.plugin.' . static::$define->id(),
-            $permissions === null ? dotclear()->auth()->isSuperAdmin() : dotclear()->auth()->check($permissions, dotclear()->blog()->id)
+            $permissions === null ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
         );
     }
 

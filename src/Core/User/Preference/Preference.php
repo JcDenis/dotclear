@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\User\Preference
+ * @class Dotclear\Core\User\Preference\Preference
  * @brief Dotclear core user preference class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\User;
+namespace Dotclear\Core\User\Preference;
 
-use Dotclear\Core\User\Workspace;
+use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {

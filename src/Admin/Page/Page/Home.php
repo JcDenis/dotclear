@@ -36,7 +36,7 @@ class Home extends Page
         # Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
-                dotclear()->users()->setUserDefaultBlog(dotclear()->auth()->userID(), dotclear()->blog()->id);
+                dotclear()->users()->setUserDefaultBlog(dotclear()->user()->userID(), dotclear()->blog()->id);
                 dotclear()->adminurl()->redirect('admin.home');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -74,42 +74,42 @@ class Home extends Page
         }
 
         # Check dashboard module prefs
-        if (!dotclear()->auth()->user_prefs->dashboard->prefExists('doclinks')) {
-            if (!dotclear()->auth()->user_prefs->dashboard->prefExists('doclinks', true)) {
-                dotclear()->auth()->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->dashboard->prefExists('doclinks')) {
+            if (!dotclear()->user()->preference()->dashboard->prefExists('doclinks', true)) {
+                dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);
             }
-            dotclear()->auth()->user_prefs->dashboard->put('doclinks', true, 'boolean');
+            dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean');
         }
-        if (!dotclear()->auth()->user_prefs->dashboard->prefExists('dcnews')) {
-            if (!dotclear()->auth()->user_prefs->dashboard->prefExists('dcnews', true)) {
-                dotclear()->auth()->user_prefs->dashboard->put('dcnews', true, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->dashboard->prefExists('dcnews')) {
+            if (!dotclear()->user()->preference()->dashboard->prefExists('dcnews', true)) {
+                dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean', '', null, true);
             }
-            dotclear()->auth()->user_prefs->dashboard->put('dcnews', true, 'boolean');
+            dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean');
         }
-        if (!dotclear()->auth()->user_prefs->dashboard->prefExists('quickentry')) {
-            if (!dotclear()->auth()->user_prefs->dashboard->prefExists('quickentry', true)) {
-                dotclear()->auth()->user_prefs->dashboard->put('quickentry', false, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->dashboard->prefExists('quickentry')) {
+            if (!dotclear()->user()->preference()->dashboard->prefExists('quickentry', true)) {
+                dotclear()->user()->preference()->dashboard->put('quickentry', false, 'boolean', '', null, true);
             }
-            dotclear()->auth()->user_prefs->dashboard->put('quickentry', false, 'boolean');
+            dotclear()->user()->preference()->dashboard->put('quickentry', false, 'boolean');
         }
-        if (!dotclear()->auth()->user_prefs->dashboard->prefExists('nodcupdate')) {
-            if (!dotclear()->auth()->user_prefs->dashboard->prefExists('nodcupdate', true)) {
-                dotclear()->auth()->user_prefs->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->dashboard->prefExists('nodcupdate')) {
+            if (!dotclear()->user()->preference()->dashboard->prefExists('nodcupdate', true)) {
+                dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
             }
-            dotclear()->auth()->user_prefs->dashboard->put('nodcupdate', false, 'boolean');
+            dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean');
         }
 
         // Handle folded/unfolded sections in admin from user preferences
-        if (!dotclear()->auth()->user_prefs->toggles->prefExists('unfolded_sections')) {
-            dotclear()->auth()->user_prefs->toggles->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
+        if (!dotclear()->user()->preference()->toggles->prefExists('unfolded_sections')) {
+            dotclear()->user()->preference()->toggles->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
         }
 
         # Editor stuff
         $admin_post_behavior = '';
-        if (dotclear()->auth()->user_prefs->dashboard->quickentry) {
-            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
-                $post_format = dotclear()->auth()->getOption('post_format');
-                $post_editor = dotclear()->auth()->getOption('editor');
+        if (dotclear()->user()->preference()->dashboard->quickentry) {
+            if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+                $post_format = dotclear()->user()->getOption('post_format');
+                $post_editor = dotclear()->user()->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
                     // context is not post because of tags not available
                     $admin_post_behavior = dotclear()->behavior()->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
@@ -119,7 +119,7 @@ class Home extends Page
 
         # Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
-        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $dragndrop_head = self::jsJson('dotclear_dragndrop', $this->dragndrop_msg);
         }
 
@@ -156,7 +156,7 @@ class Home extends Page
         $dashboardItem = 0;
 
         # Documentation links
-        if (dotclear()->auth()->user_prefs->dashboard->doclinks) {
+        if (dotclear()->user()->preference()->dashboard->doclinks) {
             if (!empty(dotclear()->resources['doc'])) {
                 $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
 
@@ -178,7 +178,7 @@ class Home extends Page
         dotclear()->behavior()->call('adminDashboardContents', $__dashboard_contents);
 
         $dragndrop      = '';
-        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $dragndrop      = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
@@ -188,7 +188,7 @@ class Home extends Page
                 '</label>';
         }
 
-        if (dotclear()->auth()->getInfo('user_default_blog') != dotclear()->blog()->id && dotclear()->auth()->getBlogCount() > 1) {
+        if (dotclear()->user()->getInfo('user_default_blog') != dotclear()->blog()->id && dotclear()->user()->getBlogCount() > 1) {
             echo
             '<p><a href="' . dotclear()->adminurl()->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
         }
@@ -218,7 +218,7 @@ class Home extends Page
         $err = [];
 
         # Check cache directory
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             if (!is_dir(dotclear()->config()->cache_dir) || !is_writable(dotclear()->config()->cache_dir)) {
                 $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in config.php file.') . '</p>';
             }
@@ -229,7 +229,7 @@ class Home extends Page
         }
 
         # Check public directory
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             if (!is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).') . '</p>';
             }
@@ -265,7 +265,7 @@ class Home extends Page
             }
 
             # Errors modules notifications
-            if (dotclear()->auth()->isSuperAdmin()) {
+            if (dotclear()->user()->isSuperAdmin()) {
                 if (dotclear()->plugins->error()->flag()) {
                     echo
                     '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
@@ -275,19 +275,19 @@ class Home extends Page
         }
 
         # Get current main orders
-        $main_order = dotclear()->auth()->user_prefs->dashboard->main_order;
+        $main_order = dotclear()->user()->preference()->dashboard->main_order;
         $main_order = ($main_order != '' ? explode(',', $main_order) : []);
 
         # Get current boxes orders
-        $boxes_order = dotclear()->auth()->user_prefs->dashboard->boxes_order;
+        $boxes_order = dotclear()->user()->preference()->dashboard->boxes_order;
         $boxes_order = ($boxes_order != '' ? explode(',', $boxes_order) : []);
 
         # Get current boxes items orders
-        $boxes_items_order = dotclear()->auth()->user_prefs->dashboard->boxes_items_order;
+        $boxes_items_order = dotclear()->user()->preference()->dashboard->boxes_items_order;
         $boxes_items_order = ($boxes_items_order != '' ? explode(',', $boxes_items_order) : []);
 
         # Get current boxes contents orders
-        $boxes_contents_order = dotclear()->auth()->user_prefs->dashboard->boxes_contents_order;
+        $boxes_contents_order = dotclear()->user()->preference()->dashboard->boxes_contents_order;
         $boxes_contents_order = ($boxes_contents_order != '' ? explode(',', $boxes_contents_order) : []);
 
         # Compose dashboard items (doc, …)
@@ -306,7 +306,7 @@ class Home extends Page
 
         # Compose main area
         $__dashboard_main = [];
-        if (!dotclear()->auth()->user_prefs->dashboard->nofavicons) {
+        if (!dotclear()->user()->preference()->dashboard->nofavicons) {
             # Dashboard icons
             $dashboardIcons = '<div id="icons">';
             foreach ($__dashboard_icons as $dib => $i) {
@@ -316,15 +316,15 @@ class Home extends Page
             $dashboardIcons .= '</div>';
             $__dashboard_main[] = $dashboardIcons;
         }
-        if (dotclear()->auth()->user_prefs->dashboard->quickentry) {
-            if (dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->preference()->dashboard->quickentry) {
+            if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 # Getting categories
                 $categories_combo = dotclear()->combo()->getCategoriesCombo(
                     dotclear()->blog()->categories()->getCategories([])
                 );
 
                 $dashboardQuickEntry = '<div id="quick">' .
-                '<h3>' . __('Quick post') . sprintf(' &rsaquo; %s', dotclear()->auth()->getOption('post_format')) . '</h3>' .
+                '<h3>' . __('Quick post') . sprintf(' &rsaquo; %s', dotclear()->user()->getOption('post_format')) . '</h3>' .
                 '<form id="quick-entry" action="' . dotclear()->adminurl()->get('admin.post') . '" method="post" class="fieldset">' .
                 '<h4>' . __('New post') . '</h4>' .
                 '<p class="col"><label for="post_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
@@ -339,7 +339,7 @@ class Home extends Page
                 '</div>' .
                 '<p><label for="cat_id" class="classic">' . __('Category:') . '</label> ' .
                 Form::combo('cat_id', $categories_combo) . '</p>' .
-                (dotclear()->auth()->check('categories', dotclear()->blog()->id)
+                (dotclear()->user()->check('categories', dotclear()->blog()->id)
                     ? '<div>' .
                     '<p id="new_cat" class="q-cat">' . __('Add a new category') . '</p>' .
                     '<p class="q-cat"><label for="new_cat_title">' . __('Title:') . '</label> ' .
@@ -351,14 +351,14 @@ class Home extends Page
                     '</div>'
                     : '') .
                 '<p><input type="submit" value="' . __('Save') . '" name="save" /> ' .
-                (dotclear()->auth()->check('publish', dotclear()->blog()->id)
+                (dotclear()->user()->check('publish', dotclear()->blog()->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
                 dotclear()->nonce()->form() .
                 Form::hidden('post_status', -2) .
-                Form::hidden('post_format', dotclear()->auth()->getOption('post_format')) .
+                Form::hidden('post_format', dotclear()->user()->getOption('post_format')) .
                 Form::hidden('post_excerpt', '') .
-                Form::hidden('post_lang', dotclear()->auth()->getInfo('user_lang')) .
+                Form::hidden('post_lang', dotclear()->user()->getInfo('user_lang')) .
                 Form::hidden('post_notes', '') .
                     '</p>' .
                     '</form>' .

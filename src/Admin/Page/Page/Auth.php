@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Page\Auth
+ * @class Dotclear\Admin\Page\Page\User
  * @brief Dotclear admin auth page
  *
  * @package Dotclear
@@ -88,11 +88,11 @@ class Auth extends Page
 
         $this->default_lang = $dlang;
         $this->page_url     = dotclear()->adminurl()->get('admin.auth');
-        $this->change_pwd   = dotclear()->auth()->allowPassChange() && isset($_POST['new_pwd']) && isset($_POST['new_pwd_c']) && isset($_POST['login_data']);
+        $this->change_pwd   = dotclear()->user()->allowPassChange() && isset($_POST['new_pwd']) && isset($_POST['new_pwd_c']) && isset($_POST['login_data']);
         $this->login_data   = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
-        $this->recover      = dotclear()->auth()->allowPassChange() && !empty($_REQUEST['recover']);
+        $this->recover      = dotclear()->user()->allowPassChange() && !empty($_REQUEST['recover']);
         $this->safe_mode    = !empty($_REQUEST['safe_mode']);
-        $this->akey         = dotclear()->auth()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
+        $this->akey         = dotclear()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
         $this->user_id      =
         $this->user_pwd     =
         $this->user_key     =
@@ -164,7 +164,7 @@ class Auth extends Page
         $this->user_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
 
         try {
-            $recover_key = dotclear()->auth()->setRecoverKey($this->user_id, $this->user_email);
+            $recover_key = dotclear()->user()->setRecoverKey($this->user_id, $this->user_email);
 
             $subject = Mail::B64Header('Dotclear ' . __('Password reset'));
             $message = __('Someone has requested to reset the password for the following site and username.') . "\n\n" .
@@ -185,7 +185,7 @@ class Auth extends Page
     protected function sendNewPassword(): void
     {
         try {
-            $recover_res = dotclear()->auth()->recoverUserPassword($this->akey);
+            $recover_res = dotclear()->user()->recoverUserPassword($this->akey);
 
             $subject = mb_encode_mimeheader('Dotclear ' . __('Your new password'), 'UTF-8', 'B');
             $message = __('Username:') . ' ' . $recover_res['user_id'] . "\n" .
@@ -226,13 +226,13 @@ class Auth extends Page
                 if (is_array($user_id)) {
                     $this->user_id    = trim((string) $data['user_id']);
                     $this->user_key   = substr($data['cookie_admin'], 0, 40);
-                    $check_user = dotclear()->auth()->checkUser($this->user_id, null, $this->user_key) === true;
+                    $check_user = dotclear()->user()->checkUser($this->user_id, null, $this->user_key) === true;
                 } else {
                     $this->user_id = trim((string) $user_id);  // @phpstan-ignore-line
                 }
             }
 
-            if (!dotclear()->auth()->allowPassChange() || !$check_user) {
+            if (!dotclear()->user()->allowPassChange() || !$check_user) {
                 $this->change_pwd = false;
 
                 throw new AdminException();
@@ -242,14 +242,14 @@ class Auth extends Page
                 throw new AdminException(__("Passwords don't match"));
             }
 
-            if (dotclear()->auth()->checkUser($this->user_id, $_POST['new_pwd']) === true) {
+            if (dotclear()->user()->checkUser($this->user_id, $_POST['new_pwd']) === true) {
                 throw new AdminException(__("You didn't change your password."));
             }
 
             $cur                  = dotclear()->con->openCursor(dotclear()->prefix . 'user');
             $cur->user_change_pwd = 0;
             $cur->user_pwd        = $_POST['new_pwd'];
-            dotclear()->users()->updUser(dotclear()->auth()->userID(), $cur);
+            dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
             dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;
@@ -268,30 +268,30 @@ class Auth extends Page
     protected function logon()
     {
         # We check the user
-        $check_user = dotclear()->auth()->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;
+        $check_user = dotclear()->user()->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;
         if ($check_user) {
-            $check_perms = dotclear()->auth()->findUserBlog() !== false;
+            $check_perms = dotclear()->user()->findUserBlog() !== false;
         } else {
             $check_perms = false;
         }
 
         $cookie_admin = Http::browserUID(dotclear()->config()->master_key . $this->user_id .
-            dotclear()->auth()->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
+            dotclear()->user()->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
 
-        if ($check_perms && dotclear()->auth()->mustChangePassword()) {
+        if ($check_perms && dotclear()->user()->mustChangePassword()) {
             $login_data = join('/', [
                 base64_encode($this->user_id),
                 $cookie_admin,
                 empty($_POST['user_remember']) ? '0' : '1',
             ]);
 
-            if (!dotclear()->auth()->allowPassChange()) {
+            if (!dotclear()->user()->allowPassChange()) {
                 $this->err = __('You have to change your password before you can login.');
             } else {
                 $this->err        = __('In order to login, you have to change your password now.');
                 $this->change_pwd = true;
             }
-        } elseif ($check_perms && !empty($_POST['safe_mode']) && !dotclear()->auth()->isSuperAdmin()) {
+        } elseif ($check_perms && !empty($_POST['safe_mode']) && !dotclear()->user()->isSuperAdmin()) {
             $this->err = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
             dotclear()->session()->start();
@@ -302,7 +302,7 @@ class Auth extends Page
                 $_SESSION['sess_blog_id'] = $_POST['blog'];
             }
 
-            if (!empty($_POST['safe_mode']) && dotclear()->auth()->isSuperAdmin()) {
+            if (!empty($_POST['safe_mode']) && dotclear()->user()->isSuperAdmin()) {
                 $_SESSION['sess_safe_mode'] = true;
             }
 
@@ -455,8 +455,8 @@ class Auth extends Page
             Form::hidden('login_data', $this->login_data) . '</p>' .
             '</div>';
         } else {
-            if (is_callable([dotclear()->auth(), 'authForm'])) {
-                echo dotclear()->auth()->authForm($this->user_id);
+            if (is_callable([dotclear()->user(), 'authForm'])) {
+                echo dotclear()->user()->authForm($this->user_id);
             } else {
                 if ($this->safe_mode) {
                     echo '<div class="fieldset" role="main">';
@@ -519,7 +519,7 @@ class Auth extends Page
                     '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
                 } else {
                     echo '<summary>' . __('Connection issue?') . '</summary>' . "\n";
-                    if (dotclear()->auth()->allowPassChange()) {
+                    if (dotclear()->user()->allowPassChange()) {
                         echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth', ['recover' => 1]) . '">' . __('I forgot my password') . '</a></p>';
                     }
                     echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth', ['safe_mode' => 1]) . '" id="safe_mode_link">' . __('I want to log in in safe mode') . '</a></p>';

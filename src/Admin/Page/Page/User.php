@@ -17,7 +17,7 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Container\User as ContainerUser;
-use Dotclear\Core\User\Preference;
+use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -49,8 +49,8 @@ class User extends Page
 
         $this->container = new ContainerUser();
 
-        $this->container->setLang(dotclear()->auth()->getInfo('user_lang'));
-        $this->container->setTZ(dotclear()->auth()->getInfo('user_tz'));
+        $this->container->setLang(dotclear()->user()->getInfo('user_lang'));
+        $this->container->setTZ(dotclear()->user()->getInfo('user_tz'));
 
         # Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
@@ -73,7 +73,7 @@ class User extends Page
         # Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->auth()->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
@@ -90,11 +90,11 @@ class User extends Page
                 $cur->user_tz          = $this->container->setTZ(Html::escapeHTML($_POST['user_tz']));
                 $cur->user_post_status = $this->container->setPostStatus(Html::escapeHTML($_POST['user_post_status']));
 
-                if ($this->container->getId() && $cur->user_id == dotclear()->auth()->userID() && dotclear()->auth()->isSuperAdmin()) {
+                if ($this->container->getId() && $cur->user_id == dotclear()->user()->userID() && dotclear()->user()->isSuperAdmin()) {
                     // force super_user to true if current user
                     $cur->user_super = $this->container->setSuper(true);
                 }
-                if (dotclear()->auth()->allowPassChange()) {
+                if (dotclear()->user()->allowPassChange()) {
                     $cur->user_change_pwd = !empty($_POST['user_change_pwd']) ? 1 : 0;
                 }
 
@@ -138,7 +138,7 @@ class User extends Page
                     # --BEHAVIOR-- adminAfterUserUpdate
                     dotclear()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
 
-                    if ($this->container->getId() == dotclear()->auth()->userID() && $this->container->getId() != $new_id) {
+                    if ($this->container->getId() == dotclear()->user()->userID() && $this->container->getId() != $new_id) {
                         dotclear()->session()->destroy();
                     }
 
@@ -239,7 +239,7 @@ class User extends Page
         '</p>' .
         '<p class="form-note info" id="user_id_help">' . __('At least 2 characters using letters, numbers or symbols.') . '</p>';
 
-        if ($this->container->getId() == dotclear()->auth()->userID()) {
+        if ($this->container->getId() == dotclear()->user()->userID()) {
             echo
             '<p class="warning" id="user_id_warning">' . __('Warning:') . ' ' .
             __('If you change your username, you will have to log in again.') . '</p>';
@@ -267,14 +267,14 @@ class User extends Page
                 'autocomplete' => 'new-password']) .
             '</p>';
 
-        if (dotclear()->auth()->allowPassChange()) {
+        if (dotclear()->user()->allowPassChange()) {
             echo
             '<p><label for="user_change_pwd" class="classic">' .
             Form::checkbox('user_change_pwd', '1', $this->container->getChangePwd()) . ' ' .
             __('Password change required to connect') . '</label></p>';
         }
 
-        $super_disabled = $this->container->getSuper() && $this->container->getId() == dotclear()->auth()->userID();
+        $super_disabled = $this->container->getSuper() && $this->container->getId() == dotclear()->user()->userID();
 
         echo
         '<p><label for="user_super" class="classic">' .
@@ -411,7 +411,7 @@ class User extends Page
                 '</form>';
 
             $permissions = dotclear()->users()->getUserPermissions($this->container->getId());
-            $perm_types  = dotclear()->auth()->getPermissionsTypes();
+            $perm_types  = dotclear()->user()->getPermissionsTypes();
 
             if (count($permissions) == 0) {
                 echo '<p>' . __('No permissions so far.') . '</p>';
@@ -456,8 +456,8 @@ class User extends Page
         ) . '">' . __('List of posts') . '</a>';
         echo '<p><a href="' . dotclear()->adminurl()->get('admin.comments',
             [
-                'email' => dotclear()->auth()->getInfo('user_email', $this->container->getId()),
-                'site'  => dotclear()->auth()->getInfo('user_url', $this->container->getId()),
+                'email' => dotclear()->user()->getInfo('user_email', $this->container->getId()),
+                'site'  => dotclear()->user()->getInfo('user_url', $this->container->getId()),
             ]
         ) . '">' . __('List of comments') . '</a>';
         echo '</div>';

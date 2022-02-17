@@ -109,7 +109,7 @@ class PageIconset extends Page
         }
 
         # -- Display modules lists --
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
                     dotclear()->notice()->success(__('Manual checking of modules update done successfully.'));
@@ -161,7 +161,7 @@ class PageIconset extends Page
         $modules = dotclear()->iconsets->getModules();
         if (!empty($modules)) {
             echo
-            '<h3>' . (dotclear()->auth()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
+            '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
             dotclear()->iconsets
@@ -175,7 +175,7 @@ class PageIconset extends Page
         }
 
         # Deactivated modules
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             $modules = dotclear()->iconsets->getDisabledModules();
             if (!empty($modules)) {
                 echo
@@ -196,7 +196,7 @@ class PageIconset extends Page
         echo
             '</div>';
 
-        if (dotclear()->auth()->isSuperAdmin() && dotclear()->iconsets->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && dotclear()->iconsets->isWritablePath()) {
 
             # New modules from repo
             $search  = dotclear()->iconsets->getSearch();
@@ -245,7 +245,7 @@ class PageIconset extends Page
         dotclear()->behavior()->call('modulesToolsTabs');
 
         # -- Notice for super admin --
-        if (dotclear()->auth()->isSuperAdmin() && !dotclear()->iconsets->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && !dotclear()->iconsets->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }

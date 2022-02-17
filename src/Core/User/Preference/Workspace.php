@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\User\Workspace
+ * @class Dotclear\Core\User\Preference\Workspace
  * @brief Dotclear core workspace class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\User;
+namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Database\Connection;
 use Dotclear\Database\Record;

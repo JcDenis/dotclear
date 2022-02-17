@@ -62,7 +62,7 @@ class Favorite
     public function __construct()
     {
         $this->fav_defs   = new ArrayObject();
-        $this->ws         = dotclear()->auth()->user_prefs->addWorkspace('dashboard');
+        $this->ws         = dotclear()->user()->preference()->addWorkspace('dashboard');
         $this->user_prefs = [];
 
         if ($this->ws->prefExists('favorites')) {
@@ -124,10 +124,10 @@ class Favorite
             if (is_bool($fattr['permissions']) && !$fattr['permissions']) {
                 return [];
             }
-            if (!dotclear()->auth()->check($fattr['permissions'], dotclear()->blog()->id)) {
+            if (!dotclear()->user()->check($fattr['permissions'], dotclear()->blog()->id)) {
                 return [];
             }
-        } elseif (!dotclear()->auth()->isSuperAdmin()) {
+        } elseif (!dotclear()->user()->isSuperAdmin()) {
             return [];
         }
 
@@ -197,7 +197,7 @@ class Favorite
      */
     protected function migrateFavorites(): void
     {
-        $fav_ws             = dotclear()->auth()->user_prefs->addWorkspace('favorites');
+        $fav_ws             = dotclear()->user()->preference()->addWorkspace('favorites');
         $this->local_prefs  = [];
         $this->global_prefs = [];
         foreach ($fav_ws->dumpPrefs() as $k => $v) {

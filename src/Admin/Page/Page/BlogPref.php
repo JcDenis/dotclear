@@ -91,7 +91,7 @@ class BlogPref extends Page
         }
 
         # Update a blog
-        if ($this->blog_id && !empty($_POST) && dotclear()->auth()->check('admin', $this->blog_id)) {
+        if ($this->blog_id && !empty($_POST) && dotclear()->user()->check('admin', $this->blog_id)) {
             # URL scan modes
             $url_scan_combo = [
                 'PATH_INFO'    => 'path_info',
@@ -107,7 +107,7 @@ class BlogPref extends Page
             $cur->blog_name = $_POST['blog_name'];
             $cur->blog_desc = $_POST['blog_desc'];
 
-            if (dotclear()->auth()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
+            if (dotclear()->user()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
                 $cur->blog_status = (int) $_POST['blog_status'];
             }
 
@@ -242,7 +242,7 @@ class BlogPref extends Page
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate
                 dotclear()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
-                if (dotclear()->auth()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
+                if (dotclear()->user()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $this->blog_settings->system->put('url_scan', $_POST['url_scan']);
                 }
                 dotclear()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
@@ -254,9 +254,9 @@ class BlogPref extends Page
         }
 
         # Page setup
-        $desc_editor = dotclear()->auth()->getOption('editor');
+        $desc_editor = dotclear()->user()->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @dotclear()->auth()->user_prefs->interface->rte_flags;
+        $rte_flags   = @dotclear()->user()->preference()->interface->rte_flags;
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -437,7 +437,7 @@ class BlogPref extends Page
                 'extra_html' => 'lang="' . $this->blog_settings->system->lang . '" spellcheck="true"'
             ]) . '</p>';
 
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo
             '<p><label for="blog_status">' . __('Blog status:') . '</label>' .
             Form::combo('blog_status', $status_combo, $this->blog_status) . '</p>';
@@ -706,7 +706,7 @@ class BlogPref extends Page
 
         echo '<div id="advanced-pref"><h3>' . __('Advanced parameters') . '</h3>';
 
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo '<div class="fieldset"><h4>' . __('Blog details') . '</h4>';
             echo
             '<p><label for="blog_id" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label>' .
@@ -791,7 +791,7 @@ class BlogPref extends Page
             sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog()->url, dotclear()->blog()->id) . // @phpstan-ignore-line
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
-            '<li>' . __('User name:') . ' <strong><code>' . dotclear()->auth()->userID() . '</code></strong></li>' .
+            '<li>' . __('User name:') . ' <strong><code>' . dotclear()->user()->userID() . '</code></strong></li>' .
             '<li>' . __('Password:') . ' <strong><code>&lt;' . __('your password') . '&gt;</code></strong></li>' .
             '<li>' . __('Blog ID:') . ' <strong><code>1</code></strong></li>' .
                 '</ul>';
@@ -853,7 +853,7 @@ class BlogPref extends Page
             '</p>' .
             '</form>';
 
-        if (dotclear()->auth()->isSuperAdmin() && $this->blog_id != dotclear()->blog()->id) {
+        if (dotclear()->user()->isSuperAdmin() && $this->blog_id != dotclear()->blog()->id) {
             echo
             '<form action="' . dotclear()->adminurl()->get('admin.blog.del') . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
@@ -873,8 +873,8 @@ class BlogPref extends Page
         #
         # Users on the blog (with permissions)
 
-        $blog_users = dotclear()->blogs()->getBlogPermissions($this->blog_id, dotclear()->auth()->isSuperAdmin());
-        $perm_types = dotclear()->auth()->getPermissionsTypes();
+        $blog_users = dotclear()->blogs()->getBlogPermissions($this->blog_id, dotclear()->user()->isSuperAdmin());
+        $perm_types = dotclear()->user()->getPermissionsTypes();
 
         echo
         '<div class="multi-part" id="users" title="' . __('Users') . '">' .
@@ -883,7 +883,7 @@ class BlogPref extends Page
         if (empty($blog_users)) {
             echo '<p>' . __('No users') . '</p>';
         } else {
-            if (dotclear()->auth()->isSuperAdmin()) {
+            if (dotclear()->user()->isSuperAdmin()) {
                 $user_url_p = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
             } else {
                 $user_url_p = '%1$s';
@@ -908,7 +908,7 @@ class BlogPref extends Page
                         $k, $v['name'], $v['firstname'], $v['displayname']
                     )) . ')</h4>';
 
-                    if (dotclear()->auth()->isSuperAdmin()) {
+                    if (dotclear()->user()->isSuperAdmin()) {
                         echo
                         '<p>' . __('Email:') . ' ' .
                             ($v['email'] != '' ? '<a href="mailto:' . $v['email'] . '">' . $v['email'] . '</a>' : __('(none)')) .
@@ -951,7 +951,7 @@ class BlogPref extends Page
                     echo
                         '</ul>';
 
-                    if (!$v['super'] && dotclear()->auth()->isSuperAdmin()) {
+                    if (!$v['super'] && dotclear()->user()->isSuperAdmin()) {
                         echo
                         '<form action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post">' .
                         '<p class="change-user-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .

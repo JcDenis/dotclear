@@ -125,7 +125,7 @@ class Page extends AbstractPage
             ->setPageHead(static::jsPageTabs($this->a_tab))
         ;
 
-        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js')

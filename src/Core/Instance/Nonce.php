@@ -28,7 +28,7 @@ class Nonce
      */
     public function get(): string
     {
-        return dotclear()->auth()->cryptLegacy(session_id());
+        return dotclear()->user()->cryptLegacy(session_id());
     }
 
     /**

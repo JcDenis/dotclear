@@ -52,7 +52,7 @@ class BlogDel extends Page
 
         # Delete the blog
         if (!dotclear()->error()->flag() && $this->blog_id && !empty($_POST['del'])) {
-            if (!dotclear()->auth()->checkPassword($_POST['pwd'])) {
+            if (!dotclear()->user()->checkPassword($_POST['pwd'])) {
                 dotclear()->error()->add(__('Password verification failed'));
             } else {
                 try {

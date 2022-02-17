@@ -271,7 +271,7 @@ class Page extends AbstractPage
             ])
         ;
 
-        if (!dotclear()->auth()->user_prefs->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setpageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .

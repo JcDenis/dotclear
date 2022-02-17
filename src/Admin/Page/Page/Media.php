@@ -105,10 +105,10 @@ class Media extends Page
     {
         $this->filter->add('handler', 'admin.media');
 
-        $this->media_uploader = dotclear()->auth()->user_prefs->interface->enhanceduploader;
+        $this->media_uploader = dotclear()->user()->preference()->interface->enhanceduploader;
 
         # Zip download
-        if (!empty($_GET['zipdl']) && dotclear()->auth()->check('media_admin', dotclear()->blog()->id)) {
+        if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {
             try {
                 if (strpos(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root)) === 0) {
                     // Media folder or one of it's sub-folder(s)
@@ -264,7 +264,7 @@ class Media extends Page
         }
 
         # Rebuild directory
-        if ($this->getDirs() && dotclear()->auth()->isSuperAdmin() && !empty($_POST['rebuild'])) {
+        if ($this->getDirs() && dotclear()->user()->isSuperAdmin() && !empty($_POST['rebuild'])) {
             try {
                 dotclear()->media()->rebuild($this->filter->d);
 
@@ -664,7 +664,7 @@ class Media extends Page
         if ($this->media_archivable === null) {
             $rs = $this->getDirsRecord();
 
-            $this->media_archivable = dotclear()->auth()->check('media_admin', dotclear()->blog()->id)
+            $this->media_archivable = dotclear()->user()->check('media_admin', dotclear()->blog()->id)
                 && !(count($rs) == 0 || (count($rs) == 1 && $rs->__data[0]->parent));
         }
 
@@ -739,7 +739,7 @@ class Media extends Page
      */
     public function showLast()
     {
-        return abs((int) dotclear()->auth()->user_prefs->interface->media_nb_last_dirs);
+        return abs((int) dotclear()->user()->preference()->interface->media_nb_last_dirs);
     }
 
     /**
@@ -750,7 +750,7 @@ class Media extends Page
     public function getLast()
     {
         if ($this->media_last === null) {
-            $m = dotclear()->auth()->user_prefs->interface->media_last_dirs;
+            $m = dotclear()->user()->preference()->interface->media_last_dirs;
             if (!is_array($m)) {
                 $m = [];
             }
@@ -806,7 +806,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_last = $last_dirs;
-            dotclear()->auth()->user_prefs->interface->put('media_last_dirs', $last_dirs, 'array');
+            dotclear()->user()->preference()->interface->put('media_last_dirs', $last_dirs, 'array');
         }
 
         return $done;
@@ -820,7 +820,7 @@ class Media extends Page
     public function getFav()
     {
         if ($this->media_fav === null) {
-            $m = dotclear()->auth()->user_prefs->interface->media_fav_dirs;
+            $m = dotclear()->user()->preference()->interface->media_fav_dirs;
             if (!is_array($m)) {
                 $m = [];
             }
@@ -861,7 +861,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_fav = $fav_dirs;
-            dotclear()->auth()->user_prefs->interface->put('media_fav_dirs', $fav_dirs, 'array');
+            dotclear()->user()->preference()->interface->put('media_fav_dirs', $fav_dirs, 'array');
         }
 
         return $done;

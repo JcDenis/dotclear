@@ -153,7 +153,7 @@ class PostCatalog extends Catalog
      */
     private function postLine($checked)
     {
-        if (dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             $cat_link = '<a href="' . dotclear()->adminurl()->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
         } else {
             $cat_link = '%2$s';

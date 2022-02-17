@@ -82,7 +82,7 @@ class FilterIpv6 extends Spamfilter
         # Add IP to list
         if (!empty($_POST['addip'])) {
             try {
-                $global = !empty($_POST['globalip']) && dotclear()->auth()->isSuperAdmin();
+                $global = !empty($_POST['globalip']) && dotclear()->user()->isSuperAdmin();
 
                 $this->addIP($ip_type, $_POST['addip'], $global);
                 dotclear()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
@@ -126,7 +126,7 @@ class FilterIpv6 extends Spamfilter
         Form::hidden(['ip_type'], $type) .
         '<label class="classic" for="addip_' . $type . '">' . __('Add an IP address: ') . '</label> ' .
         Form::field(['addip', 'addip_' . $type], 18, 255);
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             $res .= '<label class="classic" for="globalip_' . $type . '">' . Form::checkbox(['globalip', 'globalip_' . $type], 1) . ' ' .
             __('Global IP (used for all blogs)') . '</label> ';
         }
@@ -153,7 +153,7 @@ class FilterIpv6 extends Spamfilter
                 $disabled_ip = false;
                 $p_style     = '';
                 if (!$rs->blog_id) {
-                    $disabled_ip = !dotclear()->auth()->isSuperAdmin();
+                    $disabled_ip = !dotclear()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
@@ -209,7 +209,7 @@ class FilterIpv6 extends Spamfilter
             $cur->rule_type    = (string) $type;
             $cur->rule_content = (string) $pattern;
 
-            if ($global && dotclear()->auth()->isSuperAdmin()) {
+            if ($global && dotclear()->user()->isSuperAdmin()) {
                 $cur->blog_id = null;
             } else {
                 $cur->blog_id = dotclear()->blog()->id;
@@ -281,7 +281,7 @@ class FilterIpv6 extends Spamfilter
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             $strReq .= "AND blog_id = '" . dotclear()->blog()->id . "' ";
         }
 

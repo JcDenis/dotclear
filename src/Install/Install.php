@@ -134,7 +134,7 @@ class Install
                 $cur                 = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
                 $cur->user_id        = $u_login;
                 $cur->user_super     = 1;
-                $cur->user_pwd       = dotclear()->auth()->crypt($u_pwd);
+                $cur->user_pwd       = dotclear()->user()->crypt($u_pwd);
                 $cur->user_name      = (string) $u_name;
                 $cur->user_firstname = (string) $u_firstname;
                 $cur->user_email     = (string) $u_email;
@@ -145,7 +145,7 @@ class Install
                 $cur->user_options   = serialize(ContainerUser::defaultOptions());
                 $cur->insert();
 
-                dotclear()->auth()->checkUser($u_login);
+                dotclear()->user()->checkUser($u_login);
 
                 /* Create blog */
                 $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
@@ -245,19 +245,19 @@ class Install
                 $plugins_install = $plugins->installModules($dlang);
 
                 /* Add dashboard module options */
-                dotclear()->auth()->user_prefs->addWorkspace('dashboard');
-                dotclear()->auth()->user_prefs->dashboard->put('doclinks', true, 'boolean', '', null, true);
-                dotclear()->auth()->user_prefs->dashboard->put('dcnews', true, 'boolean', '', null, true);
-                dotclear()->auth()->user_prefs->dashboard->put('quickentry', true, 'boolean', '', null, true);
-                dotclear()->auth()->user_prefs->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
+                dotclear()->user()->preference()->addWorkspace('dashboard');
+                dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->dashboard->put('quickentry', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
 
                 /* Add accessibility options */
-                dotclear()->auth()->user_prefs->addWorkspace('accessibility');
-                dotclear()->auth()->user_prefs->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
+                dotclear()->user()->preference()->addWorkspace('accessibility');
+                dotclear()->user()->preference()->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
 
                 /* Add user interface options */
-                dotclear()->auth()->user_prefs->addWorkspace('interface');
-                dotclear()->auth()->user_prefs->interface->put('enhanceduploader', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->addWorkspace('interface');
+                dotclear()->user()->preference()->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 /* Add default favorites */
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];

@@ -144,16 +144,16 @@ class Meta
     {
         $post_id = (int) $post_id;
 
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         #�If user can only publish, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_id = ' . $post_id . ' ' .
-            "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+            "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
 
             $rs = dotclear()->con()->select($strReq);
 
@@ -293,7 +293,7 @@ class Meta
             $strReq .= ' AND P.post_id ' . dotclear()->con()->in($params['post_id']) . ' ';
         }
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if (dotclear()->blog()->without_password) {
@@ -301,8 +301,8 @@ class Meta
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
+            if (dotclear()->user()->userID()) {
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -442,8 +442,8 @@ class Meta
         "AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             "AND meta_id = '%s' ";
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $getReq .= "AND P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $getReq .= "AND P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
         if ($post_type !== null) {
             $getReq .= "AND P.post_type = '" . dotclear()->con()->escape($post_type) . "' ";

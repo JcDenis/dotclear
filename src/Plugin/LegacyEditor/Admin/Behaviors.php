@@ -151,9 +151,9 @@ class Behaviors
                 'post_link'    => ['title' => __('Link to an entry')],
                 'removeFormat' => ['title' => __('Remove text formating')],
             ],
-            'toolbar_bottom' => dotclear()->auth()->getOption('toolbar_bottom'),
+            'toolbar_bottom' => dotclear()->user()->getOption('toolbar_bottom'),
         ];
-        if (!dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             $js['elements']['img_select']['disabled'] = true;
         }
 
@@ -161,7 +161,7 @@ class Behaviors
         Page::cssLoad('?mf=Plugin/LegacyEditor/css/jsToolBar/jsToolBar.css') .
         Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/jsToolBar.js');
 
-        if (dotclear()->auth()->getOption('enable_wysiwyg')) {
+        if (dotclear()->user()->getOption('enable_wysiwyg')) {
             $res .= Page::jsLoad('?mf=Plugin/LegacyEditor/js/jsToolBar/jsToolBar.wysiwyg.js');
         }
 

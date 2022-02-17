@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Dotclear\Core\Blog\Blog;
+use Dotclear\Core\User\User;
 use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
@@ -30,7 +31,6 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Core
 {
     # Traits
-    use \Dotclear\Core\Instance\TraitAuth;
     use \Dotclear\Core\Instance\TraitAutoload;
     use \Dotclear\Core\Instance\TraitBehavior;
     use \Dotclear\Core\Instance\TraitBlogs;
@@ -49,6 +49,9 @@ class Core
     use \Dotclear\Core\Instance\TraitUrl;
     use \Dotclear\Core\Instance\TraitVersion;
     use \Dotclear\Core\Instance\TraitWiki2xhtml;
+
+    /** @var    Auth   Auth instance */
+    private $user;
 
     /** @var    Blog   Blog instance */
     private $blog = null;
@@ -185,7 +188,7 @@ class Core
         if ($this->config()->crypt_algo != 'sha1') {
             # Check length of cryptographic algorithm result and exit if less than 40 characters long
             if (strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo)) < 40) {
-                if ($this->process != 'Admin') {
+                if (!in_array($this->process, ['Admin', 'Install'])) {
                     throw new PrependException('Server error', 'Site temporarily unavailable');
                 } else {
                     throw new PrependException('Dotclear error', $this->config()->crypt_algo . ' cryptographic algorithm configured is not strong enough, please change it.');
@@ -276,6 +279,56 @@ class Core
     {
         $this->blog = null;
     }
+    //@}
+
+    /// @name Core user instance methods
+    //@{
+    /**
+     * Get auth instance
+     *
+     * You can set DOTCLEAR_USER_CLASS to whatever you want.
+     * Your new class *should* inherits Dotclear\Core\User\User class.
+     *
+     * @return  User|null  User instance or null
+     */
+    public function user(): ?User
+    {
+        if (!($this->user instanceof User)) {
+            $dc_user_class = __NAMESPACE__ . '\\User\\User';
+            $class = defined('DOTCLEAR_USER_CLASS') ? DOTCLEAR_USER_CLASS : $dc_user_class;
+
+            # Check if auth class exists
+            if (!class_exists($class)) {
+                // Admin must create it
+                if (!in_array($this->process, ['Admin', 'Install'])) {
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
+                } else {
+                    throw new PrependException('Dotclear error', sprintf(
+                        'Authentication class %s does not exist.', $class
+                    ));
+                }
+                exit;
+            }
+
+            # Check if auth class inherit Dotclear auth class
+            if ($class != $dc_user_class && !is_subclass_of($class, $dc_user_class)) {
+                // Admin must create it
+                if (!in_array($this->process, ['Admin', 'Install'])) {
+                    throw new PrependException('Server error', 'Site temporarily unavailable');
+                } else {
+                    throw new PrependException('Dotclear error', sprintf(
+                        'Authentication class %s does not inherit %s.', $class, $dc_user_class
+                    ));
+                }
+                exit;
+            }
+
+            $this->user = new $class();
+        }
+
+        return $this->user;
+    }
+    //@}
 
     /**
      * Shutdown function
@@ -293,7 +346,6 @@ class Core
         }
         $this->con()->close();
     }
-    //@}
 
     /**
      * Empty templates cache directory

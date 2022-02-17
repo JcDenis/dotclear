@@ -25,7 +25,7 @@ class DefaultPostAction
 {
     public static function PostAction(Action $ap)
     {
-        if (dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -55,14 +55,14 @@ class DefaultPostAction
             ]],
             [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostLang']
         );
-        if (dotclear()->auth()->check('admin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Change') => [
                     __('Change author') => 'author']],
                 [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostAuthor']
             );
         }
-        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
@@ -193,7 +193,7 @@ class DefaultPostAction
                 throw new AdminException(__('No entry selected'));
             }
             $new_cat_id = (int) $post['new_cat_id'];
-            if (!empty($post['new_cat_title']) && dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+            if (!empty($post['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
                 //to do: check for duplicate category and throw clean Exception
                 $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->cat_title = $post['new_cat_title'];
@@ -242,7 +242,7 @@ class DefaultPostAction
                 Form::combo(['new_cat_id'], $categories_combo)
             );
 
-            if (dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+            if (dotclear()->user()->check('categories', dotclear()->blog()->id)) {
 
                 $ap->setPageContent(
                     '</p><div>' .
@@ -267,7 +267,7 @@ class DefaultPostAction
 
     public static function doChangePostAuthor(Action $ap, $post)
     {
-        if (isset($post['new_auth_id']) && dotclear()->auth()->check('admin', dotclear()->blog()->id)) {
+        if (isset($post['new_auth_id']) && dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $new_user_id = $post['new_auth_id'];
             $posts_ids   = $ap->getIDs();
             if (empty($posts_ids)) {
@@ -293,7 +293,7 @@ class DefaultPostAction
             $ap->redirect(true);
         } else {
             $usersList = [];
-            if (dotclear()->auth()->check('admin', dotclear()->blog()->id)) {
+            if (dotclear()->user()->check('admin', dotclear()->blog()->id)) {
                 $params = [
                     'limit' => 100,
                     'order' => 'nb_post DESC'

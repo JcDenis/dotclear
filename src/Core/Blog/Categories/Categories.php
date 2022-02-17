@@ -72,7 +72,7 @@ class Categories
         if (isset($params['without_empty']) && ($params['without_empty'] == false)) {
             $without_empty = false;
         } else {
-            $without_empty = dotclear()->auth()->userID() == false; # Get all categories if in admin display
+            $without_empty = dotclear()->user()->userID() == false; # Get all categories if in admin display
         }
 
         $start = isset($params['start']) ? (int) $params['start'] : 0;
@@ -245,7 +245,7 @@ class Categories
         'JOIN ' . dotclear()->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ) " .
         "WHERE C.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
 
-        if (!dotclear()->auth()->userID()) {
+        if (!dotclear()->user()->userID()) {
             $strReq .= 'AND P.post_status = 1 ';
         }
 
@@ -276,7 +276,7 @@ class Categories
      */
     public function addCategory(Cursor $cur, int $parent = 0): int
     {
-        if (!dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to add categories'));
         }
 
@@ -332,7 +332,7 @@ class Categories
      */
     public function updCategory(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update categories'));
         }
 
@@ -412,7 +412,7 @@ class Categories
      */
     public function delCategory(int $id): void
     {
-        if (!dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete categories'));
         }
 
@@ -436,7 +436,7 @@ class Categories
      */
     public function resetCategoriesOrder(): void
     {
-        if (!dotclear()->auth()->check('categories', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to reset categories order'));
         }
 

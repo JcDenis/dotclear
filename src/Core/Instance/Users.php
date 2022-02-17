@@ -133,7 +133,7 @@ class Users
      */
     public function addUser(Cursor $cur): string
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -153,7 +153,7 @@ class Users
 
         $cur->insert();
 
-        dotclear()->auth()->afterAddUser($cur);
+        dotclear()->user()->afterAddUser($cur);
 
         return $cur->user_id;
     }
@@ -172,13 +172,13 @@ class Users
     {
         $this->getUserCursor($cur);
 
-        if (($cur->user_id !== null || $user_id != dotclear()->auth()->userID()) && !dotclear()->auth()->isSuperAdmin()) {
+        if (($cur->user_id !== null || $user_id != dotclear()->user()->userID()) && !dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $cur->update("WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ");
 
-        dotclear()->auth()->afterUpdUser($user_id, $cur);
+        dotclear()->user()->afterUpdUser($user_id, $cur);
 
         if ($cur->user_id !== null) {
             $user_id = $cur->user_id;
@@ -208,11 +208,11 @@ class Users
      */
     public function delUser(string $user_id): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if ($user_id == dotclear()->auth()->userID()) {
+        if ($user_id == dotclear()->user()->userID()) {
             return;
         }
 
@@ -227,7 +227,7 @@ class Users
 
         dotclear()->con()->execute($strReq);
 
-        dotclear()->auth()->afterDelUser($user_id);
+        dotclear()->user()->afterDelUser($user_id);
     }
 
     /**
@@ -277,7 +277,7 @@ class Users
             $res[$rs->blog_id] = [
                 'name' => $rs->blog_name,
                 'url'  => $rs->blog_url,
-                'p'    => dotclear()->auth()->parsePermissions($rs->permissions)
+                'p'    => dotclear()->user()->parsePermissions($rs->permissions)
             ];
         }
 
@@ -298,7 +298,7 @@ class Users
      */
     public function setUserPermissions(string $user_id, array $perms): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -324,7 +324,7 @@ class Users
      */
     public function setUserBlogPermissions(string $user_id, string $blog_id, array $perms, bool $delete_first = true): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -392,7 +392,7 @@ class Users
             if (strlen($cur->user_pwd) < 6) {
                 throw new CoreException(__('Password must contain at least 6 characters.'));
             }
-            $cur->user_pwd = dotclear()->auth()->crypt($cur->user_pwd);
+            $cur->user_pwd = dotclear()->user()->crypt($cur->user_pwd);
         }
 
         if ($cur->user_lang !== null && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->user_lang)) {

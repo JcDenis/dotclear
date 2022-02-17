@@ -376,8 +376,8 @@ class Notice
         if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), dotclear()->auth()->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dotclear()->auth()->getInfo('user_tz')),
+                Dt::iso8601(strtotime($notification['ts']), dotclear()->user()->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dotclear()->user()->getInfo('user_tz')),
             );
         }
         $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
@@ -404,8 +404,8 @@ class Notice
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), dotclear()->auth()->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, dotclear()->auth()->getInfo('user_tz')),
+                    Dt::iso8601(time(), dotclear()->user()->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, dotclear()->user()->getInfo('user_tz')),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

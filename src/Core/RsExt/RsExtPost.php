@@ -36,7 +36,7 @@ class RsExtPost
     public static function isEditable($rs)
     {
         # If user is admin or contentadmin, true
-        if (dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             return true;
         }
 
@@ -46,8 +46,8 @@ class RsExtPost
         }
 
         # If user is usage and owner of the entrie
-        if (dotclear()->auth()->check('usage', dotclear()->blog()->id)
-            && $rs->user_id == dotclear()->auth()->userID()) {
+        if (dotclear()->user()->check('usage', dotclear()->blog()->id)
+            && $rs->user_id == dotclear()->user()->userID()) {
             return true;
         }
 
@@ -64,7 +64,7 @@ class RsExtPost
     public static function isDeletable($rs)
     {
         # If user is admin, or contentadmin, true
-        if (dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             return true;
         }
 
@@ -74,8 +74,8 @@ class RsExtPost
         }
 
         # If user has delete rights and is owner of the entrie
-        if (dotclear()->auth()->check('delete', dotclear()->blog()->id)
-            && $rs->user_id == dotclear()->auth()->userID()) {
+        if (dotclear()->user()->check('delete', dotclear()->blog()->id)
+            && $rs->user_id == dotclear()->user()->userID()) {
             return true;
         }
 

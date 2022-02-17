@@ -63,7 +63,7 @@ class Page extends AbstractPage
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
         # Get interface setting
-        $user_ui_colorsyntax = dotclear()->auth()->user_prefs->interface->colorsyntax;
+        $user_ui_colorsyntax = dotclear()->user()->preference()->interface->colorsyntax;
 
         # Loading themes
         $this->te_theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
@@ -133,7 +133,7 @@ class Page extends AbstractPage
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                static::jsLoadCodeMirror(dotclear()->auth()->user_prefs->interface->colorsyntax_theme)
+                static::jsLoadCodeMirror(dotclear()->user()->preference()->interface->colorsyntax_theme)
             );
         }
         $this->setPageHead(
@@ -191,7 +191,7 @@ class Page extends AbstractPage
             echo
                 '</div></form>';
 
-            if (dotclear()->auth()->user_prefs->interface->colorsyntax) {
+            if (dotclear()->user()->preference()->interface->colorsyntax) {
                 $editorMode = (!empty($_REQUEST['css']) ? 'css' :
                     (!empty($_REQUEST['js']) ? 'javascript' :
                     (!empty($_REQUEST['po']) ? 'text/plain' :
@@ -199,7 +199,7 @@ class Page extends AbstractPage
                     'text/html'))));
                 echo static::jsJson('theme_editor_mode', ['mode' => $editorMode]);
                 echo static::jsLoad('?mf=Plugin/ThemeEditor/files/js/mode.js');
-                echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->auth()->user_prefs->interface->colorsyntax_theme);
+                echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
             }
         }
 
@@ -228,7 +228,7 @@ class Page extends AbstractPage
     private function isEditableTheme()
     {
         $theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
-        if ($theme && $theme->id() != 'default' && dotclear()->auth()->isSuperAdmin()) {
+        if ($theme && $theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
             $path = dotclear()->themes->getModulesPath();
 
             return dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT

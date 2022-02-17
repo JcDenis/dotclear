@@ -61,7 +61,7 @@ class ListOption
         dotclear()->behavior()->call('adminColumnsLists', $cols);
 
         # Load user settings
-        $cols_user = @dotclear()->auth()->user_prefs->interface->cols;
+        $cols_user = @dotclear()->user()->preference()->interface->cols;
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -94,7 +94,7 @@ class ListOption
     public function getDefaultFilters(): array
     {
         $users = [null, null, null, null, null];
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             $users = [
                 __('Users'),
                 dotclear()->combo()->getUsersSortbyCombo(),
@@ -165,10 +165,10 @@ class ListOption
             # --BEHAVIOR-- adminFiltersLists
             dotclear()->behavior()->call('adminFiltersLists', $sorts);
 
-            if (dotclear()->auth()->user_prefs->interface === null) {
-                dotclear()->auth()->user_prefs->addWorkspace('interface');
+            if (dotclear()->user()->preference()->interface === null) {
+                dotclear()->user()->preference()->addWorkspace('interface');
             }
-            $sorts_user = @dotclear()->auth()->user_prefs->interface->sorts;
+            $sorts_user = @dotclear()->user()->preference()->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {

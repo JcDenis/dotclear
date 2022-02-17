@@ -101,7 +101,7 @@ class CommentFilter extends Filter
      */
     public function getCommentIpFilter(): ?DefaultFilter
     {
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             return null;
         }
 

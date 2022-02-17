@@ -80,7 +80,7 @@ class Prepend extends Core
             # We have session information in constants
             $_COOKIE[dotclear()->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
 
-            if (!$this->auth()->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
+            if (!$this->user()->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
                 throw new PrependException('Invalid session data.');
             }
 
@@ -102,10 +102,10 @@ class Prepend extends Core
             if (!$this->blog()->id) {
                 throw new PrependException('Permission denied.');
             }
-        } elseif ($this->auth()->sessionExists()) {
+        } elseif ($this->user()->sessionExists()) {
             # If we have a session we launch it now
             try {
-                if (!$this->auth()->checkSession()) {
+                if (!$this->user()->checkSession()) {
                     # Avoid loop caused by old cookie
                     $p    = $this->session()->getCookieParameters(false, -600);
                     $p[3] = '/';
@@ -129,7 +129,7 @@ class Prepend extends Core
             }
 
             if (!empty($_REQUEST['switchblog'])
-                && $this->auth()->getPermissions($_REQUEST['switchblog']) !== false) {
+                && $this->user()->getPermissions($_REQUEST['switchblog']) !== false) {
                 $_SESSION['sess_blog_id'] = $_REQUEST['switchblog'];
                 if (isset($_SESSION['media_manager_dir'])) {
                     unset($_SESSION['media_manager_dir']);
@@ -153,11 +153,11 @@ class Prepend extends Core
 
             # Check blog to use and log out if no result
             if (isset($_SESSION['sess_blog_id'])) {
-                if ($this->auth()->getPermissions($_SESSION['sess_blog_id']) === false) {
+                if ($this->user()->getPermissions($_SESSION['sess_blog_id']) === false) {
                     unset($_SESSION['sess_blog_id']);
                 }
             } else {
-                if (($b = $this->auth()->findUserBlog($this->auth()->getInfo('user_default_blog'))) !== false) {
+                if (($b = $this->user()->findUserBlog($this->user()->getInfo('user_default_blog'))) !== false) {
                     $_SESSION['sess_blog_id'] = $b;
                     unset($b);
                 }
@@ -179,9 +179,9 @@ class Prepend extends Core
         $this->adminServeFile();
 
         # User session exists
-        if (!empty($this->auth()->userID()) && $this->blog() !== null) {
+        if (!empty($this->user()->userID()) && $this->blog() !== null) {
 
-            $this->auth()->user_prefs->addWorkspace('interface');
+            $this->user()->preference()->addWorkspace('interface');
 
             # Load resources
             $this->adminLoadResources(dotclear()->config()->l10n_dir);
@@ -204,7 +204,7 @@ class Prepend extends Core
 
             # Add default top menus
             $this->favorite()->setup();
-            if (!$this->auth()->user_prefs->interface->nofavmenu) {
+            if (!$this->user()->preference()->interface->nofavmenu) {
                 $this->favorite()->appendMenu($this->summary());
             }
             $this->summary()->setup();
@@ -335,7 +335,7 @@ class Prepend extends Core
 
     private function adminGetLang(): void
     {
-        $_lang       = $this->auth()->getInfo('user_lang') ?? 'en';
+        $_lang       = $this->user()->getInfo('user_lang') ?? 'en';
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
     }
 

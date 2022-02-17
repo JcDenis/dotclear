@@ -81,7 +81,7 @@ class UserAction extends Page
             if ($this->user_action == 'deleteuser' && !empty($this->users)) {
                 foreach ($this->users as $u) {
                     try {
-                        if ($u == dotclear()->auth()->userID()) {
+                        if ($u == dotclear()->user()->userID()) {
                             throw new AdminException(__('You cannot delete yourself.'));
                         }
 
@@ -102,7 +102,7 @@ class UserAction extends Page
             # Update users perms
             if ($this->user_action == 'updateperm' && !empty($this->users) && !empty($this->blogs)) {
                 try {
-                    if (empty($_POST['your_pwd']) || !dotclear()->auth()->checkPassword($_POST['your_pwd'])) {
+                    if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                         throw new AdminException(__('Password verification failed'));
                     }
 
@@ -275,7 +275,7 @@ class UserAction extends Page
                 echo '<h3>' . ('Blog:') . ' <a href="' . dotclear()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 Form::hidden(['blogs[]'], $b) . '</h3>';
                 $unknown_perms = $user_perm;
-                foreach (dotclear()->auth()->getPermissionsTypes() as $perm_id => $perm) {
+                foreach (dotclear()->user()->getPermissionsTypes() as $perm_id => $perm) {
                     $checked = false;
 
                     if (count($this->users) == 1) {

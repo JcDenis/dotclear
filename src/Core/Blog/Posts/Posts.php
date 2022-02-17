@@ -113,7 +113,7 @@ class Posts
 
         $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if (dotclear()->blog()->withoutPassword()) {
@@ -121,8 +121,8 @@ class Posts
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
+            if (dotclear()->user()->userID()) {
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -354,7 +354,7 @@ class Posts
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if (dotclear()->blog()->withoutPassword()) {
@@ -362,8 +362,8 @@ class Posts
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth()->userID()) {
-                $strReq .= "OR user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
+            if (dotclear()->user()->userID()) {
+                $strReq .= "OR user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -448,7 +448,7 @@ class Posts
         "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             $catReq;
 
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
             if (dotclear()->blog()->withoutPassword()) {
@@ -456,8 +456,8 @@ class Posts
             }
             $strReq .= ') ';
 
-            if (dotclear()->auth()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "')";
+            if (dotclear()->user()->userID()) {
+                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -526,7 +526,7 @@ class Posts
      */
     public function addPost(Cursor $cur): int
     {
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
@@ -543,7 +543,7 @@ class Posts
             $cur->blog_id     = (string) dotclear()->blog()->id;
             $cur->post_creadt = date('Y-m-d H:i:s');
             $cur->post_upddt  = date('Y-m-d H:i:s');
-            $cur->post_tz     = dotclear()->auth()->getInfo('user_tz');
+            $cur->post_tz     = dotclear()->user()->getInfo('user_tz');
 
             # Post excerpt and content
             $this->getPostContent($cur, $cur->post_id);
@@ -552,7 +552,7 @@ class Posts
 
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $cur->post_id);
 
-            if (!dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+            if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
                 $cur->post_status = -2;
             }
 
@@ -587,7 +587,7 @@ class Posts
      */
     public function updPost(int $id, Cursor $cur): void
     {
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update entries'));
         }
 
@@ -606,18 +606,18 @@ class Posts
             $cur->post_url = $this->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $id);
         }
 
-        if (!dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $cur->unsetField('post_status');
         }
 
         $cur->post_upddt = date('Y-m-d H:i:s');
 
         #If user is only "usage", we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+            "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
 
             $rs = dotclear()->con()->select($strReq);
 
@@ -660,7 +660,7 @@ class Posts
      */
     public function updPostsStatus($ids, int $status): void
     {
-        if (!dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
@@ -671,8 +671,8 @@ class Posts
         'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         #If user can only publish, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
@@ -707,7 +707,7 @@ class Posts
      */
     public function updPostsSelected($ids, $selected): void
     {
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -718,8 +718,8 @@ class Posts
         'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
@@ -752,7 +752,7 @@ class Posts
      */
     public function updPostsCategory($ids, $cat_id): void
     {
-        if (!dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
@@ -763,8 +763,8 @@ class Posts
         'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
@@ -786,7 +786,7 @@ class Posts
      */
     public function changePostsCategory(?int $old_cat_id, ?int $new_cat_id): void
     {
-        if (!dotclear()->auth()->check('contentadmin,categories', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin,categories', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
         }
 
@@ -824,7 +824,7 @@ class Posts
      */
     public function delPosts($ids): void
     {
-        if (!dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
@@ -839,8 +839,8 @@ class Posts
         'AND post_id ' . dotclear()->con()->in($posts_ids);
 
         #If user can only delete, we need to check the post's owner
-        if (!dotclear()->auth()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' ";
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
 
         dotclear()->con()->execute($strReq);
@@ -1045,7 +1045,7 @@ class Posts
         }
 
         if ($cur->post_dt == '') {
-            $offset       = Dt::getTimeOffset(dotclear()->auth()->getInfo('user_tz'));
+            $offset       = Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'));
             $now          = time() + $offset;
             $cur->post_dt = date('Y-m-d H:i:00', $now);
         }

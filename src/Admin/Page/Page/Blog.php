@@ -75,8 +75,8 @@ class Blog extends Page
                 # Default settings and override some
                 $blog_settings = new Settings($cur->blog_id);
                 $blog_settings->addNamespace('system');
-                $blog_settings->system->put('lang', dotclear()->auth()->getInfo('user_lang'));
-                $blog_settings->system->put('blog_timezone', dotclear()->auth()->getInfo('user_tz'));
+                $blog_settings->system->put('lang', dotclear()->user()->getInfo('user_lang'));
+                $blog_settings->system->put('blog_timezone', dotclear()->user()->getInfo('user_tz'));
 
                 if (substr($this->blog_url, -1) == '?') {
                     $blog_settings->system->put('url_scan', 'query_string');
@@ -117,7 +117,7 @@ class Blog extends Page
         Form::field('blog_name', 30, 255,
             [
                 'default'    => Html::escapeHTML($this->blog_name),
-                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . dotclear()->auth()->getInfo('user_lang') . '" ' .
+                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . dotclear()->user()->getInfo('user_lang') . '" ' .
                     'spellcheck="true"'
             ]
         ) . '</p>' .
@@ -135,7 +135,7 @@ class Blog extends Page
         Form::textarea('blog_desc', 60, 5,
             [
                 'default'    => Html::escapeHTML($this->blog_desc),
-                'extra_html' => 'lang="' . dotclear()->auth()->getInfo('user_lang') . '" spellcheck="true"'
+                'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"'
             ]) . '</p>' .
 
         '<p><input type="submit" accesskey="s" name="create" value="' . __('Create') . '" />' .

@@ -47,12 +47,12 @@ class Page extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ws => $s) {
-                    dotclear()->auth()->user_prefs->addWorkspace($ws);
+                    dotclear()->user()->preference()->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->auth()->user_prefs->$ws->put($k, $v);
+                        dotclear()->user()->preference()->$ws->put($k, $v);
                     }
                 }
 
@@ -67,12 +67,12 @@ class Page extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
-                    dotclear()->auth()->user_prefs->addWorkspace($ws);
+                    dotclear()->user()->preference()->addWorkspace($ws);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->auth()->user_prefs->$ws->put($k, $v, null, null, true, true);
+                        dotclear()->user()->preference()->$ws->put($k, $v, null, null, true, true);
                     }
                 }
 
@@ -93,7 +93,7 @@ class Page extends AbstractPage
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
-                Html::escapeHTML(dotclear()->auth()->userID()) => '',
+                Html::escapeHTML(dotclear()->user()->userID()) => '',
                 __('user:preferences')                        => ''
             ])
         ;
@@ -108,7 +108,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->auth()->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->user()->preference()->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -131,7 +131,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->auth()->user_prefs->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->user()->preference()->dumpWorkspaces() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }

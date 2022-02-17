@@ -22,7 +22,7 @@ class DefaultCommentAction
 {
     public static function CommentAction(Action $ap)
     {
-        if (dotclear()->auth()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -34,7 +34,7 @@ class DefaultCommentAction
             );
         }
 
-        if (dotclear()->auth()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],

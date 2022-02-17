@@ -37,7 +37,7 @@ class Blogs extends Page
 
     protected function getActionInstance(): ?Action
     {
-        return dotclear()->auth()->isSuperAdmin() ? new BlogAction(dotclear()->adminurl()->get('admin.blogs')) : null;
+        return dotclear()->user()->isSuperAdmin() ? new BlogAction(dotclear()->adminurl()->get('admin.blogs')) : null;
     }
 
     protected function getFilterInstance(): ?Filter
@@ -91,7 +91,7 @@ class Blogs extends Page
             return;
         }
 
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
@@ -99,12 +99,12 @@ class Blogs extends Page
 
         # Show blogs
         $this->catalog->display($this->filter->page, $this->filter->nb,
-            (dotclear()->auth()->isSuperAdmin() ?
+            (dotclear()->user()->isSuperAdmin() ?
                 '<form action="' . dotclear()->adminurl()->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
 
             '%s' .
 
-            (dotclear()->auth()->isSuperAdmin() ?
+            (dotclear()->user()->isSuperAdmin() ?
                 '<div class="two-cols clearfix">' .
                 '<p class="col checkboxes-helpers"></p>' .
 

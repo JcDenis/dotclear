@@ -31,13 +31,13 @@ class Summary extends ArrayObject
     public function __construct()
     {
         if (!self::$iconset) {
-            self::$iconset   = (string) @dotclear()->auth()->user_prefs->interface->iconset;
+            self::$iconset   = (string) @dotclear()->user()->preference()->interface->iconset;
         }
 
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
-        if (!dotclear()->auth()->user_prefs->interface->nofavmenu) {
+        if (!dotclear()->user()->preference()->interface->nofavmenu) {
             dotclear()->favorite()->appendMenuTitle($this);
         }
         $this->add('Blog', 'blog-menu', __('Blog'));
@@ -198,49 +198,49 @@ class Summary extends ArrayObject
             __('Blog settings'),
             'admin.blog.pref',
             ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            dotclear()->auth()->check('admin', dotclear()->blog()->id)
+            dotclear()->user()->check('admin', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Media manager'),
             'admin.media',
             ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-            dotclear()->auth()->check('media,media_admin', dotclear()->blog()->id)
+            dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Categories'),
             'admin.categories',
             ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-            dotclear()->auth()->check('categories', dotclear()->blog()->id)
+            dotclear()->user()->check('categories', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Search'),
             'admin.search',
             ['images/menu/search.svg','images/menu/search-dark.svg'],
-            dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)
+            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Comments'),
             'admin.comments',
             ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-            dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)
+            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Posts'),
             'admin.posts',
             ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-            dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)
+            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
         );
         $this->register(
             'Blog',
             __('New post'),
             'admin.post',
              ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id),
+            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id),
             true,
             true
         );
@@ -250,28 +250,28 @@ class Summary extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dotclear()->auth()->isSuperAdmin() && is_readable(dotclear()->config()->digests_dir)
+            dotclear()->user()->isSuperAdmin() && is_readable(dotclear()->config()->digests_dir)
         );
         $this->register(
             'System',
             __('Languages'),
             'admin.langs',
             ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
-            dotclear()->auth()->isSuperAdmin()
+            dotclear()->user()->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Users'),
             'admin.users',
             'images/menu/users.svg',
-            dotclear()->auth()->isSuperAdmin()
+            dotclear()->user()->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Blogs'),
             'admin.blogs',
             ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-            dotclear()->auth()->isSuperAdmin() || dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id) && dotclear()->auth()->getBlogCount() > 1
+            dotclear()->user()->isSuperAdmin() || dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id) && dotclear()->user()->getBlogCount() > 1
         );
     }
 }

@@ -102,7 +102,7 @@ class Blogs
                 'displayname' => $rs->user_displayname,
                 'email'       => $rs->user_email,
                 'super'       => (bool) $rs->user_super,
-                'p'           => dotclear()->auth()->parsePermissions($rs->permissions)
+                'p'           => dotclear()->user()->parsePermissions($rs->permissions)
             ];
         }
 
@@ -179,16 +179,16 @@ class Blogs
             }
         }
 
-        if (dotclear()->auth()->userID() && !dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->userID() && !dotclear()->user()->isSuperAdmin()) {
             $join  = 'INNER JOIN ' . dotclear()->prefix . 'permissions PE ON B.blog_id = PE.blog_id ';
-            $where = "AND PE.user_id = '" . dotclear()->con()->escape(dotclear()->auth()->userID()) . "' " .
+            $where = "AND PE.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' " .
                 "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
                 'AND blog_status IN (1,0) ';
-        } elseif (!dotclear()->auth()->userID()) {
+        } elseif (!dotclear()->user()->userID()) {
             $where = 'AND blog_status IN (1,0) ';
         }
 
-        if (isset($params['blog_status']) && $params['blog_status'] !== '' && dotclear()->auth()->isSuperAdmin()) {
+        if (isset($params['blog_status']) && $params['blog_status'] !== '' && dotclear()->user()->isSuperAdmin()) {
             $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
         }
 
@@ -225,7 +225,7 @@ class Blogs
      */
     public function addBlog(Cursor $cur): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -291,7 +291,7 @@ class Blogs
      */
     public function delBlog(string $blog_id): void
     {
-        if (!dotclear()->auth()->isSuperAdmin()) {
+        if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 

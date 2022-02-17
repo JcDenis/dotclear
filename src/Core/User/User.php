@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Instance\Auth
+ * @class Dotclear\Core\User\User
  * @brief Dotclear core auth class
  *
  * @package Dotclear
@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Instance;
+namespace Dotclear\Core\User;
 
-use Dotclear\Container\User;
-use Dotclear\Core\User\Preference;
+use Dotclear\Container\User as Container;
+use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Connection;
@@ -27,9 +27,9 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Auth
+class User
 {
-    /** @var User           User container instance */
+    /** @var Container           Container container instance */
     protected $container;
 
     /** @var string         User table name */
@@ -57,14 +57,14 @@ class Auth
     protected $perm_types;
 
     /** @var Prefs Prefs object */
-    public $user_prefs;
+    public $preference;
 
     /**
      * Class constructor. Takes Core object as single argument.
      */
     public function __construct()
     {
-        $this->container  = new User();
+        $this->container  = new Container();
         $this->blog_table = dotclear()->prefix . 'blog';
         $this->user_table = dotclear()->prefix . 'user';
         $this->perm_table = dotclear()->prefix . 'permissions';
@@ -186,7 +186,7 @@ class Auth
 
         $this->container->fromRecord($rs);
 
-        $this->user_prefs = new Preference($this->container->getId());
+        $this->preference = new Preference($this->container->getId());
 
         # Get permissions on blogs
         if ($check_blog && ($this->findUserBlog() === false)) {
@@ -194,6 +194,16 @@ class Auth
         }
 
         return true;
+    }
+
+    /**
+     * Get user preference instance
+     *
+     * @return  Preference|null   Preference instance
+     */
+    public function preference(): ?Preference
+    {
+        return $this->preference;
     }
 
     /**

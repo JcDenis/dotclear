@@ -46,7 +46,7 @@ class AntispamUrl extends UrlHandler
             return;
         }
 
-        dotclear()->auth()->checkUser($user_id, null, null);
+        dotclear()->user()->checkUser($user_id, null, null);
 
         header('Content-Type: application/xml; charset=UTF-8');
 

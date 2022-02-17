@@ -108,7 +108,7 @@ abstract class Page
      *
      * @return  bool    Is home
      */
-    final public function isAuth(): bool
+    final public function isuser(): bool
     {
         return $this->handler == 'admin.auth';
     }
@@ -156,17 +156,17 @@ abstract class Page
         }
 
         # Super Admin
-        if (dotclear()->auth()->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             return;
         }
 
         # Has required permissions
-        if (is_string($permissions) && dotclear()->blog() && dotclear()->auth()->check($this->getPermissions(), dotclear()->blog()->id)) {
+        if (is_string($permissions) && dotclear()->blog() && dotclear()->user()->check($this->getPermissions(), dotclear()->blog()->id)) {
             return;
         }
 
         # Check if dashboard is not the current page and if it is granted for the user
-        if (!$this->isHome && dotclear()->blog() && dotclear()->auth()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!$this->isHome && dotclear()->blog() && dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             # Go back to the dashboard
             dotclear()->adminurl()->redirect('admin.home');
         }
@@ -211,7 +211,7 @@ abstract class Page
     {
         if (!empty($this->workspaces)) {
             foreach($this->workspaces as $ws) {
-                dotclear()->auth()->user_prefs->addWorkspace($ws);
+                dotclear()->user()->preference()->addWorkspace($ws);
             }
         }
     }
@@ -263,11 +263,11 @@ abstract class Page
         $js   = [];
 
         # List of user's blogs
-        if (dotclear()->auth()->getBlogCount() == 1 || dotclear()->auth()->getBlogCount() > 20) {
+        if (dotclear()->user()->getBlogCount() == 1 || dotclear()->user()->getBlogCount() > 20) {
             $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog()->url) . '">' .
             Html::escapeHTML(dotclear()->blog()->name) . '</strong>';
 
-            if (dotclear()->auth()->getBlogCount() > 20) {
+            if (dotclear()->user()->getBlogCount() > 20) {
                 $blog_box .= ' - <a href="' . dotclear()->adminurl()->get('admin.blogs') . '">' . __('Change blog') . '</a>';
             }
             $blog_box .= '</p>';
@@ -363,11 +363,11 @@ abstract class Page
             header($value);
         }
 
-        $data_theme = dotclear()->auth()->user_prefs->interface->theme;
+        $data_theme = dotclear()->user()->preference()->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . dotclear()->auth()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
@@ -381,24 +381,24 @@ abstract class Page
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        dotclear()->auth()->user_prefs->addWorkspace('interface');
-        if (!dotclear()->auth()->user_prefs->interface->hide_std_favicon) {
+        dotclear()->user()->preference()->addWorkspace('interface');
+        if (!dotclear()->user()->preference()->interface->hide_std_favicon) {
             echo
                 '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if (dotclear()->auth()->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = dotclear()->auth()->user_prefs->interface->htmlfontsize;
+        if (dotclear()->user()->preference()->interface->htmlfontsize) {
+            $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->auth()->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) dotclear()->auth()->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
 
-        dotclear()->auth()->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) dotclear()->auth()->user_prefs->accessibility->nodragdrop;
+        dotclear()->user()->preference()->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
         $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
 
-        $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->auth()->check('contentadmin', dotclear()->blog()->id) : false;
+        $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -438,7 +438,7 @@ abstract class Page
         '<li><a class="' . (preg_match('"' . preg_quote(dotclear()->adminurl()->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . dotclear()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
         '<li><a class="smallscreen' . (preg_match('"' . preg_quote(dotclear()->adminurl()->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
         '" href="' . dotclear()->adminurl()->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
-        '<li><a href="' . dotclear()->adminurl()->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), dotclear()->auth()->userID()) .
+        '<li><a href="' . dotclear()->adminurl()->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), dotclear()->user()->userID()) .
             '</span><img src="?df=images/logout.svg" alt="" /></a></li>' .
             '</ul>' .
             '</header>'; // end header
@@ -487,11 +487,11 @@ abstract class Page
         # Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = dotclear()->auth()->user_prefs->interface->theme;
+        $data_theme = dotclear()->user()->preference()->interface->theme;
 
         echo
         '<!DOCTYPE html>' .
-        '<html lang="' . dotclear()->auth()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
@@ -505,15 +505,15 @@ abstract class Page
             echo self::cssLoad('style/default-rtl.css');
         }
 
-        dotclear()->auth()->user_prefs->addWorkspace('interface');
-        if (dotclear()->auth()->user_prefs->interface->htmlfontsize) {
-            $js['htmlFontSize'] = dotclear()->auth()->user_prefs->interface->htmlfontsize;
+        dotclear()->user()->preference()->addWorkspace('interface');
+        if (dotclear()->user()->preference()->interface->htmlfontsize) {
+            $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->auth()->user_prefs->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) dotclear()->auth()->user_prefs->interface->showajaxloader;
+        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
+        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
 
-        dotclear()->auth()->user_prefs->addWorkspace('accessibility');
-        $js['noDragDrop'] = (bool) dotclear()->auth()->user_prefs->accessibility->nodragdrop;
+        dotclear()->user()->preference()->addWorkspace('accessibility');
+        $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
         $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
 
@@ -597,11 +597,11 @@ abstract class Page
      */
     private function pageHelp(): void
     {
-        if (!dotclear()->auth()->user_prefs) {
+        if (!dotclear()->user()->preference()) {
             return;
         }
-        dotclear()->auth()->user_prefs->addWorkspace('interface');
-        if (dotclear()->auth()->user_prefs->interface->hidehelpbutton) {
+        dotclear()->user()->preference()->addWorkspace('interface');
+        if (dotclear()->user()->preference()->interface->hidehelpbutton) {
             return;
         }
 
@@ -684,7 +684,7 @@ abstract class Page
 
     private function pageClose(): void
     {
-        if (!dotclear()->resources['ctxhelp'] && !dotclear()->auth()->user_prefs->interface->hidehelpbutton) {
+        if (!dotclear()->resources['ctxhelp'] && !dotclear()->user()->preference()->interface->hidehelpbutton) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 dotclear()->adminurl()->get('admin.help'),
@@ -1037,8 +1037,8 @@ abstract class Page
      */
     public function jsCommon(): string
     {
-        if (dotclear()->auth()->user_prefs) {
-            dotclear()->auth()->user_prefs->addWorkspace('interface');
+        if (dotclear()->user()->preference()) {
+            dotclear()->user()->preference()->addWorkspace('interface');
         }
 
         $js = [
@@ -1055,7 +1055,7 @@ abstract class Page
             'adblocker_check' => (
                 (
                     !defined('DOTCLEAR_ADBLOCKER_CHECK') || DOTCLEAR_ADBLOCKER_CHECK === true
-                ) && dotclear()->auth()->user_prefs !== null && dotclear()->auth()->user_prefs->interface->nocheckadblocker !== true
+                ) && dotclear()->user()->preference() !== null && dotclear()->user()->preference()->interface->nocheckadblocker !== true
             ),
         ];
 
@@ -1154,8 +1154,8 @@ abstract class Page
     public function jsToggles(): string
     {
         $js = [];
-        if (dotclear()->auth()->user_prefs->toggles) {
-            $unfolded_sections = explode(',', (string) dotclear()->auth()->user_prefs->toggles->unfolded_sections);
+        if (dotclear()->user()->preference()->toggles) {
+            $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->toggles->unfolded_sections);
             foreach ($unfolded_sections as $k => &$v) {
                 if ($v !== '') {
                     $js[$unfolded_sections[$k]] = true;
@@ -1185,7 +1185,7 @@ abstract class Page
 
         return
         self::jsJson('filter_controls', $js) .
-        self::jsJson('filter_options', ['auto_filter' => dotclear()->auth()->user_prefs->interface->auto_filter]) .
+        self::jsJson('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
         self::jsLoad('js/filter-controls.js');
     }
 
