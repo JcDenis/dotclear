@@ -688,7 +688,7 @@ class MediaItem extends Page
             echo '<h3>' . __('Entries containing this media') . '</h3>';
             $params = [
                 'post_type' => '',
-                'from'      => 'LEFT OUTER JOIN ' . dotclear()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
+                'join'      => 'LEFT OUTER JOIN ' . dotclear()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
                 'PM.media_id = ' . (int) $this->id . ' ' .
                 "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($this->file->relname) . "%' " .

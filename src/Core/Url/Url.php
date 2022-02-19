@@ -175,9 +175,6 @@ class Url
             }
             $headers->append($header);
         }
-        if (dotclear()->blog()->settings()->system->prevents_floc) {
-            $headers->append('Permissions-Policy: interest-cohort=()');
-        }
 
         # --BEHAVIOR-- urlHandlerServeDocumentHeaders
         dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);

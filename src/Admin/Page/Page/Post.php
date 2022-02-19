@@ -31,6 +31,8 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Post extends Page
 {
+    protected $workspaces = ['interface'];
+
     private $post_id            = null;
     private $cat_id             = '';
     private $post_dt            = '';
@@ -75,6 +77,8 @@ class Post extends Page
 
     protected function getPagePrepend(): ? bool
     {
+        Dt::setTZ(dotclear()->user()->getInfo('user_tz'));
+
         $page_title = __('New post');
 
         $this->trackback = new Trackback();
@@ -329,6 +333,9 @@ class Post extends Page
                 $cur->post_url = $this->post_url;
             }
 
+            # Back to UTC in order to keep UTC datetime for creadt/upddt
+            dt::setTZ('UTC');
+
             # Update post
             if ($this->post_id) {
                 try {
@@ -561,7 +568,7 @@ class Post extends Page
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', strtotime($this->post_dt))),
+                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', strtotime($this->post_dt), dotclear()->user()->getInfo('user_tz'))),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -714,8 +721,8 @@ class Post extends Page
                 $preview_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('preview', dotclear()->user()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->master_key . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
                     '/' . $this->post->post_url);
+                $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
-                dotclear()->user()->preference()->addWorkspace('interface');
                 $blank_preview = dotclear()->user()->preference()->interface->blank_preview;
 
                 $preview_class  = $blank_preview ? '' : ' modal';

@@ -301,9 +301,6 @@ abstract class Page
             self::setXFrameOptions($headers);
         }
 
-        # Prevents FLoC
-        $headers['floc'] = 'Permissions-Policy: interest-cohort=()';
-
         # Content-Security-Policy (only if safe mode if not active, it may help)
         if (!$safe_mode && dotclear()->blog()->settings()->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults

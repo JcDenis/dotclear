@@ -18,6 +18,8 @@ use ArrayObject;
 use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 use Dotclear\Html\Html;
@@ -51,8 +53,9 @@ class Posts
      * - post_lang: Get entries with given language code
      * - search: Get entries corresponding of the following search string
      * - columns: (array) More columns to retrieve
+     * - join: Append a JOIN clause for the FROM statement in query
      * - sql: Append SQL string at the end of the query
-     * - from: Append SQL string after "FROM" statement in query
+     * - from: Append another FROM source in query
      * - order: Order of results (default "ORDER BY post_dt DES")
      * - limit: Limit parameter
      * - sql_only : return the sql request instead of results. Only ids are selected
@@ -61,80 +64,129 @@ class Posts
      * Please note that on every cat_id or cat_url, you can add ?not to exclude
      * the category and ?sub to get subcategories.
      *
-     * @since 3.0 : remove sql_only params (reimplement someting later)
+     * @param   array               $params         Parameters
+     * @param   bool                $count_only     Only counts results
+     * @param   SelectStatement     $sql            Optional SelectStatement instance
      *
-     * @param    ArrayObject|array  $params        Parameters
-     * @param    bool   $count_only    Only counts results
-     *
-     * @return   Record    A record with some more capabilities or the SQL request
+     * @return  Record                              A record with some more capabilities or the SQL request
      */
-    public function getPosts(ArrayObject|array $params = [], bool $count_only = false): Record
+    public function getPosts(ArrayObject|array $params = [], bool $count_only = false, ?SelectStatement $sql = null): Record
     {
         $params = new ArrayObject($params);
 
         # --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
         dotclear()->behavior()->call('coreBlogBeforeGetPosts', $params);
 
+        if (!$sql) {
+            $sql = new SelectStatement('dcBlogGetPosts');
+        }
+
         if ($count_only) {
-            $strReq = 'SELECT count(DISTINCT P.post_id) ';
+            $sql->column($sql->count($sql->unique('P.post_id')));
         } elseif (!empty($params['sql_only'])) {
-            DeprecatedException::throw();
-            $strReq = 'SELECT P.post_id ';
+            $sql->column('P.post_id');
         } else {
-            if (!empty($params['no_content'])) {
-                $content_req = '';
-            } else {
-                $content_req = 'post_excerpt, post_excerpt_xhtml, ' .
-                    'post_content, post_content_xhtml, post_notes, ';
+            if (empty($params['no_content'])) {
+                $sql->columns([
+                    'post_excerpt',
+                    'post_excerpt_xhtml',
+                    'post_content',
+                    'post_content_xhtml',
+                    'post_notes',
+                ]);
             }
 
             if (!empty($params['columns']) && is_array($params['columns'])) {
-                $content_req .= implode(', ', $params['columns']) . ', ';
+                $sql->columns($params['columns']);
             }
-
-            $strReq = 'SELECT P.post_id, P.blog_id, P.user_id, P.cat_id, post_dt, ' .
-                'post_tz, post_creadt, post_upddt, post_format, post_password, ' .
-                'post_url, post_lang, post_title, ' . $content_req .
-                'post_type, post_meta, ' .
-                'post_status, post_firstpub, post_selected, post_position, ' .
-                'post_open_comment, post_open_tb, nb_comment, nb_trackback, ' .
-                'U.user_name, U.user_firstname, U.user_displayname, U.user_email, ' .
-                'U.user_url, ' .
-                'C.cat_title, C.cat_url, C.cat_desc ';
+            $sql->columns([
+                'P.post_id',
+                'P.blog_id',
+                'P.user_id',
+                'P.cat_id',
+                'post_dt',
+                'post_tz',
+                'post_creadt',
+                'post_upddt',
+                'post_format',
+                'post_password',
+                'post_url',
+                'post_lang',
+                'post_title',
+                'post_type',
+                'post_meta',
+                'post_status',
+                'post_firstpub',
+                'post_selected',
+                'post_position',
+                'post_open_comment',
+                'post_open_tb',
+                'nb_comment',
+                'nb_trackback',
+                'U.user_name',
+                'U.user_firstname',
+                'U.user_displayname',
+                'U.user_email',
+                'U.user_url',
+                'C.cat_title',
+                'C.cat_url',
+                'C.cat_desc',
+            ]);
         }
 
-        $strReq .= 'FROM ' . dotclear()->prefix . 'post P ' .
-        'INNER JOIN ' . dotclear()->prefix . 'user U ON U.user_id = P.user_id ' .
-        'LEFT OUTER JOIN ' . dotclear()->prefix . 'category C ON P.cat_id = C.cat_id ';
+        $sql    // @phpstan-ignore-line
+            ->from(dotclear()->prefix . 'post P', false, true)
+            ->join(
+                (new JoinStatement('dcBlogGetPosts'))
+                ->type('INNER')
+                ->from(dotclear()->prefix . 'user U')
+                ->on('U.user_id = P.user_id')
+                ->statement()
+            )
+            ->join(
+                (new JoinStatement('dcBlogGetPosts'))
+                ->type('LEFT OUTER')
+                ->from(dotclear()->prefix . 'category C')
+                ->on('P.cat_id = C.cat_id')
+                ->statement()
+            );
+
+        if (!empty($params['join'])) {
+            $sql->join($params['join']);
+        }
 
         if (!empty($params['from'])) {
-            $strReq .= $params['from'] . ' ';
+            $sql->from($params['from']);
         }
 
-        $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        if (!empty($params['where'])) {
+            # Cope with legacy code
+            $sql->where($params['where']);
+        } else {
+            $sql->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id, true));
+        }
 
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= 'AND ((post_status = 1 ';
+            $user_id = dotclear()->user()->userID();
 
+            $and = ['post_status = 1'];
             if (dotclear()->blog()->withoutPassword()) {
-                $strReq .= 'AND post_password IS NULL ';
+                $and[] = 'post_password IS NULL';
             }
-            $strReq .= ') ';
-
-            if (dotclear()->user()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
-            } else {
-                $strReq .= ') ';
+            $or = [$sql->andGroup($and)];
+            if ($user_id) {
+                $or[] = 'P.user_id = ' . $sql->quote($user_id, true);
             }
+            $sql->and($sql->orGroup($or));
         }
 
-        #Adding parameters
+        # Adding parameters
         if (isset($params['post_type'])) {
             if (is_array($params['post_type']) || $params['post_type'] != '') {
-                $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']);
+                $sql->and('post_type' . $sql->in($params['post_type']));
             }
         } else {
-            $strReq .= "AND post_type = 'post' ";
+            $sql->and('post_type = ' . $sql->quote('post'));
         }
 
         if (isset($params['post_id']) && $params['post_id'] !== '') {
@@ -143,7 +195,7 @@ class Posts
             } else {
                 $params['post_id'] = [(int) $params['post_id']];
             }
-            $strReq .= 'AND P.post_id ' . dotclear()->con()->in($params['post_id']);
+            $sql->and('P.post_id' . $sql->in($params['post_id']));
         }
 
         if (isset($params['exclude_post_id']) && $params['exclude_post_id'] !== '') {
@@ -152,15 +204,15 @@ class Posts
             } else {
                 $params['exclude_post_id'] = [(int) $params['exclude_post_id']];
             }
-            $strReq .= 'AND P.post_id NOT ' . dotclear()->con()->in($params['exclude_post_id']);
+            $sql->and('P.post_id NOT' . $sql->in($params['exclude_post_id']));
         }
 
         if (isset($params['post_url']) && $params['post_url'] !== '') {
-            $strReq .= "AND post_url = '" . dotclear()->con()->escape($params['post_url']) . "' ";
+            $sql->and('post_url = ' . $sql->quote($params['post_url'], true));
         }
 
         if (!empty($params['user_id'])) {
-            $strReq .= "AND U.user_id = '" . dotclear()->con()->escape($params['user_id']) . "' ";
+            $sql->and('U.user_id = ' . $sql->quote($params['user_id'], true));
         }
 
         if (isset($params['cat_id']) && $params['cat_id'] !== '') {
@@ -170,7 +222,8 @@ class Posts
             if (!empty($params['cat_id_not'])) {
                 array_walk($params['cat_id'], function (&$v, $k) {$v = $v . ' ?not';});
             }
-            $strReq .= 'AND ' . $this->getPostsCategoryFilter($params['cat_id'], 'cat_id') . ' ';
+
+            $sql->and($this->getPostsCategoryFilter($params['cat_id'], 'cat_id'));
         } elseif (isset($params['cat_url']) && $params['cat_url'] !== '') {
             if (!is_array($params['cat_url'])) {
                 $params['cat_url'] = [$params['cat_url']];
@@ -178,93 +231,90 @@ class Posts
             if (!empty($params['cat_url_not'])) {
                 array_walk($params['cat_url'], function (&$v, $k) {$v = $v . ' ?not';});
             }
-            $strReq .= 'AND ' . $this->getPostsCategoryFilter($params['cat_url'], 'cat_url') . ' ';
+
+            $sql->and($this->getPostsCategoryFilter($params['cat_url'], 'cat_url'));
         }
 
-        /* Other filters */
+        # Other filters
         if (isset($params['post_status'])) {
-            $strReq .= 'AND post_status = ' . (int) $params['post_status'] . ' ';
+            $sql->and('post_status = ' . (int) $params['post_status']);
         }
 
         if (isset($params['post_firstpub'])) {
-            $strReq .= 'AND post_firstpub = ' . (int) $params['post_firstpub'] . ' ';
+            $sql->and('post_firstpub = ' . (int) $params['post_firstpub']);
         }
 
         if (isset($params['post_selected'])) {
-            $strReq .= 'AND post_selected = ' . (int) $params['post_selected'] . ' ';
+            $sql->and('post_selected = ' . (int) $params['post_selected']);
         }
 
         if (!empty($params['post_year'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%Y') . ' = ' .
-            "'" . sprintf('%04d', $params['post_year']) . "' ";
+            $sql->and($sql->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $params['post_year'])));
         }
 
         if (!empty($params['post_month'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%m') . ' = ' .
-            "'" . sprintf('%02d', $params['post_month']) . "' ";
+            $sql->and($sql->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $params['post_month'])));
         }
 
         if (!empty($params['post_day'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%d') . ' = ' .
-            "'" . sprintf('%02d', $params['post_day']) . "' ";
+            $sql->and($sql->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $params['post_day'])));
         }
 
         if (!empty($params['post_lang'])) {
-            $strReq .= "AND P.post_lang = '" . dotclear()->con()->escape($params['post_lang']) . "' ";
+            $sql->and('P.post_lang = ' . $sql->quote($params['post_lang'], true));
         }
 
         if (!empty($params['search'])) {
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
+                # --BEHAVIOR-- corePostSearch
                 if (dotclear()->behavior()->has('corePostSearch')) {
-
-                    # --BEHAVIOR-- corePostSearch, array
-                    dotclear()->behavior()->call('corePostSearch', [&$words, &$strReq, &$params]);
+                    dotclear()->behavior()->call('corePostSearch', [&$words, &$params, $sql]);
                 }
 
                 foreach ($words as $i => $w) {
-                    $words[$i] = "post_words LIKE '%" . dotclear()->con()->escape($w) . "%'";
+                    $words[$i] = $sql->like('post_words', '%' . $sql->escape($w) . '%');
                 }
-                $strReq .= 'AND ' . implode(' AND ', $words) . ' ';
+                $sql->and($words);
             }
         }
 
         if (isset($params['media'])) {
-            if ($params['media'] == '0') {
-                $strReq .= 'AND NOT ';
-            } else {
-                $strReq .= 'AND ';
-            }
-            $strReq .= 'EXISTS (SELECT M.post_id FROM ' . dotclear()->prefix . 'post_media M ' .
-                'WHERE M.post_id = P.post_id ';
-            if (isset($params['link_type'])) {
-                $strReq .= ' AND M.link_type ' . dotclear()->con()->in($params['link_type']) . ' ';
-            }
-            $strReq .= ')';
-        }
+            $sqlExists = new SelectStatement('dcBlogGetPosts');
+            $sqlExists
+                ->from(dotclear()->prefix . 'post_media M')
+                ->column('M.post_id')
+                ->where('M.post_id = P.post_id');
 
-        if (!empty($params['where'])) {
-            $strReq .= $params['where'] . ' ';
+            if (isset($params['link_type'])) {
+                $sqlExists->and('M.link_type' . $sqlExists->in($params['link_type']));
+            }
+
+            $sql->and(($params['media'] == '0' ? 'NOT ' : '') . 'EXISTS (' . $sqlExists->statement() . ')');
         }
 
         if (!empty($params['sql'])) {
-            $strReq .= $params['sql'] . ' ';
+            $sql->sql($params['sql']);
         }
 
         if (!$count_only) {
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
+                $sql->order($sql->escape($params['order']));
             } else {
-                $strReq .= 'ORDER BY post_dt DESC ';
+                $sql->order('post_dt DESC');
             }
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= dotclear()->con()->limit($params['limit']);
+            $sql->limit($params['limit']);
         }
 
-        $rs            = dotclear()->con()->select($strReq);
+        if (!empty($params['sql_only'])) {
+            return $sql->statement();
+        }
+
+        $rs            = $sql->select();
         $rs->_nb_media = [];
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPost');
 
@@ -273,9 +323,8 @@ class Posts
 
         $alt = new ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
 
-        # --BEHAVIOR-- coreBlogAfterGetPosts, ArrayObject, array
+        # --BEHAVIOR-- coreBlogAfterGetPosts
         dotclear()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
-
         if ($alt['rs'] instanceof Record) { // @phpstan-ignore-line
             $rs = $alt['rs'];
         }
