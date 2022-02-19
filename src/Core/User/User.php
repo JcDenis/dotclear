@@ -17,7 +17,6 @@ use Dotclear\Container\User as Container;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
 use Dotclear\Network\Http;
@@ -29,35 +28,35 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class User
 {
-    /** @var Container           Container container instance */
+    /** @var    Container   Container instance */
     protected $container;
 
-    /** @var string         User table name */
-    protected $user_table;
+    /** @var    Preference  Preference instance */
+    protected $preference;
 
-    /** @var string Perm table name */
-    protected $perm_table;
+    /** @var    string  User table name */
+    protected $user_table = 'user';
 
-    /** @var string Blog table name */
-    protected $blog_table;
+    /** @var    string  Perm table name */
+    protected $perm_table = 'permissions';
 
-    /** @var array Permissions for each blog */
+    /** @var    string  Blog table name */
+    protected $blog_table = 'blog';
+
+    /** @var    array   Permissions for each blog */
     protected $permissions = [];
 
-    /** @var bool User can change its password */
+    /** @var    bool    User can change its password */
     protected $allow_pass_change = true;
 
-    /** @var array List of blogs on which the user has permissions */
+    /** @var    array   List of blogs on which the user has permissions */
     protected $blogs = [];
 
-    /** @var int Count of user blogs */
-    public $blog_count = null;
-
-    /** @var array Permission types */
+    /** @var    array   Permission types */
     protected $perm_types;
 
-    /** @var Prefs Prefs object */
-    public $preference;
+    /** @var    int     Count of user blogs */
+    public $blog_count = null;
 
     /**
      * Class constructor. Takes Core object as single argument.
@@ -65,9 +64,6 @@ class User
     public function __construct()
     {
         $this->container  = new Container();
-        $this->blog_table = dotclear()->prefix . 'blog';
-        $this->user_table = dotclear()->prefix . 'user';
-        $this->perm_table = dotclear()->prefix . 'permissions';
 
         $this->perm_types = [
             'admin'        => __('administrator'),
@@ -88,12 +84,12 @@ class User
      * while you may need to check user without password. This method will create
      * credentials and populate all needed object properties.
      *
-     * @param string    $user_id        User ID
-     * @param string    $pwd            User password
-     * @param string    $user_key        User key check
-     * @param bool    $check_blog    checks if user is associated to a blog or not.
+     * @param   string  $user_id        User ID
+     * @param   string  $pwd            User password
+     * @param   string  $user_key       User key check
+     * @param   bool    $check_blog     Checks if user is associated to a blog or not.
      *
-     * @return bool
+     * @return  bool
      */
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
@@ -118,7 +114,7 @@ class User
                 'user_creadt',
                 'user_upddt',
             ])
-            ->from($this->user_table)
+            ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id));
 
         try {
@@ -169,7 +165,7 @@ class User
             }
             if ($rehash) {
                 // Store new hash in DB
-                $cur           = dotclear()->con()->openCursor($this->user_table);
+                $cur           = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
                 $cur->user_pwd = (string) $rs->user_pwd;
 
                 $sql = new UpdateStatement('coreAuthCheckUser');
@@ -365,7 +361,7 @@ class User
     public function sudo($f, ...$args)
     {
         if (!is_callable($f)) {
-            throw new CoreException($f . ' function doest not exist');
+            throw new CoreException($f . ' function does not exist');
         }
 
         if ($this->container->getSuper()) {
@@ -374,7 +370,7 @@ class User
             $this->container->setSuper(true);
 
             try {
-                $res              = call_user_func_array($f, $args);
+                $res = call_user_func_array($f, $args);
                 $this->container->setSuper(false);
             } catch (\Exception $e) {
                 $this->container->setSuper(false);
@@ -410,7 +406,7 @@ class User
             $sql = new SelectStatement('coreAuthGetPermissions');
             $sql
                 ->column('blog_id')
-                ->from($this->blog_table)
+                ->from(dotclear()->prefix . $this->blog_table)
                 ->where('blog_id = ' . $sql->quote($blog_id));
 
             $rs = $sql->select();
@@ -423,7 +419,7 @@ class User
         $sql = new SelectStatement('coreAuthGetPermissions');
         $sql
             ->column('permissions')
-            ->from($this->perm_table)
+            ->from(dotclear()->prefix . $this->perm_table)
             ->where('user_id = ' . $sql->quote($this->container->getId()))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
@@ -472,7 +468,7 @@ class User
             /* @phpstan-ignore-next-line */
             $sql
                 ->column('blog_id')
-                ->from($this->blog_table)
+                ->from(dotclear()->prefix . $this->blog_table)
                 ->order('blog_id ASC')
                 ->limit(1);
         } else {
@@ -480,8 +476,8 @@ class User
             $sql
                 ->column('P.blog_id')
                 ->from([
-                    $this->perm_table . ' P',
-                    $this->blog_table . ' B',
+                    dotclear()->prefix . $this->perm_table . ' P',
+                    dotclear()->prefix . $this->blog_table . ' B',
                 ])
                 ->where('user_id = ' . $sql->quote($this->container->getId()))
                 ->and('P.blog_id = B.blog_id')
@@ -609,7 +605,7 @@ class User
         $sql = new SelectStatement('coreAuthSetRecoverKey');
         $sql
             ->column('user_id')
-            ->from($this->user_table)
+            ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->and('user_email = ' . $sql->quote($user_email));
 
@@ -621,7 +617,7 @@ class User
 
         $key = md5(uniqid('', true));
 
-        $cur                   = dotclear()->con()->openCursor($this->user_table);
+        $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
         $cur->user_recover_key = $key;
 
         $sql = new UpdateStatement('coreAuthSetRecoverKey');
@@ -648,7 +644,7 @@ class User
         $sql = new SelectStatement('coreAuthRecoverUserPassword');
         $sql
             ->columns(['user_id', 'user_email'])
-            ->from($this->user_table)
+            ->from(dotclear()->prefix . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key));
 
         $rs = $sql->select();
@@ -659,7 +655,7 @@ class User
 
         $new_pass = Crypt::createPassword();
 
-        $cur                   = dotclear()->con()->openCursor($this->user_table);
+        $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
         $cur->user_pwd         = $this->crypt($new_pass);
         $cur->user_recover_key = null;
         $cur->user_change_pwd  = 1; // User will have to change this temporary password at next login
