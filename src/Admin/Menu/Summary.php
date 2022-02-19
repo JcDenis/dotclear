@@ -250,7 +250,7 @@ class Summary extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dotclear()->user()->isSuperAdmin() && is_readable(dotclear()->config()->digests_dir)
+            dotclear()->user()->isSuperAdmin()// && is_readable(dotclear()->config()->digests_dir)
         );
         $this->register(
             'System',
