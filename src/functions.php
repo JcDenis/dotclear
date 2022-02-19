@@ -37,7 +37,7 @@ if (!function_exists('dotclear_run')) {
         }
 
         # Find process (Admin|Public|Install|...)
-        $class = implode('\\', ['Dotclear', ucfirst(strtolower($process)), 'Prepend']);
+        $class = root_ns(ucfirst(strtolower($process)), 'Prepend');
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             dotclear_error('No process found', 'Something went wrong while trying to start process.');
         }
@@ -72,7 +72,7 @@ if (!function_exists('dotclear')) {
      */
     function dotclear(): ?Dotclear\Core\Core
     {
-        if (class_exists('Dotclear\Core\Core')) {
+        if (class_exists('Dotclear\\Core\\Core')) {
             return Dotclear\Core\Core::singleton();
         }
         return null;

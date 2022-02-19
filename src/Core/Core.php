@@ -167,7 +167,7 @@ class Core
      */
     final public static function singleton(?string $blog_id = null): ?Core
     {
-        if (!static::$instance && static::class != get_class()) {
+        if (!static::$instance && static::class != self::class) {
             Statistic::start();
 
             # Two stage instanciation (construct then process)
