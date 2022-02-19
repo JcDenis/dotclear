@@ -138,6 +138,18 @@ class AdminUrl
     }
 
     /**
+     * Check if an url handler is registered
+     *
+     * @param   string  $name   The handler name
+     *
+     * @return  bool            If exists
+     */
+    public function exists(string $name): bool
+    {
+        return !empty($this->urls) && isset($this->urls[$name]);
+    }
+
+    /**
      * retrieves a php page given its name, and optional parameters
      * acts like get, but without the query string, should be used within forms actions
      *

@@ -50,6 +50,9 @@ trait TraitPrependAdmin
      */
     protected static function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
+        if (!dotclear()->adminurl()->exists('admin.plugin.' . static::$define->id())) {
+            return;
+        }
         if (!$menu || !isset(dotclear()->summary()[$menu])) {
             $menu = 'Plugins';
         }
@@ -74,6 +77,10 @@ trait TraitPrependAdmin
      */
     protected static function addStandardFavorites(?string $permissions = null): void
     {
+        if (!dotclear()->adminurl()->exists('admin.plugin.' . static::$define->id())) {
+            return;
+        }
+
         # call once for all modules
         if (empty(static::$favorties)) {
             dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
