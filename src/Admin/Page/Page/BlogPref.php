@@ -235,7 +235,6 @@ class BlogPref extends Page
                 $this->blog_settings->system->put('jquery_needed', !empty($_POST['jquery_needed']));
                 $this->blog_settings->system->put('jquery_version', $_POST['jquery_version']);
                 $this->blog_settings->system->put('prevents_clickjacking', !empty($_POST['prevents_clickjacking']));
-                $this->blog_settings->system->put('prevents_floc', !empty($_POST['prevents_floc']));
                 $this->blog_settings->system->put('static_home', !empty($_POST['static_home']));
                 $this->blog_settings->system->put('static_home_url', $_POST['static_home_url']);
 
@@ -830,9 +829,6 @@ class BlogPref extends Page
         '<p><label for="prevents_clickjacking" class="classic">' .
         Form::checkbox('prevents_clickjacking', '1', $this->blog_settings->system->prevents_clickjacking) .
         __('Protect the blog from Clickjacking (see <a href="https://en.wikipedia.org/wiki/Clickjacking">Wikipedia</a>)') . '</label></p>' .
-        '<p><label for="prevents_floc" class="classic">' .
-        Form::checkbox('prevents_floc', '1', $this->blog_settings->system->prevents_floc) .
-        __('Protect the blog from FLoC tracking (see <a href="https://github.com/WICG/floc" hreflang="en">FLoC</a>)') . '</label></p>' .
         '<br class="clear" />' . //Opera sucks
 
         '</div>';
