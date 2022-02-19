@@ -49,7 +49,7 @@ class UserAction extends Page
         $this->blogs = [];
         if (!empty($_POST['blogs']) && is_array($_POST['blogs'])) {
             foreach ($_POST['blogs'] as $b) {
-                if (dotclear()->blog()Exists($b)) {
+                if (dotclear()->blogs()->blogExists($b)) {
                     $this->blogs[] = $b;
                 }
             }
