@@ -231,7 +231,7 @@ class Page extends AbstractPage
         if ($theme && $theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
             $path = dotclear()->themes->getModulesPath();
 
-            return dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
+            return !dotclear()->production()
                 || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
                 || !dotclear()->themes->isDistributedModule($theme->id());
         }

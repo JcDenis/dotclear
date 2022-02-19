@@ -51,64 +51,64 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 class Core
 {
     /** @var    Autoload   Autoload instance */
-    private $autoload = null;
+    private $autoload;
 
     /** @var    Behavior    Behavior instance */
-    private $behavior = null;
+    private $behavior;
 
     /** @var    Blog    Blog instance */
     private $blog = null;
 
     /** @var    Blogs   Blogs instance */
-    private $blogs = null;
+    private $blogs;
 
     /** @var    Connection   Connection instance */
-    private $con = null;
+    private $con;
 
     /** @var    Configuration   Configuration instance */
-    private $config = null;
+    private $config;
 
     /** @var    Error   Error instance */
-    private $error = null;
+    private $error;
 
     /** @var    Formater   Formater instance */
-    private $formater = null;
+    private $formater;
 
     /** @var    Log   Log instance */
-    private $log = null;
+    private $log;
 
     /** @var    Media   Media instance */
-    private $media = null;
+    private $media;
 
     /** @var    Meta   Meta instance */
-    private $meta = null;
+    private $meta;
 
     /** @var    Nonce   Nonce instance */
-    private $nonce = null;
+    private $nonce;
 
     /** @var    PostType   PostType instance */
-    private $posttype = null;
+    private $posttype;
 
     /** @var    Rest   Rest instance */
-    private $rest = null;
+    private $rest;
 
     /** @var    Session   Session instance */
-    private $session = null;
+    private $session;
 
     /** @var    Url     Url instance */
-    private $url = null;
+    private $url;
 
     /** @var    Auth    Auth instance */
-    private $user = null;
+    private $user;
 
     /** @var    Users   Users instance */
-    private $users = null;
+    private $users;
 
     /** @var    Verion  Version instance */
-    private $version = null;
+    private $version;
 
     /** @var    Wiki    Wiki instance */
-    private $wiki = null;
+    private $wiki;
 
     /** @var    Core    Core singleton instance */
     private static $instance;
@@ -132,38 +132,42 @@ class Core
     }
 
     /*
-     * @throws CoreException
+     * Disabled clone method
      */
     final public function __clone()
     {
-        throw new PrependException('Core instance can not be cloned.', 6);
+        trigger_error('Core instance can not be cloned.', E_USER_ERROR);
+        exit(1);
     }
 
     /**
-     * @throws CoreException
+     * Disable sleep method
      */
     final public function __sleep()
     {
-        throw new PrependException('Core instance can not be serialized.', 6);
+        trigger_error('Core instance can not be serialized.', E_USER_ERROR);
+        exit(1);
     }
 
     /**
-     * @throws CoreException
+     * Disable wakeup method
      */
     final public function __wakeup()
     {
-        throw new PrependException('Core instance can not be deserialized.', 6);
+        trigger_error('Core instance can not be deserialized.', E_USER_ERROR);
+        exit(1);
     }
 
     /**
      * Get core unique instance
      *
      * @param   string|null     $blog_id    Blog ID on first public process call
-     * @return  Core                        Core (Process) instance
+     *
+     * @return  Core|null                   Core (Process) instance
      */
-    final public static function coreInstance(?string $blog_id = null): Core
+    final public static function singleton(?string $blog_id = null): ?Core
     {
-        if (!static::$instance) {
+        if (!static::$instance && static::class != get_class()) {
             Statistic::start();
 
             # Two stage instanciation (construct then process)
@@ -174,141 +178,6 @@ class Core
         return static::$instance;
     }
     //@}
-
-    /**
-     * Start Dotclear process
-     *
-     * @param   string  $process    public/admin/install/...
-     */
-    public function process()
-    {
-        # Avoid direct call to Core
-        if (get_class() == get_class($this)) {
-            throw new PrependException('Server error', 'Direct call to core before process starts.', 6);
-        }
-
-        # Add custom regs
-        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
-        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
-
-        # Encoding
-        mb_internal_encoding('UTF-8');
-
-        # Timezone
-        Dt::setTZ('UTC');
-
-        # Disallow every special wrapper
-        Http::unregisterWrapper();
-
-        # Find configuration file
-        if (!defined('DOTCLEAR_CONFIG_PATH')) {
-            if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
-            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
-            } else {
-                define('DOTCLEAR_CONFIG_PATH', root_path('config.php'));
-            }
-        }
-
-        # No configuration ? start installalation process
-        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
-            # Set Dotclear configuration constants for installation process
-            if ($this->process == 'Install') {
-                $this->config = new Configuration(self::getDefaultConfig());
-
-                # Stop core process here in Install process
-                return;
-            }
-            # Redirect to installation process
-            Http::redirect(preg_replace(
-                ['%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
-                '',
-                filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
-            ) . '/admin/install.php');
-
-            exit;
-        }
-
-        # Set plateform (user) configuration constants
-        $this->config = new Configuration(self::getDefaultConfig(), DOTCLEAR_CONFIG_PATH);
-
-        # Starting from debug mode, display all errors
-        if ($this->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
-            ini_set('display_errors', '1');
-            error_reporting(E_ALL | E_STRICT);
-        }
-
-        # Set some Http stuff
-        Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
-        Http::$reverse_proxy = $this->config()->reverse_proxy;
-        Http::trimRequest();
-
-        # Check cryptography algorithm
-        if ($this->config()->crypt_algo != 'sha1') {
-            # Check length of cryptographic algorithm result and exit if less than 40 characters long
-            if (strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo)) < 40) {
-                if (!in_array($this->process, ['Admin', 'Install'])) {
-                    throw new PrependException('Server error', 'Site temporarily unavailable');
-                } else {
-                    throw new PrependException('Dotclear error', $this->config()->crypt_algo . ' cryptographic algorithm configured is not strong enough, please change it.');
-                }
-                exit;
-            }
-        }
-
-        # Check existence of cache directory
-        if (!is_dir($this->config()->cache_dir)) {
-            /* Try to create it */
-            @Files::makeDir($this->config()->cache_dir);
-            if (!is_dir($this->config()->cache_dir)) {
-                /* Admin must create it */
-                if (!in_array($this->process, ['Admin', 'Install'])) {
-                    throw new PrependException('Server error', 'Site temporarily unavailable');
-                } else {
-                    throw new PrependException('Dotclear error', $this->config()->cache_dir . ' directory does not exist. Please create it.');
-                }
-                exit;
-            }
-        }
-
-        # Check existence of var directory
-        if (!is_dir($this->config()->var_dir)) {
-            // Try to create it
-            @Files::makeDir($this->config()->var_dir);
-            if (!is_dir($this->config()->var_dir)) {
-                // Admin must create it
-                if (!in_array($this->process, ['Admin', 'Install'])) {
-                    throw new PrependException('Server error', 'Site temporarily unavailable');
-                } else {
-                    throw new PrependException('Dotclear error', $this->config()->var_dir . ' directory does not exist. Please create it.');
-                }
-                exit;
-            }
-        }
-
-        # Start l10n
-        L10n::init();
-
-        # Define current process for files check
-        define('DOTCLEAR_PROCESS', $this->process);
-
-        ##
-        # No call to trait methods before here.
-        ##
-
-        # Force database connection instanciation
-        $this->initConnection();
-
-        # Add top behaviors
-        $this->registerTopBehaviors();
-
-        # Register Core post types
-        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
-
-        # Register shutdown function
-        register_shutdown_function([$this, 'shutdown']);
-    }
 
     /// @name Core others instances methods
     //@{
@@ -368,22 +237,114 @@ class Core
     }
 
     /**
-     * Get Connection instance
+     * Get database connection instance
      *
-     * @return  Connection|null  Connection instance
+     * @return  Connection  Connection instance
      */
-    public function con(): ?Connection
+    public function con(): Connection
     {
+        if (!($this->con instanceof Connection)) {
+            try {
+                $prefix        = $this->config()->database_prefix;
+                $driver        = $this->config()->database_driver;
+                $default_class = 'Dotclear\\Database\\Connection';
+
+                # You can set DOTCLEAR_CON_CLASS to whatever you want.
+                # Your new class *should* inherits Dotclear\Database\Connection class.
+                $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
+
+                if (!class_exists($class)) {
+                    throw new \Exception(sprintf('Database connection class %s does not exist.', $class));
+                }
+
+                if ($class != $default_class && !is_subclass_of($class, $default_class)) {
+                    throw new \Exception(sprintf('Database connection class %s does not inherit %s', $class, $default_class));
+                }
+
+                # PHP 7.0 mysql driver is obsolete, map to mysqli
+                if ($driver === 'mysql') {
+                    $driver = 'mysqli';
+                }
+
+                # Set full namespace of distributed database driver
+                if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
+                    $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
+                }
+
+                # Check if database connection class exists
+                if (!class_exists($class)) {
+                    throw new \Exception(sprintf('Unable to load DB layer for %s', $driver));
+                }
+
+                # Create connection instance
+                $con = new $class(
+                    $this->config()->database_host,
+                    $this->config()->database_name,
+                    $this->config()->database_user,
+                    $this->config()->database_password,
+                    $this->config()->database_persist
+                );
+
+                # Define weak_locks for mysql
+                if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
+                    $con::$weak_locks = true;
+                }
+
+                # Define searchpath for postgresql
+                if ($driver == 'pgsql') {
+                    $searchpath = explode('.', $prefix, 2);
+                    if (count($searchpath) > 1) {
+                        $prefix = $searchpath[1];
+                        $sql    = 'SET search_path TO ' . $searchpath[0] . ',public;';
+                        $con->execute($sql);
+                    }
+                }
+
+                # Set table prefix in core
+                $this->prefix = $prefix;
+
+                $this->con =  $con;
+            } catch (\Exception $e) {
+                $this->getExceptionLang();
+                $msg = sprintf(
+                    __('<p>This either means that the username and password information in ' .
+                    'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
+                    'the database server at "<em>%s</em>". This could mean your ' .
+                    'host\'s database server is down.</p> ' .
+                    '<ul><li>Are you sure you have the correct username and password?</li>' .
+                    '<li>Are you sure that you have typed the correct hostname?</li>' .
+                    '<li>Are you sure that the database server is running?</li></ul>' .
+                    '<p>If you\'re unsure what these terms mean you should probably contact ' .
+                    'your host. If you still need help you can always visit the ' .
+                    '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>'),
+                    ($this->config()->database_host != '' ? $this->config()->database_host : 'localhost')
+                );
+                $this->throwException(
+                    $msg,
+                    $msg . '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>',
+                    620
+                );
+            }
+        }
+
         return $this->con;
     }
 
     /**
-     * Get Configuration instance or value
+     * Get dotclear configuration instance
      *
-     * @return  Configuration|null  Configuration instance or null
+     * @return  Configuration  Configuration instance
      */
-    public function config(): ?Configuration
+    public function config(): Configuration
     {
+        if (!($this->config instanceof Configuration)) {
+            $config_file = defined('DOTCLEAR_CONFIG_PATH') && is_file(DOTCLEAR_CONFIG_PATH) ? DOTCLEAR_CONFIG_PATH : [];
+            $this->config = new Configuration(self::getDefaultConfig(), $config_file);
+
+            # Alias that could be required before first connection instance
+            $this->prefix = $this->config->database_prefix;
+        }
+
         return $this->config;
     }
 
@@ -437,7 +398,16 @@ class Core
     public function media(bool $reload = null): Media
     {
         if (!($this->media instanceof Media) || $reload) {
-            $this->media = new Media();
+            try {
+                $this->media = new Media();
+            } catch (\Exception $e) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Unable to load media'),
+                    $e->getMessage(),
+                    611
+                );
+            }
         }
 
         return $this->media;
@@ -533,41 +503,34 @@ class Core
      * You can set DOTCLEAR_USER_CLASS to whatever you want.
      * Your new class *should* inherits Dotclear\Core\User\User class.
      *
-     * @return  User|null  User instance or null
+     * @return  User  User instance
      */
-    public function user(): ?User
+    public function user(): User
     {
         if (!($this->user instanceof User)) {
-            $dc_user_class = __NAMESPACE__ . '\\User\\User';
-            $class = defined('DOTCLEAR_USER_CLASS') ? DOTCLEAR_USER_CLASS : $dc_user_class;
+            try {
+                $dc_user_class = __NAMESPACE__ . '\\User\\User';
+                $class = defined('DOTCLEAR_USER_CLASS') ? DOTCLEAR_USER_CLASS : $dc_user_class;
 
-            # Check if auth class exists
-            if (!class_exists($class)) {
-                // Admin must create it
-                if (!in_array($this->process, ['Admin', 'Install'])) {
-                    throw new PrependException('Server error', 'Site temporarily unavailable');
-                } else {
-                    throw new PrependException('Dotclear error', sprintf(
-                        'Authentication class %s does not exist.', $class
-                    ));
+                # Check if auth class exists
+                if (!class_exists($class)) {
+                    throw new \Exception(sprintf('Authentication class %s does not exist.', $class));
                 }
-                exit;
-            }
 
-            # Check if auth class inherit Dotclear auth class
-            if ($class != $dc_user_class && !is_subclass_of($class, $dc_user_class)) {
-                // Admin must create it
-                if (!in_array($this->process, ['Admin', 'Install'])) {
-                    throw new PrependException('Server error', 'Site temporarily unavailable');
-                } else {
-                    throw new PrependException('Dotclear error', sprintf(
-                        'Authentication class %s does not inherit %s.', $class, $dc_user_class
-                    ));
+                # Check if auth class inherit Dotclear auth class
+                if ($class != $dc_user_class && !is_subclass_of($class, $dc_user_class)) {
+                    throw new \Exception(sprintf('Authentication class %s does not inherit %s.', $class, $dc_user_class));
                 }
-                exit;
-            }
 
-            $this->user = new $class();
+                $this->user = new $class();
+            } catch (\Exception $e) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Unable to do authentication'),
+                    sprtinf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
+                    611
+                );
+            }
         }
 
         return $this->user;
@@ -616,6 +579,164 @@ class Core
     }
     //@}
 
+    /// @name Core methods
+    //@{
+    /**
+     * Start Dotclear Core process
+     */
+    protected function process()
+    {
+        # Add custom regs
+        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
+        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
+
+        # Encoding
+        mb_internal_encoding('UTF-8');
+
+        # Timezone
+        Dt::setTZ('UTC');
+
+        # Disallow every special wrapper
+        Http::unregisterWrapper();
+
+        # Find configuration file
+        if (!defined('DOTCLEAR_CONFIG_PATH')) {
+            if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
+            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
+            } else {
+                define('DOTCLEAR_CONFIG_PATH', root_path('config.php'));
+            }
+        }
+
+        # No configuration ? start installalation process
+        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
+            # Stop core process here in installalation process
+            if ($this->process == 'Install') {
+
+                return;
+            }
+            # Redirect to installation process
+            Http::redirect(preg_replace(
+                ['%admin/install/index.php$%', '%admin/install/$%', '%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+                '',
+                filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+            ) . '/admin/install/index.php');
+
+            exit;
+        }
+
+        # In non production environment, display all errors
+        if (!$this->production()) {
+            ini_set('display_errors', '1');
+            error_reporting(E_ALL | E_STRICT);
+        }
+
+        # Set some Http stuff
+        Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
+        Http::$reverse_proxy = $this->config()->reverse_proxy;
+        Http::trimRequest();
+
+        # Check master key
+        if (32 > strlen($this->config()->master_key)) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Unsufficient master key'),
+                    __('Master key is not strong enough, please change it.'),
+                    611
+                );
+        }
+
+        # Check cryptography algorithm
+        if ($this->config()->crypt_algo != 'sha1') {
+            # Check length of cryptographic algorithm result and exit if less than 40 characters long
+            if (strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo)) < 40) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Cryptographic error'),
+                    sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->crypt_algo),
+                    611
+                );
+            }
+        }
+
+        # Check existence of cache directory
+        if (!is_dir($this->config()->cache_dir)) {
+            /* Try to create it */
+            @Files::makeDir($this->config()->cache_dir);
+            if (!is_dir($this->config()->cache_dir)) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Unable to find cache directory'),
+                    sprintf(__('%s directory does not exist. Please create it.'), $this->config()->cache_dir),
+                    611
+                );
+            }
+        }
+
+        # Check existence of var directory
+        if (!is_dir($this->config()->var_dir)) {
+            // Try to create it
+            @Files::makeDir($this->config()->var_dir);
+            if (!is_dir($this->config()->var_dir)) {
+                $this->getExceptionLang();
+                $this->throwException(
+                    __('Unable to find var directory'),
+                    sprintf(
+                    '%s directory does not exist. Please create it.', $this->config()->var_dir),
+                    611
+                );
+            }
+        }
+
+        # Start l10n
+        L10n::init();
+
+        # Define current process for files check
+        define('DOTCLEAR_PROCESS', $this->process);
+
+        # Add top behaviors
+        $this->registerTopBehaviors();
+
+        # Register Core post types
+        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
+
+        # Register shutdown function
+        register_shutdown_function([$this, 'shutdown']);
+    }
+
+    /**
+     * Check production environment
+     *
+     * @return  bool    True for production env
+     */
+    public function production(): bool
+    {
+        return !($this->config() && $this->config()->production === false);
+    }
+
+    /**
+     * Shutdown method
+     *
+     * Close properly session and connection.
+     */
+    public function shutdown(): void
+    {
+        try {
+            if (session_id()) {
+                session_write_close();
+            }
+        } catch (\Exception $e) {
+        }
+        try {
+            if ($this->con) {
+                $this->con->close();
+            }
+        } catch (\Exception $e) {
+        }
+    }
+
     /// @name Core top behaviors methods
     //@{
     /**
@@ -652,7 +773,16 @@ class Core
      */
     public function setBlog(string $blog_id): void
     {
-        $this->blog = new Blog($blog_id);
+        try {
+            $this->blog = new Blog($blog_id);
+        } catch (\Exception $e) {
+            $this->getExceptionLang();
+            $this->throwException(
+                __('Unable to load blog'),
+                sprintf(__('Something went wrong while trying to load blog: %s'), $e->getMessage()),
+                620
+            );
+        }
     }
 
     /**
@@ -664,137 +794,76 @@ class Core
     }
     //@}
 
-    /// @name Core connection methods
+    /// @name Core exception methods
     //@{
     /**
-     * Instanciate database connection
+     * display default error message
      *
-     * @throws  CoreException
+     * @throws  PrependException
+     *
+     * @param   string  $message    The short message
+     * @param   string  $detail     The detailed message
+     * @param   int     $code       The code
      */
-    private function initConnection(): void
+    protected function throwException(string $message, string $detail, int $code): void
     {
-        try {
-            $prefix        = dotclear()->config()->database_prefix;
-            $driver        = dotclear()->config()->database_driver;
-            $default_class = 'Dotclear\\Database\\Connection';
+        $title = self::getExceptionTitle($code);
 
-            # You can set DOTCLEAR_CON_CLASS to whatever you want.
-            # Your new class *should* inherits Dotclear\Database\Connection class.
-            $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
-
-            if (!class_exists($class)) {
-                throw new CoreException('Database connection class ' . $class . ' does not exist.');
-            }
-
-            if ($class != $default_class && !is_subclass_of($class, $default_class)) {
-                throw new CoreException('Database connection class ' . $class . ' does not inherit ' . $default_class);
-            }
-
-            # PHP 7.0 mysql driver is obsolete, map to mysqli
-            if ($driver === 'mysql') {
-                $driver = 'mysqli';
-            }
-
-            # Set full namespace of distributed database driver
-            if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
-                $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
-            }
-
-            # Check if database connection class exists
-            if (!class_exists($class)) {
-                trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
-                exit(1);
-            }
-
-            # Create connection instance
-            $con = new $class(
-                dotclear()->config()->database_host,
-                dotclear()->config()->database_name,
-                dotclear()->config()->database_user,
-                dotclear()->config()->database_password,
-                dotclear()->config()->database_persist
-            );
-
-            # Define weak_locks for mysql
-            if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
-                $con::$weak_locks = true;
-            }
-
-            # Define searchpath for postgresql
-            if ($driver == 'pgsql') {
-                $searchpath = explode('.', $prefix, 2);
-                if (count($searchpath) > 1) {
-                    $prefix = $searchpath[1];
-                    $sql    = 'SET search_path TO ' . $searchpath[0] . ',public;';
-                    $con->execute($sql);
-                }
-            }
-
-            # Set table prefix in core
-            $this->prefix = $prefix;
-
-            $this->con =  $con;
-        } catch (\Exception $e) {
-            # Loading locales for detected language
-            $dlang = Http::getAcceptLanguages();
-            foreach ($dlang as $l) {
-                if ($l == 'en' || L10n::set(implode_path(dotclear()->config()->l10n_dir, $l, 'main')) !== false) {
-                    L10n::lang($l);
-
-                    break;
-                }
-            }
-            if (in_array(DOTCLEAR_PROCESS, ['Admin', 'Install'])) {
-                throw new PrependException(
-                    __('Unable to connect to database'),
-                    $e->getCode() == 0 ?
-                    sprintf(
-                        __('<p>This either means that the username and password information in ' .
-                        'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
-                        'the database server at "<em>%s</em>". This could mean your ' .
-                        'host\'s database server is down.</p> ' .
-                        '<ul><li>Are you sure you have the correct username and password?</li>' .
-                        '<li>Are you sure that you have typed the correct hostname?</li>' .
-                        '<li>Are you sure that the database server is running?</li></ul>' .
-                        '<p>If you\'re unsure what these terms mean you should probably contact ' .
-                        'your host. If you still need help you can always visit the ' .
-                        '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>') .
-                        (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
-                            '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
-                            ''),
-                        (dotclear()->config()->database_host != '' ? dotclear()->config()->database_host : 'localhost')
-                    ) :
-                    '',
-                    20
-                );
-            } else {
-                throw new PrependException(
-                    __('Site temporarily unavailable'),
-                    __('<p>We apologize for this temporary unavailability.<br />' .
-                        'Thank you for your understanding.</p>'),
-                    20
-                );
-            }
+        # If in non production env and there are some details
+        if (!$this->production() && !empty($detail)) {
+            $message = $detail;
+        # If error code is higher than 630 and in plublic, then show a standard message
+        } elseif (630 <= $code && !in_array(DOTCLEAR_PROCESS, ['Admin', 'Install'])) {
+            $title = __('Site temporarily unavailable');
+            $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
         }
+
+        # Use an Exception handler to get trace for non production env
+        throw new PrependException($title, $message, $code, !$this->production());
+
+        exit(1);
     }
-    //@}
 
     /**
-     * Shutdown function
-     *
-     * Close properly session and connection.
+     * Load locales for detected language
      */
-    public function shutdown(): void
+    protected function getExceptionLang(): void
     {
-        # Explicitly close session before DB connection
-        try {
-            if (session_id()) {
-                session_write_close();
+        $dlang = Http::getAcceptLanguages();
+        foreach ($dlang as $l) {
+            if ($l == 'en' || $this->config() && L10n::set(implode_path($this->config()->l10n_dir, $l, 'main')) !== false) {
+                L10n::lang($l);
+
+                break;
             }
-        } catch (\Exception $e) {    // @phpstan-ignore-line
         }
-        $this->con()->close();
     }
+
+    /**
+     * Get Exception title according to code
+     *
+     * @param   int     $code   The code
+     * @return  string          The title
+     */
+    protected static function getExceptionTitle(int $code): string
+    {
+        $errors = [
+            605 => __('no process found'),
+            610 => __('no config file'),
+            611 => __('bad configuration'),
+            620 => __('database issue'),
+            625 => __('user permission issue'),
+            628 => __('file handler not found'),
+            630 => __('blog is not defined'),
+            640 => __('template files creation'),
+            650 => __('no default theme'),
+            660 => __('template processing error'),
+            670 => __('blog is offline'),
+        ];
+
+        return $errors[$code] ?? __('Dotclear error');
+    }
+    //@}
 
     /**
      * Empty templates cache directory
@@ -844,9 +913,9 @@ class Core
             'plugin_dir'            => [null, root_path('Plugin')],
             'plugin_official'       => [false, 'AboutConfig,Akismet,Antispam,Attachments,Blogroll,Dclegacy,FairTrackbacks,ImportExport,Maintenance,Pages,Pings,SimpleMenu,Tags,ThemeEditor,UserPref,Widgets,LegacyEditor,CKEditor,Breadcrumb'],
             'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
+            'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'run_level'             => [null, 0],
             'root_dir'              => [false, root_path()], //Alias for DOTCLEAR_ROOT_DIR
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],

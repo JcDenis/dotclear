@@ -113,4 +113,7 @@ return [
 
     // Store update checking
     //'store_update_noauto' => false,
+
+    // Production environment
+    //'production' => true,
 ];

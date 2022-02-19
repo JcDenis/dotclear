@@ -22,12 +22,19 @@ class PrependException extends \Exception
      * Its construction differ from Exception
      * and it's throw from Prepend processes.
      *
+     * @uses    dotclear_error()
+     *
      * @param   string  $message The message
      * @param   string  $detail  The detail
      * @param   int     $code    The code
      */
-    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0)
+    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, $trace = false)
     {
+        parent::__construct($message, $code, null);
+
+        if ($trace) {
+            $detail .= dotclear_error_trace($this->getTrace());
+        }
         dotclear_error($message, $detail, $code);
     }
 }

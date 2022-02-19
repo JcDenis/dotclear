@@ -12,12 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use Dotclear\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
-
+use Dotclear\File\Files;
 use Dotclear\Install\Install;
 use Dotclear\Install\Wizard;
-
-use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -25,11 +24,26 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
-    use \Dotclear\Admin\Favorite\TraitFavorite;
+    /** @var    Favorite   Favorite instance */
+    private $favorite;
 
     protected $process = 'Install';
 
-    public function process()
+    /**
+     * Get favorite instance
+     *
+     * @return  Favorite   Favorite instance
+     */
+    public function favorite(): Favorite
+    {
+        if (!($this->favorite instanceof Favorite)) {
+            $this->favorite = new Favorite();
+        }
+
+        return $this->favorite;
+    }
+
+    protected function process()
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {

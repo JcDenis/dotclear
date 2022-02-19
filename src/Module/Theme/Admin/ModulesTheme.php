@@ -109,7 +109,7 @@ class ModulesTheme extends AbstractModules
             }
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && !dotclear()->production()) {
                 $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->sdotclear()) . '</p>';
             }
 
@@ -284,7 +284,7 @@ class ModulesTheme extends AbstractModules
             if (in_array('select', $actions)) {
                 $submits[] = '<input type="submit" name="select[' . Html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
             }
-        } elseif (dotclear()->config()->run_level < DOTCLEAR_RUN_DEBUG) {
+        } elseif (dotclear()->production()) {
             // Currently selected theme
             if ($pos = array_search('delete', $actions, true)) {
                 // Remove 'delete' action
@@ -324,7 +324,7 @@ class ModulesTheme extends AbstractModules
                 # Delete
                 case 'delete':
                     if (dotclear()->user()->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !dotclear()->production() ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

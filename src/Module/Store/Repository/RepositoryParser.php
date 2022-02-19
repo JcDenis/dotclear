@@ -98,7 +98,7 @@ class RepositoryParser
             $item['tags'] = $tags;
 
             # First filter right now. If level is DEVELOPMENT, all modules are parse
-            if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
+            if (!dotclear()->production()
                 || Utils::versionsCompare(dotclear()->config()->core_version, $item['dc_min'], '>=', false)
                 && Utils::versionsCompare(dotclear()->config()->core_version_break, $item['dc_min'], '<=', false)
             ) {

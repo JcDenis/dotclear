@@ -416,8 +416,7 @@ abstract class AbstractModules
                 $id         = $tmp[0];
                 $cur_module = $modules->getModule($id);
                 if (!empty($cur_module)
-                    && (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT
-                        || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))
+                    && (!dotclear()->production() || Utils::versionsCompare($new_modules[$id]['version'], $cur_module['version'], '>', true))
                 ) {
                     # Delete old module
                     if (!Files::deltree($destination)) {

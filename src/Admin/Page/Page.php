@@ -396,7 +396,7 @@ abstract class Page
         dotclear()->user()->preference()->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
-        $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !dotclear()->production();
 
         $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
@@ -415,7 +415,7 @@ abstract class Page
         "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
         ($safe_mode ? ' safe-mode' : '') .
-        (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+        (!dotclear()->production() ?
             ' debug-mode' :
             '') .
         '">' . "\n" .
@@ -515,7 +515,7 @@ abstract class Page
         dotclear()->user()->preference()->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
-        $js['debug'] = dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG;  // @phpstan-ignore-line
+        $js['debug'] = !dotclear()->production();
 
         // Set JSON data
         echo Utils::jsJson('dotclear_init', $js);
@@ -532,7 +532,7 @@ abstract class Page
             "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
             ($safe_mode ? ' safe-mode' : '') .
-            (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+            (!dotclear()->production() ?
                 ' debug-mode' :
                 '') .
             '">' . "\n" .
@@ -736,7 +736,7 @@ abstract class Page
             $figure .
             ' -->' . "\n";
 
-        if (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT) {
+        if (!dotclear()->production()) {
             echo $this->pageDebugInfo();
         }
 
@@ -1128,7 +1128,7 @@ abstract class Page
         self::jsLoad('js/prepend.js') .
         self::jsLoad('js/jquery/jquery.js') .
         (
-            dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG ? // @phpstan-ignore-line
+            !dotclear()->production() ?
             self::jsJson('dotclear_jquery', [
                 'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
             ]) .
@@ -1358,7 +1358,7 @@ abstract class Page
     {
         return $src .
             (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
+            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
     }
 
     /**

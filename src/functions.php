@@ -20,16 +20,6 @@ if (!function_exists('dotclear_run')) {
      */
     function dotclear_run(string $process, ?string $blog_id = null)
     {
-        # This is more a mode level rather than an error level !
-        # Define one of this level in config.php file
-        if (!defined('DOTCLEAR_RUN_PRODUCTION')) {
-            define('DOTCLEAR_RUN_PRODUCTION', 0);
-            define('DOTCLEAR_RUN_DEVELOPMENT', 256);
-            define('DOTCLEAR_RUN_DEPRECATED', 512);
-            define('DOTCLEAR_RUN_DEBUG', 1024);
-            define('DOTCLEAR_RUN_VERBOSE', 2048);
-        }
-
         # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', __DIR__);
@@ -55,16 +45,16 @@ if (!function_exists('dotclear_run')) {
         # Execute Process
         try {
             ob_start();
-            $class::coreInstance($blog_id);
+            $class::singleton($blog_id);
             ob_end_flush();
 
-        # Catch all Exceptions and display or not them
+        # Try to display unexpected Exceptions as much cleaned as we can
         } catch (\Exception $e) {
             ob_end_clean();
 
-            if (!empty(dotclear()->config()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
-                dotclear_error(get_class($e), $e->getMessage() . "\n\n" . $e->getTraceAsString(), $e->getCode());
-            } elseif (!empty(dotclear()->config()) && dotclear()->config()->run_level > DOTCLEAR_RUN_PRODUCTION) {
+            if (dotclear() && dotclear()->config() && dotclear()->config()->production === false) {
+                dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
+            } elseif (dotclear() && dotclear()->config() && dotclear()->config()->production === true) {
                 dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
             } else {
                 dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
@@ -78,14 +68,14 @@ if (!function_exists('dotclear')) {
     /**
      * Singleton Dotclear Core
      *
-     * @return  Singleton   The core instance
+     * @return  Core|null   Singleton core instance
      */
-    function dotclear(): Dotclear\Core\Core
+    function dotclear(): ?Dotclear\Core\Core
     {
         if (class_exists('Dotclear\Core\Core')) {
-            return Dotclear\Core\Core::coreInstance();
+            return Dotclear\Core\Core::singleton();
         }
-        dotclear_error('No process found', 'Direct call to core before process starts.', 6);
+        return null;
     }
 }
 
@@ -93,17 +83,6 @@ if (!function_exists('dotclear_error')) {
 
     /**
      * Error page
-     *
-     * Some of Dotclear error codes
-     * -  5 : no process found
-     * -  6 : direct call to core without process
-     * - 10 : no config file
-     * - 20 : database issue
-     * - 30 : blog is not defined
-     * - 40 : template files creation
-     * - 50 : no default theme
-     * - 60 : template processing error
-     * - 70 : blog is offline
      *
      * @param   string  $message    The message
      * @param   string  $detail     The detail
@@ -184,6 +163,18 @@ if (!function_exists('dotclear_error')) {
     }
 }
 
+if (!function_exists('dotclear_error_trace')) {
+
+    function dotclear_error_trace(array $traces): string
+    {
+        $res = '';
+        //array_shift($traces);
+        foreach($traces as $i => $line) {
+            $res .= '#' . $i .' ' . @$line['class'] .'::' . $line['function'] . ' -- ' . $line['file'] . ":" . $line['line'] . "\n";
+        }
+        return sprintf("\n<pre>Traces : \n%s</pre>", $res);
+    }
+}
 
 if (!function_exists('root_path')) {
 

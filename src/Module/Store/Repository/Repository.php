@@ -243,7 +243,7 @@ class Repository
      *
      * @return  int             1 = installed, 2 = update
      */
-    public function process(string $url, string $dest): int
+    protected function process(string $url, string $dest): int
     {
         $this->download($url, $dest);
 

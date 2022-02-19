@@ -206,7 +206,7 @@ trait TraitModulesAdmin
     public function isDeletablePath(string $root): bool
     {
         return $this->path_writable
-            && (preg_match('!^' . $this->path_pattern . '!', $root) || dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT)
+            && (preg_match('!^' . $this->path_pattern . '!', $root) || !dotclear()->production())
             && dotclear()->user()->isSuperAdmin();
     }
     //@}
@@ -540,7 +540,7 @@ trait TraitModulesAdmin
             '<th class="first nowrap"' . ($colspan > 1 ? ' colspan="' . $colspan . '"' : '') . '>' . __('Name') . '</th>';
         }
 
-        if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+        if (in_array('score', $cols) && $this->getSearch() !== null && !dotclear()->production()) {
             echo
             '<th class="nowrap">' . __('Score') . '</th>';
         }
@@ -664,7 +664,7 @@ trait TraitModulesAdmin
                 '</td>';
 
             # Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {   // @phpstan-ignore-line
+            if (in_array('score', $cols) && $this->getSearch() !== null && !dotclear()->production()) {
                 $tds++;
                 echo
                     '<td class="module-version nowrap count"><span class="debug">' . $module->sdotclear() . '</span></td>';
@@ -793,7 +793,7 @@ trait TraitModulesAdmin
 
                 /* @phpstan-ignore-next-line */
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
-                    || !empty($module->repository()) && dotclear()->config()->store_allow_repo && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG
+                    || !empty($module->repository()) && dotclear()->config()->store_allow_repo && !dotclear()->production()
                 ) {
                     echo
                         '<div><ul class="mod-more">';
@@ -803,7 +803,7 @@ trait TraitModulesAdmin
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module->repository()) && dotclear()->config()->store_allow_repo && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEBUG) {
+                    if (!empty($module->repository()) && dotclear()->config()->store_allow_repo && !dotclear()->production()) {
                         echo '<li class="modules-repository"><a href="' . $module->repository() . '">' . __('Third-party repository') . '</a></li>';
                     }
 
@@ -993,7 +993,7 @@ trait TraitModulesAdmin
                 # Delete
                 case 'delete':
                     if (dotclear()->user()->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && dotclear()->config()->run_level >= DOTCLEAR_RUN_DEVELOPMENT ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !dotclear()->production() ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

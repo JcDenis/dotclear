@@ -34,9 +34,11 @@ class Install
     public function __construct()
     {
         /* Set URL (from default structure) */
-        $redirect    = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $preg_search = ['%admin/install.php$%', '%admin/index.php$%', '%admin/$%', '%install.php$%', '%index.php$%', '%/$%'];
-        $root_url    = preg_replace($preg_search, '', $_SERVER['REQUEST_URI']);
+        $root_url = preg_replace(
+            ['%admin/install/index.php$%', '%admin/install/$%', '%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+            '',
+            filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+        );
         $admin_url   = $root_url . '/admin/index.php';
         $can_install = true;
         $err         = '';

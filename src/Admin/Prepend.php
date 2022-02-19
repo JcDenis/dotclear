@@ -15,9 +15,14 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\AdminUrl\AdminUrl;
+use Dotclear\Admin\Combo\Combo;
+use Dotclear\Admin\Favorite\Favorite;
+use Dotclear\Admin\ListOption\ListOption;
+use Dotclear\Admin\Menu\Summary;
+use Dotclear\Admin\Notice\Notice;
 use Dotclear\Core\Core;
 Use Dotclear\Core\Utils;
-use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
@@ -32,31 +37,132 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
-    use \Dotclear\Admin\AdminUrl\TraitAdminUrl;
-    use \Dotclear\Admin\Combo\TraitCombo;
-    use \Dotclear\Admin\Favorite\TraitFavorite;
-    use \Dotclear\Admin\Menu\TraitSummary;
-    use \Dotclear\Admin\Notice\TraitNotice;
-    use \Dotclear\Admin\ListOption\TraitListOption;
+    /** @var    AdminUrl   AdminUrl instance */
+    private $adminurl;
 
+    /** @var    Combo   Combo instance */
+    private $combo;
+
+    /** @var    Favorite   Favorite instance */
+    private $favorite;
+
+    /** @var    Summary   Summary instance */
+    private $summary;
+
+    /** @var    Notice   Notice instance */
+    private $notice;
+
+    /** @var    ListOption   ListOption instance */
+    private $listoption;
+
+    /** @var    string  Current Process */
     protected $process = 'Admin';
 
-    /** @var ModulesPlugin|null ModulesPlugin instance */
+    /** @var    ModulesPlugin|null  ModulesPlugin instance */
     public $plugins = null;
 
-    /** @var ModulesIconset|null ModulesIconset instance */
+    /** @var    ModulesIconset|null ModulesIconset instance */
     public $iconsets = null;
 
-    /** @var ModulesTheme|null ModulesTheme instance */
+    /** @var    ModulesTheme|null   ModulesTheme instance */
     public $themes = null;
 
-    /** @var string     user lang */
+    /** @var    string  user lang */
     public $_lang = 'en';
 
-    /** @var array      help resources container */
+    /** @var    array   help resources container */
     public $resources = [];
 
-    public function process()
+    /**
+     * Get adminurl instance
+     *
+     * @return  AdminUrl   AdminUrl instance
+     */
+    public function adminurl(): AdminUrl
+    {
+        if (!($this->adminurl instanceof AdminUrl)) {
+            $this->adminurl = new AdminUrl();
+            # Register default admin URLs
+            $this->adminurl->setup();
+        }
+
+        return $this->adminurl;
+    }
+
+    /**
+     * Get combo instance
+     *
+     * @return  Combo   Combo instance
+     */
+    public function combo(): Combo
+    {
+        if (!($this->combo instanceof Combo)) {
+            $this->combo = new Combo();
+        }
+
+        return $this->combo;
+    }
+
+    /**
+     * Get favorite instance
+     *
+     * @return  Favorite   Favorite instance
+     */
+    public function favorite(): Favorite
+    {
+        if (!($this->favorite instanceof Favorite)) {
+            $this->favorite = new Favorite();
+        }
+
+        return $this->favorite;
+    }
+
+    /**
+     * Get summary (menus) instance
+     *
+     * @return  Summary   Summary instance
+     */
+    public function summary(): Summary
+    {
+        if (!($this->summary instanceof Summary)) {
+            $this->summary = new Summary();
+        }
+
+        return $this->summary;
+    }
+
+    /**
+     * Get notice instance
+     *
+     * @return  Notice   Notice instance
+     */
+    public function notice(): Notice
+    {
+        if (!($this->notice instanceof Notice)) {
+            $this->notice = new Notice();
+        }
+
+        return $this->notice;
+    }
+
+    /**
+     * Get listoption instance
+     *
+     * @return  ListOption   ListOption instance
+     */
+    public function listoption(): ListOption
+    {
+        if (!($this->listoption instanceof ListOption)) {
+            $this->listoption = new ListOption();
+        }
+
+        return $this->listoption;
+    }
+
+    /**
+     * Start Dotclear Admin process
+     */
+    protected function process()
     {
         # Load core prepend and so on
         parent::process();
@@ -65,9 +171,6 @@ class Prepend extends Core
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); # HTTP/1.1
         header('Pragma: no-cache'); # HTTP/1.0
-
-        # Register default admin URLs
-        $this->adminurl()->setup();
 
         # csp report do not need extra stuff
         if ($this->adminurl()->called() == 'admin.cspreport') {
@@ -78,21 +181,24 @@ class Prepend extends Core
         # Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
-            $_COOKIE[dotclear()->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
+            $_COOKIE[$this->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->user()->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
-                throw new PrependException('Invalid session data.');
+                $this->getExceptionLang();
+                $this->throwException(__('Invalid session data.'), '', 625);
             }
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    throw new PrependException('Precondition Failed.');
+                $this->getExceptionLang();
+                $this->throwException(__('Precondition Failed.'), '', 625);
                 }
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                throw new PrependException('Permission denied.');
+                $this->getExceptionLang();
+                $this->throwException(__('Permission denied.'), '', 625);
             }
 
             # Loading locales
@@ -100,7 +206,8 @@ class Prepend extends Core
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog()->id) {
-                throw new PrependException('Permission denied.');
+                $this->getExceptionLang();
+                $this->throwException(__('Permission denied.'), '', 625);
             }
         } elseif ($this->user()->sessionExists()) {
             # If we have a session we launch it now
@@ -114,8 +221,9 @@ class Prepend extends Core
                     $this->adminurl()->redirect('admin.auth');
                     exit;
                 }
-            } catch (\Exception $e) { #DatabaseException?
-                throw new PrependException(__('Database error'), __('There seems to be no Session table in your database. Is Dotclear completly installed?'), 20);
+            } catch (\Exception $e) {
+                $this->getExceptionLang();
+                $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620);
             }
 
             # Check nonce from POST requests
@@ -184,7 +292,7 @@ class Prepend extends Core
             $this->user()->preference()->addWorkspace('interface');
 
             # Load resources
-            $this->adminLoadResources(dotclear()->config()->l10n_dir);
+            $this->adminLoadResources($this->config()->l10n_dir);
 
             # Load Modules Iconsets
             if ('' != $this->config()->iconset_dir) {
@@ -252,7 +360,7 @@ class Prepend extends Core
 
         # Serve var file
         if (!empty($_GET['vf'])) {
-            Files::serveFile([dotclear()->config()->var_dir], 'vf');
+            Files::serveFile([$this->config()->var_dir], 'vf');
             exit;
         }
 
@@ -264,7 +372,8 @@ class Prepend extends Core
         # Extract modules class name from url
         $pos = strpos($_GET['mf'], '/');
         if (!$pos) {
-            throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
+            $this->getExceptionLang();
+            $this->throwException(sprintf(__('File handler not found for file %s.'), $_GET['mf']), '', 628);
         }
 
         # Sanitize modules type
@@ -274,7 +383,8 @@ class Prepend extends Core
         # Check class
         $class = root_ns('Module', $type, 'Admin', 'Modules' . $type);
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-            throw new PrependException(__('Failed to load file'), __('File handler not found'), 20);
+            $this->getExceptionLang();
+            $this->throwException(sprintf(__('File handler %s not found.'), $class), '', 628);
         }
 
         # Get paths and serve file
@@ -291,12 +401,12 @@ class Prepend extends Core
         $this->adminGetLang();
 
         L10n::lang($this->_lang);
-        if (L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            L10n::set(implode_path(dotclear()->config()->l10n_dir, 'en', 'date'));
+        if (L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(implode_path($this->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'main'));
-        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'public'));
-        L10n::set(implode_path(dotclear()->config()->l10n_dir, $this->_lang, 'plugins'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'main'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'public'));
+        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Utils::setlexicalLang('admin', $this->_lang);
@@ -350,11 +460,16 @@ class Prepend extends Core
         try {
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Admin\\Page\\Page')) {
-                throw new PrependException(__('Unknow URL'), sprintf(__('<p>Failed to load URL for handler %s.</p>'), $handler), 404);
+                $this->getExceptionLang();
+                throw new \Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
             }
             $page = new $class($handler);
         } catch (\Exception $e) {
-            throw new PrependException('Dotclear error', $e->getMessage(), 20);
+            $this->throwException(
+                $e->getMessage(),
+                '',
+                628
+            );
         }
 
         # Process page
@@ -365,7 +480,12 @@ class Prepend extends Core
         } catch (\Exception $e) {
             ob_end_clean();
 
-            throw new PrependException(__('Failed to load page'), $e->getMessage(), 20);
+            $this->throwException(
+                __('Failed to load page'),
+                sprtinf(__('Failed to load page for handler %s: '), $e->getMessage()),
+                '',
+                601
+            );
         }
     }
 }

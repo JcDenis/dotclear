@@ -16,8 +16,8 @@ namespace Dotclear\Public;
 use Dotclear\Core\Core;
 use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
-use Dotclear\Exception\PrependException;
-use Dotclear\Public\Template;
+use Dotclear\Public\Template\Template;
+use Dotclear\Public\Context\Context;
 use Dotclear\Module\Plugin\Public\ModulesPlugin;
 use Dotclear\Module\Theme\Public\ModulesTheme;
 use Dotclear\File\Files;
@@ -29,18 +29,60 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
-    use \Dotclear\Public\Context\TraitContext;
-    use \Dotclear\Public\Template\TraitTemplate;
+    /** @var    Context     Context instance */
+    private $context;
 
+    /** @var    Template    Template instance */
+    private $template;
+
+    /** @var    string      Current Process */
     protected $process = 'Public';
 
     /** @var ModulesPlugin|null ModulesPlugin instance */
     public $plugins = null;
 
-    /** @var ModulesTheme|null ModulesTheme instance */
+    /** @var ModulesTheme|null  ModulesTheme instance */
     public $themes = null;
 
-    public function process(string $blog_id = null)
+    /**
+     * Get context instance
+     *
+     * @return  Context   Context instance
+     */
+    public function context(): Context
+    {
+        if (!($this->context instanceof Context)) {
+            $this->context = new Context();
+        }
+
+        return $this->context;
+    }
+
+    /**
+     * Get template instance
+     *
+     * @return  Template   Template instance
+     */
+    public function template(): Template
+    {
+        if (!($this->template instanceof Template)) {
+            try {
+                $this->template = new Template($this->config()->cache_dir, 'dotclear()->template()');
+            } catch (\Exception $e) {
+                $this->getExceptionLang();
+                $this->throwException(__('Unable to create template'), $e->getMessage(), 640);
+            }
+        }
+
+        return $this->template;
+    }
+
+    /**
+     * Start Dotclear Public process
+     *
+     * @param   string  $blog_id    The blog ID
+     */
+    protected function process(string $blog_id = null)
     {
         # Serve core files
         $this->publicServeFile();
@@ -53,40 +95,21 @@ class Prepend extends Core
         $this->behavior()->add('coreBlogGetComments', [__CLASS__, 'behaviorCoreBlogGetComments']);
 
         # Load blog
-        try {
-            $this->setBlog($blog_id ?: '');
-        } catch (\Exception $e) {
-            init_prepend_l10n();
-            /* @phpstan-ignore-next-line */
-            throw new PrependException(__('Database problem'), $this->config()->run_level >= DOTCLEAR_RUN_DEBUG ?
-                __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
-                __('Something went wrong while trying to read the database.'), 620);
-        }
+        $this->setBlog($blog_id ?: '');
 
         if ($this->blog()->id == null) {
-            throw new PrependException(__('Blog is not defined.'), __('Did you change your Blog ID?'), 630);
+            $this->getExceptionLang();
+            $this->throwException(__('Did you change your Blog ID?'), '', 630);
         }
 
         if ((bool) !$this->blog()->status) {
             $this->unsetBlog();
-            throw new PrependException(__('Blog is offline.'), __('This blog is offline. Please try again later.'), 670);
+            $this->getExceptionLang();
+            $this->throwException(__('This blog is offline. Please try again later.'), '', 670);
         }
 
         # Cope with static home page option
         $this->url()->registerDefault(['Dotclear\\Core\\Url\\Url', (bool) $this->blog()->settings()->system->static_home ? 'static_home' : 'home']);
-
-        # Load media
-        try {
-            $this->media();
-        } catch (\Exception $e) {
-            throw new PrependException(__('Can\'t load media.'), $e->getMessage(), 640);
-        }
-
-        try {
-            $this->template($this->config()->cache_dir, 'dotclear()->template()');
-        } catch (\Exception $e) {
-            throw new PrependException(__('Can\'t create template files.'), $e->getMessage(), 640);
-        }
 
         # Load locales
         $_lang = $this->blog()->settings()->system->lang;
@@ -106,7 +129,7 @@ class Prepend extends Core
         # Load plugins
         try {
             $this->plugins = new ModulesPlugin();
-            $this->plugins->loadModules($_lang);
+            $this->plugins->loadModules($this->_lang);
 
             # Load loang resources for each plugins
             foreach($this->plugins->getModules() as $module) {
@@ -114,15 +137,17 @@ class Prepend extends Core
                 $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'public');
             }
         } catch (\Exception $e) {
-            throw new PrependException(__('Can\'t load plugins.'), $e->getMessage(), 640);
+            $this->getExceptionLang();
+            $this->throwException(__('Unable to load plugins.'), $e->getMessage(), 640);
         }
 
         # Load themes
         try {
             $this->themes = new ModulesTheme();
-            $this->themes->loadModules($_lang);
+            $this->themes->loadModules($this->_lang);
         } catch (\Exception $e) {
-            throw new PrependException(__('Can\'t load themes.'), $e->getMessage(), 640);
+            $this->getExceptionLang();
+            $this->throwException(__('Unable to load themes.'), $e->getMessage(), 640);
         }
 
         # Load current theme definition
@@ -136,9 +161,10 @@ class Prepend extends Core
 
         # If theme doesn't exist, stop everything
         if (!count($path)) {
-            throw new PrependException(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
+            $this->getExceptionLang();
+            $this->throwException(__('This either means you removed your default theme or set a wrong theme ' .
                     'path in your blog configuration. Please check theme_path value in ' .
-                    'about:config module or reinstall default theme. (' . $__theme . ')'), 650);
+                    'about:config module or reinstall default theme. (' . $__theme . ')'), '', 650);
         }
 
         # Ensure theme's settings namespace exists
@@ -179,18 +205,23 @@ class Prepend extends Core
             # --BEHAVIOR-- publicAfterDocument
             $this->behavior()->call('publicAfterDocument');
         } catch (\Exception $e) {
-            throw new PrependException(__('Template problem'), $this->config()->run_level >= DOTCLEAR_RUN_DEBUG ?
-                __('The following error was encountered while trying to load template file:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
-                __('Something went wrong while loading template file for your blog.'), 660);
+            $this->getExceptionLang();
+            $this->throwException(
+                __('Something went wrong while loading template file for your blog.'),
+                sprintf(__('The following error was encountered while trying to load template file: %s'), $e->getMessage()),
+                660
+            );
         }
     }
 
-    public static function behaviorCoreBlogGetPosts(Record $rs)
+    /** Behavior coreBlogGetPosts */
+    public static function behaviorCoreBlogGetPosts(Record $rs): void
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
     }
 
-    public static function behaviorCoreBlogGetComments(Record $rs)
+    /** Behavior coreBlogGetComments */
+    public static function behaviorCoreBlogGetComments(Record $rs): void
     {
         $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
     }
@@ -209,6 +240,6 @@ class Prepend extends Core
             exit;
         }
 
-        # other files will be served from url handler
+        # Other files will be served from core url handler
     }
 }
