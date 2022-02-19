@@ -96,7 +96,7 @@ abstract class Page
     /**
      * Check if current page is home page
      *
-     * @return  bool    Is home
+     * @return  bool    Is home page
      */
     final public function isHome(): bool
     {
@@ -106,9 +106,9 @@ abstract class Page
     /**
      * Check if current page is authentication page
      *
-     * @return  bool    Is home
+     * @return  bool    Is auth page
      */
-    final public function isuser(): bool
+    final public function isAuth(): bool
     {
         return $this->handler == 'admin.auth';
     }
@@ -947,7 +947,7 @@ abstract class Page
      * - Null if nothing done, current process stop, if extists parent process goes on.
      * - Bool else, process goes on and stop, if exists parent process is not executed.
      *
-     * @return  boll|null   Prepend result
+     * @return  bool|null   Prepend result
      */
     protected function getPagePrepend(): ?bool
     {
