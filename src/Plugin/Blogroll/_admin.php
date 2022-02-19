@@ -12,41 +12,31 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return;
 }
 
-$core->addBehavior('adminDashboardIcons', 'blogroll_dashboard');
-$core->addBehavior('adminDashboardFavorites', 'blogroll_dashboard_favorites');
-$core->addBehavior('adminUsersActionsHeaders', 'blogroll_users_actions_headers');
+$core->addBehavior(
+    'adminDashboardFavorites',
+    function ($core, $favs) {
+        $favs->register('blogroll', [
+            'title'       => __('Blogroll'),
+            'url'         => $core->adminurl->get('admin.plugin.blogroll'),
+            'small-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
+            'large-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
+            'permissions' => 'usage,contentadmin',
+        ]);
+    }
+);
+$core->addBehavior(
+    'adminUsersActionsHeaders',
+    fn () => dcPage::jsModuleLoad('blogroll/js/_users_actions.js')
+);
 
-function blogroll_dashboard($core, $icons)
-{
-    $icons['blogroll'] = new ArrayObject([
-        __('Blogroll'),
-        $core->adminurl->get('admin.plugin.blogroll'),
-        dcPage::getPF('blogroll/icon.png')
-    ]);
-}
-function blogroll_dashboard_favorites($core, $favs)
-{
-    $favs->register('blogroll', [
-        'title'       => __('Blogroll'),
-        'url'         => $core->adminurl->get('admin.plugin.blogroll'),
-        'small-icon'  => dcPage::getPF('blogroll/icon-small.png'),
-        'large-icon'  => dcPage::getPF('blogroll/icon.png'),
-        'permissions' => 'usage,contentadmin'
-    ]);
-}
-function blogroll_users_actions_headers()
-{
-    global $core;
-
-    return dcPage::jsLoad(dcPage::getPF('blogroll/js/_users_actions.js'));
-}
-
-$_menu['Blog']->addItem(__('Blogroll'),
+$_menu['Blog']->addItem(
+    __('Blogroll'),
     $core->adminurl->get('admin.plugin.blogroll'),
-    dcPage::getPF('blogroll/icon-small.png'),
+    [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
     preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.blogroll')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-    $core->auth->check('usage,contentadmin', $core->blog->id));
+    $core->auth->check('usage,contentadmin', $core->blog->id)
+);
 
 $core->auth->setPermissionType('blogroll', __('manage blogroll'));
 
-require dirname(__FILE__) . '/_widgets.php';
+require __DIR__ . '/_widgets.php';
