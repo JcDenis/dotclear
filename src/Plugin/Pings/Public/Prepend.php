@@ -1,18 +1,33 @@
 <?php
 /**
- * @brief pings, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Pings\Public\Prepend
+ * @brief Dotclear Plugin class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginPings
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Pings\Public;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependPublic;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-$__autoload['pingsAPI']           = __DIR__ . '/lib.pings.php';
-$__autoload['pingsCoreBehaviour'] = __DIR__ . '/lib.pings.php';
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependPublic;
 
-$core->addBehavior('coreFirstPublicationEntries', ['pingsCoreBehaviour', 'doPings']);
+    public static function loadModule(): void
+    {
+        dotclear()->behavior()->add('coreFirstPublicationEntries', [
+            'Dotclear\\Plugin\\Pings\\Lib\\PingsCore', 'doPings'
+        ]);
+    }
+}
