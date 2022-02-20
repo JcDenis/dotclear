@@ -1,34 +1,38 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatExport
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module\Flat;
+
+use Dotclear\Database\Record;
+use Dotclear\Database\Schema;
+use Dotclear\Exception\ModuleException;
+use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatBackupItem;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class flatExport
+class FlatExport
 {
-    private $con;
-    private $prefix;
-
     private $line_reg = ['/\\\\/u', '/\n/u', '/\r/u', '/"/u'];
     private $line_rep = ['\\\\\\\\', '\n', '\r', '\"'];
 
     public $fp;
 
-    public function __construct($con, $out = 'php://output', $prefix = null)
+    public function __construct($out = 'php://output')
     {
-        $this->con    = &$con;
-        $this->prefix = $prefix;
-
         if (($this->fp = fopen($out, 'w')) === false) {
-            throw new Exception(__('Unable to create output file.'));
+            throw new ModuleException(__('Unable to create output file.'));
         }
         @set_time_limit(300);
     }
@@ -40,9 +44,9 @@ class flatExport
         }
     }
 
-    public function export($name, $sql)
+    public function export(string $name, string $sql): void
     {
-        $rs = $this->con->select($sql);
+        $rs = dotclear()->con()->select($sql);
 
         if (!$rs->isEmpty()) {
             fwrite($this->fp, "\n[" . $name . ' ' . implode(',', $rs->columns()) . "]\n");
@@ -53,7 +57,7 @@ class flatExport
         }
     }
 
-    public function exportAll()
+    public function exportAll(): void
     {
         $tables = $this->getTables();
 
@@ -62,22 +66,22 @@ class flatExport
         }
     }
 
-    public function exportTable($table)
+    public function exportTable(string $table): void
     {
-        $req = 'SELECT * FROM ' . $this->con->escapeSystem($this->prefix . $table);
+        $req = 'SELECT * FROM ' . dotclear()->con()->escapeSystem(dotclear()->prefix . $table);
 
         $this->export($table, $req);
     }
 
-    public function getTables()
+    public function getTables(): array
     {
-        $schema    = dbSchema::init($this->con);
+        $schema    = Schema::init(dotclear()->con());
         $db_tables = $schema->getTables();
 
         $tables = [];
         foreach ($db_tables as $t) {
-            if ($this->prefix) {
-                if (strpos($t, $this->prefix) === 0) {
+            if (dotclear()->prefix) {
+                if (strpos($t, dotclear()->prefix) === 0) {
                     $tables[] = $t;
                 }
             } else {
@@ -88,13 +92,13 @@ class flatExport
         return $tables;
     }
 
-    public function getLine($rs)
+    public function getLine(Record $rs): string
     {
         $l    = [];
         $cols = $rs->columns();
-        foreach ($cols as $i => &$c) {
+        foreach ($cols as $i => &$c) {var_dump($i);var_dump($rs->f($c));echo "\n<br />";
             $s     = $rs->f($c);
-            $s     = preg_replace($this->line_reg, $this->line_rep, $s);
+            $s     = preg_replace($this->line_reg, $this->line_rep, (string) $s);
             $s     = '"' . $s . '"';
             $l[$i] = $s;
         }

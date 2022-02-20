@@ -1,18 +1,34 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportFlat
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module;
+
+use Dotclear\Core\Utils;
+use Dotclear\Exception\ModuleException;
+use Dotclear\File\Files;
+use Dotclear\File\Path;
+use Dotclear\File\Zip\Unzip;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
+use Dotclear\Plugin\ImportExport\Lib\Module;
+use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatImport;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcImportFlat extends dcIeModule
+class ImportFlat extends Module
 {
     protected $status = false;
 
@@ -44,8 +60,8 @@ class dcImportFlat extends dcIeModule
 
         if ($single_upl !== null) {
             if ($single_upl) {
-                files::uploadStatus($_FILES['up_single_file']);
-                $file = DC_TPL_CACHE . '/' . md5(uniqid());
+                Files::uploadStatus($_FILES['up_single_file']);
+                $file = dotclear()->config()->cache_dir . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_single_file']['tmp_name'], $file)) {
                     throw new Exception(__('Unable to move uploaded file.'));
                 }
@@ -60,15 +76,15 @@ class dcImportFlat extends dcIeModule
                 # Try to unzip file
                 $unzip_file = $this->unzip($file);
                 if (false !== $unzip_file) {
-                    $bk = new flatImport($this->core, $unzip_file);
+                    $bk = new FlatImport($unzip_file);
                 }
                 # Else this is a normal file
                 else {
-                    $bk = new flatImport($this->core, $file);
+                    $bk = new FlatImport($file);
                 }
 
                 $bk->importSingle();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 @unlink($unzip_file);
                 if ($to_unlink) {
                     @unlink($file);
@@ -80,7 +96,7 @@ class dcImportFlat extends dcIeModule
             if ($to_unlink) {
                 @unlink($file);
             }
-            http::redirect($this->getURL() . '&do=single');
+            Http::redirect($this->getURL() . '&do=single');
         }
 
         # Full import
@@ -91,14 +107,14 @@ class dcImportFlat extends dcIeModule
             $full_upl = true;
         }
 
-        if ($full_upl !== null && $this->core->auth->isSuperAdmin()) {
-            if (empty($_POST['your_pwd']) || !$this->core->auth->checkPassword($_POST['your_pwd'])) {
+        if ($full_upl !== null && dotclear()->user()->isSuperAdmin()) {
+            if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                 throw new Exception(__('Password verification failed'));
             }
 
             if ($full_upl) {
-                files::uploadStatus($_FILES['up_full_file']);
-                $file = DC_TPL_CACHE . '/' . md5(uniqid());
+                Files::uploadStatus($_FILES['up_full_file']);
+                $file = dotclear()->config()->cache_dir . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_full_file']['tmp_name'], $file)) {
                     throw new Exception(__('Unable to move uploaded file.'));
                 }
@@ -113,15 +129,15 @@ class dcImportFlat extends dcIeModule
                 # Try to unzip file
                 $unzip_file = $this->unzip($file);
                 if (false !== $unzip_file) {
-                    $bk = new flatImport($this->core, $unzip_file);
+                    $bk = new FlatImport($unzip_file);
                 }
                 # Else this is a normal file
                 else {
-                    $bk = new flatImport($this->core, $file);
+                    $bk = new FlatImport($file);
                 }
 
                 $bk->importFull();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 @unlink($unzip_file);
                 if ($to_unlink) {
                     @unlink($file);
@@ -133,7 +149,7 @@ class dcImportFlat extends dcIeModule
             if ($to_unlink) {
                 @unlink($file);
             }
-            http::redirect($this->getURL() . '&do=full');
+            Http::redirect($this->getURL() . '&do=full');
         }
 
         header('content-type:text/plain');
@@ -144,12 +160,12 @@ class dcImportFlat extends dcIeModule
     public function gui()
     {
         if ($this->status == 'single') {
-            dcPage::success(__('Single blog successfully imported.'));
+            dotclear()->notice()->success(__('Single blog successfully imported.'));
 
             return;
         }
         if ($this->status == 'full') {
-            dcPage::success(__('Content successfully imported.'));
+            dotclear()->notice()->success(__('Content successfully imported.'));
 
             return;
         }
@@ -158,58 +174,58 @@ class dcImportFlat extends dcIeModule
         $has_files    = (bool) (count($public_files) - 1);
 
         echo
-        dcPage::jsJson(
+        Utils::jsJson(
             'ie_import_flat_msg',
             ['confirm_full_import' => __('Are you sure you want to import a full backup file?')]
         ) .
-        dcPage::jsModuleLoad('importExport/js/import_flat.js');
-        echo
+        Utils::jsLoad('?mf=Plugin/ImportExport/files/js/import_flat.js') .
         '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
-        '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), html::escapeHTML($this->core->blog->name)) . '</p>' .
+        '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
 
         '<p><label for="up_single_file">' . __('Upload a backup file') .
-        ' (' . sprintf(__('maximum size %s'), files::size((int) DC_MAX_UPLOAD_SIZE)) . ')' . ' </label>' .
+        ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ')' . ' </label>' .
             ' <input type="file" id="up_single_file" name="up_single_file" size="20" />' .
             '</p>';
 
         if ($has_files) {
             echo
             '<p><label for="public_single_file" class="">' . __('or pick up a local file in your public directory') . ' </label> ' .
-            form::combo('public_single_file', $public_files) .
+            Form::combo('public_single_file', $public_files) .
                 '</p>';
         }
 
         echo
         '<p>' .
-        $this->core->formNonce() .
-        form::hidden(['do'], 1) .
-        form::hidden(['MAX_FILE_SIZE'], (int) DC_MAX_UPLOAD_SIZE) .
+        dotclear()->nonce()->form() .
+        Form::hidden(['handler'], 'admin.plugin.ImportExport') .
+        Form::hidden(['do'], 1) .
+        Form::hidden(['MAX_FILE_SIZE'], (int) dotclear()->config()->media_upload_maxsize) .
         '<input type="submit" value="' . __('Import') . '" /></p>' .
 
             '</form>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo
             '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" id="formfull" class="fieldset">' .
             '<h3>' . __('Multiple blogs') . '</h3>' .
             '<p class="warning">' . __('This will reset all the content of your database, except users.') . '</p>' .
 
             '<p><label for="up_full_file">' . __('Upload a backup file') . ' ' .
-            ' (' . sprintf(__('maximum size %s'), files::size((int) DC_MAX_UPLOAD_SIZE)) . ')' . ' </label>' .
+            ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ')' . ' </label>' .
                 '<input type="file" id="up_full_file" name="up_full_file" size="20" />' .
                 '</p>';
 
             if ($has_files) {
                 echo
                 '<p><label for="public_full_file">' . __('or pick up a local file in your public directory') . ' </label>' .
-                form::combo('public_full_file', $public_files) .
+                Form::combo('public_full_file', $public_files) .
                     '</p>';
             }
 
             echo
             '<p><label for="your_pwd" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label>' .
-            form::password(
+            Form::password(
                 'your_pwd',
                 20,
                 255,
@@ -220,9 +236,10 @@ class dcImportFlat extends dcIeModule
             ) . '</p>' .
 
             '<p>' .
-            $this->core->formNonce() .
-            form::hidden(['do'], 1) .
-            form::hidden(['MAX_FILE_SIZE'], DC_MAX_UPLOAD_SIZE) .
+            dotclear()->nonce()->form() .
+            Form::hidden(['handler'], 'admin.plugin.ImportExport') .
+            Form::hidden(['do'], 1) .
+            Form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
             '<input type="submit" value="' . __('Import') . '" /></p>' .
 
                 '</form>';
@@ -232,7 +249,7 @@ class dcImportFlat extends dcIeModule
     protected function getPublicFiles()
     {
         $public_files = [];
-        $dir          = @dir($this->core->blog->public_path);
+        $dir          = @dir(dotclear()->blog()->public_path);
         if ($dir) {
             while (($entry = $dir->read()) !== false) {
                 $entry_path = $dir->path . '/' . $entry;
@@ -256,7 +273,9 @@ class dcImportFlat extends dcIeModule
         $ret = false;
 
         $fp  = fopen($entry_path, 'rb');
-        $ret = strpos(fgets($fp), '///DOTCLEAR|') === 0;
+        if (false !== ($line = fgets($fp))) {
+            $ret = strpos($line, '///DOTCLEAR|') === 0;
+        }
         fclose($fp);
 
         return $ret;
@@ -264,7 +283,7 @@ class dcImportFlat extends dcIeModule
 
     private function unzip($file)
     {
-        $zip = new fileUnzip($file);
+        $zip = new Unzip($file);
 
         if ($zip->isEmpty()) {
             $zip->close();
@@ -286,14 +305,14 @@ class dcImportFlat extends dcIeModule
                 continue;
             }
 
-            $target = path::fullFromRoot($zip_file, dirname($file));
+            $target = Path::fullFromRoot($zip_file, dirname($file));
 
             # Check existing files with same name
             if (file_exists($target)) {
                 $zip->close();
                 unset($content);
 
-                throw new Exception(__('Another file with same name exists.'));
+                throw new ModuleException(__('Another file with same name exists.'));
             }
 
             # Extract backup content
@@ -301,7 +320,7 @@ class dcImportFlat extends dcIeModule
                 $zip->close();
                 unset($content);
 
-                throw new Exception(__('Failed to extract backup file.'));
+                throw new ModuleException(__('Failed to extract backup file.'));
             }
 
             $zip->close();
@@ -313,6 +332,6 @@ class dcImportFlat extends dcIeModule
 
         $zip->close();
 
-        throw new Exception(__('No backup in compressed file.'));
+        throw new ModuleException(__('No backup in compressed file.'));
     }
 }

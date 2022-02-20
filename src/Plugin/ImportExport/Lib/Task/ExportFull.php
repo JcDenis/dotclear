@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Task\ExportBlog
+ * @class Dotclear\Plugin\ImportExport\Lib\Task\ExportFull
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -23,11 +23,10 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class ExportBlog extends MaintenanceTask
+class ExportFull extends MaintenanceTask
 {
-    protected $perm  = 'admin';
     protected $tab   = 'backup';
-    protected $group = 'zipblog';
+    protected $group = 'zipfull';
 
     protected $export_name;
     protected $export_type;
@@ -35,10 +34,10 @@ class ExportBlog extends MaintenanceTask
     protected function init()
     {
         $this->name = __('Database export');
-        $this->task = __('Download database of current blog');
+        $this->task = __('Download database of all blogs');
 
-        $this->export_name = Html::escapeHTML(dotclear()->blog()->id . '-backup.txt');
-        $this->export_type = 'export_blog';
+        $this->export_name = 'dotclear-backup.txt';
+        $this->export_type = 'export_all';
     }
 
     public function execute()
@@ -68,7 +67,6 @@ class ExportBlog extends MaintenanceTask
     {
         // Download zip file
         if (isset($_SESSION['export_file']) && file_exists($_SESSION['export_file'])) {
-
             // Log task execution here as we sent file and stop script
             $this->log();
 

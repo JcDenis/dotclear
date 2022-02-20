@@ -1,18 +1,27 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib;
+
+use Dotclear\Exception\ModuleException;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-abstract class dcIeModule
+abstract class Module
 {
     public $type;
     public $id;
@@ -21,24 +30,22 @@ abstract class dcIeModule
 
     protected $import_url;
     protected $export_url;
-    protected $core;
     protected $url;
 
-    public function __construct($core)
+    public function __construct()
     {
-        $this->core = &$core;
         $this->setInfo();
 
         if (!in_array($this->type, ['import', 'export'])) {
-            throw new Exception(sprintf('Unknown type for module %s', get_class($this)));
+            throw new ModuleException(sprintf('Unknown type for module %s', get_class($this)));
         }
 
         if (!$this->name) {
             $this->name = get_class($this);
         }
 
-        $this->id  = get_class($this);
-        $this->url = sprintf('plugin.php?p=importExport&type=%s&module=%s', $this->type, $this->id);
+        $this->id  = get_class($this); //join('', array_slice(explode('\\', get_class($this)), -1));;
+        $this->url = dotclear()->adminurl()->get('admin.plugin.ImportExport', ['type' => $this->type, 'module' => $this->id], '&');
     }
 
     public function init()
@@ -49,7 +56,7 @@ abstract class dcIeModule
 
     final public function getURL($escape = false)
     {
-        return $escape ? html::escapeHTML($this->url) : $this->url;
+        return $escape ? Html::escapeHTML($this->url) : $this->url;
     }
 
     abstract public function process($do);
@@ -68,7 +75,7 @@ abstract class dcIeModule
 
     protected function autoSubmit()
     {
-        return form::hidden(['autosubmit'], 1);
+        return Form::hidden(['autosubmit'], 1);
     }
 
     protected function congratMessage()
@@ -76,7 +83,7 @@ abstract class dcIeModule
         return
         '<h3>' . __('Congratulation!') . '</h3>' .
         '<p class="success">' . __('Your blog has been successfully imported. Welcome on Dotclear 2!') . '</p>' .
-        '<ul><li><strong><a href="' . $this->core->adminurl->decode('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
-        '<li>' . __('or') . ' <a href="' . $this->core->adminurl->decode('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
+        '<ul><li><strong><a href="' . dotclear()->adminurl()->decode('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
+        '<li>' . __('or') . ' <a href="' . dotclear()->adminurl()->decode('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
     }
 }

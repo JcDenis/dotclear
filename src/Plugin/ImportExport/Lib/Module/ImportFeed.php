@@ -1,18 +1,29 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportFeed
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module;
+
+use Dotclear\Exception\ModuleException;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Network\Feed\Reader;
+use Dotclear\Plugin\ImportExport\Lib\Module;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcImportFeed extends dcIeModule
+class ImportFeed extends Module
 {
     protected $status   = false;
     protected $feed_url = '';
@@ -93,93 +104,94 @@ class dcImportFeed extends dcIeModule
         $this->feed_url = $_POST['feed_url'];
 
         // Check feed URL
-        if ($this->core->blog->settings->system->import_feed_url_control) {
+        if (dotclear()->blog()->settings()->system->import_feed_url_control) {
             // Get IP from URL
             $bits = parse_url($this->feed_url);
             if (!$bits || !isset($bits['host'])) {
-                throw new Exception(__('Cannot retrieve feed URL.'));
+                throw new ModuleException(__('Cannot retrieve feed URL.'));
             }
             $ip = gethostbyname($bits['host']);
             if ($ip == $bits['host']) {
                 $ip = $this->gethostbyname6($bits['host']);
                 if (!$ip) {
-                    throw new Exception(__('Cannot retrieve feed URL.'));
+                    throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }
             // Check feed IP
             $flag = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-            if ($this->core->blog->settings->system->import_feed_no_private_ip) {
+            if (dotclear()->blog()->settings()->system->import_feed_no_private_ip) {
                 $flag |= FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
             }
             if (!filter_var($ip, $flag)) {
-                throw new Exception(__('Cannot retrieve feed URL.'));
+                throw new ModuleException(__('Cannot retrieve feed URL.'));
             }
             // IP control (white list regexp)
-            if ($this->core->blog->settings->system->import_feed_ip_regexp != '') {
-                if (!preg_match($this->core->blog->settings->system->import_feed_ip_regexp, $ip)) {
-                    throw new Exception(__('Cannot retrieve feed URL.'));
+            if (dotclear()->blog()->settings()->system->import_feed_ip_regexp != '') {
+                if (!preg_match(dotclear()->blog()->settings()->system->import_feed_ip_regexp, $ip)) {
+                    throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }
             // Port control (white list regexp)
-            if ($this->core->blog->settings->system->import_feed_port_regexp != '' && isset($bits['port'])) {
-                if (!preg_match($this->core->blog->settings->system->import_feed_port_regexp, $bits['port'])) { // @phpstan-ignore-line
-                    throw new Exception(__('Cannot retrieve feed URL.'));
+            if (dotclear()->blog()->settings()->system->import_feed_port_regexp != '' && isset($bits['port'])) {
+                if (!preg_match(dotclear()->blog()->settings()->system->import_feed_port_regexp, $bits['port'])) { // @phpstan-ignore-line
+                    throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }
         }
 
-        $feed = feedReader::quickParse($this->feed_url);
+        $feed = Reader::quickParse($this->feed_url);
         if ($feed === false) {
-            throw new Exception(__('Cannot retrieve feed URL.'));
+            throw new ModuleException(__('Cannot retrieve feed URL.'));
         }
         if (count($feed->items) == 0) {
-            throw new Exception(__('No items in feed.'));
+            throw new ModuleException(__('No items in feed.'));
         }
 
-        $cur = $this->core->con->openCursor($this->core->prefix . 'post');
-        $this->core->con->begin();
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        dotclear()->con()->begin();
         foreach ($feed->items as $item) {
             $cur->clean();
-            $cur->user_id      = $this->core->auth->userID();
+            $cur->user_id      = dotclear()->user()->userID();
             $cur->post_content = $item->content ?: $item->description;
-            $cur->post_title   = $item->title ?: text::cutString(html::clean($cur->post_content), 60);
+            $cur->post_title   = $item->title ?: Text::cutString(Html::clean($cur->post_content), 60);
             $cur->post_format  = 'xhtml';
             $cur->post_status  = -2;
             $cur->post_dt      = date('Y-m-d H:i:s', $item->TS);
 
             try {
-                $post_id = $this->core->blog->addPost($cur);
-            } catch (Exception $e) {
-                $this->core->con->rollback();
+                $post_id = dotclear()->blog()->addPost($cur);
+            } catch (\Exception $e) {
+                dotclear()->con()->rollback();
 
                 throw $e;
             }
 
             foreach ($item->subject as $subject) {
-                $this->core->meta->setPostMeta($post_id, 'tag', dcMeta::sanitizeMetaID($subject));
+                dotclear()->meta()->setPostMeta($post_id, 'tag', dotclear()->meta()::sanitizeMetaID($subject));
             }
         }
 
-        $this->core->con->commit();
-        http::redirect($this->getURL() . '&do=ok');
+        dotclear()->con()->commit();
+        Http::redirect($this->getURL() . '&do=ok');
     }
 
     public function gui()
     {
         if ($this->status) {
-            dcPage::success(__('Content successfully imported.'));
+            dotclear()->notice()->success(__('Content successfully imported.'));
         }
 
         echo
         '<form action="' . $this->getURL(true) . '" method="post">' .
-        '<p>' . sprintf(__('Add a feed content to the current blog: <strong>%s</strong>.'), html::escapeHTML($this->core->blog->name)) . '</p>' .
+        '<p>' . sprintf(__('Add a feed content to the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
 
         '<p><label for="feed_url">' . __('Feed URL:') . '</label>' .
-        form::url('feed_url', 50, 300, html::escapeHTML($this->feed_url)) . '</p>' .
+        Form::url('feed_url', 50, 300, Html::escapeHTML($this->feed_url)) . '</p>' .
 
         '<p>' .
-        $this->core->formNonce() .
-        form::hidden(['do'], 1) .
+        dotclear()->nonce()->form() .
+        Form::hidden(['handler'], 'admin.plugin.ImportExport') .
+        Form::hidden(['do'], 1) .
         '<input type="submit" value="' . __('Import') . '" /></p>' .
 
             '</form>';

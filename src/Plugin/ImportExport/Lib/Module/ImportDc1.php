@@ -1,23 +1,33 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportDc1
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module;
+
+use Dotclear\Database\Connection;
+use Dotclear\Exception\ModuleException;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
+use Dotclear\Plugin\ImportExport\Lib\Module;
+use Dotclear\Utils\Crypt;
+use Dotclear\Utils\Text;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcImportDC1 extends dcIeModule
+class ImportDc1 extends Module
 {
-    protected $con;
-    protected $prefix;
-    protected $blog_id;
-
     protected $action = null;
     protected $step   = 1;
 
@@ -48,10 +58,6 @@ class dcImportDC1 extends dcIeModule
 
     public function init()
     {
-        $this->con     = &$this->core->con;
-        $this->prefix  = $this->core->prefix;
-        $this->blog_id = $this->core->blog->id;
-
         if (!isset($_SESSION['dc1_import_vars'])) {
             $_SESSION['dc1_import_vars'] = $this->base_vars;
         }
@@ -102,7 +108,7 @@ class dcImportDC1 extends dcIeModule
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
-                if ($this->core->plugins->moduleExists('blogroll')) {
+                if (dotclear()->plugins->moduleExists('blogroll')) {
                     $this->step = 4;
                     echo $this->progressBar(5);
                 } else {
@@ -122,7 +128,7 @@ class dcImportDC1 extends dcIeModule
                 $this->step        = 5;
                 $this->post_offset = !empty($_REQUEST['offset']) ? abs((int) $_REQUEST['offset']) : 0;
                 if ($this->importPosts($percent) === -1) {
-                    http::redirect($this->getURL() . '&do=ok');
+                    Http::redirect($this->getURL() . '&do=ok');
                 } else {
                     echo $this->progressBar(ceil($percent * 0.93) + 7);
                 }
@@ -130,7 +136,7 @@ class dcImportDC1 extends dcIeModule
                 break;
             case 'ok':
                 $this->resetVars();
-                $this->core->blog->triggerBlog();
+                dotclear()->blog()->triggerBlog();
                 $this->step = 6;
                 echo $this->progressBar(100);
 
@@ -142,7 +148,7 @@ class dcImportDC1 extends dcIeModule
     {
         try {
             $this->guiprocess($this->action);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->error($e);
         }
 
@@ -156,7 +162,7 @@ class dcImportDC1 extends dcIeModule
                 echo
                 '<p>' . sprintf(
                     __('Import the content of a Dotclear 1.2\'s blog in the current blog: %s.'),
-                    '<strong>' . html::escapeHTML($this->core->blog->name) . '</strong>'
+                    '<strong>' . Html::escapeHTML(dotclear()->blog()->name) . '</strong>'
                 ) . '</p>' .
                 '<p class="warning">' . __('Please note that this process ' .
                     'will empty your categories, blogroll, entries and comments on the current blog.') . '</p>';
@@ -165,20 +171,20 @@ class dcImportDC1 extends dcIeModule
                     $this->imForm(1, __('General information'), __('Import my blog now')),
                     '<p>' . __('We first need some information about your old Dotclear 1.2 installation.') . '</p>' .
                     '<p><label for="db_driver">' . __('Database driver:') . '</label> ' .
-                    form::combo('db_driver', $db_drivers, html::escapeHTML($this->vars['db_driver'])) . '</p>' .
+                    Form::combo('db_driver', $db_drivers, Html::escapeHTML($this->vars['db_driver'])) . '</p>' .
                     '<p><label for="db_host">' . __('Database Host Name:') . '</label> ' .
-                    form::field('db_host', 30, 255, html::escapeHTML($this->vars['db_host'])) . '</p>' .
-                    '<p><label for="db_name">' . __('Database Name:', html::escapeHTML($this->vars['db_name'])) . '</label> ' .
-                    form::field('db_name', 30, 255, html::escapeHTML($this->vars['db_name'])) . '</p>' .
+                    Form::field('db_host', 30, 255, Html::escapeHTML($this->vars['db_host'])) . '</p>' .
+                    '<p><label for="db_name">' . __('Database Name:', Html::escapeHTML($this->vars['db_name'])) . '</label> ' .
+                    Form::field('db_name', 30, 255, Html::escapeHTML($this->vars['db_name'])) . '</p>' .
                     '<p><label for="db_user">' . __('Database User Name:') . '</label> ' .
-                    form::field('db_user', 30, 255, html::escapeHTML($this->vars['db_user'])) . '</p>' .
+                    Form::field('db_user', 30, 255, Html::escapeHTML($this->vars['db_user'])) . '</p>' .
                     '<p><label for="db_pwd">' . __('Database Password:') . '</label> ' .
-                    form::password('db_pwd', 30, 255) . '</p>' .
+                    Form::password('db_pwd', 30, 255) . '</p>' .
                     '<p><label for="db_prefix">' . __('Database Tables Prefix:') . '</label> ' .
-                    form::field('db_prefix', 30, 255, html::escapeHTML($this->vars['db_prefix'])) . '</p>' .
+                    Form::field('db_prefix', 30, 255, Html::escapeHTML($this->vars['db_prefix'])) . '</p>' .
                     '<h3 class="vertical-separator">' . __('Entries import options') . '</h3>' .
                     '<p><label for="post_limit">' . __('Number of entries to import at once:') . '</label> ' .
-                    form::number('post_limit', 0, 999, html::escapeHTML($this->vars['post_limit'])) . '</p>'
+                    Form::number('post_limit', 0, 999, Html::escapeHTML($this->vars['post_limit'])) . '</p>'
                 );
 
                 break;
@@ -212,7 +218,7 @@ class dcImportDC1 extends dcIeModule
                 );
                 printf(
                     $this->imForm(5, $t),
-                    form::hidden(['offset'], $this->post_offset) .
+                    Form::hidden(['offset'], $this->post_offset) .
                     $this->autoSubmit()
                 );
 
@@ -248,8 +254,9 @@ class dcImportDC1 extends dcIeModule
         return
         '<form action="' . $this->getURL(true) . '" method="post">' .
         '<h3 class="vertical-separator">' . $legend . '</h3>' .
-        '<div>' . $this->core->formNonce() .
-        form::hidden(['do'], 'step' . $step) .
+        '<div>' . dotclear()->nonce()->form() .
+        Form::hidden(['do'], 'step' . $step) .
+        Form::hidden(['handler'], 'admin.plugin.ImportExport') .
         '%s' . '</div>' .
         '<p class="vertical-separator"><input type="submit" value="' . $submit_value . '" /></p>' .
         '<p class="form-note info">' . __('Depending on the size of your blog, it could take a few minutes.') . '</p>' .
@@ -266,11 +273,11 @@ class dcImportDC1 extends dcIeModule
     # Database init
     protected function db()
     {
-        $db = dbLayer::init($this->vars['db_driver'], $this->vars['db_host'], $this->vars['db_name'], $this->vars['db_user'], $this->vars['db_pwd']);
+        $db = Connection::init($this->vars['db_driver'], $this->vars['db_host'], $this->vars['db_name'], $this->vars['db_user'], $this->vars['db_pwd']);
 
         $rs = $db->select("SHOW TABLES LIKE '" . $this->vars['db_prefix'] . "%'");
         if ($rs->isEmpty()) {
-            throw new Exception(__('Dotclear tables not found'));
+            throw new ModuleException(__('Dotclear tables not found'));
         }
 
         while ($rs->fetch()) {
@@ -280,7 +287,7 @@ class dcImportDC1 extends dcIeModule
         # Set this to read data as they were written in Dotclear 1
         try {
             $db->execute('SET NAMES DEFAULT');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
 
         $db->execute('SET CHARACTER SET DEFAULT');
@@ -298,7 +305,7 @@ class dcImportDC1 extends dcIeModule
 
     protected function cleanStr($str)
     {
-        return text::cleanUTF8(@text::toUTF8($str));
+        return Text::cleanUTF8(@Text::toUTF8($str));
     }
 
     # Users import
@@ -309,19 +316,19 @@ class dcImportDC1 extends dcIeModule
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'user');
 
         try {
-            $this->con->begin();
+            dotclear()->con()->begin();
 
             while ($rs->fetch()) {
-                if (!$this->core->userExists($rs->user_id)) {
-                    $cur                   = $this->con->openCursor($this->prefix . 'user');
+                if (!dotclear()->users()->userExists($rs->user_id)) {
+                    $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
                     $cur->user_id          = $rs->user_id;
                     $cur->user_name        = $rs->user_nom;
                     $cur->user_firstname   = $rs->user_prenom;
                     $cur->user_displayname = $rs->user_pseudo;
-                    $cur->user_pwd         = crypt::createPassword();
+                    $cur->user_pwd         = Crypt::createPassword();
                     $cur->user_email       = $rs->user_email;
                     $cur->user_lang        = $rs->user_lang;
-                    $cur->user_tz          = $this->core->blog->settings->system->blog_timezone;
+                    $cur->user_tz          = dotclear()->blog()->settings()->system->blog_timezone;
                     $cur->user_post_status = $rs->user_post_pub ? 1 : -2;
                     $cur->user_options     = new ArrayObject([
                         'edit_size'   => (int) $rs->user_edit_size,
@@ -350,19 +357,19 @@ class dcImportDC1 extends dcIeModule
                             break;
                     }
 
-                    $this->core->addUser($cur);
-                    $this->core->setUserBlogPermissions(
+                    dotclear()->users()->addUser($cur);
+                    dotclear()->users()->setUserBlogPermissions(
                         $rs->user_id,
-                        $this->blog_id,
+                        dotclear()->blog()->id,
                         $permissions
                     );
                 }
             }
 
-            $this->con->commit();
+            dotclear()->con()->commit();
             $db->close();
-        } catch (Exception $e) {
-            $this->con->rollback();
+        } catch (\Exception $e) {
+            dotclear()->con()->rollback();
             $db->close();
 
             throw $e;
@@ -377,30 +384,30 @@ class dcImportDC1 extends dcIeModule
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'categorie ORDER BY cat_ord ASC');
 
         try {
-            $this->con->execute(
-                'DELETE FROM ' . $this->prefix . 'category ' .
-                "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' "
+            dotclear()->con()->execute(
+                'DELETE FROM ' . dotclear()->prefix . 'category ' .
+                "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
             );
 
             $ord = 2;
             while ($rs->fetch()) {
-                $cur            = $this->con->openCursor($this->prefix . 'category');
-                $cur->blog_id   = $this->blog_id;
+                $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+                $cur->blog_id   = dotclear()->blog()->id;
                 $cur->cat_title = $this->cleanStr(htmlspecialchars_decode($rs->cat_libelle));
                 $cur->cat_desc  = $this->cleanStr($rs->cat_desc);
                 $cur->cat_url   = $this->cleanStr($rs->cat_libelle_url);
                 $cur->cat_lft   = $ord++;
                 $cur->cat_rgt   = $ord++;
 
-                $cur->cat_id = $this->con->select(
-                    'SELECT MAX(cat_id) FROM ' . $this->prefix . 'category'
+                $cur->cat_id = dotclear()->con()->select(
+                    'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
                 )->f(0) + 1;
                 $this->vars['cat_ids'][$rs->cat_id] = $cur->cat_id;
                 $cur->insert();
             }
 
             $db->close();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $db->close();
 
             throw $e;
@@ -415,14 +422,14 @@ class dcImportDC1 extends dcIeModule
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'link ORDER BY link_id ASC');
 
         try {
-            $this->con->execute(
-                'DELETE FROM ' . $this->prefix . 'link ' .
-                "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' "
+            dotclear()->con()->execute(
+                'DELETE FROM ' . dotclear()->prefix . 'link ' .
+                "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
             );
 
             while ($rs->fetch()) {
-                $cur                = $this->con->openCursor($this->prefix . 'link');
-                $cur->blog_id       = $this->blog_id;
+                $cur                = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
+                $cur->blog_id       = dotclear()->blog()->id;
                 $cur->link_href     = $this->cleanStr($rs->href);
                 $cur->link_title    = $this->cleanStr($rs->label);
                 $cur->link_desc     = $this->cleanStr($rs->title);
@@ -430,14 +437,14 @@ class dcImportDC1 extends dcIeModule
                 $cur->link_xfn      = $this->cleanStr($rs->rel);
                 $cur->link_position = (int) $rs->position;
 
-                $cur->link_id = $this->con->select(
-                    'SELECT MAX(link_id) FROM ' . $this->prefix . 'link'
+                $cur->link_id = dotclear()->con()->select(
+                    'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
                 )->f(0) + 1;
                 $cur->insert();
             }
 
             $db->close();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $db->close();
 
             throw $e;
@@ -459,9 +466,9 @@ class dcImportDC1 extends dcIeModule
 
         try {
             if ($this->post_offset == 0) {
-                $this->con->execute(
-                    'DELETE FROM ' . $this->prefix . 'post ' .
-                    "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' "
+                dotclear()->con()->execute(
+                    'DELETE FROM ' . dotclear()->prefix . 'post ' .
+                    "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
                 );
             }
 
@@ -470,7 +477,7 @@ class dcImportDC1 extends dcIeModule
             }
 
             $db->close();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $db->close();
 
             throw $e;
@@ -490,14 +497,14 @@ class dcImportDC1 extends dcIeModule
 
     protected function importPost($rs, $db)
     {
-        $cur              = $this->con->openCursor($this->prefix . 'post');
-        $cur->blog_id     = $this->blog_id;
+        $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur->blog_id     = dotclear()->blog()->id;
         $cur->user_id     = $rs->user_id;
         $cur->cat_id      = (int) $this->vars['cat_ids'][$rs->cat_id];
         $cur->post_dt     = $rs->post_dt;
         $cur->post_creadt = $rs->post_creadt;
         $cur->post_upddt  = $rs->post_upddt;
-        $cur->post_title  = html::decodeEntities($this->cleanStr($rs->post_titre));
+        $cur->post_title  = Html::decodeEntities($this->cleanStr($rs->post_titre));
 
         $cur->post_url = date('Y/m/d/', strtotime($cur->post_dt)) . $rs->post_id . '-' . $rs->post_titre_url;
         $cur->post_url = substr($cur->post_url, 0, 255);
@@ -521,14 +528,14 @@ class dcImportDC1 extends dcIeModule
         $cur->post_open_tb      = (int) $rs->post_open_tb;
         $cur->post_lang         = $rs->post_lang;
 
-        $cur->post_words = implode(' ', text::splitWords(
+        $cur->post_words = implode(' ', Text::splitWords(
             $cur->post_title . ' ' .
             $cur->post_excerpt_xhtml . ' ' .
             $cur->post_content_xhtml
         ));
 
-        $cur->post_id = $this->con->select(
-            'SELECT MAX(post_id) FROM ' . $this->prefix . 'post'
+        $cur->post_id = dotclear()->con()->select(
+            'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
         )->f(0) + 1;
 
         $cur->insert();
@@ -552,7 +559,7 @@ class dcImportDC1 extends dcIeModule
         );
 
         while ($rs->fetch()) {
-            $cur                    = $this->con->openCursor($this->prefix . 'comment');
+            $cur                    = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
             $cur->post_id           = (int) $new_post_id;
             $cur->comment_author    = $this->cleanStr($rs->comment_auteur);
             $cur->comment_status    = (int) $rs->comment_pub;
@@ -572,10 +579,10 @@ class dcImportDC1 extends dcIeModule
                 $cur->comment_status = -2;
             }
 
-            $cur->comment_words = implode(' ', text::splitWords($cur->comment_content));
+            $cur->comment_words = implode(' ', Text::splitWords($cur->comment_content));
 
-            $cur->comment_id = $this->con->select(
-                'SELECT MAX(comment_id) FROM ' . $this->prefix . 'comment'
+            $cur->comment_id = dotclear()->con()->select(
+                'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
             )->f(0) + 1;
 
             $cur->insert();
@@ -588,8 +595,8 @@ class dcImportDC1 extends dcIeModule
         }
 
         if ($count_t > 0 || $count_c > 0) {
-            $this->con->execute(
-                'UPDATE ' . $this->prefix . 'post SET ' .
+            dotclear()->con()->execute(
+                'UPDATE ' . dotclear()->prefix . 'post SET ' .
                 'nb_comment = ' . $count_c . ', ' .
                 'nb_trackback = ' . $count_t . ' ' .
                 'WHERE post_id = ' . (int) $new_post_id . ' '
@@ -613,7 +620,7 @@ class dcImportDC1 extends dcIeModule
                 continue;
             }
 
-            $cur           = $this->con->openCursor($this->prefix . 'ping');
+            $cur           = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
             $cur->post_id  = (int) $new_post_id;
             $cur->ping_url = $url;
             $cur->ping_dt  = $rs->ping_dt;
@@ -636,7 +643,7 @@ class dcImportDC1 extends dcIeModule
         }
 
         while ($rs->fetch()) {
-            $this->core->meta->setPostMeta($new_post_id, $this->cleanStr($rs->meta_key), $this->cleanStr($rs->meta_value));
+            dotclear()->meta()->setPostMeta($new_post_id, $this->cleanStr($rs->meta_key), $this->cleanStr($rs->meta_value));
         }
     }
 }

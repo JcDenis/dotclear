@@ -1,44 +1,59 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Admin;
+
+use ArrayObject;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-$_menu['Plugins']->addItem(
-    __('Import/Export'),
-    $core->adminurl->get('admin.plugin.importExport'),
-    [dcPage::getPF('importExport/icon.svg'), dcPage::getPF('importExport/icon-dark.svg')],
-    preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.importExport')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-    $core->auth->check('admin', $core->blog->id)
-);
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependAdmin;
 
-$core->addBehavior(
-    'adminDashboardFavorites',
-    function ($core, $favs) {
-        $favs->register('importExport', [
-            'title'       => __('Import/Export'),
-            'url'         => $core->adminurl->get('admin.plugin.importExport'),
-            'small-icon'  => [dcPage::getPF('importExport/icon.svg'), dcPage::getPF('importExport/icon-dark.svg')],
-            'large-icon'  => [dcPage::getPF('importExport/icon.svg'), dcPage::getPF('importExport/icon-dark.svg')],
-            'permissions' => 'admin',
-        ]);
-    }
-);
+    public static function loadModule(): void
+    {
+        # Menu and favs
+        static::addStandardMenu('Plugins');
+        static::addStandardFavorites();
 
-$core->addBehavior(
-    'dcMaintenanceInit',
-    function ($maintenance) {
-        $maintenance
-            ->addTask('ieMaintenanceExportblog')
-            ->addTask('ieMaintenanceExportfull')
-        ;
+        # ImportExport modules
+        dotclear()->behavior()->add('importExportModules', function ($modules) {
+            $ns = 'Dotclear\\Plugin\\ImportExport\\Lib\\Module\\';
+            $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFlat']);
+            $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
+
+            $modules['export'] = array_merge($modules['export'], [$ns . 'ExportFlat']);
+
+            if (dotclear()->user()->isSuperAdmin()) {
+                $modules['import'] = array_merge($modules['import'], [$ns . 'ImportDc1']);
+                $modules['import'] = array_merge($modules['import'], [$ns . 'ImportWp']);
+            }
+        });
+
+        # Maintenance task
+        dotclear()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
+            $ns = 'Dotclear\\Plugin\\ImportExport\\Lib\\Task\\';
+            $maintenance
+                ->addTask($ns . 'ExportBlog')
+                ->addTask($ns . 'ExportFull')
+            ;
+        });
     }
-);
+}

@@ -1,18 +1,33 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\ExportFlat
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module;
+
+use Dotclear\Database\Record;
+use Dotclear\Database\Schema;
+use Dotclear\Exception\ModuleException;
+use Dotclear\File\Zip\Zip;
+use DOtclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Network\Http;
+use Dotclear\Plugin\ImportExport\Lib\Module;
+use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatExport;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class dcExportFlat extends dcIeModule
+class ExportFlat extends Module
 {
     public function setInfo()
     {
@@ -24,76 +39,76 @@ class dcExportFlat extends dcIeModule
     public function process($do)
     {
         # Export a blog
-        if ($do == 'export_blog' && $this->core->auth->check('admin', $this->core->blog->id)) {
-            $fullname = $this->core->blog->public_path . '/.backup_' . sha1(uniqid());
-            $blog_id  = $this->core->con->escape($this->core->blog->id);
+        if ($do == 'export_blog' && dotclear()->user()->check('admin', dotclear()->blog()->id)) {
+            $fullname = dotclear()->blog()->public_path . '/.backup_' . sha1(uniqid());
+            $blog_id  = dotclear()->con()->escape(dotclear()->blog()->id);
 
             try {
-                $exp = new flatExport($this->core->con, $fullname, $this->core->prefix);
-                fwrite($exp->fp, '///DOTCLEAR|' . DC_VERSION . "|single\n");
+                $exp = new FlatExport($fullname);
+                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->version . "|single\n");
 
                 $exp->export(
                     'category',
-                    'SELECT * FROM ' . $this->core->prefix . 'category ' .
+                    'SELECT * FROM ' . dotclear()->prefix . 'category ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'link',
-                    'SELECT * FROM ' . $this->core->prefix . 'link ' .
+                    'SELECT * FROM ' . dotclear()->prefix . 'link ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'setting',
-                    'SELECT * FROM ' . $this->core->prefix . 'setting ' .
+                    'SELECT * FROM ' . dotclear()->prefix . 'setting ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'post',
-                    'SELECT * FROM ' . $this->core->prefix . 'post ' .
+                    'SELECT * FROM ' . dotclear()->prefix . 'post ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'meta',
                     'SELECT meta_id, meta_type, M.post_id ' .
-                    'FROM ' . $this->core->prefix . 'meta M, ' . $this->core->prefix . 'post P ' .
+                    'FROM ' . dotclear()->prefix . 'meta M, ' . dotclear()->prefix . 'post P ' .
                     'WHERE P.post_id = M.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'media',
-                    'SELECT * FROM ' . $this->core->prefix . "media WHERE media_path = '" .
-                    $this->core->con->escape($this->core->blog->settings->system->public_path) . "'"
+                    'SELECT * FROM ' . dotclear()->prefix . "media WHERE media_path = '" .
+                    dotclear()->con()->escape(dotclear()->blog()->settings()->system->public_path) . "'"
                 );
                 $exp->export(
                     'post_media',
                     'SELECT media_id, M.post_id ' .
-                    'FROM ' . $this->core->prefix . 'post_media M, ' . $this->core->prefix . 'post P ' .
+                    'FROM ' . dotclear()->prefix . 'post_media M, ' . dotclear()->prefix . 'post P ' .
                     'WHERE P.post_id = M.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'ping',
                     'SELECT ping.post_id, ping_url, ping_dt ' .
-                    'FROM ' . $this->core->prefix . 'ping ping, ' . $this->core->prefix . 'post P ' .
+                    'FROM ' . dotclear()->prefix . 'ping ping, ' . dotclear()->prefix . 'post P ' .
                     'WHERE P.post_id = ping.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'comment',
                     'SELECT C.* ' .
-                    'FROM ' . $this->core->prefix . 'comment C, ' . $this->core->prefix . 'post P ' .
+                    'FROM ' . dotclear()->prefix . 'comment C, ' . dotclear()->prefix . 'post P ' .
                     'WHERE P.post_id = C.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
 
                 # --BEHAVIOR-- exportSingle
-                $this->core->callBehavior('exportSingle', $this->core, $exp, $blog_id);
+                dotclear()->behavior()->call('exportSingle', $exp, $blog_id);
 
                 $_SESSION['export_file']     = $fullname;
                 $_SESSION['export_filename'] = $_POST['file_name'];
                 $_SESSION['export_filezip']  = !empty($_POST['file_zip']);
-                http::redirect($this->getURL() . '&do=ok');
-            } catch (Exception $e) {
+                Http::redirect($this->getURL() . '&do=ok');
+            } catch (\Exception $e) {
                 @unlink($fullname);
 
                 throw $e;
@@ -101,11 +116,11 @@ class dcExportFlat extends dcIeModule
         }
 
         # Export all content
-        if ($do == 'export_all' && $this->core->auth->isSuperAdmin()) {
-            $fullname = $this->core->blog->public_path . '/.backup_' . sha1(uniqid());
+        if ($do == 'export_all' && dotclear()->user()->isSuperAdmin()) {
+            $fullname = dotclear()->blog()->public_path . '/.backup_' . sha1(uniqid());
 
             try {
-                $exp = new flatExport($this->core->con, $fullname, $this->core->prefix);
+                $exp = new FlatExport($fullname);
                 fwrite($exp->fp, '///DOTCLEAR|' . DC_VERSION . "|full\n");
                 $exp->exportTable('blog');
                 $exp->exportTable('category');
@@ -125,13 +140,13 @@ class dcExportFlat extends dcIeModule
                 $exp->exportTable('version');
 
                 # --BEHAVIOR-- exportFull
-                $this->core->callBehavior('exportFull', $this->core, $exp);
+                dotclear()->behavior()->call('exportFull', $exp);
 
                 $_SESSION['export_file']     = $fullname;
                 $_SESSION['export_filename'] = $_POST['file_name'];
                 $_SESSION['export_filezip']  = !empty($_POST['file_zip']);
-                http::redirect($this->getURL() . '&do=ok');
-            } catch (Exception $e) {
+                Http::redirect($this->getURL() . '&do=ok');
+            } catch (\Exception $e) {
                 @unlink($fullname);
 
                 throw $e;
@@ -141,7 +156,7 @@ class dcExportFlat extends dcIeModule
         # Send file content
         if ($do == 'ok') {
             if (!file_exists($_SESSION['export_file'])) {
-                throw new Exception(__('Export file not found.'));
+                throw new ModuleException(__('Export file not found.'));
             }
 
             ob_end_clean();
@@ -166,7 +181,7 @@ class dcExportFlat extends dcIeModule
                 $file_zipname = $_SESSION['export_filename'] . '.zip';
 
                 $fp  = fopen('php://output', 'wb');
-                $zip = new fileZip($fp);
+                $zip = new Zip($fp);
                 $zip->addFile($_SESSION['export_file'], $_SESSION['export_filename']);
 
                 header('Content-Disposition: attachment;filename=' . $file_zipname);
@@ -177,11 +192,11 @@ class dcExportFlat extends dcIeModule
                 unlink($_SESSION['export_file']);
                 unset($zip, $_SESSION['export_file'], $_SESSION['export_filename'], $file_zipname);
                 exit;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 unset($zip, $_SESSION['export_file'], $_SESSION['export_filename'], $file_zipname);
                 @unlink($_SESSION['export_file']);
 
-                throw new Exception(__('Failed to compress export file.'));
+                throw new ModuleException(__('Failed to compress export file.'));
             }
         }
     }
@@ -191,44 +206,46 @@ class dcExportFlat extends dcIeModule
         echo
         '<form action="' . $this->getURL(true) . '" method="post" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
-        '<p>' . sprintf(__('This will create an export of your current blog: %s'), '<strong>' . html::escapeHTML($this->core->blog->name)) . '</strong>.</p>' .
+        '<p>' . sprintf(__('This will create an export of your current blog: %s'), '<strong>' . Html::escapeHTML(dotclear()->blog()->name)) . '</strong>.</p>' .
 
         '<p><label for="file_name">' . __('File name:') . '</label>' .
-        form::field('file_name', 50, 255, date('Y-m-d-H-i-') . html::escapeHTML($this->core->blog->id . '-backup.txt')) .
+        Form::field('file_name', 50, 255, date('Y-m-d-H-i-') . Html::escapeHTML(dotclear()->blog()->id . '-backup.txt')) .
         '</p>' .
 
         '<p><label for="file_zip" class="classic">' .
-        form::checkbox(['file_zip', 'file_zip'], 1) . ' ' .
+        Form::checkbox(['file_zip', 'file_zip'], 1) . ' ' .
         __('Compress file') . '</label>' .
         '</p>' .
 
-        '<p class="zip-dl"><a href="' . $this->core->decode('admin.media', ['d' => '', 'zipdl' => '1']) . '">' .
+        '<p class="zip-dl"><a href="' . dotclear()->adminurl()->decode('admin.media', ['d' => '', 'zipdl' => '1']) . '">' .
         __('You may also want to download your media directory as a zip file') . '</a></p>' .
 
         '<p><input type="submit" value="' . __('Export') . '" />' .
-        form::hidden(['do'], 'export_blog') .
-        $this->core->formNonce() . '</p>' .
+        Form::hidden(['do'], 'export_blog') .
+        Form::hidden(['handler'], 'admin.plugin.ImportExport') .
+        dotclear()->nonce()->form() . '</p>' .
 
             '</form>';
 
-        if ($this->core->auth->isSuperAdmin()) {
+        if (dotclear()->user()->isSuperAdmin()) {
             echo
             '<form action="' . $this->getURL(true) . '" method="post" class="fieldset">' .
             '<h3>' . __('Multiple blogs') . '</h3>' .
             '<p>' . __('This will create an export of all the content of your database.') . '</p>' .
 
             '<p><label for="file_name2">' . __('File name:') . '</label>' .
-            form::field(['file_name', 'file_name2'], 50, 255, date('Y-m-d-H-i-') . 'dotclear-backup.txt') .
+            Form::field(['file_name', 'file_name2'], 50, 255, date('Y-m-d-H-i-') . 'dotclear-backup.txt') .
             '</p>' .
 
             '<p><label for="file_zip2" class="classic">' .
-            form::checkbox(['file_zip', 'file_zip2'], 1) . ' ' .
+            Form::checkbox(['file_zip', 'file_zip2'], 1) . ' ' .
             __('Compress file') . '</label>' .
             '</p>' .
 
             '<p><input type="submit" value="' . __('Export') . '" />' .
-            form::hidden(['do'], 'export_all') .
-            $this->core->formNonce() . '</p>' .
+            Form::hidden(['do'], 'export_all') .
+            Form::hidden(['handler'], 'admin.plugin.ImportExport') .
+            dotclear()->nonce()->form() . '</p>' .
 
                 '</form>';
         }

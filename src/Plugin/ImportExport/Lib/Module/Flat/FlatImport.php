@@ -1,23 +1,28 @@
 <?php
 /**
- * @brief importExport, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatImport
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\ImportExport\Lib\Module\Flat;
+
+use Dotclear\Exception\ModuleException;
+use Dotclear\Html\Html;
+use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatBackup;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class flatImport extends flatBackup
+class FlatImport extends FlatBackup
 {
-    private $core;
-    private $con;
-    private $prefix;
-
     private $dc_version;
     private $dc_major_version;
     private $mode;
@@ -65,13 +70,13 @@ class flatImport extends flatBackup
 
     public $has_categories = false;
 
-    public function __construct($core, $file)
+    public function __construct($file)
     {
         parent::__construct($file);
 
         $first_line = fgets($this->fp);
         if (strpos($first_line, '///DOTCLEAR|') !== 0) {
-            throw new Exception(__('File is not a DotClear backup.'));
+            throw new ModuleException(__('File is not a DotClear backup.'));
         }
 
         @set_time_limit(300);
@@ -93,29 +98,25 @@ class flatImport extends flatBackup
             $this->dc_major_version = '2.0';
         }
 
-        $this->core   = &$core;
-        $this->con    = &$core->con;
-        $this->prefix = $core->prefix;
-
-        $this->cur_blog        = $this->con->openCursor($this->prefix . 'blog');
-        $this->cur_category    = $this->con->openCursor($this->prefix . 'category');
-        $this->cur_link        = $this->con->openCursor($this->prefix . 'link');
-        $this->cur_setting     = $this->con->openCursor($this->prefix . 'setting');
-        $this->cur_user        = $this->con->openCursor($this->prefix . 'user');
-        $this->cur_pref        = $this->con->openCursor($this->prefix . 'pref');
-        $this->cur_permissions = $this->con->openCursor($this->prefix . 'permissions');
-        $this->cur_post        = $this->con->openCursor($this->prefix . 'post');
-        $this->cur_meta        = $this->con->openCursor($this->prefix . 'meta');
-        $this->cur_media       = $this->con->openCursor($this->prefix . 'media');
-        $this->cur_post_media  = $this->con->openCursor($this->prefix . 'post_media');
-        $this->cur_log         = $this->con->openCursor($this->prefix . 'log');
-        $this->cur_ping        = $this->con->openCursor($this->prefix . 'ping');
-        $this->cur_comment     = $this->con->openCursor($this->prefix . 'comment');
-        $this->cur_spamrule    = $this->con->openCursor($this->prefix . 'spamrule');
-        $this->cur_version     = $this->con->openCursor($this->prefix . 'version');
+        $this->cur_blog        = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+        $this->cur_category    = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+        $this->cur_link        = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
+        $this->cur_setting     = dotclear()->con()->openCursor(dotclear()->prefix . 'setting');
+        $this->cur_user        = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+        $this->cur_pref        = dotclear()->con()->openCursor(dotclear()->prefix . 'pref');
+        $this->cur_permissions = dotclear()->con()->openCursor(dotclear()->prefix . 'permissions');
+        $this->cur_post        = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $this->cur_meta        = dotclear()->con()->openCursor(dotclear()->prefix . 'meta');
+        $this->cur_media       = dotclear()->con()->openCursor(dotclear()->prefix . 'media');
+        $this->cur_post_media  = dotclear()->con()->openCursor(dotclear()->prefix . 'post_media');
+        $this->cur_log         = dotclear()->con()->openCursor(dotclear()->prefix . 'log');
+        $this->cur_ping        = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
+        $this->cur_comment     = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+        $this->cur_spamrule    = dotclear()->con()->openCursor(dotclear()->prefix . 'spamrule');
+        $this->cur_version     = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
 
         # --BEHAVIOR-- importInit
-        $this->core->callBehavior('importInit', $this, $this->core);
+        dotclear()->behavior()->call('importInit', $this);
     }
 
     public function getMode()
@@ -126,50 +127,50 @@ class flatImport extends flatBackup
     public function importSingle()
     {
         if ($this->mode != 'single') {
-            throw new Exception(__('File is not a single blog export.'));
+            throw new ModuleException(__('File is not a single blog export.'));
         }
 
-        if (!$this->core->auth->check('admin', $this->core->blog->id)) {
-            throw new Exception(__('Permission denied.'));
+        if (!dotclear()->user()->check('admin', dotclear()->blog()->id)) {
+            throw new ModuleException(__('Permission denied.'));
         }
 
-        $this->blog_id = $this->core->blog->id;
+        $this->blog_id = dotclear()->blog()->id;
 
-        $this->stack['categories'] = $this->con->select(
+        $this->stack['categories'] = dotclear()->con()->select(
             'SELECT cat_id, cat_title, cat_url ' .
-            'FROM ' . $this->prefix . 'category ' .
-            "WHERE blog_id = '" . $this->con->escape($this->blog_id) . "' "
+            'FROM ' . dotclear()->prefix . 'category ' .
+            "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' "
         );
 
-        $rs                    = $this->con->select('SELECT MAX(cat_id) FROM ' . $this->prefix . 'category');
+        $rs                    = dotclear()->con()->select('SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category');
         $this->stack['cat_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs                     = $this->con->select('SELECT MAX(link_id) FROM ' . $this->prefix . 'link');
+        $rs                     = dotclear()->con()->select('SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link');
         $this->stack['link_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs                     = $this->con->select('SELECT MAX(post_id) FROM ' . $this->prefix . 'post');
+        $rs                     = dotclear()->con()->select('SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post');
         $this->stack['post_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs                      = $this->con->select('SELECT MAX(media_id) FROM ' . $this->prefix . 'media');
+        $rs                      = dotclear()->con()->select('SELECT MAX(media_id) FROM ' . dotclear()->prefix . 'media');
         $this->stack['media_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs                        = $this->con->select('SELECT MAX(comment_id) FROM ' . $this->prefix . 'comment');
+        $rs                        = dotclear()->con()->select('SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment');
         $this->stack['comment_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs                    = $this->con->select('SELECT MAX(log_id) FROM ' . $this->prefix . 'log');
+        $rs                    = dotclear()->con()->select('SELECT MAX(log_id) FROM ' . dotclear()->prefix . 'log');
         $this->stack['log_id'] = ((int) $rs->f(0)) + 1;
 
-        $rs = $this->con->select(
-            'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . $this->prefix . 'category ' .
-            "WHERE blog_id = '" . $this->con->escape($this->core->blog->id) . "'"
+        $rs = dotclear()->con()->select(
+            'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . dotclear()->prefix . 'category ' .
+            "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'"
         );
 
         if ((int) $rs->cat_rgt > 0) {
             $this->has_categories                          = true;
-            $this->stack['cat_lft'][$this->core->blog->id] = (int) $rs->cat_rgt + 1;
+            $this->stack['cat_lft'][dotclear()->blog()->id] = (int) $rs->cat_rgt + 1;
         }
 
-        $this->con->begin();
+        dotclear()->con()->begin();
 
         $line = false;
 
@@ -186,23 +187,23 @@ class flatImport extends flatBackup
                 if ($last_line_name != $line->__name) {
                     if (in_array($last_line_name, $constrained)) {
                         # UNDEFER
-                        if ($this->con->syntax() == 'mysql') {
-                            $this->con->execute('SET foreign_key_checks = 1');
+                        if (dotclear()->con()->syntax() == 'mysql') {
+                            dotclear()->con()->execute('SET foreign_key_checks = 1');
                         }
 
-                        if ($this->con->syntax() == 'postgresql') {
-                            $this->con->execute('SET CONSTRAINTS ALL DEFERRED');
+                        if (dotclear()->con()->syntax() == 'postgresql') {
+                            dotclear()->con()->execute('SET CONSTRAINTS ALL DEFERRED');
                         }
                     }
 
                     if (in_array($line->__name, $constrained)) {
                         # DEFER
-                        if ($this->con->syntax() == 'mysql') {
-                            $this->con->execute('SET foreign_key_checks = 0');
+                        if (dotclear()->con()->syntax() == 'mysql') {
+                            dotclear()->con()->execute('SET foreign_key_checks = 0');
                         }
 
-                        if ($this->con->syntax() == 'postgresql') {
-                            $this->con->execute('SET CONSTRAINTS ALL IMMEDIATE');
+                        if (dotclear()->con()->syntax() == 'postgresql') {
+                            dotclear()->con()->execute('SET CONSTRAINTS ALL IMMEDIATE');
                         }
                     }
 
@@ -245,42 +246,42 @@ class flatImport extends flatBackup
                 }
 
                 # --BEHAVIOR-- importSingle
-                $this->core->callBehavior('importSingle', $line, $this, $this->core);
+                dotclear()->behavior()->call('importSingle', $line, $this);
             }
 
-            if ($this->con->syntax() == 'mysql') {
-                $this->con->execute('SET foreign_key_checks = 1');
+            if (dotclear()->con()->syntax() == 'mysql') {
+                dotclear()->con()->execute('SET foreign_key_checks = 1');
             }
 
-            if ($this->con->syntax() == 'postgresql') {
-                $this->con->execute('SET CONSTRAINTS ALL DEFERRED');
+            if (dotclear()->con()->syntax() == 'postgresql') {
+                dotclear()->con()->execute('SET CONSTRAINTS ALL DEFERRED');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             @fclose($this->fp);
-            $this->con->rollback();
+            dotclear()->con()->rollback();
 
-            throw new Exception($e->getMessage() . ' - ' . sprintf(__('Error raised at line %s'), $line->__line));
+            throw new ModuleException($e->getMessage() . ' - ' . sprintf(__('Error raised at line %s'), $line->__line));
         }
         @fclose($this->fp);
-        $this->con->commit();
+        dotclear()->con()->commit();
     }
 
     public function importFull()
     {
         if ($this->mode != 'full') {
-            throw new Exception(__('File is not a full export.'));
+            throw new ModuleException(__('File is not a full export.'));
         }
 
-        if (!$this->core->auth->isSuperAdmin()) {
-            throw new Exception(__('Permission denied.'));
+        if (!dotclear()->user()->isSuperAdmin()) {
+            throw new ModuleException(__('Permission denied.'));
         }
 
-        $this->con->begin();
-        $this->con->execute('DELETE FROM ' . $this->prefix . 'blog');
-        $this->con->execute('DELETE FROM ' . $this->prefix . 'media');
-        $this->con->execute('DELETE FROM ' . $this->prefix . 'spamrule');
-        $this->con->execute('DELETE FROM ' . $this->prefix . 'setting');
-        $this->con->execute('DELETE FROM ' . $this->prefix . 'log');
+        dotclear()->con()->begin();
+        dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'blog');
+        dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'media');
+        dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'spamrule');
+        dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'setting');
+        dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'log');
 
         $line = false;
 
@@ -349,16 +350,16 @@ class flatImport extends flatBackup
                         break;
                 }
                 # --BEHAVIOR-- importFull
-                $this->core->callBehavior('importFull', $line, $this, $this->core);
+                dotclear()->behavior()->call('importFull', $line, $this);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             @fclose($this->fp);
-            $this->con->rollback();
+            dotclear()->con()->rollback();
 
-            throw new Exception($e->getMessage() . ' - ' . sprintf(__('Error raised at line %s'), $line->__line));
+            throw new ModuleException($e->getMessage() . ' - ' . sprintf(__('Error raised at line %s'), $line->__line));
         }
         @fclose($this->fp);
-        $this->con->commit();
+        dotclear()->con()->commit();
     }
 
     private function insertBlog($blog)
@@ -685,7 +686,7 @@ class flatImport extends flatBackup
             $post->cat_id  = $cat_id;
             $post->blog_id = $this->blog_id;
 
-            $post->post_url = $this->core->blog->getPostURL(
+            $post->post_url = dotclear()->blog()->posts()->getPostURL(
                 $post->post_url,
                 $post->post_dt,
                 $post->post_title,
@@ -715,7 +716,7 @@ class flatImport extends flatBackup
         $old_id   = $media->media_id;
 
         $media->media_id   = $media_id;
-        $media->media_path = $this->core->blog->settings->system->public_path;
+        $media->media_path = dotclear()->blog()->settings()->system->public_path;
         $media->user_id    = $this->getUserId($media->user_id);
 
         $this->insertMedia($media);
@@ -765,7 +766,7 @@ class flatImport extends flatBackup
 
     private static function throwIdError($name, $line, $related)
     {
-        throw new Exception(sprintf(
+        throw new ModuleException(sprintf(
             __('ID of "%3$s" does not match on record "%1$s" at line %2$s of backup file.'),
             html::escapeHTML($name),
             html::escapeHTML($line),
@@ -787,7 +788,7 @@ class flatImport extends flatBackup
     public function getUserId($user_id)
     {
         if (!$this->userExists($user_id)) {
-            if ($this->core->auth->isSuperAdmin()) {
+            if (dotclear()->user()->isSuperAdmin()) {
                 # Sanitizes user_id and create a lambda user
                 $user_id = preg_replace('/[^A-Za-z0-9]$/', '', $user_id);
                 $user_id .= strlen($user_id) < 2 ? '-a' : '';
@@ -804,7 +805,7 @@ class flatImport extends flatBackup
                 }
             } else {
                 # Returns current user id
-                $user_id = $this->core->auth->userID();
+                $user_id = dotclear()->user()->userID();
             }
         }
 
@@ -818,10 +819,10 @@ class flatImport extends flatBackup
         }
 
         $strReq = 'SELECT user_id ' .
-        'FROM ' . $this->prefix . 'user ' .
-        "WHERE user_id = '" . $this->con->escape($user_id) . "' ";
+        'FROM ' . dotclear()->prefix . 'user ' .
+        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         $this->stack['users'][$user_id] = !$rs->isEmpty();
 
@@ -831,16 +832,16 @@ class flatImport extends flatBackup
     private function prefExists($pref_ws, $pref_id, $user_id)
     {
         $strReq = 'SELECT pref_id,pref_ws,user_id ' .
-        'FROM ' . $this->prefix . 'pref ' .
-        "WHERE pref_id = '" . $this->con->escape($pref_id) . "' " .
-        "AND pref_ws = '" . $this->con->escape($pref_ws) . "' ";
+        'FROM ' . dotclear()->prefix . 'pref ' .
+        "WHERE pref_id = '" . dotclear()->con()->escape($pref_id) . "' " .
+        "AND pref_ws = '" . dotclear()->con()->escape($pref_ws) . "' ";
         if (!$user_id) {
             $strReq .= 'AND user_id IS NULL ';
         } else {
-            $strReq .= "AND user_id = '" . $this->con->escape($user_id) . "' ";
+            $strReq .= "AND user_id = '" . dotclear()->con()->escape($user_id) . "' ";
         }
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         return !$rs->isEmpty();
     }
@@ -848,11 +849,11 @@ class flatImport extends flatBackup
     private function mediaExists()
     {
         $strReq = 'SELECT media_id ' .
-        'FROM ' . $this->prefix . 'media ' .
-        "WHERE media_path = '" . $this->con->escape($this->cur_media->media_path) . "' " .
-        "AND media_file = '" . $this->con->escape($this->cur_media->media_file) . "' ";
+        'FROM ' . dotclear()->prefix . 'media ' .
+        "WHERE media_path = '" . dotclear()->con()->escape($this->cur_media->media_path) . "' " .
+        "AND media_file = '" . dotclear()->con()->escape($this->cur_media->media_file) . "' ";
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
 
         return !$rs->isEmpty();
     }
@@ -926,6 +927,6 @@ class flatImport extends flatBackup
         }
 
         # --BEHAVIOR-- importPrepareDC12
-        $this->core->callBehavior('importPrepareDC12', $line, $this, $this->core);
+        dotclear()->behavior()->call('importPrepareDC12', $line, $this);
     }
 }
