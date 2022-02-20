@@ -1,25 +1,34 @@
 <?php
 /**
- * @brief blogroll, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Blogroll\Lib\BlogrollWidgets
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
+declare(strict_types=1);
 
-$core->addBehavior('initWidgets', ['blogrollWidgets', 'initWidgets']);
-$core->addBehavior('initDefaultWidgets', ['blogrollWidgets', 'initDefaultWidgets']);
+namespace Dotclear\Plugin\Blogroll\Lib;
 
-class blogrollWidgets
+use ArrayObject;
+
+use Dotclear\Plugin\Blogroll\Lib\Blogroll;
+use Dotclear\Plugin\Widgets\Lib\Widgets;
+
+class BlogrollWidgets
 {
-    public static function initWidgets($w)
+    public function __construct()
     {
-        $br         = new dcBlogroll($GLOBALS['core']->blog);
+        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
+    }
+
+    public function initWidgets(Widgets $w): void
+    {
+        $br         = new Blogroll();
         $h          = $br->getLinksHierarchy($br->getLinks());
         $h          = array_keys($h);
         $categories = [__('All categories') => ''];
@@ -30,8 +39,10 @@ class blogrollWidgets
         }
         unset($br, $h);
 
+        $class = 'Dotclear\\Plugin\\Blogroll\\Lib\\BlogrollTemplate';
+
         $w
-            ->create('links', __('Blogroll'), ['tplBlogroll', 'linksWidget'], null, 'Blogroll list')
+            ->create('links', __('Blogroll'), [$class, 'linksWidget'], null, 'Blogroll list')
             ->addTitle(__('Links'))
             ->setting('category', __('Category'), '', 'combo', $categories)
             ->addHomeOnly()
@@ -40,7 +51,7 @@ class blogrollWidgets
             ->addOffline();
     }
 
-    public static function initDefaultWidgets($w, $d)
+    public function initDefaultWidgets(Widgets $w, array $d): void
     {
         $d['extra']->append($w->links);
     }

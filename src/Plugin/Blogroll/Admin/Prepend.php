@@ -1,42 +1,56 @@
 <?php
 /**
- * @brief blogroll, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Blogroll\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Blogroll\Admin;
+
+use ArrayObject;
+
+use Dotclear\Core\Utils;
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Plugin\Blogroll\Lib\Blogroll;
+use Dotclear\Plugin\Blogroll\Lib\BlogrollWidgets;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-$core->addBehavior(
-    'adminDashboardFavorites',
-    function ($core, $favs) {
-        $favs->register('blogroll', [
-            'title'       => __('Blogroll'),
-            'url'         => $core->adminurl->get('admin.plugin.blogroll'),
-            'small-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
-            'large-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
-            'permissions' => 'usage,contentadmin',
-        ]);
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependAdmin;
+
+    public static function loadModule(): void
+    {
+        # Menu and favs
+        static::addStandardMenu('Blog');
+        static::addStandardFavorites('usage,contentadmin');
+
+        # Manage user permissions
+        dotclear()->behavior()->add(
+            'adminUsersActionsHeaders',
+            fn () => Utils::jsLoad('?mf=Plugin/Blogroll/files/js/_users_actions.js')
+        );
+
+        dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));
+
+        # Widgets
+        if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
+            new BlogrollWidgets();
+        }
     }
-);
-$core->addBehavior(
-    'adminUsersActionsHeaders',
-    fn () => dcPage::jsModuleLoad('blogroll/js/_users_actions.js')
-);
 
-$_menu['Blog']->addItem(
-    __('Blogroll'),
-    $core->adminurl->get('admin.plugin.blogroll'),
-    [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
-    preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.blogroll')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-    $core->auth->check('usage,contentadmin', $core->blog->id)
-);
-
-$core->auth->setPermissionType('blogroll', __('manage blogroll'));
-
-require __DIR__ . '/_widgets.php';
+    public static function installModule(): ?bool
+    {
+        return Blogroll::installModule();
+    }
+}

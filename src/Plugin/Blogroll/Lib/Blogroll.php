@@ -1,36 +1,34 @@
 <?php
 /**
- * @brief blogroll, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Blogroll\Lib\Blogroll
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
+declare(strict_types=1);
 
-class dcBlogroll
+namespace Dotclear\Plugin\Blogroll\Lib;
+
+use ArrayObject;
+
+use Dotclear\Database\Record;
+use Dotclear\Database\Structure;
+use Dotclear\Exception\ModuleException;
+
+class Blogroll
 {
-    private $blog;
-    private $con;
-    private $table;
+    private $table = 'link';
 
-    public function __construct($blog)
-    {
-        $this->blog  = &$blog;
-        $this->con   = &$blog->con;
-        $this->table = $this->blog->prefix . 'link';
-    }
-
-    public function getLinks($params = [])
+    public function getLinks(array|ArrayObject $params = []): Record
     {
         $strReq = 'SELECT link_id, link_title, link_desc, link_href, ' .
         'link_lang, link_xfn, link_position ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($this->blog->id) . "' ";
+        'FROM ' . dotclear()->prefix . $this->table . ' ' .
+        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
 
         if (isset($params['link_id'])) {
             $strReq .= 'AND link_id = ' . (int) $params['link_id'] . ' ';
@@ -38,7 +36,7 @@ class dcBlogroll
 
         $strReq .= 'ORDER BY link_position ';
 
-        $rs = $this->con->select($strReq);
+        $rs = dotclear()->con()->select($strReq);
         $rs = $rs->toStatic();
 
         $this->setLinksData($rs);
@@ -46,17 +44,17 @@ class dcBlogroll
         return $rs;
     }
 
-    public function getLangs($params = [])
+    public function getLangs(array|ArrayObject $params = []): Record
     {
-        // Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
+        # Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
         $strReq = 'SELECT COUNT(link_id) as nb_link, link_lang as post_lang ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($this->blog->id) . "' " .
+        'FROM ' . dotclear()->prefix . $this->table . ' ' .
+        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             "AND link_lang <> '' " .
             'AND link_lang IS NOT NULL ';
 
         if (isset($params['lang'])) {
-            $strReq .= "AND link_lang = '" . $this->con->escape($params['lang']) . "' ";
+            $strReq .= "AND link_lang = '" .dotclear()->con()->escape($params['lang']) . "' ";
         }
 
         $strReq .= 'GROUP BY link_lang ';
@@ -67,129 +65,123 @@ class dcBlogroll
         }
         $strReq .= 'ORDER BY link_lang ' . $order . ' ';
 
-        return $this->con->select($strReq);
+        return dotclear()->con()->select($strReq);
     }
 
-    public function getLink($id)
+    public function getLink(int $id): Record
     {
-        $params['link_id'] = $id;
-
-        $rs = $this->getLinks($params);
-
-        return $rs;
+        return $this->getLinks(['link_id' => $id]);
     }
 
-    public function addLink($title, $href, $desc = '', $lang = '', $xfn = '')
+    public function addLink(string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
     {
-        $cur = $this->con->openCursor($this->table);
+        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
 
-        $cur->blog_id    = (string) $this->blog->id;
-        $cur->link_title = (string) $title;
-        $cur->link_href  = (string) $href;
-        $cur->link_desc  = (string) $desc;
-        $cur->link_lang  = (string) $lang;
-        $cur->link_xfn   = (string) $xfn;
+        $cur->blog_id    = dotclear()->blog()->id;
+        $cur->link_title = $title;
+        $cur->link_href  = $href;
+        $cur->link_desc  = $desc;
+        $cur->link_lang  = $lang;
+        $cur->link_xfn   = $xfn;
 
         if ($cur->link_title == '') {
-            throw new Exception(__('You must provide a link title'));
+            throw new ModuleException(__('You must provide a link title'));
         }
 
         if ($cur->link_href == '') {
-            throw new Exception(__('You must provide a link URL'));
+            throw new ModuleException(__('You must provide a link URL'));
         }
 
-        $strReq       = 'SELECT MAX(link_id) FROM ' . $this->table;
-        $rs           = $this->con->select($strReq);
+        $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
+        $rs           = dotclear()->con()->select($strReq);
         $cur->link_id = (int) $rs->f(0) + 1;
 
         $cur->insert();
-        $this->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
     }
 
-    public function updateLink($id, $title, $href, $desc = '', $lang = '', $xfn = '')
+    public function updateLink(int $id, string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
     {
-        $cur = $this->con->openCursor($this->table);
+        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
 
-        $cur->link_title = (string) $title;
-        $cur->link_href  = (string) $href;
-        $cur->link_desc  = (string) $desc;
-        $cur->link_lang  = (string) $lang;
-        $cur->link_xfn   = (string) $xfn;
+        $cur->link_title = $title;
+        $cur->link_href  = $href;
+        $cur->link_desc  = $desc;
+        $cur->link_lang  = $lang;
+        $cur->link_xfn   = $xfn;
 
         if ($cur->link_title == '') {
-            throw new Exception(__('You must provide a link title'));
+            throw new ModuleException(__('You must provide a link title'));
         }
 
         if ($cur->link_href == '') {
-            throw new Exception(__('You must provide a link URL'));
+            throw new ModuleException(__('You must provide a link URL'));
         }
 
         $cur->update('WHERE link_id = ' . (int) $id .
-            " AND blog_id = '" . $this->con->escape($this->blog->id) . "'");
-        $this->blog->triggerBlog();
+            " AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'");
+        dotclear()->blog()->triggerBlog();
     }
 
-    public function updateCategory($id, $desc)
+    public function updateCategory(int $id, string $desc): void
     {
-        $cur = $this->con->openCursor($this->table);
+        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
 
-        $cur->link_desc = (string) $desc;
+        $cur->link_desc = $desc;
 
         if ($cur->link_desc == '') {
-            throw new Exception(__('You must provide a category title'));
+            throw new ModuleException(__('You must provide a category title'));
         }
 
         $cur->update('WHERE link_id = ' . (int) $id .
-            " AND blog_id = '" . $this->con->escape($this->blog->id) . "'");
-        $this->blog->triggerBlog();
+            " AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'");
+        dotclear()->blog()->triggerBlog();
     }
 
-    public function addCategory($title)
+    public function addCategory(string $title): int
     {
-        $cur = $this->con->openCursor($this->table);
+        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
 
-        $cur->blog_id    = (string) $this->blog->id;
-        $cur->link_desc  = (string) $title;
+        $cur->blog_id    = dotclear()->blog()->id;
+        $cur->link_desc  = $title;
         $cur->link_href  = '';
         $cur->link_title = '';
 
         if ($cur->link_desc == '') {
-            throw new Exception(__('You must provide a category title'));
+            throw new ModuleException(__('You must provide a category title'));
         }
 
-        $strReq       = 'SELECT MAX(link_id) FROM ' . $this->table;
-        $rs           = $this->con->select($strReq);
+        $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
+        $rs           = dotclear()->con()->select($strReq);
         $cur->link_id = (int) $rs->f(0) + 1;
 
         $cur->insert();
-        $this->blog->triggerBlog();
+        dotclear()->blog()->triggerBlog();
 
         return $cur->link_id;
     }
 
-    public function delItem($id)
+    public function delItem(int $id): void
     {
-        $id = (int) $id;
-
-        $strReq = 'DELETE FROM ' . $this->table . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($this->blog->id) . "' " .
+        $strReq = 'DELETE FROM ' . dotclear()->prefix . $this->table . ' ' .
+        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
             'AND link_id = ' . $id . ' ';
 
-        $this->con->execute($strReq);
-        $this->blog->triggerBlog();
+        dotclear()->con()->execute($strReq);
+        dotclear()->blog()->triggerBlog();
     }
 
-    public function updateOrder($id, $position)
+    public function updateOrder(int $id, int $position): void
     {
-        $cur                = $this->con->openCursor($this->table);
-        $cur->link_position = (int) $position;
+        $cur                = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->link_position = $position;
 
-        $cur->update('WHERE link_id = ' . (int) $id .
-            " AND blog_id = '" . $this->con->escape($this->blog->id) . "'");
-        $this->blog->triggerBlog();
+        $cur->update('WHERE link_id = ' . $id .
+            " AND blog_id = '" .dotclear()->con()->escape(dotclear()->blog()->id) . "'");
+        dotclear()->blog()->triggerBlog();
     }
 
-    private function setLinksData($rs)
+    private function setLinksData(Record $rs): void
     {
         $cat_title = null;
         while ($rs->fetch()) {
@@ -205,7 +197,7 @@ class dcBlogroll
         $rs->moveStart();
     }
 
-    public function getLinksHierarchy($rs)
+    public function getLinksHierarchy(Record $rs): array
     {
         $res = [];
 
@@ -216,5 +208,32 @@ class dcBlogroll
         }
 
         return $res;
+    }
+
+    public static function installModule(): ?bool
+    {
+        $s = new Structure(dotclear()->con(), dotclear()->prefix);
+
+        $s->link
+            ->link_id('bigint', 0, false)
+            ->blog_id('varchar', 32, false)
+            ->link_href('varchar', 255, false)
+            ->link_title('varchar', 255, false)
+            ->link_desc('varchar', 255, true)
+            ->link_lang('varchar', 5, true)
+            ->link_xfn('varchar', 255, true)
+            ->link_position('integer', 0, false, 0)
+
+            ->primary('pk_link', 'link_id')
+        ;
+
+        $s->link->index('idx_link_blog_id', 'btree', 'blog_id');
+        $s->link->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
+
+        # Schema installation
+        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+        $changes = $si->synchronize($s);
+
+        return true;
     }
 }

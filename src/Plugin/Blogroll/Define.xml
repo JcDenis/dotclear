@@ -1,24 +1,12 @@
-<?php
-/**
- * @brief blogroll, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugins
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-
-$this->registerModule(
-    'Blogroll',             // Name
-    'Manage your blogroll', // Description
-    'Olivier Meunier',      // Author
-    '1.5',                  // Version
-    [
-        'permissions' => 'blogroll',
-        'type'        => 'plugin',
-    ]
-);
+<module id="Blogroll">
+  <name>Blogroll</name>
+  <description>Manage your blogroll</description>
+  <version>1.6-dev</version>
+  <author>Olivier Meunier</author>
+  <type>Plugin</type>
+  <permissions>blogroll</permissions>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

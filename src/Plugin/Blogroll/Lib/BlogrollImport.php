@@ -1,20 +1,41 @@
 <?php
 /**
- * @brief blogroll, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Blogroll\Lib\BlogrollImport
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Blogroll\Lib;
+
+use StdClass;
+
+use Dotclear\Exception\ModuleException
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class linksImporter
+class BlogrollImport
 {
     protected $entries = null;
+
+    public static function loadFile($file)
+    {
+        if (file_exists($file) && is_readable($file)) {
+            $importer = new BlogrollImport();
+            $importer->parse(file_get_contents($file));
+
+            return $importer->getAll();
+        }
+
+        return false;
+    }
 
     public function parse($data)
     {
@@ -23,7 +44,7 @@ class linksImporter
         } elseif (preg_match('!<opml(\s+version)?!', $data)) {
             $this->_parseOPML($data);
         } else {
-            throw new Exception(__('You need to provide a XBEL or OPML file.'));
+            throw new ModuleException(__('You need to provide a XBEL or OPML file.'));
         }
     }
 
@@ -31,7 +52,7 @@ class linksImporter
     {
         $xml = @simplexml_load_string($data);
         if (!$xml) {
-            throw new Exception(__('File is not in XML format.'));
+            throw new ModuleException(__('File is not in XML format.'));
         }
 
         $outlines = $xml->xpath('//outline');
@@ -61,7 +82,7 @@ class linksImporter
     {
         $xml = @simplexml_load_string($data);
         if (!$xml) {
-            throw new Exception(__('File is not in XML format.'));
+            throw new ModuleException(__('File is not in XML format.'));
         }
 
         $outlines = $xml->xpath('//bookmark');
@@ -90,20 +111,5 @@ class linksImporter
         }
 
         return $this->entries;
-    }
-}
-
-class dcImportBlogroll
-{
-    public static function loadFile($file)
-    {
-        if (file_exists($file) && is_readable($file)) {
-            $importer = new linksImporter();
-            $importer->parse(file_get_contents($file));
-
-            return $importer->getAll();
-        }
-
-        return false;
     }
 }
