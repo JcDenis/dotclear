@@ -12,35 +12,34 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return;
 }
 
-$_menu['Blog']->addItem(__('Pings'),
+$_menu['Blog']->addItem(
+    __('Pings'),
     $core->adminurl->get('admin.plugin.pings'),
-    dcPage::getPF('pings/icon.png'),
+    [dcPage::getPF('pings/icon.svg'), dcPage::getPF('pings/icon-dark.svg')],
     preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.pings')) . '/', $_SERVER['REQUEST_URI']),
-    $core->auth->isSuperAdmin());
+    $core->auth->isSuperAdmin()
+);
 
-$__autoload['pingsAdminBehaviors'] = dirname(__FILE__) . '/lib.pings.php';
+$__autoload['pingsAdminBehaviors'] = __DIR__ . '/lib.pings.php';
 
 $core->addBehavior('adminPostHeaders', ['pingsAdminBehaviors', 'pingJS']);
 $core->addBehavior('adminPostFormItems', ['pingsAdminBehaviors', 'pingsFormItems']);
 $core->addBehavior('adminAfterPostCreate', ['pingsAdminBehaviors', 'doPings']);
 $core->addBehavior('adminAfterPostUpdate', ['pingsAdminBehaviors', 'doPings']);
 
-$core->addBehavior('adminDashboardFavorites', 'pingDashboardFavorites');
+$core->addBehavior(
+    'adminDashboardFavorites',
+    function ($core, $favs) {
+        $favs->register('pings', [
+            'title'      => __('Pings'),
+            'url'        => $core->adminurl->get('admin.plugin.pings'),
+            'small-icon' => [dcPage::getPF('pings/icon.svg'), dcPage::getPF('pings/icon-dark.svg')],
+            'large-icon' => [dcPage::getPF('pings/icon.svg'), dcPage::getPF('pings/icon-dark.svg')],
+        ]);
+    }
+);
 
-function pingDashboardFavorites($core, $favs)
-{
-    $favs->register('pings', [
-        'title'      => __('Pings'),
-        'url'        => $core->adminurl->get('admin.plugin.pings'),
-        'small-icon' => dcPage::getPF('pings/icon.png'),
-        'large-icon' => dcPage::getPF('pings/icon-big.png')
-    ]);
-}
-
-$core->addBehavior('adminPageHelpBlock', 'pingsPageHelpBlock');
-
-function pingsPageHelpBlock($blocks)
-{
+$core->addBehavior('adminPageHelpBlock', function ($blocks) {
     $found = false;
     foreach ($blocks as $block) {
         if ($block == 'core_post') {
@@ -53,4 +52,4 @@ function pingsPageHelpBlock($blocks)
         return;
     }
     $blocks[] = 'pings_post';
-}
+});
