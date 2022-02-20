@@ -482,8 +482,7 @@ class Prepend extends Core
 
             $this->throwException(
                 __('Failed to load page'),
-                sprtinf(__('Failed to load page for handler %s: '), $e->getMessage()),
-                '',
+                sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
                 601
             );
         }
