@@ -23,7 +23,7 @@ class flatBackup
         '/(?<!\\\\)(?>(\\\\\\\\)*+)(\\\\n)/u' => "\$1\n",
         '/(?<!\\\\)(?>(\\\\\\\\)*+)(\\\\r)/u' => "\$1\r",
         '/(?<!\\\\)(?>(\\\\\\\\)*+)(\\\\")/u' => '$1"',
-        '/(\\\\\\\\)/'                        => '\\'
+        '/(\\\\\\\\)/'                        => '\\',
     ];
 
     public function __construct($file)
@@ -84,7 +84,7 @@ class flatBackup
         $this->line_num++;
 
         $line = fgets($this->fp);
-        $line = trim($line);
+        $line = trim((string) $line);
 
         return empty($line) ? $this->nextLine() : $line;
     }
