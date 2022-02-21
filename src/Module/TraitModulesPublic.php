@@ -29,6 +29,14 @@ trait TraitModulesPublic
     {
         return;
     }
+    /**
+     * Load module Admin specifics
+     * @see Dotclear\Module\AbstractModules::loadModules()
+     */
+    protected function loadModuleProcess(string $id): void
+    {
+        return;
+    }
 
     /**
      * Check module permissions on Admin on load

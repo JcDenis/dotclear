@@ -89,6 +89,13 @@ abstract class AbstractModules
     abstract protected function loadModulesProcess(): void;
 
     /**
+     * Check Process specifics on module load
+     *
+     * @param   string  $id     Current module id
+     */
+    abstract protected function loadModuleProcess(string $id): void;
+
+    /**
      * Check Process specifics on modules define load
      *
      * @param   AbstractDefine  $define     Current module to check
@@ -150,7 +157,7 @@ abstract class AbstractModules
         }
 
         # Check modules dependencies
-        $this->checkModuleDependencies();
+        $this->checkModulesDependencies();
 
         # Load modules specifics for current Process
         $this->loadModulesProcess();
@@ -159,36 +166,28 @@ abstract class AbstractModules
         uasort($this->modules_enabled, [$this, 'defaultSortModules']);
 
         # Load modules stuff
-        foreach ($this->modules_enabled as $id => $module) {
+        foreach ($this->modules_enabled as $id => $define) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
             $class = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
-                $class::setDefine($module);
-                if (true !== $class::checkModule($module)) {
+                $class::setDefine($define);
+                if (true !== $class::checkModule()) {
                     continue;
                 }
-                $class::unsetDefine();
             }
 
             # Load module main l10n
             $this->loadModuleL10N($id, $lang, 'main');
 
-            # Auto register main module Admin Page URL if exists
-            if (DOTCLEAR_PROCESS == 'Admin') {
-                $page = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Page');
-                if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
-                    dotclear()->adminurl()->register('admin.plugin.' . $id, $page);
-                }
-            }
+            # Load module process specifics
+            $this->loadModuleProcess($id);
 
             # Load others stuff from module
             if ($has_prepend) {
-                $class::setDefine($module);
                 $class::loadModule();
-                $class::unsetDefine();
             }
         }
     }
@@ -274,7 +273,7 @@ abstract class AbstractModules
      *       * cannot_disable : list reasons why module cannot be disabled. Not set if module can be disabled
      *       * implies : reverse dependencies
      */
-    public function checkModuleDependencies(): void
+    public function checkModulesDependencies(): void
     {
         $modules          = array_merge($this->modules_enabled, $this->modules_disabled);
         $dc_version       = preg_replace('/\-dev.*$/', '', dotclear()->config()->core_version);

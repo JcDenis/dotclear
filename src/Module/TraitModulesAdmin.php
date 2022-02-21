@@ -114,6 +114,19 @@ trait TraitModulesAdmin
     }
 
     /**
+     * Load module Admin specifics
+     * @see AbstractModules::loadModules()
+     */
+    protected function loadModuleProcess(string $id): void
+    {
+        # If module has a Admin Page, create an admin url
+        $page = root_ns($this->getModulesType(), $id, 'Admin', 'Page');
+        if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
+            dotclear()->adminurl()->register('admin.plugin.' . $id, $page);
+        }
+    }
+
+    /**
      * Check module permissions on Admin on load
      * @see AbstractModules::loadModuleDefine()
      */
