@@ -67,7 +67,7 @@ abstract class AbstractDefine
             $this->newFromFile($id, $args);
         }
 
-        $this->checkModule();
+        $this->checkProperties();
     }
 
     private function newFromArray(string $id, array $properties): void
@@ -197,7 +197,7 @@ abstract class AbstractDefine
     public function properties(bool $reload = false): array
     {
         if ($reload) {
-            $this->checkModule();
+            $this->checkProperties();
         }
 
         return $this->properties;
@@ -208,5 +208,5 @@ abstract class AbstractDefine
         throw new ModuleException(sprintf(__('Unknow module "%s" property "%s"'), $this->properties['id'], $k));
     }
 
-    abstract protected function checkModule(): void;
+    abstract protected function checkProperties(): void;
 }

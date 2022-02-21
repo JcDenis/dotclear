@@ -35,7 +35,7 @@ class DefineIconset extends AbstractDefine
         return 1000;
     }
 
-    protected function checkModule(): void
+    protected function checkProperties(): void
     {
         $this->checkDefine();
     }

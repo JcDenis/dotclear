@@ -26,7 +26,7 @@ class DefineStore extends AbstractDefine
 
     protected $type = 'Store';
 
-    protected function checkModule(): void
+    protected function checkProperties(): void
     {
         $this->checkDefineStore();
         $this->checkDefine();

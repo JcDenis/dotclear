@@ -27,7 +27,7 @@ class DefinePlugin extends AbstractDefine
 
     protected $type = 'Plugin';
 
-    protected function checkModule(): void
+    protected function checkProperties(): void
     {
         $this->checkDefinePlugin();
         $this->checkDefineStore();

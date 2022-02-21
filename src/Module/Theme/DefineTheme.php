@@ -28,7 +28,7 @@ class DefineTheme extends AbstractDefine
 
     protected $type = 'Theme';
 
-    protected function checkModule(): void
+    protected function checkProperties(): void
     {
         $this->checkDefineTheme();
         $this->checkDefinePlugin();
