@@ -338,7 +338,7 @@ trait TraitModulesAdmin
         '<form action="' . $this->getURL() . '" method="get">' .
         '<p><label for="m_search" class="classic">' . __('Search in repository:') . '&nbsp;</label><br />' .
         Form::field('m_search', 30, 255, Html::escapeHTML($query)) .
-        Form::hidden('handler', dotclear()->adminurl()->called()) .
+        Form::hidden(['handler'], dotclear()->adminurl()->called()) .
         '<input type="submit" value="' . __('OK') . '" /> ';
 
         if ($query) {

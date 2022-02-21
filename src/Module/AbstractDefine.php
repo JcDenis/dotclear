@@ -82,38 +82,33 @@ abstract class AbstractDefine
 
     private function newFromFile(string $id, string $file): void
     {
+        $e_file = '<strong>' . Html::escapeHTML($file) . '</strong>';
+        $e_id   = '<strong>' . Html::escapeHTML($id) . '</strong>';
+
         if (!file_exists($file)) {
             throw new ModuleException(sprintf(
-                __('Failed to open define file "%s" for module "%s".'),
-                '<strong>' . Html::escapeHTML($file) . '</strong>',
-                '<strong>' . Html::escapeHTML($id) . '</strong>'
+                __('Failed to open define file "%s" for module "%s".'), $e_file, $e_id
             ));
         }
 
         $contents = file_get_contents($file);
         if (!$contents) {
             throw new ModuleException(sprintf(
-                __('Failed to get contents of define file "%s" for module "%s".'),
-                '<strong>' . Html::escapeHTML($file) . '</strong>',
-                '<strong>' . Html::escapeHTML($id) . '</strong>'
+                __('Failed to get contents of define file "%s" for module "%s".'), $e_file, $e_id
             ));
         }
 
         $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
         if (!$xml) {
             throw new ModuleException(sprintf(
-                __('Failed to load xml content of define file "%s" for module "%s".'),
-                '<strong>' . Html::escapeHTML($file) . '</strong>',
-                '<strong>' . Html::escapeHTML($id) . '</strong>'
+                __('Failed to load xml content of define file "%s" for module "%s".'), $e_file, $e_id
             ));
         }
 
         $array = json_decode(json_encode($xml), true);
         if (!is_array($array)) {
             throw new ModuleException(sprintf(
-                __('Failed to parse xml contents of define file "%s" for module "%s".'),
-                '<strong>' . Html::escapeHTML($file) . '</strong>',
-                '<strong>' . Html::escapeHTML($id) . '</strong>'
+                __('Failed to parse xml contents of define file "%s" for module "%s".'), $e_file, $e_id
             ));
         }
 
@@ -205,7 +200,9 @@ abstract class AbstractDefine
 
     public function __call($k, $v)
     {
-        throw new ModuleException(sprintf(__('Unknow module "%s" property "%s"'), $this->properties['id'], $k));
+        throw new ModuleException(sprintf(
+            __('Unknow module "%s" property "%s"'), $this->properties['id'], $k
+        ));
     }
 
     abstract protected function checkProperties(): void;

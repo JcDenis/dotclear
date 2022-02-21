@@ -180,7 +180,7 @@ class PagePlugin extends Page
                 '<form action="' . dotclear()->plugins->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
-                Form::hidden('handler', dotclear()->adminurl()->called()) .
+                Form::hidden(['handler'], dotclear()->adminurl()->called()) .
                     '</form>';
             }
         }

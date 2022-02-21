@@ -689,7 +689,7 @@ abstract class AbstractModules
      *
      * @return  array               Array of sorted modules
      */
-    public static function sortModules($modules, $field, $asc = true)
+    public static function sortModules(array $modules, string $field, bool $asc = true): array
     {
         $origin = $sorter = $final = [];
 

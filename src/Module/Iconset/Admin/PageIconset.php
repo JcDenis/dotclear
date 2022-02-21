@@ -149,7 +149,7 @@ class PageIconset extends Page
                 '<form action="' . dotclear()->iconsets->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
-                Form::hidden('handler', dotclear()->adminurl()->called()) .
+                Form::hidden(['handler'], dotclear()->adminurl()->called()) .
                     '</form>';
             }
         }

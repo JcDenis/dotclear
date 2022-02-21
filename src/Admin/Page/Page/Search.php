@@ -47,14 +47,14 @@ class Search extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        dotclear()->behavior()->add('adminSearchPageCombo', [__NAMESPACE__ . '\\Search','typeCombo']);
-        dotclear()->behavior()->add('adminSearchPageHead', [__NAMESPACE__ . '\\Search','pageHead']);
+        dotclear()->behavior()->add('adminSearchPageCombo', [__CLASS__,'typeCombo']);
+        dotclear()->behavior()->add('adminSearchPageHead', [__CLASS__,'pageHead']);
         // posts search
-        dotclear()->behavior()->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processPosts']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayPosts']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [__CLASS__,'processPosts']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [__CLASS__,'displayPosts']);
         // comments search
-        dotclear()->behavior()->add('adminSearchPageProcess', [__NAMESPACE__ . '\\Search','processComments']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [__NAMESPACE__ . '\\Search','displayComments']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [__CLASS__,'processComments']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [__CLASS__,'displayComments']);
 
         $qtype_combo = new ArrayObject();
 
@@ -110,7 +110,7 @@ class Search extends Page
         Form::combo('qtype', $this->qtype_combo, $this->args['qtype']) . '</p>' .
         '<p><input type="submit" value="' . __('Search') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        Form::hidden('handler', 'admin.search') .
+        Form::hidden(['handler'], 'admin.search') .
         '</p>' .
         '</div>' .
         '</form>';

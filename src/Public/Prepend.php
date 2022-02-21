@@ -91,8 +91,12 @@ class Prepend extends Core
         parent::process();
 
         # Add Record extensions
-        $this->behavior()->add('coreBlogGetPosts', [__CLASS__, 'behaviorCoreBlogGetPosts']);
-        $this->behavior()->add('coreBlogGetComments', [__CLASS__, 'behaviorCoreBlogGetComments']);
+        $this->behavior()->add('coreBlogGetPosts', function (Record $rs): void {
+            $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
+        });
+        $this->behavior()->add('coreBlogGetComments', function (Record $rs): void {
+            $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
+        });
 
         # Load blog
         $this->setBlog($blog_id ?: '');
@@ -212,18 +216,6 @@ class Prepend extends Core
                 660
             );
         }
-    }
-
-    /** Behavior coreBlogGetPosts */
-    public static function behaviorCoreBlogGetPosts(Record $rs): void
-    {
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
-    }
-
-    /** Behavior coreBlogGetComments */
-    public static function behaviorCoreBlogGetComments(Record $rs): void
-    {
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
     }
 
     private function publicServeFile(): void

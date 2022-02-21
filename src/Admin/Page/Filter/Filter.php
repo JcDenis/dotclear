@@ -409,7 +409,7 @@ class Filter
         echo
         '</div>' .
         '<p><input type="submit" value="' . __('Apply filters and display options') . '" />' .
-        Form::hidden('handler', $adminurl) .
+        Form::hidden(['handler'], $adminurl) .
 
         $extra .
 

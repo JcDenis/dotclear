@@ -554,7 +554,7 @@ class MediaItem extends Page
             if ($media_type != 'default') {
                 echo
                 '<div class="border-top">' .
-                '<form id="save_settings" action="' . dotclear()->adminurl()->getBase('admin.media.item') . '" method="post">' .
+                '<form id="save_settings" action="' . dotclear()->adminurl()->get('admin.media.item') . '" method="post">' .
                 '<p>' . __('Make current settings as default') . ' ' .
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
