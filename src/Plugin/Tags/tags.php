@@ -16,7 +16,7 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 <html>
 <head>
   <title><?php echo __('Tags'); ?></title>
-  <?php echo dcPage::cssLoad(dcPage::getPF('tags/style.css')); ?>
+  <?php echo dcPage::cssModuleLoad('tags/style.css'); ?>
 </head>
 
 <body>
@@ -24,8 +24,9 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 echo dcPage::breadcrumb(
     [
         html::escapeHTML($core->blog->name) => '',
-        __('Tags')                          => ''
-    ]) .
+        __('Tags')                          => '',
+    ]
+) .
 dcPage::notices();
 ?>
 
@@ -51,7 +52,7 @@ while ($tags->fetch()) {
     $cols[$col] .= '<tr class="line">' .
     '<td class="maximal"><a href="' . $p_url .
     '&amp;m=tag_posts&amp;tag=' . rawurlencode($tags->meta_id) . '">' . $tags->meta_id . '</a></td>' .
-    '<td class="nowrap"><strong>' . $tags->count . '</strong> ' .
+    '<td class="nowrap count"><strong>' . $tags->count . '</strong> ' .
         (($tags->count == 1) ? __('entry') : __('entries')) . '</td>' .
         '</tr>';
 
