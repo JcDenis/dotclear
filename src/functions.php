@@ -52,10 +52,12 @@ if (!function_exists('dotclear_run')) {
         } catch (\Exception $e) {
             ob_end_clean();
 
-            if (dotclear() && dotclear()->config() && dotclear()->config()->production === false) {
-                dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
-            } elseif (dotclear() && dotclear()->config() && dotclear()->config()->production === true) {
-                dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
+            if (dotclear() && dotclear()->config()) {
+                if (dotclear()->config()->production === false) {
+                    dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
+                } else {
+                    dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
+                }
             } else {
                 dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
             }
@@ -75,7 +77,8 @@ if (!function_exists('dotclear')) {
         if (class_exists('Dotclear\\Core\\Core')) {
             return Dotclear\Core\Core::singleton();
         }
-        return null;
+
+        dotclear_error('Runtime error', 'Core instance can not be called directly.', 601);
     }
 }
 
