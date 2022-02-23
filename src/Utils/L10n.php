@@ -17,8 +17,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Utils {
 
-use Dotclear\Exception\DeprecatedException;
-
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
@@ -46,12 +44,6 @@ class L10n
     protected static $language_pluralexpression = null;
     protected static $language_pluralfunction   = null;
     //@}
-
-    /** @deprecated */
-    public static $text_direction;
-
-    /** @deprecated */
-    protected static $langs = [];
 
     /**
      * L10N initialization
@@ -679,22 +671,6 @@ class L10n
         }
 
         return self::$languages_textdirection;
-    }
-
-    /**
-     * Text direction
-     *
-     * @deprecated
-     * @see L10n::getLanguageTextDirection()
-     *
-     * @param string    $lang    Language code
-     * @return string ltr or rtl
-     */
-    public static function getTextDirection(string $lang): string
-    {
-        DeprecatedException::throw();
-
-        return self::getLanguageTextDirection($lang);
     }
 
     /**

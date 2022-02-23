@@ -16,7 +16,6 @@ namespace Dotclear\Core;
 use ArrayObject;
 
 use Dotclear\Exception\CoreException;
-use Dotclear\Exception\DeprecatedException;
 
 use Dotclear\Container\User as ContainerUser;
 
