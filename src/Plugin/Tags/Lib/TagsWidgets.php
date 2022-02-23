@@ -1,26 +1,40 @@
 <?php
 /**
- * @brief tags, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Tags\Lib\TagsWidgets
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Tags\Lib;
+
+use ArrayObject;
+
+use Dotclear\Plugin\Widgets\Lib\Widgets;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-$core->addBehavior('initWidgets', ['tagsWidgets', 'initWidgets']);
-$core->addBehavior('initDefaultWidgets', ['tagsWidgets', 'initDefaultWidgets']);
-
-class tagsWidgets
+class TagsWidgets
 {
-    public static function initWidgets($w)
+    public static function initTags()
     {
+        dotclear()->behavior()->add('initWidgets', [__CLASS__, 'initWidgets']);
+        dotclear()->behavior()->add('initDefaultWidgets', [__CLASS__, 'initDefaultWidgets']);
+    }
+
+    public static function initWidgets(Widgets $w): void
+    {
+        $class = 'Dotclear\\Plugin\\Tags\Lib\\TagsTemplate';
+
         $w
-            ->create('tags', __('Tags'), ['tplTags', 'tagsWidget'], null, 'Tags cloud')
+            ->create('tags', __('Tags'), [$class, 'tagsWidget'], null, 'Tags cloud')
             ->addTitle(__('Menu'))
             ->setting('limit', __('Limit (empty means no limit):'), '20')
             ->setting(
@@ -52,7 +66,7 @@ class tagsWidgets
             ->addOffline();
     }
 
-    public static function initDefaultWidgets($w, $d)
+    public static function initDefaultWidgets(Widgets $w, array $d): void
     {
         $d['nav']->append($w->tags);
     }

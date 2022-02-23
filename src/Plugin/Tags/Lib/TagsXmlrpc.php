@@ -1,28 +1,37 @@
 <?php
 /**
- * @brief tags, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Tags\Lib\TagsXmlrpc
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_RC_PATH')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Tags\Lib;
+
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-$core->addBehavior('xmlrpcGetPostInfo', ['tagsXMLRPCbehaviors', 'getPostInfo']);
-$core->addBehavior('xmlrpcAfterNewPost', ['tagsXMLRPCbehaviors', 'editPost']);
-$core->addBehavior('xmlrpcAfterEditPost', ['tagsXMLRPCbehaviors', 'editPost']);
 
-class tagsXMLRPCbehaviors
+class TagsXmlrpc
 {
+    public static function initTags()
+    {
+        dotclear()->behavior()->add('xmlrpcGetPostInfo', [__CLASS__, 'getPostInfo']);
+        dotclear()->behavior()->add('xmlrpcAfterNewPost', [__CLASS__, 'editPost']);
+        dotclear()->behavior()->add('xmlrpcAfterEditPost', [__CLASS__, 'editPost']);
+    }
+
     public static function getPostInfo($x, $type, $res)
     {
         $res = &$res[0];
 
-        $rs = $x->core->meta->getMetadata([
+        $rs = dotclear()->meta()->getMetadata([
             'meta_type' => 'tag',
             'post_id'   => $res['postid'], ]);
 
@@ -39,10 +48,10 @@ class tagsXMLRPCbehaviors
     {
         # Check if we have mt_keywords in struct
         if (isset($struct['mt_keywords'])) {
-            $x->core->meta->delPostMeta($post_id, 'tag');
+            dotclear()->meta()->delPostMeta($post_id, 'tag');
 
-            foreach ($x->core->meta->splitMetaValues($struct['mt_keywords']) as $m) {
-                $x->core->meta->setPostMeta($post_id, 'tag', $m);
+            foreach (dotclear()->meta()->splitMetaValues($struct['mt_keywords']) as $m) {
+                dotclear()->meta()->setPostMeta($post_id, 'tag', $m);
             }
         }
     }

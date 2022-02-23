@@ -70,17 +70,17 @@ dotclear.reorder = (ul) => {
       // active ou désactive les fléches
       if (i == 0) {
         $this.find('input.upWidget').prop('disabled', true);
-        $this.find('input.upWidget').prop('src', 'images/disabled_up.png');
+        $this.find('input.upWidget').prop('src', '?df=images/disabled_up.png');
       } else {
         $this.find('input.upWidget').prop('disabled', false);
-        $this.find('input.upWidget').prop('src', 'images/up.png');
+        $this.find('input.upWidget').prop('src', '?df=images/up.png');
       }
       if (i == $list.length - 1) {
         $this.find('input.downWidget').prop('disabled', true);
-        $this.find('input.downWidget').prop('src', 'images/disabled_down.png');
+        $this.find('input.downWidget').prop('src', '?df=images/disabled_down.png');
       } else {
         $this.find('input.downWidget').prop('disabled', false);
-        $this.find('input.downWidget').prop('src', 'images/down.png');
+        $this.find('input.downWidget').prop('src', '?df=images/down.png');
       }
     });
   }

@@ -1,28 +1,16 @@
-<?php
-/**
- * @brief tags, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugins
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-
-$this->registerModule(
-    'Tags',            // Name
-    'Tags for posts',  // Description
-    'Olivier Meunier', // Author
-    '1.6',             // Version
-    [
-        'permissions' => 'usage,contentadmin',
-        'priority'    => 1001, // Must be higher than dcLegacyEditor/dcCKEditor priority (ie 1000)
-        'type'        => 'plugin',
-        'settings'    => [
-            'pref' => '#user-options.tags_prefs',
-        ],
-    ]
-);
+<module id="Tags">
+  <name>Tags</name>
+  <description>Tags for posts</description>
+  <version>1.7-dev</version>
+  <author>Olivier Meunier</author>
+  <type>Plugin</type>
+  <permissions>usage,contentadmin</permissions>
+  <priority>1001</priority>
+  <settings>
+    <pref>#user-options.tags_prefs</pref>
+  </settings>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

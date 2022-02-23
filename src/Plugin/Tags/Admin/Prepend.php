@@ -1,46 +1,49 @@
 <?php
 /**
- * @brief tags, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Tags\Admin\Prepend
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\Tags\Admin;
+
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Plugin\Tags\Lib\TagsAdmin;
+use Dotclear\Plugin\Tags\Lib\TagsCore;
+use Dotclear\Plugin\Tags\Lib\TagsUrl;
+use Dotclear\Plugin\Tags\Lib\TagsXmlrpc;
+use Dotclear\Plugin\Tags\Lib\TagsWidgets;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-$_menu['Blog']->addItem(
-    __('Tags'),
-    $core->adminurl->get('admin.plugin.tags', ['m' => 'tags']),
-    [dcPage::getPF('tags/icon.svg'), dcPage::getPF('tags/icon-dark.svg')],
-    preg_match('/' . preg_quote($core->adminurl->get('admin.plugin.tags')) . '&m=tag(s|_posts)?(&.*)?$/', $_SERVER['REQUEST_URI']),
-    $core->auth->check('usage,contentadmin', $core->blog->id)
-);
+class Prepend extends AbstractPrepend
+{
+    use TraitPrependAdmin;
 
-require __DIR__ . '/_widgets.php';
+    public static function loadModule(): void
+    {
+        # Menu and favs
+        static::addStandardMenu('Blog');
+        static::addStandardFavorites('usage,contentadmin');
 
-$core->addBehavior('adminPostFormItems', ['tagsBehaviors', 'tagsField']);
+        # Behaviors and url
+        TagsUrl::initTags();
+        TagsCore::initTags();
+        TagsAdmin::initTags();
+        TagsXmlrpc::initTags();
 
-$core->addBehavior('adminAfterPostCreate', ['tagsBehaviors', 'setTags']);
-$core->addBehavior('adminAfterPostUpdate', ['tagsBehaviors', 'setTags']);
-
-$core->addBehavior('adminPostHeaders', ['tagsBehaviors', 'postHeaders']);
-
-$core->addBehavior('adminPostsActionsPage', ['tagsBehaviors', 'adminPostsActionsPage']);
-
-$core->addBehavior('adminPreferencesForm', ['tagsBehaviors', 'adminUserForm']);
-$core->addBehavior('adminBeforeUserOptionsUpdate', ['tagsBehaviors', 'setTagListFormat']);
-
-$core->addBehavior('adminUserForm', ['tagsBehaviors', 'adminUserForm']);
-$core->addBehavior('adminBeforeUserCreate', ['tagsBehaviors', 'setTagListFormat']);
-$core->addBehavior('adminBeforeUserUpdate', ['tagsBehaviors', 'setTagListFormat']);
-
-$core->addBehavior('adminDashboardFavorites', ['tagsBehaviors', 'dashboardFavorites']);
-
-$core->addBehavior('adminPageHelpBlock', ['tagsBehaviors', 'adminPageHelpBlock']);
-
-$core->addBehavior('adminPostEditor', ['tagsBehaviors', 'adminPostEditor']);
-$core->addBehavior('ckeditorExtraPlugins', ['tagsBehaviors', 'ckeditorExtraPlugins']);
+        # Widgets
+        if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
+            TagsWidgets::initTags();
+        }
+    }
+}
