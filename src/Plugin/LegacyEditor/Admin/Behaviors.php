@@ -150,6 +150,7 @@ class Behaviors
 
                 'post_link'    => ['title' => __('Link to an entry')],
                 'removeFormat' => ['title' => __('Remove text formating')],
+                'preview'      => ['title' => __('Preview')],
             ],
             'toolbar_bottom' => dotclear()->user()->getOption('toolbar_bottom'),
         ];
