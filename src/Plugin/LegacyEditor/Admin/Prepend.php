@@ -39,6 +39,9 @@ class Prepend extends AbstractPrepend
             dotclear()->behavior()->add('adminPopupMedia', [$class, 'adminPopupMedia']);
             dotclear()->behavior()->add('adminPopupLink', [$class, 'adminPopupLink']);
             dotclear()->behavior()->add('adminPopupPosts', [$class, 'adminPopupPosts']);
+
+            $class = __NAMESPACE__ . '\\Rest';
+            dotclear()->rest()->addFunction('wikiConvert', [$class, 'convert']);
         }
     }
 
