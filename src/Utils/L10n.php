@@ -45,6 +45,8 @@ class L10n
     protected static $language_pluralfunction   = null;
     //@}
 
+    protected static $langs = [];
+
     /**
      * L10N initialization
      *
@@ -82,9 +84,6 @@ class L10n
                 self::$language_pluralsnumber,
                 self::$language_pluralexpression
             );
-
-            // Backwards compatibility
-            self::$text_direction = self::$language_textdirection;
         }
 
         return self::$language_code;
