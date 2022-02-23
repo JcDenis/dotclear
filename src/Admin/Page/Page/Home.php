@@ -325,7 +325,7 @@ class Home extends Page
 
                 $dashboardQuickEntry = '<div id="quick">' .
                 '<h3>' . __('Quick post') . sprintf(' &rsaquo; %s', dotclear()->user()->getOption('post_format')) . '</h3>' .
-                '<form id="quick-entry" action="' . dotclear()->adminurl()->get('admin.post') . '" method="post" class="fieldset">' .
+                '<form id="quick-entry" action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<h4>' . __('New post') . '</h4>' .
                 '<p class="col"><label for="post_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
                 Form::field('post_title', 20, 255, [
@@ -354,7 +354,7 @@ class Home extends Page
                 (dotclear()->user()->check('publish', dotclear()->blog()->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.post', [], true) .
                 Form::hidden('post_status', -2) .
                 Form::hidden('post_format', dotclear()->user()->getOption('post_format')) .
                 Form::hidden('post_excerpt', '') .

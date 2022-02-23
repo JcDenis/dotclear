@@ -38,7 +38,22 @@ class AdminUrl
         $this->urls = new ArrayObject();
     }
 
-    public function called()
+    /**
+     * Admin url alias
+     *
+     * @return  string  Admin root url
+     */
+    public function root(): string
+    {
+        return $this->root_url;
+    }
+
+    /**
+     * Get last called url (with param handler only)
+     *
+     * @return  string  Last called url
+     */
+    public function called(): string
     {
         return $_REQUEST['handler'] ?? (empty($this->urls) ? '' : key($this->urls->getArrayCopy()));
     }
@@ -169,11 +184,13 @@ class AdminUrl
      * forges form hidden fields to pass to a generated <form>. Should be used in combination with
      * form action retrieved from getBase()
      *
-     * @param  string $name      URL Name
-     * @param  array  $params    query string parameters, given as an associative array
-     * @return string            the forged form data
+     * @param   string  $name       URL Name
+     * @param   array   $params     query string parameters, given as an associative array
+     * @param   bool    $nonce      Add the Nonce field
+     *
+     * @return  string              The forged form data
      */
-    public function getHiddenFormFields($name, $params = [])
+    public function getHiddenFormFields($name, $params = [], bool $nonce = false)
     {
         if (!isset($this->urls[$name])) {
             throw new AdminException('Unknown URL handler for ' . $name);
@@ -183,6 +200,9 @@ class AdminUrl
         $str = '';
         foreach ((array) $p as $k => $v) {
             $str .= Form::hidden([$k], $v);
+        }
+        if ($nonce) {
+            $str .= dotclear()->nonce()->form();
         }
 
         return $str;

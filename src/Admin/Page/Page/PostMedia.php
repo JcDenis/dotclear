@@ -89,13 +89,13 @@ class PostMedia extends Page
                     ])
                     ->setPageContent(
                         '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>' .
-                        '<form action="' . dotclear()->adminurl()->get('admin.post.media') . '" method="post">' .
+                        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                         '<p>' . __('Are you sure you want to remove this attachment?') . '</p>' .
                         '<p><input type="submit" class="reset" value="' . __('Cancel') . '" /> ' .
                         ' &nbsp; <input type="submit" class="delete" name="remove" value="' . __('Yes') . '" />' .
                         Form::hidden('post_id', $post_id) .
                         Form::hidden('media_id', $media_id) .
-                        dotclear()->nonce()->form() . '</p>' .
+                        dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [], true) . '</p>' .
                         '</form>'
                     )
                 ;

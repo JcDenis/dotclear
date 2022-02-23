@@ -516,7 +516,7 @@ class UserPref extends Page
 
         echo
         '<h3>' . __('My profile') . '</h3>' .
-        '<form action="' . dotclear()->adminurl()->get('admin.user.pref') . '" method="post" id="user-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="user-form">' .
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
         Form::field('user_name', 20, 255, [
@@ -615,7 +615,7 @@ class UserPref extends Page
 
         echo
         '<p class="clear vertical-separator">' .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -627,7 +627,7 @@ class UserPref extends Page
         echo '<div class="multi-part" id="user-options" title="' . __('My options') . '">';
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.user.pref') . '#user-options" method="post" id="opts-forms">' .
+        '<form action="' . dotclear()->adminurl()->root() . '#user-options" method="post" id="opts-forms">' .
         '<h3>' . __('My options') . '</h3>';
 
         echo
@@ -795,7 +795,7 @@ class UserPref extends Page
 
         echo
         '<p class="clear vertical-separator">' .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input name="user_options_submit" type="submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -808,7 +808,7 @@ class UserPref extends Page
         echo '<h3>' . __('My dashboard') . '</h3>';
 
         # Favorites
-        echo '<form action="' . dotclear()->adminurl()->get('admin.user.pref') . '" method="post" id="favs-form" class="two-boxes odd">';
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="favs-form" class="two-boxes odd">';
 
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
 
@@ -849,7 +849,6 @@ class UserPref extends Page
             echo
             '<div class="clear">' .
             '<p>' . Form::hidden('favs_order', '') .
-            dotclear()->nonce()->form() .
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" /> ' .
 
             '<input type="submit" class="delete" name="removeaction" ' .
@@ -918,7 +917,7 @@ class UserPref extends Page
 
         echo
         '<p>' .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>';
         echo '</div>'; # /available favorites
 
@@ -926,7 +925,7 @@ class UserPref extends Page
 
         # Dashboard items
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.user.pref') . '" method="post" id="db-forms" class="two-boxes even">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="db-forms" class="two-boxes even">' .
 
         '<div class="fieldset">' .
         '<h4>' . __('Menu') . '</h4>' .
@@ -983,18 +982,18 @@ class UserPref extends Page
         echo
         '<p>' .
         Form::hidden('db-options', '-') .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
 
         # Dashboard items order (reset)
-        echo '<form action="' . dotclear()->adminurl()->get('admin.user.pref') . '" method="post" id="order-reset" class="two-boxes even">';
+        echo '<form action="' . dotclear()->adminurl()->root(. '" method="post" id="order-reset" class="two-boxes even">';
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
         echo
         '<p>' .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>';
         echo '</div>';
         echo '</form>';

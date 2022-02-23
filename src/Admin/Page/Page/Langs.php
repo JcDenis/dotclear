@@ -220,10 +220,9 @@ class Langs extends Page
 
                 if ($is_deletable) {
                     echo
-                    '<form action="' . dotclear()->adminurl()->get('admin.langs') . '" method="post">' .
+                    '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                     '<div>' .
-                    dotclear()->nonce()->form() .
-                    Form::hidden(['locale_id'], Html::escapeHTML($k)) .
+                    dotclear()->adminurl()->getHiddenFormFields('admin.langs', ['locale_id' => Html::escapeHTML($k)], true) .
                     '<input type="submit" class="delete" name="delete" value="' . __('Delete') . '" /> ' .
                         '</div>' .
                         '</form>';
@@ -250,7 +249,7 @@ class Langs extends Page
             }
 
             echo
-            '<form method="post" action="' . dotclear()->adminurl()->get('admin.langs') . '" enctype="multipart/form-data" class="fieldset">' .
+            '<form method="post" action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Available languages') . '</h4>' .
             '<p>' . sprintf(__('You can download and install a additional language directly from Dotclear.net. ' .
                 'Proposed languages are based on your version: %s.'), '<strong>' . dotclear()->config()->core_version . '</strong>') . '</p>' .
@@ -263,7 +262,7 @@ class Langs extends Page
                     'autocomplete' => 'current-password']
             ) . '</p>' .
             '<p><input type="submit" value="' . __('Install language') . '" />' .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
                 '</p>' .
                 '</form>';
         }
@@ -271,7 +270,7 @@ class Langs extends Page
         if ($this->is_writable) {
             # 'Upload language pack' form
             echo
-            '<form method="post" action="' . dotclear()->adminurl()->get('admin.langs') . '" enctype="multipart/form-data" class="fieldset">' .
+            '<form method="post" action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Upload a zip file') . '</h4>' .
             '<p>' . __('You can install languages by uploading zip files.') . '</p>' .
             '<p class="field"><label for="pkg_file" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Language zip file:') . '</label> ' .
@@ -283,7 +282,7 @@ class Langs extends Page
                     'autocomplete' => 'current-password']
             ) . '</p>' .
             '<p><input type="submit" name="upload_pkg" value="' . __('Upload language') . '" />' .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
                 '</p>' .
                 '</form>';
         }

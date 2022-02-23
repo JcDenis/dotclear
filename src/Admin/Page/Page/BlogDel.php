@@ -92,13 +92,13 @@ class BlogDel extends Page
         '<p>' . __('Please give your password to confirm the blog deletion.') . '</p>';
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.blog.del') . '" method="post">' .
-        '<div>' . dotclear()->nonce()->form() . '</div>' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
         '<p><label for="pwd">' . __('Your password:') . '</label> ' .
         Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
         '<p><input type="submit" class="delete" name="del" value="' . __('Delete this blog') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        Form::hidden('blog_id', $this->blog_id) . '</p>' .
+        Form::hidden('blog_id', $this->blog_id) .
+        dotclear()->adminurl()->getHiddenFormFields('admin.blog.del', [], true) . '</p>' .
             '</form>';
     }
 }

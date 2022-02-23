@@ -224,7 +224,7 @@ class User extends Page
         $formaters_combo = dotclear()->combo()->getFormatersCombo();
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.user') . '" method="post" id="user-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="user-form">' .
         '<div class="two-cols">' .
 
         '<div class="col">' .
@@ -387,7 +387,7 @@ class User extends Page
         ($this->container->getId() != '' ? '' : ' <input type="submit" name="saveplus" value="' . __('Save and create another') . '" />') .
         ($this->container->getId() != '' ? Form::hidden('id', $this->container->getId()) : '') .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.user', [], true) .
             '</p>' .
 
             '</form>';
@@ -401,13 +401,13 @@ class User extends Page
 
         if (!$this->container->getSuper()) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<p><input type="submit" value="' . __('Add new permissions') . '" />' .
-            Form::hidden(['redir'], dotclear()->adminurl()->get('admin.user', ['id' => $this->container->getId()])) .
-            Form::hidden(['action'], 'blogs') .
-            Form::hidden(['users[]'], $this->container->getId()) .
-            dotclear()->nonce()->form() .
-                '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                'redir'   => dotclear()->adminurl()->get('admin.user', ['id' => $this->container->getId()]),
+                'action'  => 'blogs',
+                'users[]' => $this->container->getId(),
+            ], true) . '</p>' .
                 '</form>';
 
             $permissions = dotclear()->users()->getUserPermissions($this->container->getId());
@@ -419,7 +419,7 @@ class User extends Page
                 foreach ($permissions as $k => $v) {
                     if (count($v['p']) > 0) {
                         echo
-                        '<form action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post" class="perm-block">' .
+                        '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="perm-block">' .
                         '<p class="blog-perm">' . __('Blog:') . ' <a href="' .
                         dotclear()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
                         Html::escapeHTML($v['name']) . '</a> (' . Html::escapeHTML($k) . ')</p>';
@@ -433,12 +433,12 @@ class User extends Page
                         echo
                         '</ul>' .
                         '<p class="add-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        Form::hidden(['redir'], dotclear()->adminurl()->get('admin.user', ['id' => $this->container->getId()])) .
-                        Form::hidden(['action'], 'perms') .
-                        Form::hidden(['users[]'], $this->container->getId()) .
-                        Form::hidden(['blogs[]'], $k) .
-                        dotclear()->nonce()->form() .
-                            '</p>' .
+                        dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                            'redir'   => dotclear()->adminurl()->get('admin.user', ['id' => $this->container->getId()]),
+                            'action'  => 'perms',
+                            'users[]' => $this->container->getId(),
+                            'blogs[]' => $k,
+                        ], true) . '</p>' .
                             '</form>';
                     }
                 }

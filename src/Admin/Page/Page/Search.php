@@ -178,7 +178,7 @@ class Search extends Page
         }
 
         self::$list->display($args['page'], $args['nb'],
-            '<form action="' . dotclear()->adminurl()->get('admin.search') . '" method="post" id="form-entries">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
             '%s' .
 
@@ -188,7 +188,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'
@@ -231,7 +231,7 @@ class Search extends Page
         }
 
         self::$list->display($args['page'], $args['nb'],
-            '<form action="' . dotclear()->adminurl()->get('admin.search') . '" method="post" id="form-comments">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
 
@@ -241,7 +241,7 @@ class Search extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
             preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'

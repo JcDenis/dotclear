@@ -154,12 +154,12 @@ class Page extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.plugin.UserPref') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
-        dotclear()->nonce()->form() . '</p></form>';
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -176,7 +176,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl()->get('admin.plugin.UserPref') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -190,7 +190,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->nonce()->form() . '</p>' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p>' .
         '</form>';
     }
 

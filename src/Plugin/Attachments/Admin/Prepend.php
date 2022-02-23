@@ -113,12 +113,15 @@ class Prepend extends AbstractPrepend
     {
         if ($post !== null) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.post.media') . '" id="attachment-remove-hide" method="post">' .
-            '<div>' . form::hidden(['post_id'], $post->post_id) .
-            form::hidden(['media_id'], '') .
-            form::hidden(['link_type'], 'attachment') .
-            form::hidden(['remove'], 1) .
-            dotclear()->nonce()->form() . '</div></form>';
+            '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
+            '<div>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [
+                'post_id'   => $post->post_id,
+                'media_id'  => '',
+                'link_type' => 'attachement',
+                'remove'    => 1,
+            ], true) .
+            '</div></form>';
         }
     }
 }

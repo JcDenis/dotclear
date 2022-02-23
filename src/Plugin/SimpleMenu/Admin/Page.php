@@ -471,10 +471,11 @@ class Page extends AbstractPage
                         $items_combo[$v[0]] = $k;
                     }
                     // Selection du type d'item
-                    echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=2" method="post">';
+                    echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
                     echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
-                    echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
+                    echo '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 2], true);
+                    echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -482,7 +483,7 @@ class Page extends AbstractPage
                 case 2:
                     if ($this->sm_items[$this->sm_item_type][1]) {
                         // Choix à faire
-                        echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=3" method="post">';
+                        echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
                         echo '<fieldset><legend>' . $this->sm_item_type_label . '</legend>';
                         switch ($this->sm_item_type) {
                             case 'lang':
@@ -516,8 +517,8 @@ class Page extends AbstractPage
                                 # Optional step once $this->sm_item_type known : should provide a field using 'item_select' as id
                                 dotclear()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
                         }
-                        echo form::hidden('item_type', $this->sm_item_type);
-                        echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
+                        echo '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['item_type' => $this->sm_item_type, 'add' => 3], true);
+                        echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
                         echo '</fieldset>';
                         echo '</form>';
 
@@ -525,7 +526,7 @@ class Page extends AbstractPage
                     }
                 case 3:
                     // Libellé et description
-                    echo '<form id="additem" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=4" method="post">';
+                    echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
                     echo '<fieldset><legend>' . $this->sm_item_type_label . ($this->sm_item_select_label != '' ? ' (' . $this->sm_item_select_label . ')' : '') . '</legend>';
                     echo '<p class="field"><label for="item_label" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('Label of item menu:') . '</label>' .
@@ -547,10 +548,11 @@ class Page extends AbstractPage
                         'extra_html' => 'required placeholder="' . __('URL') . '"'
                     ]) .
                         '</p>';
-                    echo form::hidden('item_type', $this->sm_item_type) . form::hidden('item_select', $this->sm_item_select);
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Open URL on a new tab') . ':</label>' . form::checkbox('item_targetBlank', 'blank') . '</p>';
-                    echo '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
+                    echo '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu',
+                        ['item_type' => $this->sm_item_type, 'item_select' => $this->sm_item_select, 'add' => 4], true);
+                    echo '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>';
                     echo '</fieldset>';
                     echo '</form>';
 
@@ -560,10 +562,11 @@ class Page extends AbstractPage
 
         // Formulaire d'activation
         if (!$this->sm_step) {
-            echo '<form id="settings" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '" method="post">' .
+            echo '<form id="settings" action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog()->settings()->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
-            '<p>' . dotclear()->nonce()->form() . '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
+            '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true) .
+            '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
@@ -571,14 +574,15 @@ class Page extends AbstractPage
 
         // Liste des items
         if (!$this->sm_step) {
-            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '&amp;add=1" method="post">';
-            echo '<p class="top-add">' . dotclear()->nonce()->form() . '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
+            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->root() . '&amp;add=1" method="post">';
+            echo '<p class="top-add">' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true);
+            echo '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }
 
         if (count($this->sm_menu)) {
             if (!$this->sm_step) {
-                echo '<form id="menuitems" action="' . dotclear()->adminurl()->get('admin.plugin.SimpleMenu') . '" method="post">';
+                echo '<form id="menuitems" action="' . dotclear()->adminurl()->root() . '" method="post">';
             }
             // Entête table
             echo
@@ -648,7 +652,7 @@ class Page extends AbstractPage
                 '</table></div>';
             if (!$this->sm_step) {
                 echo '<div class="two-cols">';
-                echo '<p class="col">' . form::hidden('im_order', '') . dotclear()->nonce()->form();
+                echo '<p class="col">' . form::hidden('im_order', '') . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true);
                 echo '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>';
                 echo '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .

@@ -224,7 +224,7 @@ class Page extends AbstractPage
             echo '<div><p>' . __('The link list is empty.') . '</p></div>';
         } else {
             echo '
-            <form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" id="links-form">
+            <form action="' . dotclear()->adminurl()->root() . '" method="post" id="links-form">
             <div class="table-outer">
             <table class="dragable">
             <thead>
@@ -278,8 +278,7 @@ class Page extends AbstractPage
             <div class="two-cols">
             <p class="col">' .
             Form::hidden('links_order', '') .
-            Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-            dotclear()->nonce()->form() . '
+            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) . '
             <input type="submit" name="saveorder" value="' . __('Save order') . '" />
             <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />
             </p>
@@ -295,7 +294,7 @@ class Page extends AbstractPage
         </div>
 
         <div class="multi-part clear" id="add-link" title="' . __('Add a link') . '">
-        <form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" id="add-link-form">
+        <form action="' . dotclear()->adminurl()->root() . '" method="post" id="add-link-form">
         <h3>' . __('Add a new link') . '</h3>
         <p class="col"><label for="link_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
         Form::field('link_title', 30, 255, [
@@ -318,9 +317,7 @@ class Page extends AbstractPage
         '<p class="col"><label for="link_lang">' . __('Language:') . '</label> ' .
         Form::field('link_lang', 5, 5, $this->br_link_lang) .
         '</p>' .
-        '<p>' .
-        Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-        dotclear()->nonce()->form() .
+        '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
         '<input type="submit" name="add_link" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -329,7 +326,7 @@ class Page extends AbstractPage
 
         echo
         '<div class="multi-part" id="add-cat" title="' . __('Add a category') . '">' .
-        '<form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" id="add-category-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="add-category-form">' .
         '<h3>' . __('Add a new category') . '</h3>' .
         '<p><label for="cat_title" class=" classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
         Form::field('cat_title', 30, 255, [
@@ -337,9 +334,7 @@ class Page extends AbstractPage
             'extra_html' => 'required placeholder="' . __('Title') . '"',
         ]) .
         '</p>' .
-        '<p>' .
-        Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-        dotclear()->nonce()->form() .
+        '<p>' .dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
         '<input type="submit" name="add_cat" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -350,19 +345,18 @@ class Page extends AbstractPage
         '<div class="multi-part" id="import-links" title="' . __('Import links') . '">';
         if (!isset($imported)) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" id="import-links-form" enctype="multipart/form-data">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form" enctype="multipart/form-data">' .
             '<h3>' . __('Import links') . '</h3>' .
             '<p><label for="links_file" class=" classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('OPML or XBEL File:') . '</label> ' .
             '<input type="file" id="links_file" name="links_file" required /></p>' .
-            '<p>' . Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-            dotclear()->nonce()->form() .
+            '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="import_links" value="' . __('Import') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
         } else {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" id="import-links-form">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form">' .
             '<h3>' . __('Import links') . '</h3>';
             if (empty($imported)) {
                 echo '<p>' . __('Nothing to import') . '</p>';
@@ -396,8 +390,7 @@ class Page extends AbstractPage
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right">' .
-                Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
                 '<input type="submit" name="cancel_import" value="' . __('Cancel') . '" />&nbsp;' .
                 '<input type="submit" name="import_links_do" value="' . __('Import') . '" /></p>' .
                     '</div>';

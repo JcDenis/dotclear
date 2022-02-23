@@ -851,10 +851,9 @@ class BlogPref extends Page
 
         if (dotclear()->user()->isSuperAdmin() && $this->blog_id != dotclear()->blog()->id) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.blog.del') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
-            Form::hidden(['blog_id'], $this->blog_id) .
-            dotclear()->nonce()->form() . '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.blog.del', ['blog_id' => $this->blog_id], true) . '</p>' .
                 '</form>';
         } else {
             if ($this->blog_id == dotclear()->blog()->id) {
@@ -949,14 +948,14 @@ class BlogPref extends Page
 
                     if (!$v['super'] && dotclear()->user()->isSuperAdmin()) {
                         echo
-                        '<form action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post">' .
+                        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                         '<p class="change-user-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        Form::hidden(['redir'], dotclear()->adminurl()->get('admin.blog.pref', ['id' => $k], '&')) .
-                        Form::hidden(['action'], 'perms') .
-                        Form::hidden(['users[]'], $k) .
-                        Form::hidden(['blogs[]'], $this->blog_id) .
-                        dotclear()->nonce()->form() .
-                            '</p>' .
+                        dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                            'redir'   => dotclear()->adminurl()->get('admin.blog.pref', ['id' => $k], '&'),
+                            'action'  => 'perms',
+                            'users[]' => $k,
+                            'blogs[]' => $this->blog_id,
+                        ], true) . '</p>' .
                             '</form>';
                     }
                     echo '</div>';

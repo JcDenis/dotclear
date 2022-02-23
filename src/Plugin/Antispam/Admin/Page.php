@@ -173,7 +173,7 @@ class Page extends AbstractPage
         $moderationTTL   = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" method="post" class="fieldset">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
         '<h3>' . __('Information') . '</h3>';
 
         echo
@@ -186,7 +186,7 @@ class Page extends AbstractPage
 
         if ($spam_count > 0) {
             echo
-            '<p>' . dotclear()->nonce()->form() .
+            '<p>' .
             Form::hidden('ts', time()) .
             '<input name="delete_all" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
         }
@@ -197,12 +197,12 @@ class Page extends AbstractPage
                 '.</p>';
         }
         echo
-        Form::hidden(['handler'], 'admin.plugin.Antispam') .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
         '</form>';
 
         # Filters
         echo
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" method="post" id="filters-list-form">';
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="filters-list-form">';
 
         if (!empty($_GET['upd'])) {
             dotclear()->notice()->success(__('Filters configuration has been successfully saved.'));
@@ -262,8 +262,7 @@ class Page extends AbstractPage
         '</tbody></table></div>' .
         '<p>' .
         Form::hidden('filters_order', '') .
-        Form::hidden(['handler'], 'admin.plugin.Antispam') .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
         '<input type="submit" name="filters_upd" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .

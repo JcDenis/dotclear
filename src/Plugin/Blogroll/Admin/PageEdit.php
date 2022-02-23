@@ -142,7 +142,7 @@ class PageEdit extends AbstractPage
 
         if ($this->br_has_rs && $this->br_is_cat) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<h3>' . __('Edit category') . '</h3>' .
 
             '<p><label for="link_desc" class="required classic"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
@@ -153,14 +153,13 @@ class PageEdit extends AbstractPage
 
             Form::hidden('edit', 1) .
             Form::hidden('id', $this->br_id) .
-            Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="edit_cat" value="' . __('Save') . '"/></p>' .
                 '</form>';
         }
         if ($this->br_has_rs && !$this->br_is_cat) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '" method="post" class="two-cols fieldset">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="two-cols fieldset">' .
 
             '<div class="col30 first-col">' .
             '<h3>' . __('Edit link') . '</h3>' .
@@ -341,8 +340,7 @@ class PageEdit extends AbstractPage
             '<p class="clear">' .
             Form::hidden('edit', 1) .
             Form::hidden('id', $this->br_id) .
-            Form::hidden(['handler'], 'admin.plugin.Blogroll') .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="edit_link" value="' . __('Save') . '"/></p>' .
 
                 '</form>';

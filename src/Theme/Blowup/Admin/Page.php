@@ -262,7 +262,7 @@ class Page extends AbstractPage
                 $this->Blowup_notices, false, true);
         }
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Blowup') . '" method="post" enctype="multipart/form-data">';
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">';
 
         echo '<div class="fieldset"><h3>' . __('Customization') . '</h3>' .
         '<h4>' . __('General') . '</h4>';
@@ -486,7 +486,7 @@ class Page extends AbstractPage
 
         echo
         '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->nonce()->form() . '</p>' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blowup', [], true) . '</p>' .
             '</form>';
 
     }

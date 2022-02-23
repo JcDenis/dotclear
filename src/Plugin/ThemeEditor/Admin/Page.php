@@ -168,7 +168,7 @@ class Page extends AbstractPage
             echo '<p>' . __('Please select a file to edit.') . '</p>';
         } else {
             echo
-            '<form id="file-form" action="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '" method="post">' .
+            '<form id="file-form" action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<div class="fieldset"><h3>' . __('File editor') . '</h3>' .
             '<p><label for="file_content">' . sprintf(__('Editing file %s'), '<strong>' . $this->te_file['f']) . '</strong></label></p>' .
             '<p>' . Form::textarea('file_content', 72, 25, [
@@ -181,7 +181,7 @@ class Page extends AbstractPage
                 echo
                 '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                 ($this->te_editor->deletableFile($this->te_file['type'], $this->te_file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true)
                     ($this->te_file['type'] ? Form::hidden([$this->te_file['type']], $this->te_file['f']) : '') .
                     '</p>';
             } else {

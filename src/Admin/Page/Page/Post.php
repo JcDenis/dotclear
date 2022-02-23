@@ -699,7 +699,7 @@ class Post extends Page
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
-            echo '<form action="' . dotclear()->adminurl()->get('admin.post') . '" method="post" id="entry-form">';
+            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="entry-form">';
             echo '<div id="entry-wrapper">';
             echo '<div id="entry-content"><div class="constrained">';
 
@@ -736,7 +736,7 @@ class Post extends Page
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.post', [], true) .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -781,7 +781,7 @@ class Post extends Page
             '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
-                echo '<form action="' . dotclear()->adminurl()->get('admin.post') . '" id="form-comments" method="post">';
+                echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-comments" method="post">';
             }
 
             echo '<h3>' . __('Comments') . '</h3>';
@@ -798,9 +798,10 @@ class Post extends Page
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
-                Form::hidden(['section'], 'comments') .
-                Form::hidden(['id'], $this->post_id) .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.post', [
+                    'section' => 'comments',
+                    'id'      => $this->post_id,
+                ], true) .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -812,7 +813,7 @@ class Post extends Page
             '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
-            '<form action="' . dotclear()->adminurl()->get('admin.comment') . '" method="post" id="comment-form">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
@@ -844,7 +845,7 @@ class Post extends Page
 
             '<p>' .
             Form::hidden('post_id', $this->post_id) .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . #constrained
 
@@ -874,7 +875,7 @@ class Post extends Page
 
             # tracbacks actions
             if ($has_action) {
-                echo '<form action="' . dotclear()->adminurl()->get('admin.post') . '" id="form-trackbacks" method="post">';
+                echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-trackbacks" method="post">';
             }
 
             echo '<h3>' . __('Trackbacks received') . '</h3>';
@@ -893,8 +894,7 @@ class Post extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected trackbacks action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
                 Form::hidden('id', $this->post_id) .
-                Form::hidden(['section'], 'trackbacks') .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.post', ['section' => 'trackbacks'], true) .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -908,7 +908,7 @@ class Post extends Page
 
                 echo
                 '<h3>' . __('Ping blogs') . '</h3>' .
-                '<form action="' . dotclear()->adminurl()->get('admin.post', ['id' => $this->post_id]) . '" id="trackback-form" method="post">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" id="trackback-form" method="post">' .
                 '<p><label for="tb_urls" class="area">' . __('URLs to ping:') . '</label>' .
                 Form::textarea('tb_urls', 60, 5, $this->tb_urls) .
                 '</p>' .
@@ -917,7 +917,7 @@ class Post extends Page
                 Form::textarea('tb_excerpt', 60, 5, $this->tb_excerpt) . '</p>' .
 
                 '<p>' .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.post', ['id' => $this->post_id], true) .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
                     (empty($_GET['tb_auto']) ?
                     '&nbsp;&nbsp;<a class="button" href="' .

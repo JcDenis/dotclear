@@ -126,7 +126,7 @@ class Comments extends Page
         $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
         if ($spam_count > 0) {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.comments') . '" method="post" class="fieldset">';
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';
 
             if (!$this->filter->show() || ($this->filter->status != -2)) {
                 if ($spam_count == 1) {
@@ -140,7 +140,7 @@ class Comments extends Page
 
             echo
             '<p>' .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.comments', [], true) .
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
             # --BEHAVIOR-- adminCommentsSpamForm
@@ -153,7 +153,7 @@ class Comments extends Page
 
         # Show comments
         $this->catalog->display($this->filter->page, $this->filter->nb,
-            '<form action="' . dotclear()->adminurl()->get('admin.comments') . '" method="post" id="form-comments">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
 
@@ -163,9 +163,8 @@ class Comments extends Page
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', $this->action->getCombo(),
                 ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']) .
-            dotclear()->nonce()->form() .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true)) .
+            dotclear()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true), true) .
             '</div>' .
 
             '</form>',

@@ -211,7 +211,7 @@ class UserAction extends Page
                 echo '<p><strong>' . __('No blog') . '</strong></p>';
             } else {
                 echo
-                '<form action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post" id="form-blogs">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' .
                 '<div class="table-outer clear">' .
                 '<table><tr>' .
                 '<th class="nowrap" colspan="2">' . __('Blog ID') . '</th>' .
@@ -248,8 +248,7 @@ class UserAction extends Page
                 '<p class="checkboxes-helpers"></p>' .
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
-                Form::hidden(['action'], 'perms') .
-                dotclear()->nonce()->form() . '</p>' .
+                dotclear()->adminurl()->get('admin.user.actions', ['action' => 'perms'], true) . '</p>' .
                     '</form>';
             }
 
@@ -269,7 +268,7 @@ class UserAction extends Page
                 __('You are about to change permissions on the following blogs for users %s.'),
                 implode(', ', $user_list)
             ) . '</p>' .
-            '<form id="permissions-form" action="' . dotclear()->adminurl()->get('admin.user.actions') . '" method="post">';
+            '<form id="permissions-form" action="' . dotclear()->adminurl()->root() . '" method="post">';
 
             foreach ($this->blogs as $b) {
                 echo '<h3>' . ('Blog:') . ' <a href="' . dotclear()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
@@ -318,8 +317,7 @@ class UserAction extends Page
             ) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
-            Form::hidden(['action'], 'updateperm') .
-            dotclear()->nonce()->form() . '</p>' .
+            dotclear()->adminurl()->get('admin.user.actions', ['action' => 'updateperm'], true) .  '</p>' .
                 '</div>' .
                 '</form>';
         }

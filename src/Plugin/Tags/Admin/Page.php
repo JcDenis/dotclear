@@ -178,21 +178,19 @@ class Page extends AbstractPage
                     echo
                     '<div class="tag-actions vertical-separator">' .
                     '<h3>' . html::escapeHTML($this->t_tag) . '</h3>' .
-                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Tags', ['tag' => $this->t_tag]) . '" method="post" id="tag_rename">' .
+                    '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="tag_rename">' .
                     '<p><label for="new_tag_id" class="classic">' . __('Rename') . '</label> ' .
                     form::field('new_tag_id', 20, 255, html::escapeHTML($this->t_tag)) .
                     '<input type="submit" value="' . __('OK') . '" />' .
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-                    Form::hidden(['handler'], 'admin.plugin.Tags') .
-                    dotclear()->nonce()->form() .
+                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
                         '</p></form>';
                     # Remove tag
                     if (!$this->t_posts->isEmpty() && dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {    // @phpstan-ignore-line
                         echo
-                        '<form id="tag_delete" action="' . dotclear()->adminurl()->get('admin.plugin.Tags', ['tag' => $this->t_tag]) . '" method="post">' .
+                        '<form id="tag_delete" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                         '<p><input type="submit" class="delete" name="delete" value="' . __('Delete this tag') . '" />' .
-                        Form::hidden(['handler'], 'admin.plugin.Tags') .
-                        dotclear()->nonce()->form() .
+                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
                             '</p></form>';
                     }
                     echo '</div>';
@@ -203,7 +201,7 @@ class Page extends AbstractPage
                 $this->t_post_list->display(
                     $this->t_page,
                     $this->t_nb_per_page,
-                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Tags') . '" method="post" id="form-entries">' .
+                    '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                     '%s' .
 
@@ -213,10 +211,7 @@ class Page extends AbstractPage
                     '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                     form::combo('action', $this->t_posts_actions_page->getCombo()) .
                     '<input id="do-action" type="submit" value="' . __('OK') . '" /></p>' .
-                    form::hidden('post_type', '') .
-                    form::hidden('tag', $this->t_tag) .
-                    Form::hidden(['handler'], 'admin.plugin.Tags') .
-                    dotclear()->nonce()->form() .
+                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['post_type' => '', 'tag' => $this->t_tag], true) .
                     '</div>' .
                     '</form>'
                 );

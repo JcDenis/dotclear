@@ -100,7 +100,7 @@ class Blogs extends Page
         # Show blogs
         $this->catalog->display($this->filter->page, $this->filter->nb,
             (dotclear()->user()->isSuperAdmin() ?
-                '<form action="' . dotclear()->adminurl()->get('admin.blogs') . '" method="post" id="form-blogs">' : '') .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 
             '%s' .
 
@@ -111,14 +111,13 @@ class Blogs extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected blogs action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo(),
                     ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']) .
-                dotclear()->nonce()->form() .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
 
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                dotclear()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(true)) .
+                dotclear()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(true), true) .
                 '</form>' : ''),
             $this->filter->show()
         );

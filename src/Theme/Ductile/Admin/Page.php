@@ -320,7 +320,7 @@ class Page extends AbstractPage
         echo '<div class="multi-part" id="themes-list-html" title="' . __('Content') . '">' .
         '<h3>' . __('Content') . '</h3>';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Ductile') . '#themes-list-html' .
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '#themes-list-html' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h4>' . __('Header') . '</h4>' .
@@ -405,7 +405,8 @@ class Page extends AbstractPage
         Form::checkbox('preview_not_mandatory', 1, $this->Ductile_user['preview_not_mandatory']) . '</p>';
 
         echo '<p><input type="hidden" name="conf_tab" value="html" /></p>';
-        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' . dotclear()->nonce()->form() . '</p>';
+        echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab
@@ -414,7 +415,7 @@ class Page extends AbstractPage
 
         echo '<div class="multi-part" id="themes-list-css' . '" title="' . __('Presentation') . '">';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->get('admin.plugin.Ductile') . '#themes-list-css' .
+        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '#themes-list-css' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h3>' . __('General settings') . '</h3>';
@@ -558,7 +559,8 @@ class Page extends AbstractPage
         echo '</div>';
 
         echo '<p><input type="hidden" name="conf_tab" value="css" /></p>';
-        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' . dotclear()->nonce()->form() . '</p>';
+        echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab

@@ -232,7 +232,7 @@ class Page extends AbstractPage
     {
         # All widgets
         echo
-        '<form id="listWidgets" action="' . dotclear()->adminurl()->get('admin.plugin.Widgets') . '" method="post"  class="widgets">' .
+        '<form id="listWidgets" action="' . dotclear()->adminurl()->root() . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
@@ -258,11 +258,11 @@ class Page extends AbstractPage
 
         echo
         '</ul>' .
-        '<p>' . dotclear()->nonce()->form() . '</p>' .
-        '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" /></p>' .
+        '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" />' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) . '</p>' .
             '</form>';
 
-        echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl()->get('admin.plugin.Widgets') . '" method="post">';
+        echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl()->root() . '" method="post">';
         # Nav sidebar
         echo
         '<div id="sidebarNav" class="widgets fieldset">' .
@@ -283,10 +283,10 @@ class Page extends AbstractPage
 
         echo
         '<p id="sidebarsControl">' .
-        dotclear()->nonce()->form() .
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) .
         '</p>' .
         '</form>';
     }

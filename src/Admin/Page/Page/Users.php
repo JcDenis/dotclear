@@ -122,7 +122,7 @@ class Users extends Page
         $this->catalog->display(
             $this->filter->page,
             $this->filter->nb,
-            '<form action="' . dotclear()->adminurl()->get('admin.users') . '" method="post" id="form-users">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-users">' .
 
             '%s' .
 
@@ -134,10 +134,9 @@ class Users extends Page
             Form::combo('action', $combo_action) .
             '</label> ' .
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
-            dotclear()->nonce()->form() .
             '</p>' .
             '</div>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(true)) .
+            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(true), true) .
             '</form>',
             $this->filter->show()
         );

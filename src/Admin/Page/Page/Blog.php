@@ -100,9 +100,8 @@ class Blog extends Page
     protected function getPageContent(): void
     {
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.blog') . '" method="post" id="blog-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="blog-form">' .
 
-        '<div>' . dotclear()->nonce()->form() . '</div>' .
         '<p><label class="required" for="blog_id"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label> ' .
         Form::field('blog_id', 30, 32,
             [
@@ -140,6 +139,7 @@ class Blog extends Page
 
         '<p><input type="submit" accesskey="s" name="create" value="' . __('Create') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.blog', [], true) .
         '</p>' .
         '</form>';
     }

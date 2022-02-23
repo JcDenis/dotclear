@@ -81,7 +81,7 @@ class Page extends AbstractPage
     protected function getPageContent(): void
     {
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.plugin.Pings') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
         '<p><label for="pings_active" class="classic">' . Form::checkbox('pings_active', 1, dotclear()->blog()->settings()->pings->pings_active) .
         __('Activate pings extension') . '</label></p>';
 
@@ -121,8 +121,7 @@ class Page extends AbstractPage
 
         '<p><input type="submit" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->nonce()->form() .
-        Form::hidden(['handler'], 'admin.plugin.Pings') . '</p>' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Pings', [], true) . '</p>' .
             '</form>';
 
         echo '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.plugin.Pings', ['test' => 1]) . '">' . __('Test ping services') . '</a></p>';

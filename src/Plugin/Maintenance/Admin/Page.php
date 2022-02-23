@@ -215,10 +215,7 @@ class Page extends AbstractPage
             $res .
             '<p class="step-submit">' .
             '<input type="submit" value="' . $this->m_task->task() . '" /> ' .
-            Form::hidden(['task'], $this->m_task->id()) .
-            Form::hidden(['code'], (int) $this->m_code) .
-            Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'code' => (int) $this->m_code], true) .
                 '</p>' .
                 '</form>' .
                 '</div>';
@@ -272,13 +269,11 @@ class Page extends AbstractPage
                     '<div id="' . $this->m_tab_obj->id() . '" class="multi-part" title="' . $this->m_tab_obj->name() . '">' .
                     '<h3>' . $this->m_tab_obj->name() . '</h3>' .
                     // ($this->m_tab_obj->option('summary') ? '<p>'.$this->m_tab_obj->option('summary').'</p>' : '').
-                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
+                    '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                     $res_group .
                     '<p><input type="submit" value="' . __('Execute task') . '" /> ' .
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-                    Form::hidden(['tab'], $this->m_tab_obj->id()) .
-                    Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                    dotclear()->nonce()->form() . '</p>' .
+                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => $this->m_tab_obj->id()], true) . '</p>' .
                     '<p class="form-note info">' . __('This may take a very long time.') . '</p>' .
                         '</form>' .
                         '</div>';
@@ -294,14 +289,11 @@ class Page extends AbstractPage
                 echo
                 '<div id="' . $t->id() . '" class="multi-part" title="' . $t->name() . '">' .
                 '<h3>' . $t->name() . '</h3>' .
-                '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 $t->content() .
                 '<p><input type="submit" value="' . __('Execute task') . '" /> ' .
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-                Form::hidden(['task'], $t->id()) .
-                Form::hidden(['tab'], $t->id()) .
-                Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                dotclear()->nonce()->form() . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => $t->id(), 'task' => $t->id()], true) . '</p>' .
                     '</form>' .
                     '</div>';
             }
@@ -310,7 +302,7 @@ class Page extends AbstractPage
             echo
             '<div id="settings" class="multi-part" title="' . __('Alert settings') . '">' .
             '<h3>' . __('Alert settings') . '</h3>' .
-            '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
 
             '<h4 class="pretty-title">' . __('Activation') . '</h4>' .
             '<p><label for="settings_plugin_message" class="classic">' .
@@ -353,10 +345,7 @@ class Page extends AbstractPage
             echo
             '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-            Form::hidden(['tab'], 'settings') .
-            Form::hidden(['save_settings'], 1) .
-            Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-            dotclear()->nonce()->form() . '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => 'settings', 'save_settings' => 1], true) . '</p>' .
                 '</form>' .
                 '</div>';
 
@@ -365,7 +354,7 @@ class Page extends AbstractPage
                 echo
                 '<div id="system" class="multi-part" title="' . __('System') . '">' .
                 '<h3>' . __('System settings') . '</h3>' .
-                    '<form action="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '" method="post">';
+                    '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
 
                 echo
                 '<div class="fieldset two-cols clearfix">' .
@@ -396,10 +385,7 @@ class Page extends AbstractPage
                 echo
                 '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-                Form::hidden(['tab'], 'system') .
-                Form::hidden(['save_system'], 1) .
-                Form::hidden(['handler'], 'admin.plugin.Maintenance') .
-                dotclear()->nonce()->form() . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => 'system', 'save_system' => 1], true) . '</p>' .
                     '</form>' .
                     '</div>';
             }

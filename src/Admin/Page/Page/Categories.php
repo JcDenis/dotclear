@@ -170,7 +170,7 @@ class Categories extends Page
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
             echo
-            '<form action="' . dotclear()->adminurl()->get('admin.categories') . '" method="post" id="form-categories">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
             $ref_level = $level = $this->caregories->level - 1;
@@ -243,7 +243,7 @@ class Categories extends Page
 
             echo
             '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            dotclear()->nonce()->form() . '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.categories', [], true) . '</p>' .
                 '</div></form>';
         }
 

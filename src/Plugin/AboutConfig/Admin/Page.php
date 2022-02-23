@@ -156,12 +156,13 @@ class Page extends AbstractPage
     private function settingMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.plugin.AboutConfig') . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'s_submit" />' .
-        dotclear()->nonce()->form() . '</p></form>';
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) .
+        '</p></form>';
     }
 
     private function settingTable(array $prefs, bool $global): void
@@ -178,7 +179,7 @@ class Page extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl()->get('admin.plugin.AboutConfig') . '" method="post">';
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -192,7 +193,7 @@ class Page extends AbstractPage
         echo
         '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->nonce()->form() . '</p>' .
+        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) . '</p>' .
         '</form>';
     }
 

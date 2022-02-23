@@ -225,7 +225,7 @@ class Comment extends Page
         }
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.comment') . '" method="post" id="comment-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
@@ -275,7 +275,7 @@ class Comment extends Page
         '</p>' .
 
         '<p>' . Form::hidden('id', $this->comment_id) .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 

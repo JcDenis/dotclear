@@ -302,13 +302,12 @@ class Media extends Page
     {
         if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
             echo
-            '<form action="' . Html::escapeURL(dotclear()->adminurl()->get('admin.media')) . '" method="post">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<p>' . sprintf(__('Are you sure you want to remove %s?'),
                 Html::escapeHTML($_GET['remove'])) . '</p>' .
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values()) .
-            dotclear()->nonce()->form() .
+            dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
             form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
             '</form>';
 
@@ -430,11 +429,10 @@ class Media extends Page
             '</span></p>', false
         ));
 
-        $fmt_form_media = '<form action="' . dotclear()->adminurl()->get('admin.media') . '" method="post" id="form-medias">' .
+        $fmt_form_media = '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-medias">' .
         '<div class="files-group">%s</div>' .
         '<p class="hidden">' .
-        dotclear()->nonce()->form() .
-        dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values()) .
+        dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
         '</p>';
 
         if (!$this->filter->popup || $this->filter->select > 1) {
@@ -480,14 +478,13 @@ class Media extends Page
             # Create directory
             if ($this->mediaWritable()) {
                 echo
-                '<form action="' . Html::escapeURL(dotclear()->adminurl()->get('admin.media', $this->filter->values(), '&')) . '" method="post" class="fieldset">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<div id="new-dir-f">' .
                 '<h4 class="pretty-title">' . __('Create new directory') . '</h4>' .
-                dotclear()->nonce()->form() .
                 '<p><label for="newdir">' . __('Directory Name:') . '</label>' .
                 form::field('newdir', 35, 255) . '</p>' .
                 '<p><input type="submit" value="' . __('Create') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values()) .
+                dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
                     '</p>' .
                     '</div>' .
                     '</form>';
@@ -521,7 +518,7 @@ class Media extends Page
             echo
             '<h4>' . __('Add files') . '</h4>' .
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
-            '<form id="fileupload" action="' . Html::escapeURL(dotclear()->adminurl()->get('admin.media', $this->filter->values(), '&')) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
+            '<form id="fileupload" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
             '<p>' . form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
             dotclear()->nonce()->form() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>';
@@ -556,7 +553,7 @@ class Media extends Page
 
             echo
             '<p style="clear:both;">' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values()) .
+            dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
                 '</p>' .
                 '</form>' .
                 '</div>' .
@@ -565,10 +562,10 @@ class Media extends Page
 
         # Empty remove form (for javascript actions)
         echo
-        '<form id="media-remove-hide" action="' . Html::escapeURL(dotclear()->adminurl()->get('admin.media', $this->filter->values())) . '" method="post" class="hidden">' .
+        '<form id="media-remove-hide" action="' . dotclear()->adminurl()->root() . '" method="post" class="hidden">' .
         '<div>' .
         form::hidden('rmyes', 1) .
-        dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values()) .
+        dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
         form::hidden('remove', '') .
         dotclear()->nonce()->form() .
             '</div>' .

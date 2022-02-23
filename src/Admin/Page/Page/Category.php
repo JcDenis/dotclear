@@ -212,12 +212,12 @@ class Category extends Page
         }
 
         echo
-        '<form action="' . dotclear()->adminurl()->get('admin.category') . '" method="post" id="category-form">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="category-form">' .
         '<h3>' . __('Category information') . '</h3>' .
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog->settings()->system->lang. '" spellcheck="true"'
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog()->settings()->system->lang . '" spellcheck="true"'
         ]) .
             '</p>';
         if (!$this->cat_id) {
@@ -247,14 +247,14 @@ class Category extends Page
         Form::textarea('cat_desc', 50, 8,
             [
                 'default'    => Html::escapeHTML($this->cat_desc),
-                'extra_html' => 'lang="' . $blog_lang . '" spellcheck="true"'
+                'extra_html' => 'lang="' . dotclear()->blog()->settings()->system->lang  . '" spellcheck="true"'
             ]) .
         '</p>' .
 
         '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         ($this->cat_id ? Form::hidden('id', $this->cat_id) : '') .
-        dotclear()->nonce()->form() .
+        dotclear()->adminurl()->getHiddenFormFields('admin.category', [], true) .
             '</p>' .
             '</form>';
 
@@ -264,26 +264,26 @@ class Category extends Page
             '<div class="two-cols">' .
             '<div class="col">' .
 
-            '<form action="' . dotclear()->adminurl()->get('admin.category') . '" method="post" class="fieldset">' .
+            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
             '<h4>' . __('Category parent') . '</h4>' .
             '<p><label for="cat_parent" class="classic">' . __('Parent:') . '</label> ' .
             Form::combo('cat_parent', $this->allowed_parents, (string) $this->cat_parent) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            Form::hidden(['id'], $this->cat_id) . dotclear()->nonce()->form() . '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                 '</form>' .
                 '</div>';
 
             if (count($this->siblings) > 0) {
                 echo
                 '<div class="col">' .
-                '<form action="' . dotclear()->adminurl()->get('admin.category') . '" method="post" class="fieldset">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<h4>' . __('Category sibling') . '</h4>' .
                 '<p><label class="classic" for="cat_sibling">' . __('Move current category') . '</label> ' .
                 Form::combo('cat_move', [__('before') => 'before', __('after') => 'after'],
                     ['extra_html' => 'title="' . __('position: ') . '"']) . ' ' .
                 Form::combo('cat_sibling', $this->siblings) . '</p>' .
                 '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-                Form::hidden(['id'], $this->cat_id) . dotclear()->nonce()->form() . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                     '</form>' .
                     '</div>';
             }

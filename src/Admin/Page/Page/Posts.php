@@ -102,7 +102,7 @@ class Posts extends Page
 
             # Show posts
             $this->catalog->display($this->filter->page, $this->filter->nb,
-                '<form action="' . dotclear()->adminurl()->get('admin.posts') . '" method="post" id="form-entries">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .
 
@@ -112,8 +112,7 @@ class Posts extends Page
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->values()) .
-                dotclear()->nonce()->form() .
+                dotclear()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->values(), true) .
                 '</div>' .
                 '</form>',
                 $this->filter->show()
