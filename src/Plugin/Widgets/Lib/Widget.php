@@ -27,7 +27,7 @@ class Widget
     private $desc;
     private $public_callback = null;
     public $append_callback  = null;
-    private $settings        = [];
+    protected $settings      = [];
 
     public function serialize($order)
     {

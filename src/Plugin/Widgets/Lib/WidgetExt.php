@@ -65,4 +65,9 @@ class WidgetExt extends Widget
     {
         return $this->setting('offline', __('Offline'), $offline, 'check');
     }
+
+    public function isOffline()
+    {
+        return $this->settings['offline']['value'] ?? false;
+    }
 }
