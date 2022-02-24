@@ -31,7 +31,7 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (!dotclear()->blog()->settings()->system->theme == 'Ductile') {
+        if (dotclear()->blog()->settings()->system->theme != 'Ductile') {
             return;
         }
 
