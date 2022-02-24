@@ -26,7 +26,7 @@ if (!function_exists('dotclear_run')) {
         }
 
         # Third party autoload (PSR-4 compliant)
-        $file = dirname(__DIR__) . '/vendor/autoload.php';
+        $file = __DIR__ . '/../vendor/autoload.php';
         if (file_exists($file)) {
             require $file;
         # Dotclear autoload

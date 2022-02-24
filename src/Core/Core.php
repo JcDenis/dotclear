@@ -875,6 +875,15 @@ class Core
         }
     }
 
+    /**
+     * Default Dotclear configuration
+     *
+     * This configuration must be completed by the config.php file.
+     *
+     * @see     Dotclear\Utils\Configuration
+     *
+     * @return  array   Initial configuation
+     */
     private static function getDefaultConfig(): array
     {
         return [
