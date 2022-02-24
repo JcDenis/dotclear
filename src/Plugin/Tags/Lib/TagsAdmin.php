@@ -77,7 +77,7 @@ class TagsAdmin
         $extraPlugins[] = [
             'name'   => 'dctags',
             'button' => 'dcTags',
-            'url'    => dotclear()->config()->admin_url . '?handler=Tags/files/js/ckeditor-tags-plugin.js',
+            'url'    => dotclear()->config()->admin_url . '?mf=Plugin/Tags/files/js/ckeditor-tags-plugin.js',
         ];
     }
 
@@ -345,7 +345,7 @@ class TagsAdmin
         Utils::cssLoad('?mf=Plugin/Tags/files/style.css');
     }
 
-    public static function adminUserForm($args)
+    public static function adminUserForm($args = null)
     {
         if ($args === null) {
             $opts = dotclear()->user()->getOptions();

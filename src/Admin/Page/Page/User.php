@@ -368,7 +368,7 @@ class User extends Page
             '</p>';
 
         # --BEHAVIOR-- adminUserForm
-        dotclear()->behavior()->call('adminUserForm', $rs ?? null);
+        dotclear()->behavior()->call('adminUserForm', $_REQUEST['id'] ? dotclear()->users()->getUser() : null);
 
         echo
             '</div>' .

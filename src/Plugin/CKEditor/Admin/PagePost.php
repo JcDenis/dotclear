@@ -1,28 +1,50 @@
 <?php
 /**
- * @brief dcCKEditor, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\CKEditor\Admin\PagePost
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!defined('DC_CONTEXT_ADMIN')) {
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\CKEditor\Admin;
+
+use ArrayObject;
+
+use Dotclear\Module\AbstractPage;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-header('Content-type: text/javascript');
+class PagePost extends AbstractPage
+{
+    protected $namespaces = ['dcckeditor'];
 
-if (!empty($_GET['context'])) {
-    $context = $_GET['context'];
-} else {
-    $context = '';
-}
+    protected function getPermissions(): string|null|false
+    {
+        return 'admin';
+    }
 
-$__extraPlugins = new ArrayObject();
-$core->callBehavior('ckeditorExtraPlugins', $__extraPlugins, $context);
-$extraPlugins = $__extraPlugins->getArrayCopy();
+    protected function getPagePrepend(): ?bool
+    {
+        $s = dotclear()->blog()->settings()->dcckeditor;
+
+        header('Content-type: text/javascript');
+
+        if (!empty($_GET['context'])) {
+            $context = $_GET['context'];
+        } else {
+            $context = '';
+        }
+
+        $__extraPlugins = new ArrayObject();
+        dotclear()->behavior()->call('ckeditorExtraPlugins', $__extraPlugins, $context);
+        $extraPlugins = $__extraPlugins->getArrayCopy();
 
 ?>
 
@@ -84,7 +106,7 @@ $(function() {
 
     CKEDITOR.timestamp = '';
 
-<?php if (!isset($dcckeditor_disable_native_spellchecker) || $dcckeditor_disable_native_spellchecker): ?>
+<?php if ($s->disable_native_spellchecker): ?>
     CKEDITOR.config.disableNativeSpellChecker = true;
 <?php else: ?>
     CKEDITOR.config.disableNativeSpellChecker = false;
@@ -92,9 +114,9 @@ $(function() {
 
     CKEDITOR.config.skin = 'dotclear,'+dotclear.dcckeditor_plugin_url+'/js/ckeditor-skins/dotclear/';
     CKEDITOR.config.baseHref = dotclear.base_url;
-    CKEDITOR.config.height = '<?php echo $core->auth->getOption('edit_size') * 14; ?>px';
+    CKEDITOR.config.height = '<?php echo dotclear()->user()->getOption('edit_size') * 14; ?>px';
 
-<?php if (!empty($dcckeditor_cancollapse_button)): ?>
+<?php if (!empty($s->cancollapse_button)): ?>
     CKEDITOR.config.toolbarCanCollapse = true;
 <?php endif;?>
 
@@ -103,13 +125,13 @@ $(function() {
     CKEDITOR.plugins.addExternal('media',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/media/');
     CKEDITOR.plugins.addExternal('img',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/img/');
 
-<?php if (!empty($dcckeditor_textcolor_button) || !empty($dcckeditor_background_textcolor_button)): ?>
+<?php if (!empty($s->textcolor_button) || !empty($s->background_textcolor_button)): ?>
     // button add "More Colors..." can be added if colordialog plugin is enabled
     CKEDITOR.config.colorButton_enableMore = true;
-    <?php if (!empty($dcckeditor_custom_color_list)) : ?>
-        CKEDITOR.config.colorButton_colors = '<?php echo $dcckeditor_custom_color_list; ?>';
+    <?php if (!empty($s->custom_color_list)) : ?>
+        CKEDITOR.config.colorButton_colors = '<?php echo $s->custom_color_list; ?>';
     <?php endif;?>
-    CKEDITOR.config.colorButton_colorsPerRow = <?php echo($dcckeditor_colors_per_row ?: 6); /* @phpstan-ignore-line */ ?>;
+    CKEDITOR.config.colorButton_colorsPerRow = <?php echo($s->colors_per_row ?: 6); /* @phpstan-ignore-line */ ?>;
 <?php endif;?>
 
     CKEDITOR.config.defaultLanguage = dotclear.user_language;
@@ -145,11 +167,11 @@ if (!empty($extraPlugins)) {
                 dotclear.msg.img_select_accesskey.toUpperCase().charCodeAt(0),'mediaCommand' ],    // Ctrl+Alt+m
         ],
 
-<?php if (!empty($dcckeditor_format_select)): ?>
+<?php if (!empty($s->format_select)): ?>
         // format tags
 
-    <?php if (!empty($dcckeditor_format_tags)): ?>
-        format_tags: '<?php echo $dcckeditor_format_tags; ?>',
+    <?php if (!empty($s->format_tags)): ?>
+        format_tags: '<?php echo $s->format_tags; ?>',
     <?php else: ?>
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address',
     <?php endif;?>
@@ -174,13 +196,13 @@ if (!empty($extraPlugins)) {
                 name: 'basicstyles',
                 items: [
 
-<?php if (!empty($dcckeditor_format_select)): ?>
+<?php if (!empty($s->format_select)): ?>
                     'Format',
 <?php endif;?>
 
                     'Bold','Italic','Underline','Strike','Subscript','Superscript','Code','Blockquote',
 
-<?php if (!empty($dcckeditor_list_buttons)): ?>
+<?php if (!empty($s->list_buttons)): ?>
                     'NumberedList','BulletedList',
 <?php endif;?>
 
@@ -188,28 +210,28 @@ if (!empty($extraPlugins)) {
                 ]
             },
 
-<?php if (!empty($dcckeditor_clipboard_buttons)): ?>
+<?php if (!empty($s->clipboard_buttons)): ?>
             {
                 name: 'clipoard',
                 items: ['Cut','Copy','Paste','PasteText','PasteFromWord']
             },
 <?php endif;?>
 
-<?php if (!empty($dcckeditor_action_buttons)): ?>
+<?php if (!empty($s->action_buttons)): ?>
             {
                 name: 'action',
                 items: ['Undo','Redo']
             },
 <?php endif;?>
 
-<?php if (!empty($dcckeditor_alignment_buttons)): ?>
+<?php if (!empty($s->alignment_buttons)): ?>
             {
                 name: 'paragraph',
                 items: ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']
             },
 <?php endif;?>
 
-<?php if (!empty($dcckeditor_table_button)): ?>
+<?php if (!empty($s->table_button)): ?>
             {
                 name: 'table',
                 items: ['Table']
@@ -222,11 +244,11 @@ if (!empty($extraPlugins)) {
                     'EntryLink','dcLink','Media','img','Footnotes','-',
                     'Source'
 
-<?php if (!empty($dcckeditor_textcolor_button)): ?>
+<?php if (!empty($s->textcolor_button)): ?>
                     ,'TextColor'
 <?php endif;?>
 
-<?php if (!empty($dcckeditor_background_textcolor_button)): ?>
+<?php if (!empty($s->background_textcolor_button)): ?>
                     ,'BGColor'
 <?php endif;?>
                 ]
@@ -251,7 +273,7 @@ if (!empty($extraPlugins)) {
         ],
 
 <?php // footnotes related
-    switch ($core->blog->settings->system->note_title_tag) {
+    switch (dotclear()->blog()->settings()->system->note_title_tag) {
         case 1:
             $tag = 'h3';
 
@@ -322,3 +344,7 @@ if (!empty($extraPlugins)) {
         });
     }
 });
+<?php
+        exit();
+    }
+}

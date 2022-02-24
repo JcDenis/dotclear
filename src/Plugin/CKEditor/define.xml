@@ -1,28 +1,15 @@
-<?php
-/**
- * @brief dcCKEditor, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugins
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-
-$this->registerModule(
-    'dcCKEditor',                    // Name
-    'dotclear CKEditor integration', // Description
-    'dotclear Team',                 // Author
-    '1.2',                           // Version
-    [
-        'permissions' => 'usage,contentadmin',
-        'type'        => 'plugin',
-        'settings'    => [
-            'self' => '',
-            'pref' => '#user-options.user_options_edition',
-        ],
-    ]
-);
+<module id="CKEditor">
+  <name>CKEditor</name>
+  <description>dotclear CKEditor integration</description>
+  <version>1.3-dev</version>
+  <author>dotclear Team</author>
+  <type>Plugin</type>
+  <permissions>usage,contentadmin</permissions>
+  <settings>
+    <pref>#user-options.user_options_edition</pref>
+  </settings>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>

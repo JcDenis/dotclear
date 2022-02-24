@@ -1,17 +1,26 @@
 <?php
 /**
- * @brief dcCKEditor, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\CKEditor\Admin\Behavior
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-class dcCKEditorBehaviors
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\CKEditor\Admin;
+
+use ArrayObject;
+
+use Dotclear\Core\Utils;
+use Dotclear\Html\Html;
+
+class Behavior
 {
-    protected static $p_url      = 'index.php?pf=dcCKEditor';
-    protected static $config_url = 'plugin.php?p=dcCKEditor&config=1';
+    protected static $config_url = '?handler=admin.plugin.CKEditorPost';
 
     /**
      * adminPostEditor add javascript to the DOM to load ckeditor depending on context
@@ -25,7 +34,7 @@ class dcCKEditorBehaviors
      */
     public static function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = 'xhtml')
     {
-        if (empty($editor) || $editor != 'dcCKEditor' || $syntax != 'xhtml') {
+        if (empty($editor) || $editor != 'CKEditor' || $syntax != 'xhtml') {
             return;
         }
 
@@ -34,18 +43,18 @@ class dcCKEditorBehaviors
             $config_js .= '&context=' . $context;
         }
 
-        $res = dcPage::jsJson('ck_editor_ctx', [
+        $res = Utils::jsJson('ck_editor_ctx', [
             'ckeditor_context'      => $context,
             'ckeditor_tags_context' => [$context => $tags],
-            'admin_base_url'        => DC_ADMIN_URL,
-            'base_url'              => $GLOBALS['core']->blog->host,
-            'dcckeditor_plugin_url' => DC_ADMIN_URL . self::$p_url,
-            'user_language'         => $GLOBALS['core']->auth->getInfo('user_lang'),
+            'admin_base_url'        => dotclear()->config()->admin_url .'?mf=Plugin/CKEditor/files/',
+            'base_url'              => dotclear()->blog()->host,
+            'dcckeditor_plugin_url' => dotclear()->config()->admin_url .'?mf=Plugin/CKEditor/files/',
+            'user_language'         => dotclear()->user()->getInfo('user_lang'),
         ]) .
-        dcPage::jsJson('ck_editor_var', [
-            'CKEDITOR_BASEPATH' => DC_ADMIN_URL . self::$p_url . '/js/ckeditor/',
+        Utils::jsJson('ck_editor_var', [
+            'CKEDITOR_BASEPATH' => dotclear()->config()->admin_url .'?mf=Plugin/CKEditor/files/js/ckeditor/',
         ]) .
-        dcPage::jsJson('ck_editor_msg', [
+        Utils::jsJson('ck_editor_msg', [
             'img_select_title'     => __('Media chooser'),
             'img_select_accesskey' => __('m'),
             'post_link_title'      => __('Link to an entry'),
@@ -54,10 +63,10 @@ class dcCKEditorBehaviors
             'img_title'            => __('External image'),
             'url_cannot_be_empty'  => __('URL field cannot be empty.'),
         ]) .
-        dcPage::jsLoad(self::$p_url . '/js/_post_editor.js') .
-        dcPage::jsLoad(self::$p_url . '/js/ckeditor/ckeditor.js') .
-        dcPage::jsLoad(self::$p_url . '/js/ckeditor/adapters/jquery.js') .
-        dcPage::jsLoad($config_js);
+        Utils::jsLoad('?mf=Plugin/CKEditor/files/js/_post_editor.js') .
+        Utils::jsLoad('?mf=Plugin/CKEditor/files/js/ckeditor/ckeditor.js') .
+        Utils::jsLoad('?mf=Plugin/CKEditor/files/js/ckeditor/adapters/jquery.js') .
+        Utils::jsLoad($config_js);
 
         return $res;
     }
@@ -68,7 +77,7 @@ class dcCKEditorBehaviors
             return;
         }
 
-        return dcPage::jsLoad(self::$p_url . '/js/popup_media.js');
+        return Utils::jsLoad('?mf=Plugin/CKEditor/files/js/popup_media.js');
     }
 
     public static function adminPopupLink($editor = '')
@@ -77,7 +86,7 @@ class dcCKEditorBehaviors
             return;
         }
 
-        return dcPage::jsLoad(self::$p_url . '/js/popup_link.js');
+        return Utils::jsLoad('?mf=Plugin/CKEditor/files/js/popup_link.js');
     }
 
     public static function adminPopupPosts($editor = '')
@@ -86,13 +95,13 @@ class dcCKEditorBehaviors
             return;
         }
 
-        return dcPage::jsLoad(self::$p_url . '/js/popup_posts.js');
+        return Utils::jsLoad('?mf=Plugin/CKEditor/files/js/popup_posts.js');
     }
 
     public static function adminMediaURLParams($p)
     {
         if (!empty($_GET['editor'])) {
-            $p['editor'] = html::sanitizeURL($_GET['editor']);
+            $p['editor'] = Html::sanitizeURL($_GET['editor']);
         }
     }
 
