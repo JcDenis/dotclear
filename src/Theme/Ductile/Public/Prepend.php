@@ -304,8 +304,7 @@ class Prepend extends AbstractPrepend
             "</style>\n";
 
         echo
-        '<script src="' .
-        dotclear()->blog()->url . 'files/js/ductile.js"></script>' . "\n";
+        '<script src="?files/js/ductile.js"></script>' . "\n";
 
         echo self::ductileWebfontHelper();
     }
