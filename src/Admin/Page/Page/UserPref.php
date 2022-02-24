@@ -989,7 +989,7 @@ class UserPref extends Page
             '</form>';
 
         # Dashboard items order (reset)
-        echo '<form action="' . dotclear()->adminurl()->root(. '" method="post" id="order-reset" class="two-boxes even">';
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="order-reset" class="two-boxes even">';
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
         echo
         '<p>' .
