@@ -13,6 +13,8 @@ if (!defined('DC_CONTEXT_ADMIN')) {
 }
 dcPage::check('pages,contentadmin');
 
+dt::setTZ($core->auth->getInfo('user_tz'));
+
 $redir_url = $p_url . '&act=page';
 
 $post_id            = '';
@@ -144,7 +146,7 @@ if (!empty($_REQUEST['id'])) {
 
         try {
             $core->media = new dcMedia($core);
-            $post_media  = $core->media()->getPostMedia($post_id);
+            $post_media  = $core->media->getPostMedia($post_id);
         } catch (Exception $e) {
             $core->error->add($e->getMessage());
         }
@@ -243,6 +245,9 @@ if (!empty($_POST) && !empty($_POST['save']) && $can_edit_page && !$bad_dt) {
         $cur->post_url = $post_url;
     }
 
+    // Back to UTC in order to keep UTC datetime for creadt/upddt
+    dt::setTZ('UTC');
+
     # Update post
     if ($post_id) {
         try {
@@ -330,7 +335,7 @@ if ($post_editor) {
 dcPage::jsModal() .
 dcPage::jsJson('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
 dcPage::jsLoad('js/_post.js') .
-dcPage::jsLoad(dcPage::getPF('pages/js/page.js')) .
+dcPage::jsModuleLoad('pages/js/page.js') .
 $admin_post_behavior .
 dcPage::jsConfirmClose('entry-form', 'comment-form') .
 # --BEHAVIOR-- adminPageHeaders
@@ -587,8 +592,18 @@ if ($can_edit_page) {
             http::browserUID(DC_MASTER_KEY . $core->auth->userID() . $core->auth->cryptLegacy($core->auth->userID())) .
             '/' . $post->post_url
         );
-        echo '<a id="post-preview" href="' . $preview_url . '" class="button" accesskey="p">' . __('Preview') . ' (p)' . '</a>' .
-            ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
+
+        // Prevent browser caching on preview
+        $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
+
+        $core->auth->user_prefs->addWorkspace('interface');
+        $blank_preview = $core->auth->user_prefs->interface->blank_preview;
+
+        $preview_class  = $blank_preview ? '' : ' modal';
+        $preview_target = $blank_preview ? '' : ' target="_blank"';
+
+        echo '<a id="post-preview" href="' . $preview_url . '" class="button' . $preview_class . '" accesskey="p"' . $preview_target . '>' . __('Preview') . ' (p)' . '</a>';
+        echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
     } else {
         echo
         '<a id="post-cancel" href="' . $core->adminurl->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';

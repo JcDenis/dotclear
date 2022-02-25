@@ -16,14 +16,14 @@ dcPage::check('pages,contentadmin');
 /* Getting pages
 -------------------------------------------------------- */
 $params = [
-    'post_type' => 'page'
+    'post_type' => 'page',
 ];
 
-$page        = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
+$page        = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
 $nb_per_page = adminUserPref::getUserFilters('pages', 'nb');
 
-if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
-    $nb_per_page = (integer) $_GET['nb'];
+if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
+    $nb_per_page = (int) $_GET['nb'];
 }
 
 $params['limit']      = [(($page - 1) * $nb_per_page), $nb_per_page];
@@ -59,17 +59,18 @@ echo
     dcPage::jsLoad('js/jquery/jquery-ui.custom.js') .
     dcPage::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
     dcPage::jsJson('pages_list', ['confirm_delete_posts' => __('Are you sure you want to delete selected pages?')]) .
-    dcPage::jsLoad(dcPage::getPF('pages/js/list.js'))
+    dcPage::jsModuleLoad('pages/js/list.js')
   ?>
 </head>
 
 <body>
 <?php
 echo dcPage::breadcrumb(
-        [
-            html::escapeHTML($core->blog->name) => '',
-            __('Pages')                         => ''
-        ]) . dcPage::notices();
+      [
+          html::escapeHTML($core->blog->name) => '',
+          __('Pages')                         => '',
+      ]
+  ) . dcPage::notices();
 
     if (!empty($_GET['upd'])) {
         dcPage::success(__('Selected pages have been successfully updated.'));
@@ -83,7 +84,9 @@ echo dcPage::breadcrumb(
 
     if (!$core->error->flag()) {
         # Show pages
-        $post_list->display($page, $nb_per_page,
+        $post_list->display(
+            $page,
+            $nb_per_page,
             '<form action="' . $core->adminurl->get('admin.plugin') . '" method="post" id="form-entries">' .
 
             '%s' .
@@ -104,7 +107,8 @@ echo dcPage::breadcrumb(
             '<p class="clear form-note hidden-if-no-js">' .
             __('To rearrange pages order, move items by drag and drop, then click on “Save pages order” button.') . '</p>' .
             '<p><input type="submit" value="' . __('Save pages order') . '" name="reorder" class="clear" /></p>' .
-            '</form>');
+            '</form>'
+        );
     }
     dcPage::helpBlock('pages'); ?>
 </body>

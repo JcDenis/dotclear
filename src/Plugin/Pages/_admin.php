@@ -12,59 +12,53 @@ if (!defined('DC_CONTEXT_ADMIN')) {
     return;
 }
 
-$core->addBehavior('adminColumnsLists', ['pagesUserPref', 'adminColumnsLists']);
-$core->addBehavior('adminFiltersLists', ['pagesUserPref', 'adminFiltersLists']);
-$core->addBehavior('adminDashboardFavorites', ['pagesDashboard', 'pagesDashboardFavs']);
-$core->addBehavior('adminUsersActionsHeaders', 'pages_users_actions_headers');
+$core->addBehavior('adminColumnsLists', function ($core, $cols) {
+    // Set optional columns in pages lists
+    $cols['pages'] = [__('Pages'), [
+        'date'       => [true, __('Date')],
+        'author'     => [true, __('Author')],
+        'comments'   => [true, __('Comments')],
+        'trackbacks' => [true, __('Trackbacks')],
+    ]];
+});
 
-class pagesUserPref
-{
-    public static function adminColumnsLists($core, $cols)
-    {
-        // Set optional columns in pages lists
-        $cols['pages'] = [__('Pages'), [
-            'date'       => [true, __('Date')],
-            'author'     => [true, __('Author')],
-            'comments'   => [true, __('Comments')],
-            'trackbacks' => [true, __('Trackbacks')]
-        ]];
-    }
+$core->addBehavior('adminFiltersLists', function ($core, $sorts) {
+    $sorts['pages'] = [
+        __('Pages'),
+        null,
+        null,
+        null,
+        [__('entries per page'), 30],
+    ];
+});
 
-    public static function adminFiltersLists($core, $sorts)
-    {
-        $sorts['pages'] = [
-            __('Pages'),
-            null,
-            null,
-            null,
-            [__('entries per page'), 30]
-        ];
-    }
-}
+$core->addBehavior('adminDashboardFavorites', function ($core, $favs) {
+    $favs->register('pages', [
+        'title'        => __('Pages'),
+        'url'          => $core->adminurl->get('admin.plugin.pages'),
+        'small-icon'   => [dcPage::getPF('pages/icon.svg'), dcPage::getPF('pages/icon-dark.svg')],
+        'large-icon'   => [dcPage::getPF('pages/icon.svg'), dcPage::getPF('pages/icon-dark.svg')],
+        'permissions'  => 'contentadmin,pages',
+        'dashboard_cb' => ['pagesDashboard', 'pagesDashboardCB'],
+        'active_cb'    => ['pagesDashboard', 'pagesActiveCB'],
+    ]);
+    $favs->register('newpage', [
+        'title'       => __('New page'),
+        'url'         => $core->adminurl->get('admin.plugin.pages', ['act' => 'page']),
+        'small-icon'  => [dcPage::getPF('pages/icon-np.svg'), dcPage::getPF('pages/icon-np-dark.svg')],
+        'large-icon'  => [dcPage::getPF('pages/icon-np.svg'), dcPage::getPF('pages/icon-np-dark.svg')],
+        'permissions' => 'contentadmin,pages',
+        'active_cb'   => ['pagesDashboard', 'newPageActiveCB'],
+    ]);
+});
+
+$core->addBehavior(
+    'adminUsersActionsHeaders',
+    fn () => dcPage::jsLoad('index.php?pf=pages/js/_users_actions.js')
+);
 
 class pagesDashboard
 {
-    public static function pagesDashboardFavs($core, $favs)
-    {
-        $favs->register('pages', [
-            'title'        => __('Pages'),
-            'url'          => $core->adminurl->get('admin.plugin.pages'),
-            'small-icon'   => dcPage::getPF('pages/icon.png'),
-            'large-icon'   => dcPage::getPF('pages/icon-big.png'),
-            'permissions'  => 'contentadmin,pages',
-            'dashboard_cb' => ['pagesDashboard', 'pagesDashboardCB'],
-            'active_cb'    => ['pagesDashboard', 'pagesActiveCB']
-        ]);
-        $favs->register('newpage', [
-            'title'       => __('New page'),
-            'url'         => $core->adminurl->get('admin.plugin.pages', ['act' => 'page']),
-            'small-icon'  => dcPage::getPF('pages/icon-np.png'),
-            'large-icon'  => dcPage::getPF('pages/icon-np-big.png'),
-            'permissions' => 'contentadmin,pages',
-            'active_cb'   => ['pagesDashboard', 'newPageActiveCB']
-        ]);
-    }
-
     public static function pagesDashboardCB($core, $v)
     {
         $params              = new ArrayObject();
@@ -84,22 +78,19 @@ class pagesDashboard
 
     public static function newPageActiveCB($request, $params)
     {
-        return ($request == 'plugin.php') && isset($params['p']) && $params['p'] == 'pages'
-                                          && isset($params['act'])                                   && $params['act']                               == 'page';
+        return ($request == 'plugin.php') && isset($params['p']) && $params['p']     == 'pages'
+                                          && isset($params['act']) && $params['act'] == 'page';
     }
 }
 
-function pages_users_actions_headers()
-{
-    return dcPage::jsLoad('index.php?pf=pages/js/_users_actions.js');
-}
-
-$_menu['Blog']->addItem(__('Pages'),
+$_menu['Blog']->addItem(
+    __('Pages'),
     $core->adminurl->get('admin.plugin.pages'),
-    dcPage::getPF('pages/icon.png'),
+    [dcPage::getPF('pages/icon.svg'), dcPage::getPF('pages/icon-dark.svg')],
     preg_match('/plugin.php(.*)$/', $_SERVER['REQUEST_URI']) && !empty($_REQUEST['p']) && $_REQUEST['p'] == 'pages',
-    $core->auth->check('contentadmin,pages', $core->blog->id));
+    $core->auth->check('contentadmin,pages', $core->blog->id)
+);
 
 $core->auth->setPermissionType('pages', __('manage pages'));
 
-require dirname(__FILE__) . '/_widgets.php';
+require __DIR__ . '/_widgets.php';
