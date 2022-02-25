@@ -46,7 +46,7 @@ class Behavior
         $res = Utils::jsJson('ck_editor_ctx', [
             'ckeditor_context'      => $context,
             'ckeditor_tags_context' => [$context => $tags],
-            'admin_base_url'        => dotclear()->config()->admin_url .'?mf=Plugin/CKEditor/files/',
+            'admin_base_url'        => dotclear()->config()->admin_url,
             'base_url'              => dotclear()->blog()->host,
             'dcckeditor_plugin_url' => dotclear()->config()->admin_url .'?mf=Plugin/CKEditor/files/',
             'user_language'         => dotclear()->user()->getInfo('user_lang'),

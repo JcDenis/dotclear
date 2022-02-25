@@ -575,7 +575,7 @@ class MediaItem extends Page
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) . . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) . '</p>' .
                     '</form>' . '</div>';
             }
 

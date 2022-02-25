@@ -13,7 +13,7 @@
       editor.addCommand('entryLinkCommand', {
         exec(editor) {
           if (editor.getSelection().getNative().toString().replace(/\s*/, '') != '') {
-            $.toolbarPopup('popup_posts.php?popup=1&plugin_id=dcCKEditor', popup_params);
+            $.toolbarPopup('?handler=admin.posts.popup&popup=1&plugin_id=dcCKEditor', popup_params);
           }
         },
       });
@@ -30,7 +30,7 @@
           // link to original media @see js/popup_media.js
           editor.getSelection().selectElement(element);
 
-          $.toolbarPopup('popup_posts.php?popup=1&plugin_id=dcCKEditor', popup_params);
+          $.toolbarPopup('?handler=admin.posts.popup&popup=1&plugin_id=dcCKEditor', popup_params);
           return false;
         }
       });
