@@ -285,7 +285,7 @@ class Post extends Page
             try {
                 # --BEHAVIOR-- adminBeforePostDelete
                 dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
-                dotclear()->blog()->posts()->deldPost($this->post_id);
+                dotclear()->blog()->posts()->delPost($this->post_id);
                 dotclear()->adminurl()->redirect('admin.posts');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());

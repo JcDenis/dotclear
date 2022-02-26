@@ -172,7 +172,7 @@ class DefaultPostAction
         # --BEHAVIOR-- adminBeforePostsDelete
         dotclear()->behavior()->call('adminBeforePostsDelete', $posts_ids);
 
-        dotclear()->blog()->posts()->deldPosts($posts_ids);
+        dotclear()->blog()->posts()->delPosts($posts_ids);
         dotclear()->notice()->addSuccessNotice(sprintf(
             __(
                 '%d entry has been successfully deleted',
