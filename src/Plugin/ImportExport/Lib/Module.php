@@ -83,7 +83,7 @@ abstract class Module
         return
         '<h3>' . __('Congratulation!') . '</h3>' .
         '<p class="success">' . __('Your blog has been successfully imported. Welcome on Dotclear 2!') . '</p>' .
-        '<ul><li><strong><a href="' . dotclear()->adminurl()->decode('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
-        '<li>' . __('or') . ' <a href="' . dotclear()->adminurl()->decode('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
+        '<ul><li><strong><a href="' . dotclear()->adminurl()->get('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
+        '<li>' . __('or') . ' <a href="' . dotclear()->adminurl()->get('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
     }
 }
