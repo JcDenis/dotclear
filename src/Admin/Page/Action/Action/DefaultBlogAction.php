@@ -31,12 +31,12 @@ class DefaultBlogAction
                 __('Set offline')    => 'offline',
                 __('Set as removed') => 'remove'
             ]],
-            [__NAMESPACE__ . '\\DefaultBlogAction', 'doChangeBlogStatus']
+            [__CLASS__, 'doChangeBlogStatus']
         );
         $ap->addAction(
             [__('Delete') => [
                 __('Delete') => 'delete']],
-            [__NAMESPACE__ . '\\DefaultBlogAction', 'doDeleteBlog']
+            [__CLASS__, 'doDeleteBlog']
         );
     }
 
