@@ -41,7 +41,7 @@ class AntispamUrl extends Url
         $user_id = Antispam::checkUserCode($args);
 
         if ($user_id === false) {
-            self::p404();
+            dotclear()->url()->p404();
 
             return;
         }

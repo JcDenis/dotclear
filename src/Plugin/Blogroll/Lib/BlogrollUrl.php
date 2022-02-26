@@ -33,13 +33,13 @@ class BlogrollUrl extends Url
         try {
             $links = $blogroll->getLinks();
         } catch (Exception $e) {
-            self::p404();
+            dotclear()->url()->p404();
 
             return;
         }
 
         if ($args) {
-            self::p404();
+            dotclear()->url()->p404();
 
             return;
         }
