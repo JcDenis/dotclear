@@ -33,7 +33,7 @@ class DefaultPostAction
                     __('Schedule')        => 'schedule',
                     __('Mark as pending') => 'pending'
                 ]],
-                [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostStatus']
+                [__CLASS__, 'doChangePostStatus']
             );
         }
         $ap->addAction(
@@ -41,32 +41,32 @@ class DefaultPostAction
                 __('Mark as selected')   => 'selected',
                 __('Mark as unselected') => 'unselected'
             ]],
-            [__NAMESPACE__ . '\\DefaultPostAction', 'doUpdateSelectedPost']
+            [__CLASS__, 'doUpdateSelectedPost']
         );
         $ap->addAction(
             [__('Change') => [
                 __('Change category') => 'category'
             ]],
-            [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostCategory']
+            [__CLASS__, 'doChangePostCategory']
         );
         $ap->addAction(
             [__('Change') => [
                 __('Change language') => 'lang'
             ]],
-            [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostLang']
+            [__CLASS__, 'doChangePostLang']
         );
         if (dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Change') => [
                     __('Change author') => 'author']],
-                [__NAMESPACE__ . '\\DefaultPostAction', 'doChangePostAuthor']
+                [__CLASS__, 'doChangePostAuthor']
             );
         }
         if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
-                [__NAMESPACE__ . '\\DefaultPostAction', 'doDeletePost']
+                [__CLASS__, 'doDeletePost']
             );
         }
     }

@@ -30,7 +30,7 @@ class DefaultCommentAction
                     __('Mark as pending') => 'pending',
                     __('Mark as junk')    => 'junk'
                 ]],
-                [__NAMESPACE__ . '\\DefaultCommentAction', 'doChangeCommentStatus']
+                [__CLASS__, 'doChangeCommentStatus']
             );
         }
 
@@ -38,7 +38,7 @@ class DefaultCommentAction
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
-                [__NAMESPACE__ . '\\DefaultCommentAction', 'doDeleteComment']
+                [__CLASS__, 'doDeleteComment']
             );
         }
     }
