@@ -36,7 +36,7 @@ class TagsWidgets
         $w
             ->create('tags', __('Tags'), [$class, 'tagsWidget'], null, 'Tags cloud')
             ->addTitle(__('Menu'))
-            ->setting('limit', __('Limit (empty means no limit):'), '20')
+            ->setting('limit', __('Limit (empty means no limit):'), '20', 'number')
             ->setting(
                 'sortby',
                 __('Order by:'),

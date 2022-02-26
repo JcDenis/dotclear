@@ -221,7 +221,7 @@ class TagsTemplate
             $params['order'] = $sort . ' ' . ($order == 'asc' ? 'ASC' : 'DESC');
         }
 
-        if ($w->limit !== '') {
+        if (abs((int) $w->limit)) {
             $params['limit'] = abs((int) $w->limit);
         }
 
