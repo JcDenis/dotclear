@@ -112,8 +112,11 @@ class RestMethods
         $rsp->check = false;
         $ret        = __('Dotclear update not available');
 
-        /* @phpstan-ignore-next-line */
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->config()->core_update_noauto && is_readable(dotclear()->config()->digests_dir) && !dotclear()->user()->preference()->dashboard->nodcupdate) {
+        if (dotclear()->user()->isSuperAdmin()
+            && !dotclear()->config()->core_update_noauto
+            && is_readable(dotclear()->config()->digests_dir)
+            && !dotclear()->user()->preference()->dashboard->nodcupdate
+        ) {
             $updater      = new Updater(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
             $new_v        = $updater->check(dotclear()->config()->core_version);
             $version_info = $new_v ? $updater->getInfoURL() : '';

@@ -122,11 +122,11 @@ class Update extends Page
         # Upgrade process
         if ($this->upd_new_version && $this->upd_step) {
             try {
-                $this->upd_updater->setForcedFiles('src/digests');
+                $this->upd_updater->setForcedFiles(dotclear()->config()->digests_dir);
 
                 switch ($this->upd_step) {
                     case 'check':
-                        $this->upd_updater->checkIntegrity(DOTCLEAR_ROOT_DIR . '/src/digests', DOTCLEAR_ROOT_DIR);
+                        $this->upd_updater->checkIntegrity(dotclear()->config()->digests_dir, dotclear()->config()->root_dir);
                         dotclear()->adminurl()->redirect('admin.update', ['step' => 'download']);
 
                         break;
@@ -147,9 +147,9 @@ class Update extends Page
                     case 'backup':
                         $this->upd_updater->backup(
                             $zip_file,
-                            'dotclear/src/digests',
-                            DOTCLEAR_ROOT_DIR,
-                            DOTCLEAR_ROOT_DIR . '/src/digests',
+                            'dotclear/digests',
+                            dotclear()->config()->root_dir,
+                            dotclear()->config()->digests_dir,
                             dotclear()->config()->backup_dir . '/backup-' . dotclear()->config()->core_version . '.zip'
                         );
                         dotclear()->adminurl()->redirect('admin.update', ['step' => 'unzip']);
@@ -158,10 +158,10 @@ class Update extends Page
                     case 'unzip':
                         $this->upd_updater->performUpgrade(
                             $zip_file,
-                            'dotclear/src/digests',
+                            'dotclear/digests',
                             'dotclear',
-                            DOTCLEAR_ROOT_DIR,
-                            DOTCLEAR_ROOT_DIR . '/src/digests'
+                            dotclear()->config()->root_dir,
+                            dotclear()->config()->digests_dir
                         );
 
                         break;

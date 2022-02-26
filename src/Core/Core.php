@@ -661,6 +661,12 @@ class Core
             }
         }
 
+        # Check existence of digests directory
+        if (!is_dir($this->config()->digests_dir)) {
+            /* Try to create it */
+            @Files::makeDir($this->config()->digests_dir);
+        }
+
         # Check existence of cache directory
         if (!is_dir($this->config()->cache_dir)) {
             /* Try to create it */
