@@ -20,6 +20,7 @@ use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
+use Dotclear\Network\Http;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
 
