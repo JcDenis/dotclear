@@ -67,7 +67,7 @@ class BlogrollTemplate
 
         try {
             $links = $blogroll->getLinks();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
 

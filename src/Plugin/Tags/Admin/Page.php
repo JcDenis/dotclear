@@ -64,7 +64,7 @@ class Page extends AbstractPage
                         dotclear()->notice()->addSuccessNotice(__('Tag has been successfully renamed'));
                         dotclear()->adminurl()->redirect('admin.plugin.Tags', ['tag' => $new_id]);
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
@@ -75,7 +75,7 @@ class Page extends AbstractPage
                     dotclear()->meta()->delMeta($this->t_tag, 'tag');
                     dotclear()->adminurl()->addSuccessNotice(__('Tag has been successfully removed'));
                     dotclear()->adminurl()->redirect('admin.plugin.Tags');
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
@@ -93,7 +93,7 @@ class Page extends AbstractPage
                 $this->t_posts     = dotclear()->meta()->getPostsByMeta($params);
                 $counter   = dotclear()->meta()->getPostsByMeta($params, true);
                 $this->t_post_list = new PostCatalog($this->t_posts, $counter->f(0));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
 

@@ -51,7 +51,7 @@ class PageEdit extends AbstractPage
             $rs = $this->br_blogroll->getLink($this->br_id);
             $this->br_has_rs = !$rs->isEmpty();
             $this->br_is_cat = (bool) $rs->is_cat;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
@@ -101,7 +101,7 @@ class PageEdit extends AbstractPage
                 $this->br_blogroll->updateLink($this->br_id, $this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang, trim((string) $this->br_link_xfn));
                 dotclear()->notice()->addSuccessNotice(__('Link has been successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -114,7 +114,7 @@ class PageEdit extends AbstractPage
                 $this->br_blogroll->updateCategory($this->br_id, $this->br_link_desc);
                 dotclear()->notice()->addSuccessNotice(__('Category has been successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }

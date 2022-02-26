@@ -53,7 +53,7 @@ class BlogAction extends Action
         DefaultBlogAction::BlogsAction($this);
     }
 
-    public function error(Exception $e)
+    public function error(\Exception $e)
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');

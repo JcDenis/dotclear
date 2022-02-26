@@ -120,7 +120,7 @@ class Page extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.CKEditor');
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }

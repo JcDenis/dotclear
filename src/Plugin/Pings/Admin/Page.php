@@ -61,7 +61,7 @@ class Page extends AbstractPage
                 dotclear()->notice()->addSuccessNotice(__('Settings have been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Pings');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
@@ -100,7 +100,7 @@ class Page extends AbstractPage
                 try {
                     PingsAPI::doPings($u, 'Example site', 'http://example.com');
                     echo ' <img src="?df=images/check-on.png" alt="OK" />';
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     echo ' <img src="?df=images/check-off.png" alt="' . __('Error') . '" /> ' . $e->getMessage();
                 }
             }

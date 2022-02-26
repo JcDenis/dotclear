@@ -54,7 +54,7 @@ class Page extends AbstractPage
         if ($type && $module !== null && !empty($_REQUEST['do'])) {
             try {
                 $module->process($_REQUEST['do']);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $core->error->add($e->getMessage());
             }
         }
