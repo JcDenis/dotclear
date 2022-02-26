@@ -250,7 +250,7 @@ class PageEdit extends AbstractPage
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
             # Magic tweak :)
-            dotclear()->blog()->settings()->system->post_url_format = $GLOBALS['page_url_format'];
+            dotclear()->blog()->settings()->system->post_url_format = '{t}';
 
             $cur->post_type          = 'page';
             $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
