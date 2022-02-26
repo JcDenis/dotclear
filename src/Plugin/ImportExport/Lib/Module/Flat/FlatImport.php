@@ -687,10 +687,10 @@ class FlatImport extends FlatBackup
             $post->blog_id = $this->blog_id;
 
             $post->post_url = dotclear()->blog()->posts()->getPostURL(
-                $post->post_url,
-                $post->post_dt,
-                $post->post_title,
-                $post->post_id
+                (string) $post->post_url,
+                (string) $post->post_dt,
+                (string) $post->post_title,
+                (int) $post->post_id
             );
 
             $this->insertPost($post);

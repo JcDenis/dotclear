@@ -1278,7 +1278,7 @@ class Posts
             natsort($a);
             $t_url = end($a);
 
-            if (preg_match('/(.*?)([0-9]+)$/', $t_url, $m)) {
+            if ($a && preg_match('/(.*?)([0-9]+)$/', $t_url, $m)) {
                 $i   = (int) $m[2];
                 $url = $m[1];
             } else {

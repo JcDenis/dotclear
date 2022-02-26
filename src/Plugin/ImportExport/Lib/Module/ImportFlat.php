@@ -92,7 +92,9 @@ class ImportFlat extends Module
 
                 throw $e;
             }
-            @unlink($unzip_file);
+            if ($unzip_file) {
+                @unlink($unzip_file);
+            }
             if ($to_unlink) {
                 @unlink($file);
             }

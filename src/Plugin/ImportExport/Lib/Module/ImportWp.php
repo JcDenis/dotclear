@@ -695,7 +695,7 @@ class ImportWp extends Module
             'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
         )->f(0) + 1;
 
-        $cur->post_url = dotclear()->blog()->posts()->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, $cur->post_id);
+        $cur->post_url = dotclear()->blog()->posts()->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, (int) $cur->post_id);
 
         $cur->insert();
         $this->importComments($rs->ID, $cur->post_id, $db);
