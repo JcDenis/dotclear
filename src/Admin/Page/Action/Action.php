@@ -100,7 +100,7 @@ abstract class Action extends Page
             $this->redir_anchor = '';
         }
         $u                            = explode('?', $_SERVER['REQUEST_URI']);
-        $this->in_plugin              = (strpos($u[0], 'plugin.php') !== false);
+        $this->in_plugin              = (strpos($u[0], 'handler=admin.plugin.') !== false);
         $this->enable_redir_selection = true;
     }
 
