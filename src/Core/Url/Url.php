@@ -851,7 +851,7 @@ class Url
 
     public function rsd($args)
     {
-        Http::cache($GLOBALS['mod_files'], $GLOBALS['mod_ts']);
+        Http::cache($this->mod_files, $this->mod_ts);
 
         header('Content-Type: text/xml; charset=UTF-8');
         echo

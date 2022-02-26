@@ -872,7 +872,7 @@ class Media extends Manager
                 if ($dt) {
                     $cur->media_dt = (string) $dt;
                 } else {
-                    $cur->media_dt = date('Y-m-d H:i:s', filemtime($file));
+                    $cur->media_dt = @strftime('%Y-%m-%d %H:%M:%S', filemtime($file));
                 }
 
                 try {

@@ -568,7 +568,7 @@ class Post extends Page
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', strtotime($this->post_dt), dotclear()->user()->getInfo('user_tz'))),
+                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', strtotime($this->post_dt), dotclear()->user()->getInfo('user_tz'))),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',

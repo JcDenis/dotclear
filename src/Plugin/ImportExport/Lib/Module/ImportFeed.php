@@ -156,7 +156,7 @@ class ImportFeed extends Module
             $cur->post_title   = $item->title ?: Text::cutString(Html::clean($cur->post_content), 60);
             $cur->post_format  = 'xhtml';
             $cur->post_status  = -2;
-            $cur->post_dt      = date('Y-m-d H:i:s', $item->TS);
+            $cur->post_dt      = @strftime('%Y-%m-%d %H:%M:%S', $item->TS);
 
             try {
                 $post_id = dotclear()->blog()->addPost($cur);
