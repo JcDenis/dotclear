@@ -767,7 +767,7 @@ class Media extends Page
      */
     public function updateLast($dir, $remove = false)
     {
-        if ($this->q) {
+        if ($this->filter->q) {
             return false;
         }
 
@@ -837,7 +837,7 @@ class Media extends Page
      */
     public function updateFav($dir, $remove = false)
     {
-        if ($this->q) {
+        if ($this->filter->q) {
             return false;
         }
 
