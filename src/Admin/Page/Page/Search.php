@@ -68,10 +68,10 @@ class Search extends Page
             $qtype = 'p';
         }
 
-        $page = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
+        $page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $nb = dotclear()->listoption()->getUserFilters('search', 'nb');
-        if (!empty($_GET['nb']) && (integer) $_GET['nb'] > 0) {
-            $nb = (integer) $_GET['nb'];
+        if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
+            $nb = (int) $_GET['nb'];
         }
 
         $this->args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];

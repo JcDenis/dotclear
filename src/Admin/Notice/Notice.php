@@ -78,9 +78,9 @@ class Notice
      * - limit
      * - sql
      *
-     * @param   array           $params         The params
-     * @param   bool|boolean    $count_only     Count only
-     * @return  Record                          Notices record
+     * @param   array   $params         The params
+     * @param   bool    $count_only     Count only
+     * @return  Record                  Notices record
      */
     public function get(array $params = [], bool $count_only = false): Record
     {

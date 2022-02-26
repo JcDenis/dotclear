@@ -189,7 +189,7 @@ class DefaultFilter
     /**
      * Set filter column in form
      *
-     * @param   boolean         $prime  First column
+     * @param   bool            $prime  First column
      *
      * @return  DefaultFilter           The filter instance
      */

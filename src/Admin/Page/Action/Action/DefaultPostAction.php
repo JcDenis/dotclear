@@ -168,7 +168,7 @@ class DefaultPostAction
         // Backward compatibility
         foreach ($posts_ids as $post_id) {
             # --BEHAVIOR-- adminBeforePostDelete
-            dotclear()->behavior()->call('adminBeforePostDelete', (integer) $post_id);
+            dotclear()->behavior()->call('adminBeforePostDelete', (int) $post_id);
         }
 
         # --BEHAVIOR-- adminBeforePostsDelete
@@ -207,7 +207,7 @@ class DefaultPostAction
                 # --BEHAVIOR-- adminBeforeCategoryCreate
                 dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $new_cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (integer) $parent_cat);
+                $new_cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);

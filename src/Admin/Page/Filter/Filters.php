@@ -59,7 +59,7 @@ class Filters
     public static function getPageFilter(string $id = 'page'): DefaultFilter
     {
         return (new DefaultFilter($id))
-            ->value(!empty($_GET[$id]) ? max(1, (integer) $_GET[$id]) : 1)
+            ->value(!empty($_GET[$id]) ? max(1, (int) $_GET[$id]) : 1)
             ->param('limit', function ($f) { return [(($f[0] - 1) * $f['nb']), $f['nb']]; });
     }
 

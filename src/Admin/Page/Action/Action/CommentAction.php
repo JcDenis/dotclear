@@ -85,7 +85,7 @@ class CommentAction extends Action
             $comments = $from['comments'];
 
             foreach ($comments as $k => $v) {
-                $comments[$k] = (integer) $v;
+                $comments[$k] = (int) $v;
             }
 
             $params['sql'] = 'AND C.comment_id IN(' . implode(',', $comments) . ') ';

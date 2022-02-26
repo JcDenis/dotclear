@@ -101,7 +101,7 @@ class Comment extends Page
                     $this->comment_content     = $rs->comment_content;
                     $this->comment_ip          = $rs->comment_ip;
                     $this->comment_status      = $rs->comment_status;
-                    $this->comment_trackback   = (boolean) $rs->comment_trackback;
+                    $this->comment_trackback   = (bool) $rs->comment_trackback;
                 }
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());

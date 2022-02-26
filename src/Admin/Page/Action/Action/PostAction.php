@@ -65,7 +65,7 @@ class PostAction extends Action
             $entries = $from['entries'];
 
             foreach ($entries as $k => $v) {
-                $entries[$k] = (integer) $v;
+                $entries[$k] = (int) $v;
             }
 
             $params['sql'] = 'AND P.post_id IN(' . implode(',', $entries) . ') ';

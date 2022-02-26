@@ -104,11 +104,11 @@ class Filter
             $this->filters['nb']->title($options[4][0]);
 
             if (!empty($_GET['nb'])
-                && (integer) $_GET['nb'] > 0
-                && (integer) $_GET['nb'] != $this->userOptions('nb')
+                && (int) $_GET['nb'] > 0
+                && (int) $_GET['nb'] != $this->userOptions('nb')
             ) {
                 $this->show(true);
-                $this->filters['nb']->value((integer) $_GET['nb']);
+                $this->filters['nb']->value((int) $_GET['nb']);
             }
         }
     }

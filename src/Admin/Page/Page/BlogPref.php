@@ -111,47 +111,47 @@ class BlogPref extends Page
                 $cur->blog_status = (int) $_POST['blog_status'];
             }
 
-            $media_img_t_size = (integer) $_POST['media_img_t_size'];
+            $media_img_t_size = (int) $_POST['media_img_t_size'];
             if ($media_img_t_size < 0) {
                 $media_img_t_size = 100;
             }
 
-            $media_img_s_size = (integer) $_POST['media_img_s_size'];
+            $media_img_s_size = (int) $_POST['media_img_s_size'];
             if ($media_img_s_size < 0) {
                 $media_img_s_size = 240;
             }
 
-            $media_img_m_size = (integer) $_POST['media_img_m_size'];
+            $media_img_m_size = (int) $_POST['media_img_m_size'];
             if ($media_img_m_size < 0) {
                 $media_img_m_size = 448;
             }
 
-            $media_video_width = (integer) $_POST['media_video_width'];
+            $media_video_width = (int) $_POST['media_video_width'];
             if ($media_video_width < 0) {
                 $media_video_width = 400;
             }
 
-            $media_video_height = (integer) $_POST['media_video_height'];
+            $media_video_height = (int) $_POST['media_video_height'];
             if ($media_video_height < 0) {
                 $media_video_height = 300;
             }
 
-            $nb_post_for_home = abs((integer) $_POST['nb_post_for_home']);
+            $nb_post_for_home = abs((int) $_POST['nb_post_for_home']);
             if ($nb_post_for_home < 1) {
                 $nb_post_for_home = 1;
             }
 
-            $nb_post_per_page = abs((integer) $_POST['nb_post_per_page']);
+            $nb_post_per_page = abs((int) $_POST['nb_post_per_page']);
             if ($nb_post_per_page < 1) {
                 $nb_post_per_page = 1;
             }
 
-            $nb_post_per_feed = abs((integer) $_POST['nb_post_per_feed']);
+            $nb_post_per_feed = abs((int) $_POST['nb_post_per_feed']);
             if ($nb_post_per_feed < 1) {
                 $nb_post_per_feed = 1;
             }
 
-            $nb_comment_per_feed = abs((integer) $_POST['nb_comment_per_feed']);
+            $nb_comment_per_feed = abs((int) $_POST['nb_comment_per_feed']);
             if ($nb_comment_per_feed < 1) {
                 $nb_comment_per_feed = 1;
             }
@@ -198,8 +198,8 @@ class BlogPref extends Page
                 $this->blog_settings->system->put('blog_timezone', $_POST['blog_timezone']);
                 $this->blog_settings->system->put('date_format', $_POST['date_format']);
                 $this->blog_settings->system->put('time_format', $_POST['time_format']);
-                $this->blog_settings->system->put('comments_ttl', abs((integer) $_POST['comments_ttl']));
-                $this->blog_settings->system->put('trackbacks_ttl', abs((integer) $_POST['trackbacks_ttl']));
+                $this->blog_settings->system->put('comments_ttl', abs((int) $_POST['comments_ttl']));
+                $this->blog_settings->system->put('trackbacks_ttl', abs((int) $_POST['trackbacks_ttl']));
                 $this->blog_settings->system->put('allow_comments', !empty($_POST['allow_comments']));
                 $this->blog_settings->system->put('allow_trackbacks', !empty($_POST['allow_trackbacks']));
                 $this->blog_settings->system->put('comments_pub', empty($_POST['comments_pub']));

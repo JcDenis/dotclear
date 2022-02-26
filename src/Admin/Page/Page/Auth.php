@@ -28,43 +28,43 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Auth extends Page
 {
-    /** @var string default lang */
+    /** @var    string  default lang */
     protected $default_lang;
 
-    /** @var string this page url */
+    /** @var    string  this page url */
     protected $page_url;
 
-    /** @var boolean can change password */
+    /** @var    bool    can change password */
     protected $change_pwd;
 
-    /** @var string login data */
+    /** @var    string  login data */
     protected $login_data;
 
-    /** @var boolean password recover */
+    /** @var    bool    password recover */
     protected $recover;
 
-    /** @var boolean safe mode */
+    /** @var    bool    safe mode */
     protected $safe_mode;
 
-    /** @var string recovery key */
+    /** @var    string  recovery key */
     protected $akey;
 
-    /** @var string|null user id */
+    /** @var    string|null     user id */
     protected $user_id;
 
-    /** @var string|null user password */
+    /** @var    string|null     user password */
     protected $user_pwd;
 
-    /** @var srting|null user key */
+    /** @var    string|null     user key */
     protected $user_key;
 
-    /** @var string|null user email */
+    /** @var    string|null     user email */
     protected $user_email;
 
-    /** @var string|null error message */
+    /** @var    string|null     error message */
     protected $err;
 
-    /** @var string|null success message */
+    /** @var    string|null     success message */
     protected $msg;
 
     public function __construct()
@@ -202,7 +202,7 @@ class Auth extends Page
         }
     }
 
-    protected function changePassword()
+    protected function changePassword(): void
     {
         try {
             $tmp_data = explode('/', $_POST['login_data']);
@@ -265,7 +265,7 @@ class Auth extends Page
         }
     }
 
-    protected function logon()
+    protected function logon(): void
     {
         # We check the user
         $check_user = dotclear()->user()->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;

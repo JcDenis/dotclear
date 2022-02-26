@@ -203,7 +203,7 @@ class ListOption
                 return $this->sorts[$type][3];
             }
             if ($option == 'nb' && is_array($this->sorts[$type][4])) {
-                return abs((integer) $this->sorts[$type][4][1]);
+                return abs((int) $this->sorts[$type][4][1]);
             }
         }
 

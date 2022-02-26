@@ -68,7 +68,7 @@ class Updater
      * Returns latest version if available or false.
      *
      * @param   string  $version    Current version to compare
-     * @param   boolean $nocache    Force checking
+     * @param   bool    $nocache    Force checking
      *
      * @return  mixed   Latest version if available
      */

@@ -78,7 +78,7 @@ class MediaFilter extends Filter
 
     protected function getPostIdFilter(): DefaultFilter
     {
-        $post_id = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
+        $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
             $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
             if ($post->isEmpty()) {
@@ -144,7 +144,7 @@ class MediaFilter extends Filter
 
     protected function getPopupFilter(): DefaultFilter
     {
-        $get = (integer) !empty($_REQUEST['popup']);
+        $get = (int) !empty($_REQUEST['popup']);
 
         return new DefaultFilter('popup', $get);
     }

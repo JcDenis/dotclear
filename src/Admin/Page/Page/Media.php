@@ -33,25 +33,25 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Media extends Page
 {
-    /** @var boolean Page has a valid query */
+    /** @var    bool    Page has a valid query */
     protected $media_has_query = false;
 
-    /** @var boolean Media dir is writable */
+    /** @var    bool   Media dir is writable */
     protected $media_writable = false;
 
-    /** @var boolean Media dir is archivable */
+    /** @var    bool   Media dir is archivable */
     protected $media_archivable = null;
 
-    /** @var array Dirs and files fileItem objects */
+    /** @var    array  Dirs and files fileItem objects */
     protected $media_dir = null;
 
-    /** @var array User media recents */
+    /** @var    array  User media recents */
     protected $media_last = null;
 
-    /** @var array User media favorites */
+    /** @var    array  User media favorites */
     protected $media_fav = null;
 
-    /** @var boolean Uses enhance uploader */
+    /** @var    bool   Uses enhance uploader */
     protected $media_uploader = null;
 
     protected $workspaces = ['interface'];
@@ -69,7 +69,7 @@ class Media extends Page
 
     protected function getCatalogInstance(): ?Catalog
     {
-        // try to load core media and themes
+        # try to load core media and themes
         try {
             dotclear()->media()->setFileSort($this->filter->sortby . '-' . $this->filter->order);
 
@@ -78,11 +78,11 @@ class Media extends Page
             }
             if (!$this->media_has_query) {
                 $try_d = $this->filter->d;
-                // Reset current dir
+                # Reset current dir
                 $this->filter->d = null;
-                // Change directory (may cause an exception if directory doesn't exist)
+                # Change directory (may cause an exception if directory doesn't exist)
                 dotclear()->media()->chdir($try_d);
-                // Restore current dir variable
+                # Restore current dir variable
                 $this->filter->d = $try_d;
                 dotclear()->media()->getDir();
             } else {
@@ -112,7 +112,7 @@ class Media extends Page
         if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {
             try {
                 if (strpos(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root)) === 0) {
-                    // Media folder or one of it's sub-folder(s)
+                    # Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
@@ -170,7 +170,7 @@ class Media extends Page
 
         # Adding a file
         if ($this->getDirs() && !empty($_FILES['upfile'])) {
-            // only one file per request : @see option singleFileUploads in admin/js/jsUpload/jquery.fileupload
+            # only one file per request : @see option singleFileUploads in admin/js/jsUpload/jquery.fileupload
             $upfile = [
                 'name'     => $_FILES['upfile']['name'][0],
                 'type'     => $_FILES['upfile']['type'][0],
@@ -324,25 +324,25 @@ class Media extends Page
         }
 
 
-        // Recent media folders
+        # Recent media folders
         $last_folders = '';
         if ($this->showLast()) {
             $last_folders_item = '';
             $fav_url           = '';
             $fav_img           = '';
             $fav_alt           = '';
-            // Favorites directories
+            # Favorites directories
             $fav_dirs = $this->getFav();
             foreach ($fav_dirs as $ld) {
-                // Add favorites dirs on top of combo
+                # Add favorites dirs on top of combo
                 $ld_params      = $this->filter->values();
                 $ld_params['d'] = $ld;
-                $ld_params['q'] = ''; // Reset search
+                $ld_params['q'] = ''; # Reset search
                 $last_folders_item .= '<option value="' . urldecode(dotclear()->adminurl()->get('admin.media', $ld_params)) . '"' .
                     ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                     '/' . $ld . '</option>' . "\n";
                 if ($ld == rtrim((string) $this->filter->d, '/')) {
-                    // Current directory is a favorite → button will un-fav
+                    # Current directory is a favorite → button will un-fav
                     $ld_params['fav'] = 'n';
                     $fav_url          = urldecode(dotclear()->adminurl()->get('admin.media', $ld_params));
                     unset($ld_params['fav']);
@@ -351,21 +351,21 @@ class Media extends Page
                 }
             }
             if ($last_folders_item != '') {
-                // add a separator between favorite dirs and recent dirs
+                # add a separator between favorite dirs and recent dirs
                 $last_folders_item .= '<option disabled>_________</option>';
             }
-            // Recent directories
+            # Recent directories
             $last_dirs = $this->getlast();
             foreach ($last_dirs as $ld) {
                 if (!in_array($ld, $fav_dirs)) {
                     $ld_params      = $this->filter->values();
                     $ld_params['d'] = $ld;
-                    $ld_params['q'] = ''; // Reset search
+                    $ld_params['q'] = ''; # Reset search
                     $last_folders_item .= '<option value="' . urldecode(dotclear()->adminurl()->get('admin.media', $ld_params)) . '"' .
                         ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
                         '/' . $ld . '</option>' . "\n";
                     if ($ld == rtrim((string) $this->filter->d, '/')) {
-                        // Current directory is not a favorite → button will fav
+                        # Current directory is not a favorite → button will fav
                         $ld_params['fav'] = 'y';
                         $fav_url          = urldecode(dotclear()->adminurl()->get('admin.media', $ld_params));
                         unset($ld_params['fav']);
@@ -386,7 +386,7 @@ class Media extends Page
         }
 
         if ($this->filter->select) {
-            // Select mode (popup or not)
+            # Select mode (popup or not)
             echo '<div class="' . ($this->filter->popup ? 'form-note ' : '') . 'info"><p>';
             if ($this->filter->select == 1) {
                 echo sprintf(__('Select a file by clicking on %s'), '<img src="?df=images/plus.png" alt="' . __('Select this file') . '" />');
@@ -418,7 +418,7 @@ class Media extends Page
         }
 
 
-        // add file mode into the filter box
+        # add file mode into the filter box
         $this->filter->add((new DefaultFilter('file_mode'))->value($this->filter->file_mode)->html(
             '<p><span class="media-file-mode">' .
             '<a href="' . dotclear()->adminurl()->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
@@ -437,7 +437,7 @@ class Media extends Page
         '</p>';
 
         if (!$this->filter->popup || $this->filter->select > 1) {
-            // Checkboxes and action
+            # Checkboxes and action
             $fmt_form_media .= '<div class="' . (!$this->filter->popup ? 'medias-delete' : '') . ' ' . ($this->filter->select > 1 ? 'medias-select' : '') . '">' .
                 '<p class="checkboxes-helpers"></p>' .
                 '<p>';
@@ -455,13 +455,13 @@ class Media extends Page
         echo '<div class="media-list">';
         echo $last_folders;
 
-        // remove form filters from hidden fields
+        # remove form filters from hidden fields
         $form_filters_hidden_fields = array_diff_key($this->filter->values(), ['nb' => '', 'order' => '', 'sortby' => '', 'q' => '']);
 
-        // display filter
+        # display filter
         $this->filter->display('admin.media', dotclear()->adminurl()->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
 
-        // display list
+        # display list
         $this->catalog->display($this->filter, $fmt_form_media, $this->hasQuery());
 
         echo '</div>';
@@ -589,11 +589,11 @@ class Media extends Page
     /**
      * The breadcrumb of media page or popup
      *
-     * @param array $element  The additionnal element
+     * @param   array   $element    The additionnal element
      *
-     * @return string The html code of breadcrumb
+     * @return  string              The html code of breadcrumb
      */
-    public function breadcrumb($element = [])
+    public function breadcrumb(array $element = []): string
     {
         $option = $param = [];
 
@@ -629,15 +629,12 @@ class Media extends Page
         $this->setPageBreadcrumb(array_merge($elements, $element), array_merge($options, $option));
     }
 
-
-
-
     /**
      * Check if page has a valid query
      *
-     * @return boolean Has query
+     * @return  bool    Has query
      */
-    public function hasQuery()
+    public function hasQuery(): bool
     {
         return $this->media_has_query;
     }
@@ -645,9 +642,9 @@ class Media extends Page
     /**
      * Check if media dir is writable
      *
-     * @return boolean Is writable
+     * @return  bool    Is writable
      */
-    public function mediaWritable()
+    public function mediaWritable(): bool
     {
         return $this->media_writable;
     }
@@ -655,9 +652,9 @@ class Media extends Page
     /**
      * Check if media dir is archivable
      *
-     * @return boolean Is archivable
+     * @return  bool    Is archivable
      */
-    public function mediaArchivable()
+    public function mediaArchivable(): bool
     {
         if ($this->media_archivable === null) {
             $rs = $this->getDirsRecord();
@@ -672,11 +669,11 @@ class Media extends Page
     /**
      * Return list of fileItem objects of current dir
      *
-     * @param string $type  dir, file, all type
+     * @param   string  $type   dir, file, all type
      *
-     * @return array Dirs and/or files fileItem objects
+     * @return  array           Dirs and/or files fileItem objects
      */
-    public function getDirs($type = '')
+    public function getDirs(string $type = ''): array
     {
         if (!empty($type)) {
             return $this->media_dir[$type] ?? null;
@@ -688,12 +685,12 @@ class Media extends Page
     /**
      * Return static record instance of fileItem objects
      *
-     * @return staticRecord Dirs and/or files fileItem objects
+     * @return  staticRecord    Dirs and/or files fileItem objects
      */
-    public function getDirsRecord()
+    public function getDirsRecord(): staticRecord
     {
         $dir = $this->media_dir;
-        // Remove hidden directories (unless 'media_dir_showhidden' is set to true)
+        # Remove hidden directories (unless 'media_dir_showhidden' is set to true)
         if (dotclear()->config()->media_dir_showhidden === false) {
             for ($i = count($dir['dirs']) - 1; $i >= 0; $i--) {
                 if ($dir['dirs'][$i]->d) {
@@ -711,11 +708,11 @@ class Media extends Page
     /**
      * Return html code of an element of list or grid items list
      *
-     * @param string $file_id  The file id
+     * @param   string  $file_id    The file id
      *
-     * @return string The element
+     * @return  string              The element
      */
-    public function mediaLine($file_id)
+    public function mediaLine(string $file_id): string
     {
         return MediaCatalog::mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query);
     }
@@ -723,9 +720,9 @@ class Media extends Page
     /**
      * Show enhance uploader
      *
-     * @return boolean Show enhance uploader
+     * @return  bool    Show enhance uploader
      */
-    public function showUploader()
+    public function showUploader(): bool
     {
         return $this->media_uploader;
     }
@@ -733,9 +730,9 @@ class Media extends Page
     /**
      * Number of recent/fav dirs to show
      *
-     * @return integer Nb of dirs
+     * @return  int     Nb of dirs
      */
-    public function showLast()
+    public function showLast(): int
     {
         return abs((int) dotclear()->user()->preference()->interface->media_nb_last_dirs);
     }
@@ -743,9 +740,9 @@ class Media extends Page
     /**
      * Return list of last dirs
      *
-     * @return array Last dirs
+     * @return  array   Last dirs
      */
-    public function getLast()
+    public function getLast(): array
     {
         if ($this->media_last === null) {
             $m = dotclear()->user()->preference()->interface->media_last_dirs;
@@ -761,12 +758,12 @@ class Media extends Page
     /**
      * Update user last dirs
      *
-     * @param string    $dir        The directory
-     * @param boolean   $remove     Remove
+     * @param   string  $dir        The directory
+     * @param   bool    $remove     Remove
      *
-     * @return boolean The change
+     * @return  bool                The change
      */
-    public function updateLast($dir, $remove = false)
+    public function updateLast(string $dir, bool $remove = false): bool
     {
         if ($this->filter->q) {
             return false;
@@ -787,15 +784,15 @@ class Media extends Page
             }
         } else {
             if (!in_array($dir, $last_dirs)) {
-                // Add new dir at the top of the list
+                # Add new dir at the top of the list
                 array_unshift($last_dirs, $dir);
-                // Remove oldest dir(s)
+                # Remove oldest dir(s)
                 while (count($last_dirs) > $nb_last_dirs) {
                     array_pop($last_dirs);
                 }
                 $done = true;
             } else {
-                // Move current dir at the top of list
+                # Move current dir at the top of list
                 unset($last_dirs[array_search($dir, $last_dirs)]);
                 array_unshift($last_dirs, $dir);
                 $done = true;
@@ -813,9 +810,9 @@ class Media extends Page
     /**
      * Return list of fav dirs
      *
-     * @return array Fav dirs
+     * @return  array   Fav dirs
      */
-    public function getFav()
+    public function getFav(): array
     {
         if ($this->media_fav === null) {
             $m = dotclear()->user()->preference()->interface->media_fav_dirs;
@@ -831,12 +828,12 @@ class Media extends Page
     /**
      * Update user fav dirs
      *
-     * @param string    $dir        The directory
-     * @param boolean   $remove     Remove
+     * @param   string  $dir        The directory
+     * @param   bool    $remove     Remove
      *
-     * @return boolean The change
+     * @return  bool                The change
      */
-    public function updateFav($dir, $remove = false)
+    public function updateFav(string $dir, bool $remove = false): bool
     {
         if ($this->filter->q) {
             return false;

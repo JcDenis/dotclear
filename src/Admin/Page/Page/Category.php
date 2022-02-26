@@ -96,7 +96,7 @@ class Category extends Page
 
         # Changing parent
         if ($this->cat_id && isset($_POST['cat_parent'])) {
-            $new_parent = (integer) $_POST['cat_parent'];
+            $new_parent = (int) $_POST['cat_parent'];
             if ($this->cat_parent != $new_parent) {
                 try {
                     dotclear()->blog()->categories()->setCategoryParent($this->cat_id, $new_parent);
@@ -111,7 +111,7 @@ class Category extends Page
         # Changing sibling
         if ($this->cat_id && isset($_POST['cat_sibling'])) {
             try {
-                dotclear()->blog()->categories()->setCategoryPosition($this->cat_id, (integer) $_POST['cat_sibling'], $_POST['cat_move']);
+                dotclear()->blog()->categories()->setCategoryPosition($this->cat_id, (int) $_POST['cat_sibling'], $_POST['cat_move']);
                 dotclear()->notice()->addSuccessNotice(__('The category has been successfully moved'));
                 dotclear()->adminurl()->redirect('admin.categories');
             } catch (\Exception $e) {
@@ -155,7 +155,7 @@ class Category extends Page
                     # --BEHAVIOR-- adminBeforeCategoryCreate
                     dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur);
 
-                    $id = dotclear()->blog()->categories()->addCategory($cur, (integer) $_POST['new_cat_parent']);
+                    $id = dotclear()->blog()->categories()->addCategory($cur, (int) $_POST['new_cat_parent']);
 
                     # --BEHAVIOR-- adminAfterCategoryCreate
                     dotclear()->behavior()->call('adminAfterCategoryCreate', $cur, $id);

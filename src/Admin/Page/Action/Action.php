@@ -66,10 +66,10 @@ abstract class Action extends Page
     /** @var string title for caller page title */
     protected $caller_title = '';
 
-    /** @var boolean true if we are acting inside a plugin (different handling of begin/endpage) */
+    /** @var bool   true if we are acting inside a plugin (different handling of begin/endpage) */
     protected $in_plugin = false;
 
-    /** @var boolean true if we enable to keep selection when redirecting */
+    /** @var bool   true if we enable to keep selection when redirecting */
     protected $enable_redir_selection = false;
 
     /**

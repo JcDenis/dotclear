@@ -434,7 +434,7 @@ class Favorite
     /**
      * Helper for posts icon on dashboard
      *
-     * @param   ArrayObject     $v      Favicon object
+     * @param   ArrayObject     $v  Favicon object
      */
     public static function cbPostsDashboard(ArrayObject $v): void
     {
@@ -448,7 +448,7 @@ class Favorite
      *
      * Take account of post edition (if id is set)
      *
-     * @return  boolean                         Active
+     * @return  bool    Active
      */
     public static function cbNewpostActive(): bool
     {
@@ -458,7 +458,7 @@ class Favorite
     /**
      * Helper for comments icon on dashboard
      *
-     * @param   ArrayObject     $v      Favicon object
+     * @param   ArrayObject     $v  Favicon object
      */
     public static function cbCommentsDashboard(ArrayObject $v): void
     {

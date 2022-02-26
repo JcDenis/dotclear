@@ -40,7 +40,7 @@ class PostsPopup extends Page
     {
         $this->plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
         $this->q         = !empty($_GET['q']) ? $_GET['q'] : null;
-        $this->page      = !empty($_GET['page']) ? max(1, (integer) $_GET['page']) : 1;
+        $this->page      = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
 
         $post_types = dotclear()->posttype()->getPostTypes();
