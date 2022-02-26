@@ -13,17 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Service;
 
-use Dotclear\Exception\CoreException;
-
+use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
-use Dotclear\Network\Http;
-
-use Dotclear\File\Zip\Zip;
 use Dotclear\File\Zip\Unzip;
-
+use Dotclear\File\Zip\Zip;
+use Dotclear\Network\Http;
 use Dotclear\Network\NetHttp\NetHttp;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
@@ -145,7 +142,7 @@ class Updater
                 }
             }
             if (!$status || $status >= 400) {
-                throw new CoreException();
+                throw new AdminException();
             }
             $this->readVersion($client->getContent());
         } catch (\Exception $e) {
@@ -212,13 +209,13 @@ class Updater
     public function checkIntegrity($digests_file, $root)
     {
         if (!$digests_file) {
-            throw new CoreException(__('Digests file not found.'));
+            throw new AdminException(__('Digests file not found.'));
         }
 
         $changes = $this->md5sum($root, $digests_file);
 
         if (!empty($changes)) {
-            $e            = new CoreException('Some files have changed.', self::ERR_FILES_CHANGED);
+            $e            = new AdminException('Some files have changed.', self::ERR_FILES_CHANGED);
             $e->bad_files = $changes;   // @phpstan-ignore-line
 
             throw $e;
@@ -235,11 +232,11 @@ class Updater
         $url = $this->getFileURL();
 
         if (!$url) {
-            throw new CoreException(__('No file to download'));
+            throw new AdminException(__('No file to download'));
         }
 
         if (!is_writable(dirname($dest))) {
-            throw new CoreException(__('Root directory is not writable.'));
+            throw new AdminException(__('Root directory is not writable.'));
         }
 
         try {
@@ -274,10 +271,10 @@ class Updater
             if ($status != 200) {
                 @unlink($dest);
 
-                throw new CoreException();
+                throw new AdminException();
             }
         } catch (\Exception $e) {
-            throw new CoreException(__('An error occurred while downloading archive.'));
+            throw new AdminException(__('An error occurred while downloading archive.'));
         }
     }
 
@@ -297,18 +294,18 @@ class Updater
     public function backup($zip_file, $zip_digests, $root, $root_digests, $dest)
     {
         if (!is_readable($zip_file)) {
-            throw new CoreException(__('Archive not found.'));
+            throw new AdminException(__('Archive not found.'));
         }
 
         if (!is_readable($root_digests)) {
             @unlink($zip_file);
 
-            throw new CoreException(__('Unable to read current digests file.'));
+            throw new AdminException(__('Unable to read current digests file.'));
         }
 
         # Stop everything if a backup already exists and can not be overrided
         if (!is_writable(dirname($dest)) && !file_exists($dest)) {
-            throw new CoreException(__('Root directory is not writable.'));
+            throw new AdminException(__('Root directory is not writable.'));
         }
 
         if (file_exists($dest) && !is_writable($dest)) {
@@ -326,7 +323,7 @@ class Updater
         if (!$zip->hasFile($zip_digests)) {
             @unlink($zip_file);
 
-            throw new CoreException(__('Downloaded file does not seem to be a valid archive.'));
+            throw new AdminException(__('Downloaded file does not seem to be a valid archive.'));
         }
 
         $opts        = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -356,7 +353,7 @@ class Updater
 
         # If only one file is not readable, stop everything now
         if (!empty($not_readable)) {
-            $e            = new CoreException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
+            $e            = new AdminException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
             $e->bad_files = $not_readable;  // @phpstan-ignore-line
 
             throw $e;
@@ -375,13 +372,13 @@ class Updater
     public function performUpgrade($zip_file, $zip_digests, $zip_root, $root, $root_digests)
     {
         if (!is_readable($zip_file)) {
-            throw new CoreException(__('Archive not found.'));
+            throw new AdminException(__('Archive not found.'));
         }
 
         if (!is_readable($root_digests)) {
             @unlink($zip_file);
 
-            throw new CoreException(__('Unable to read current digests file.'));
+            throw new AdminException(__('Unable to read current digests file.'));
         }
 
         $zip = new Unzip($zip_file);
@@ -389,7 +386,7 @@ class Updater
         if (!$zip->hasFile($zip_digests)) {
             @unlink($zip_file);
 
-            throw new CoreException(__('Downloaded file does not seem to be a valid archive.'));
+            throw new AdminException(__('Downloaded file does not seem to be a valid archive.'));
         }
 
         $opts        = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -412,7 +409,7 @@ class Updater
             if (!$zip->hasFile($zip_root . '/' . $file)) {
                 @unlink($zip_file);
 
-                throw new CoreException(__('Incomplete archive.'));
+                throw new AdminException(__('Incomplete archive.'));
             }
 
             $dest = $dest_dir = $root . '/' . $file;
@@ -429,7 +426,7 @@ class Updater
 
         # If only one file is not writable, stop everything now
         if (!empty($not_writable)) {
-            $e            = new CoreException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
+            $e            = new AdminException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
             $e->bad_files = $not_writable;  // @phpstan-ignore-line
 
             throw $e;
@@ -484,7 +481,7 @@ class Updater
     protected function md5sum($root, $digests_file)
     {
         if (!is_readable($digests_file)) {
-            throw new CoreException(__('Unable to read digests file.'));
+            throw new AdminException(__('Unable to read digests file.'));
         }
 
         $opts     = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES;
@@ -508,7 +505,7 @@ class Updater
 
         # No checksum found in digests file
         if (empty($md5)) {
-            throw new CoreException(__('Invalid digests file.'));
+            throw new AdminException(__('Invalid digests file.'));
         }
 
         return $changes;

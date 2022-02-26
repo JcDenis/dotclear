@@ -3,6 +3,8 @@
  * @class Dotclear\Admin\AdminUrl\AdminUrl
  * @brief Dotclear admin url handler class
  *
+ * Accessible from dotclear()->adminurl()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -16,7 +18,6 @@ namespace Dotclear\Admin\AdminUrl;
 use ArrayObject;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Exception\DeprecatedException;
 use Dotclear\Html\Form;
 use Dotclear\Network\Http;
 
@@ -26,11 +27,14 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class AdminUrl
 {
+    /** @var    string  Admin URL */
     protected $root_url;
+
+    /** @var    ArrayObject     List of registered URLs */
     protected $urls;
 
     /**
-     * Constructs a new instance.
+     * Constructor
      */
     public function __construct()
     {
@@ -39,9 +43,9 @@ class AdminUrl
     }
 
     /**
-     * Admin url alias
+     * Admin URL alias
      *
-     * @return  string  Admin root url
+     * @return  string  The admin root URL
      */
     public function root(): string
     {
@@ -49,9 +53,9 @@ class AdminUrl
     }
 
     /**
-     * Get last called url (with param handler only)
+     * Get last called URL handler name
      *
-     * @return  string  Last called url
+     * @return  string  The URL handler name
      */
     public function called(): string
     {
@@ -59,11 +63,11 @@ class AdminUrl
     }
 
     /**
-     * Registers a new url class
+     * Register a new URL class
      *
-     * @param  string $name     the url name
-     * @param  string $class    class value
-     * @param  array  $params   query string params (optional)
+     * @param   string  $name     The URL handler name
+     * @param   string  $class    The class name (with namespace)
+     * @param   array   $params   The query string params (optional)
      */
     public function register(string $name, string $class, array $params = []): void
     {
@@ -71,9 +75,9 @@ class AdminUrl
     }
 
     /**
-     * Registers multiple new url class
+     * Register multiple new URL class
      *
-     * @param  array  $args   array of url name, class, params
+     * @param   array   $args   The array of URL name, class, params
      */
     public function registerMultiple(array ...$args): void
     {
@@ -89,12 +93,14 @@ class AdminUrl
     }
 
     /**
-     * Registers a new url as a copy of an existing one
+     * Register a new URL as a copy of an existing one
      *
-     * @param  string $name   url name
-     * @param  string $orig   class to copy information from
-     * @param  array  $params extra parameters to add
-     * @param  string $newclass new class if different from the original
+     * @throws  AdminException      On unknow URL handler
+     *
+     * @param   string  $name       The URL handler name
+     * @param   string  $orig       The class to copy information from
+     * @param   array   $params     The extra parameters to add
+     * @param   string  $newclass   THe new class if different from the original
      */
     public function registerCopy(string $name, string $orig, array $params = [], string $newclass = ''): void
     {
@@ -110,14 +116,16 @@ class AdminUrl
     }
 
     /**
-     * retrieves a URL given its name, and optional parameters
+     * Retrieve a URL given its name, and optional parameters
      *
-     * @param  string   $name       URL Name
-     * @param  array    $params     query string parameters, given as an associative array
-     * @param  string   $separator  separator to use between QS parameters
-     * @param  boolean  $parametric set to true if url will be used as (s)printf() format.
+     * @throws  AdminException          On unknow URL handler
      *
-     * @return string            the forged url
+     * @param   string  $name           The URL handler name
+     * @param   array   $params         The query string parameters, given as an associative array
+     * @param   string  $separator      The separator to use between QS parameters
+     * @param   bool    $parametric     Set to true if URL will be used as (s)printf() format.
+     *
+     * @return  string                  The forged URL
      */
     public function get(string $name, array $params = [], string $separator = '&amp;', bool $parametric = false): string
     {
@@ -140,11 +148,13 @@ class AdminUrl
     /**
      * Redirect to an URL given its name, and optional parameters
      *
-     * @param  string $name      URL Name
-     * @param  array  $params    query string parameters, given as an associative array
-     * @param  string $suffix suffix to be added to the QS parameters
+     * @throws  AdminException      On unknow URL handler
+     *
+     * @param   string  $name       The URL handler name
+     * @param   array   $params     The query string parameters, given as an associative array
+     * @param   string  $suffix     The suffix to be added to the QS parameters
      */
-    public function redirect($name, $params = [], $suffix = '')
+    public function redirect(string $name, array $params = [], string $suffix = ''): void
     {
         if (!isset($this->urls[$name])) {
             throw new AdminException('Unknown URL handler for ' . $name);
@@ -153,11 +163,11 @@ class AdminUrl
     }
 
     /**
-     * Check if an url handler is registered
+     * Check if an URL handler is registered
      *
      * @param   string  $name   The handler name
      *
-     * @return  bool            If exists
+     * @return  bool            True if exists
      */
     public function exists(string $name): bool
     {
@@ -165,13 +175,16 @@ class AdminUrl
     }
 
     /**
-     * retrieves a php page given its name, and optional parameters
+     * Retrieve a class name given its handler name, and optional parameters
      * acts like get, but without the query string, should be used within forms actions
      *
-     * @param  string $name      URL Name
-     * @return string            the forged url
+     * @throws  AdminException  On unknow URL handler
+     *
+     * @param   string  $name   The URL handler name
+     *
+     * @return  string          The full class name
      */
-    public function getBase($name)
+    public function getBase(string $name): string
     {
         if (!isset($this->urls[$name])) {
             throw new AdminException('Unknown URL handler for ' . $name);
@@ -181,16 +194,17 @@ class AdminUrl
     }
 
     /**
-     * forges form hidden fields to pass to a generated <form>. Should be used in combination with
-     * form action retrieved from getBase()
+     * Forge form hidden fields to pass to a generated <form>.
      *
-     * @param   string  $name       URL Name
+     * @throws  AdminException      On unknow URL handler
+     *
+     * @param   string  $name       The URL handler name
      * @param   array   $params     query string parameters, given as an associative array
      * @param   bool    $nonce      Add the Nonce field
      *
      * @return  string              The forged form data
      */
-    public function getHiddenFormFields($name, $params = [], bool $nonce = false)
+    public function getHiddenFormFields(string $name, array $params = [], bool $nonce = false): string
     {
         if (!isset($this->urls[$name])) {
             throw new AdminException('Unknown URL handler for ' . $name);
@@ -209,38 +223,27 @@ class AdminUrl
     }
 
     /**
-     * retrieves a URL (decoded — useful for echoing) given its name, and optional parameters
+     * Return registered URLs properties.
      *
-     * @deprecated     should be used carefully, parameters are no more escaped
-     *
-     * @param  string $name      URL Name
-     * @param  array  $params    query string parameters, given as an associative array
-     * @param  string $separator separator to use between QS parameters
-     * @return string            the forged decoded url
-     */
-    public function decode($name, $params = [], $separator = '&')
-    {
-        DeprecatedException::throw();
-
-        return urldecode($this->get($name, $params, $separator));
-    }
-
-    /**
-     * Returns $urls property content.
-     *
-     * @return  ArrayObject
+     * @return  ArrayObject The registred URLs
      */
     public function dumpUrls()
     {
         return $this->urls;
     }
 
+    /**
+     * Setup admin URLs
+     */
     public function setup()
     {
         $this->initDefaultURLs();
         dotclear()->behavior()->call('adminURLs', $this);
     }
 
+    /**
+     * Register default Dotclear admin URLs
+     */
     protected function initDefaultURLs()
     {
         $d = 'Dotclear\\Admin\\Page\\Page\\';

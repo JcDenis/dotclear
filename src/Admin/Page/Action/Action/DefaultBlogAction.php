@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
+use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Exception\AdminException;
 
-use Dotclear\Admin\Page\Action\Action;
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class DefaultBlogAction
 {
@@ -40,7 +43,7 @@ class DefaultBlogAction
         );
     }
 
-    public static function doChangeBlogStatus(Action $ap, $post): void
+    public static function doChangeBlogStatus(Action $ap, array $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;
@@ -79,7 +82,7 @@ class DefaultBlogAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteBlog(Action $ap, $post): void
+    public static function doDeleteBlog(Action $ap, array $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;

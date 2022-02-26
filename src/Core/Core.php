@@ -584,7 +584,7 @@ class Core
     /**
      * Start Dotclear Core process
      */
-    protected function process()
+    protected function process(): void
     {
         # Add custom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';

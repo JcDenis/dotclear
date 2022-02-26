@@ -29,7 +29,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class DefaultFilter
 {
-    /** @var array The filter properties */
+    /** @var    array   The filter properties */
     protected $properties = [
         'id'      => '',
         'value'   => null,
@@ -44,10 +44,10 @@ class DefaultFilter
     /**
      * Constructs a new filter.
      *
-     * @param string    $id     The filter id
-     * @param mixed     $value  The filter value
+     * @param   string  $id     The filter id
+     * @param   mixed   $value  The filter value
      */
-    public function __construct(string $id, $value = null)
+    public function __construct(string $id, mixed $value = null)
     {
         if (!preg_match('/^[A-Za-z0-9_-]+$/', $id)) {
             throw new AdminException('not a valid id');
@@ -59,11 +59,11 @@ class DefaultFilter
     /**
      * Magic isset filter properties
      *
-     * @param  string  $property    The property
+     * @param   string  $property   The property
      *
-     * @return boolean              Is set
+     * @return  bool                Is set
      */
-    public function __isset(string $property)
+    public function __isset(string $property): bool
     {
         return isset($this->properties[$property]);
     }
@@ -71,11 +71,11 @@ class DefaultFilter
     /**
      * Magic get
      *
-     * @param  string $property     The property
+     * @param   string  $property   The property
      *
-     * @return mixed  Property
+     * @return  mixed               Property
      */
-    public function __get($property)
+    public function __get(string $property): mixed
     {
         return $this->get($property);
     }
@@ -83,11 +83,11 @@ class DefaultFilter
     /**
      * Get a filter property
      *
-     * @param  string $property     The property
+     * @param   string  $property   The property
      *
-     * @return mixed                The value
+     * @return  mixed               The value
      */
-    public function get(string $property)
+    public function get(string $property): mixed
     {
         return $this->properties[$property] ?? null;
     }
@@ -95,12 +95,12 @@ class DefaultFilter
     /**
      * Magic set
      *
-     * @param string $property  The property
-     * @param mixed  $value     The value
+     * @param   string          $property   The property
+     * @param   mixed           $value      The value
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter               The filter instance
      */
-    public function __set($property, $value)
+    public function __set(string $property, mixed $value)
     {
         return $this->set($property, $value);
     }
@@ -108,12 +108,12 @@ class DefaultFilter
     /**
      * Set a property value
      *
-     * @param string $property  The property
-     * @param mixed  $value     The value
+     * @param   string          $property   The property
+     * @param   mixed           $value      The value
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter               The filter instance
      */
-    public function set($property, $value)
+    public function set(string $property, mixed $value): DefaultFilter
     {
         if (isset($this->properties[$property]) && method_exists($this, $property)) {
             return call_user_func([$this, $property], $value);
@@ -125,11 +125,11 @@ class DefaultFilter
     /**
      * Set filter form type
      *
-     * @param string $type      The type
+     * @param   string          $type   The type
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter           The filter instance
      */
-    public function form(string $type)
+    public function form(string $type): DefaultFilter
     {
         if (in_array($type, ['none', 'input', 'select', 'html'])) {
             $this->properties['form'] = $type;
@@ -141,11 +141,11 @@ class DefaultFilter
     /**
      * Set filter form title
      *
-     * @param string $title     The title
+     * @param  string           $title  The title
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter           The filter instance
      */
-    public function title(string $title)
+    public function title(string $title): DefaultFilter
     {
         $this->properties['title'] = $title;
 
@@ -157,12 +157,12 @@ class DefaultFilter
      *
      * If filter form is a select box, this is the select options
      *
-     * @param array     $options    The options
-     * @param boolean   $set_form   Auto set form type
+     * @param   array           $options    The options
+     * @param   bool            $set_form   Auto set form type
      *
-     * @return DefaultFilter        The filter instance
+     * @return  DefaultFilter               The filter instance
      */
-    public function options(array $options, $set_form = true)
+    public function options(array $options, bool $set_form = true): DefaultFilter
     {
         $this->properties['options'] = $options;
         if ($set_form) {
@@ -175,11 +175,11 @@ class DefaultFilter
     /**
      * Set filter value
      *
-     * @param mixed $value      The value
+     * @param   mixed           $value  The value
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter           The filter instance
      */
-    public function value($value)
+    public function value(mixed $value): DefaultFilter
     {
         $this->properties['value'] = $value;
 
@@ -189,11 +189,11 @@ class DefaultFilter
     /**
      * Set filter column in form
      *
-     * @param boolean $prime    First column
+     * @param   boolean         $prime  First column
      *
-     * @return DefaultFilter    The filter instance
+     * @return  DefaultFilter           The filter instance
      */
-    public function prime(bool $prime)
+    public function prime(bool $prime): DefaultFilter
     {
         $this->properties['prime'] = $prime;
 
@@ -203,12 +203,12 @@ class DefaultFilter
     /**
      * Set filter html contents
      *
-     * @param string    $contents   The contents
-     * @param boolean   $set_form   Auto set form type
+     * @param   string          $contents   The contents
+     * @param   bool            $set_form   Auto set form type
      *
-     * @return DefaultFilter        The filter instance
+     * @return  DefaultFilter               The filter instance
      */
-    public function html(string $contents, $set_form = true)
+    public function html(string $contents, bool $set_form = true): DefaultFilter
     {
         $this->properties['html'] = $contents;
         if ($set_form) {
@@ -221,15 +221,15 @@ class DefaultFilter
     /**
      * Set filter param (list query param)
      *
-     * @param  string|null           $name  The param name
-     * @param  mixed                 $value The param value
+     * @param   string|null     $name   The param name
+     * @param   mixed           $value  The param value
      *
-     * @return DefaultFilter         The filter instance
+     * @return  DefaultFilter           The filter instance
      */
-    public function param($name = null, $value = null)
+    public function param(?string $name = null, mixed $value = null): DefaultFilter
     {
         # filter id as param name
-        if ($name === null) {
+        if (null === $name) {
             $name = $this->properties['id'];
         }
         # filter value as param value
@@ -246,7 +246,7 @@ class DefaultFilter
      *
      * Only input and select forms are parsed
      */
-    public function parse()
+    public function parse(): void
     {
         # form select
         if ($this->form == 'select') {

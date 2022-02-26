@@ -20,7 +20,6 @@ use ArrayObject;
 use Dotclear\Admin\Page\Filter\Filter;
 use Dotclear\Admin\Page\Filter\Filters;
 use Dotclear\Admin\Page\Filter\Filter\DefaultFilter;
-use Dotclear\Exception\AdminException;
 use Dotclear\Core\Utils;
 use Dotclear\Html\Html;
 
@@ -159,7 +158,7 @@ class PostFilter extends Filter
         }
 
         return (new DefaultFilter('format'))
-            ->param('where', ['adminPostFilter', 'getPostFormatParam'])
+            ->param('where', [__CLASS__, 'getPostFormatParam'])
             ->title(__('Format:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -168,7 +167,7 @@ class PostFilter extends Filter
             ->prime(true);
     }
 
-    public static function getPostFormatParam($f)
+    public static function getPostFormatParam($f): string
     {
         return " AND post_format = '" . $f[0] . "' ";
     }
@@ -179,7 +178,7 @@ class PostFilter extends Filter
     public function getPostPasswordFilter(): DefaultFilter
     {
         return (new DefaultFilter('password'))
-            ->param('where', ['adminPostFilter', 'getPostPasswordParam'])
+            ->param('where', [__CLASS__, 'getPostPasswordParam'])
             ->title(__('Password:'))
             ->options([
                 '-'                    => '',
@@ -189,7 +188,7 @@ class PostFilter extends Filter
             ->prime(true);
     }
 
-    public static function getPostPasswordParam($f)
+    public static function getPostPasswordParam($f): string
     {
         return ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL ';
     }
@@ -247,8 +246,8 @@ class PostFilter extends Filter
         }
 
         return (new DefaultFilter('month'))
-            ->param('post_month', ['adminPostFilter', 'getPostMonthParam'])
-            ->param('post_year', ['adminPostFilter', 'getPostYearParam'])
+            ->param('post_month', [__CLASS__, 'getPostMonthParam'])
+            ->param('post_year', [__CLASS__, 'getPostYearParam'])
             ->title(__('Month:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -256,12 +255,12 @@ class PostFilter extends Filter
             ));
     }
 
-    public static function getPostMonthParam($f)
+    public static function getPostMonthParam($f): string
     {
         return substr($f[0], 4, 2);
     }
 
-    public static function getPostYearParam($f)
+    public static function getPostYearParam($f): string
     {
         return substr($f[0], 0, 4);
     }
@@ -299,7 +298,7 @@ class PostFilter extends Filter
     public function getPostCommentFilter(): DefaultFilter
     {
         return (new DefaultFilter('comment'))
-            ->param('where', ['adminPostFilter', 'getPostCommentParam'])
+            ->param('where', [__CLASS__, 'getPostCommentParam'])
             ->title(__('Comments:'))
             ->options([
                 '-'          => '',
@@ -308,7 +307,7 @@ class PostFilter extends Filter
             ]);
     }
 
-    public static function getPostCommentParam($f)
+    public static function getPostCommentParam($f): string
     {
         return " AND post_open_comment = '" . $f[0] . "' ";
     }
@@ -319,7 +318,7 @@ class PostFilter extends Filter
     public function getPostTrackbackFilter(): DefaultFilter
     {
         return (new DefaultFilter('trackback'))
-            ->param('where', ['adminPostFilter', 'getPostYearParam'])
+            ->param('where', [__CLASS__, 'getPostYearParam'])
             ->title(__('Trackbacks:'))
             ->options([
                 '-'          => '',
@@ -328,7 +327,7 @@ class PostFilter extends Filter
             ]);
     }
 
-    public static function getPostTrackbackParam($f)
+    public static function getPostTrackbackParam($f): string
     {
         return " AND post_open_tb = '" . $f[0] . "' ";
     }

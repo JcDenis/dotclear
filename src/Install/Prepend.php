@@ -43,7 +43,7 @@ class Prepend extends Core
         return $this->favorite;
     }
 
-    protected function process()
+    protected function process(): void
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {

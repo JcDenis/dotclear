@@ -13,24 +13,35 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Catalog;
 
+use ArrayObject;
+
+use Dotclear\Database\Record;
+
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
 class Catalog
 {
+    /** @var    Record  The catalog record */
     protected $rs;
+
+    /** @var    int     The catalog count */
     protected $rs_count;
+
+    /** @var    string  The HTML representation of previous */
     protected $html_prev;
+
+    /** @var    string  The HTML representation of next */
     protected $html_next;
 
     /**
      * Constructs a new instance.
      *
-     * @param      record  $rs        The record
-     * @param      mixed   $rs_count  The rs count
+     * @param   Record  $rs         The record
+     * @param   int     $rs_count   The rs count
      */
-    public function __construct($rs, $rs_count)
+    public function __construct(Record $rs, int $rs_count)
     {
         $this->rs        = $rs;
         $this->rs_count  = (int) $rs_count;
@@ -41,10 +52,10 @@ class Catalog
     /**
      * Get user defined columns
      *
-     * @param      string               $type   The type
-     * @param      array|ArrayObject    $cols   The columns
+     * @param   string          $type   The type
+     * @param   ArrayObject     $cols   The columns
      */
-    public function userColumns($type, $cols)
+    public function userColumns(string $type, ArrayObject $cols): void
     {
         $cols = dotclear()->listoption()->getUserColumns($type, $cols);
     }

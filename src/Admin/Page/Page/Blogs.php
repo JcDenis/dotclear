@@ -64,7 +64,7 @@ class Blogs extends Page
             $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
         }
 
-        return new BlogCatalog($rs, $counter->f(0));
+        return new BlogCatalog($rs, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

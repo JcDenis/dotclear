@@ -17,9 +17,8 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -31,12 +30,12 @@ class BlogCatalog extends Catalog
     /**
      * Display a blog list
      *
-     * @param      integer  $page           The page
-     * @param      integer  $nb_per_page    The number of per page
-     * @param      string   $enclose_block  The enclose block
-     * @param      bool     $filter         The filter flag
+     * @param   int     $page           The page
+     * @param   int     $nb_per_page    The number of per page
+     * @param   string  $enclose_block  The enclose block
+     * @param   bool    $filter         The filter flag
      */
-    public function display($page, $nb_per_page, $enclose_block = '', $filter = false)
+    public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false): void
     {
         if ($this->rs->isEmpty()) {
             if ($filter) {
@@ -113,11 +112,11 @@ class BlogCatalog extends Catalog
     /**
      * Get a blog line
      *
-     * @param      bool    $checked  The checked flag
+     * @param   bool    $checked    The checked flag
      *
-     * @return     string
+     * @return  string              The line
      */
-    private function blogLine($checked = false)
+    private function blogLine(bool $checked = false): string
     {
         $blog_id = Html::escapeHTML($this->rs->blog_id);
 

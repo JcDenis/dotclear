@@ -13,17 +13,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
-use Dotclear\Exception\AdminException;
-
 use Dotclear\Admin\Page\Action\Action;
-
-use Dotclear\Utils\L10n;
+use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Utils\L10n;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class DefaultPostAction
 {
-    public static function PostAction(Action $ap)
+    public static function PostAction(Action $ap): void
     {
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
@@ -71,7 +73,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostStatus(Action $ap, $post)
+    public static function doChangePostStatus(Action $ap, array $post): void
     {
         switch ($ap->getAction()) {
             case 'unpublish':
@@ -127,7 +129,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doUpdateSelectedPost(Action $ap, $post)
+    public static function doUpdateSelectedPost(Action $ap, array $post): void
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {

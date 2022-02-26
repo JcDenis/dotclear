@@ -31,6 +31,10 @@ use Dotclear\Html\XmlTag;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
 
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
+
 class Media extends Manager
 {
     protected $table; ///< <b>string</b> Media table name

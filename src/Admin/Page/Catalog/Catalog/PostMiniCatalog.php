@@ -17,7 +17,6 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
@@ -30,11 +29,11 @@ class PostMiniCatalog extends Catalog
     /**
      * Display a mini post list
      *
-     * @param      integer  $page           The page
-     * @param      integer  $nb_per_page    The number of per page
-     * @param      string   $enclose_block  The enclose block
+     * @param   int     $page           The page
+     * @param   int     $nb_per_page    The number of per page
+     * @param   string  $enclose_block  The enclose block
      */
-    public function display($page, $nb_per_page, $enclose_block = '')
+    public function display(int $page, int $nb_per_page, string $enclose_block = ''): void
     {
         if ($this->rs->isEmpty()) {
             echo '<p><strong>' . __('No entry') . '</strong></p>';
@@ -81,9 +80,9 @@ class PostMiniCatalog extends Catalog
     /**
      * Get a line.
      *
-     * @return     string
+     * @return  string  The line
      */
-    private function postLine()
+    private function postLine(): string
     {
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';

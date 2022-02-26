@@ -17,12 +17,11 @@ namespace Dotclear\Admin\Page\Filter;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Admin\Page\Filter\Filter\DefaultFilter;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
-use Dotclear\Html\Form\Select;
+use Dotclear\Html\Html;
 use Dotclear\Html\Form\Label;
 use Dotclear\Html\Form\Number;
+use Dotclear\Html\Form\Select;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -30,16 +29,16 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Filter
 {
-    /** @var string Filter form type (main id) */
+    /** @var    string  Filter form type (main id) */
     protected $type;
 
-    /** @var array Filters objects */
+    /** @var    array   Filters objects */
     protected $filters = [];
 
-    /** @var boolean Show filter indicator */
+    /** @var    bool    Show filter indicator */
     protected $show = false;
 
-    /** @var boolean Has user preferences */
+    /** @var    bool    Has user preferences */
     protected $has_user_pref = false;
 
     /**
@@ -57,11 +56,11 @@ class Filter
     /**
      * Get user defined filter options (sortby, order, nb)
      *
-     * @param   string   $option     The option
+     * @param   string                      $option     The option
      *
-     * @return  mixed                User option
+     * @return  int|string|array|ArrayObject            User option
      */
-    public function userOptions(?string $option = null)
+    public function userOptions(?string $option = null): int|string|array|ArrayObject
     {
         return dotclear()->listoption()->getUserFilters($this->type, $option);
     }
@@ -69,7 +68,7 @@ class Filter
     /**
      * Parse _GET user pref options (sortby, order, nb)
      */
-    protected function parseOptions()
+    protected function parseOptions(): void
     {
         $options = dotclear()->listoption()->getUserFilters($this->type);
         if (!empty($options)) {
@@ -117,12 +116,12 @@ class Filter
     /**
      * Get filters key/value pairs
      *
-     * @param  boolean $escape  Escape widlcard %
-     * @param  boolean $ui_only Limit to filters with ui
+     * @param   bool    $escape     Escape widlcard %
+     * @param   bool    $ui_only    Limit to filters with ui
      *
-     * @return array            The filters
+     * @return  array               The filters
      */
-    public function values($escape = false, $ui_only = false)
+    public function values(bool $escape = false, bool $ui_only = false): array
     {
         $res = [];
         foreach ($this->filters as $id => $filter) {
@@ -141,12 +140,12 @@ class Filter
     /**
      * Get a filter value
      *
-     * @param  string $id The filter id
-     * @param  string $id The filter value if not exists
+     * @param   string  $id         The filter id
+     * @param   mixed   $undefined  The value to return if not set
      *
-     * @return mixed      The filter value
+     * @return  mixed               The filter value
      */
-    public function value(string $id, $undefined = null)
+    public function value(string $id, mixed $undefined = null): mixed
     {
         return isset($this->filters[$id]) ? $this->filters[$id]->value : $undefined;
     }
@@ -154,11 +153,11 @@ class Filter
     /**
      * Magic get filter value
      *
-     * @param  string   $id     The filter id
+     * @param   string  $id     The filter id
      *
-     * @return mixed            The filter value
+     * @return  mixed           The filter value
      */
-    public function __get($id)
+    public function __get(string $id): mixed
     {
         return $this->value($id);
     }
@@ -166,12 +165,12 @@ class Filter
     /**
      * Add filter(s)
      *
-     * @param array|string|DefaultFilter|null   $filter     The filter(s) array or id or object
-     * @param mixed                             $value      The filter value if $filter is id
+     * @param   array|string|DefaultFilter|null     $filter     The filter(s) array or id or object
+     * @param   mixed                               $value      The filter value if $filter is id
      *
-     * @return mixed                                        The filter value
+     * @return  mixed                                           The filter value
      */
-    public function add($filter = null, $value = null)
+    public function add(array|string|DefaultFilter|null $filter = null, mixed $value = null): mixed
     {
         # empty filter (ex: do not show form if there are no categories on a blog)
         if (null === $filter) {
@@ -215,11 +214,11 @@ class Filter
     /**
      * Remove a filter
      *
-     * @param  string $id   The filter id
+     * @param   string  $id     The filter id
      *
-     * @return boolean      The success
+     * @return  bool            The success
      */
-    public function remove(string $id)
+    public function remove(string $id): bool
     {
         if (array_key_exists($id, $this->filters)) {
             unset($this->filters[$id]);
@@ -233,9 +232,9 @@ class Filter
     /**
      * Get list query params
      *
-     * @return array    The query params
+     * @return  array   The query params
      */
-    public function params()
+    public function params(): array
     {
         $filters = $this->values();
 
@@ -275,11 +274,11 @@ class Filter
     /**
      * Show foldable filters form
      *
-     * @param  boolean  $set    Force to show filter form
+     * @param   bool    $set    Force to show filter form
      *
-     * @return boolean          Show filter form
+     * @return  bool            Show filter form
      */
-    public function show($set = false): bool
+    public function show(bool $set = false): bool
     {
         if ($set === true) {
             $this->show = true;
@@ -291,9 +290,11 @@ class Filter
     /**
      * Get js filters foldable form control
      *
-     * @param string $reset_url     The filter reset url
+     * @param   string  $reset_url  The filter reset url
+     *
+     * @return  string              The HTML JS code
      */
-    public function js(string $reset_url = '')
+    public function js(string $reset_url = ''): string
     {
         $js   = [
             'show_filters'      => $this->show(),
@@ -302,7 +303,6 @@ class Filter
             'filter_reset_url'  => $reset_url ?: dotclear()->adminurl()->get(dotclear()->adminurl()->called()),
         ];
 
-        //return $var . Page::jsFilterControl($this->show());
         return
             Page::jsJson('filter_controls', $js) .
             Page::jsJson('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
@@ -313,10 +313,10 @@ class Filter
     /**
      * Echo filter form
      *
-     * @param  array|string     $adminurl   The registered adminurl
-     * @param  string           $extra      The extra contents
+     * @param   array|string    $adminurl   The registered adminurl
+     * @param   string          $extra      The extra contents
      */
-    public function display($adminurl, string $extra = '')
+    public function display(array|string $adminurl, string $extra = ''): void
     {
         $tab = '';
         if (is_array($adminurl)) {

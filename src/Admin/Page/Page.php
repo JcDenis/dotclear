@@ -258,7 +258,7 @@ abstract class Page
     /**
      * The top of a popup.
      */
-    public function pageOpen() //(string $title = '', string $head = '', string $breadcrumb = '', array $options = []): void
+    public function pageOpen(): void
     {
         $js   = [];
 
@@ -469,7 +469,7 @@ abstract class Page
     /**
      * The top of a popup.
      */
-    public function pageOpenPopup(): void //(string $title = '', string $head = '', string $breadcrumb = ''): void
+    public function pageOpenPopup(): void
     {
         $js   = [];
 
@@ -542,7 +542,7 @@ abstract class Page
             '<div id="content">' . "\n";
     }
 
-    private function pageBreadcrumb(): void //(?array $elements = null, array $options = []): string
+    private function pageBreadcrumb(): void
     {
         $elements = $this->page_breadcrumb['elements'];
         $options  = $this->page_breadcrumb['options'];

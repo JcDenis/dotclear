@@ -75,7 +75,7 @@ class Users extends Page
             $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
 
-        return new UserCatalog($rsStatic, $counter->f(0));
+        return new UserCatalog($rsStatic, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

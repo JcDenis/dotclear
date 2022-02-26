@@ -13,17 +13,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
-use Dotclear\Exception\AdminException;
+use ArrayObject;
 
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Action\Action\DefaultCommentAction;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class CommentAction extends Action
 {
-    public function __construct($uri, $redirect_args = [])
+    public function __construct(string $uri, array $redirect_args = [])
     {
         parent::__construct($uri, $redirect_args);
 
@@ -44,29 +47,19 @@ class CommentAction extends Action
         ]);
     }
 
-    protected function loadDefaults()
+    protected function loadDefaults(): void
     {
-        // We could have added a behavior here, but we want default action
-        // to be setup first
         DefaultCommentAction::CommentAction($this);
         dotclear()->behavior()->call('adminCommentsActionsPage', $this);
     }
 
-    public function error(\Exception $e)
+    public function error(\Exception $e): void
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 
-    /**
-     * getcheckboxes -returns html code for selected entries
-     *             as a table containing entries checkboxes
-     *
-     * @access public
-     *
-     * @return string the html code for checkboxes
-     */
-    public function getCheckboxes()
+    public function getCheckboxes(): string
     {
         $ret = '<table class="posts-list"><tr>' .
         '<th colspan="2">' . __('Author') . '</th><th>' . __('Title') . '</th>' .
@@ -85,7 +78,7 @@ class CommentAction extends Action
         return $ret;
     }
 
-    protected function fetchEntries($from)
+    protected function fetchEntries(ArrayObject $from): void
     {
         $params = [];
         if (!empty($from['comments'])) {

@@ -17,9 +17,8 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -31,14 +30,14 @@ class CommentCatalog extends Catalog
     /**
      * Display a comment list
      *
-     * @param      integer  $page           The page
-     * @param      integer  $nb_per_page    The number of per page
-     * @param      string   $enclose_block  The enclose block
-     * @param      bool     $filter         The filter flag
-     * @param      bool     $spam           The spam flag
-     * @param      bool     $show_ip        The show ip flag
+     * @param   int     $page           The page
+     * @param   int     $nb_per_page    The number of per page
+     * @param   string  $enclose_block  The enclose block
+     * @param   bool    $filter         The filter flag
+     * @param   bool    $spam           The spam flag
+     * @param   bool    $show_ip        The show ip flag
      */
-    public function display($page, $nb_per_page, $enclose_block = '', $filter = false, $spam = false, $show_ip = true)
+    public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false, bool $spam = false, bool $show_ip = true): void
     {
         if ($this->rs->isEmpty()) {
             if ($filter) {
@@ -151,13 +150,12 @@ class CommentCatalog extends Catalog
     /**
      * Get a comment line
      *
-     * @param      bool    $checked  The checked flag
-     * @param      bool    $spam     The spam flag
-     * @param      array   $filters  The filters
+     * @param   bool    $checked    The checked flag
+     * @param   bool    $spam       The spam flag
      *
-     * @return     string
+     * @return  string              The line
      */
-    private function commentLine($checked = false, $spam = false)
+    private function commentLine(bool $checked = false, bool $spam = false): string
     {
         global $author, $status, $sortby, $order, $nb;
 

@@ -15,13 +15,13 @@ namespace Dotclear\Admin\Page\Catalog\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Core\Media;
-
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
-use Dotclear\Html\Html;
+use Dotclear\Admin\Page\Filter\Filter\MediaFilter;
+use Dotclear\Core\Media;
+use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 use Dotclear\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -33,10 +33,12 @@ class MediaCatalog extends Catalog
     /**
      * Display a media list
      *
-     * @param      adminMediaFilter     $filters        The filters
-     * @param      string               $enclose_block  The enclose block
+     * @param   MediaFilter     $filters        The filters
+     * @param   string          $enclose_block  The enclose block
+     * @param   bool            $query          If it's a query or not
+     * @param   string          $page_adminurl  Page URL
      */
-    public function display($filters, $enclose_block = '', $query = false, $page_adminurl = 'admin.media')
+    public function display(MediaFilter $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
     {
         $nb_items   = $this->rs_count - ($filters->d ? 1 : 0);
         $nb_folders = $filters->d ? -1 : 0;
@@ -101,7 +103,18 @@ class MediaCatalog extends Catalog
         }
     }
 
-    public static function mediaLine($filters, $f, $i, $query = false, $page_adminurl = 'admin.media')
+    /**
+     * Get a media line
+     *
+     * @param   MediaFilter     $filters        The filters
+     * @param   Item            $f              The current media item
+     * @param   int             $i              The current index
+     * @param   bool            $query          If it's a query or not
+     * @param   string          $page_adminurl  Page URL
+     *
+     * @return  string                          The line
+     */
+    public static function mediaLine(MediaFilter $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
     {
         $fname = $f->basename;
         $file  = $query ? $f->relname : $f->basename;

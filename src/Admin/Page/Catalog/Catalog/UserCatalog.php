@@ -17,9 +17,8 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -30,12 +29,12 @@ class UserCatalog extends Catalog
     /**
      * Display a user list
      *
-     * @param      integer  $page           The page
-     * @param      integer  $nb_per_page    The number of per page
-     * @param      string   $enclose_block  The enclose block
-     * @param      bool     $filter         The filter flag
+     * @param  int      $page           The page
+     * @param  int      $nb_per_page    The number of per page
+     * @param  string   $enclose_block  The enclose block
+     * @param  bool     $filter         The filter flag
      */
-    public function display($page, $nb_per_page, $enclose_block = '', $filter = false)
+    public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false): void
     {
         if ($this->rs->isEmpty()) {
             if ($filter) {
@@ -100,9 +99,9 @@ class UserCatalog extends Catalog
     /**
      * Get a user line
      *
-     * @return     string
+     * @return  string  The line
      */
-    private function userLine()
+    private function userLine(): string
     {
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';

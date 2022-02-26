@@ -70,7 +70,7 @@ class Comments extends Page
 
         return new CommentCatalog(
             dotclear()->blog()->comments()->getComments($params),
-            dotclear()->blog()->comments()->getComments($params, true)->f(0)
+            (int) dotclear()->blog()->comments()->getComments($params, true)->f(0)
         );
     }
 

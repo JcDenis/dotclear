@@ -68,7 +68,7 @@ class Posts extends Page
         $posts     = dotclear()->blog()->posts()->getPosts($params);
         $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
-        return new PostCatalog($posts, $counter->f(0));
+        return new PostCatalog($posts, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

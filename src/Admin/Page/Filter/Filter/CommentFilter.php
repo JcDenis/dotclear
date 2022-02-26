@@ -66,7 +66,7 @@ class CommentFilter extends Filter
     public function getCommentTypeFilter(): DefaultFilter
     {
         return (new DefaultFilter('type'))
-            ->param('comment_trackback', ['adminCommentFilter', 'getCommentTypeParam'])
+            ->param('comment_trackback', [__CLASS__, 'getCommentTypeParam'])
             ->title(__('Type:'))
             ->options([
                 '-'             => '',
@@ -76,7 +76,7 @@ class CommentFilter extends Filter
             ->prime(true);
     }
 
-    public static function getCommentTypeParam($f)
+    public static function getCommentTypeParam($f): bool
     {
         return $f[0] == 'tb';
     }

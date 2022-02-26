@@ -13,13 +13,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
-use Dotclear\Exception\AdminException;
+use ArrayObject;
 
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Action\Action\DefaultBlogAction;
-
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class BlogAction extends Action
 {
@@ -46,20 +49,18 @@ class BlogAction extends Action
             ]);
     }
 
-    protected function loadDefaults()
+    protected function loadDefaults(): void
     {
-        // We could have added a behavior here, but we want default action
-        // to be setup first
         DefaultBlogAction::BlogsAction($this);
     }
 
-    public function error(\Exception $e)
+    public function error(\Exception $e): void
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
     }
 
-    public function getCheckboxes()
+    public function getCheckboxes(): string
     {
         $ret = '';
         foreach ($this->entries as $id => $res) {
@@ -80,7 +81,7 @@ class BlogAction extends Action
             '</tr>' . $ret . '</table>';
     }
 
-    protected function fetchEntries($from)
+    protected function fetchEntries(ArrayObject $from): void
     {
         $params = [];
         if (!empty($from['blogs'])) {

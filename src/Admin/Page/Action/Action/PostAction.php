@@ -13,17 +13,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
-use Dotclear\Exception\AdminException;
+use ArrayObject;
 
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Action\Action\DefaultPostAction;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class PostAction extends Action
 {
-    public function __construct($uri, $redirect_args = [])
+    public function __construct(string $uri, array $redirect_args = [])
     {
         parent::__construct($uri, $redirect_args);
 
@@ -43,10 +46,8 @@ class PostAction extends Action
         ]);
     }
 
-    protected function loadDefaults()
+    protected function loadDefaults(): void
     {
-        // We could have added a behavior here, but we want default action
-        // to be setup first
         DefaultPostAction::PostAction($this);
         dotclear()->behavior()->call('adminPostsActionsPage', $this);
     }
@@ -57,7 +58,7 @@ class PostAction extends Action
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
-    protected function fetchEntries($from)
+    protected function fetchEntries(ArrayObject $from): void
     {
         $params = [];
         if (!empty($from['entries'])) {

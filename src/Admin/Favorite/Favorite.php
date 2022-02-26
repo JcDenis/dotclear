@@ -3,6 +3,8 @@
  * @class Dotclear\Admin\Favorite\Favorite
  * @brief Dotclear admin favorites handling facilities class
  *
+ * Accessible from dotclear()->favorite()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -75,9 +77,6 @@ class Favorite
             if (!is_array($this->global_prefs)) {
                 $this->global_prefs = [];
             }
-        } else {
-            // No favorite defined ? Huhu, let's go for a migration
-            $this->migrateFavorites();
         }
     }
 
@@ -188,31 +187,6 @@ class Favorite
                 $v['active'] = $handler == dotclear()->adminurl()->called();
             }
         }
-    }
-
-    /**
-     * Migrate Favorites
-     *
-     * Migrate dc < 2.6 favorites to new format
-     */
-    protected function migrateFavorites(): void
-    {
-        $fav_ws             = dotclear()->user()->preference()->addWorkspace('favorites');
-        $this->local_prefs  = [];
-        $this->global_prefs = [];
-        foreach ($fav_ws->dumpPrefs() as $k => $v) {
-            $fav = @unserialize($v['value']);
-            if (is_array($fav)) {
-                if ($v['global']) {
-                    $this->global_prefs[] = $fav['name'];
-                } else {
-                    $this->local_prefs[] = $fav['name'];
-                }
-            }
-        }
-        $this->ws->put('favorites', $this->global_prefs, 'array', 'User favorites', true, true);
-        $this->ws->put('favorites', $this->local_prefs);
-        $this->user_prefs = $this->getFavorites($this->local_prefs);
     }
 
     /**

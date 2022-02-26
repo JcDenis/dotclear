@@ -24,7 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class PagesAction extends PostAction
 {
-    public function __construct($uri, $redirect_args = [])
+    public function __construct(string $uri, array $redirect_args = [])
     {
         parent::__construct($uri, $redirect_args);
         $this->redirect_fields = [];
@@ -37,18 +37,18 @@ class PagesAction extends PostAction
             ->setPageHead(static::jsLoad('js/_posts_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Pages')                               => $this->getRedirection(true),
-                __('Pages actions')                       => ''
+                __('Pages')                                => $this->getRedirection(true),
+                __('Pages actions')                        => ''
             ]);
     }
 
-    public function error(\Exception $e)
+    public function error(\Exception $e): void
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to pages list') . '</a></p>');
     }
 
-    public function loadDefaults()
+    public function loadDefaults(): void
     {
         $class = 'Dotclear\\Admin\\Page\\Action\\Action\\DefaultPostAction';
 
@@ -94,7 +94,7 @@ class PagesAction extends PostAction
         return parent::getPagePrepend();
     }
 
-    public static function doReorderPages(Action $ap, $post)
+    public static function doReorderPages(Action $ap, array $post): void
     {
         foreach ($post['order'] as $post_id => $value) {
             if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {

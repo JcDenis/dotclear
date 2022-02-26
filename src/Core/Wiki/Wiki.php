@@ -15,7 +15,7 @@ namespace Dotclear\Core\Wiki;
 
 use Dotclear\Core\Wiki\Wiki2xhtml;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
+if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 

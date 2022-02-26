@@ -157,7 +157,7 @@ class Search extends Page
 
         try {
             self::$count   = (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0);
-            self::$list    = new PostCatalog(dotclear()->blog()->posts()->getPosts($params), self::$count);
+            self::$list    = new PostCatalog(dotclear()->blog()->posts()->getPosts($params), (int) self::$count);
             self::$actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;
@@ -210,7 +210,7 @@ class Search extends Page
 
         try {
             self::$count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
-            self::$list    = new CommentCatalog(dotclear()->blog()->comments()->getComments($params), self::$count);
+            self::$list    = new CommentCatalog(dotclear()->blog()->comments()->getComments($params), (int) self::$count);
             self::$actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;

@@ -17,9 +17,8 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Pager;
 use Dotclear\Admin\Page\Catalog\Catalog;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -31,12 +30,12 @@ class PostCatalog extends Catalog
     /**
      * Display admin post list
      *
-     * @param      integer  $page           The page
-     * @param      integer  $nb_per_page    The number of per page
-     * @param      string   $enclose_block  The enclose block
-     * @param      bool     $filter         The filter
+     * @param   int     $page           The page
+     * @param   int     $nb_per_page    The number of per page
+     * @param   string  $enclose_block  The enclose block
+     * @param   bool    $filter         The filter
      */
-    public function display($page, $nb_per_page, $enclose_block = '', $filter = false)
+    public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false): void
     {
         if ($this->rs->isEmpty()) {
             if ($filter) {
@@ -147,11 +146,11 @@ class PostCatalog extends Catalog
     /**
      * Get a line.
      *
-     * @param      bool  $checked  The checked flag
+     * @param   bool    $checked    The checked flag
      *
-     * @return     string
+     * @return  string              The line
      */
-    private function postLine($checked)
+    private function postLine(bool $checked): string
     {
         if (dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             $cat_link = '<a href="' . dotclear()->adminurl()->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';

@@ -3,6 +3,8 @@
  * @class Dotclear\Admin\Notice\Notice
  * @brief Dotclear backend notices handling facilities
  *
+ * Accessible from dotclear()->notice()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -13,10 +15,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Notice;
 
-use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
-use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Utils\Dt;
 

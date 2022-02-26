@@ -61,7 +61,7 @@ class MediaFilter extends Filter
     /**
      * Cope with old behavior
      */
-    protected function legacyBehavior()
+    protected function legacyBehavior(): void
     {
         $values = new ArrayObject($this->values());
 
@@ -76,7 +76,7 @@ class MediaFilter extends Filter
         }
     }
 
-    protected function getPostIdFilter()
+    protected function getPostIdFilter(): DefaultFilter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (integer) $_REQUEST['post_id'] : null;
         if ($post_id) {
@@ -92,17 +92,17 @@ class MediaFilter extends Filter
         return new DefaultFilter('post_id', $post_id);
     }
 
-    public function getPostTitle()
+    public function getPostTitle(): string
     {
         return $this->post_title;
     }
 
-    public function getPostType()
+    public function getPostType(): string
     {
         return $this->post_type;
     }
 
-    protected function getDirFilter()
+    protected function getDirFilter(): DefaultFilter
     {
         $get = $_REQUEST['d'] ?? null;
         if ($get === null && isset($_SESSION['media_manager_dir'])) {
@@ -118,7 +118,7 @@ class MediaFilter extends Filter
         return new DefaultFilter('d', $get);
     }
 
-    protected function getFileModeFilter()
+    protected function getFileModeFilter(): DefaultFilter
     {
         if (!empty($_GET['file_mode'])) {
             $_SESSION['media_file_mode'] = $_GET['file_mode'] == 'grid' ? 'grid' : 'list';
@@ -128,31 +128,31 @@ class MediaFilter extends Filter
         return new DefaultFilter('file_mode', $get);
     }
 
-    protected function getPluginIdFilter()
+    protected function getPluginIdFilter(): DefaultFilter
     {
         $get = isset($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
 
         return new DefaultFilter('plugin_id', $get);
     }
 
-    protected function getLinkTypeFilter()
+    protected function getLinkTypeFilter(): DefaultFilter
     {
         $get = !empty($_REQUEST['link_type']) ? Html::escapeHTML($_REQUEST['link_type']) : null;
 
         return new DefaultFilter('link_type', $get);
     }
 
-    protected function getPopupFilter()
+    protected function getPopupFilter(): DefaultFilter
     {
         $get = (integer) !empty($_REQUEST['popup']);
 
         return new DefaultFilter('popup', $get);
     }
 
-    protected function getSelectFilter()
+    protected function getSelectFilter(): DefaultFilter
     {
         // 0 : none, 1 : single media, >1 : multiple media
-        $get = !empty($_REQUEST['select']) ? (integer) $_REQUEST['select'] : 0;
+        $get = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0;
 
         return new DefaultFilter('select', $get);
     }

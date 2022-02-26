@@ -3,6 +3,8 @@
  * @class Dotclear\Admin\Menu\Menu
  * @brief Dotclear admin menu helper
  *
+ * Accessible from dotclear()->summary()['a_menu_id']
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -28,7 +30,7 @@ class Menu
     protected $title;
 
     /**
-     * Constructs a new instance.
+     * Constructor
      *
      * @param   string  $id         The identifier
      * @param   string  $title      The title
@@ -51,16 +53,16 @@ class Menu
     /**
      * Adds an item.
      *
-     * @param      string           $title   The title
-     * @param      string           $url     The url
-     * @param      string|array     $img     The image
-     * @param      mixed            $active  The active flag
-     * @param      bool             $show    The show flag
-     * @param      mixed            $id      The identifier
-     * @param      mixed            $class   The class
-     * @param      bool             $pinned  The pinned flag
+     * @param      string           $title      The title
+     * @param      string           $url        The url
+     * @param      string|array     $img        The image
+     * @param      bool             $active     The active flag
+     * @param      bool             $show       The show flag
+     * @param      string|null      $id         The identifier
+     * @param      string|null      $class      The class
+     * @param      bool             $pinned     The pinned flag
      */
-    public function addItem($title, $url, $img, $active, $show = true, $id = null, $class = null, $pinned = false)
+    public function addItem(string $title, string $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
         if ($show) {
             $item = $this->itemDef($title, $url, $img, $active, $id, $class);
@@ -75,16 +77,16 @@ class Menu
     /**
      * Prepends an item.
      *
-     * @param      string           $title   The title
-     * @param      string           $url     The url
-     * @param      string|array     $img     The image
-     * @param      mixed            $active  The active flag
-     * @param      bool             $show    The show flag
-     * @param      mixed            $id      The identifier
-     * @param      mixed            $class   The class
-     * @param      bool             $pinned  The pinned flag
+     * @param      string           $title      The title
+     * @param      string           $url        The url
+     * @param      string|array     $img        The image
+     * @param      bool             $active     The active flag
+     * @param      bool             $show       The show flag
+     * @param      string|null      $id         The identifier
+     * @param      string|null      $class      The class
+     * @param      bool             $pinned     The pinned flag
      */
-    public function prependItem($title, $url, $img, $active, $show = true, $id = null, $class = null, $pinned = false)
+    public function prependItem(string $title, string $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
         if ($show) {
             $item = $this->itemDef($title, $url, $img, $active, $id, $class);
@@ -99,9 +101,9 @@ class Menu
     /**
      * Draw a menu
      *
-     * @return     string  ( description_of_the_return_value )
+     * @return  string  The forged menu
      */
-    public function draw()
+    public function draw(): string
     {
         if (count($this->items) + count($this->pinned) == 0) {
             return '';
@@ -142,16 +144,16 @@ class Menu
     /**
      * Get a menu item HTML code
      *
-     * @param   string          $title   The title
-     * @param   mixed           $url     The url
-     * @param   string|array    $img     The image
-     * @param   mixed           $active  The active flag
-     * @param   mixed           $id      The identifier
-     * @param   mixed            $class   The class
+     * @param   string          $title      The title
+     * @param   string          $url        The url
+     * @param   string|array    $img        The image
+     * @param   bool            $active     The active flag
+     * @param   string|null     $id         The identifier
+     * @param   string|null     $class      The class
      *
-     * @return  string
+     * @return  string                      The forged menu item
      */
-    protected function itemDef($title, $url, $img, $active, $id = null, $class = null)
+    protected function itemDef(string $title, string $url, string|array $img, bool $active = false, ?string $id = null, ?string $class = null): string
     {
         if (is_array($url)) {
             $link  = $url[0];

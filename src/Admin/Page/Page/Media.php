@@ -20,6 +20,7 @@ use Dotclear\Admin\Page\Filter\Filter\MediaFilter;
 use Dotclear\Admin\Page\Catalog\Catalog;
 use Dotclear\Admin\Page\Catalog\Catalog\MediaCatalog;
 use Dotclear\Database\StaticRecord;
+use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
 use Dotclear\File\Zip\Zip;
@@ -93,7 +94,7 @@ class Media extends Page
 
             $rs = $this->getDirsRecord();
 
-            return new MediaCatalog($rs, $rs->count());
+            return new MediaCatalog($rs, (int) $rs->count());
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
@@ -127,7 +128,7 @@ class Media extends Page
                 $this->filter->d = null;
                 dotclear()->media()->chdir($this->filter->d);
 
-                throw new \Exception(__('Not a valid directory'));
+                throw new AdminException(__('Not a valid directory'));
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

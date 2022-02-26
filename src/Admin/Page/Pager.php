@@ -35,19 +35,19 @@ class Pager
 
     protected $page_url = null;
 
-    public $index_start; ///< integer Start index
-    public $index_end;   ///< integer End index
+    public $index_start;
+    public $index_end;
 
-    public $base_url = null; ///< string Base URL
+    public $base_url = null;
 
-    public $var_page = 'page'; ///< string GET param name for current page
+    public $var_page = 'page';
 
-    public $html_cur_page = '<strong>%s</strong>'; ///< string Current page HTML
-    public $html_link_sep = '-';                   ///< string Link separator
-    public $html_prev     = '&#171;prev.';         ///< string Previous HTML code
-    public $html_next     = 'next&#187;';          ///< string Next HTML code
-    public $html_prev_grp = '...';                 ///< string Next group HTML code
-    public $html_next_grp = '...';                 ///< string Previous group HTML code
+    public $html_cur_page = '<strong>%s</strong>';
+    public $html_link_sep = '-';
+    public $html_prev     = '&#171;prev.';
+    public $html_next     = 'next&#187;';
+    public $html_prev_grp = '...';
+    public $html_next_grp = '...';
 
     protected $form_action;
     protected $form_hidden;
@@ -55,12 +55,12 @@ class Pager
     /**
      * Constructor
      *
-     * @param integer    $env                Current page index
-     * @param integer    $nb_elements        Total number of elements
-     * @param integer    $nb_per_page        Number of items per page
-     * @param integer    $nb_pages_per_group    Number of pages per group
+     * @param   int     $env                    Current page index
+     * @param   int     $nb_elements            Total number of elements
+     * @param   int     $nb_per_page            Number of items per page
+     * @param   int     $nb_pages_per_group     Number of pages per group
      */
-    public function __construct($env, $nb_elements, $nb_per_page = 10, $nb_pages_per_group = 10)
+    public function __construct(int $env, int $nb_elements, int $nb_per_page = 10, int $nb_pages_per_group = 10)
     {
         $this->env                = abs((int) $env);
         $this->nb_elements        = abs((int) $nb_elements);
@@ -101,18 +101,18 @@ class Pager
     }
 
     /**
-     * Gets the link.
+     * Get the link
      *
-     * @param      string  $li_class        The li class
-     * @param      string  $href            The href
-     * @param      string  $img_src         The image source
-     * @param      string  $img_src_nolink  The image source nolink
-     * @param      string  $img_alt         The image alternate
-     * @param      bool    $enable_link     The enable link
+     * @param   string  $li_class           The li class
+     * @param   string  $href               The href
+     * @param   string  $img_src            The image source
+     * @param   string  $img_src_nolink     The image source nolink
+     * @param   string  $img_alt            The image alternate
+     * @param   bool    $enable_link        The enable link
      *
-     * @return     string  The link.
+     * @return  string                      The link
      */
-    protected function getLink($li_class, $href, $img_src, $img_src_nolink, $img_alt, $enable_link)
+    protected function getLink(string $li_class, string $href, string $img_src, string $img_src_nolink, string $img_alt, bool $enable_link): string
     {
         if ($enable_link) {
             $formatter = '<li class="%s btn"><a href="%s"><img src="?df=%s" alt="%s"/></a><span class="hidden">%s</span></li>';
@@ -125,9 +125,9 @@ class Pager
     }
 
     /**
-     * Sets the url.
+     * Set the url.
      */
-    public function setURL()
+    public function setURL(): void
     {
         if ($this->base_url !== null) {
             $this->page_url = $this->base_url;
@@ -195,11 +195,9 @@ class Pager
     /**
      * Pager Links
      *
-     * Returns pager links
-     *
-     * @return string
+     * @return  string  The pager link
      */
-    public function getLinks()
+    public function getLinks(): string
     {
         $this->setURL();
         $htmlFirst = $this->getLink(
@@ -262,7 +260,7 @@ class Pager
         return $this->nb_elements > 0 ? $res : '';
     }
 
-    public function debug()
+    public function debug(): string
     {
         return
         'Elements per page ........... ' . $this->nb_per_page . "\n" .

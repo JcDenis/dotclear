@@ -162,7 +162,7 @@ class Prepend extends Core
     /**
      * Start Dotclear Admin process
      */
-    protected function process()
+    protected function process(): void
     {
         # Load core prepend and so on
         parent::process();
@@ -412,7 +412,7 @@ class Prepend extends Core
         Utils::setlexicalLang('admin', $this->_lang);
     }
 
-    private function adminLoadResources(string $dir, $load_default = true): void
+    private function adminLoadResources(string $dir, bool $load_default = true): void
     {
         $this->adminGetLang();
 

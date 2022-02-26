@@ -6,6 +6,8 @@
  * Dotclear utility class that provides reuseable user preference
  * across all admin page with lists and filters
  *
+ * Accessible from dotclear()->listoption()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -151,12 +153,12 @@ class ListOption
     /**
      * Get sorts filters users preference for a given type
      *
-     * @param   string|null     $type       The filter list type
-     * @param   string|null     $option     The filter list option
+     * @param   string|null     $type           The filter list type
+     * @param   string|null     $option         The filter list option
      *
-     * @return  string|array|ArrayObject    Filters or typed filter or field value(s)
+     * @return  int|string|array|ArrayObject    Filters or typed filter or field value(s)
      */
-    public function getUserFilters(?string $type = null, ?string $option = null): mixed
+    public function getUserFilters(?string $type = null, ?string $option = null): int|string|array|ArrayObject
     {
         if ($this->sorts === null) {
             $sorts = $this->getDefaultFilters();

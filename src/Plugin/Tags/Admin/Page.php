@@ -92,7 +92,7 @@ class Page extends AbstractPage
             try {
                 $this->t_posts     = dotclear()->meta()->getPostsByMeta($params);
                 $counter   = dotclear()->meta()->getPostsByMeta($params, true);
-                $this->t_post_list = new PostCatalog($this->t_posts, $counter->f(0));
+                $this->t_post_list = new PostCatalog($this->t_posts, (int) $counter->f(0));
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

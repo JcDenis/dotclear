@@ -6,6 +6,8 @@
  * Dotclear utility class that provides reuseable combos across all admin
  * form::combo -compatible format
  *
+ * Accessible from dotclear()->combo()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -18,7 +20,8 @@ namespace Dotclear\Admin\Combo;
 
 use ArrayObject;
 
-use Dotclear\Container\User as ContainerUser;
+use Dotclear\Container\User;
+use Dotclear\Database\Record;
 use Dotclear\Html\FormSelectOption;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -31,15 +34,15 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 class Combo
 {
     /**
-     * Returns an hierarchical categories combo from a category record
+     * Return an hierarchical categories combo from a category record
      *
-     * @param      record  $categories     The categories
-     * @param      bool    $include_empty  Includes empty categories
-     * @param      bool    $use_url        Use url or ID
+     * @param   Record  $categories     The categories
+     * @param   bool    $include_empty  Includes empty categories
+     * @param   bool    $use_url        Use url or ID
      *
-     * @return     array   The categories combo.
+     * @return  array                   The categories combo
      */
-    public function getCategoriesCombo($categories, $include_empty = true, $use_url = false)
+    public function getCategoriesCombo(Record $categories, bool $include_empty = true, bool $use_url = false): array
     {
         $categories_combo = [];
         if ($include_empty) {
@@ -58,11 +61,11 @@ class Combo
     }
 
     /**
-     * Returns available post status combo.
+     * Return available post status combo.
      *
-     * @return     array  The post statuses combo.
+     * @return  array   The post statuses combo
      */
-    public function getPostStatusesCombo()
+    public function getPostStatusesCombo(): array
     {
         $status_combo = [];
         foreach (dotclear()->blog()->getAllPostStatus() as $k => $v) {
@@ -73,17 +76,17 @@ class Combo
     }
 
     /**
-     * Returns an users combo from a users record.
+     * Return a users combo from a users record.
      *
-     * @param      record  $users  The users
+     * @param   Record  $users  The users
      *
-     * @return     array   The users combo.
+     * @return  array           The users combo
      */
-    public function getUsersCombo($users)
+    public function getUsersCombo(Record $users): array
     {
         $users_combo = [];
         while ($users->fetch()) {
-            $user_cn = ContainerUser::getUserCN($users->user_id, $users->user_name,
+            $user_cn = User::getUserCN($users->user_id, $users->user_name,
                 $users->user_firstname, $users->user_displayname);
 
             if ($user_cn != $users->user_id) {
@@ -97,13 +100,13 @@ class Combo
     }
 
     /**
-     * Gets the dates combo.
+     * Get the dates combo.
      *
-     * @param      record  $dates  The dates
+     * @param   Record  $dates  The dates
      *
-     * @return     array   The dates combo.
+     * @return  array           The dates combo
      */
-    public function getDatesCombo($dates)
+    public function getDatesCombo(Record $dates): array
     {
         $dt_m_combo = [];
         while ($dates->fetch()) {
@@ -114,15 +117,15 @@ class Combo
     }
 
     /**
-     * Gets the langs combo.
+     * Get the langs combo.
      *
-     * @param      record  $langs           The langs
-     * @param      bool    $with_available  If false, only list items from
+     * @param   Record  $langs              The langs
+     * @param   bool    $with_available     If false, only list items from
      * record if true, also list available languages
      *
-     * @return     array   The langs combo.
+     * @return  array                       The langs combo
      */
-    public function getLangsCombo($langs, $with_available = false)
+    public function getLangsCombo(Record $langs, bool $with_available = false): array
     {
         $all_langs = L10n::getISOcodes(false, true);
         if ($with_available) {
@@ -148,11 +151,11 @@ class Combo
     }
 
     /**
-     * Returns a combo containing all available and installed languages for administration pages.
+     * Return a combo containing all available and installed languages for administration pages.
      *
-     * @return     array  The admin langs combo.
+     * @return  array   The admin langs combo
      */
-    public function getAdminLangsCombo()
+    public function getAdminLangsCombo(): array
     {
         $lang_combo = [];
         $langs      = L10n::getISOcodes(true, true);
@@ -165,11 +168,11 @@ class Combo
     }
 
     /**
-     * Returns a combo containing all available editors in admin.
+     * Return a combo containing all available editors in admin.
      *
-     * @return     array  The editors combo.
+     * @return  array   The editors combo
      */
-    public function getEditorsCombo()
+    public function getEditorsCombo(): array
     {
         $editors_combo = [];
         foreach (dotclear()->formater()->getEditors() as $v) {
@@ -180,13 +183,13 @@ class Combo
     }
 
     /**
-     * Returns a combo containing all available formaters by editor in admin.
+     * Return a combo containing all available formaters by editor in admin.
      *
-     * @param      string  $editor_id  The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param   string  $editor_id  The editor identifier (LegacyEditor, dcCKEditor, ...)
      *
-     * @return     array   The formaters combo.
+     * @return  array               The formaters combo
      */
-    public function getFormatersCombo($editor_id = '')
+    public function getFormatersCombo(string $editor_id = ''): array
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
@@ -205,26 +208,26 @@ class Combo
     }
 
     /**
-     * Returns a combo containing all available iconset in admin.
+     * Return a combo containing all available iconset in admin.
      *
-     * @return     array  The iconset combo.
+     * @return  array   The iconset combo
      */
-    public function getIconsetCombo()
+    public function getIconsetCombo(): array
     {
         $iconsets_combo = new ArrayObject([__('Default') => '']);
 
-        # --BEHAVIOR-- adminPostsSortbyCombo
+        # --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
         dotclear()->behavior()->call('adminIconsetCombo', $iconsets_combo);
 
         return $iconsets_combo->getArrayCopy();
     }
 
     /**
-     * Gets the blog statuses combo.
+     * Get the blog statuses combo.
      *
-     * @return     array  The blog statuses combo.
+     * @return  array   The blog statuses combo
      */
-    public function getBlogStatusesCombo()
+    public function getBlogStatusesCombo(): array
     {
         $status_combo = [];
         foreach (dotclear()->blogs()->getAllBlogStatus() as $k => $v) {
@@ -235,11 +238,11 @@ class Combo
     }
 
     /**
-     * Gets the comment statuses combo.
+     * Get the comment statuses combo.
      *
-     * @return     array  The comment statuses combo.
+     * @return  array   The comment statuses combo
      */
-    public function getCommentStatusesCombo()
+    public function getCommentStatusesCombo(): array
     {
         $status_combo = [];
         foreach (dotclear()->blog()->getAllCommentStatus() as $k => $v) {
@@ -249,7 +252,12 @@ class Combo
         return $status_combo;
     }
 
-    public function getOrderCombo()
+    /**
+     * Get order combo
+     *
+     * @return  array   The order combo
+     */
+    public function getOrderCombo(): array
     {
         return [
             __('Descending') => 'desc',
@@ -257,7 +265,12 @@ class Combo
         ];
     }
 
-    public function getPostsSortbyCombo()
+    /**
+     * Get sort by combo for posts
+     *
+     * @return  array   The posts sort by combo
+     */
+    public function getPostsSortbyCombo(): array
     {
         $sortby_combo = new ArrayObject([
             __('Date')                 => 'post_dt',
@@ -269,13 +282,18 @@ class Combo
             __('Number of comments')   => 'nb_comment',
             __('Number of trackbacks') => 'nb_trackback'
         ]);
-        # --BEHAVIOR-- adminPostsSortbyCombo
+        # --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
         dotclear()->behavior()->call('adminPostsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
 
-    public function getCommentsSortbyCombo()
+    /**
+     * Get sort by combo for comments
+     *
+     * @return  array   The comments sort by combo
+     */
+    public function getCommentsSortbyCombo(): array
     {
         $sortby_combo = new ArrayObject([
             __('Date')        => 'comment_dt',
@@ -286,13 +304,18 @@ class Combo
             __('IP')          => 'comment_ip',
             __('Spam filter') => 'comment_spam_filter'
         ]);
-        # --BEHAVIOR-- adminCommentsSortbyCombo
+        # --BEHAVIOR-- adminCommentsSortbyCombo , ArrayObject
         dotclear()->behavior()->call('adminCommentsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
 
-    public function getBlogsSortbyCombo()
+    /**
+     * Get sort by combo for blogs
+     *
+     * @return  array   The blogs sort by combo
+     */
+    public function getBlogsSortbyCombo(): array
     {
         $sortby_combo = new ArrayObject([
             __('Last update') => 'blog_upddt',
@@ -300,13 +323,18 @@ class Combo
             __('Blog ID')     => 'B.blog_id',
             __('Status')      => 'blog_status'
         ]);
-        # --BEHAVIOR-- adminBlogsSortbyCombo
+        # --BEHAVIOR-- adminBlogsSortbyCombo , ArrayObject
         dotclear()->behavior()->call('adminBlogsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
 
-    public function getUsersSortbyCombo()
+    /**
+     * Get sort by combo for users
+     *
+     * @return  array   The users sort by combo
+     */
+    public function getUsersSortbyCombo(): array
     {
         $sortby_combo = new ArrayObject([]);
         if (dotclear()->user()->isSuperAdmin()) {
@@ -317,9 +345,10 @@ class Combo
                 __('Display name')      => 'user_displayname',
                 __('Number of entries') => 'nb_post'
             ]);
-            # --BEHAVIOR-- adminUsersSortbyCombo
+            # --BEHAVIOR-- adminUsersSortbyCombo , ArrayObject
             dotclear()->behavior()->call('adminUsersSortbyCombo', $sortby_combo);
         }
+
         return $sortby_combo->getArrayCopy();
     }
 }

@@ -60,7 +60,7 @@ class Page extends AbstractPage
         $pages     = dotclear()->blog()->posts()->getPosts($params);
         $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
-        return new PagesCatalog($pages, $counter->f(0));
+        return new PagesCatalog($pages, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

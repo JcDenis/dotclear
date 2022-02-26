@@ -3,6 +3,8 @@
  * @class Dotclear\Admin\Menu\Summary
  * @brief Dotclear admin menu handling facilities class
  *
+ * Accessible from dotclear()->summary()->
+ *
  * @package Dotclear
  * @subpackage Admin
  *
@@ -47,6 +49,8 @@ class Summary extends ArrayObject
 
     /**
      * Add a menu
+     *
+     * This create a Menu instance
      *
      * @param   string  $name       The menu name
      * @param   string  $id         The menu id

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Admin\Page\Action\Action\CommentAction
+ * @class Dotclear\Admin\Page\Action\Action\DefaultCommentAction
  * @brief Dotclear admin handler for action page on selected comments
  *
  * @package Dotclear
@@ -13,14 +13,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Action\Action;
 
-use Dotclear\Exception\AdminException;
-
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Page;
+use Dotclear\Exception\AdminException;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
 
 class DefaultCommentAction
 {
-    public static function CommentAction(Action $ap)
+    public static function CommentAction(Action $ap): void
     {
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
@@ -43,7 +46,7 @@ class DefaultCommentAction
         }
     }
 
-    public static function doChangeCommentStatus(Action $ap, $post)
+    public static function doChangeCommentStatus(Action $ap, array $post): void
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -75,7 +78,7 @@ class DefaultCommentAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteComment(Action $ap, $post)
+    public static function doDeleteComment(Action $ap, array $post): void
     {
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {
