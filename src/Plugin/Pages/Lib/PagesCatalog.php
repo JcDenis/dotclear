@@ -1,24 +1,38 @@
 <?php
 /**
- * @brief pages, a plugin for Dotclear 2
+ * @class Dotclear\Plugin\Pages\Lib\PagesCatalog
+ * @brief Dotclear Plugins class
  *
  * @package Dotclear
- * @subpackage Plugins
+ * @subpackage PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
-/* Pager class
--------------------------------------------------------- */
-class adminPagesList extends adminGenericList
+namespace Dotclear\Plugin\Pages\Lib;
+
+use ArrayObject;
+
+use Dotclear\Admin\Page\Pager;
+use Dotclear\Admin\Page\Catalog\Catalog;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Utils\Dt;
+
+if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
+    return;
+}
+
+class PagesCatalog extends Catalog
 {
     public function display($page, $nb_per_page, $enclose_block = '')
     {
         if ($this->rs->isEmpty()) {
             echo '<p><strong>' . __('No page') . '</strong></p>';
         } else {
-            $pager   = new dcPager($page, $this->rs_count, $nb_per_page, 10);
+            $pager   = new Pager($page, $this->rs_count, $nb_per_page, 10);
             $entries = [];
             if (isset($_REQUEST['entries'])) {
                 foreach ($_REQUEST['entries'] as $v) {
@@ -32,15 +46,15 @@ class adminPagesList extends adminGenericList
                 'title'    => '<th colspan="3" scope="col" class="first">' . __('Title') . '</th>',
                 'date'     => '<th scope="col">' . __('Date') . '</th>',
                 'author'   => '<th scope="col">' . __('Author') . '</th>',
-                'comments' => '<th scope="col"><img src="images/comments.png" alt="" title="' . __('Comments') .
+                'comments' => '<th scope="col"><img src="?df=images/comments.png" alt="" title="' . __('Comments') .
                 '" /><span class="hidden">' . __('Comments') . '</span></th>',
-                'trackbacks' => '<th scope="col"><img src="images/trackbacks.png" alt="" title="' . __('Trackbacks') .
+                'trackbacks' => '<th scope="col"><img src="?df=images/trackbacks.png" alt="" title="' . __('Trackbacks') .
                 '" /><span class="hidden">' . __('Trackbacks') . '</span></th>',
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
 
             $cols = new ArrayObject($cols);
-            $this->core->callBehavior('adminPagesListHeader', $this->core, $this->rs, $cols);
+            dotclear()->behavior()->call('adminPagesListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('pages', $cols);
@@ -66,7 +80,7 @@ class adminPagesList extends adminGenericList
 
             echo $blocks[1];
 
-            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="images/%2$s" /> %1$s', $title, $image);
+            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             echo '<p class="info">' . __('Legend: ') .
                 $fmt(__('Published'), 'check-on.png') . ' - ' .
                 $fmt(__('Unpublished'), 'check-off.png') . ' - ' .
@@ -85,7 +99,7 @@ class adminPagesList extends adminGenericList
 
     private function postLine($count, $checked)
     {
-        $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" class="mark mark-%3$s" />';
+        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
         $sts_class  = '';
         $img_status = '';
         switch ($this->rs->post_status) {
@@ -133,15 +147,15 @@ class adminPagesList extends adminGenericList
 
         $cols = [
             'position' => '<td class="nowrap handle minimal">' .
-            form::number(['order[' . $this->rs->post_id . ']'], [
+            Form::number(['order[' . $this->rs->post_id . ']'], [
                 'min'        => 1,
                 'default'    => $count + 1,
                 'class'      => 'position',
-                'extra_html' => 'title="' . sprintf(__('position of %s'), html::escapeHTML($this->rs->post_title)) . '"',
+                'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($this->rs->post_title)) . '"',
             ]) .
             '</td>',
             'check' => '<td class="nowrap">' .
-            form::checkbox(
+            Form::checkbox(
                 ['entries[]'],
                 $this->rs->post_id,
                 [
@@ -151,9 +165,9 @@ class adminPagesList extends adminGenericList
                 ]
             ) . '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            $this->core->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
-            html::escapeHTML($this->rs->post_title) . '</a></td>',
-            'date'       => '<td class="nowrap">' . dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
+            dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
+            Html::escapeHTML($this->rs->post_title) . '</a></td>',
+            'date'       => '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
             'author'     => '<td class="nowrap">' . $this->rs->user_id . '</td>',
             'comments'   => '<td class="nowrap count">' . $this->rs->nb_comment . '</td>',
             'trackbacks' => '<td class="nowrap count">' . $this->rs->nb_trackback . '</td>',
@@ -161,7 +175,7 @@ class adminPagesList extends adminGenericList
         ];
 
         $cols = new ArrayObject($cols);
-        $this->core->callBehavior('adminPagesListValue', $this->core, $this->rs, $cols);
+        dotclear()->behavior()->call('adminPagesListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('pages', $cols);

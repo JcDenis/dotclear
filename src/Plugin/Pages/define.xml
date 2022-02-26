@@ -1,25 +1,13 @@
-<?php
-/**
- * @brief pages, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugins
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-if (!defined('DC_RC_PATH')) {
-    return;
-}
-
-$this->registerModule(
-    'Pages',                             // Name
-    'Serve entries as simple web pages', // Description
-    'Olivier Meunier',                   // Author
-    '1.5',                               // Version
-    [
-        'permissions' => 'contentadmin,pages',
-        'priority'    => 999,
-        'type'        => 'plugin',
-    ]
-);
+<module id="Pages">
+  <name>Pages</name>
+  <description>Serve entries as simple web pages</description>
+  <version>1.6-dev</version>
+  <author>Olivier Meunier</author>
+  <type>Plugin</type>
+  <permissions>contentadmin,pages</permissions>
+  <priority>999</priority>
+  <requires>
+    <core>core</core>
+    <core>3.0-dev</core>
+  </requires>
+</module>
