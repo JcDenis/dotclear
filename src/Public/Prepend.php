@@ -82,7 +82,7 @@ class Prepend extends Core
      *
      * @param   string  $blog_id    The blog ID
      */
-    protected function process(string $blog_id = null)
+    protected function process(string $blog_id = null): void
     {
         # Serve core files
         $this->publicServeFile();
