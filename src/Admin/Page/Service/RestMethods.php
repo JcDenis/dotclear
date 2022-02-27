@@ -560,9 +560,9 @@ class RestMethods
      * @param   array   $get    Cleaned $_GET
      * @param   array   $post   Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return  bool            The success
      */
-    public static function setPostMeta(array $get, array $post): XmlTag
+    public static function setPostMeta(array $get, array $post): bool
     {
         if (empty($post['postId'])) {
             throw new AdminException('No post ID');
@@ -600,9 +600,9 @@ class RestMethods
      * @param   array   $get    Cleaned $_GET
      * @param   array   $post   Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return  bool            The success
      */
-    public static function delMeta(array $get, array $post): XmlTag
+    public static function delMeta(array $get, array $post): bool
     {
         if (empty($post['postId'])) {
             throw new AdminException('No post ID');
@@ -686,9 +686,9 @@ class RestMethods
      * @param   array   $get    Cleaned $_GET
      * @param   array   $post   Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return  bool            The success
      */
-    public static function setSectionFold(array $get, array $post): XmlTag
+    public static function setSectionFold(array $get, array $post): bool
     {
         if (empty($post['section'])) {
             throw new AdminException('No section name');
@@ -726,9 +726,9 @@ class RestMethods
      * @param   array   $get    Cleaned $_GET
      * @param   array   $post   Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return  bool            The success
      */
-    public static function setDashboardPositions(array $get, array $post): XmlTag
+    public static function setDashboardPositions(array $get, array $post): bool
     {
         if (empty($post['id'])) {
             throw new AdminException('No zone name');
