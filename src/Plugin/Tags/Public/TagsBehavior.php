@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Lib\TagsPublic
+ * @class Dotclear\Plugin\Tags\Public\TagsBehavior
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,13 +11,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Tags\Lib;
+namespace Dotclear\Plugin\Tags\Public;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class TagsPublic
+class TagsBehavior
 {
     public static function initTags()
     {

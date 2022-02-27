@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Lib\TagsCore
+ * @class Dotclear\Plugin\Tags\Common\TagsCore
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Tags\Lib;
+namespace Dotclear\Plugin\Tags\Common;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;

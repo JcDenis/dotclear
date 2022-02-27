@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Lib\TagsUrl
+ * @class Dotclear\Plugin\Tags\Common\TagsUrl
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Tags\Lib;
+namespace Dotclear\Plugin\Tags\Common;
 
 use Dotclear\Core\Url\Url;
 

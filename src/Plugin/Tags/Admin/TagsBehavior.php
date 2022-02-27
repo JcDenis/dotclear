@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Lib\TagsAdmin
+ * @class Dotclear\Plugin\Tags\Admin\TagsBehavior
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,10 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Tags\Lib;
+namespace Dotclear\Plugin\Tags\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Core\Utils;
 use Dotclear\Html\Form;
@@ -24,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class TagsAdmin
+class TagsBehavior
 {
     public static function initTags()
     {
@@ -59,7 +60,7 @@ class TagsAdmin
                     'url'   => $tag_url,
                 ],
             ]) .
-            Utils::jsLoad('?mf=Plugin/Tags/files/js/legacy-post.js');
+            Filer::load('js/legacy-post.js', 'Plugin', 'tags');
         } elseif ($editor == 'dcCKEditor') {
             return
             Utils::jsJson('ck_editor_tags', [
@@ -77,7 +78,7 @@ class TagsAdmin
         $extraPlugins[] = [
             'name'   => 'dctags',
             'button' => 'dcTags',
-            'url'    => dotclear()->config()->admin_url . '?mf=Plugin/Tags/files/js/ckeditor-tags-plugin.js',
+            'url'    => Filer::url('js/ckeditor-tags-plugin.js', 'Plugin', 'Tags'),
         ];
     }
 
@@ -193,7 +194,7 @@ class TagsAdmin
             $type = $opts['tag_list_format'] ?? 'more';
 
             $editor_tags_options = [
-                'meta_url'            => 'plugin.php?p=tags&m=tag_posts&amp;tag=',
+                'meta_url'            => '?handler=admin.plugin.Tags&amp;tag=',
                 'list_type'           => $type,
                 'text_confirm_remove' => __('Are you sure you want to remove this tag?'),
                 'text_add_meta'       => __('Add a tag to this entry'),
@@ -219,9 +220,9 @@ class TagsAdmin
                 $ap::jsMetaEditor() .
                 $ap::jsJson('editor_tags_options', $editor_tags_options) .
                 $ap::jsJson('editor_tags_msg', $msg) .
-                $ap::jsLoad('?df=js/jquery/jquery.autocomplete.js') .
-                $ap::jsLoad('?mf=Plugin/Tags/files/js/posts_actions.js') .
-                $ap::cssLoad('?mf=Plugin/Tags/files/style.css')
+                Filer::load('js/jquery/jquery.autocomplete.js') .
+                Filer::load('js/posts_actions.js', 'Plugin', 'Tags') .
+                Filer::Load('style.css', 'Plugin', 'Tags')
             );
             $ap->setPageContent(
                 '<form action="' . $ap->getURI() . '" method="post">' .
@@ -322,7 +323,7 @@ class TagsAdmin
         $type = $opts['tag_list_format'] ?? 'more';
 
         $editor_tags_options = [
-            'meta_url'            => 'plugin.php?p=tags&m=tag_posts&amp;tag=',
+            'meta_url'            => '?handler=admin.plugin.Tags&amp;tag=',
             'list_type'           => $type,
             'text_confirm_remove' => __('Are you sure you want to remove this tag?'),
             'text_add_meta'       => __('Add a tag to this entry'),
@@ -340,9 +341,9 @@ class TagsAdmin
         return
         Utils::jsJson('editor_tags_options', $editor_tags_options) .
         Utils::jsJson('editor_tags_msg', $msg) .
-        Utils::jsLoad('?df=js/jquery/jquery.autocomplete.js') .
-        Utils::jsLoad('?mf=Plugin/Tags/files/js/post.js') .
-        Utils::cssLoad('?mf=Plugin/Tags/files/style.css');
+        Filer::load('js/jquery/jquery.autocomplete.js') .
+        Filer::load('js/post.js', 'Plugin', 'Tags') .
+        Filer::load('style.css', 'Plugin', 'Tags');
     }
 
     public static function adminUserForm($args = null)

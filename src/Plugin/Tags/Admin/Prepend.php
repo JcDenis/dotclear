@@ -15,11 +15,11 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Tags\Lib\TagsAdmin;
-use Dotclear\Plugin\Tags\Lib\TagsCore;
-use Dotclear\Plugin\Tags\Lib\TagsUrl;
-use Dotclear\Plugin\Tags\Lib\TagsXmlrpc;
-use Dotclear\Plugin\Tags\Lib\TagsWidgets;
+use Dotclear\Plugin\Tags\Admin\TagsBehavior;
+use Dotclear\Plugin\Tags\Common\TagsCore;
+use Dotclear\Plugin\Tags\Common\TagsUrl;
+use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
+use Dotclear\Plugin\Tags\Common\TagsWidgets;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -38,7 +38,7 @@ class Prepend extends AbstractPrepend
         # Behaviors and url
         TagsUrl::initTags();
         TagsCore::initTags();
-        TagsAdmin::initTags();
+        TagsBehavior::initTags();
         TagsXmlrpc::initTags();
 
         # Widgets
