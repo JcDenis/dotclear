@@ -23,21 +23,21 @@ class PingsCore
 {
     public static function doPings($blog, $ids)
     {
-        if (!$blog->settings()->pings->pings_active) {
+        if (!dotclear()->blog()->settings()->pings->pings_active) {
             return;
         }
-        if (!$blog->settings()->pings->pings_auto) {
+        if (!dotclear()->blog()->settings()->pings->pings_auto) {
             return;
         }
 
-        $pings_uris = $blog->settings()->pings->pings_uris;
+        $pings_uris = dotclear()->blog()->settings()->pings->pings_uris;
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
 
         foreach ($pings_uris as $uri) {
             try {
-                PingsAPI::doPings($uri, $blog->name, $blog->url);
+                PingsAPI::doPings($uri, dotclear()->blog()->name, $dotclear()->blog()->url);
             } catch (\Exception $e) {
             }
         }

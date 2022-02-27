@@ -970,7 +970,7 @@ class Posts
             'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
             dotclear()->con()->execute($strReq);
 
-            # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog, array
+            # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array
             dotclear()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
         }
     }
