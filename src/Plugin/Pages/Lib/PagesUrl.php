@@ -190,19 +190,9 @@ class PagesUrl extends Url
                     header('X-Pingback: ' . dotclear()->blog()->url . dotclear()->url()->getURLFor('xmlrpc', dotclear()->blog()->id));
                 }
 
-                self::addTplPath();
+                # Serve page
                 dotclear()->url()->serveDocument('page.html');
             }
-        }
-    }
-
-    public static function addTplPath()
-    {
-        $tplset = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
-        if (!empty($tplset) && is_dir(__DIR__ . '/../Public/Template/' . $tplset)) {
-            dotclear()->template()->setPath(dotclear()->template()->getPath(), __DIR__ . '/../Public/Template/' . $tplset);
-        } else {
-            dotclear()->template()->setPath(dotclear()->template()->getPath(), __DIR__ . '/../Public/Template/' . dotclear()->config()->template_default);
         }
     }
 

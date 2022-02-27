@@ -126,7 +126,7 @@ class Prepend extends AbstractPrepend
 
     public static function ductileEntriesList($attr)
     {
-        $tpl_path   = __DIR__ . '/../tpl/';
+        $tpl_path   = __DIR__ . '/../templates/tpl/';
         $list_types = ['title', 'short', 'full'];
 
         // Get all _entry-*.html in tpl folder of theme

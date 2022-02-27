@@ -52,6 +52,7 @@ class Prepend extends AbstractPrepend
             }
         });
 
+        static::addTemplatePath();
         PagesUrl::initPages();
         PagesWidgets::initPages();
     }

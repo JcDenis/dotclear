@@ -4,7 +4,7 @@
   <version>1.1-dev</version>
   <author>Marco and Olivier</author>
   <type>Theme</type>
-  <templateset>Mustek</templateset>
+  <templateset>mustek</templateset>
   <requires>
     <core>core</core>
     <core>3.0-dev</core>

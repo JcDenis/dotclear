@@ -22,7 +22,6 @@ class TagsPublic
     public static function initTags()
     {
         dotclear()->behavior()->add('templateBeforeBlock', [__CLASS__, 'templateBeforeBlock']);
-        dotclear()->behavior()->add('publicBeforeDocument', [__CLASS__, 'addTplPath']);
     }
 
     public static function templateBeforeBlock($b, $attr)
@@ -49,16 +48,6 @@ class TagsPublic
                 "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
                 "\$params['sql'] .= \"AND META.meta_id = '\".dotclear()->con()->escape(dotclear()->context()->meta->meta_id).\"' \";\n" .
                 "} ?>\n";
-        }
-    }
-
-    public static function addTplPath()
-    {
-        $tplset = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
-        if (!empty($tplset) && is_dir(__DIR__ . '/../Public/Template/' . $tplset)) {
-            dotclear()->template()->setPath(dotclear()->template()->getPath(), __DIR__ . '/../Public/Template/' . $tplset);
-        } else {
-            dotclear()->template()->setPath(dotclear()->template()->getPath(), __DIR__ . '/../Public/Template/' . dotclear()->config()->template_default);
         }
     }
 }

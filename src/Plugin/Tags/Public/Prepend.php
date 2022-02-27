@@ -35,6 +35,7 @@ class Prepend extends AbstractPrepend
         __("This tag's comments Atom feed");
         __("This tag's entries Atom feed");
 
+        static::addTemplatePath();
         TagsUrl::initTags();
         TagsTemplate::initTags();
         TagsPublic::initTags();

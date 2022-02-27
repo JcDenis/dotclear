@@ -44,8 +44,8 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(root_path('Public', 'Template', dotclear()->config()->template_default));
-        $this->tplset_name  = Path::real(dotclear()->config()->template_default);
+        $this->tplset_theme = Path::real(root_path('Public', 'templates', dotclear()->config()->template_default));
+        $this->tplset_name  = dotclear()->config()->template_default;
 
         # Current theme
         $module = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
@@ -56,7 +56,7 @@ class ThemeEditor
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(root_path('Public', 'Template', $module->templateset()));
+            $this->tplset_theme = Path::real(root_path('Public', 'templates', $module->templateset()));
             $this->tplset_name  = $module->templateset();
         }
 
@@ -234,7 +234,7 @@ class ThemeEditor
     protected function getDestinationFile($type, $f)
     {
         if ($type == 'tpl') {
-            $dest = $this->user_theme . '/tpl/' . $f;
+            $dest = $this->user_theme . '/templates/tpl/' . $f;
         } elseif ($type == 'po') {
             $dest = $this->user_theme . '/locales/' . $f;
         } else {
@@ -316,21 +316,21 @@ class ThemeEditor
     {
         $this->tpl = array_merge(
             $this->getFilesInDir($this->tplset_theme),
-            $this->getFilesInDir($this->parent_theme . '/tpl')
+            $this->getFilesInDir($this->parent_theme . '/templates/tpl')
         );
         $this->tpl_model = $this->tpl;
 
-        $this->tpl = array_merge($this->tpl, $this->getFilesInDir($this->user_theme . '/tpl'));
+        $this->tpl = array_merge($this->tpl, $this->getFilesInDir($this->user_theme . '/templates/tpl'));
 
         # Then we look in 'default-templates' plugins directory
         $plugins = dotclear()->plugins->getModules();
         foreach ($plugins as $p) {
             // Looking in default-templates directory
-            $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/default-templates'), $this->tpl);
-            $this->tpl_model = array_merge($this->getFilesInDir($p->root() . '/default-templates'), $this->tpl_model);
+            $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/templates/tpl'), $this->tpl);
+            $this->tpl_model = array_merge($this->getFilesInDir($p->root() . '/templates/tpl'), $this->tpl_model);
             // Looking in default-templates/tplset directory
-            $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/default-templates/' . $this->tplset_name), $this->tpl);
-            $this->tpl_model = array_merge($this->getFilesInDir($p->root() . '/default-templates/' . $this->tplset_name), $this->tpl_model);
+            $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/templates/' . $this->tplset_name), $this->tpl);
+            $this->tpl_model = array_merge($this->getFilesInDir($p->root() . '/templates/' . $this->tplset_name), $this->tpl_model);
         }
 
         uksort($this->tpl, [$this, 'sortFilesHelper']);

@@ -155,7 +155,7 @@ class Prepend extends Core
         }
 
         # Load current theme definition
-        $path = $this->themes->getThemePath('tpl');
+        $path = $this->themes->getThemePath('templates/tpl');
 
         # If theme has parent load their l10n
         if (count($path) > 1) {
@@ -184,7 +184,7 @@ class Prepend extends Core
         # Check templateset and add all path to tpl
         $tplset = $this->themes->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = implode_path(__DIR__, 'Template', 'Template', $tplset);
+            $tplset_dir = root_path('Public', 'templates', $tplset);
             if (is_dir($tplset_dir)) {
                 $this->template()->setPath($path, $tplset_dir, $this->template()->getPath());
             } else {

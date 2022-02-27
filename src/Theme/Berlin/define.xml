@@ -4,7 +4,7 @@
   <version>1.5-dev</version>
   <author>Dotclear team</author>
   <type>Theme</type>
-  <templateset>Dotty</templateset>
+  <templateset>dotty</templateset>
   <requires>
     <core>core</core>
     <core>3.0-dev</core>
