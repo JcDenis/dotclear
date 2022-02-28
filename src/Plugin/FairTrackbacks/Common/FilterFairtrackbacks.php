@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\FairTrackbacks\Lib\FilterFairtrackbacks
+ * @class Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\FairTrackbacks\Lib;
+namespace Dotclear\Plugin\FairTrackbacks\Common;
 
-
-use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+use ArrayObject;
 
 use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Plugin\Antispam\Lib\Spamfilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -28,6 +28,17 @@ class FilterFairtrackbacks extends Spamfilter
     public $has_gui = false;
     public $active  = true;
     public $order   = -10;
+
+    public static function initFairTrackbacks()
+    {
+        if (DOTCLEAR_PROCESS == 'Admin' && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
+            || DOTCLEAR_PROCESS == 'Public' && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
+        ) {
+            dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
+                $spamfilters[] = __CLASS__;
+            });
+        }
+    }
 
     protected function setInfo(): void
     {
