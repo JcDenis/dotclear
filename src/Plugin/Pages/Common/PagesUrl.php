@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Lib\PagesUrl
+ * @class Dotclear\Plugin\Pages\Common\PagesUrl
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Pages\Lib;
+namespace Dotclear\Plugin\Pages\Common;
 
 use ArrayObject;
 

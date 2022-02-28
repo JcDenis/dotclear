@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Catalog\Catalog;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Pages\Lib\PagesAction;
-use Dotclear\Plugin\Pages\Lib\PagesCatalog;
+use Dotclear\Plugin\Pages\Admin\Action\PagesAction;
+use Dotclear\Plugin\Pages\Admin\Catalog\PagesCatalog;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -69,10 +70,10 @@ class Page extends AbstractPage
             ->setPageHelp('pages')
             ->setPageTitle(__('Pages'))
             ->setPageHead(
-                static::jsLoad('?df=js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('?df=js/jquery/jquery.ui.touch-punch.js') .
+                Filer::load('js/jquery/jquery-ui.custom.js') .
+                Filer::load('js/jquery/jquery.ui.touch-punch.js') .
                 static::jsJson('pages_list', ['confirm_delete_posts' => __('Are you sure you want to delete selected pages?')]) .
-                static::jsLoad('?mf=Plugin/Pages/files/js/list.js')
+                Filer::load('js/list.js', 'Plugin', 'Pages')
             )
             ->setPageBreadcrumb([
                   Html::escapeHTML(dotclear()->blog()->name) => '',

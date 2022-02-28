@@ -15,11 +15,11 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
 
-use Dotclear\Admin\Page\Page;
+use Dotclear\Admin\Filer;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Pages\Lib\PagesUrl;
-use Dotclear\Plugin\Pages\Lib\PagesWidgets;
+use Dotclear\Plugin\Pages\Common\PagesUrl;
+use Dotclear\Plugin\Pages\Common\PagesWidgets;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -77,7 +77,7 @@ class Prepend extends AbstractPrepend
         # Add headers
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => Page::jsLoad('?mf=Plugin/Pages/files/js/_users_actions.js')
+            fn () => Filer::load('js/_users_actions.js', 'Plugin', 'Pages')
         );
 
         # Add user pref list columns

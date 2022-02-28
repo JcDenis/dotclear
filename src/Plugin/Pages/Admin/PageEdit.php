@@ -15,6 +15,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
@@ -352,8 +353,8 @@ class PageEdit extends AbstractPage
             ->setPageHead(
                 static::jsModal() .
                 static::jsJson('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
-                static::jsLoad('js/_post.js') .
-                static::jsLoad('?mf=Plugin/Pages/files/js/page.js')
+                Filer::load('js/_post.js') .
+                Filer::load('js/page.js', 'Plugin', 'Pages')
         );
 
         if ($this->post_editor) {

@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Pages\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-use Dotclear\Plugin\Pages\Lib\PagesUrl;
-use Dotclear\Plugin\Pages\Lib\PagesWidgets;
+use Dotclear\Plugin\Pages\Common\PagesUrl;
+use Dotclear\Plugin\Pages\Common\PagesWidgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
