@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Module\AbstractConfig;
-
 use Dotclear\Html\Form;
+use Dotclear\Module\AbstractConfig;
 use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

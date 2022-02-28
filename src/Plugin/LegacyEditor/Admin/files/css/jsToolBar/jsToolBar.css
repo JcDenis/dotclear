@@ -98,58 +98,58 @@ span.jstSpacer {
 -------------------------------------------------------- */
 
 button.jstb_strong {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_strong.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_strong.svg);
 }
 button.jstb_em {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_em.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_em.svg);
 }
 button.jstb_ins {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_ins.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_ins.svg);
 }
 button.jstb_del {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_del.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_del.svg);
 }
 button.jstb_quote {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_quote.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_quote.svg);
 }
 button.jstb_code {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_code.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_code.svg);
 }
 button.jstb_mark {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_mark.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_mark.svg);
 }
 button.jstb_br {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_br.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_br.svg);
 }
 button.jstb_blockquote {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_bquote.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_bquote.svg);
 }
 button.jstb_pre {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_pre.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_pre.svg);
 }
 button.jstb_ul {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_ul.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_ul.svg);
 }
 button.jstb_ol {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_ol.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_ol.svg);
 }
 button.jstb_link {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_link.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_link.svg);
 }
 button.jstb_img {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_img.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_img.svg);
 }
 button.jstb_img_select {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_img_select.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_img_select.svg);
 }
 button.jstb_post_link {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_post.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_post.svg);
 }
 button.jstb_preview {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_preview.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_preview.svg);
 }
 button.jstb_removeFormat {
-  background-image: url(?mf=Plugin/LegacyEditor/css/jsToolBar/bt_clean.svg);
+  background-image: url(?mf=Plugin/LegacyEditor/Admin/files/css/jsToolBar/bt_clean.svg);
   position: absolute;
   right: 5px;
   bottom: 3px;
