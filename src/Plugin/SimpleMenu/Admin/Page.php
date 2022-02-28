@@ -16,12 +16,11 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 use stdClass;
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
-
-use Dotclear\Module\AbstractPage;
-
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -413,9 +412,9 @@ class Page extends AbstractPage
         ;
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                static::jsLoad('?mf=Plugin/SimpleMenu/files/js/simplemenu.js')
+                Filer::load('js/jquery/jquery-ui.custom.js') .
+                Filer::load('js/jquery/jquery.ui.touch-punch.js') .
+                Filer::load('js/simplemenu.js', 'Plugin', 'SimpleMenu')
             );
         }
 
@@ -453,7 +452,7 @@ class Page extends AbstractPage
         } else {
             $this->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Simple menu')                         => ''
+                __('Simple menu')                          => ''
             ]);
         }
 

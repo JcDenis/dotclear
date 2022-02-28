@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets
+ * @class Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\SimpleMenu\Lib;
+namespace Dotclear\Plugin\SimpleMenu\Common;
 
 use ArrayObject;
 

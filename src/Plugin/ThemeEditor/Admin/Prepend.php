@@ -21,7 +21,6 @@ use Dotclear\File\Path;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

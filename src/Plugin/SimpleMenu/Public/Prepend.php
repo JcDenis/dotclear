@@ -15,8 +15,7 @@ namespace Dotclear\Plugin\SimpleMenu\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-
-use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
+use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
