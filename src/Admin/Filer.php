@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Admin\Filer
- * @brief Dotclear admin menu helper
+ * @brief Dotclear admin file url helper
  *
  * @package Dotclear
  * @subpackage Admin
@@ -45,24 +45,27 @@ class Filer
         return $url;
     }
 
-    public static function load(string $src, ?string $mtype = null, ?string $mid = null, ?string $option = null): string
+    public static function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null): string
     {
-        return self::parse($src, $mtype, $mid, $option, false);
+        return self::parse($src, $type, $id, $option, false);
     }
 
-    public static function preload(string $src, ?string $mtype = null, ?string $mid = null, ?string $option = null): string
+    public static function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null): string
     {
-        return self::parse($src, $mtype, $mid, $option, true);
+        return self::parse($src, $type, $id, $option, true);
     }
 
-    private static function parse(string $src, ?string $mtype = null, ?string $mid = null, ?string $option = null, bool $preload = false): string
+    private static function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null): string
     {
-        $ext = Files::getExtension($src);
+        if (!$ext) {
+            $ext = Files::getExtension($src);
+        }
+
         if (!in_array($ext, ['js','css'])) {
             return '';
         }
 
-        $url = self::url($src, $mtype, $mid);
+        $url = self::url($src, $type, $id);
         if (isset(self::$stack[$preload ? 'preload' : 'load'][$url])) {
             return '';
         }
@@ -78,5 +81,15 @@ class Filer
         } else {
             return '<script src="' . $url . '"></script>' . "\n";
         }
+    }
+
+    public static function css(string $src, ?string $type = null, ?string $id = null): string
+    {
+        return self::parse($src, $type, $id, null, false, 'css');
+    }
+
+    public static function js(string $src, ?string $type = null, ?string $id = null): string
+    {
+        return self::parse($src, $type, $id, null, false, 'js');
     }
 }
