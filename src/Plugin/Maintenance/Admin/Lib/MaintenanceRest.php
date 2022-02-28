@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Lib\MaintenanceDescriptor
+ * @class Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Maintenance\Lib;
+namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -54,7 +54,7 @@ class MaintenanceRest
             throw new AdminException('Unknown task ID');
         }
 
-        $task->code((integer) $post['code']);
+        $task->code((int) $post['code']);
         if (($code = $task->execute()) === true) {
             $maintenance->setLog($task->id());
             $code = 0;

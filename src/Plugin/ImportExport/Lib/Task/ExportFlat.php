@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Lib\Task;
 
 use Dotclear\Plugin\ImportExport\Lib\Module\ExportFlat as BaseExportFlat;
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

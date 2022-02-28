@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Buildtools\Admin;
 
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 use Dotclear\Plugin\Buildtools\Admin\L10nFaker;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

@@ -13,13 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
-
-use Dotclear\Module\AbstractPage;
-
-use Dotclear\Plugin\Maintenance\Lib\Maintenance;
-
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
+use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -152,14 +150,14 @@ class Page extends AbstractPage
             )
             ->setPageHead(
                 static::jsPageTabs($this->m_tab) .
-                static::jsLoad('?mf=Plugin/Maintenance/files/js/settings.js')
+                Filer::load('js/settings.js', 'Plugin', 'Maintenance')
             )
         ;
 
         if ($this->m_task && $this->m_task->ajax()) {
             $this->setPageHead(
                 static::jsJson('maintenance', ['wait' => __('Please wait...')]) .
-                static::jsLoad('?mf=Plugin/Maaintenance/js/dc.maintenance.js')
+                Filer::load('js/dc.maintenance.js', 'Plugin', 'Maintenance')
             );
         }
 
@@ -169,9 +167,9 @@ class Page extends AbstractPage
         if ($this->m_task && ($res = $this->m_task->step()) !== null) {
             $this->setPageBreadcrumb(
                 [
-                    __('Plugins')                                                                                           => '',
+                    __('Plugins')                                                                                             => '',
                     '<a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Maintenance') . '</a>' => '',
-                    Html::escapeHTML($this->m_task->name())                                                                 => ''
+                    Html::escapeHTML($this->m_task->name())                                                                   => ''
                 ]
             );
         }

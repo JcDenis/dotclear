@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskCountcomments
+ * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Maintenance\Lib\Task;
+namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

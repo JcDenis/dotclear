@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Lib\Maintenance
+ * @class Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Maintenance\Lib;
+namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceDescriptor;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -148,7 +148,7 @@ class Maintenance
      */
     public function addTask($task)
     {
-        if (is_subclass_of($task, 'Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceTask')) {
+        if (is_subclass_of($task, __NAMESPACE__ . '\\MaintenanceTask')) {
             $this->tasks[$task] = new $task($this);
             $this->tasks_id[$this->tasks[$task]->id()] = $task;
         }

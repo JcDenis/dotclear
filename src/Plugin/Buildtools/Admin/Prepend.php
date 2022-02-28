@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Plugin\Maintenance\Lib\Maintenance;
+use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -17,7 +17,7 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Plugin\ImportExport\Lib\Task\ExportFlat;
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

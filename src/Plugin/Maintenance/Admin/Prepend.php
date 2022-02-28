@@ -15,12 +15,11 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\Favorite\Favorite;
+use Dotclear\Html\Form;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-
-use Dotclear\Admin\Favorite\Favorite;
-use Dotclear\Plugin\Maintenance\Lib\Maintenance;
-use Dotclear\Html\Form;
+use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -41,7 +40,7 @@ class Prepend extends AbstractPrepend
         dotclear()->blog()->settings()->addNamespace('maintenance');
 
         # Rest service
-        dotclear()->rest()->addFunction('dcMaintenanceStep', ['Dotclear\\Plugin\\Maintenance\\Lib\\MaintenanceRest', 'step']);
+        dotclear()->rest()->addFunction('dcMaintenanceStep', [__NAMESPACE__ . '\\Lib\\MaintenanceRest', 'step']);
 
         # Admin behaviors
         dotclear()->behavior()->add('dcMaintenanceInit', [__CLASS__, 'behaviorDcMaintenanceInit']);
@@ -59,7 +58,7 @@ class Prepend extends AbstractPrepend
      */
     public static function behaviorDcMaintenanceInit(Maintenance $maintenance): void
     {
-        $ns = 'Dotclear\\Plugin\\Maintenance\\Lib\\Task\\';
+        $ns = __NAMESPACE__ . '\\Lib\\Task\\';
 
         $maintenance
             ->addTab('maintenance', __('Servicing'), ['summary' => __('Tools to maintain the performance of your blogs.')])
@@ -101,19 +100,9 @@ class Prepend extends AbstractPrepend
             'small-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
             'large-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
-            'active_cb'    => [__CLASS__, 'behaviorAdminDashboardFavoritesActive'],
+            'active_cb'    => dotclear()->adminurl()->called() == 'admin.plugin.Maintenance',
             'dashboard_cb' => [__CLASS__, 'behaviorAdminDashboardFavoritesCallback']
         ]);
-    }
-
-    /**
-     * Is maintenance plugin active
-     *
-     * @return  bool    True if maintenance plugin is active else false
-     */
-    public static function behaviorAdminDashboardFavoritesActive(): bool
-    {
-        return dotclear()->adminurl()->called() == 'admin.plugin.Maintenance';
     }
 
     /**
@@ -293,11 +282,5 @@ class Prepend extends AbstractPrepend
             $res->content = $res_tab;   // @phpstan-ignore-line
             $blocks[]     = $res;
         }
-    }
-
-    //! move this to page
-    public static function behaviorPluginsToolsHeaders($module): string
-    {
-        return $module == 'Maintenance' ? 'mf=Plugin/Maintenance/js/settings.js' : '';
     }
 }

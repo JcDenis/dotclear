@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Lib\Task\MaintenanceTaskIndexposts
+ * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexposts
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Maintenance\Lib\Task;
+namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Lib\MaintenanceTask;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 use Dotclear\Utils\Text;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
