@@ -15,6 +15,7 @@ namespace Dotclear\Plugin\ImportExport\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
 
@@ -64,9 +65,9 @@ class Page extends AbstractPage
             ->setPageTitle(__('Import/Export'))
             ->setPageHelp('import')
             ->setPageHead(
-                static::cssLoad('?mf=Plugin/ImportExport/files/style.css') .
+                Filer::load('style.css', 'Plugin', 'ImportExport') .
                 static::jsJson('ie_msg', ['please_wait' => __('Please wait...')]) .
-                static::jsLoad('?mf=Plugin/ImportExport/files/js/script.js')
+                Filer::load('js/script.js', 'Plugin', 'ImportExport')
             )
         ;
 

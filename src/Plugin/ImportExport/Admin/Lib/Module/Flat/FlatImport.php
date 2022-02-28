@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatImport
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Module\Flat;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Html;
-use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatBackup;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

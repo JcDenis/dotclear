@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportFlat
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFlat
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,8 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Module;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Core\Utils;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
@@ -21,8 +22,8 @@ use Dotclear\File\Zip\Unzip;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Plugin\ImportExport\Lib\Module;
-use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatImport;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -180,7 +181,7 @@ class ImportFlat extends Module
             'ie_import_flat_msg',
             ['confirm_full_import' => __('Are you sure you want to import a full backup file?')]
         ) .
-        Utils::jsLoad('?mf=Plugin/ImportExport/files/js/import_flat.js') .
+        Filer::load('js/import_flat.js', 'Plugin', 'ImportExport') .
         '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
         '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .

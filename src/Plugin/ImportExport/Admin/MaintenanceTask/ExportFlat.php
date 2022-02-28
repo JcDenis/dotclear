@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Task\Exportblog
+ * @class Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\Exportblog
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Task;
+namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
-use Dotclear\Plugin\ImportExport\Lib\Module\ExportFlat as BaseExportFlat;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat as BaseExportFlat;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportWp
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportWp
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,14 +11,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Module;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Database\Connection;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Plugin\ImportExport\Lib\Module;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Utils\Crypt;
 use Dotclear\Utils\Text;
 

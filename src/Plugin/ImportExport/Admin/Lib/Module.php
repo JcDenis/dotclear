@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;

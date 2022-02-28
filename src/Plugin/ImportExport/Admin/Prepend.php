@@ -18,7 +18,6 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
@@ -35,7 +34,7 @@ class Prepend extends AbstractPrepend
 
         # ImportExport modules
         dotclear()->behavior()->add('importExportModules', function ($modules) {
-            $ns = 'Dotclear\\Plugin\\ImportExport\\Lib\\Module\\';
+            $ns = __NAMESPACE__ . '\\Lib\\Module\\';
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFlat']);
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
 
@@ -49,7 +48,7 @@ class Prepend extends AbstractPrepend
 
         # Maintenance task
         dotclear()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
-            $ns = 'Dotclear\\Plugin\\ImportExport\\Lib\\Task\\';
+            $ns = __NAMESPACE__ . '\\MaintenanceTask\\';
             $maintenance
                 ->addTask($ns . 'ExportBlog')
                 ->addTask($ns . 'ExportFull')

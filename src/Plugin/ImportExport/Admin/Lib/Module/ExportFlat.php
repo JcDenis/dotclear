@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module\ExportFlat
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Module;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Database\Record;
 use Dotclear\Database\Schema;
@@ -20,8 +20,8 @@ use Dotclear\File\Zip\Zip;
 use DOtclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Plugin\ImportExport\Lib\Module;
-use Dotclear\Plugin\ImportExport\Lib\Module\Flat\FlatExport;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

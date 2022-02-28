@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Task\ExportFull
+ * @class Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFull
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Task;
+namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Plugin\ImportExport\Lib\Task\ExportFlat;
+use Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFlat;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

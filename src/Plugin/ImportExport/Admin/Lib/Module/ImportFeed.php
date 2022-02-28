@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Lib\Module\ImportFeed
+ * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,13 +11,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\ImportExport\Lib\Module;
+namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Feed\Reader;
-use Dotclear\Plugin\ImportExport\Lib\Module;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
