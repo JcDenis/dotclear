@@ -13,11 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref\Admin;
 
-
-use Dotclear\Module\AbstractPage;
-
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -89,7 +88,7 @@ class Page extends AbstractPage
             ->setPageHelp('UserPref')
             ->setPageHead(
                 static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
-                static::jsLoad('?mf=Plugin/UserPref/js/index.js')
+                Filer::load('js/index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',
