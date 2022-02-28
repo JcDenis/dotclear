@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Pings\Admin;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Pings\Lib\PingsAPI;
+use Dotclear\Plugin\Pings\Common\PingsAPI;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

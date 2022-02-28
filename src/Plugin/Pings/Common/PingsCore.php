@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Lib\PingsCore
+ * @class Dotclear\Plugin\Pings\Common\PingsCore
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Pings\Lib;
+namespace Dotclear\Plugin\Pings\Common;
 
-use Dotclear\Plugin\Pings\Lib\PingsAPI;
+use Dotclear\Plugin\Pings\Common\PingsAPI;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -21,6 +21,11 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class PingsCore
 {
+    public static function initPings()
+    {
+        dotclear()->behavior()->add('coreFirstPublicationEntries', [__CLASS__, 'doPings']);
+    }
+
     public static function doPings($blog, $ids)
     {
         if (!dotclear()->blog()->settings()->pings->pings_active) {

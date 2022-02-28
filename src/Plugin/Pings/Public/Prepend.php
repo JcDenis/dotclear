@@ -15,6 +15,7 @@ namespace Dotclear\Plugin\Pings\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Plugin\Pings\Common\PingsCore;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -26,8 +27,6 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->behavior()->add('coreFirstPublicationEntries', [
-            'Dotclear\\Plugin\\Pings\\Lib\\PingsCore', 'doPings'
-        ]);
+        PingsCore::initPings();
     }
 }

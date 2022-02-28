@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Lib\PingsAPI
+ * @class Dotclear\Plugin\Pings\Common\PingsAPI
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Pings\Lib;
+namespace Dotclear\Plugin\Pings\Common;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Network\Xmlrpc\Client;

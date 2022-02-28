@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
-use DOtclear\Core\Utils;
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Pings\Lib\PingsAPI;
+use Dotclear\Plugin\Pings\Common\PingsAPI;
+use Dotclear\Plugin\Pings\Common\PingsCore;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -35,9 +36,7 @@ class Prepend extends AbstractPrepend
         static::addStandardFavorites(null);
 
         # Core behaviors
-        dotclear()->behavior()->add('coreFirstPublicationEntries', [
-            'Dotclear\\Plugin\\Pings\\Lib\\PingsCore', 'doPings'
-        ]);
+        PingsCore::initPings();
 
         # Admin behaviors
         dotclear()->behavior()->add('adminPostHeaders', [__CLASS__, 'pingJS']);
@@ -74,7 +73,7 @@ class Prepend extends AbstractPrepend
 
     public static function pingJS()
     {
-        return Utils::jsLoad('?mf=Plugin/Pings/files/js/post.js');
+        return Filer::Load('js/post.js', 'Plugin', 'Pings');
     }
 
     public static function pingsFormItems($main, $sidebar, $post)
