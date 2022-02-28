@@ -590,10 +590,8 @@ class Media extends Page
      * The breadcrumb of media page or popup
      *
      * @param   array   $element    The additionnal element
-     *
-     * @return  string              The html code of breadcrumb
      */
-    public function breadcrumb(array $element = []): string
+    public function breadcrumb(array $element = []): void
     {
         $option = $param = [];
 
