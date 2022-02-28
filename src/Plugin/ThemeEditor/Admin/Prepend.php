@@ -13,16 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
-
-use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
-
-use Dotclear\Module\AbstractDefine;
-use Dotclear\Database\Cursor;
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Page;
+use Dotclear\Database\Cursor;
 use Dotclear\Html\Form;
 use Dotclear\File\Path;
+use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Plugin\SimpleMenu\Lib\SimpleMenuWidgets;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -104,7 +103,7 @@ class Prepend extends AbstractPrepend
         echo '<div class="col">';
         echo Page::jsLoadCodeMirror('', false, ['javascript']);
         foreach ($themes_list as $theme) {
-            echo Page::cssLoad('js/codemirror/theme/' . $theme . '.css');
+            echo Filer::load('js/codemirror/theme/' . $theme . '.css');
         }
         echo '
 <textarea id="codemirror" name="codemirror" readonly="true">
@@ -122,7 +121,7 @@ function findSequence(goal) {
 }</textarea>';
         echo
         Page::jsJson('theme_editor_current', ['theme' => dotclear()->user()->preference()->interface->colorsyntax_theme != '' ? dotclear()->user()->preference()->interface->colorsyntax_theme : 'default']) .
-        Page::jsLoad('?mf=Plugin/ThemeEditor/files/js/theme.js');
+        Filer::load('js/theme.js', 'Plugin', 'ThemeEditor');
         echo '</div>';
         echo '</div>';
     }

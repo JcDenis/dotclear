@@ -16,15 +16,13 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 use stdClass;
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
-
-use Dotclear\Module\AbstractPage;
-
-use Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor;
-
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
 use Dotclear\File\Path;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
+use Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -128,7 +126,7 @@ class Page extends AbstractPage
                 'error_occurred'     => __('An error occurred:'),
                 'confirm_reset_file' => __('Are you sure you want to reset this file?')
             ]) .
-            static::jsLoad('?mf=Plugin/ThemeEditor/files/js/script.js') .
+            Filer::load('js/script.js', 'Plugin', 'ThemeEditor') .
             static::jsConfirmClose('file-form')
         );
         if ($user_ui_colorsyntax) {
@@ -137,7 +135,7 @@ class Page extends AbstractPage
             );
         }
         $this->setPageHead(
-            static::cssLoad('?mf=Plugin/ThemeEditor/files/style.css')
+            Filer::load('style.css', 'Plugin', 'ThemeEditor')
         );
 
         return true;
@@ -181,7 +179,7 @@ class Page extends AbstractPage
                 echo
                 '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                 ($this->te_editor->deletableFile($this->te_file['type'], $this->te_file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
-                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true)
+                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true) .
                     ($this->te_file['type'] ? Form::hidden([$this->te_file['type']], $this->te_file['f']) : '') .
                     '</p>';
             } else {
@@ -198,7 +196,7 @@ class Page extends AbstractPage
                     (!empty($_REQUEST['php']) ? 'php' :
                     'text/html'))));
                 echo static::jsJson('theme_editor_mode', ['mode' => $editorMode]);
-                echo static::jsLoad('?mf=Plugin/ThemeEditor/files/js/mode.js');
+                echo Filer::load('js/mode.js', 'Plugin', 'themeEditor');
                 echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
             }
         }
