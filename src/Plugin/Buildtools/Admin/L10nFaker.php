@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Buildtools\Admin;
 
 use Dotclear\Core\Media;
-use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

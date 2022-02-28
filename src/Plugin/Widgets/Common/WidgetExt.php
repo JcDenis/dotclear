@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Lib\WidgetExt
+ * @class Dotclear\Plugin\Widgets\Common\WidgetExt
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Widgets\Lib;
+namespace Dotclear\Plugin\Widgets\Common;
 
-use Dotclear\Plugin\Widgets\Lib\Widget;
+use Dotclear\Plugin\Widgets\Common\Widget;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

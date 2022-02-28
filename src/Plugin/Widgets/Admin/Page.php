@@ -15,14 +15,13 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 use stdClass;
 
-
-use Dotclear\Module\AbstractPage;
-
-use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
-
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
+use Dotclear\Plugin\Widgets\Common\Widgets;
+
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -240,8 +239,8 @@ class Page extends AbstractPage
         $j = 0;
         foreach (WidgetsStack::$__widgets->elements(true) as $w) {
             echo
-            '<li>' . form::hidden(['w[void][0][id]'], Html::escapeHTML($w->id())) .
-            '<p class="widget-name">' . form::number(['w[void][0][order]'], [
+            '<li>' . Form::hidden(['w[void][0][id]'], Html::escapeHTML($w->id())) .
+            '<p class="widget-name">' . Form::number(['w[void][0][order]'], [
                 'default'    => 0,
                 'class'      => 'hide',
                 'extra_html' => 'title="' . __('order') . '"'
@@ -249,7 +248,7 @@ class Page extends AbstractPage
             ' ' . $w->name() .
             ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') . '</p>' .
             '<p class="manual-move remove-if-drag"><label class="classic">' . __('Append to:') . '</label> ' .
-            form::combo(['addw[' . $w->id() . ']'], self::widgetsAppendCombo()) .
+            Form::combo(['addw[' . $w->id() . ']'], self::widgetsAppendCombo()) .
             '<input type="submit" name="append[' . $w->id() . ']" value="' . __('Add') . '" /></p>' .
             '<div class="widgetSettings hidden-if-drag">' . $w->formSettings('w[void][0]', $j) . '</div>' .
                 '</li>';
@@ -303,15 +302,15 @@ class Page extends AbstractPage
         $user_dm_nodragdrop = dotclear()->user()->preference()->accessibility->nodragdrop;
 
         return
-        static::cssLoad('?mf=Plugin/Widgets/files/style.css') .
-        static::jsLoad('js/jquery/jquery-ui.custom.js') .
-        static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
+        Filer::load('style.css', 'Plugin', 'Widgets') .
+        Filer::load('js/jquery/jquery-ui.custom.js') .
+        Filer::Load('js/jquery/jquery.ui.touch-punch.js') .
         static::jsJson('widgets', [
             'widget_noeditor' => ($rte_flag ? 0 : 1),
             'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')]
         ]) .
-        static::jsLoad('?mf=Plugin/Widgets/files/js/widgets.js') .
-        (!$user_dm_nodragdrop ? static::jsLoad('?mf=Plugin/Widgets/files/js/dragdrop.js') : '') .
+        Filer::load('js/widgets.js', 'Plugin', 'Widgets') .
+        (!$user_dm_nodragdrop ? Filer::load('js/dragdrop.js', 'Plugin', 'Widgets') : '') .
         ($rte_flag ? (string) dotclear()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         static::jsConfirmClose('sidebarsWidgets');
     }
@@ -386,8 +385,8 @@ class Page extends AbstractPage
             $iname   = 'w[' . $pr . '][' . $i . ']';
             $offline = $w->isOffline() ? ' offline' : '';
 
-            $res .= '<li>' . form::hidden([$iname . '[id]'], Html::escapeHTML($w->id())) .
-            '<p class="widget-name' . $offline . '">' . form::number([$iname . '[order]'], [
+            $res .= '<li>' . Form::hidden([$iname . '[id]'], Html::escapeHTML($w->id())) .
+            '<p class="widget-name' . $offline . '">' . Form::number([$iname . '[order]'], [
                 'default'    => $i,
                 'class'      => 'hidden',
                 'extra_html' => 'title="' . __('order') . '"'

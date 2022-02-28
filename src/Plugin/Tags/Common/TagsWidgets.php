@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Tags\Common;
 use ArrayObject;
 
 use Dotclear\Html\Html;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

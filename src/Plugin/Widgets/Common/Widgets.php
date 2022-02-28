@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Lib\Widgets
+ * @class Dotclear\Plugin\Widgets\Common\Widgets
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Widgets\Lib;
+namespace Dotclear\Plugin\Widgets\Common;
 
-use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
-use Dotclear\Plugin\Widgets\Lib\WidgetsExt;
-use Dotclear\Plugin\Widgets\Lib\Widget;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
+use Dotclear\Plugin\Widgets\Common\WidgetsExt;
+use Dotclear\Plugin\Widgets\Common\Widget;
 
 use Dotclear\Core\Utils;
 

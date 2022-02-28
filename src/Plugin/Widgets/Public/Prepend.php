@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Widgets\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
-use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

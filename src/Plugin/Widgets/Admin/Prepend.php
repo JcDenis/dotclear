@@ -18,8 +18,8 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\Plugin\Widgets\Lib\WidgetsStack;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Blogroll\Lib;
 use ArrayObject;
 
 use Dotclear\Plugin\Blogroll\Lib\Blogroll;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class BlogrollWidgets
 {

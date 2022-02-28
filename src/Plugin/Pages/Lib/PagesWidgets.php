@@ -17,8 +17,8 @@ use ArrayObject;
 
 use Dotclear\Database\Record;
 use Dotclear\Html\Html;
-use Dotclear\Plugin\Widgets\Lib\Widgets;
-use Dotclear\Plugin\Widgets\Lib\Widget;
+use Dotclear\Plugin\Widgets\Common\Widgets;
+use Dotclear\Plugin\Widgets\Common\Widget;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
