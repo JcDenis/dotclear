@@ -17,8 +17,8 @@ use ArrayObject;
 
 use Dotclear\Database\Record;
 use Dotclear\Html\Html;
-use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -76,7 +76,7 @@ class PagesWidgets
             return '';
         }
 
-        if (($w->homeonly == 1 && !dotclear()->url()->isHome(dotclear()->url()->type)) || ($w->homeonly == 2 && dotclear()->url()->isHome(dotclear()->url()->type))) {
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 

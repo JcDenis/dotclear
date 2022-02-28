@@ -15,10 +15,10 @@ namespace Dotclear\Plugin\SimpleMenu\Lib;
 
 use ArrayObject;
 
-use Dotclear\Plugin\Widgets\Common\Widgets;
-
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
+use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -78,20 +78,20 @@ class SimpleMenuWidgets
     }
 
     # Widget function
-    public function simpleMenuWidget($w)
+    public function simpleMenuWidget(Widget $w): string
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!(boolean) dotclear()->blog()->settings()->system->simpleMenu_active) {
-            return;
+        if (!dotclear()->blog()->settings()->system->simpleMenu_active) {
+            return '';
         }
 
         if ($w->offline) {
-            return;
+            return '';
         }
 
-        if (($w->homeonly == 1 && !dotclear()->url()->isHome(dotclear()->url()->type)) || ($w->homeonly == 2 && dotclear()->url()->isHome(dotclear()->url()->type))) {
-            return;
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
         $description = 'title';
@@ -100,7 +100,7 @@ class SimpleMenuWidgets
         }
         $menu = $this->displayMenu('', '', $description);
         if ($menu == '') {
-            return;
+            return '';
         }
 
         return $w->renderDiv($w->content_only, 'simple-menu ' . $w->class, '',

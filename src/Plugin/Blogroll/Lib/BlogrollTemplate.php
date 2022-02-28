@@ -18,6 +18,7 @@ use ArrayObject;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
 use Dotclear\Plugin\Blogroll\Lib\Blogroll;
+use Dotclear\Plugin\Widgets\Common\Widget;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -135,20 +136,20 @@ class BlogrollTemplate
         return sprintf($block, $list) . "\n";
     }
 
-    public static function linksWidget($w)
+    public static function linksWidget(Widget $w): string
     {
         if ($w->offline) {
-            return;
+            return '';
         }
 
-        if (($w->homeonly == 1 && !dotclear()->url()->isHome($core->url->type)) || ($w->homeonly == 2 && dotclear()->url()->isHome(dotclear()->url()->type))) {
-            return;
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
         $links = self::getList($w->renderSubtitle('', false), '<ul>%s</ul>', '<li%2$s>%1$s</li>', $w->category);
 
         if (empty($links)) {
-            return;
+            return '';
         }
 
         return $w->renderDiv(

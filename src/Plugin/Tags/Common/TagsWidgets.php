@@ -16,6 +16,7 @@ namespace Dotclear\Plugin\Tags\Common;
 use ArrayObject;
 
 use Dotclear\Html\Html;
+use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -70,16 +71,14 @@ class TagsWidgets
         $d['nav']->append($w->tags);
     }
 
-    public static function tagsWidget($w)
+    public static function tagsWidget(Widget $w): string
     {
         if ($w->offline) {
-            return;
+            return '';
         }
 
-        if (($w->homeonly == 1 && !dotclear()->url()->isHome(dotclear()->url()->type))
-            || ($w->homeonly == 2 && dotclear()->url()->isHome(dotclear()->url()->type))
-        ) {
-            return;
+        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
         $combo = ['meta_id_lower', 'count', 'latest', 'oldest'];
@@ -110,7 +109,7 @@ class TagsWidgets
         );
 
         if ($rs->isEmpty()) {
-            return;
+            return '';
         }
 
         if ($sort == 'meta_id_lower') {
