@@ -15,13 +15,12 @@ namespace Dotclear\Plugin\Attachments\Admin;
 
 use ArrayObject;
 
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
-
-use Dotclear\Admin\Page\Page;
+use Dotclear\Admin\Filer;
 use Dotclear\Database\Record;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
+use Dotclear\Module\AbstractPrepend;
+use Dotclear\Module\TraitPrependAdmin;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -39,10 +38,10 @@ class Prepend extends AbstractPrepend
         dotclear()->behavior()->add('adminPageFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
         dotclear()->behavior()->add('adminPageAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
         dotclear()->behavior()->add('adminPageHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
-        dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAadminPageHelpBlock']);
+        dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
     }
 
-    public static function behaviorAadminPageHelpBlock(ArrayObject $blocks): void
+    public static function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
     {
         $found = false;
         foreach ($blocks as $block) {
@@ -60,7 +59,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminPostHeaders()
     {
-        return Page::jsLoad('?mf=Plugin/Attachments/files/js/post.js');
+        return Filer::load('js/post.js', 'Plugin', 'Attachments');
     }
 
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
