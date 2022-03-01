@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Lib\Spamfilters
+ * @class Dotclear\Plugin\Antispam\Common\Spamfilters
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib;
+namespace Dotclear\Plugin\Antispam\Common;
 
-use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -30,7 +30,7 @@ class Spamfilters
     public function init($filters): void
     {
         foreach ($filters as $class) {
-            if (!is_subclass_of($class, 'Dotclear\\Plugin\\Antispam\\Lib\\Spamfilter')) {
+            if (!is_subclass_of($class, __NAMESPACE__ . '\\Spamfilter')) {
                 continue;
             }
 

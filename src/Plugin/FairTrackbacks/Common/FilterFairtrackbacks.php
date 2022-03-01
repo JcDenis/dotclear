@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\FairTrackbacks\Common;
 use ArrayObject;
 
 use Dotclear\Network\NetHttp\NetHttp;
-use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

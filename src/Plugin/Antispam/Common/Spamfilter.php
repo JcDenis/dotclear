@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Lib\Spamfilter
+ * @class Dotclear\Plugin\Antispam\Common\Spamfilter
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib;
+namespace Dotclear\Plugin\Antispam\Common;
 
 use Dotclear\Html\Html;
 use Dotclear\Database\Record;

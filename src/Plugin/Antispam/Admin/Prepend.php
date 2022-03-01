@@ -15,13 +15,13 @@ namespace Dotclear\Plugin\Antispam\Admin;
 
 use ArrayObject;
 
+use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-
-use Dotclear\Plugin\Antispam\Lib\Antispam;
-
-use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Html\Form;
+use Dotclear\Plugin\Antispam\Admin\AntispamBehavior;
+use Dotclear\Plugin\Antispam\Common\Antispam;
+use Dotclear\Plugin\Antispam\Common\AntispamUrl;
+use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -41,124 +41,50 @@ class Prepend extends AbstractPrepend
         static::addStandardMenu('Plugins');
         static::addStandardFavorites('admin');
 
-        # Settings
-        dotclear()->blog()->settings()->addNamespace('antispam');
-
-        # Url
-        $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamUrl';
-        dotclear()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [$class, 'spamFeed']);
-        dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$class, 'hamFeed']);
-
-        # Rest service
-        $class = 'Dotclear\\Plugin\\Antispam\\Lib\\AntispamRest';
-        dotclear()->rest()->addFunction('getSpamsCount', [$class, 'restGetSpamsCount']);
-
-        # Core behaviors
-        $class = 'Dotclear\\Plugin\\Antispam\\Lib\\Antispam';
-        dotclear()->behavior()->add('coreAfterCommentUpdate', [$class, 'trainFilters']);
-        dotclear()->behavior()->add('adminAfterCommentDesc', [$class, 'statusMessage']);
-        dotclear()->behavior()->add('adminDashboardHeaders', [$class, 'dashboardHeaders']);
-        dotclear()->behavior()->add('adminCommentsActionsPage', [$class, 'commentsActionsPage']);
-        dotclear()->behavior()->add('coreBlogGetComments', [$class, 'blogGetComments']);
-        dotclear()->behavior()->add('adminCommentListHeader', [$class, 'commentListHeader']);
-        dotclear()->behavior()->add('adminCommentListValue', [$class, 'commentListValue']);
-
-
-        # Admin behaviors
-        dotclear()->behavior()->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
-
-        if (!DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
-            dotclear()->behavior()->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
-            dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
-            dotclear()->behavior()->add('adminCommentsSpamForm', [__CLASS__, 'behaviorAdminCommentsSpamForm']);
-            dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
-        }
+        Antispam::initAntispam();
+        AntispamUrl::initAntispam();
+        AntispamBehavior::initAntispam();
     }
 
     public static function installModule(): ?bool
     {
-        return Antispam::installModule();
-    }
+        $s = new Structure(dotclear()->con(), dotclear()->prefix);
 
-    public static function behaviorAdminDashboardFavsIcon(string $name, ArrayObject $icon): void
-    {
-        # Check if it is comments favs
-        if ($name == 'comments') {
-            # Hack comments title if there is at least one spam
-            $str = Antispam::dashboardIconTitle();
-            if ($str != '') {
-                $icon[0] .= $str;
-            }
-        }
-    }
+        $s->comment
+            ->comment_spam_status('varchar', 128, true, 0)
+            ->comment_spam_filter('varchar', 32, true, null)
+        ;
 
-    public static function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
-    {
-        $found = false;
-        foreach ($blocks as $block) {
-            if ($block == 'core_comments') {
-                $found = true;
+        $s->spamrule
+            ->rule_id('bigint', 0, false)
+            ->blog_id('varchar', 32, true)
+            ->rule_type('varchar', 16, false, "'word'")
+            ->rule_content('varchar', 128, false)
 
-                break;
-            }
-        }
-        if (!$found) {
-            return;
-        }
-        $blocks[] = 'antispam_comments';
-    }
+            ->primary('pk_spamrule', 'rule_id')
+        ;
 
-    public static function behaviorAdminCommentsSpamForm(): void
-    {
-        $ttl = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
-        if ($ttl != null && $ttl >= 0) {
-            echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $ttl) . ' ' .
-            sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
-                '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
-                '.</p>';
-        }
-    }
+        $s->spamrule->index('idx_spamrule_blog_id', 'btree', 'blog_id');
+        $s->spamrule->reference('fk_spamrule_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
-    public static function behaviorAdminBlogPreferencesForm(Settings $settings)
-    {
-        $settings->addNamespace('antispam');
-        $ttl = $settings->antispam->antispam_moderation_ttl;
-        echo
-        '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
-        '<p><label for="antispam_moderation_ttl" class="classic">' . __('Delete junk comments older than') . ' ' .
-        Form::number('antispam_moderation_ttl', -1, 999, (string) $ttl) .
-        ' ' . __('days') .
-        '</label></p>' .
-        '<p class="form-note">' . __('Set -1 to disabled this feature ; Leave empty to use default 7 days delay.') . '</p>' .
-        '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '">' . __('Set spam filters.') . '</a></p>' .
-            '</div>';
-    }
-
-    public static function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
-    {
-        $settings->addNamespace('antispam');
-        $settings->antispam->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
-    }
-
-    /**
-     * Gets the spams count.
-     *
-     * @param      array   $get    The cleaned $_GET
-     *
-     * @return     xmlTag  The spams count.
-     */
-    public static function restGetSpamsCount($get)
-    {
-        $count = Antispam::countSpam();
-        if ($count > 0) {
-            $str = sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
-        } else {
-            $str = '';
+        if ($s->driver() == 'pgsql') {
+            $s->spamrule->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
         }
 
-        $rsp      = new xmlTag('count');
-        $rsp->ret = $str;
+        # Schema installation
+        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+        $changes = $si->synchronize($s);
 
-        return $rsp;
+        # Creating default wordslist
+        if (dotclear()->version()->get('Antispam') === null) {
+            $_o = new FilterWords();
+            $_o->defaultWordsList();
+            unset($_o);
+        }
+
+        dotclear()->blog()->settings()->addNamespace('antispam');
+        dotclear()->blog()->settings()->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
+
+        return true;
     }
 }

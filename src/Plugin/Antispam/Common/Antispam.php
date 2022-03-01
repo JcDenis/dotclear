@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Lib\Antispam
+ * @class Dotclear\Plugin\Antispam\Common\Antispam
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,20 +11,17 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib;
+namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
 
-use Dotclear\Plugin\Antispam\Lib\Spamfilters;
-use Dotclear\Plugin\Antispam\Lib\Filter\FilterWords;
-use Dotclear\Plugin\Antispam\Lib\Filter\FilterIp;
-use Dotclear\Plugin\Antispam\Lib\Filter\FilterIpv6;
-
+use Dotclear\Admin\Page\Action\Action;
+use Dotclear\Core\Blog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
-use Dotclear\Database\Structure;
-use Dotclear\Core\Blog;
-use Dotclear\Admin\Page\Action\Action;
+use Dotclear\Plugin\Antispam\Common\Spamfilters;
+use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
+use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -34,6 +31,25 @@ class Antispam
 {
     /** @var Spamfilters Spamfitlers instance */
     public static $filters;
+
+    public static function initAntispam()
+    {
+        dotclear()->blog()->settings()->addNamespace('antispam');
+
+        if ('Public' == DOTCLEAR_PROCESS) {
+            dotclear()->behavior()->add('publicBeforeCommentCreate', [__CLASS__, 'isSpam']);
+            dotclear()->behavior()->add('publicBeforeTrackbackCreate', [__CLASS__, 'isSpam']);
+            dotclear()->behavior()->add('publicBeforeDocument', [__CLASS__, 'purgeOldSpam']);
+        } elseif ('Admin' == DOTCLEAR_PROCESS) {
+            dotclear()->behavior()->add('coreAfterCommentUpdate', [__CLASS__, 'trainFilters']);
+            dotclear()->behavior()->add('adminAfterCommentDesc', [__CLASS__, 'statusMessage']);
+            dotclear()->behavior()->add('adminDashboardHeaders', [__CLASS__, 'dashboardHeaders']);
+            dotclear()->behavior()->add('adminCommentsActionsPage', [__CLASS__, 'commentsActionsPage']);
+            dotclear()->behavior()->add('coreBlogGetComments', [__CLASS__, 'blogGetComments']);
+            dotclear()->behavior()->add('adminCommentListHeader', [__CLASS__, 'commentListHeader']);
+            dotclear()->behavior()->add('adminCommentListValue', [__CLASS__, 'commentListValue']);
+        }
+    }
 
     public static function initFilters(): void
     {
@@ -49,7 +65,7 @@ class Antispam
 
     public static function defaultFilters()
     {
-        $ns = 'Dotclear\\Plugin\\Antispam\\Lib\\Filter\\';
+        $ns = __NAMESPACE__ . '\\Filter\\';
         $defaultfilters = [
             $ns . 'FilterIp',
             $ns . 'FilterIplookup',
@@ -235,51 +251,9 @@ class Antispam
         }
     }
 
-    public static function installModule(): ?bool
-    {
-        $s = new Structure(dotclear()->con(), dotclear()->prefix);
-
-        $s->comment
-            ->comment_spam_status('varchar', 128, true, 0)
-            ->comment_spam_filter('varchar', 32, true, null)
-        ;
-
-        $s->spamrule
-            ->rule_id('bigint', 0, false)
-            ->blog_id('varchar', 32, true)
-            ->rule_type('varchar', 16, false, "'word'")
-            ->rule_content('varchar', 128, false)
-
-            ->primary('pk_spamrule', 'rule_id')
-        ;
-
-        $s->spamrule->index('idx_spamrule_blog_id', 'btree', 'blog_id');
-        $s->spamrule->reference('fk_spamrule_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
-
-        if ($s->driver() == 'pgsql') {
-            $s->spamrule->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
-        }
-
-        # Schema installation
-        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
-        $changes = $si->synchronize($s);
-
-        # Creating default wordslist
-        if (dotclear()->version()->get('Antispam') === null) {
-            $_o = new FilterWords();
-            $_o->defaultWordsList();
-            unset($_o);
-        }
-
-        dotclear()->blog()->settings()->addNamespace('antispam');
-        dotclear()->blog()->settings()->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
-
-        return true;
-    }
-
     public static function blogGetComments(Record $rs): void
     {
-        $rs->extend('Dotclear\\Plugin\\Antispam\\Lib\\RsExtComment');
+        $rs->extend(__NAMESPACE__ . '\\RsExtComment');
     }
 
     public static function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void

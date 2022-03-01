@@ -13,14 +13,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
-
-use Dotclear\Module\AbstractPage;
-
-use Dotclear\Plugin\Antispam\Lib\Antispam;
-
-use Dotclear\Utils\Dt;
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
+use Dotclear\Plugin\Antispam\Common\Antispam;
+use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -127,14 +125,14 @@ class Page extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js')
+                Filer::load('js/jquery/jquery-ui.custom.js') .
+                Filer::load('js/jquery/jquery.ui.touch-punch.js')
             );
         }
         $this->setPageHead(
             static::jsJson('antispam', ['confirm_spam_delete' => __('Are you sure you want to delete all spams?')]) .
-            static::jsLoad('?mf=Plugin/Antispam/files/js/antispam.js') .
-            static::cssLoad('?mf=Plugin/Antispam/files/style.css')
+            Filer::load('js/antispam.js', 'Plugin','Antispam') .
+            Filer::load('style.css', 'Plugin','Antispam')
         );
 
         if ($this->a_gui !== false) {

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Lib;
 
 
-use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 use Dotclear\Plugin\Akismet\Lib\Akismet;
 

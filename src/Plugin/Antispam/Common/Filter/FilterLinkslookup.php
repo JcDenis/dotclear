@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Lib\Filter\FilterLinkslookup
+ * @class Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib\Filter;
+namespace Dotclear\Plugin\Antispam\Common\Filter;
 
-use Dotclear\Plugin\Antispam\Lib\Spamfilter;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

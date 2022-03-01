@@ -17,7 +17,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib;
+namespace Dotclear\Plugin\Antispam\Common;
 
 use Dotclear\Database\Record;
 

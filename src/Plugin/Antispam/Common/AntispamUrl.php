@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Lib\AntispamUrl
+ * @class Dotclear\Plugin\Antispam\Common\AntispamUrl
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,11 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Antispam\Lib;
+namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
 
-use Dotclear\Plugin\Antispam\Lib\Antispam;
+use Dotclear\Plugin\Antispam\Common\Antispam;
 
 use Dotclear\Core\Url\Url;
 use Dotclear\Html\Html;
@@ -26,6 +26,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class AntispamUrl extends Url
 {
+    public static function initAntispam()
+    {
+        dotclear()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [__CLASS__, 'spamFeed']);
+        dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [__CLASS__, 'hamFeed']);
+    }
+
     public static function hamFeed($args)
     {
         self::genFeed('ham', $args);
