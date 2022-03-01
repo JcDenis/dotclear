@@ -902,25 +902,39 @@ class Url
             $this->p404();
         }
 
-        # Current Theme dir
-        $dirs = dotclear()->themes->getThemePath('files');
+        $dirs = [];
 
-        # Modules dirs
-        $pos = strpos($args, '/');
-        if ($pos) {
-            # Sanitize modules type
-            $type = ucfirst(strtolower(substr($args, 0, $pos)));
-            $modf = substr($args, $pos, strlen($args));
+        # Try to find module id and type
+        # Public url should be files/ModuleType/ModuleId/a_sub_folder/a_file.ext
+        $module_args = explode('/', $args);
+        if (2 < count($module_args)) {
+            $module_type = array_shift($module_args);
+            $module_id   = array_shift($module_args);
 
-            # Check class
-            $class = root_ns('Module', $type, 'Public', 'Modules' . $type);
-            if (is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-                # Get paths and serve file
-                $modules = new $class();
-                $dirs    = $modules->getModulesPath();
-                $args    = $modf;
+            # Check module type
+            $modules_class = root_ns('Module', $module_type, 'Public', 'Modules' . $module_type);
+            if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
+                $modules = new $modules_class();
+                # Chek if module exists
+                $modules_paths   = $modules->getModulesPath();
+                foreach($modules_paths as $modules_path) {
+                    if (is_dir(implode_path($modules_path, $module_id))) {
+                        $dirs[] = implode_path($modules_path, $module_id, 'Public', 'files');
+                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
+                        $args = implode('/', $module_args);
+
+                        break;
+                    }
+                }
             }
         }
+
+        # Current Theme dir
+        $dirs = array_merge(
+            array_values(dotclear()->themes->getThemePath('Public/files')),
+            array_values(dotclear()->themes->getThemePath('Common/files'))//,
+            //array_values(dotclear()->themes->getThemePath('files')) //! remove this one on the end
+        );
 
         # List other available file paths
         $dirs[] = dotclear()->config()->var_dir;
