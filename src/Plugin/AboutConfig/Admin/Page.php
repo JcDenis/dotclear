@@ -13,11 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
-
-use Dotclear\Module\AbstractPage;
-
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -91,7 +90,7 @@ class Page extends AbstractPage
             ->setPageHelp('aboutConfig')
             ->setPageHead(
                 static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
-                static::jsLoad('?mf=Plugin/AboutConfig/js/index.js')
+                Filer::load('js/index.js', 'Plugin', 'AboutConfig')
             )
             ->setPageBreadcrumb([
                 __('System')                              => '',
