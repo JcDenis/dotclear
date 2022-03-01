@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Public;
 
-use ArrayObject;
-
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Plugin\Akismet\Common\AkismetBehavior;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -28,10 +27,6 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        dotclear()->blog()->settings()->addNamespace('akismet');
-
-        dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
-            $spamfilters[] = 'Dotclear\\Plugin\\Akismet\\Lib\\FilterAskimet';
-        });
+        AkismetBehavior::initAkismet();
     }
 }

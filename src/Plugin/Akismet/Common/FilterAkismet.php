@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Lib\FilterAkismet
+ * @class Dotclear\Plugin\Akismet\Common\FilterAkismet
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,17 +11,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Akismet\Lib;
-
-
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
-use Dotclear\Plugin\Akismet\Lib\Akismet;
+namespace Dotclear\Plugin\Akismet\Common;
 
 use Dotclear\Database\Record;
-use Dotclear\Html\Html;
 Use Dotclear\Html\Form;
+use Dotclear\Html\Html;
 use Dotclear\Network\Http;
+use Dotclear\Plugin\Akismet\Common\Akismet;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

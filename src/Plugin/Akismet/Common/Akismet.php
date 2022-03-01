@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Lib\Akismet
+ * @class Dotclear\Plugin\Akismet\Common\Akismet
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,8 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Akismet\Lib;
-
+namespace Dotclear\Plugin\Akismet\Common;
 
 use Dotclear\Network\NetHttp\NetHttp;
 use Dotclear\Network\Http;
