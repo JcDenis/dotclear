@@ -16,12 +16,34 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Network\Http;
+
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
 abstract class AbstractConfig
 {
+    private $redirection = '';
+
+    /**
+     * Constructor
+     *
+     * @param   string  $redir  Page redirection on validation
+     */
+    public function __construct(string $redirection)
+    {
+        $this->redirection = $redirection;
+    }
+
+    /**
+     * Redirect on success
+     */
+    protected function redirect(): void
+    {
+        Http::redirect($this->redirection);
+    }
+
     /**
      * Get module configuration permissions
      *
@@ -41,9 +63,8 @@ abstract class AbstractConfig
      * Chek and save configuration form fields.
      *
      * @param   array   $post   Http _POST fieds
-     * @param   string  $redir  Page redirection on validation
      */
-    abstract public function setConfiguration(array $post, string $redir): void;
+    abstract public function setConfiguration(array $post): void;
 
     /**
      * Get configuration form
@@ -51,7 +72,6 @@ abstract class AbstractConfig
      * This methods should echo Html form (only fields) content.
      */
     abstract public function getConfiguration(): void;
-
 
     //! todo: add contextual help
 }

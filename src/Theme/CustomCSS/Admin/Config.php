@@ -19,7 +19,6 @@ use Dotclear\Module\AbstractConfig;
 
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\File\Path;
 
@@ -37,7 +36,7 @@ class Config extends AbstractConfig
         return 'admin';
     }
 
-    public function setConfiguration(array $post, string $redir): void
+    public function setConfiguration(array $post): void
     {
         $this->customcssConf();
 
@@ -47,7 +46,7 @@ class Config extends AbstractConfig
             fclose($fp);
 
             dotclear()->notice()->addSuccessNotice(__('Style sheet upgraded.'));
-            Http::redirect($redir);
+            $this->redirect();
         }
     }
 

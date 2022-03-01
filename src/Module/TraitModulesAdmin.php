@@ -1494,7 +1494,7 @@ trait TraitModulesAdmin
         }
 
         $this->config_module  = $module;
-        $this->config_class   = new $class();
+        $this->config_class   = new $class($this->getURL(['module' => $module->id(), 'conf' => 1]));
         $this->config_content = '';
         $this->setRedir($this->getURL() . '#modules');
 
@@ -1510,7 +1510,7 @@ trait TraitModulesAdmin
         try {
             # Save changes
             if (!empty($_POST)) {
-                $this->config_class->setConfiguration($_POST, $this->getURL(['module' => $this->config_module->id(), 'conf' => 1]));
+                $this->config_class->setConfiguration($_POST);
             }
 
             # Get form content

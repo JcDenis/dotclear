@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Html\Form;
 use Dotclear\Module\AbstractConfig;
-use Dotclear\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -23,13 +22,13 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Config extends AbstractConfig
 {
-    public function setConfiguration($post, $redir): void
+    public function setConfiguration($post): void
     {
         dotclear()->blog()->settings()->addNamespace('LegacyEditor');
         dotclear()->blog()->settings()->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
 
         dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
-        Http::redirect($redir);
+        $this->redirect();
     }
 
     public function getConfiguration(): void
