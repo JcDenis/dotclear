@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Lib\BlogrollTemplate
+ * @class Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,14 +11,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Blogroll\Lib;
+namespace Dotclear\Plugin\Blogroll\Public;
 
 use ArrayObject;
 
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Plugin\Blogroll\Lib\Blogroll;
-use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -26,6 +25,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class BlogrollTemplate
 {
+    public static function initBlogroll()
+    {
+        dotclear()->template()->addValue('Blogroll', [__CLASS__, 'blogroll']);
+        dotclear()->template()->addValue('BlogrollXbelLink', [__CLASS__, 'blogrollXbelLink']);
+    }
+
     public static function blogroll($attr)
     {
         $category = '<h3>%s</h3>';
@@ -134,30 +139,5 @@ class BlogrollTemplate
         }
 
         return sprintf($block, $list) . "\n";
-    }
-
-    public static function linksWidget(Widget $w): string
-    {
-        if ($w->offline) {
-            return '';
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return '';
-        }
-
-        $links = self::getList($w->renderSubtitle('', false), '<ul>%s</ul>', '<li%2$s>%1$s</li>', $w->category);
-
-        if (empty($links)) {
-            return '';
-        }
-
-        return $w->renderDiv(
-            $w->content_only,
-            'links ' . $w->class,
-            '',
-            ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
-            $links
-        );
     }
 }

@@ -13,14 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Dotclear\Plugin\Blogroll\Admin\BlogrollImport;
 use Dotclear\Plugin\Blogroll\Admin\PageEdit;
-use Dotclear\Plugin\Blogroll\Lib\Blogroll;
-use Dotclear\Plugin\Blogroll\Lib\BlogrollImport;
+use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -199,9 +200,9 @@ class Page extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                static::jsLoad('?mf=Plugin/Blogroll/files/js/blogroll.js')
+                Filer::load('js/jquery/jquery-ui.custom.js') .
+                Filer::load('js/jquery/jquery.ui.touch-punch.js') .
+                Filer::load('js/blogroll.js', 'Plugin', 'Blogroll')
             );
         }
 

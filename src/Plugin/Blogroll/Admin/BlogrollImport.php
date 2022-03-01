@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Lib\BlogrollImport
+ * @class Dotclear\Plugin\Blogroll\Admin\BlogrollImport
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Blogroll\Lib;
+namespace Dotclear\Plugin\Blogroll\Admin;
 
 use StdClass;
 

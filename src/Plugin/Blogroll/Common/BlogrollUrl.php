@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Lib\BlogrollUrl
+ * @class Dotclear\Plugin\Blogroll\Common\BlogrollUrl
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,14 +11,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Blogroll\Lib;
+namespace Dotclear\Plugin\Blogroll\Common;
 
 use ArrayObject;
 
 use Dotclear\Core\Url\Url;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
-use Dotclear\Plugin\Blogroll\Lib\Blogroll;
+use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -26,6 +26,11 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class BlogrollUrl extends Url
 {
+    public static function initBlogroll()
+    {
+        dotclear()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [__CLASS__, 'xbel']);
+    }
+
     public static function xbel($args)
     {
         $blogroll = new Blogroll();

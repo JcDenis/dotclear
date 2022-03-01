@@ -15,8 +15,9 @@ namespace Dotclear\Plugin\Blogroll\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-
-use Dotclear\Plugin\Blogroll\Lib\BlogrollWidgets;
+use Dotclear\Plugin\Blogroll\Common\BlogrollUrl;
+use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
+use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -28,16 +29,8 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        # Widgets
-        new BlogrollWidgets();
-
-        # Templates
-        $class = 'Dotclear\\Plugin\\Blogroll\\Lib\\BlogrollTemplate';
-        dotclear()->template()->addValue('Blogroll', [$class, 'blogroll']);
-        dotclear()->template()->addValue('BlogrollXbelLink', [$class, 'blogrollXbelLink']);
-
-        # Url
-        $class = 'Dotclear\\Plugin\\Blogroll\\Lib\\BlogrollUrl';
-        dotclear()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [$class, 'xbel']);
+        BlogrollWidgets::initBlogroll();
+        BlogrollTemplate::initBlogroll();
+        BlogrollUrl::initBlogroll();
     }
 }

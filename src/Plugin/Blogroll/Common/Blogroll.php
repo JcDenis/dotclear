@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Lib\Blogroll
+ * @class Dotclear\Plugin\Blogroll\Common\Blogroll
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,13 +11,16 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Blogroll\Lib;
+namespace Dotclear\Plugin\Blogroll\Common;
 
 use ArrayObject;
 
 use Dotclear\Database\Record;
-use Dotclear\Database\Structure;
 use Dotclear\Exception\ModuleException;
+
+if (!defined('DOTCLEAR_PROCESS')) {
+    return;
+}
 
 class Blogroll
 {
@@ -208,32 +211,5 @@ class Blogroll
         }
 
         return $res;
-    }
-
-    public static function installModule(): ?bool
-    {
-        $s = new Structure(dotclear()->con(), dotclear()->prefix);
-
-        $s->link
-            ->link_id('bigint', 0, false)
-            ->blog_id('varchar', 32, false)
-            ->link_href('varchar', 255, false)
-            ->link_title('varchar', 255, false)
-            ->link_desc('varchar', 255, true)
-            ->link_lang('varchar', 5, true)
-            ->link_xfn('varchar', 255, true)
-            ->link_position('integer', 0, false, 0)
-
-            ->primary('pk_link', 'link_id')
-        ;
-
-        $s->link->index('idx_link_blog_id', 'btree', 'blog_id');
-        $s->link->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
-
-        # Schema installation
-        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
-        $changes = $si->synchronize($s);
-
-        return true;
     }
 }

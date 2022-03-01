@@ -17,7 +17,7 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Blogroll\Lib\Blogroll;
+use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
