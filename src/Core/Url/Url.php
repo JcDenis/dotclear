@@ -975,6 +975,29 @@ class Url
         exit;
     }
 
+    public function vf($args)
+    {
+        $dir = dotclear()->config()->var_dir;
+        if (empty($dir) || !is_dir($dir)) {
+            $this->p404();
+        }
+
+        $path = Path::clean($args);
+        $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $path]));
+        if ($file === false || !is_file($file) || !is_readable($file) ||  strpos('..', $file) !== false) {
+            $this->p404();
+        }
+
+        # Set http cache (one week)
+        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
+        Http::cache(array_merge([$file], get_included_files()));
+
+        # Send file to output
+        header('Content-Type: ' . self::getMimeType($file));
+        readfile($file);
+        exit;
+    }
+
     public function initDefaultHandlers()
     {
         $this->registerDefault([$this, 'home']);
@@ -992,5 +1015,6 @@ class Url
         $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
         $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
         $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
+        $this->register('vf', 'vf', '^vf/(.+)?$', [$this, 'vf']);
     }
 }

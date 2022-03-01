@@ -84,9 +84,6 @@ class Prepend extends Core
      */
     protected function process(string $blog_id = null): void
     {
-        # Serve core files
-        $this->publicServeFile();
-
         # Load Core Prepend
         parent::process();
 
@@ -216,23 +213,5 @@ class Prepend extends Core
                 660
             );
         }
-    }
-
-    private function publicServeFile(): void
-    {
-        # Serve admin file (css, png, ...)
-        if (!empty($_GET['df'])) {
-            //Files::serveFile([root_path('Public', 'files')], 'df');
-            throw new \Exception('missed change of public "df" to url handler');
-            exit;
-        }
-
-        # Serve var file //! move this to a public urlhandler
-        if (!empty($_GET['vf'])) {
-            Files::serveFile([$this->config()->var_dir], 'vf');
-            exit;
-        }
-
-        # Other files will be served from core url handler
     }
 }
