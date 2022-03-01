@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
-
+use Dotclear\Admin\Filer;
+use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\File\Files;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
-
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
-use Dotclear\File\Files;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 
@@ -149,7 +148,7 @@ class Page extends AbstractPage
             $ductile_stickers_full[] = $v['image'];
         }
 
-        $ductile_stickers_images = Files::scandir( __DIR__ . '/../files/img/');
+        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/files/img/');
         if (is_array($ductile_stickers_images)) {
             foreach ($ductile_stickers_images as $v) {
                 if (preg_match('/^sticker\-(.*)\.png$/', $v)) {
@@ -266,8 +265,8 @@ class Page extends AbstractPage
             ->setPageHead(static::jsPageTabs())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')               => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Ductile configuration')          => ''
+                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
+                __('Ductile configuration')                => ''
             ])
         ;
 
@@ -275,7 +274,7 @@ class Page extends AbstractPage
             $this->setpageHead(
                 static::jsLoad('js/jquery/jquery-ui.custom.js') .
                 static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                static::jsLoad('?mf=Theme/Ductile/files/js/config.js')
+                Filer::load('js/config.js', 'Theme', 'Ductile')
             );
         }
 
