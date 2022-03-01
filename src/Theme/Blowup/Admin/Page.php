@@ -13,15 +13,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
-
-use Dotclear\Module\AbstractPage;
-
-use Dotclear\Theme\Blowup\Lib\BlowupConfig;
-
+use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\File\Files;
+use Dotclear\Module\AbstractPage;
 use Dotclear\Network\Http;
+use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -240,7 +238,7 @@ class Page extends AbstractPage
                         'predefined_style_title' => __('Choose a predefined style'),
                     ]
                 ]) .
-                static::jsLoad('?mf=Theme/Blowup/files/js/config.js')
+                Filer::load('js/config.js', 'Theme', 'Blowup')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
@@ -330,7 +328,7 @@ class Page extends AbstractPage
             if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
                 $preview_image = Http::concatURL(dotclear()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
-                $preview_image = '?mf=Theme/Blowup/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
+                $preview_image = '?mf=Theme/Blowup/Common/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
 
             echo

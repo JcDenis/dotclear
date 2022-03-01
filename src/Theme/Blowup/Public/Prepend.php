@@ -15,8 +15,7 @@ namespace Dotclear\Theme\Blowup\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-
-use Dotclear\Theme\Blowup\Lib\BlowupConfig;
+use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -28,17 +27,16 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
-        if (dotclear()->blog()->settings()->system->theme == 'Blowup') {
-            dotclear()->behavior()->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        if (dotclear()->blog()->settings()->system->theme != 'Blowup') {
+            return;
         }
-    }
 
-    public static function behaviorPublicHeadContent()
-    {
-        $config = new BlowupConfig();
-        $url = $config->publicCssUrlHelper();
-        if ($url) {
-            echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';
-        }
+        dotclear()->behavior()->add('publicHeadContent', function(): void {
+            $config = new BlowupConfig();
+            $url = $config->publicCssUrlHelper();
+            if ($url) {
+                echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';
+            }
+        });
     }
 }
