@@ -904,40 +904,52 @@ class Url
 
         $dirs = [];
 
+        # Check if it in Var path
+        if (empty($dirs)) {
+            $var_args = explode('/', $args);
+            $var_path = dotclear()->config()->var_dir;
+            if (1 < count($var_args) && array_shift($var_args) == 'var' && !empty($var_path) && is_dir($var_path)) {
+                $dirs[] = $var_path;
+                $args   = implode('/', $var_args);
+            }
+        }
+
         # Try to find module id and type
-        # Public url should be files/ModuleType/ModuleId/a_sub_folder/a_file.ext
-        $module_args = explode('/', $args);
-        if (2 < count($module_args)) {
-            $module_type = array_shift($module_args);
-            $module_id   = array_shift($module_args);
+        if (empty($dirs)) {
+            # Public url should be files/ModuleType/ModuleId/Public/a_sub_folder/a_file.ext
+            $module_args = explode('/', $args);
+            if (2 < count($module_args)) {
+                $module_type = array_shift($module_args);
+                $module_id   = array_shift($module_args);
 
-            # Check module type
-            $modules_class = root_ns('Module', $module_type, 'Public', 'Modules' . $module_type);
-            if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
-                $modules = new $modules_class();
-                # Chek if module exists
-                $modules_paths   = $modules->getModulesPath();
-                foreach($modules_paths as $modules_path) {
-                    if (is_dir(implode_path($modules_path, $module_id))) {
-                        $dirs[] = implode_path($modules_path, $module_id, 'Public', 'files');
-                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
-                        $args = implode('/', $module_args);
+                # Check module type
+                $modules_class = root_ns('Module', $module_type, 'Public', 'Modules' . $module_type);
+                if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
+                    $modules = new $modules_class();
+                    # Chek if module exists
+                    $modules_paths   = $modules->getModulesPath();
+                    foreach($modules_paths as $modules_path) {
+                        if (is_dir(implode_path($modules_path, $module_id))) {
+                            $dirs[] = implode_path($modules_path, $module_id, 'Public', 'files');
+                            $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
+                            $args   = implode('/', $module_args);
 
-                        break;
+                            break;
+                        }
                     }
                 }
             }
         }
 
         # Current Theme dir
-        $dirs = array_merge(
-            array_values(dotclear()->themes->getThemePath('Public/files')),
-            array_values(dotclear()->themes->getThemePath('Common/files'))//,
-            //array_values(dotclear()->themes->getThemePath('files')) //! remove this one on the end
-        );
+        if (empty($dirs)) {
+            $dirs = array_merge(
+                array_values(dotclear()->themes->getThemePath('Public/files')),
+                array_values(dotclear()->themes->getThemePath('Common/files'))
+            );
+        }
 
         # List other available file paths
-        $dirs[] = dotclear()->config()->var_dir;
         $dirs[] = root_path('Public', 'files');
         $dirs[] = root_path('Core', 'files', 'css');
         $dirs[] = root_path('Core', 'files', 'js');
@@ -975,29 +987,6 @@ class Url
         exit;
     }
 
-    public function vf($args)
-    {
-        $dir = dotclear()->config()->var_dir;
-        if (empty($dir) || !is_dir($dir)) {
-            $this->p404();
-        }
-
-        $path = Path::clean($args);
-        $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $path]));
-        if ($file === false || !is_file($file) || !is_readable($file) ||  strpos('..', $file) !== false) {
-            $this->p404();
-        }
-
-        # Set http cache (one week)
-        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
-        Http::cache(array_merge([$file], get_included_files()));
-
-        # Send file to output
-        header('Content-Type: ' . self::getMimeType($file));
-        readfile($file);
-        exit;
-    }
-
     public function initDefaultHandlers()
     {
         $this->registerDefault([$this, 'home']);
@@ -1015,6 +1004,5 @@ class Url
         $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
         $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
         $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
-        $this->register('vf', 'vf', '^vf/(.+)?$', [$this, 'vf']);
     }
 }
