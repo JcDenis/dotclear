@@ -264,13 +264,13 @@ class BlogPref extends Page
             ->setPageTitle(__('Blog settings'))
             ->setPageHelp('core_blog_pref')
             ->setPageHead(
-                static::jsJson('blog_pref', [
+                dotclear()->filer()->json('blog_pref', [
                     'warning_path_info'    => __('Warning: except for special configurations, it is generally advised to have a trailing "/" in your blog URL in PATH_INFO mode.'),
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.')
                 ]) .
                 static::jsConfirmClose('blog-form') .
                 ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
-                static::jsLoad('js/_blog_pref.js') .
+                dotclear()->filer()->load('_blog_pref.js') .
 
                 # --BEHAVIOR-- adminBlogPreferencesHeaders
                 dotclear()->behavior()->call('adminBlogPreferencesHeaders') .

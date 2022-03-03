@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Page;
 use Dotclear\Database\Cursor;
 use Dotclear\Html\Form;
@@ -102,7 +101,7 @@ class Prepend extends AbstractPrepend
         echo '<div class="col">';
         echo Page::jsLoadCodeMirror('', false, ['javascript']);
         foreach ($themes_list as $theme) {
-            echo Filer::load('js/codemirror/theme/' . $theme . '.css');
+            echo dotclear()->filer()->js('codemirror/theme/' . $theme . '.css');
         }
         echo '
 <textarea id="codemirror" name="codemirror" readonly="true">
@@ -119,8 +118,8 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea>';
         echo
-        Page::jsJson('theme_editor_current', ['theme' => dotclear()->user()->preference()->interface->colorsyntax_theme != '' ? dotclear()->user()->preference()->interface->colorsyntax_theme : 'default']) .
-        Filer::load('js/theme.js', 'Plugin', 'ThemeEditor');
+        dotclear()->filer()->json('theme_editor_current', ['theme' => dotclear()->user()->preference()->interface->colorsyntax_theme != '' ? dotclear()->user()->preference()->interface->colorsyntax_theme : 'default']) .
+        dotclear()->filer()->load('theme.js', 'Plugin', 'ThemeEditor');
         echo '</div>';
         echo '</div>';
     }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPrepend;
@@ -73,7 +72,7 @@ class Prepend extends AbstractPrepend
 
     public static function pingJS()
     {
-        return Filer::Load('js/post.js', 'Plugin', 'Pings');
+        return dotclear()->filer()->Load('post.js', 'Plugin', 'Pings');
     }
 
     public static function pingsFormItems($main, $sidebar, $post)

@@ -136,9 +136,9 @@ class Search extends Page
     public static function pageHead(array $args)
     {
         if ($args['qtype'] == 'p') {
-            return static::jsLoad('js/_posts_list.js');
+            return dotclear()->filer()->load('_posts_list.js');
         } elseif ($args['qtype'] == 'c') {
-            return static::jsLoad('js/_comments.js');
+            return dotclear()->filer()->load('_comments.js');
         }
     }
 

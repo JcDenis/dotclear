@@ -97,8 +97,8 @@ class Prepend extends AbstractPrepend
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
             'url'          => dotclear()->adminurl()->get('admin.plugin.Maintenance'),
-            'small-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
-            'large-icon'   => ['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'],
+            'small-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
+            'large-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
             'active_cb'    => dotclear()->adminurl()->called() == 'admin.plugin.Maintenance',
             'dashboard_cb' => [__CLASS__, 'behaviorAdminDashboardFavoritesCallback']
@@ -134,7 +134,7 @@ class Prepend extends AbstractPrepend
         }
 
         $fav['title'] .= '<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count);
-        $fav['large-icon'] = ['?mf=Plugin/Maintenance/icon-update.svg', '?mf=Plugin/Maintenance/icon-dark-update.svg'];
+        $fav['large-icon'] = ['?df=Plugin/Maintenance/icon-update.svg', '?df=Plugin/Maintenance/icon-dark-update.svg'];
     }
 
     /**
@@ -173,7 +173,7 @@ class Prepend extends AbstractPrepend
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . dotclear()->summary()->getIconTheme(['?mf=Plugin/Maintenance/icon.svg', '?mf=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . dotclear()->summary()->getIconTheme(['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .

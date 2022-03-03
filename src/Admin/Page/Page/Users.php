@@ -83,7 +83,7 @@ class Users extends Page
         $this
             ->setPageTitle(__('Users'))
             ->setPageHelp('core_users')
-            ->setPageHead(static::jsLoad('js/_users.js') . $this->filter->js())
+            ->setPageHead(dotclear()->filer()->load('_users.js') . $this->filter->js())
             ->setPageBreadcrumb([
                 __('System') => '',
                 __('Users')  => ''

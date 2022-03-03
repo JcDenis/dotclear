@@ -538,45 +538,32 @@ class Files
     /**
      * Serve file through Http
      *
-     * @param   array       $dirs          List of allowed path
-     * @param   string      $query         The query parameter
-     * @param   array|null  $types         List of allowed file extension
-     * @param   bool        $allow_sub_dir True to allow ".." directory
+     * @param   string      $src            The file to serve
+     * @param   array       $dirs           List of allowed path
+     * @param   array|null  $types          List of allowed file extension
+     * @param   bool        $allow_sub_dir  True to allow ".." directory
      */
-    public static function serveFile(array $dirs, string $query, ?array $types = null, bool $allow_sub_dir = false)
+    public static function serveFile(string $src, array $dirs, ?array $types = null, bool $allow_sub_dir = false)
     {
         # Set default types
         if ($types === null) {
-            $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt'];
+            $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip'];
         }
 
-        # Check query form and parameter
-        $query = preg_replace('/[^A-Za-z]/', '', $query);
-        if (empty($query) || empty($_GET[$query])) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        # $_GET['v'] : version in url to bypass cache in case of dotclear upgrade or in dev mode
-        if (isset($_GET['v'])) {
-            unset($_GET['v']);
-        }
-
-        # $_GET['t'] : parameter given by CKEditor, but don't care of value
-        if (isset($_GET['t'])) {
-            unset($_GET['t']);
-        }
-
-        # Only $_GET[$query] is allowed in URL and check directory change ".."
-        if (count($_GET) > 1 || !$allow_sub_dir && strpos('..', $_GET[$query]) !== false) {
+        # Check directory change ".."
+        if (!$allow_sub_dir && strpos('..', $src) !== false) {
             header('Content-Type: text/plain');
             Http::head(403, 'Forbidden');
             exit;
         }
 
         # Clean query parameter
-        $path = Path::clean($_GET[$query]);
+        $path = Path::clean($src);
+        if (empty($path)) {
+            header('Content-Type: text/plain');
+            Http::head(404, 'Not Found');
+            exit;
+        }
 
         # Search dirs
         $file = false;

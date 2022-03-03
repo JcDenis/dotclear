@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Page\Filter;
 
-use Dotclear\Admin\Page\Page;
 use Dotclear\Admin\Page\Filter\Filter\DefaultFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -304,9 +303,9 @@ class Filter
         ];
 
         return
-            Page::jsJson('filter_controls', $js) .
-            Page::jsJson('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
-            Page::jsLoad('js/filter-controls.js');
+            dotclear()->filer()->json('filter_controls', $js) .
+            dotclear()->filer()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
+            dotclear()->filer()->load('filter-controls.js');
 
     }
 

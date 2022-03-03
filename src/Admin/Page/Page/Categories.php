@@ -125,9 +125,9 @@ class Categories extends Page
             && dotclear()->user()->check('categories', dotclear()->blog()->id)
             && $this->caregories->count() > 1) {
             $this->setPageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                static::jsLoad('js/jquery/jquery.mjs.nestedSortable.js')
+                dotclear()->filer()->load('query/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->filer()->load('jquery/jquery.mjs.nestedSortable.js')
             );
         }
 
@@ -136,7 +136,7 @@ class Categories extends Page
             ->setPageHelp('core_categories')
             ->setPageHead(
                 static::jsConfirmClose('form-categories') .
-                static::jsLoad('js/_categories.js')
+                dotclear()->filer()->load('_categories.js')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',

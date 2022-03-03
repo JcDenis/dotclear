@@ -373,25 +373,21 @@ class Context
             return true;
         }
 
-        # Check first blog public path
-        $file = dotclear()->blog()->public_path . '/smilies/smilies.txt';
-        if (file_exists($file)) {
-            $base_url = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url) . '/smilies/';
-            $this->smilies = $this->smiliesDefinition($file, $base_url);
+        # Search smilies on public path then Theme apth and then parent theme paath and then core path
+        $base_url = dotclear()->blog()->public_url . '/smilies/';
+        $src      = '/files/smilies/smilies.txt';
+        $paths    = array_merge(
+            [dotclear()->blog()->public_path . '/smilies/smilies.txt'],
+            array_values(dotclear()->themes->getThemePath('Public' . $src)),
+            array_values(dotclear()->themes->getThemePath('Common' . $src)),
+            [dotclear()->config()->root_dir . '/Public' . $src]
+        );
 
-            return true;
-        # Theme and then parent and then core path
-        } else {
-            $path       = dotclear()->themes->getThemePath('files/smilies/smilies.txt');
-            $path[]     = __DIR__ . '/files/smilies/smilies.txt';
-            $base_url   = dotclear()->blog()->url . 'files/smilies/';
+        foreach ($paths as $file) {
+            if ($file && file_exists($file)) {
+                $this->smilies = $this->smiliesDefinition($file, $base_url);
 
-            foreach ($path as $file) {
-                if ($file && file_exists($file)) {
-                    $this->smilies = $this->smiliesDefinition($file, $base_url);
-
-                    return true;
-                }
+                return true;
             }
         }
 
@@ -493,7 +489,7 @@ class Context
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = dotclear()->blog()->settings()->system->public_url;
+            $p_url  = dotclear()->blog()->public_url;
             $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog()->url);
             $p_root = dotclear()->blog()->public_path;
 

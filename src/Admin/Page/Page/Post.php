@@ -462,7 +462,7 @@ class Post extends Page
         $this
             ->setPageTitle($page_title . ' - ' . __('Posts'))
             ->setPageHead(
-                static::jsLoad('js/_post.js') .
+                dotclear()->filer()->load('_post.js') .
                 static::jsConfirmClose('entry-form', 'comment-form') .
                 # --BEHAVIOR-- adminPostHeaders
                 dotclear()->behavior()->call('adminPostHeaders') .

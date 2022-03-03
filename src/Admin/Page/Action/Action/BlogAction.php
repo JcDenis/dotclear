@@ -41,7 +41,7 @@ class BlogAction extends Action
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : null)
-            ->setPageHead(static::jsLoad('js/_blogs_actions.js'))
+            ->setPageHead(dotclear()->filer()->load('_blogs_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blogs')                               => dotclear()->adminurl()->get('admin.blogs'),

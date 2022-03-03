@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Action\Action\PostAction;
 use Dotclear\Admin\Page\Catalog\Catalog\PostCatalog;
 use Dotclear\Html\Form;
@@ -47,7 +46,7 @@ class Page extends AbstractPage
             $this
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tags')
-                ->setPageHead(Filer::load('style.css', 'Plugin', 'Tags'))
+                ->setPageHead(dotclear()->filer()->load('style.css', 'Plugin', 'Tags'))
                 ->setPageBreadcrumb([
                     html::escapeHTML(dotclear()->blog()->name) => '',
                     __('Tags')                          => '',
@@ -108,12 +107,12 @@ class Page extends AbstractPage
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tag_posts')
                 ->setPageHead(
-                    Filer::load('style.css', 'Plugin', 'Tags') .
-                    Filer::load('js/_posts_list.js') .
-                    static::jsJson('posts_tags_msg', [
+                    dotclear()->filer()->load('style.css', 'Plugin', 'Tags') .
+                    dotclear()->filer()->load('_posts_list.js') .
+                    dotclear()->filer()->json('posts_tags_msg', [
                         'confirm_tag_delete' => sprintf(__('Are you sure you want to remove tag: “%s”?'), html::escapeHTML($this->t_tag)),
                     ]) .
-                    Filer::load('js/posts.js', 'Plugin', 'Tags') .
+                    dotclear()->filer()->load('posts.js', 'Plugin', 'Tags') .
                     static::jsConfirmClose('tag_rename')
                 )
                 ->setPageBreadcrumb(

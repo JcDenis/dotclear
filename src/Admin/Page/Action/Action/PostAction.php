@@ -38,7 +38,7 @@ class PostAction extends Action
         # Page setup
         $this->setPageTitle(__('Posts'));
         $this->setPageType($this->in_plugin ? 'plugin' : null);
-        $this->setPageHead(static::jsLoad('js/_posts_actions.js'));
+        $this->setPageHead(dotclear()->filer()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',
             $this->getCallerTitle()                   => $this->getRedirection(true),

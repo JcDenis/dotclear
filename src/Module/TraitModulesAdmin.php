@@ -636,16 +636,16 @@ trait TraitModulesAdmin
             if (in_array('icon', $cols)) {
                 $tds++;
                 if (file_exists($module->root() . '/icon.svg')) {
-                    $icon = '?mf=' . $module->type() . '/' . $id . '/icon.svg';
+                    $icon = '?df=' . $module->type() . '/' . $id . '/icon.svg';
                 } elseif (file_exists($module->root() . '/icon.png')) {
-                    $icon = '?mf=' . $module->type() . '/' . $id . '/icon.png';
+                    $icon = '?df=' . $module->type() . '/' . $id . '/icon.png';
                 } else {
                     $icon = 'images/module.png';
                 }
                 if (file_exists($module->root() . '/icon-dark.svg')) {
-                    $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.svg'];
+                    $icon = [$icon, '?df=' . $module->type() . '/' . $id . '/icon-dark.svg'];
                 } elseif (file_exists($module->root() . '/icon-dark.png')) {
-                    $icon = [$icon, '?mf=' . $module->type() . '/' . $id . '/icon-dark.png'];
+                    $icon = [$icon, '?df=' . $module->type() . '/' . $id . '/icon-dark.png'];
                 }
 
                 echo

@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 use stdClass;
 use ArrayObject;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Path;
 use Dotclear\Html\Form;
@@ -116,17 +115,17 @@ class Page extends AbstractPage
 
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                static::jsJson('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
+                dotclear()->filer()->json('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
             );
         }
         $this->setPageHead(
-            static::jsJson('theme_editor_msg', [
+            dotclear()->filer()->json('theme_editor_msg', [
                 'saving_document'    => __('Saving document...'),
                 'document_saved'     => __('Document saved'),
                 'error_occurred'     => __('An error occurred:'),
                 'confirm_reset_file' => __('Are you sure you want to reset this file?')
             ]) .
-            Filer::load('js/script.js', 'Plugin', 'ThemeEditor') .
+            dotclear()->filer()->load('script.js', 'Plugin', 'ThemeEditor') .
             static::jsConfirmClose('file-form')
         );
         if ($user_ui_colorsyntax) {
@@ -135,7 +134,7 @@ class Page extends AbstractPage
             );
         }
         $this->setPageHead(
-            Filer::load('style.css', 'Plugin', 'ThemeEditor')
+            dotclear()->filer()->load('style.css', 'Plugin', 'ThemeEditor')
         );
 
         return true;
@@ -195,8 +194,8 @@ class Page extends AbstractPage
                     (!empty($_REQUEST['po']) ? 'text/plain' :
                     (!empty($_REQUEST['php']) ? 'php' :
                     'text/html'))));
-                echo static::jsJson('theme_editor_mode', ['mode' => $editorMode]);
-                echo Filer::load('js/mode.js', 'Plugin', 'themeEditor');
+                dotclear()->filer()->json('theme_editor_mode', ['mode' => $editorMode]);
+                echo dotclear()->filer()->load('mode.js', 'Plugin', 'themeEditor');
                 echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
             }
         }

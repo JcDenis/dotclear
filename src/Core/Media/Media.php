@@ -82,12 +82,7 @@ class Media extends Manager
 
         $this->table = dotclear()->prefix . 'media';
         $root        = dotclear()->blog()->public_path;
-
-        if (preg_match('#^http(s)?://#', dotclear()->blog()->settings()->system->public_url)) {
-            $root_url = rawurldecode(dotclear()->blog()->settings()->system->public_url);
-        } else {
-            $root_url = rawurldecode(dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url));
-        }
+        $root_url = rawurldecode(dotclear()->blog()->public_url);
 
         if (!is_dir($root)) {
             # Check public directory

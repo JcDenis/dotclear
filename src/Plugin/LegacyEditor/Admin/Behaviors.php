@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Admin\Filer;
-use Dotclear\Admin\Page\Page;
 use Dotclear\Utils\l10n;
 
 class Behaviors
@@ -44,8 +42,8 @@ class Behaviors
 
         return
         self::jsToolBar() .
-        Page::jsJson('legacy_editor_ctx', $js) .
-        Filer::load('js/_post_editor.js', 'Plugin', 'LegacyEditor');
+        dotclear()->filer()->json('legacy_editor_ctx', $js) .
+        dotclear()->filer()->load('_post_editor.js', 'Plugin', 'LegacyEditor');
     }
 
     public static function adminPopupMedia($editor = '')
@@ -54,7 +52,7 @@ class Behaviors
             return;
         }
 
-        return Filer::load('js/jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
+        return dotclear()->filer()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
     }
 
     public static function adminPopupLink($editor = '')
@@ -63,7 +61,7 @@ class Behaviors
             return;
         }
 
-        return Filer::load('js/jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
+        return dotclear()->filer()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
     }
 
     public static function adminPopupPosts($editor = '')
@@ -72,7 +70,7 @@ class Behaviors
             return;
         }
 
-        return Filer::load('js/jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
+        return dotclear()->filer()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
     }
 
     protected static function jsToolBar()
@@ -157,16 +155,17 @@ class Behaviors
             $js['elements']['img_select']['disabled'] = true;
         }
 
-        $res = Page::jsJson('legacy_editor', $js) .
-        Filer::load('css/jsToolBar/jsToolBar.css', 'Plugin', 'LegacyEditor') .
-        Filer::load('js/jsToolBar/jsToolBar.js', 'Plugin', 'LegacyEditor');
+        $res =
+        dotclear()->filer()->json('legacy_editor', $js) .
+        dotclear()->filer()->load('jsToolBar/jsToolBar.css', 'Plugin', 'LegacyEditor') .
+        dotclear()->filer()->load('jsToolBar/jsToolBar.js', 'Plugin', 'LegacyEditor');
 
         if (dotclear()->user()->getOption('enable_wysiwyg')) {
-            $res .= Filer::load('js/jsToolBar/jsToolBar.wysiwyg.js', 'Plugin', 'LegacyEditor');
+            $res .= dotclear()->filer()->load('jsToolBar/jsToolBar.wysiwyg.js', 'Plugin', 'LegacyEditor');
         }
 
-        $res .= Filer::load('js/jsToolBar/jsToolBar.dotclear.js', 'Plugin', 'LegacyEditor') .
-            Filer::load('js/jsToolBar/jsToolBar.config.js', 'Plugin', 'LegacyEditor');
+        $res .= dotclear()->filer()->load('jsToolBar/jsToolBar.dotclear.js', 'Plugin', 'LegacyEditor') .
+            dotclear()->filer()->load('jsToolBar/jsToolBar.config.js', 'Plugin', 'LegacyEditor');
 
         return $res;
     }

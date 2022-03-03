@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -150,14 +149,14 @@ class Page extends AbstractPage
             )
             ->setPageHead(
                 static::jsPageTabs($this->m_tab) .
-                Filer::load('js/settings.js', 'Plugin', 'Maintenance')
+                dotclear()->filer()->load('settings.js', 'Plugin', 'Maintenance')
             )
         ;
 
         if ($this->m_task && $this->m_task->ajax()) {
             $this->setPageHead(
-                static::jsJson('maintenance', ['wait' => __('Please wait...')]) .
-                Filer::load('js/dc.maintenance.js', 'Plugin', 'Maintenance')
+                dotclear()->filer()->json('maintenance', ['wait' => __('Please wait...')]) .
+                dotclear()->filer()->load('dc.maintenance.js', 'Plugin', 'Maintenance')
             );
         }
 

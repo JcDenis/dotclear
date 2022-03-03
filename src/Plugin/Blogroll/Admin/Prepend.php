@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -36,7 +35,7 @@ class Prepend extends AbstractPrepend
         # Manage user permissions
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => Filer::load('js/_users_actions.js', 'Plugin', 'Blogroll')
+            fn () => dotclear()->filer()->load('_users_actions.js', 'Plugin', 'Blogroll')
         );
 
         dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));

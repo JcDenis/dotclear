@@ -82,7 +82,7 @@ $(() => {
     } else {
       $('#uploader').hide();
       $('#uploader input').val('');
-      $('#image-preview').attr('src', `?mf=Theme/BlowupConfig/Common/files/alpha-img/page-t/${this.value}.png`);
+      $('#image-preview').attr('src', `?df=Theme/BlowupConfig/Common/files/alpha-img/page-t/${this.value}.png`);
     }
   });
 

@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 use stdClass;
 use ArrayObject;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -412,9 +411,9 @@ class Page extends AbstractPage
         ;
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                Filer::load('js/jquery/jquery-ui.custom.js') .
-                Filer::load('js/jquery/jquery.ui.touch-punch.js') .
-                Filer::load('js/simplemenu.js', 'Plugin', 'SimpleMenu')
+                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->filer()->load('simplemenu.js', 'Plugin', 'SimpleMenu')
             );
         }
 

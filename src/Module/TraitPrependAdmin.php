@@ -64,8 +64,8 @@ trait TraitPrependAdmin
             static::$define->name(),
             dotclear()->adminurl()->get('admin.plugin.' . static::$define->id()),
             [
-                '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon.svg',
-                '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon-dark.svg',
+                '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon.svg',
+                '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon-dark.svg',
             ],
             dotclear()->adminurl()->called() == 'admin.plugin.' . static::$define->id(),
             $permissions === null ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
@@ -90,7 +90,7 @@ trait TraitPrependAdmin
             });
         }
 
-        $url = '?mf=' . static::$define->type() . '/' . static::$define->id() . '/icon%s.svg';
+        $url = '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon%s.svg';
 
         static::$favorites[static::$define->id()] = [
             'title'       => static::$define->name(),

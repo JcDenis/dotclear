@@ -71,7 +71,7 @@ class Page extends AbstractPage
                     $this->ckes->textcolor_button = (empty($_POST['dcckeditor_textcolor_button'])) ? false : true;
                     $s->put('textcolor_button', $this->ckes->textcolor_button, 'boolean');
 
-                    $this->ckes->background_textcolor_button = (empty($_POST['dcckeditor_background_textcolor_button'])) ? false : true;
+                    $this->ckes->background_textcolor_button = !empty($_POST['dcckeditor_background_textcolor_button']);
                     $s->put('background_textcolor_button', $this->ckes->background_textcolor_button, 'boolean');
 
                     $this->ckes->custom_color_list = str_replace(['#', ' '], '', $_POST['dcckeditor_custom_color_list']);
@@ -117,6 +117,7 @@ class Page extends AbstractPage
                     $this->ckes->disable_native_spellchecker = (empty($_POST['dcckeditor_disable_native_spellchecker'])) ? false : true;
                     $s->put('disable_native_spellchecker', $this->ckes->disable_native_spellchecker, 'boolean');
                 }
+                dotclear()->blog()->triggerBlog(); //!
 
                 dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.CKEditor');

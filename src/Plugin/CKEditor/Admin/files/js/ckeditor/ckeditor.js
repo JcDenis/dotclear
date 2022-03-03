@@ -1,4 +1,4 @@
-﻿/*
+/*
 Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 */
@@ -16787,7 +16787,7 @@ CKEDITOR.config = {
 		 *	* string &ndash; the new name of the element.
 		 *
 		 * @param {CKEDITOR.htmlParser.element} el
-		 * @param {CKEDITOR.style/String} form
+		 * @param {CKEDITOR.css/String} form
 		 */
 		transform: function( el, form ) {
 			if ( typeof form == 'string' )

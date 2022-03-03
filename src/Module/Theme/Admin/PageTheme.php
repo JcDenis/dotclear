@@ -13,13 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
-
 use Dotclear\Admin\Page\Page;
-
-use Dotclear\Module\Theme\Admin\ModulesTheme as Modules;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\Theme\Admin\ModulesTheme as Modules;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -87,7 +84,7 @@ class PageTheme extends Page
                 ->setPageTitle(__('Themes management'))
                 ->setPageHelp('core_blog_theme')
                 ->setPageHead(
-                    static::jsLoad('js/_blog_theme.js') .
+                    dotclear()->filer()->load('_blog_theme.js') .
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders

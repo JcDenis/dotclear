@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\Attachments\Admin;
 
 use ArrayObject;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Database\Record;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
@@ -59,7 +58,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminPostHeaders()
     {
-        return Filer::load('js/post.js', 'Plugin', 'Attachments');
+        return dotclear()->filer()->load('post.js', 'Plugin', 'Attachments');
     }
 
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void

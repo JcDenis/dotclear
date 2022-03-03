@@ -157,7 +157,7 @@ class Wizard
           <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
           <meta name="GOOGLEBOT" content="NOSNIPPET" />
           <title><?php echo __('Dotclear installation wizard'); ?></title>
-            <link rel="stylesheet" href="?df=style/install.css" type="text/css" media="screen" />
+            <link rel="stylesheet" href="?df=css/install.css" type="text/css" media="screen" />
         </head>
 
         <body id="dotclear-admin" class="install">

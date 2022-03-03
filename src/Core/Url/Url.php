@@ -888,17 +888,7 @@ class Url
 
     public function files($args)
     {
-        $args  = Path::clean($args);
-        $args  = trim($args);
-        $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt'];
-
-        # No files given
         if (empty($args)) {
-            $this->p404();
-        }
-
-        # Disable directory change ".."
-        if (!$this->allow_sub_dir && strpos('..', $args) !== false) {
             $this->p404();
         }
 
@@ -916,7 +906,7 @@ class Url
 
         # Try to find module id and type
         if (empty($dirs)) {
-            # Public url should be files/ModuleType/ModuleId/Public/a_sub_folder/a_file.ext
+            # Public url should be files/ModuleType/ModuleId/a_sub_folder/a_file.ext
             $module_args = explode('/', $args);
             if (2 < count($module_args)) {
                 $module_type = array_shift($module_args);
@@ -941,7 +931,7 @@ class Url
             }
         }
 
-        # Current Theme dir
+        # Current Theme paths
         if (empty($dirs)) {
             $dirs = array_merge(
                 array_values(dotclear()->themes->getThemePath('Public/files')),
@@ -949,42 +939,18 @@ class Url
             );
         }
 
+        # Blog public path
+        if (dotclear()->blog()) {
+            $dirs[] = dotclear()->blog()->public_path;
+        }
+
         # List other available file paths
         $dirs[] = root_path('Public', 'files');
         $dirs[] = root_path('Core', 'files', 'css');
         $dirs[] = root_path('Core', 'files', 'js');
 
-        # Search dirs
-        $file = false;
-        foreach ($dirs as $dir) {
-            $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $args]));
-
-            if ($file !== false) {
-                break;
-            }
-        }
-        unset($dirs);
-
-        # Check file
-        if ($file === false || !is_file($file) || !is_readable($file)) {
-            $this->p404();
-        }
-
-        # Check file extension
-        if (!in_array(Files::getExtension($file), $types)) {
-            $this->p404();
-        }
-
-        # Set http cache (one week)
-        Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
-        Http::cache(array_merge([$file], get_included_files()));
-
-        # Send file to output
-        header('Content-Type: ' . Files::getMimeType($file));
-        // Content-length is not mandatory and must be the exact size of content transfered AFTER possible compression (gzip, deflate, …)
-        //header('Content-Length: '.filesize($file));
-        readfile($file);
-        exit;
+        # Search file
+        Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, $this->allow_sub_dir);
     }
 
     public function initDefaultHandlers()
@@ -998,7 +964,6 @@ class Url
         $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
         $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
         $this->register('files', 'files', '^files/(.+)?$', [$this, 'files']);
-
         $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
         $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
         $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);

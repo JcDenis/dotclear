@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
@@ -51,8 +50,8 @@ class Prepend extends AbstractPrepend
             $favs->register('pages', [
                 'title'        => __('Pages'),
                 'url'          => dotclear()->adminurl()->get('admin.plugin.Pages'),
-                'small-icon'   => ['?mf=Plugin/Pages/icon.svg', '?mf=Plugin/Pages/icon-dark.svg'],
-                'large-icon'   => ['?mf=Plugin/Pages/icon.svg', '?mf=Plugin/Pages/icon-dark.svg'],
+                'small-icon'   => ['?df=Plugin/Pages/icon.svg', '?df=Plugin/Pages/icon-dark.svg'],
+                'large-icon'   => ['?df=Plugin/Pages/icon.svg', '?df=Plugin/Pages/icon-dark.svg'],
                 'permissions'  => 'contentadmin,pages',
                 'dashboard_cb' => function ($v) {
                     $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->f(0);
@@ -65,8 +64,8 @@ class Prepend extends AbstractPrepend
             $favs->register('newpage', [
                 'title'       => __('New page'),
                 'url'         => dotclear()->adminurl()->get('admin.plugin.Page'),
-                'small-icon'  => ['?mf=Plugin/Pages/icon-np.svg', '?mf=Plugin/Pages/icon-np-dark.svg'],
-                'large-icon'  => ['?mf=Plugin/Pages/icon-np.svg', '?mf=Plugin/Pages/icon-np-dark.svg'],
+                'small-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
+                'large-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
                 'active_cb'   => function () {
                     return dotclear()->adminurl()->called() == 'admin.plugin.Page' && empty($_REQUEST['id']);
@@ -77,7 +76,7 @@ class Prepend extends AbstractPrepend
         # Add headers
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => Filer::load('js/_users_actions.js', 'Plugin', 'Pages')
+            fn () => dotclear()->filer()->load('_users_actions.js', 'Plugin', 'Pages')
         );
 
         # Add user pref list columns

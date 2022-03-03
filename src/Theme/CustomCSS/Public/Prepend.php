@@ -33,7 +33,7 @@ class Prepend extends AbstractPrepend
         dotclear()->behavior()->add('publicHeadContent', function(): void {
             echo
                 '<link rel="stylesheet" type="text/css" href="' .
-                dotclear()->blog()->settings()->system->public_url .
+                dotclear()->blog()->public_url .
                 '/custom_style.css" media="screen">' . "\n";
         });
     }

@@ -734,7 +734,7 @@ $(() => {
     });
   }
 
-  // remove class no-js from html tag; cf style/default.css for examples
+  // remove class no-js from html tag; cf css/default.css for examples
   $('body').removeClass('no-js').addClass('with-js');
   $('body')
     .contents()

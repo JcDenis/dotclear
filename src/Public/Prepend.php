@@ -154,12 +154,6 @@ class Prepend extends Core
         # Load current theme definition
         $path = $this->themes->getThemePath('templates/tpl');
 
-        # If theme has parent load their l10n
-        if (count($path) > 1) {
-            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'main');
-            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'public');
-        }
-
         # If theme doesn't exist, stop everything
         if (!count($path)) {
             $this->getExceptionLang();
@@ -170,6 +164,12 @@ class Prepend extends Core
 
         # Ensure theme's settings namespace exists
         $this->blog()->settings()->addNamespace('themes');
+
+        # If theme has parent load their locales
+        if (count($path) > 1) {
+            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'main');
+            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'public');
+        }
 
         # Themes locales
         $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'main');

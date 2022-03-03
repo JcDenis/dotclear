@@ -444,8 +444,6 @@ class Distrib
                     'Post URL format. {y}: year, {m}: month, {d}: day, {id}: post id, {t}: entry title'],
                 ['public_path', 'string', 'public',
                     'Path to public directory, begins with a / for a full system path'],
-                ['public_url', 'string', '/public',
-                    'URL to public directory'],
                 ['robots_policy', 'string', 'INDEX,FOLLOW',
                     'Search engines robots policy'],
                 ['short_feed_items', 'boolean', false,

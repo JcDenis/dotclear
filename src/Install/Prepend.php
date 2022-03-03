@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Install;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
 use Dotclear\File\Files;
@@ -26,6 +27,9 @@ class Prepend extends Core
 {
     /** @var    Favorite   Favorite instance */
     private $favorite;
+
+    /** @var    Filer   Filer instance */
+    private $filer;
 
     protected $process = 'Install';
 
@@ -43,11 +47,25 @@ class Prepend extends Core
         return $this->favorite;
     }
 
+    /**
+     * Get filer instance
+     *
+     * @return  Filer   Filer instance
+     */
+    public function filer(): Filer
+    {
+        if (!($this->filer instanceof Filer)) {
+            $this->filer = new Filer();
+        }
+
+        return $this->filer;
+    }
+
     protected function process(): void
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Files::serveFile([root_path('Admin', 'files')], 'df');
+            Files::serveFile($_GET['df'], [root_path('Admin', 'files')], dotclear()->config()->file_sever_type);
             exit;
         }
 

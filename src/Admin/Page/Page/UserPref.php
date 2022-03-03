@@ -455,22 +455,22 @@ class UserPref extends Page
 
         # Page setup
         if (!$this->user_acc_nodragdrop) {
-            $this->setPageHead(static::jsLoad('js/_preferences-dragdrop.js'));
+            $this->setPageHead(dotclear()->filer()->load('_preferences-dragdrop.js'));
         }
         $this
             ->setPageTitle($page_title)
             ->setpageHelp()
             ->setpageHelp('core_user_pref')
             ->setPageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                static::jsJson('pwstrength', [
+                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->filer()->json('pwstrength', [
                     'min' => sprintf(__('Password strength: %s'), __('weak')),
                     'avg' => sprintf(__('Password strength: %s'), __('medium')),
                     'max' => sprintf(__('Password strength: %s'), __('strong')),
                 ]) .
-                static::jsLoad('js/pwstrength.js') .
-                static::jsLoad('js/_preferences.js') .
+                dotclear()->filer()->load('pwstrength.js') .
+                dotclear()->filer()->load('_preferences.js') .
                 static::jsPageTabs($default_tab) .
                 static::jsConfirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 

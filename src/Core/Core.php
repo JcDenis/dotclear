@@ -619,7 +619,7 @@ class Core
             }
             # Redirect to installation process
             Http::redirect(preg_replace(
-                ['%admin/install/index.php$%', '%admin/install/$%', '%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+                ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
                 '',
                 filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
             ) . '/admin/install/index.php');
@@ -913,6 +913,7 @@ class Core
             'database_prefix'       => [null, 'dc_'],
             'database_user'         => [true, ''],
             'digests_dir'           => [null, root_path('..', 'digests')],
+            'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
             'iconset_dir'           => [null, root_path('Iconset')],
             'iconset_official'      => [false, 'Legacy,ThomasDaveluy'],

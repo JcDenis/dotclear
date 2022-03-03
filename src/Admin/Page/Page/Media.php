@@ -287,7 +287,7 @@ class Media extends Page
             $this->setPageHead(
                 static::jsModal() .
                 $this->filter->js(dotclear()->adminurl()->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(false, true)), '&')) .
-                static::jsLoad('js/_media.js') .
+                dotclear()->filer()->load('_media.js') .
                 ($this->mediaWritable() ? static::jsUpload(['d=' . $this->filter->d]) : '')
             );
         }

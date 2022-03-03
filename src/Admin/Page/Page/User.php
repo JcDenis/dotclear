@@ -192,13 +192,13 @@ class User extends Page
             ->setPageHelp('core_user')
             ->setPageHead(
                 static::jsConfirmClose('user-form') .
-                static::jsJson('pwstrength', [
+                dotclear()->filer()->json('pwstrength', [
                     'min' => sprintf(__('Password strength: %s'), __('weak')),
                     'avg' => sprintf(__('Password strength: %s'), __('medium')),
                     'max' => sprintf(__('Password strength: %s'), __('strong'))
                 ]) .
-                static::jsLoad('js/pwstrength.js') .
-                static::jsLoad('js/_user.js') .
+                dotclear()->filer()->load('pwstrength.js') .
+                dotclear()->filer()->load('_user.js') .
                 dotclear()->behavior()->call('adminUserHeaders')
             )
             ->setPageBreadcrumb([

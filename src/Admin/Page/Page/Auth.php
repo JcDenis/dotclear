@@ -357,20 +357,20 @@ class Auth extends Page
         $this->jsCommon();
 ?>
 
-    <link rel="stylesheet" href="?df=style/default.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="?df=css/default.css" type="text/css" media="screen" />
 
 <?php
         # --BEHAVIOR-- loginPageHTMLHead
         dotclear()->behavior()->call('loginPageHTMLHead');
 
         echo
-            self::jsJson('pwstrength', [
+            dotclear()->filer()->json('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong')),
             ]) .
-            self::jsLoad('js/pwstrength.js') .
-            self::jsLoad('js/_auth.js');
+            dotclear()->filer()->load('pwstrength.js') .
+            dotclear()->filer()->load('_auth.js');
 
 ?>
 </head>

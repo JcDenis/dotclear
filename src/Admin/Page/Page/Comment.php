@@ -186,7 +186,7 @@ class Comment extends Page
             ->setPageHelp('core_comments')
             ->setPageHead(
                 static::jsConfirmClose('comment-form') .
-                static::jsLoad('js/_comment.js') .
+                dotclear()->filer()->load('_comment.js') .
                 dotclear()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
                 # --BEHAVIOR-- adminCommentHeaders

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
-use Dotclear\Admin\Filer;
-use Dotclear\Core\Utils;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -177,11 +175,11 @@ class ImportFlat extends Module
         $has_files    = (bool) (count($public_files) - 1);
 
         echo
-        Utils::jsJson(
+        dotclear()->filer()->json(
             'ie_import_flat_msg',
             ['confirm_full_import' => __('Are you sure you want to import a full backup file?')]
         ) .
-        Filer::load('js/import_flat.js', 'Plugin', 'ImportExport') .
+        dotclear()->filer()->load('import_flat.js', 'Plugin', 'ImportExport') .
         '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
         '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .

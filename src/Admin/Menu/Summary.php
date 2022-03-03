@@ -149,7 +149,7 @@ class Summary extends ArrayObject
             # Extract module name from path
             $split  = explode('/', self::$iconset);
             $module = array_pop($split);
-            if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?mf=(.+)(\..*)$/', $img, $m))) {
+            if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?df=(.+)(\..*)$/', $img, $m))) {
                 $name = $m[1] ?? '';
                 $ext  = $m[2] ?? '';
                 if ($name !== '' && $ext !== '') {
@@ -157,7 +157,7 @@ class Summary extends ArrayObject
                     if ($icon !== false) {
                         # Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return '?mf=Iconset/' . $module . '/files/' . $name . $ext;
+                            return '?df=Iconset/' . $module . '/files/' . $name . $ext;
                         }
                     }
                     # Look for other extensions
@@ -165,7 +165,7 @@ class Summary extends ArrayObject
                         $icon = Path::real(self::$iconset . '/files/' . $name . '.' . $ext, true);
                         if ($icon !== false) {
                             if (is_file($icon) && is_readable($icon)) {
-                                return '?mf=Iconset/' . $module . '/files/' . $name . '.' . $ext;
+                                return '?df=Iconset/' . $module . '/files/' . $name . '.' . $ext;
                             }
                         }
                     }

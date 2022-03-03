@@ -339,7 +339,7 @@ class ThemeEditor
     protected function findStyles()
     {
         $this->css = $this->getFilesInDir($this->user_theme . '/files', 'css');
-        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/files/style', 'css', 'files/style/'));
+        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/files/style', 'css', 'files/css/'));
         $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/files/css', 'css', 'files/css/'));
     }
 

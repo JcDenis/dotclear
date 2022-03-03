@@ -76,16 +76,16 @@ class PostsPopup extends Page
             ->setPageTitle(__('Add a link to an entry'))
             ->setPageType('popup')
             ->setPageHead(
-                static::jsLoad('js/_posts_list.js') .
-                static::jsLoad('js/_popup_posts.js') .
+                dotclear()->filer()->load('_posts_list.js') .
+                dotclear()->filer()->load('_popup_posts.js') .
                 dotclear()->behavior()->call('adminPopupPosts', $this->plugin_id)
             )
         ;
 
         if ($this->plugin_id == 'admin.blog.pref') { //! ?
             $this->setPageHead(
-                static::jsJson('admin.blog.pref', ['base_url' => dotclear()->blog()->url]) .
-                static::jsLoad('js/_blog_pref_popup_posts.js')
+                dotclear()->filer()->json('admin.blog.pref', ['base_url' => dotclear()->blog()->url]) .
+                dotclear()->filer()->load('_blog_pref_popup_posts.js')
             );
         }
 

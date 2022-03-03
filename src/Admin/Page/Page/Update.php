@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
-use  Dotclear\Admin\Page\Service\Updater;
+use Dotclear\Admin\Page\Service\Updater;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Zip\Unzip;
@@ -92,7 +92,7 @@ class Update extends Page
         if (!$this->upd_step) {
             $this->setPageHead(
                 self::jsPageTabs($default_tab) .
-                self::jsLoad('js/_update.js')
+                dotclear()->filer()->load('_update.js')
             );
         }
 

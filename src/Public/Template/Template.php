@@ -845,7 +845,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->public_url') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->public_url') . '; ?>';
     }
 
     /*dtd

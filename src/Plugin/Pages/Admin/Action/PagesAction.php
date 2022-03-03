@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin\Action;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
@@ -35,7 +34,7 @@ class PagesAction extends PostAction
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : null)
-            ->setPageHead(Filer::Load('js/_posts_actions.js'))
+            ->setPageHead(dotclear()->filer()->Load('js/_posts_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Pages')                                => $this->getRedirection(true),

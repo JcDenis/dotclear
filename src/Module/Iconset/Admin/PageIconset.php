@@ -13,13 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
-
 use Dotclear\Admin\Page\Page;
-
-use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -61,7 +58,7 @@ class PageIconset extends Page
             ->setPageTitle(__('Iconset management'))
             ->setPageHelp('core_iconset')
             ->setPageHead(
-                static::jsLoad('js/_plugins.js') .
+                dotclear()->filer()->load('_plugins.js') .
                 static::jsPageTabs() .
 
                 # --BEHAVIOR-- modulesToolsHeaders

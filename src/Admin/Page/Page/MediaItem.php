@@ -257,7 +257,7 @@ class MediaItem extends Page
         }
 
         # Page setup
-        $this->setPageHead(static::jsModal() . static::jsLoad('js/_media_item.js'));
+        $this->setPageHead(static::jsModal() . dotclear()->filer()->load('_media_item.js'));
         if ($this->popup && !empty($plugin_id)) {
             $this->setPageHead(dotclear()->behavior()->call('adminPopupMedia', $plugin_id));
         }
@@ -589,7 +589,7 @@ class MediaItem extends Page
             echo '<h3 class="out-of-screen-if-js">' . __('Media details') . '</h3>';
         }
         echo
-        '<p id="media-icon"><img class="media-icon-square" src="' . $this->file->media_icon . '?' . time() * rand() . '" alt="" /></p>';
+        '<p id="media-icon"><img class="media-icon-square" src="' . $this->file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
 
         echo
             '<div id="media-details">' .
@@ -604,7 +604,7 @@ class MediaItem extends Page
 
             if (isset($this->file->media_thumb[$thumb_size])) {
                 echo '<p><a class="modal-image" href="' . $this->file->file_url . '">' .
-                '<img src="' . $this->file->media_thumb[$thumb_size] . '?' . time() * rand() . '" alt="" />' .
+                '<img src="' . $this->file->media_thumb[$thumb_size] . '&' . time() * rand() . '" alt="" />' .
                     '</a></p>';
             } elseif ($thumb_size == 'o') {
                 $S     = getimagesize($this->file->file);
@@ -696,11 +696,8 @@ class MediaItem extends Page
 
             if ($this->file->media_image) {
                 # We look for thumbnails too
-                if (preg_match('#^http(s)?://#', dotclear()->blog()->settings()->system->public_url)) {
-                    $media_root = dotclear()->blog()->settings()->system->public_url;
-                } else {
-                    $media_root = dotclear()->blog()->host . Path::clean(dotclear()->blog()->settings()->system->public_url) . '/';
-                }
+                $media_root = dotclear()->blog()->public_url . '/';
+
                 foreach ($this->file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
                     $params['sql'] .= "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";

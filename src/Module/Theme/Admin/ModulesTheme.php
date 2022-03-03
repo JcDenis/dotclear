@@ -122,7 +122,7 @@ class ModulesTheme extends AbstractModules
                 } else {
                     foreach($this->getModulesPath() as $psshot) {
                         if (file_exists($psshot . '/' . $id . '/screenshot.jpg')) {
-                            $sshot = '?mf=Theme/' . $id . '/screenshot.jpg';
+                            $sshot = '?df=Theme/' . $id . '/screenshot.jpg';
                             break;
                         }
                     }
@@ -211,7 +211,7 @@ class ModulesTheme extends AbstractModules
                 # _GET actions
                 foreach($this->getModulesPath() as $psstyle) {
                     if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
-                        $line .= '<p><a href="' . dotclear()->blog()->getQmarkURL() . 'mf=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                        $line .= '<p><a href="' . dotclear()->blog()->getQmarkURL() . 'df=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
                         break;
                     }
                 }

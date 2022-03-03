@@ -82,6 +82,7 @@ class Utils
         return (bool) version_compare($current_version, $required_version, $operator);
     }
 
+    //! to delete? @see Admin\Filer
     private static function appendVersion(string $src, ?string $v = ''): string
     {
         return $src .
@@ -89,6 +90,7 @@ class Utils
             'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
     }
 
+    //! to delete? @see Admin\Filer
     public static function cssLoad(string $src, string $media = 'screen', string $v = null): string
     {
         $escaped_src = Html::escapeHTML($src);
@@ -99,6 +101,7 @@ class Utils
         return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
     }
 
+    //! to delete? @see Admin\Filer
     public static function jsLoad(string $src, string $v = null): string
     {
         $escaped_src = Html::escapeHTML($src);
@@ -109,9 +112,10 @@ class Utils
         return '<script src="' . $escaped_src . '"></script>' . "\n";
     }
 
+    //! to delete? @see Admin\Filer
     public static function jsJson(string $id, mixed $vars): string
     {
-        // Use echo self::jsLoad($core->blog->getPF('util.js')); to use the JS dotclear.getData() decoder in public mode
+        // Use echo self::jsLoad(dotclear()->blog()->public_url . '/util.js'); to use the JS dotclear.getData() decoder in public mode
         $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
 

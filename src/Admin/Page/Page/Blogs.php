@@ -74,7 +74,7 @@ class Blogs extends Page
             ->setPageTitle(__('List of blogs'))
             ->setPageHead(
                 $this->filter->js() .
-                static::jsLoad('js/_blogs.js')
+                dotclear()->filer()->load('_blogs.js')
             )
             ->setPageBreadcrumb([
                 __('System')        => '',

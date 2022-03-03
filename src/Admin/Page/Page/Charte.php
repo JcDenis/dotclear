@@ -46,22 +46,22 @@ class Charte extends Page
     <link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />
 <?php
 
-echo static::cssLoad('style/default.css');
+echo dotclear()->filer()->load('default.css');
 
 if (dotclear()->user()->preference()->interface->htmlfontsize) {
     $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
 }
 // Set some JSON data
-echo static::jsJson('dotclear_init', $js);
+echo dotclear()->filer()->json('dotclear_init', $js);
+echo dotclear()->filer()->load('jquery/jquery.js');
+echo dotclear()->filer()->load('jquery/jquery-ui.custom.js');
+echo dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js');
+echo dotclear()->filer()->load('jquery/jquery.pageTabs.js');
+echo dotclear()->filer()->load('prepend.js');
+echo dotclear()->filer()->load('common.js');
+echo dotclear()->filer()->load('prelude.js');
+echo dotclear()->filer()->load('_charte.js');
 ?>
-    <script src="?df=js/jquery/jquery.js"></script>
-    <script src="?df=js/jquery/jquery-ui.custom.js"></script>
-    <script src="?df=js/jquery/jquery.ui.touch-punch.js"></script>
-    <script src="?df=js/jquery/jquery.pageTabs.js"></script>
-    <script src="?df=js/prepend.js"></script>
-    <script src="?df=js/common.js"></script>
-    <script src="?df=js/prelude.js"></script>
-    <script src="?df=js/_charte.js"></script>
 </head>
 
 <body id="dotclear-admin" class="no-js guideline">
@@ -605,7 +605,7 @@ echo static::jsJson('dotclear_init', $js);
         </div><!-- /main-menu -->
 
         <div id="footer">
-            <a href="https://dotclear.org/" title="Merci de manger des clafoutis."><img src="?df=style/dc_logos/w-dotclear90.png" alt="Merci d'utiliser Dotclear 2.6-dev." /></a>
+            <a href="https://dotclear.org/" title="Merci de manger des clafoutis."><img src="?df=css/dc_logos/w-dotclear90.png" alt="Merci d'utiliser Dotclear 2.6-dev." /></a>
         </div><!-- /footer -->
                                                 <!--
                                                                   .

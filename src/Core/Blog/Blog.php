@@ -72,6 +72,9 @@ class Blog
     /** @var string     Blog public path */
     public $public_path;
 
+    /** @var string     Blog fake public url */
+    public $public_url;
+
     /** @var array      post status list */
     private $post_status    = [];
 
@@ -99,7 +102,8 @@ class Blog
             $this->upddt  = (int) strtotime($b->blog_upddt);
             $this->status = (int) $b->blog_status;
 
-            $this->public_path = Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir);
+            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir));
+            $this->public_url  = $this->getQmarkURL() . dotclear()->url()->getURLFor('files'); //! to enhance
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');

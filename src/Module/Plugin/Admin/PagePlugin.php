@@ -13,13 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
-
 use Dotclear\Admin\Page\Page;
-
-use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
-
-use Dotclear\Html\Html;
 use Dotclear\Html\Form;
+use Dotclear\Html\Html;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -88,7 +85,7 @@ class PagePlugin extends Page
                 ->setPageTitle(__('Plugins management'))
                 ->setPageHelp('core_plugins')
                 ->setPageHead(
-                    static::jsLoad('js/_plugins.js') .
+                    dotclear()->filer()->load('_plugins.js') .
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders

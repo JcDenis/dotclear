@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 use stdClass;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -302,15 +301,15 @@ class Page extends AbstractPage
         $user_dm_nodragdrop = dotclear()->user()->preference()->accessibility->nodragdrop;
 
         return
-        Filer::load('style.css', 'Plugin', 'Widgets') .
-        Filer::load('js/jquery/jquery-ui.custom.js') .
-        Filer::Load('js/jquery/jquery.ui.touch-punch.js') .
-        static::jsJson('widgets', [
+        dotclear()->filer()->load('style.css', 'Plugin', 'Widgets') .
+        dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+        dotclear()->filer()->Load('jquery/jquery.ui.touch-punch.js') .
+        dotclear()->filer()->json('widgets', [
             'widget_noeditor' => ($rte_flag ? 0 : 1),
             'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')]
         ]) .
-        Filer::load('js/widgets.js', 'Plugin', 'Widgets') .
-        (!$user_dm_nodragdrop ? Filer::load('js/dragdrop.js', 'Plugin', 'Widgets') : '') .
+        dotclear()->filer()->load('widgets.js', 'Plugin', 'Widgets') .
+        (!$user_dm_nodragdrop ? dotclear()->filer()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
         ($rte_flag ? (string) dotclear()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         static::jsConfirmClose('sidebarsWidgets');
     }

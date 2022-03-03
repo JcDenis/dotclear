@@ -18,7 +18,7 @@ ul.spaminfo .hamcount {
   background-image: url(?df=images/check-on.png);
 }
 ul.spaminfo .feed {
-  background-image: url(?mf=Plugin/Antispam/files/feed.png);
+  background-image: url(?df=Plugin/Antispam/feed.png);
 }
 /* ---------------------------------------------------------- listing of IPs / bad words */
 

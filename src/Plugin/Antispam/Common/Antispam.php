@@ -135,7 +135,7 @@ class Antispam
 
     public static function dashboardHeaders(): string
     {
-        return Utils::jsLoad('?mf=Plugin/Antispam/files/js/dashboard.js');
+        return dotclear()->filer()->load('dashboard.js', 'Plugin', 'Antispam');
     }
 
     public static function countSpam(): int

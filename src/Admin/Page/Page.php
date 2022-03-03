@@ -18,7 +18,6 @@ use ArrayObject;
 use Dotclear\Admin\Page\Action\Action;
 use Dotclear\Admin\Page\Filter\Filter;
 use Dotclear\Admin\Page\Catalog\Catalog;
-use Dotclear\Core\Utils;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -51,15 +50,6 @@ abstract class Page
 
     /** @var array                  Page breadcrumb (brut)) */
     private $page_breadcrumb = ['elements' => null, 'options' => []];
-
-    /** @var array                  Keep track of loaded js files */
-    private static $page_loaded_js     = [];
-
-    /** @var array                  Keep track of loaded css files */
-    private static $page_loaded_css    = [];
-
-    /** @var array                  Keep track of preloaded script */
-    private static $page_preloaded     = [];
 
     /** @var bool                   Load once xframe */
     private static $page_xframe_loaded = false;
@@ -372,10 +362,10 @@ abstract class Page
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
         '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
 
-        echo self::preload('style/default.css') . self::cssLoad('style/default.css');
+        echo dotclear()->filer()->preload('default.css') . dotclear()->filer()->load('default.css');
 
         if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
-            echo self::cssLoad('style/default-rtl.css');
+            echo dotclear()->filer()->load('default-rtl.css');
         }
 
         dotclear()->user()->preference()->addWorkspace('interface');
@@ -398,7 +388,7 @@ abstract class Page
         $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
-        echo Utils::jsJson('dotclear_init', $js);
+        echo dotclear()->filer()->json('dotclear_init', $js);
 
         echo
         $this->jsCommon() .
@@ -496,10 +486,10 @@ abstract class Page
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
-        echo self::preload('style/default.css') . self::cssLoad('style/default.css');
+        echo dotclear()->filer()->preload('default.css') . dotclear()->filer()->load('default.css');
 
         if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
-            echo self::cssLoad('style/default-rtl.css');
+            echo dotclear()->filer()->load('default-rtl.css');
         }
 
         dotclear()->user()->preference()->addWorkspace('interface');
@@ -515,7 +505,7 @@ abstract class Page
         $js['debug'] = !dotclear()->production();
 
         // Set JSON data
-        echo Utils::jsJson('dotclear_init', $js);
+        echo dotclear()->filer()->json('dotclear_init', $js);
 
         echo
         $this->jsCommon() .
@@ -557,11 +547,11 @@ abstract class Page
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
             '<a class="go_home" href="' . dotclear()->adminurl()->get('admin.home') . '">' .
-            '<img class="go_home light-only" src="?df=style/dashboard.svg" alt="' . __('Go to dashboard') . '" />' .
-            '<img class="go_home dark-only" src="?df=style/dashboard-dark.svg" alt="' . __('Go to dashboard') . '" />' .
+            '<img class="go_home light-only" src="?df=css/dashboard.svg" alt="' . __('Go to dashboard') . '" />' .
+            '<img class="go_home dark-only" src="?df=css/dashboard-dark.svg" alt="' . __('Go to dashboard') . '" />' .
             '</a>' :
-            '<img class="go_home light-only" src="?df=style/dashboard-alt.svg" alt="" />' .
-            '<img class="go_home dark-only" src="?df=style/dashboard-alt-dark.svg" alt="" />');
+            '<img class="go_home light-only" src="?df=css/dashboard-alt.svg" alt="" />' .
+            '<img class="go_home dark-only" src="?df=css/dashboard-alt-dark.svg" alt="" />');
         $index = 0;
         if ($hl_pos < 0) {
             $hl_pos = count($elements) + $hl_pos;
@@ -728,7 +718,7 @@ abstract class Page
         echo
             '<footer id="footer" role="contentinfo">' .
             '<a href="https://dotclear.org/" title="' . $text . '">' .
-            '<img src="?df=style/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
+            '<img src="?df=css/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
             '<!-- ' . "\n" .
             $figure .
             ' -->' . "\n";
@@ -1122,25 +1112,25 @@ abstract class Page
         ];
 
         return
-        self::jsLoad('js/prepend.js') .
-        self::jsLoad('js/jquery/jquery.js') .
+        dotclear()->filer()->load('prepend.js') .
+        dotclear()->filer()->load('jquery/jquery.js') .
         (
             !dotclear()->production() ?
-            self::jsJson('dotclear_jquery', [
+            dotclear()->filer()->json('dotclear_jquery', [
                 'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
             ]) .
-            self::jsLoad('js/jquery-mute.js') .
-            self::jsLoad('js/jquery/jquery-migrate.js') :
+            dotclear()->filer()->load('jquery-mute.js') .
+            dotclear()->filer()->load('jquery/jquery-migrate.js') :
             ''
         ) .
 
-        self::jsJson('dotclear', $js) .
-        self::jsJson('dotclear_msg', $js_msg) .
+        dotclear()->filer()->json('dotclear', $js) .
+        dotclear()->filer()->json('dotclear_msg', $js_msg) .
 
-        self::jsLoad('js/common.js') .
-        self::jsLoad('js/ads.js') .
-        self::jsLoad('js/services.js') .
-        self::jsLoad('js/prelude.js');
+        dotclear()->filer()->load('common.js') .
+        dotclear()->filer()->load('ads.js') .
+        dotclear()->filer()->load('services.js') .
+        dotclear()->filer()->load('prelude.js');
     }
 
     /**
@@ -1161,8 +1151,8 @@ abstract class Page
         }
 
         return
-        self::jsJson('dotclear_toggles', $js) .
-        self::jsLoad('js/toggles.js');
+        dotclear()->filer()->json('dotclear_toggles', $js) .
+        dotclear()->filer()->load('toggles.js');
     }
 
     /**
@@ -1181,9 +1171,9 @@ abstract class Page
         ];
 
         return
-        self::jsJson('filter_controls', $js) .
-        self::jsJson('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
-        self::jsLoad('js/filter-controls.js');
+        dotclear()->filer()->json('filter_controls', $js) .
+        dotclear()->filer()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
+        dotclear()->filer()->load('filter-controls.js');
     }
 
     /**
@@ -1233,19 +1223,19 @@ abstract class Page
         ];
 
         return
-        self::jsJson('file_upload', $js) .
-        self::jsJson('file_upload_msg', $js_msg) .
-        self::jsLoad('js/file-upload.js') .
-        self::jsLoad('js/jquery/jquery-ui.custom.js') .
-        self::jsLoad('js/jsUpload/tmpl.js') .
-        self::jsLoad('js/jsUpload/template-upload.js') .
-        self::jsLoad('js/jsUpload/template-download.js') .
-        self::jsLoad('js/jsUpload/load-image.js') .
-        self::jsLoad('js/jsUpload/jquery.iframe-transport.js') .
-        self::jsLoad('js/jsUpload/jquery.fileupload.js') .
-        self::jsLoad('js/jsUpload/jquery.fileupload-process.js') .
-        self::jsLoad('js/jsUpload/jquery.fileupload-resize.js') .
-        self::jsLoad('js/jsUpload/jquery.fileupload-ui.js');
+        dotclear()->filer()->json('file_upload', $js) .
+        dotclear()->filer()->json('file_upload_msg', $js_msg) .
+        dotclear()->filer()->load('file-upload.js') .
+        dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+        dotclear()->filer()->load('jsUpload/tmpl.js') .
+        dotclear()->filer()->load('jsUpload/template-upload.js') .
+        dotclear()->filer()->load('jsUpload/template-download.js') .
+        dotclear()->filer()->load('jsUpload/load-image.js') .
+        dotclear()->filer()->load('jsUpload/jquery.iframe-transport.js') .
+        dotclear()->filer()->load('jsUpload/jquery.fileupload.js') .
+        dotclear()->filer()->load('jsUpload/jquery.fileupload-process.js') .
+        dotclear()->filer()->load('jsUpload/jquery.fileupload-resize.js') .
+        dotclear()->filer()->load('jsUpload/jquery.fileupload-ui.js');
     }
     //@}
 
@@ -1260,117 +1250,7 @@ abstract class Page
     public static function jsModal()
     {
         return
-        self::jsLoad('js/jquery/jquery.magnific-popup.js');
-    }
-
-    /**
-     * Get HTML code to preload resource
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
-     * @param      string  $type   The type
-     *
-     * @return     mixed
-     */
-    public static function preload(string $src, string $v = '', string $type = 'style'): string
-    {
-        # By default use Dotclear Admin files
-        $prefix = strpos($src, '?') === false ? '?df=' : '';
-
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$page_preloaded[$escaped_src])) {
-            self::$page_preloaded[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion($prefix . $escaped_src, $v);
-
-            return '<link rel="preload" href="' . $escaped_src . '" as="' . $type . '" />' . "\n";
-        }
-
-        return '';
-    }
-
-    /**
-     * Get HTML code to load CSS stylesheet
-     *
-     * This include ?df= loader, plugins should use
-     * Utils::cssLoad() for their own files
-     *
-     * @param      string  $src    The source
-     * @param      string  $media  The media
-     * @param      string  $v      The version
-     *
-     * @return     string
-     */
-    public static function cssLoad(string $src, string $media = 'screen', string $v = ''): string
-    {
-        # By default use Dotclear Admin files
-        $prefix = strpos($src, '?') === false ? '?df=' : '';
-
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$page_loaded_css[$escaped_src])) {
-            self::$page_loaded_css[$escaped_src] = true;
-            $escaped_src                    = self::appendVersion($prefix . $escaped_src, $v);
-
-            return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
-        }
-
-        return '';
-    }
-
-    /**
-     * Get HTML code to load JS script
-     *
-     * This include ?df= loader, plugins should use
-     * Utils::jsLoad() for their own files
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
-     *
-     * @return     string
-     */
-    public static function jsLoad(string $src, string $v = ''): string
-    {
-        # By default use Dotclear Admin files
-        $prefix = strpos($src, '?') === false ? '?df=' : '';
-
-        $escaped_src = Html::escapeHTML($src);
-        if (!isset(self::$page_loaded_js[$escaped_src])) {
-            self::$page_loaded_js[$escaped_src] = true;
-            $escaped_src                   = self::appendVersion($prefix . $escaped_src, $v);
-
-            return '<script src="' . $escaped_src . '"></script>' . "\n";
-        }
-
-        return '';
-    }
-
-    /**
-     * Appends a version to force cache refresh if necessary.
-     *
-     * @param      string  $src    The source
-     * @param      string  $v      The version
-     *
-     * @return     string
-     */
-    private static function appendVersion(string $src, ?string $v = ''): string
-    {
-        return $src .
-            (strpos($src, '?') === false ? '?' : '&amp;') .
-            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
-    }
-
-    /**
-     * Get HTML code to load JS variables encoded as JSON
-     *
-     * use Page::jsJson() and dotclear.getData()/dotclear.mergeDeep() in javascript
-     *
-     * @param      string  $id     The identifier
-     * @param      mixed   $vars   The variables
-     *
-     * @return     string
-     */
-    public static function jsJson(string $id, $vars): string
-    {
-        return Utils::jsJson($id, $vars);
+        dotclear()->filer()->load('jquery/jquery.magnific-popup.js');
     }
 
     /**
@@ -1388,8 +1268,8 @@ abstract class Page
         ];
 
         return
-        self::jsJson('confirm_close', $js) .
-        self::jsLoad('js/confirm-close.js');
+        dotclear()->filer()->json('confirm_close', $js) .
+        dotclear()->filer()->load('confirm-close.js');
     }
 
     /**
@@ -1406,9 +1286,9 @@ abstract class Page
         ];
 
         return
-        self::jsJson('page_tabs', $js) .
-        self::jsLoad('js/jquery/jquery.pageTabs.js') .
-        self::jsLoad('js/page-tabs.js');
+        dotclear()->filer()->json('page_tabs', $js) .
+        dotclear()->filer()->load('jquery/jquery.pageTabs.js') .
+        dotclear()->filer()->load('page-tabs.js');
     }
 
     /**
@@ -1418,7 +1298,7 @@ abstract class Page
      */
     public static function jsMetaEditor()
     {
-        return self::jsLoad('js/meta-editor.js');
+        return dotclear()->filer()->load('meta-editor.js');
     }
 
     /**
@@ -1432,20 +1312,20 @@ abstract class Page
      */
     public static function jsLoadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
     {
-        $ret = self::cssLoad('js/codemirror/lib/codemirror.css') .
-        self::jsLoad('js/codemirror/lib/codemirror.js');
+        $ret = dotclear()->filer()->js('codemirror/lib/codemirror.css') .
+        dotclear()->filer()->load('codemirror/lib/codemirror.js');
         if ($multi) {
-            $ret .= self::jsLoad('js/codemirror/addon/mode/multiplex.js');
+            $ret .= dotclear()->filer()->load('codemirror/addon/mode/multiplex.js');
         }
         foreach ($modes as $mode) {
-            $ret .= self::jsLoad('js/codemirror/mode/' . $mode . '/' . $mode . '.js');
+            $ret .= dotclear()->filer()->load('codemirror/mode/' . $mode . '/' . $mode . '.js');
         }
-        $ret .= self::jsLoad('js/codemirror/addon/edit/closebrackets.js') .
-        self::jsLoad('js/codemirror/addon/edit/matchbrackets.js') .
-        self::cssLoad('js/codemirror/addon/display/fullscreen.css') .
-        self::jsLoad('js/codemirror/addon/display/fullscreen.js');
+        $ret .= dotclear()->filer()->load('codemirror/addon/edit/closebrackets.js') .
+        dotclear()->filer()->load('codemirror/addon/edit/matchbrackets.js') .
+        dotclear()->filer()->load('codemirror/addon/display/fullscreen.css') .
+        dotclear()->filer()->load('codemirror/addon/display/fullscreen.js');
         if ($theme != '') {
-            $ret .= self::cssLoad('js/codemirror/theme/' . $theme . '.css');
+            $ret .= dotclear()->filer()->js('codemirror/theme/' . $theme . '.css');
         }
 
         return $ret;
@@ -1474,8 +1354,8 @@ abstract class Page
             ]];
         }
 
-        $ret = self::jsJson('codemirror', $js) .
-        self::jsLoad('js/codemirror.js');
+        dotclear()->filer()->json('codemirror', $js) .
+        dotclear()->filer()->load('codemirror.js');
 
         return $ret;
     }

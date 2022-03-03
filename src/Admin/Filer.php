@@ -22,27 +22,38 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Filer
 {
+    public static $query = 'df';
+
     /** @var    array   Stack to keep track of loaded files */
     private static $stack  = [];
 
-    public static function url(string $src, ?string $type = null, ?string $id = null): string
+    public static function url(string $src, ?string $type = null, ?string $id = null, ?string $ext = null): string
     {
         if (0 === strpos($src, 'http')) {
             return $src;
         }
 
-        $url = dotclear()->config()->admin_url;
-        $url .= strpos($url, '?') === false ? '?' : '';
-
-        if ('var' == $type) {
-            $url .= 'vf=' . $src;
-        } elseif (!empty($type) && !empty($id)) {
-            $url .= 'mf=' . implode('/', [$type, $id, 'Admin', 'files', $src]);
-        } else {
-            $url .= 'df=' . $src;
+        if ($ext) {
+            $src = $ext . '/' . $src;
         }
 
-        return $url;
+        if ('var' == $type) {
+            $src = 'var/' . $src;
+        } elseif (!empty($type) && !empty($id)) {
+            $src = implode('/', [$type, $id, $src]);
+        }
+
+        return dotclear()->config()->admin_url . (strpos($src, '?') === false ? '?' : '') . self::$query .'=' . $src;
+    }
+
+    public static function css(string $src, ?string $type = null, ?string $id = null): string
+    {
+        return self::parse($src, $type, $id, null, false, 'css');
+    }
+
+    public static function js(string $src, ?string $type = null, ?string $id = null): string
+    {
+        return self::parse($src, $type, $id, null, false, 'js');
     }
 
     public static function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null): string
@@ -57,15 +68,16 @@ class Filer
 
     private static function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null): string
     {
+        $src_ext = Files::getExtension($src);
         if (!$ext) {
-            $ext = Files::getExtension($src);
+            $ext = $src_ext;
         }
 
         if (!in_array($ext, ['js','css'])) {
             return '';
         }
 
-        $url = self::url($src, $type, $id);
+        $url = self::url($src, $type, $id, $ext);
         if (isset(self::$stack[$preload ? 'preload' : 'load'][$url])) {
             return '';
         }
@@ -76,20 +88,70 @@ class Filer
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
-        } elseif ($ext == 'css') {
+        } elseif ($src_ext == 'css') {
             return '<link rel="stylesheet" href="' . $url . '" type="text/css" media="' . ($option ?: 'screen') . '" />' . "\n";
         } else {
             return '<script src="' . $url . '"></script>' . "\n";
         }
     }
 
-    public static function css(string $src, ?string $type = null, ?string $id = null): string
+    public static function serve(): void
     {
-        return self::parse($src, $type, $id, null, false, 'css');
+        if (empty($_GET[self::$query])) {
+            return;
+        }
+
+        $src  = $_GET[self::$query];
+        $dirs = [];
+
+        # Check if it in Var path
+        $var_src  = explode('/', $src);
+        $var_path = dotclear()->config()->var_dir;
+        if (empty($dirs) && 1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
+            $dirs[] = $var_path;
+            $src    = implode('/', $var_src);
+        }
+
+        # Try to find module id and type
+        # Admin url should be ?df=ModuleType/ModuleId/a_sub_folder/a_file.ext
+        $module_src = explode('/', $src);
+        if (empty($dirs) && 2 < count($module_src)) {
+            $module_type = array_shift($module_src);
+            $module_id   = array_shift($module_src);
+
+            # Check module type
+            $modules_class = root_ns('Module', $module_type, 'Admin', 'Modules' . $module_type);
+            if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
+                $modules = new $modules_class();
+                # Chek if module exists
+                $modules_paths   = $modules->getModulesPath();
+                foreach($modules_paths as $modules_path) {
+                    if (is_dir(implode_path($modules_path, $module_id))) {
+                        $dirs[] = implode_path($modules_path, $module_id, 'Admin', 'files');
+                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
+                        $dirs[] = implode_path($modules_path, $module_id); // required for icons
+                        $src    = implode('/', $module_src);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        # List other available file paths
+        $dirs[] = root_path('Admin', 'files');
+        $dirs[] = root_path('Core', 'files', 'css');
+        $dirs[] = root_path('Core', 'files', 'js');
+
+        # Search dirs
+        Files::serveFile($src, $dirs, dotclear()->config()->file_sever_type);
     }
 
-    public static function js(string $src, ?string $type = null, ?string $id = null): string
+    public static function json(string $id, mixed $vars): string
     {
-        return self::parse($src, $type, $id, null, false, 'js');
+        $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
+            json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
+
+        return $ret;
     }
 }

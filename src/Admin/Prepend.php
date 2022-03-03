@@ -15,6 +15,7 @@ namespace Dotclear\Admin;
 
 use ArrayObject;
 
+use Dotclear\Admin\Filer;
 use Dotclear\Admin\AdminUrl\AdminUrl;
 use Dotclear\Admin\Combo\Combo;
 use Dotclear\Admin\Favorite\Favorite;
@@ -37,22 +38,25 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 class Prepend extends Core
 {
-    /** @var    AdminUrl   AdminUrl instance */
+    /** @var    AdminUrl    AdminUrl instance */
     private $adminurl;
 
     /** @var    Combo   Combo instance */
     private $combo;
 
-    /** @var    Favorite   Favorite instance */
+    /** @var    Favorite    Favorite instance */
     private $favorite;
 
-    /** @var    Summary   Summary instance */
+    /** @var    Filer   Filer instance */
+    private $filer;
+
+    /** @var    Summary     Summary instance */
     private $summary;
 
     /** @var    Notice   Notice instance */
     private $notice;
 
-    /** @var    ListOption   ListOption instance */
+    /** @var    ListOption  ListOption instance */
     private $listoption;
 
     /** @var    string  Current Process */
@@ -115,6 +119,20 @@ class Prepend extends Core
         }
 
         return $this->favorite;
+    }
+
+    /**
+     * Get filer instance
+     *
+     * @return  Filer   Filer instance
+     */
+    public function filer(): Filer
+    {
+        if (!($this->filer instanceof Filer)) {
+            $this->filer = new Filer();
+        }
+
+        return $this->filer;
     }
 
     /**
@@ -284,7 +302,7 @@ class Prepend extends Core
         }
 
         # Serve modules file (mf)
-        $this->adminServeFile();
+        $this->filer()->serve();
 
         # User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
@@ -348,52 +366,6 @@ class Prepend extends Core
             $modules->loadModuleL10N($module->id(), $this->_lang, 'main');
             $modules->loadModuleL10N($module->id(), $this->_lang, 'admin');
         }
-    }
-
-    private function adminServeFile(): void
-    {
-        # Serve admin file (css, png, ...)
-        if (!empty($_GET['df'])) {
-            Files::serveFile([root_path('Admin', 'files')], 'df');
-            exit;
-        }
-
-        # Serve var file
-        if (!empty($_GET['vf'])) {
-            Files::serveFile([$this->config()->var_dir], 'vf');
-            exit;
-        }
-
-        # Serve modules file
-        if (empty($_GET['mf'])) {
-            return;
-        }
-
-        # Extract modules class name from url
-        $pos = strpos($_GET['mf'], '/');
-        if (!$pos) {
-            $this->getExceptionLang();
-            $this->throwException(sprintf(__('File handler not found for file %s.'), $_GET['mf']), '', 628);
-        }
-
-        # Sanitize modules type
-        $type = ucfirst(strtolower(substr($_GET['mf'], 0, $pos)));
-        $_GET['mf'] = substr($_GET['mf'], $pos, strlen($_GET['mf']));
-
-        # Check class
-        $class = root_ns('Module', $type, 'Admin', 'Modules' . $type);
-        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractModules')) {
-            $this->getExceptionLang();
-            $this->throwException(sprintf(__('File handler %s not found.'), $class), '', 628);
-        }
-
-        # Get paths and serve file
-        $modules = new $class($this);
-        $paths   = $modules->getModulesPath();
-        $paths[] = root_path('Core', 'files', 'js');
-        $paths[] = root_path('Core', 'files', 'css');
-        Files::serveFile($paths, 'mf');
-        exit;
     }
 
     private function adminLoadLocales(): void

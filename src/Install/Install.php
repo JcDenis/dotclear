@@ -35,7 +35,7 @@ class Install
     {
         /* Set URL (from default structure) */
         $root_url = preg_replace(
-            ['%admin/install/index.php$%', '%admin/install/$%', '%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+            ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
             '',
             filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
         );
@@ -54,7 +54,7 @@ class Install
 
         if (dotclear()->config()->master_key == '') {
             $can_install = false;
-            $err         = '<p>' . __('Please set a master key (dotclear()->config()->master_key) in configuration file.') . '</p>';
+            $err         = '<p>' . __('Please set a master key in configuration file.') . '</p>';
         }
 
         /* Check if dotclear is already installed */
@@ -163,7 +163,6 @@ class Install
                 $blog_settings->addNamespace('system');
                 $blog_settings->system->put('blog_timezone', $default_tz);
                 $blog_settings->system->put('lang', $dlang);
-                $blog_settings->system->put('public_url', $root_url . '/public');
 
                 /* date and time formats */
                 $formatDate   = __('%A, %B %e %Y');
@@ -291,20 +290,20 @@ class Install
           <meta name="GOOGLEBOT" content="NOSNIPPET" />
           <title><?php echo __('Dotclear Install'); ?></title>
 
-            <link rel="stylesheet" href="?df=/style/install.css" type="text/css" media="screen" />
+            <link rel="stylesheet" href="?df=/css/install.css" type="text/css" media="screen" />
 
           <?php
           echo
-            Utils::jsLoad('?df=/js/prepend.js') .
-            Utils::jsJson('pwstrength', [
+            dotclear()->filer()->load('prepend.js') .
+            dotclear()->filer()->json('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong'))
             ]) .
-            Utils::jsLoad('?df=/js/pwstrength.js') .
-            Utils::jsLoad('?df=/js/jquery/jquery.js') .
-            Utils::jsJson('install_show', __('show')) .
-            Utils::jsLoad('?df=/js/_install.js'); ?>
+            dotclear()->filer()->load('pwstrength.js') .
+            dotclear()->filer()->load('jquery/jquery.js') .
+            dotclear()->filer()->json('install_show', __('show')) .
+            dotclear()->filer()->load('_install.js'); ?>
         </head>
 
         <body id="dotclear-admin" class="install">

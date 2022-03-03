@@ -142,7 +142,7 @@ class Langs extends Page
         $this
             ->setPageTitle(__('Languages management'))
             ->setPageHelp('core_langs')
-            ->setPageHead(self::jsLoad('js/_langs.js'))
+            ->setPageHead(dotclear()->filer()->load('_langs.js'))
             ->setPageBreadcrumb([
                     __('System')               => '',
                     __('Languages management') => '',

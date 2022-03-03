@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\File\Files;
@@ -272,9 +271,9 @@ class Page extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setpageHead(
-                static::jsLoad('js/jquery/jquery-ui.custom.js') .
-                static::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                Filer::load('js/config.js', 'Theme', 'Ductile')
+                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->filer()->load('config.js', 'Theme', 'Ductile')
             );
         }
 

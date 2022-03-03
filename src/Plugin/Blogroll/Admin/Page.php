@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
-use Dotclear\Admin\Filer;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Files;
 use Dotclear\Html\Form;
@@ -200,9 +199,9 @@ class Page extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                Filer::load('js/jquery/jquery-ui.custom.js') .
-                Filer::load('js/jquery/jquery.ui.touch-punch.js') .
-                Filer::load('js/blogroll.js', 'Plugin', 'Blogroll')
+                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->filer()->load('blogroll.js', 'Plugin', 'Blogroll')
             );
         }
 
