@@ -228,6 +228,19 @@ class Settingspace
     }
 
     /**
+     * Magic __isset method
+     *
+     * Required to test empty(ns->setting)
+     *
+     * @param   string  $n  The setting name
+     * @return  bool        Setting is set
+     */
+    public function __isset(string $n)
+    {
+        return isset($this->settings[$n]) && isset($this->settings[$n]['value']);
+    }
+
+    /**
      * Creates or updates a setting.
      *
      * $type could be 'string', 'integer', 'float', 'boolean', 'array' or null. If $type is
