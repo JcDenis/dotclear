@@ -16,8 +16,7 @@ namespace Dotclear\Plugin\Widgets\Common;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\WidgetsExt;
 use Dotclear\Plugin\Widgets\Common\Widget;
-
-use Dotclear\Core\Utils;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -136,8 +135,8 @@ class Widgets
 
     private static function sort($a, $b)
     {
-        $c = Utils::removeDiacritics(mb_strtolower($a->name()));
-        $d = Utils::removeDiacritics(mb_strtolower($b->name()));
+        $c = Lexical::removeDiacritics(mb_strtolower($a->name()));
+        $d = Lexical::removeDiacritics(mb_strtolower($b->name()));
         if ($c == $d) {
             return 0;
         }

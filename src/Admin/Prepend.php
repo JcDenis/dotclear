@@ -23,7 +23,6 @@ use Dotclear\Admin\ListOption\ListOption;
 use Dotclear\Admin\Menu\Summary;
 use Dotclear\Admin\Notice\Notice;
 use Dotclear\Core\Core;
-Use Dotclear\Core\Utils;
 use Dotclear\File\Files;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
@@ -31,6 +30,7 @@ use Dotclear\Module\Iconset\Admin\ModulesIconset;
 use Dotclear\Module\Theme\Admin\ModulesTheme;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -381,7 +381,7 @@ class Prepend extends Core
         L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
-        Utils::setlexicalLang('admin', $this->_lang);
+        Lexical::setLexicalLang('admin', $this->_lang);
     }
 
     private function adminLoadResources(string $dir, bool $load_default = true): void

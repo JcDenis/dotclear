@@ -17,11 +17,11 @@ use ArrayObject;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Container\User as ContainerUser;
-use Dotclear\Core\Utils;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -884,8 +884,8 @@ class UserPref extends Page
         $count = 0;
         uasort($avail_fav, function ($a, $b) {
             return strcoll(
-                strtolower(Utils::removeDiacritics($a['title'])),
-                strtolower(Utils::removeDiacritics($b['title']))
+                strtolower(Lexical::removeDiacritics($a['title'])),
+                strtolower(Lexical::removeDiacritics($b['title']))
             );
         });
 

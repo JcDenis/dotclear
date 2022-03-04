@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Admin\Menu;
 
-use Dotclear\Core\Utils;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -125,7 +125,7 @@ class Menu
 
         // 2. Display unpinned itmes (sorted)
         $i = 0;
-        Utils::lexicalKeySort($this->items);
+        Lexical::lexicalKeySort($this->items);
         foreach ($this->items as $title => $item) {
             if ($i + 1 < count($this->items) && $this->itemSpace != '') {
                 $res .= preg_replace('|</li>$|', $this->itemSpace . '</li>', $item);

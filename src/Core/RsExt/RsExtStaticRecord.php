@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\Utils;
-
 use Dotclear\Database\StaticRecord;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -64,6 +63,6 @@ class RsExtStaticRecord extends StaticRecord
             return ($a - $b) * $this->sortsign;
         }
 
-        return strcoll(strtolower(Utils::removeDiacritics($a)), strtolower(Utils::removeDiacritics($b))) * $this->sortsign;
+        return strcoll(strtolower(Lexical::removeDiacritics($a)), strtolower(Lexical::removeDiacritics($b))) * $this->sortsign;
     }
 }

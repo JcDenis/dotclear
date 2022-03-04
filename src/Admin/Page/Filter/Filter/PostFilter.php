@@ -20,8 +20,8 @@ use ArrayObject;
 use Dotclear\Admin\Page\Filter\Filter;
 use Dotclear\Admin\Page\Filter\Filters;
 use Dotclear\Admin\Page\Filter\Filter\DefaultFilter;
-use Dotclear\Core\Utils;
 use Dotclear\Html\Html;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -81,7 +81,7 @@ class PostFilter extends Filter
         }
 
         $combo = dotclear()->combo()->getUsersCombo($users);
-        Utils::lexicalKeySort($combo);
+        Lexical::lexicalKeySort($combo);
 
         return (new DefaultFilter('user_id'))
             ->param()

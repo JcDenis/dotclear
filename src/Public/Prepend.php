@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Public;
 
 use Dotclear\Core\Core;
-use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
 use Dotclear\Public\Template\Template;
 use Dotclear\Public\Context\Context;
@@ -22,6 +21,7 @@ use Dotclear\Module\Plugin\Public\ModulesPlugin;
 use Dotclear\Module\Theme\Public\ModulesTheme;
 use Dotclear\File\Files;
 use Dotclear\Utils\L10n;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -125,7 +125,7 @@ class Prepend extends Core
         L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
-        Utils::setlexicalLang('public', $this->_lang);
+        Lexical::setLexicalLang('public', $this->_lang);
 
         # Load plugins
         try {

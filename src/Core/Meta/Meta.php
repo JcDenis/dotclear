@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Meta;
 
-use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\CoreException;
+use Dotclear\Utils\Lexical;
 use Dotclear\Utils\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
@@ -351,8 +351,8 @@ class Meta
         }
 
         $rs_static->moveStart();
-        while ($rs_static->fetch()) {   // @phpstan-ignore-line
-            $rs_static->set('meta_id_lower', Utils::removeDiacritics(mb_strtolower($rs_static->meta_id)));
+        while ($rs_static->fetch()) {
+            $rs_static->set('meta_id_lower', Lexical::removeDiacritics(mb_strtolower($rs_static->meta_id)));
 
             $count   = $rs_static->count;
             $percent = ((int) $rs_static->count) * 100 / $max[$rs_static->meta_type];

@@ -15,7 +15,6 @@ namespace Dotclear\Admin\Page\Page;
 
 use Dotclear\Admin\Page\Page;
 use Dotclear\Container\User;
-use Dotclear\Core\Utils;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
@@ -23,6 +22,7 @@ use Dotclear\Html\Html;
 use Dotclear\Network\Http;
 use Dotclear\Network\NetHttp\NetHttp;
 use Dotclear\Utils\Dt;
+use Dotclear\Utils\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -885,7 +885,7 @@ class BlogPref extends Page
             }
 
             # Sort users list on user_id key
-            Utils::lexicalKeySort($blog_users);
+            Lexical::lexicalKeySort($blog_users);
 
             $post_type       = dotclear()->posttype()->getPostTypes();
             $current_blog_id = dotclear()->blog()->id;
