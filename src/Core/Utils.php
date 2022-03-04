@@ -23,29 +23,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
-    /**
-     * Compare two versions with option of using only main numbers.
-     *
-     * @param  string    $current_version    Current version
-     * @param  string    $required_version    Required version
-     * @param  string    $operator            Comparison operand
-     * @param  boolean    $strict                Use full version
-     *
-     * @return boolean    True if comparison success
-     */
-    public static function versionsCompare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
-    {
-        if ($strict) {
-            $current_version  = preg_replace('!-r(\d+)$!', '-p$1', $current_version);
-            $required_version = preg_replace('!-r(\d+)$!', '-p$1', $required_version);
-        } else {
-            $current_version  = preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $current_version);
-            $required_version = preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $required_version);
-        }
-
-        return (bool) version_compare($current_version, $required_version, $operator);
-    }
-
     //! to delete? @see Admin\Filer
     private static function appendVersion(string $src, ?string $v = ''): string
     {

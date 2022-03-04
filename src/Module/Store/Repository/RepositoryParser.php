@@ -99,8 +99,8 @@ class RepositoryParser
 
             # First filter right now. If level is DEVELOPMENT, all modules are parse
             if (!dotclear()->production()
-                || Utils::versionsCompare(dotclear()->config()->core_version, $item['dc_min'], '>=', false)
-                && Utils::versionsCompare(dotclear()->config()->core_version_break, $item['dc_min'], '<=', false)
+                || dotclear()->version()->compare(dotclear()->config()->core_version, $item['dc_min'], '>=', false)
+                && dotclear()->version()->compare(dotclear()->config()->core_version_break, $item['dc_min'], '<=', false)
             ) {
                 $this->items[$item['id']] = $item;
             }
