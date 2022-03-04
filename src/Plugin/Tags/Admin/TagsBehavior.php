@@ -16,7 +16,6 @@ namespace Dotclear\Plugin\Tags\Admin;
 use ArrayObject;
 
 use Dotclear\Admin\Page\Action\Action;
-use Dotclear\Core\Utils;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

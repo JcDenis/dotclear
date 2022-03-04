@@ -17,7 +17,6 @@ namespace Dotclear\Module\Store\Repository;
 
 use SimpleXMLElement;
 
-use Dotclear\Core\Utils;
 use Dotclear\Exception\CoreException;
 
 if (!defined('DOTCLEAR_PROCESS')) {

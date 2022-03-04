@@ -15,7 +15,6 @@ namespace Dotclear\Core\Blog;
 
 use ArrayObject;
 
-use Dotclear\Core\Utils;
 use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;

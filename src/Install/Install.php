@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Install;
 
 use Dotclear\Container\User as ContainerUser;
-use Dotclear\Core\Utils;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;

@@ -19,9 +19,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\Utils;
 use Dotclear\Core\User\Preference\Preference;
-
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
