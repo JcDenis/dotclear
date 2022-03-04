@@ -317,7 +317,7 @@ class UserAction extends Page
             ) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
-            dotclear()->adminurl()->get('admin.user.actions', ['action' => 'updateperm'], true) .  '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'updateperm'], true) .  '</p>' .
                 '</div>' .
                 '</form>';
         }

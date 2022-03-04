@@ -125,7 +125,7 @@ class Categories extends Page
             && dotclear()->user()->check('categories', dotclear()->blog()->id)
             && $this->caregories->count() > 1) {
             $this->setPageHead(
-                dotclear()->filer()->load('query/jquery-ui.custom.js') .
+                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
                 dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
                 dotclear()->filer()->load('jquery/jquery.mjs.nestedSortable.js')
             );
