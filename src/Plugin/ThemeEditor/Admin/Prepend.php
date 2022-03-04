@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Cursor;
 use Dotclear\Html\Form;
 use Dotclear\File\Path;

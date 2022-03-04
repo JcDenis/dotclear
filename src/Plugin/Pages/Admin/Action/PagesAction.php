@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin\Action;
 
-use Dotclear\Admin\Page\Action\Action;
-use Dotclear\Admin\Page\Action\Action\PostAction;
+use Dotclear\Process\Admin\Page\Action\Action;
+use Dotclear\Process\Admin\Page\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
 
@@ -50,7 +50,7 @@ class PagesAction extends PostAction
 
     public function loadDefaults(): void
     {
-        $class = 'Dotclear\\Admin\\Page\\Action\\Action\\DefaultPostAction';
+        $class = 'Dotclear\\Process\\Admin\\Page\\Action\\Action\\DefaultPostAction';
 
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $this->addAction(

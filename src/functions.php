@@ -37,7 +37,7 @@ if (!function_exists('dotclear_run')) {
         }
 
         # Find process (Admin|Public|Install|...)
-        $class = root_ns(ucfirst(strtolower($process)), 'Prepend');
+        $class = root_ns('Process', ucfirst(strtolower($process)), 'Prepend');
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             dotclear_error('No process found', 'Something went wrong while trying to start process.');
         }

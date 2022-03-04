@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\Page;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -24,5 +24,5 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 abstract class AbstractPage extends Page
 {
-    # @see Dotclear\Admin\Page\Page for all others methods
+    # @see Dotclear\Process\Admin\Page\Page for all others methods
 }

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
-use Dotclear\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;

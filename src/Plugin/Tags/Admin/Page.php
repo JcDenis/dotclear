@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Admin;
 
-use Dotclear\Admin\Page\Action\Action\PostAction;
-use Dotclear\Admin\Page\Catalog\Catalog\PostCatalog;
+use Dotclear\Process\Admin\Page\Action\Action\PostAction;
+use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;

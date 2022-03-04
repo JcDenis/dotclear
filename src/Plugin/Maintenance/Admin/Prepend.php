@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 use ArrayObject;
 
-use Dotclear\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Html\Form;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;

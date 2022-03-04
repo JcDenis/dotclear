@@ -44,7 +44,7 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(root_path('Public', 'templates', dotclear()->config()->template_default));
+        $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', dotclear()->config()->template_default));
         $this->tplset_name  = dotclear()->config()->template_default;
 
         # Current theme
@@ -56,7 +56,7 @@ class ThemeEditor
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(root_path('Public', 'templates', $module->templateset()));
+            $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', $module->templateset()));
             $this->tplset_name  = $module->templateset();
         }
 

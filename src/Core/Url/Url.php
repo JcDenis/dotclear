@@ -945,7 +945,7 @@ class Url
         }
 
         # List other available file paths
-        $dirs[] = root_path('Public', 'files');
+        $dirs[] = root_path('Process', 'Public', 'files');
         $dirs[] = root_path('Core', 'files', 'css');
         $dirs[] = root_path('Core', 'files', 'js');
 

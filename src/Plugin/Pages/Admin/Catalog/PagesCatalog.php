@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Pages\Admin\Catalog;
 
 use ArrayObject;
 
-use Dotclear\Admin\Page\Pager;
-use Dotclear\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Page\Pager;
+use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;

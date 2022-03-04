@@ -82,7 +82,7 @@ class Lexical
             case 'admin':
             case 'public':
                 // Set locale with blog params (public) or user prefs (admin)
-                // see Dotclear\Admin|Public\Prepend
+                // see Dotclear\Process\Admin|Public\Prepend
                 setlocale(LC_COLLATE, self::$lexical_lang);
 
                 break;

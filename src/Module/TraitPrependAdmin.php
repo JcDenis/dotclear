@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Favorite\Favorite;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
