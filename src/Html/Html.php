@@ -223,4 +223,76 @@ class Html
 
         return $str;
     }
+
+    /**
+     * Append version
+     *
+     * Usefull to bypass cache
+     *
+     * @param   string  $src    THe path
+     * @param   string  $v      The version (suffix)
+     *
+     * @return  string          The versioned path
+     */
+    private static function appendVersion(string $src, ?string $v = ''): string
+    {
+        return $src .
+            (strpos($src, '?') === false ? '?' : '&amp;') .
+            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
+    }
+
+    /**
+     * Get HTML code to load a css file
+     *
+     * @param   string          $src    The path
+     * @param   string          $media  The media type
+     * @param   string|null     $v      The version
+     *
+     * @return  string                  The HTML code
+     */
+    public static function cssLoad(string $src, string $media = 'screen', string $v = null): string
+    {
+        $escaped_src = Html::escapeHTML($src);
+        if ($v !== null) {
+            $escaped_src = self::appendVersion($escaped_src, $v);
+        }
+
+        return '<link rel="stylesheet" href="' . $escaped_src . '" type="text/css" media="' . $media . '" />' . "\n";
+    }
+
+    /**
+     * Get HTML code to load a js file
+     *
+     * @param   string          $src    The path
+     * @param   string          $media  The media type
+     * @param   string|null     $v      The version
+     *
+     * @return  string                  The HTML code
+     */
+    public static function jsLoad(string $src, string $v = null): string
+    {
+        $escaped_src = Html::escapeHTML($src);
+        if ($v !== null) {
+            $escaped_src = self::appendVersion($escaped_src, $v);
+        }
+
+        return '<script src="' . $escaped_src . '"></script>' . "\n";
+    }
+
+    /**
+     * Get HTML code to set a js var
+     *
+     * @param   string  $id     The var name
+     * @param   mixed   $vars   The var value
+     *
+     * @return  string          The HTML code
+     */
+    public static function jsJson(string $id, mixed $vars): string
+    {
+        // Use echo self::jsLoad(dotclear()->blog()->public_url . '/util.js'); to use the JS dotclear.getData() decoder in public mode
+        $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
+            json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
+
+        return $ret;
+    }
 }
