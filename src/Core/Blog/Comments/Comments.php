@@ -15,7 +15,6 @@ namespace Dotclear\Core\Blog\Comments;
 
 use ArrayObject;
 
-use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
@@ -336,7 +335,7 @@ class Comments
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
-        $co_ids = Utils::cleanIds($ids);
+        $co_ids = dotclear()->blog()->cleanIds($ids);
         $status = (int) $status;
 
         $strReq = 'UPDATE ' . dotclear()->prefix . 'comment ' .
@@ -377,7 +376,7 @@ class Comments
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
-        $co_ids = Utils::cleanIds($ids);
+        $co_ids = dotclear()->blog()->cleanIds($ids);
 
         if (empty($co_ids)) {
             throw new CoreException(__('No such comment ID'));

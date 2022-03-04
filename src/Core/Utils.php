@@ -23,38 +23,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Utils
 {
-    protected static $lexical_lang = '';
-
-    /**
-     * Cleanup a list of IDs
-     *
-     * @param      mixed  $ids    The identifiers
-     *
-     * @return     array
-     */
-    public static function cleanIds($ids): array
-    {
-        $clean_ids = [];
-
-        if (!is_array($ids) && !($ids instanceof ArrayObject)) {
-            $ids = [$ids];
-        }
-
-        foreach ($ids as $id) {
-            if (is_array($id) || ($id instanceof ArrayObject)) {
-                $clean_ids = array_merge($clean_ids, self::cleanIds($id));
-            } else {
-                $id = abs((int) $id);
-
-                if (!empty($id)) {
-                    $clean_ids[] = $id;
-                }
-            }
-        }
-
-        return $clean_ids;
-    }
-
     /**
      * Compare two versions with option of using only main numbers.
      *

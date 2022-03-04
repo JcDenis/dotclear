@@ -15,7 +15,6 @@ namespace Dotclear\Core\Blog\Posts;
 
 use ArrayObject;
 
-use Dotclear\Core\Utils;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Statement\JoinStatement;
@@ -712,7 +711,7 @@ class Posts
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
-        $posts_ids = Utils::cleanIds($ids);
+        $posts_ids = dotclear()->blog()->cleanIds($ids);
         $status    = (int) $status;
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
@@ -759,7 +758,7 @@ class Posts
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = Utils::cleanIds($ids);
+        $posts_ids = dotclear()->blog()->cleanIds($ids);
         $selected  = (bool) $selected;
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
@@ -804,7 +803,7 @@ class Posts
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = Utils::cleanIds($ids);
+        $posts_ids = dotclear()->blog()->cleanIds($ids);
         $cat_id    = (int) $cat_id;
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
@@ -876,7 +875,7 @@ class Posts
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
-        $posts_ids = Utils::cleanIds($ids);
+        $posts_ids = dotclear()->blog()->cleanIds($ids);
 
         if (empty($posts_ids)) {
             throw new CoreException(__('No such entry ID'));
@@ -953,7 +952,7 @@ class Posts
     public function firstPublicationEntries($ids): void
     {
         $posts = $this->getPosts([
-            'post_id'       => Utils::cleanIds($ids),
+            'post_id'       => dotclear()->blog()->cleanIds($ids),
             'post_status'   => 1,
             'post_firstpub' => 0,
         ]);

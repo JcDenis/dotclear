@@ -324,7 +324,7 @@ class Blog
      */
     public function triggerComments($ids, bool $del = false, ?array $affected_posts = null): void
     {
-        $comments_ids = Utils::cleanIds($ids);
+        $comments_ids = self::cleanIds($ids);
 
         # Get posts affected by comments edition
         if (empty($affected_posts)) {
@@ -378,6 +378,39 @@ class Blog
 
             $cur->update('WHERE post_id = ' . $post_id);
         }
+    }
+    //@}
+
+    /// @name Helper methods
+    //@{
+    /**
+     * Cleanup a list of IDs
+     *
+     * @param      mixed  $ids    The identifiers
+     *
+     * @return     array
+     */
+    public static function cleanIds($ids): array
+    {
+        $clean_ids = [];
+
+        if (!is_array($ids) && !($ids instanceof ArrayObject)) {
+            $ids = [$ids];
+        }
+
+        foreach ($ids as $id) {
+            if (is_array($id) || ($id instanceof ArrayObject)) {
+                $clean_ids = array_merge($clean_ids, self::cleanIds($id));
+            } else {
+                $id = abs((int) $id);
+
+                if (!empty($id)) {
+                    $clean_ids[] = $id;
+                }
+            }
+        }
+
+        return $clean_ids;
     }
     //@}
 }
