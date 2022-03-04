@@ -164,8 +164,8 @@ class Menu
         }
 
         return
-            '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') .
-            '>' . dotclear()->summary()->getIconTheme($img) .
-            '<a href="' . $link . '"' . $ahtml . '>' . $title . '</a></li>' . "\n";
+            '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') . '>' .
+            '<a href="' . $link . '"' . $ahtml . '>' . dotclear()->summary()->getIconTheme($img) . $title . '</a>' .
+            '</li>' . "\n";
     }
 }

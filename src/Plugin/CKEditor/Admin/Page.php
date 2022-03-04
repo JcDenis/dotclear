@@ -182,9 +182,9 @@ class Page extends AbstractPage
                 </p>
                 <p class="field">
                 <label for="dcckeditor_colors_per_row">' . __('Colors per row in palette:') . ' </label>' .
-                Form::number('dcckeditor_colors_per_row', ['min' => 0, 'max' => 16, 'default' => $this->ckes->colors_per_row]) . '
+                Form::number('dcckeditor_colors_per_row', ['min' => 4, 'max' => 16, 'default' => $this->ckes->colors_per_row]) . '
                 </p>
-                <p class="clear form-note">' . __('Leave empty to use default (6)') . '</p>
+                <p class="clear form-note">' . __('Valid range: 4 to 16') . '</p>
                 <p>' .
                 Form::checkbox('dcckeditor_cancollapse_button', 1, $this->ckes->cancollapse_button) . '
                 <label class="classic" for="dcckeditor_cancollapse_button">' . __('Add collapse button') . '</label>
