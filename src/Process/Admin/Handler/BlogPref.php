@@ -264,13 +264,13 @@ class BlogPref extends Page
             ->setPageTitle(__('Blog settings'))
             ->setPageHelp('core_blog_pref')
             ->setPageHead(
-                dotclear()->filer()->json('blog_pref', [
+                dotclear()->resource()->json('blog_pref', [
                     'warning_path_info'    => __('Warning: except for special configurations, it is generally advised to have a trailing "/" in your blog URL in PATH_INFO mode.'),
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.')
                 ]) .
                 static::jsConfirmClose('blog-form') .
                 ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
-                dotclear()->filer()->load('_blog_pref.js') .
+                dotclear()->resource()->load('_blog_pref.js') .
 
                 # --BEHAVIOR-- adminBlogPreferencesHeaders
                 dotclear()->behavior()->call('adminBlogPreferencesHeaders') .
@@ -388,7 +388,7 @@ class BlogPref extends Page
         ];
 
         # jQuery available versions
-        $jquery_root           = root_path('Core', 'files', 'js', 'jquery');
+        $jquery_root           = root_path('Core', 'resources', 'js', 'jquery');
         $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->jquery_default . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (($d = @dir($jquery_root)) !== false) {

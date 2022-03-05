@@ -34,7 +34,7 @@ class HandlerAction extends PostAction
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : null)
-            ->setPageHead(dotclear()->filer()->Load('js/_posts_actions.js'))
+            ->setPageHead(dotclear()->resource()->Load('js/_posts_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Pages')                                => $this->getRedirection(true),

@@ -36,7 +36,7 @@ class LinkPopup extends Page
             ->setPageTitle(__('Add a link'))
             ->setPageType('popup')
             ->setPageHead(
-                dotclear()->filer()->load('_popup_link.js') .
+                dotclear()->resource()->load('_popup_link.js') .
                 dotclear()->behavior()->call('adminPopupLink', $plugin_id)
             )
         ;

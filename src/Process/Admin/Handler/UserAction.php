@@ -149,7 +149,7 @@ class UserAction extends Page
             ->setPageTitle(__('Users'))
             ->setPageHelp('core_users')
             ->setPageHead(
-                dotclear()->filer()->load('_users_actions.js') .
+                dotclear()->resource()->load('_users_actions.js') .
                 # --BEHAVIOR-- adminUsersActionsHeaders
                 dotclear()->behavior()->call('adminUsersActionsHeaders')
             )

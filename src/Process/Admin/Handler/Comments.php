@@ -90,7 +90,7 @@ class Comments extends Page
         $this
             ->setPageTitle(__('Comments and trackbacks'))
             ->setPageHelp('core_comments')
-            ->setPageHead(dotclear()->filer()->load('_comments.js') . $this->filter->js())
+            ->setPageHead(dotclear()->resource()->load('_comments.js') . $this->filter->js())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Comments and trackbacks')             => ''

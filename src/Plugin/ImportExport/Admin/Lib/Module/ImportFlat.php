@@ -175,11 +175,11 @@ class ImportFlat extends Module
         $has_files    = (bool) (count($public_files) - 1);
 
         echo
-        dotclear()->filer()->json(
+        dotclear()->resource()->json(
             'ie_import_flat_msg',
             ['confirm_full_import' => __('Are you sure you want to import a full backup file?')]
         ) .
-        dotclear()->filer()->load('import_flat.js', 'Plugin', 'ImportExport') .
+        dotclear()->resource()->load('import_flat.js', 'Plugin', 'ImportExport') .
         '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
         '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .

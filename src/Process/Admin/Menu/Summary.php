@@ -153,25 +153,25 @@ class Summary extends ArrayObject
                 $name = $m[1] ?? '';
                 $ext  = $m[2] ?? '';
                 if ($name !== '' && $ext !== '') {
-                    $icon = Path::real(self::$iconset . '/files/' . $name . $ext, true);
+                    $icon = Path::real(self::$iconset . '/resources/' . $name . $ext, true);
                     if ($icon !== false) {
                         # Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return '?df=Iconset/' . $module . '/files/' . $name . $ext;
+                            return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
                         }
                     }
                     # Look for other extensions
                     foreach ($allow_types as $ext) {
-                        $icon = Path::real(self::$iconset . '/files/' . $name . '.' . $ext, true);
+                        $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext, true);
                         if ($icon !== false) {
                             if (is_file($icon) && is_readable($icon)) {
-                                return '?df=Iconset/' . $module . '/files/' . $name . '.' . $ext;
+                                return '?df=Iconset/' . $module . '/resources/' . $name . '.' . $ext;
                             }
                         }
                     }
                     /*
                     # Not in iconset nor in Dotclear
-                    $icon = Path::real(root_path('Process', 'Admin', 'files', $img));
+                    $icon = Path::real(root_path('Process', 'Admin', 'resources', $img));
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }

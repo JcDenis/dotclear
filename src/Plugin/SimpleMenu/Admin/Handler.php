@@ -411,9 +411,9 @@ class Handler extends AbstractPage
         ;
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->filer()->load('simplemenu.js', 'Plugin', 'SimpleMenu')
+                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->resource()->load('simplemenu.js', 'Plugin', 'SimpleMenu')
             );
         }
 

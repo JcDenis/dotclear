@@ -87,7 +87,7 @@ class Handler extends AbstractPage
             ->setPageHelp('UserPref')
             ->setPageHead(
                 static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
-                dotclear()->filer()->load('index.js', 'Plugin', 'UserPref')
+                dotclear()->resource()->load('index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
                 __('System')                                  => '',

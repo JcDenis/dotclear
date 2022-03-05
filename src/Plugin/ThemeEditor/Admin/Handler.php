@@ -115,17 +115,17 @@ class Handler extends AbstractPage
 
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                dotclear()->filer()->json('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
+                dotclear()->resource()->json('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
             );
         }
         $this->setPageHead(
-            dotclear()->filer()->json('theme_editor_msg', [
+            dotclear()->resource()->json('theme_editor_msg', [
                 'saving_document'    => __('Saving document...'),
                 'document_saved'     => __('Document saved'),
                 'error_occurred'     => __('An error occurred:'),
                 'confirm_reset_file' => __('Are you sure you want to reset this file?')
             ]) .
-            dotclear()->filer()->load('script.js', 'Plugin', 'ThemeEditor') .
+            dotclear()->resource()->load('script.js', 'Plugin', 'ThemeEditor') .
             static::jsConfirmClose('file-form')
         );
         if ($user_ui_colorsyntax) {
@@ -134,7 +134,7 @@ class Handler extends AbstractPage
             );
         }
         $this->setPageHead(
-            dotclear()->filer()->load('style.css', 'Plugin', 'ThemeEditor')
+            dotclear()->resource()->load('style.css', 'Plugin', 'ThemeEditor')
         );
 
         return true;
@@ -194,8 +194,8 @@ class Handler extends AbstractPage
                     (!empty($_REQUEST['po']) ? 'text/plain' :
                     (!empty($_REQUEST['php']) ? 'php' :
                     'text/html'))));
-                dotclear()->filer()->json('theme_editor_mode', ['mode' => $editorMode]);
-                echo dotclear()->filer()->load('mode.js', 'Plugin', 'themeEditor');
+                dotclear()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
+                echo dotclear()->resource()->load('mode.js', 'Plugin', 'themeEditor');
                 echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
             }
         }

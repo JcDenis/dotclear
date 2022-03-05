@@ -210,8 +210,8 @@ class ModulesTheme extends AbstractModules
 
                 # _GET actions
                 foreach($this->getModulesPath() as $psstyle) {
-                    if (file_exists($psstyle . '/' . $id . '/files/style.css')) {
-                        $line .= '<p><a href="' . dotclear()->blog()->getQmarkURL() . 'df=Theme/' . $id . '/files/style.css">' . __('View stylesheet') . '</a></p>';
+                    if (file_exists($psstyle . '/' . $id . '/resources/style.css')) {
+                        $line .= '<p><a href="' . dotclear()->blog()->getQmarkURL() . 'df=Theme/' . $id . '/resources/style.css">' . __('View stylesheet') . '</a></p>';
                         break;
                     }
                 }

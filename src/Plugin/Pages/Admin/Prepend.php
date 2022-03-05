@@ -76,7 +76,7 @@ class Prepend extends AbstractPrepend
         # Add headers
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => dotclear()->filer()->load('_users_actions.js', 'Plugin', 'Pages')
+            fn () => dotclear()->resource()->load('_users_actions.js', 'Plugin', 'Pages')
         );
 
         # Add user pref list columns

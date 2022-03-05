@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filer\Filer
+ * @class Dotclear\Process\Admin\Resource\Resource
  * @brief Dotclear admin file url helper
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Filer;
+namespace Dotclear\Process\Admin\Resource;
 
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
@@ -20,7 +20,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Filer
+class Resource
 {
     public static $query = 'df';
 
@@ -128,8 +128,8 @@ class Filer
                 $modules_paths   = $modules->getModulesPath();
                 foreach($modules_paths as $modules_path) {
                     if (is_dir(implode_path($modules_path, $module_id))) {
-                        $dirs[] = implode_path($modules_path, $module_id, 'Admin', 'files');
-                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
+                        $dirs[] = implode_path($modules_path, $module_id, 'Admin', 'resources');
+                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'resources');
                         $dirs[] = implode_path($modules_path, $module_id); // required for icons
                         $src    = implode('/', $module_src);
 
@@ -140,9 +140,9 @@ class Filer
         }
 
         # List other available file paths
-        $dirs[] = root_path('Process', 'Admin', 'files');
-        $dirs[] = root_path('Core', 'files', 'css');
-        $dirs[] = root_path('Core', 'files', 'js');
+        $dirs[] = root_path('Process', 'Admin', 'resources');
+        $dirs[] = root_path('Core', 'resources', 'css');
+        $dirs[] = root_path('Core', 'resources', 'js');
 
         # Search dirs
         Files::serveFile($src, $dirs, dotclear()->config()->file_sever_type);

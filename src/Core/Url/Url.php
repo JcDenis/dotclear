@@ -886,7 +886,7 @@ class Url
         $xmlrpc->serve();
     }
 
-    public function files($args)
+    public function resources($args)
     {
         if (empty($args)) {
             $this->p404();
@@ -906,7 +906,7 @@ class Url
 
         # Try to find module id and type
         if (empty($dirs)) {
-            # Public url should be files/ModuleType/ModuleId/a_sub_folder/a_file.ext
+            # Public url should be resources/ModuleType/ModuleId/a_sub_folder/a_file.ext
             $module_args = explode('/', $args);
             if (2 < count($module_args)) {
                 $module_type = array_shift($module_args);
@@ -920,8 +920,8 @@ class Url
                     $modules_paths   = $modules->getModulesPath();
                     foreach($modules_paths as $modules_path) {
                         if (is_dir(implode_path($modules_path, $module_id))) {
-                            $dirs[] = implode_path($modules_path, $module_id, 'Public', 'files');
-                            $dirs[] = implode_path($modules_path, $module_id, 'Common', 'files');
+                            $dirs[] = implode_path($modules_path, $module_id, 'Public', 'resources');
+                            $dirs[] = implode_path($modules_path, $module_id, 'Common', 'resources');
                             $args   = implode('/', $module_args);
 
                             break;
@@ -934,8 +934,8 @@ class Url
         # Current Theme paths
         if (empty($dirs)) {
             $dirs = array_merge(
-                array_values(dotclear()->themes->getThemePath('Public/files')),
-                array_values(dotclear()->themes->getThemePath('Common/files'))
+                array_values(dotclear()->themes->getThemePath('Public/resources')),
+                array_values(dotclear()->themes->getThemePath('Common/resources'))
             );
         }
 
@@ -945,9 +945,9 @@ class Url
         }
 
         # List other available file paths
-        $dirs[] = root_path('Process', 'Public', 'files');
-        $dirs[] = root_path('Core', 'files', 'css');
-        $dirs[] = root_path('Core', 'files', 'js');
+        $dirs[] = root_path('Process', 'Public', 'resources');
+        $dirs[] = root_path('Core', 'resources', 'css');
+        $dirs[] = root_path('Core', 'resources', 'js');
 
         # Search file
         Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, $this->allow_sub_dir);
@@ -963,7 +963,7 @@ class Url
         $this->register('preview', 'preview', '^preview/(.+)$', [$this, 'preview']);
         $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
         $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
-        $this->register('files', 'files', '^files/(.+)?$', [$this, 'files']);
+        $this->register('resources', 'resources', '^resources/(.+)?$', [$this, 'resources']);
         $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
         $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
         $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);

@@ -84,7 +84,7 @@ class HandlerPlugin extends AbstractPage
                 ->setPageTitle(__('Plugins management'))
                 ->setPageHelp('core_plugins')
                 ->setPageHead(
-                    dotclear()->filer()->load('_plugins.js') .
+                    dotclear()->resource()->load('_plugins.js') .
                     static::jsPageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders

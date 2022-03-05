@@ -63,7 +63,7 @@ class DuctileBehavior
             "</style>\n";
 
         echo
-        '<script src="?files/js/ductile.js"></script>' . "\n";
+        '<script src="?resources/js/ductile.js"></script>' . "\n";
 
         echo self::ductileWebfontHelper();
     }
@@ -324,7 +324,7 @@ class DuctileBehavior
     {
         $res     = '';
         $default = false;
-        $img_url = dotclear()->blog()->url . 'files/img/';
+        $img_url = dotclear()->blog()->url . 'resources/img/';
 
         $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_stickers');
 

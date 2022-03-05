@@ -58,7 +58,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminPostHeaders()
     {
-        return dotclear()->filer()->load('post.js', 'Plugin', 'Attachments');
+        return dotclear()->resource()->load('post.js', 'Plugin', 'Attachments');
     }
 
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void

@@ -375,7 +375,7 @@ class Context
 
         # Search smilies on public path then Theme apth and then parent theme paath and then core path
         $base_url = dotclear()->blog()->public_url . '/smilies/';
-        $src      = '/files/smilies/smilies.txt';
+        $src      = '/resources/smilies/smilies.txt';
         $paths    = array_merge(
             [dotclear()->blog()->public_path . '/smilies/smilies.txt'],
             array_values(dotclear()->themes->getThemePath('Public' . $src)),

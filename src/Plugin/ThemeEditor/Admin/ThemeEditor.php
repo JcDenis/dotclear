@@ -338,15 +338,15 @@ class ThemeEditor
 
     protected function findStyles()
     {
-        $this->css = $this->getFilesInDir($this->user_theme . '/files', 'css');
-        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/files/style', 'css', 'files/css/'));
-        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/files/css', 'css', 'files/css/'));
+        $this->css = $this->getFilesInDir($this->user_theme . '/resources', 'css');
+        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/resources/style', 'css', 'resources/css/'));
+        $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/resources/css', 'css', 'resources/css/'));
     }
 
     protected function findScripts()
     {
-        $this->js = $this->getFilesInDir($this->user_theme . '/files', 'js');
-        $this->js = array_merge($this->js, $this->getFilesInDir($this->user_theme . '/files/js', 'js', 'files/js/'));
+        $this->js = $this->getFilesInDir($this->user_theme . '/resources', 'js');
+        $this->js = array_merge($this->js, $this->getFilesInDir($this->user_theme . '/resources/js', 'js', 'resources/js/'));
     }
 
     protected function findLocales()

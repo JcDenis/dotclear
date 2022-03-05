@@ -120,15 +120,15 @@ class Home extends Page
         # Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
-            $dragndrop_head = dotclear()->filer()->json('dotclear_dragndrop', $this->dragndrop_msg);
+            $dragndrop_head = dotclear()->resource()->json('dotclear_dragndrop', $this->dragndrop_msg);
         }
 
         $this->setPageHelp('core_dashboard');
         $this->setPageTitle(__('Dashboard'));
         $this->setPageHead(
-            dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-            dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
-            dotclear()->filer()->load('_index.js') .
+            dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+            dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+            dotclear()->resource()->load('_index.js') .
             $dragndrop_head .
             $admin_post_behavior
         );

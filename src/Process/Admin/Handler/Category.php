@@ -197,7 +197,7 @@ class Category extends Page
             ->setPageBreadcrumb($elements)
             ->setPageHead(
                 static::jsConfirmClose('category-form') .
-                dotclear()->filer()->load('_category.js') .
+                dotclear()->resource()->load('_category.js') .
                 ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
             );
         ;

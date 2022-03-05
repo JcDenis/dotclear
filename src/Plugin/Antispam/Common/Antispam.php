@@ -135,7 +135,7 @@ class Antispam
 
     public static function dashboardHeaders(): string
     {
-        return dotclear()->filer()->load('dashboard.js', 'Plugin', 'Antispam');
+        return dotclear()->resource()->load('dashboard.js', 'Plugin', 'Antispam');
     }
 
     public static function countSpam(): int

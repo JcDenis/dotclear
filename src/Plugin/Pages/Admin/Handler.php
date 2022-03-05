@@ -69,10 +69,10 @@ class Handler extends AbstractPage
             ->setPageHelp('pages')
             ->setPageTitle(__('Pages'))
             ->setPageHead(
-                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->filer()->json('pages_list', ['confirm_delete_posts' => __('Are you sure you want to delete selected pages?')]) .
-                dotclear()->filer()->load('list.js', 'Plugin', 'Pages')
+                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->resource()->json('pages_list', ['confirm_delete_posts' => __('Are you sure you want to delete selected pages?')]) .
+                dotclear()->resource()->load('list.js', 'Plugin', 'Pages')
             )
             ->setPageBreadcrumb([
                   Html::escapeHTML(dotclear()->blog()->name) => '',

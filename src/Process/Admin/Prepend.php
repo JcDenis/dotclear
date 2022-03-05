@@ -15,7 +15,7 @@ namespace Dotclear\Process\Admin;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Filer\Filer;
+use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -47,8 +47,8 @@ class Prepend extends Core
     /** @var    Favorite    Favorite instance */
     private $favorite;
 
-    /** @var    Filer   Filer instance */
-    private $filer;
+    /** @var    Resource    Resource instance */
+    private $resource;
 
     /** @var    Summary     Summary instance */
     private $summary;
@@ -122,17 +122,17 @@ class Prepend extends Core
     }
 
     /**
-     * Get filer instance
+     * Get resource instance
      *
-     * @return  Filer   Filer instance
+     * @return  Resource    Resource instance
      */
-    public function filer(): Filer
+    public function resource(): Resource
     {
-        if (!($this->filer instanceof Filer)) {
-            $this->filer = new Filer();
+        if (!($this->resource instanceof Resource)) {
+            $this->resource = new Resource();
         }
 
-        return $this->filer;
+        return $this->resource;
     }
 
     /**
@@ -302,7 +302,7 @@ class Prepend extends Core
         }
 
         # Serve modules file (mf)
-        $this->filer()->serve();
+        $this->resource()->serve();
 
         # User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {

@@ -362,10 +362,10 @@ abstract class Page
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
         '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
 
-        echo dotclear()->filer()->preload('default.css') . dotclear()->filer()->load('default.css');
+        echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
         if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
-            echo dotclear()->filer()->load('default-rtl.css');
+            echo dotclear()->resource()->load('default-rtl.css');
         }
 
         dotclear()->user()->preference()->addWorkspace('interface');
@@ -388,7 +388,7 @@ abstract class Page
         $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
-        echo dotclear()->filer()->json('dotclear_init', $js);
+        echo dotclear()->resource()->json('dotclear_init', $js);
 
         echo
         $this->jsCommon() .
@@ -486,10 +486,10 @@ abstract class Page
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
-        echo dotclear()->filer()->preload('default.css') . dotclear()->filer()->load('default.css');
+        echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
         if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
-            echo dotclear()->filer()->load('default-rtl.css');
+            echo dotclear()->resource()->load('default-rtl.css');
         }
 
         dotclear()->user()->preference()->addWorkspace('interface');
@@ -505,7 +505,7 @@ abstract class Page
         $js['debug'] = !dotclear()->production();
 
         // Set JSON data
-        echo dotclear()->filer()->json('dotclear_init', $js);
+        echo dotclear()->resource()->json('dotclear_init', $js);
 
         echo
         $this->jsCommon() .
@@ -1108,25 +1108,25 @@ abstract class Page
         ];
 
         return
-        dotclear()->filer()->load('prepend.js') .
-        dotclear()->filer()->load('jquery/jquery.js') .
+        dotclear()->resource()->load('prepend.js') .
+        dotclear()->resource()->load('jquery/jquery.js') .
         (
             !dotclear()->production() ?
-            dotclear()->filer()->json('dotclear_jquery', [
+            dotclear()->resource()->json('dotclear_jquery', [
                 'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
             ]) .
-            dotclear()->filer()->load('jquery-mute.js') .
-            dotclear()->filer()->load('jquery/jquery-migrate.js') :
+            dotclear()->resource()->load('jquery-mute.js') .
+            dotclear()->resource()->load('jquery/jquery-migrate.js') :
             ''
         ) .
 
-        dotclear()->filer()->json('dotclear', $js) .
-        dotclear()->filer()->json('dotclear_msg', $js_msg) .
+        dotclear()->resource()->json('dotclear', $js) .
+        dotclear()->resource()->json('dotclear_msg', $js_msg) .
 
-        dotclear()->filer()->load('common.js') .
-        dotclear()->filer()->load('ads.js') .
-        dotclear()->filer()->load('services.js') .
-        dotclear()->filer()->load('prelude.js');
+        dotclear()->resource()->load('common.js') .
+        dotclear()->resource()->load('ads.js') .
+        dotclear()->resource()->load('services.js') .
+        dotclear()->resource()->load('prelude.js');
     }
 
     /**
@@ -1147,8 +1147,8 @@ abstract class Page
         }
 
         return
-        dotclear()->filer()->json('dotclear_toggles', $js) .
-        dotclear()->filer()->load('toggles.js');
+        dotclear()->resource()->json('dotclear_toggles', $js) .
+        dotclear()->resource()->load('toggles.js');
     }
 
     /**
@@ -1167,9 +1167,9 @@ abstract class Page
         ];
 
         return
-        dotclear()->filer()->json('filter_controls', $js) .
-        dotclear()->filer()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
-        dotclear()->filer()->load('filter-controls.js');
+        dotclear()->resource()->json('filter_controls', $js) .
+        dotclear()->resource()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
+        dotclear()->resource()->load('filter-controls.js');
     }
 
     /**
@@ -1219,19 +1219,19 @@ abstract class Page
         ];
 
         return
-        dotclear()->filer()->json('file_upload', $js) .
-        dotclear()->filer()->json('file_upload_msg', $js_msg) .
-        dotclear()->filer()->load('file-upload.js') .
-        dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-        dotclear()->filer()->load('jsUpload/tmpl.js') .
-        dotclear()->filer()->load('jsUpload/template-upload.js') .
-        dotclear()->filer()->load('jsUpload/template-download.js') .
-        dotclear()->filer()->load('jsUpload/load-image.js') .
-        dotclear()->filer()->load('jsUpload/jquery.iframe-transport.js') .
-        dotclear()->filer()->load('jsUpload/jquery.fileupload.js') .
-        dotclear()->filer()->load('jsUpload/jquery.fileupload-process.js') .
-        dotclear()->filer()->load('jsUpload/jquery.fileupload-resize.js') .
-        dotclear()->filer()->load('jsUpload/jquery.fileupload-ui.js');
+        dotclear()->resource()->json('file_upload', $js) .
+        dotclear()->resource()->json('file_upload_msg', $js_msg) .
+        dotclear()->resource()->load('file-upload.js') .
+        dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+        dotclear()->resource()->load('jsUpload/tmpl.js') .
+        dotclear()->resource()->load('jsUpload/template-upload.js') .
+        dotclear()->resource()->load('jsUpload/template-download.js') .
+        dotclear()->resource()->load('jsUpload/load-image.js') .
+        dotclear()->resource()->load('jsUpload/jquery.iframe-transport.js') .
+        dotclear()->resource()->load('jsUpload/jquery.fileupload.js') .
+        dotclear()->resource()->load('jsUpload/jquery.fileupload-process.js') .
+        dotclear()->resource()->load('jsUpload/jquery.fileupload-resize.js') .
+        dotclear()->resource()->load('jsUpload/jquery.fileupload-ui.js');
     }
     //@}
 
@@ -1246,7 +1246,7 @@ abstract class Page
     public static function jsModal()
     {
         return
-        dotclear()->filer()->load('jquery/jquery.magnific-popup.js');
+        dotclear()->resource()->load('jquery/jquery.magnific-popup.js');
     }
 
     /**
@@ -1264,8 +1264,8 @@ abstract class Page
         ];
 
         return
-        dotclear()->filer()->json('confirm_close', $js) .
-        dotclear()->filer()->load('confirm-close.js');
+        dotclear()->resource()->json('confirm_close', $js) .
+        dotclear()->resource()->load('confirm-close.js');
     }
 
     /**
@@ -1282,9 +1282,9 @@ abstract class Page
         ];
 
         return
-        dotclear()->filer()->json('page_tabs', $js) .
-        dotclear()->filer()->load('jquery/jquery.pageTabs.js') .
-        dotclear()->filer()->load('page-tabs.js');
+        dotclear()->resource()->json('page_tabs', $js) .
+        dotclear()->resource()->load('jquery/jquery.pageTabs.js') .
+        dotclear()->resource()->load('page-tabs.js');
     }
 
     /**
@@ -1294,7 +1294,7 @@ abstract class Page
      */
     public static function jsMetaEditor()
     {
-        return dotclear()->filer()->load('meta-editor.js');
+        return dotclear()->resource()->load('meta-editor.js');
     }
 
     /**
@@ -1308,20 +1308,20 @@ abstract class Page
      */
     public static function jsLoadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
     {
-        $ret = dotclear()->filer()->js('codemirror/lib/codemirror.css') .
-        dotclear()->filer()->load('codemirror/lib/codemirror.js');
+        $ret = dotclear()->resource()->js('codemirror/lib/codemirror.css') .
+        dotclear()->resource()->load('codemirror/lib/codemirror.js');
         if ($multi) {
-            $ret .= dotclear()->filer()->load('codemirror/addon/mode/multiplex.js');
+            $ret .= dotclear()->resource()->load('codemirror/addon/mode/multiplex.js');
         }
         foreach ($modes as $mode) {
-            $ret .= dotclear()->filer()->load('codemirror/mode/' . $mode . '/' . $mode . '.js');
+            $ret .= dotclear()->resource()->load('codemirror/mode/' . $mode . '/' . $mode . '.js');
         }
-        $ret .= dotclear()->filer()->load('codemirror/addon/edit/closebrackets.js') .
-        dotclear()->filer()->load('codemirror/addon/edit/matchbrackets.js') .
-        dotclear()->filer()->load('codemirror/addon/display/fullscreen.css') .
-        dotclear()->filer()->load('codemirror/addon/display/fullscreen.js');
+        $ret .= dotclear()->resource()->load('codemirror/addon/edit/closebrackets.js') .
+        dotclear()->resource()->load('codemirror/addon/edit/matchbrackets.js') .
+        dotclear()->resource()->load('codemirror/addon/display/fullscreen.css') .
+        dotclear()->resource()->load('codemirror/addon/display/fullscreen.js');
         if ($theme != '') {
-            $ret .= dotclear()->filer()->js('codemirror/theme/' . $theme . '.css');
+            $ret .= dotclear()->resource()->js('codemirror/theme/' . $theme . '.css');
         }
 
         return $ret;
@@ -1351,8 +1351,8 @@ abstract class Page
         }
 
         return
-            dotclear()->filer()->json('codemirror', $js) .
-            dotclear()->filer()->load('codemirror.js');
+            dotclear()->resource()->json('codemirror', $js) .
+            dotclear()->resource()->load('codemirror.js');
     }
 
     /**
@@ -1363,7 +1363,7 @@ abstract class Page
     public static function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = root_path('Process', 'Admin', 'files', 'js', 'codemirror', 'theme');
+        $themes_root = root_path('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (($d = @dir($themes_root)) !== false) {
                 while (($entry = $d->read()) !== false) {

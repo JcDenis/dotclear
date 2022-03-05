@@ -46,21 +46,21 @@ class Charte extends Page
     <link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />
 <?php
 
-echo dotclear()->filer()->load('default.css');
+echo dotclear()->resource()->load('default.css');
 
 if (dotclear()->user()->preference()->interface->htmlfontsize) {
     $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
 }
 // Set some JSON data
-echo dotclear()->filer()->json('dotclear_init', $js);
-echo dotclear()->filer()->load('jquery/jquery.js');
-echo dotclear()->filer()->load('jquery/jquery-ui.custom.js');
-echo dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js');
-echo dotclear()->filer()->load('jquery/jquery.pageTabs.js');
-echo dotclear()->filer()->load('prepend.js');
-echo dotclear()->filer()->load('common.js');
-echo dotclear()->filer()->load('prelude.js');
-echo dotclear()->filer()->load('_charte.js');
+echo dotclear()->resource()->json('dotclear_init', $js);
+echo dotclear()->resource()->load('jquery/jquery.js');
+echo dotclear()->resource()->load('jquery/jquery-ui.custom.js');
+echo dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js');
+echo dotclear()->resource()->load('jquery/jquery.pageTabs.js');
+echo dotclear()->resource()->load('prepend.js');
+echo dotclear()->resource()->load('common.js');
+echo dotclear()->resource()->load('prelude.js');
+echo dotclear()->resource()->load('_charte.js');
 ?>
 </head>
 

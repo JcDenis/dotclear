@@ -64,9 +64,9 @@ class Handler extends AbstractPage
             ->setPageTitle(__('Import/Export'))
             ->setPageHelp('import')
             ->setPageHead(
-                dotclear()->filer()->load('style.css', 'Plugin', 'ImportExport') .
-                dotclear()->filer()->json('ie_msg', ['please_wait' => __('Please wait...')]) .
-                dotclear()->filer()->load('script.js', 'Plugin', 'ImportExport')
+                dotclear()->resource()->load('style.css', 'Plugin', 'ImportExport') .
+                dotclear()->resource()->json('ie_msg', ['please_wait' => __('Please wait...')]) .
+                dotclear()->resource()->load('script.js', 'Plugin', 'ImportExport')
             )
         ;
 

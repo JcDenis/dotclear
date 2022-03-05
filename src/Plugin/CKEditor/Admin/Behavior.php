@@ -41,18 +41,18 @@ class Behavior
         }
 
         $res =
-        dotclear()->filer()->json('ck_editor_ctx', [
+        dotclear()->resource()->json('ck_editor_ctx', [
             'ckeditor_context'      => $context,
             'ckeditor_tags_context' => [$context => $tags],
             'admin_base_url'        => dotclear()->adminurl()->root(),
             'base_url'              => dotclear()->blog()->host,
-            'dcckeditor_plugin_url' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/files', //!
+            'dcckeditor_plugin_url' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/resources', //!
             'user_language'         => dotclear()->user()->getInfo('user_lang'),
         ]) .
-        dotclear()->filer()->json('ck_editor_var', [
-            'CKEDITOR_BASEPATH' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/files/js/ckeditor/', //!
+        dotclear()->resource()->json('ck_editor_var', [
+            'CKEDITOR_BASEPATH' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/resources/js/ckeditor/', //!
         ]) .
-        dotclear()->filer()->json('ck_editor_msg', [
+        dotclear()->resource()->json('ck_editor_msg', [
             'img_select_title'     => __('Media chooser'),
             'img_select_accesskey' => __('m'),
             'post_link_title'      => __('Link to an entry'),
@@ -61,10 +61,10 @@ class Behavior
             'img_title'            => __('External image'),
             'url_cannot_be_empty'  => __('URL field cannot be empty.'),
         ]) .
-        dotclear()->filer()->load('_post_editor.js', 'Plugin', 'CKEditor') .
-        dotclear()->filer()->load('ckeditor/ckeditor.js', 'Plugin', 'CKEditor') .
-        dotclear()->filer()->load('ckeditor/adapters/jquery.js', 'Plugin', 'CKEditor') .
-        dotclear()->filer()->js($config_js);
+        dotclear()->resource()->load('_post_editor.js', 'Plugin', 'CKEditor') .
+        dotclear()->resource()->load('ckeditor/ckeditor.js', 'Plugin', 'CKEditor') .
+        dotclear()->resource()->load('ckeditor/adapters/jquery.js', 'Plugin', 'CKEditor') .
+        dotclear()->resource()->js($config_js);
 
         return $res;
     }
@@ -75,7 +75,7 @@ class Behavior
             return;
         }
 
-        return dotclear()->filer()->load('popup_media.js', 'Plugin', 'CKEditor');
+        return dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
     }
 
     public static function adminPopupLink($editor = '')
@@ -84,7 +84,7 @@ class Behavior
             return;
         }
 
-        return dotclear()->filer()->load('popup_link.js', 'Plugin', 'CKEditor');
+        return dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
     }
 
     public static function adminPopupPosts($editor = '')
@@ -93,7 +93,7 @@ class Behavior
             return;
         }
 
-        return dotclear()->filer()->load('popup_posts.js', 'Plugin', 'CKEditor');
+        return dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
     public static function adminMediaURLParams($p)

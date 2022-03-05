@@ -351,9 +351,9 @@ class HandlerEdit extends AbstractPage
             ->setPageTitle($page_title . ' - ' . __('Pages'))
             ->setPageHead(
                 static::jsModal() .
-                dotclear()->filer()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
-                dotclear()->filer()->load('_post.js') .
-                dotclear()->filer()->load('page.js', 'Plugin', 'Pages')
+                dotclear()->resource()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
+                dotclear()->resource()->load('_post.js') .
+                dotclear()->resource()->load('page.js', 'Plugin', 'Pages')
         );
 
         if ($this->post_editor) {

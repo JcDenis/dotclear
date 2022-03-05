@@ -229,7 +229,7 @@ class Handler extends AbstractPage
             ->setPageTitle(__('Blowup configuration'))
             ->setPageHelp('BlowupConfig')
             ->setPageHead(
-                dotclear()->filer()->json('Blowup', [
+                dotclear()->resource()->json('Blowup', [
                     'Blowup_public_url' => $this->Blowup_config->imagesURL(),
                     'msg'               => [
                         'predefined_styles'      => __('Predefined styles'),
@@ -237,7 +237,7 @@ class Handler extends AbstractPage
                         'predefined_style_title' => __('Choose a predefined style'),
                     ]
                 ]) .
-                dotclear()->filer()->load('config.js', 'Theme', 'Blowup')
+                dotclear()->resource()->load('config.js', 'Theme', 'Blowup')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
@@ -327,7 +327,7 @@ class Handler extends AbstractPage
             if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
                 $preview_image = Http::concatURL(dotclear()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
-                $preview_image = '?df=Theme/Blowup/Common/files/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
+                $preview_image = '?df=Theme/Blowup/Common/resources/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
 
             echo

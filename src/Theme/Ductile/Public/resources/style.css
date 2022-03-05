@@ -31,8 +31,8 @@ Micro clearfix by Nicolas Gallagher http://nicolasgallagher.com/
   1. STRUCTURE - IMPORTS
 ------------------------------------------------------------------ */
 
-@import url(?files/css/rebase.css);
-@import url(?files/css/mediaqueries.css);
+@import url(?resources/css/rebase.css);
+@import url(?resources/css/mediaqueries.css);
 
 /* ------------------------------------------------------- body */
 body {
@@ -157,7 +157,7 @@ h1 a {
   text-decoration: none;
   white-space: nowrap;
   margin-bottom: 4px;
-  background: transparent url(?files/img/menu.png) no-repeat right top;
+  background: transparent url(?resources/img/menu.png) no-repeat right top;
 }
 .supranav li a:hover,
 .supranav li a:active,
@@ -267,7 +267,7 @@ h1 a {
   6. BILLETS
 ------------------------------------------------------------- */
 .post {
-  background: transparent url(?files/img/filet.png) repeat-x left bottom;
+  background: transparent url(?resources/img/filet.png) repeat-x left bottom;
   position: relative;
   padding-bottom: 1.5em;
 }
@@ -347,15 +347,15 @@ img.smiley {
 }
 .post-cat {
   padding-left: 24px;
-  background: transparent no-repeat -62px center url(?files/img/post-info.png);
+  background: transparent no-repeat -62px center url(?resources/img/post-info.png);
 }
 .permalink a {
   padding-left: 20px;
-  background: transparent no-repeat left bottom url(?files/img/post-info.png);
+  background: transparent no-repeat left bottom url(?resources/img/post-info.png);
 }
 .post-tags li:first-child {
   padding-left: 20px;
-  background: transparent no-repeat -124px top url(?files/img/post-info.png);
+  background: transparent no-repeat -124px top url(?resources/img/post-info.png);
 }
 .post-tags li {
   display: inline;
@@ -408,13 +408,13 @@ img.smiley {
   padding-left: 20px;
 }
 .post-info-co a.comment_count {
-  background: url(?files/img/info-co.png) no-repeat left 0.25em;
+  background: url(?resources/img/info-co.png) no-repeat left 0.25em;
 }
 .post-info-co a.ping_count {
-  background: url(?files/img/info-co.png) no-repeat left center;
+  background: url(?resources/img/info-co.png) no-repeat left center;
 }
 .post-info-co a.attach_count {
-  background: url(?files/img/info-co.png) no-repeat left -126px;
+  background: url(?resources/img/info-co.png) no-repeat left -126px;
 }
 #attachments {
   font-size: 0.875em;
@@ -433,7 +433,7 @@ img.smiley {
 }
 #attachments ul li {
   padding-left: 28px;
-  background: transparent url(?files/img/download.png) no-repeat left -2px;
+  background: transparent url(?resources/img/download.png) no-repeat left -2px;
 }
 
 /* ------------------------------------------------------------
@@ -506,10 +506,10 @@ img.smiley {
   width: 2em;
 }
 .comment .comment-number {
-  background: transparent url(?files/img/info-co.png) right 0.25em no-repeat;
+  background: transparent url(?resources/img/info-co.png) right 0.25em no-repeat;
 }
 .ping .comment-number {
-  background: transparent url(?files/img/info-co.png) right center no-repeat;
+  background: transparent url(?resources/img/info-co.png) right center no-repeat;
 }
 #comments-feed {
   border-top: 1px solid #bbb;
@@ -623,11 +623,11 @@ img.smiley {
   color: #333;
 }
 #sidebar h2.toggle {
-  background: url(?files/img/minus-plus.png) no-repeat left -82px;
+  background: url(?resources/img/minus-plus.png) no-repeat left -82px;
   padding-left: 16px;
 }
 #sidebar h2.expanded {
-  background: url(?files/img/minus-plus.png) no-repeat left 6px;
+  background: url(?resources/img/minus-plus.png) no-repeat left 6px;
 }
 #sidebar h2.toggle a {
   text-decoration: none;
@@ -652,13 +652,13 @@ img.smiley {
 }
 #sidebar li {
   padding-left: 16px;
-  background: transparent url(?files/img/squares.png) no-repeat -133px 7px;
+  background: transparent url(?resources/img/squares.png) no-repeat -133px 7px;
 }
 #sidebar ul li ul li {
-  background: transparent url(?files/img/squares.png) no-repeat -70px -59px;
+  background: transparent url(?resources/img/squares.png) no-repeat -70px -59px;
 }
 #sidebar ul li ul li ul li {
-  background: transparent url(?files/img/squares.png) no-repeat 0 -126px;
+  background: transparent url(?resources/img/squares.png) no-repeat 0 -126px;
 }
 #sidebar .syndicate li {
   background-image: none;
@@ -785,7 +785,7 @@ img.smiley {
 /* ------------------------------------------------------- RSS */
 .feed {
   padding-left: 22px;
-  background: transparent url(?files/img/feed.png) no-repeat left center;
+  background: transparent url(?resources/img/feed.png) no-repeat left center;
 }
 /* ------------------------------------------------------- tags */
 .dc-tags .content-inner,
@@ -976,17 +976,17 @@ hr.hidden {
   font-size: 0.875em;
 }
 #by-cat ul {
-  background: transparent url(?files/img/vline.png) repeat-y;
+  background: transparent url(?resources/img/vline.png) repeat-y;
 }
 #by-cat ul ul {
   margin: 0.5em 0 0 0.5em;
 }
 #by-cat ul li {
   padding: 0.2em 0.2em 0.2em 20px;
-  background: transparent url(?files/img/hline.png) no-repeat left 0.82em;
+  background: transparent url(?resources/img/hline.png) no-repeat left 0.82em;
 }
 #by-cat ul li:last-child {
-  background-image: url(?files/img/last-hline.png);
+  background-image: url(?resources/img/last-hline.png);
 }
 #by-tag {
   width: 18em;
@@ -1058,7 +1058,7 @@ hr.hidden {
 /* ---------------------------------------------------------------- 404 */
 .dc-404 #content-info {
   padding-bottom: 200px;
-  background: transparent url(?files/img/404.png) no-repeat bottom center;
+  background: transparent url(?resources/img/404.png) no-repeat bottom center;
 }
 .dc-404 .content-inner ul {
   margin-left: 0;

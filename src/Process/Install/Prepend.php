@@ -52,7 +52,7 @@ class Prepend extends Core
      *
      * @return  Filer   Filer instance
      */
-    public function filer(): Filer
+    public function resource(): Filer
     {
         if (!($this->filer instanceof Filer)) {
             $this->filer = new Filer();
@@ -65,7 +65,7 @@ class Prepend extends Core
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Files::serveFile($_GET['df'], [root_path('Process', 'Admin', 'files')], dotclear()->config()->file_sever_type);
+            Files::serveFile($_GET['df'], [root_path('Process', 'Admin', 'resources')], dotclear()->config()->file_sever_type);
             exit;
         }
 

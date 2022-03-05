@@ -293,16 +293,16 @@ class Install
 
           <?php
           echo
-            dotclear()->filer()->load('prepend.js') .
-            dotclear()->filer()->json('pwstrength', [
+            dotclear()->resource()->load('prepend.js') .
+            dotclear()->resource()->json('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong'))
             ]) .
-            dotclear()->filer()->load('pwstrength.js') .
-            dotclear()->filer()->load('jquery/jquery.js') .
-            dotclear()->filer()->json('install_show', __('show')) .
-            dotclear()->filer()->load('_install.js'); ?>
+            dotclear()->resource()->load('pwstrength.js') .
+            dotclear()->resource()->load('jquery/jquery.js') .
+            dotclear()->resource()->json('install_show', __('show')) .
+            dotclear()->resource()->load('_install.js'); ?>
         </head>
 
         <body id="dotclear-admin" class="install">

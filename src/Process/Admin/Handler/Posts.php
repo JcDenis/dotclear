@@ -77,7 +77,7 @@ class Posts extends Page
         $this->setPageTitle(__('Posts'));
         $this->setPageHead(
             $this->filter->js() .
-            dotclear()->filer()->load('_posts_list.js')
+            dotclear()->resource()->load('_posts_list.js')
         );
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',

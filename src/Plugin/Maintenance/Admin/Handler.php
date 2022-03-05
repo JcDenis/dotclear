@@ -149,14 +149,14 @@ class Handler extends AbstractPage
             )
             ->setPageHead(
                 static::jsPageTabs($this->m_tab) .
-                dotclear()->filer()->load('settings.js', 'Plugin', 'Maintenance')
+                dotclear()->resource()->load('settings.js', 'Plugin', 'Maintenance')
             )
         ;
 
         if ($this->m_task && $this->m_task->ajax()) {
             $this->setPageHead(
-                dotclear()->filer()->json('maintenance', ['wait' => __('Please wait...')]) .
-                dotclear()->filer()->load('dc.maintenance.js', 'Plugin', 'Maintenance')
+                dotclear()->resource()->json('maintenance', ['wait' => __('Please wait...')]) .
+                dotclear()->resource()->load('dc.maintenance.js', 'Plugin', 'Maintenance')
             );
         }
 

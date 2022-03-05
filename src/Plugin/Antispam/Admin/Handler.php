@@ -124,14 +124,14 @@ class Handler extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(
-                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js')
+                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js')
             );
         }
         $this->setPageHead(
-            dotclear()->filer()->json('antispam', ['confirm_spam_delete' => __('Are you sure you want to delete all spams?')]) .
-            dotclear()->filer()->load('antispam.js', 'Plugin','Antispam') .
-            dotclear()->filer()->load('style.css', 'Plugin','Antispam')
+            dotclear()->resource()->json('antispam', ['confirm_spam_delete' => __('Are you sure you want to delete all spams?')]) .
+            dotclear()->resource()->load('antispam.js', 'Plugin','Antispam') .
+            dotclear()->resource()->load('style.css', 'Plugin','Antispam')
         );
 
         if ($this->a_gui !== false) {

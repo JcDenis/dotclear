@@ -92,7 +92,7 @@ class Update extends Page
         if (!$this->upd_step) {
             $this->setPageHead(
                 self::jsPageTabs($default_tab) .
-                dotclear()->filer()->load('_update.js')
+                dotclear()->resource()->load('_update.js')
             );
         }
 

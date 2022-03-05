@@ -318,8 +318,8 @@ class DefaultPostAction
                 __('Change author for this selection') => ''
             ]);
             $ap->setPageHead(
-                dotclear()->filer()->load('jquery/jquery.autocomplete.js') .
-                dotclear()->filer()->json('users_list', $usersList)
+                dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
+                dotclear()->resource()->json('users_list', $usersList)
             );
             $ap->setPageContent(
                 '<form action="' . $ap->getURI() . '" method="post">' .

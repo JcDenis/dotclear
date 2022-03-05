@@ -52,16 +52,16 @@ class TagsBehavior
 
         if ($editor == 'dcLegacyEditor') {
             return
-            dotclear()->filer()->jsonn('legacy_editor_tags', [
+            dotclear()->resource()->jsonn('legacy_editor_tags', [
                 'tag' => [
                     'title' => __('Tag'),
                     'url'   => $tag_url,
                 ],
             ]) .
-            dotclear()->filer()->load('legacy-post.js', 'Plugin', 'tags');
+            dotclear()->resource()->load('legacy-post.js', 'Plugin', 'tags');
         } elseif ($editor == 'dcCKEditor') {
             return
-            dotclear()->filer()->jsonn('ck_editor_tags', [
+            dotclear()->resource()->jsonn('ck_editor_tags', [
                 'tag_title' => __('Tag'),
                 'tag_url'   => $tag_url,
             ]);
@@ -76,7 +76,7 @@ class TagsBehavior
         $extraPlugins[] = [
             'name'   => 'dctags',
             'button' => 'dcTags',
-            'url'    => dotclear()->filer()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
+            'url'    => dotclear()->resource()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
         ];
     }
 
@@ -216,11 +216,11 @@ class TagsBehavior
             );
             $ap->setPageHead(
                 $ap::jsMetaEditor() .
-                dotclear()->filer()->json('editor_tags_options', $editor_tags_options) .
-                dotclear()->filer()->json('editor_tags_msg', $msg) .
-                dotclear()->filer()->load('jquery/jquery.autocomplete.js') .
-                dotclear()->filer()->load('posts_actions.js', 'Plugin', 'Tags') .
-                dotclear()->filer()->Load('style.css', 'Plugin', 'Tags')
+                dotclear()->resource()->json('editor_tags_options', $editor_tags_options) .
+                dotclear()->resource()->json('editor_tags_msg', $msg) .
+                dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
+                dotclear()->resource()->load('posts_actions.js', 'Plugin', 'Tags') .
+                dotclear()->resource()->Load('style.css', 'Plugin', 'Tags')
             );
             $ap->setPageContent(
                 '<form action="' . $ap->getURI() . '" method="post">' .
@@ -337,11 +337,11 @@ class TagsBehavior
         ];
 
         return
-        dotclear()->filer()->json('editor_tags_options', $editor_tags_options) .
-        dotclear()->filer()->json('editor_tags_msg', $msg) .
-        dotclear()->filer()->load('jquery/jquery.autocomplete.js') .
-        dotclear()->filer()->load('post.js', 'Plugin', 'Tags') .
-        dotclear()->filer()->load('style.css', 'Plugin', 'Tags');
+        dotclear()->resource()->json('editor_tags_options', $editor_tags_options) .
+        dotclear()->resource()->json('editor_tags_msg', $msg) .
+        dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
+        dotclear()->resource()->load('post.js', 'Plugin', 'Tags') .
+        dotclear()->resource()->load('style.css', 'Plugin', 'Tags');
     }
 
     public static function adminUserForm($args = null)

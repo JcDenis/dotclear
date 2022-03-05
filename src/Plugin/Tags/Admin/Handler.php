@@ -46,7 +46,7 @@ class Handler extends AbstractPage
             $this
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tags')
-                ->setPageHead(dotclear()->filer()->load('style.css', 'Plugin', 'Tags'))
+                ->setPageHead(dotclear()->resource()->load('style.css', 'Plugin', 'Tags'))
                 ->setPageBreadcrumb([
                     html::escapeHTML(dotclear()->blog()->name) => '',
                     __('Tags')                          => '',
@@ -107,12 +107,12 @@ class Handler extends AbstractPage
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tag_posts')
                 ->setPageHead(
-                    dotclear()->filer()->load('style.css', 'Plugin', 'Tags') .
-                    dotclear()->filer()->load('_posts_list.js') .
-                    dotclear()->filer()->json('posts_tags_msg', [
+                    dotclear()->resource()->load('style.css', 'Plugin', 'Tags') .
+                    dotclear()->resource()->load('_posts_list.js') .
+                    dotclear()->resource()->json('posts_tags_msg', [
                         'confirm_tag_delete' => sprintf(__('Are you sure you want to remove tag: “%s”?'), html::escapeHTML($this->t_tag)),
                     ]) .
-                    dotclear()->filer()->load('posts.js', 'Plugin', 'Tags') .
+                    dotclear()->resource()->load('posts.js', 'Plugin', 'Tags') .
                     static::jsConfirmClose('tag_rename')
                 )
                 ->setPageBreadcrumb(

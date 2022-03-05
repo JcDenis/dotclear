@@ -303,9 +303,9 @@ class Filter
         ];
 
         return
-            dotclear()->filer()->json('filter_controls', $js) .
-            dotclear()->filer()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
-            dotclear()->filer()->load('filter-controls.js');
+            dotclear()->resource()->json('filter_controls', $js) .
+            dotclear()->resource()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
+            dotclear()->resource()->load('filter-controls.js');
 
     }
 

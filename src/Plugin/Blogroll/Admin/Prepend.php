@@ -35,7 +35,7 @@ class Prepend extends AbstractPrepend
         # Manage user permissions
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => dotclear()->filer()->load('_users_actions.js', 'Plugin', 'Blogroll')
+            fn () => dotclear()->resource()->load('_users_actions.js', 'Plugin', 'Blogroll')
         );
 
         dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));

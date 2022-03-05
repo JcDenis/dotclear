@@ -147,7 +147,7 @@ class Handler extends AbstractPage
             $ductile_stickers_full[] = $v['image'];
         }
 
-        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/files/img/');
+        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/resources/img/');
         if (is_array($ductile_stickers_images)) {
             foreach ($ductile_stickers_images as $v) {
                 if (preg_match('/^sticker\-(.*)\.png$/', $v)) {
@@ -271,9 +271,9 @@ class Handler extends AbstractPage
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setpageHead(
-                dotclear()->filer()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->filer()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->filer()->load('config.js', 'Theme', 'Ductile')
+                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
+                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                dotclear()->resource()->load('config.js', 'Theme', 'Ductile')
             );
         }
 
@@ -311,7 +311,7 @@ class Handler extends AbstractPage
             __('stylesheet (Google)') => 'css',
         ];
 
-        $img_url = dotclear()->blog()->url . 'files/img/';
+        $img_url = dotclear()->blog()->url . 'resources/img/';
 
         # HTML Tab
 
