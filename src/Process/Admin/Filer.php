@@ -58,12 +58,12 @@ class Filer
 
     public static function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, $option, false, $version);
+        return self::parse($src, $type, $id, $option, false, null, $version);
     }
 
     public static function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, $option, true, $version);
+        return self::parse($src, $type, $id, $option, true, null, $version);
     }
 
     private static function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null, ?string $version = null): string
@@ -85,7 +85,7 @@ class Filer
 
         $url = Html::escapeHTML($url);
 
-        $url .= '&amp;v=' . $version ?: (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->core_version);
+        $url .= '&amp;v=' . ($version ?? (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->core_version));
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
