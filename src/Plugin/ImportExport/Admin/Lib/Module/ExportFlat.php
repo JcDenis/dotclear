@@ -121,7 +121,7 @@ class ExportFlat extends Module
 
             try {
                 $exp = new FlatExport($fullname);
-                fwrite($exp->fp, '///DOTCLEAR|' . DC_VERSION . "|full\n");
+                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->core_version . "|full\n");
                 $exp->exportTable('blog');
                 $exp->exportTable('category');
                 $exp->exportTable('link');
