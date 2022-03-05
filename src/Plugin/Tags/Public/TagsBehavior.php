@@ -26,7 +26,7 @@ class TagsBehavior
 
     public static function templateBeforeBlock($b, $attr)
     {
-        if (($b == 'Entries' || $b == 'Comments') && isset($attr['tag'])) {pdump($attr);
+        if (($b == 'Entries' || $b == 'Comments') && isset($attr['tag'])) {
             return
             "<?php\n" .
             "if (!isset(\$params)) { \$params = []; }\n" .

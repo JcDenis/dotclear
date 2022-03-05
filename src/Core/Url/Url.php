@@ -303,7 +303,7 @@ class Url
 
     public function callDefaultHandler($args)
     {
-        if (!is_callable($this->default_handler)) {pdump($this->default_handler);
+        if (!is_callable($this->default_handler)) {
             throw new CoreException('Unable to call function');
         }
 
