@@ -893,6 +893,7 @@ class Core
     private static function getDefaultConfig(): array
     {
         return [
+            'admin_adblocker_check' => [null, false],
             'admin_mailform'        => [null, ''],
             'admin_ssl'             => [null, true],
             'admin_url'             => [null, ''],

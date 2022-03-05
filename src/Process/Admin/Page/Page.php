@@ -1039,11 +1039,7 @@ abstract class Page
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
 
-            'adblocker_check' => (
-                (
-                    !defined('DOTCLEAR_ADBLOCKER_CHECK') || DOTCLEAR_ADBLOCKER_CHECK === true
-                ) && dotclear()->user()->preference() !== null && dotclear()->user()->preference()->interface->nocheckadblocker !== true
-            ),
+            'adblocker_check' => dotclear()->config()->admin_addblocker_check && dotclear()->user()->preference()->interface->nocheckadblocker !== true,
         ];
 
         $js_msg = [
