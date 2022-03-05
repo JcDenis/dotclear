@@ -20,8 +20,8 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\UserAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\UserCatalog;
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filter\UserFilter;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

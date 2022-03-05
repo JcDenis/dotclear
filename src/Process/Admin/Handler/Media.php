@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filter\DefaultFilter;
-use Dotclear\Process\Admin\Page\Filter\Filter\MediaFilter;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\MediaCatalog;
 use Dotclear\Database\StaticRecord;

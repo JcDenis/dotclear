@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Filter\Filters
+ * @class Dotclear\Process\Admin\Filter\Filters
  * @brief Admin list filters library
  *
  * Dotclear utility class that provides reuseable list filters
@@ -17,9 +17,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Filter;
+namespace Dotclear\Process\Admin\Filter;
 
-use Dotclear\Process\Admin\Page\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

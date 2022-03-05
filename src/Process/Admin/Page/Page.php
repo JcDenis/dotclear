@@ -16,7 +16,7 @@ namespace Dotclear\Process\Admin\Page;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Page\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;

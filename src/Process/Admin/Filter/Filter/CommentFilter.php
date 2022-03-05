@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Filter\Filter\CommentFilter
+ * @class Dotclear\Process\Admin\Filter\Filter\CommentFilter
  * @brief class for admin comment list filters form
  *
  * @package Dotclear
@@ -13,13 +13,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Filter\Filter;
+namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filters;
-use Dotclear\Process\Admin\Page\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filters;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

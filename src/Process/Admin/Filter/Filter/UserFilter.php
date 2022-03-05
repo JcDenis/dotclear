@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Filter\Filter\UserFilter
+ * @class Dotclear\Process\Admin\Filter\Filter\UserFilter
  * @brief class for admin user list filters form
  *
  * @package Dotclear
@@ -13,12 +13,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Filter\Filter;
+namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filters;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filters;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

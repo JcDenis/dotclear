@@ -18,8 +18,8 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filter\PostFilter;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

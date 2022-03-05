@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Filter\Filter
+ * @class Dotclear\Process\Admin\Filter\Filter
  * @brief Generic class for admin list filters form
  *
  * @package Dotclear
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Filter;
+namespace Dotclear\Process\Admin\Filter;
 
-use Dotclear\Process\Admin\Page\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form\Label;

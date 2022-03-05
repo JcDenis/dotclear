@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Filter\Filter\DefaultFilter
+ * @class Dotclear\Process\Admin\Filter\Filter\DefaultFilter
  * @brief Admin filter
  *
  * Dotclear utility class that provides reuseable list filter
@@ -16,7 +16,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Filter\Filter;
+namespace Dotclear\Process\Admin\Filter\Filter;
 
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form\Select as FormSelect;

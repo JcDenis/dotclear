@@ -20,8 +20,8 @@ use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\CommentCatalog;
-use Dotclear\Process\Admin\Page\Filter\Filter\PostFilter;
-use Dotclear\Process\Admin\Page\Filter\Filter\CommentFilter;
+use Dotclear\Process\Admin\Filter\Filter\PostFilter;
+use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

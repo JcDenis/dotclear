@@ -20,8 +20,8 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\BlogCatalog;
-use Dotclear\Process\Admin\Page\Filter\Filter;
-use Dotclear\Process\Admin\Page\Filter\Filter\BlogFilter;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
