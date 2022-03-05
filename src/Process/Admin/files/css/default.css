@@ -2576,7 +2576,6 @@ h1 {
   padding: 0;
   list-style: none; }
   #main-menu ul li {
-    display:  flex;
     margin: 0.5em 0 0;
     padding: 2px 0.5em 2px 0.5em;
     position: relative; }
@@ -2587,6 +2586,7 @@ h1 {
       outline: 0; }
     #main-menu ul li a {
       display: flex;
+      border-bottom: none;
       min-height: calc(1.5em + 2px); }
       #main-menu ul li a img {
         margin-left: 0.25em;

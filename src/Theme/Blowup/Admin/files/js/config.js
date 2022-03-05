@@ -78,12 +78,12 @@ $(() => {
   $('#top_image').on('change', function () {
     if (this.value == 'custom') {
       $('#uploader').show();
-      $('#image-preview').attr('src', `${dotclear.Blowup_public_url}/page-t.png`);
-    } else {
-      $('#uploader').hide();
-      $('#uploader input').val('');
-      $('#image-preview').attr('src', `?df=Theme/BlowupConfig/Common/files/alpha-img/page-t/${this.value}.png`);
+      $('#image-preview').attr('src', `${dotclear.blowup_public_url}/page-t.png`);
+      return;
     }
+    $('#uploader').hide();
+    $('#uploader input').val('');
+    $('#image-preview').attr('src', `?df=Theme/BlowupConfig/Common/files/alpha-img/page-t/${this.value}.png`);
   });
 
   // Predefined styles
