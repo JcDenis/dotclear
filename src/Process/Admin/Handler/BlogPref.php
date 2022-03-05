@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Page\BlogPref
+ * @class Dotclear\Process\Admin\Handler\BlogPref
  * @brief Dotclear admin blog preference page
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Page;
+namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Container\User;

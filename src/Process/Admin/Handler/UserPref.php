@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Page\UserPref
+ * @class Dotclear\Process\Admin\Handler\UserPref
  * @brief Dotclear admin user preferences page
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Page;
+namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
 

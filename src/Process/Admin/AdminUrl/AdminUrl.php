@@ -246,7 +246,7 @@ class AdminUrl
      */
     protected function initDefaultURLs()
     {
-        $d = 'Dotclear\\Process\\Admin\\Page\\Page\\';
+        $d = 'Dotclear\\Process\\Admin\\Handler\\';
 
         $this->registerMultiple(
             ['admin.home', $d . 'Home'],

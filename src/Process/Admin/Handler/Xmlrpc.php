@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Page\Xmlrpc
+ * @class Dotclear\Process\Admin\Handler\Xmlrpc
  * @brief Dotclear admin xmlrpc page
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Page;
+namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use DOtclear\Core\Xmlrpc\Xmlrpc;

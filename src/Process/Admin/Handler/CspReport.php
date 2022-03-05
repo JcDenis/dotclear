@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Page\CspReport
+ * @class Dotclear\Process\Admin\Handler\CspReport
  * @brief Dotclear admin csp report endpoint
  *
  * From: https://github.com/nico3333fr/CSP-useful
@@ -15,7 +15,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Page;
+namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\File\Path;
