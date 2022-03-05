@@ -49,6 +49,6 @@ trait TraitModulesPlugin
 
     public function getDistributedModules(): array
     {
-        return explode(',', dotclear()->config()->plugin_official);
+        return dotclear()->config()->plugin_official;
     }
 }

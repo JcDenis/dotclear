@@ -36,6 +36,6 @@ trait TraitModulesIconset
 
     public function getDistributedModules(): array
     {
-        return explode(',', dotclear()->config()->iconset_official);
+        return dotclear()->config()->iconset_official;
     }
 }

@@ -30,7 +30,7 @@ class L10nFaker
 
     public function __construct()
     {
-        $this->bundled_plugins = explode(',', dotclear()->config()->plugin_official);
+        $this->bundled_plugins = dotclear()->config()->plugin_official;
     }
 
     protected function fake_l10n($str)

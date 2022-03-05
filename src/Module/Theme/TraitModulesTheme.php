@@ -49,7 +49,7 @@ trait TraitModulesTheme
 
     public function getDistributedModules(): array
     {
-        return explode(',', dotclear()->config()->theme_official);
+        return dotclear()->config()->theme_official;
     }
 
     /**
