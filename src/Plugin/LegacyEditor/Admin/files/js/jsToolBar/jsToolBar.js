@@ -697,7 +697,6 @@ jsToolBar.prototype.elements.preview = {
               type: 'inline',
             },
           });
-          }
         }
       });
     },
