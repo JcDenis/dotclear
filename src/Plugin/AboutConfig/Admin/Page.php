@@ -108,7 +108,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings()->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog()->settings()->dump() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -131,7 +131,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings()->dumpNamespaces() as $ns => $namespace) {
+        foreach (dotclear()->blog()->settings()->dump() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }

@@ -206,7 +206,7 @@ class Preference
      *
      * @return     array
      */
-    public function dumpWorkspaces()
+    public function dump()
     {
         return $this->workspaces;
     }

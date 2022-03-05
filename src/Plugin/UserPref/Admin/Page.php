@@ -106,7 +106,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->user()->preference()->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->user()->preference()->dump() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -129,7 +129,7 @@ class Page extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->user()->preference()->dumpWorkspaces() as $ws => $workspace) {
+        foreach (dotclear()->user()->preference()->dump() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }

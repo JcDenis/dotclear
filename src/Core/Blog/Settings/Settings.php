@@ -209,7 +209,7 @@ class Settings
      *
      * @return  array
      */
-    public function dumpNamespaces(): array
+    public function dump(): array
     {
         return $this->namespaces;
     }

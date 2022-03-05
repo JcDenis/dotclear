@@ -227,7 +227,7 @@ class AdminUrl
      *
      * @return  ArrayObject The registred URLs
      */
-    public function dumpUrls()
+    public function dump()
     {
         return $this->urls;
     }
