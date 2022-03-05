@@ -46,27 +46,27 @@ class Filer
         return dotclear()->config()->admin_url . (strpos($src, '?') === false ? '?' : '') . self::$query .'=' . $src;
     }
 
-    public static function css(string $src, ?string $type = null, ?string $id = null): string
+    public static function css(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, null, false, 'css');
+        return self::parse($src, $type, $id, null, false, 'css', $version);
     }
 
-    public static function js(string $src, ?string $type = null, ?string $id = null): string
+    public static function js(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, null, false, 'js');
+        return self::parse($src, $type, $id, null, false, 'js', $version);
     }
 
-    public static function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null): string
+    public static function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, $option, false);
+        return self::parse($src, $type, $id, $option, false, $version);
     }
 
-    public static function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null): string
+    public static function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
-        return self::parse($src, $type, $id, $option, true);
+        return self::parse($src, $type, $id, $option, true, $version);
     }
 
-    private static function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null): string
+    private static function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null, ?string $version = null): string
     {
         $src_ext = Files::getExtension($src);
         if (!$ext) {
@@ -84,7 +84,8 @@ class Filer
         self::$stack[$preload ? 'preload' : 'load'][$url] = true;
 
         $url = Html::escapeHTML($url);
-        $url .= '&amp;v=' . (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->core_version);
+
+        $url .= '&amp;v=' . $version ?: (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->core_version);
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
