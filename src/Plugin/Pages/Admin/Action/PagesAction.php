@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin\Action;
 
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\PostAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
 

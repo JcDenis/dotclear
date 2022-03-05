@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\CommentAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\CommentCatalog;
 use Dotclear\Process\Admin\Page\Filter\Filter;

@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Action\Action;
+use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Core\Blog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;

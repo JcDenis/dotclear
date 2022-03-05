@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\BlogAction
+ * @class Dotclear\Process\Admin\Action\Action\BlogAction
  * @brief Dotclear admin handler for action page on selected entries
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\DefaultBlogAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 

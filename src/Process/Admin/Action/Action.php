@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action
+ * @class Dotclear\Process\Admin\Action\Action
  * @brief Dotclear admin handler for action page on selected entries
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action;
+namespace Dotclear\Process\Admin\Action;
 
 use ArrayObject;
 

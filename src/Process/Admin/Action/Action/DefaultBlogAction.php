@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\DefaultBlogAction
+ * @class Dotclear\Process\Admin\Action\Action\DefaultBlogAction
  * @brief Dotclear admin handler for action page on selected entries
  *
  * @package Dotclear
@@ -11,9 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
-use Dotclear\Process\Admin\Page\Action\Action;
+use ArrayObject;
+
+use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Exception\AdminException;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -43,7 +45,7 @@ class DefaultBlogAction
         );
     }
 
-    public static function doChangeBlogStatus(Action $ap, array $post): void
+    public static function doChangeBlogStatus(Action $ap, array|ArrayObject $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;
@@ -82,7 +84,7 @@ class DefaultBlogAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteBlog(Action $ap, array $post): void
+    public static function doDeleteBlog(Action $ap, array|ArrayObject $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;

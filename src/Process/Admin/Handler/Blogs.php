@@ -16,8 +16,8 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\BlogAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Page\Catalog\Catalog;
 use Dotclear\Process\Admin\Page\Catalog\Catalog\BlogCatalog;
 use Dotclear\Process\Admin\Page\Filter\Filter;

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\CommentAction
+ * @class Dotclear\Process\Admin\Action\Action\CommentAction
  * @brief Dotclear admin handler for action page on selected comments
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\DefaultCommentAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\DefaultCommentAction;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\DefaultCommentAction
+ * @class Dotclear\Process\Admin\Action\Action\DefaultCommentAction
  * @brief Dotclear admin handler for action page on selected comments
  *
  * @package Dotclear
@@ -11,9 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
-use Dotclear\Process\Admin\Page\Action\Action;
+use ArrayObject;
+
+use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Exception\AdminException;
 
@@ -46,7 +48,7 @@ class DefaultCommentAction
         }
     }
 
-    public static function doChangeCommentStatus(Action $ap, array $post): void
+    public static function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -78,7 +80,7 @@ class DefaultCommentAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteComment(Action $ap, array $post): void
+    public static function doDeleteComment(Action $ap, array|ArrayObject $post): void
     {
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {

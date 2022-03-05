@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\CommentAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;

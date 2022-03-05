@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\PostAction
+ * @class Dotclear\Process\Admin\Action\Action\PostAction
  * @brief Dotclear admin handler for action page on selected entries
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Page\Action\Action;
-use Dotclear\Process\Admin\Page\Action\Action\DefaultPostAction;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 

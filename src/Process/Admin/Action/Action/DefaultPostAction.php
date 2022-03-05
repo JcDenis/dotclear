@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Action\Action\DefaultPostAction
+ * @class Dotclear\Process\Admin\Action\Action\DefaultPostAction
  * @brief Dotclear admin handler for action page on selected entries
  *
  * @package Dotclear
@@ -11,9 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Action\Action;
+namespace Dotclear\Process\Admin\Action\Action;
 
-use Dotclear\Process\Admin\Page\Action\Action;
+use ArrayObject;
+
+use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -73,7 +75,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostStatus(Action $ap, array $post): void
+    public static function doChangePostStatus(Action $ap, array|ArrayObject $post): void
     {
         switch ($ap->getAction()) {
             case 'unpublish':
@@ -129,7 +131,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doUpdateSelectedPost(Action $ap, array $post): void
+    public static function doUpdateSelectedPost(Action $ap, array|ArrayObject $post): void
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -159,7 +161,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doDeletePost(Action $ap, $post)
+    public static function doDeletePost(Action $ap, array|ArrayObject $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -187,7 +189,7 @@ class DefaultPostAction
         $ap->redirect(false);
     }
 
-    public static function doChangePostCategory(Action $ap, $post)
+    public static function doChangePostCategory(Action $ap, array|ArrayObject $post)
     {
         if (isset($post['new_cat_id'])) {
             $posts_ids = $ap->getIDs();
@@ -267,7 +269,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostAuthor(Action $ap, $post)
+    public static function doChangePostAuthor(Action $ap, array|ArrayObject $post)
     {
         if (isset($post['new_auth_id']) && dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $new_user_id = $post['new_auth_id'];
@@ -333,7 +335,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostLang(Action $ap, $post)
+    public static function doChangePostLang(Action $ap, array|ArrayObject $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
