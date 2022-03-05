@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\PostMiniCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 
@@ -36,7 +36,7 @@ class PostsPopup extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         $this->plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
         $this->q         = !empty($_GET['q']) ? $_GET['q'] : null;
@@ -64,7 +64,7 @@ class PostsPopup extends Page
             $params['post_type'] = $this->type;
         }
 
-        return new PostMiniCatalog(
+        return new PostMiniInventory(
             dotclear()->blog()->posts()->getPosts($params),
             (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0)
         );

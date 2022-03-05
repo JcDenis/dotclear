@@ -248,7 +248,7 @@ class UserAction extends Page
                 '<p class="checkboxes-helpers"></p>' .
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
-                dotclear()->adminurl()->get('admin.user.actions', ['action' => 'perms'], true) . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'perms'], true) . '</p>' .
                     '</form>';
             }
 

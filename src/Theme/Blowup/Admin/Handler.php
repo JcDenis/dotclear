@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Theme\Blowup\Admin\Page
+ * @class Dotclear\Theme\Blowup\Admin\Handler
  * @brief Dotclear Theme class
  *
  * @package Dotclear
@@ -24,7 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     private $Blowup_can_write_images = false;
     private $Blowup_notices = '';

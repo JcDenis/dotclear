@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\Iconset\Admin\PageIconset
+ * @class Dotclear\Module\Iconset\Admin\HandlerIconset
  * @brief Dotclear admin icon set page
  *
  * @package Dotclear
@@ -13,16 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
-use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Module\Iconset\Admin\ModulesIconset as Modules;
+use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PageIconset extends Page
+class HandlerIconset extends AbstractPage
 {
     /** @var    array       freashly installed modules */
     private $modules_install = [];

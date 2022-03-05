@@ -120,15 +120,20 @@ abstract class Action extends Page
     /**
      * Zdds an action
      *
-     * @param   array       $actions    the actions names as if it was a standalone combo array.
-     *                                  It will be merged with other actions.
-     *                                  Can be bound to multiple values, if the same callback is to be called
-     * @param   callable    $callback   The callback for the action.
+     * @param   array                   $actions    the actions names as if it was a standalone combo array.
+     *                                              It will be merged with other actions.
+     *                                              Can be bound to multiple values, if the same callback is to be called
+     * @param   string|array|Closure    $callback   The callback for the action.
      *
-     * @return  Action                  The actions page itself, enabling to chain addAction().
+     * @return  Action                              The actions page itself, enabling to chain addAction().
      */
-    public function addAction(array $actions, callable $callback): Action
+    public function addAction(array $actions, string|array|Closure $callback): Action
     {
+        # Silently failed non callable function
+        if (!is_callable($callback)) {
+            return $this;
+        }
+
         foreach ($actions as $k => $a) {
             // Check each case of combo definition
             // Store form values in $values

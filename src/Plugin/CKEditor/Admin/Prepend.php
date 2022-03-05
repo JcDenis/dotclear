@@ -40,7 +40,7 @@ class Prepend extends AbstractPrepend
         # Admin url for post js
         dotclear()->adminurl()->register(
             'admin.plugin.CKEditorPost',
-            root_ns('Plugin', 'CKEditor', 'Admin', 'PagePost')
+            root_ns('Plugin', 'CKEditor', 'Admin', 'HandlerPost')
         );
 
         # Formater

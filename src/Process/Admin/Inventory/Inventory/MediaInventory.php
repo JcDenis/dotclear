@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Catalog\Catalog\MediaCatalog
+ * @class Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Catalog\Catalog;
+namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Core\Media;
 use Dotclear\Core\Media\Manager\Item;
@@ -28,7 +28,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class MediaCatalog extends Catalog
+class MediaInventory extends Inventory
 {
     /**
      * Display a media list

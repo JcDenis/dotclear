@@ -120,7 +120,7 @@ trait TraitModulesAdmin
     protected function loadModuleProcess(string $id): void
     {
         # If module has a Admin Page, create an admin url
-        $page = root_ns($this->getModulesType(), $id, 'Admin', 'Page');
+        $page = root_ns($this->getModulesType(), $id, 'Admin', 'Handler');
         if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
             dotclear()->adminurl()->register('admin.plugin.' . $id, $page);
         }

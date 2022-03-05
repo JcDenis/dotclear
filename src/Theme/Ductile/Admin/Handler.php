@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Theme\Ductile\Admin\Page
+ * @class Dotclear\Theme\Ductile\Admin\Handler
  * @brief Dotclear Theme class
  *
  * @package Dotclear
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     protected $workspaces = ['accessibility'];
     protected $namespaces = ['themes'];

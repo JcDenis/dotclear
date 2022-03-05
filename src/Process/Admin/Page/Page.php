@@ -17,7 +17,7 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Path;
@@ -63,7 +63,7 @@ abstract class Page
     /** @var Filter                 Filter instance */
     protected $filter;
 
-    /** @var Catalog                Catalog instance */
+    /** @var Inventory                Inventory instance */
     protected $catalog;
 
     /** @var array                  Blog settings namespace to initialize */
@@ -188,8 +188,8 @@ abstract class Page
                 $this->filter = $filter_class;
             }
 
-            # Load list Catalog
-            if (($catalog_class = $this->getCatalogInstance()) !== null) {
+            # Load list Inventory
+            if (($catalog_class = $this->GetInventoryInstance()) !== null) {
                 $this->catalog = $catalog_class;
             }
         } catch (\Exception $e) {
@@ -967,12 +967,12 @@ abstract class Page
     }
 
     /**
-     * Get Catalog instance
+     * Get Inventory instance
      *
-     * If page contains list Catalog, load instance from here.
+     * If page contains list Inventory, load instance from here.
      * It wil be accessible from $this->catalog
      */
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         return null;
     }
@@ -1350,10 +1350,9 @@ abstract class Page
             ]];
         }
 
-        dotclear()->filer()->json('codemirror', $js) .
-        dotclear()->filer()->load('codemirror.js');
-
-        return $ret;
+        return
+            dotclear()->filer()->json('codemirror', $js) .
+            dotclear()->filer()->load('codemirror.js');
     }
 
     /**

@@ -18,8 +18,8 @@ use ArrayObject;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\CommentCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
+use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
 use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Html\Form;
@@ -157,7 +157,7 @@ class Search extends Page
 
         try {
             self::$count   = (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0);
-            self::$list    = new PostCatalog(dotclear()->blog()->posts()->getPosts($params), (int) self::$count);
+            self::$list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), (int) self::$count);
             self::$actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;
@@ -210,7 +210,7 @@ class Search extends Page
 
         try {
             self::$count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
-            self::$list    = new CommentCatalog(dotclear()->blog()->comments()->getComments($params), (int) self::$count);
+            self::$list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), (int) self::$count);
             self::$actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
             if (self::$actions->getPagePrepend()) {
                 return;

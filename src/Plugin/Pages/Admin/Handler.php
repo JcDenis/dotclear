@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\Page
+ * @class Dotclear\Plugin\Pages\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -14,18 +14,18 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Pages\Admin\Action\PagesAction;
-use Dotclear\Plugin\Pages\Admin\Catalog\PagesCatalog;
+use Dotclear\Plugin\Pages\Admin\HandlerAction;
+use Dotclear\Plugin\Pages\Admin\HandlerInventory;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     private $p_page = 1;
     private $p_nbbp = 30;
@@ -37,10 +37,10 @@ class Page extends AbstractPage
 
     protected function getActionInstance(): ?Action
     {
-        return new PagesAction(dotclear()->adminurl()->get('admin.plugin.Pages'));
+        return new HandlerAction(dotclear()->adminurl()->get('admin.plugin.Pages'));
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         $params = [
             'post_type' => 'page',
@@ -60,7 +60,7 @@ class Page extends AbstractPage
         $pages     = dotclear()->blog()->posts()->getPosts($params);
         $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
-        return new PagesCatalog($pages, (int) $counter->f(0));
+        return new HandlerInventory($pages, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

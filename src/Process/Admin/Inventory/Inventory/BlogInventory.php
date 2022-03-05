@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Catalog\Catalog\BlogCatalog
+ * @class Dotclear\Process\Admin\Inventory\Inventory\BlogInventory
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Catalog\Catalog;
+namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class BlogCatalog extends Catalog
+class BlogInventory extends Inventory
 {
     /**
      * Display a blog list

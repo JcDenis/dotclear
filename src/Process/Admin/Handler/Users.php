@@ -18,8 +18,8 @@ use ArrayObject;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\UserAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\UserCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Html\Form;
@@ -41,7 +41,7 @@ class Users extends Page
         return new UserFilter();
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
 
@@ -75,7 +75,7 @@ class Users extends Page
             $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
 
-        return new UserCatalog($rsStatic, (int) $counter->f(0));
+        return new UserInventory($rsStatic, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

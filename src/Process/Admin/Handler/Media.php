@@ -17,8 +17,8 @@ use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\MediaCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
@@ -67,7 +67,7 @@ class Media extends Page
         return new MediaFilter();
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         # try to load core media and themes
         try {
@@ -94,7 +94,7 @@ class Media extends Page
 
             $rs = $this->getDirsRecord();
 
-            return new MediaCatalog($rs, (int) $rs->count());
+            return new MediaInventory($rs, (int) $rs->count());
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
@@ -712,7 +712,7 @@ class Media extends Page
      */
     public function mediaLine(string $file_id): string
     {
-        return MediaCatalog::mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query);
+        return MediaInventory::mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query);
     }
 
     /**

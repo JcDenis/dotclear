@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Admin\Page
+ * @class Dotclear\Plugin\Tags\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     private $t_tag = '';
     private $t_posts = null;
@@ -92,7 +92,7 @@ class Page extends AbstractPage
             try {
                 $this->t_posts     = dotclear()->meta()->getPostsByMeta($params);
                 $counter   = dotclear()->meta()->getPostsByMeta($params, true);
-                $this->t_post_list = new PostCatalog($this->t_posts, (int) $counter->f(0));
+                $this->t_post_list = new PostInventory($this->t_posts, (int) $counter->f(0));
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

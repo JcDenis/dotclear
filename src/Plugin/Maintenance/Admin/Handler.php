@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Page
+ * @class Dotclear\Plugin\Maintenance\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -23,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     protected $namespaces = ['maintenance'];
 

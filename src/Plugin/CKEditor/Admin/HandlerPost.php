@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\PagePost
+ * @class Dotclear\Plugin\CKEditor\Admin\HandlerPost
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PagePost extends AbstractPage
+class HandlerPost extends AbstractPage
 {
     protected $namespaces = ['dcckeditor'];
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\Action\PagesAction
+ * @class Dotclear\Plugin\Pages\Admin\HandlerAction
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Pages\Admin\Action;
+namespace Dotclear\Plugin\Pages\Admin;
 
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -22,7 +22,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PagesAction extends PostAction
+class HandlerAction extends PostAction
 {
     public function __construct(string $uri, array $redirect_args = [])
     {

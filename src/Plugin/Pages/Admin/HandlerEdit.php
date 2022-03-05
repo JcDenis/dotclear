@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\PageEdit
+ * @class Dotclear\Plugin\Pages\Admin\HandlerEdit
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -29,7 +29,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PageEdit extends AbstractPage
+class HandlerEdit extends AbstractPage
 {
     protected $workspaces = ['interface'];
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Admin\Page
+ * @class Dotclear\Plugin\Widgets\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -26,7 +26,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     protected $namespaces = ['widgets'];
     protected $workspaces = ['accessibility'];

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Admin\Page
+ * @class Dotclear\Plugin\Blogroll\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -19,14 +19,14 @@ use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Admin\BlogrollImport;
-use Dotclear\Plugin\Blogroll\Admin\PageEdit;
+use Dotclear\Plugin\Blogroll\Admin\HandlerEdit;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
     private $br_blogroll;
     private $br_link_title = '';
@@ -45,7 +45,7 @@ class Page extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         if (!empty($_REQUEST['edit']) && !empty($_REQUEST['id'])) {
-            $page_edit = new PageEdit($this->handler);
+            $page_edit = new HandlerEdit($this->handler);
 
             return $page_edit->pageProcess();
         }

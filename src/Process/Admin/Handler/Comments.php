@@ -16,8 +16,8 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\CommentCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Html\Form;
@@ -44,7 +44,7 @@ class Comments extends Page
         return new CommentFilter();
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
 
@@ -68,7 +68,7 @@ class Comments extends Page
         }
         $params['no_content'] = true;
 
-        return new CommentCatalog(
+        return new CommentInventory(
             dotclear()->blog()->comments()->getComments($params),
             (int) dotclear()->blog()->comments()->getComments($params, true)->f(0)
         );

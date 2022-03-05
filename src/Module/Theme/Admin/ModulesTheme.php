@@ -31,7 +31,7 @@ class ModulesTheme extends AbstractModules
     {
         dotclear()->adminurl()->register(
             'admin.blog.theme',
-            root_ns('Module', 'Theme', 'Admin', 'PageTheme')
+            root_ns('Module', 'Theme', 'Admin', 'HandlerTheme')
         );
         dotclear()->summary()->register(
             'Blog',

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\Catalog\PagesCatalog
+ * @class Dotclear\Plugin\Pages\Admin\HandlerInventory
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Pages\Admin\Catalog;
+namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PagesCatalog extends Catalog
+class HandlerInventory extends Inventory
 {
     public function display($page, $nb_per_page, $enclose_block = '')
     {

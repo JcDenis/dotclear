@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Page
+ * @class Dotclear\Plugin\ImportExport\Admin\Handler
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -22,7 +22,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Page extends AbstractPage
+class Handler extends AbstractPage
 {
 
     protected function getPermissions(): string|null|false

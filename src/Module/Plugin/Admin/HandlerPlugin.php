@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\Plugin\Admin\PagePlugin
+ * @class Dotclear\Module\Plugin\Admin\HandlerPlugin
  * @brief Dotclear admin plugins page
  *
  * @package Dotclear
@@ -13,16 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
-use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin as Modules;
+use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PagePlugin extends Page
+class HandlerPlugin extends AbstractPage
 {
     /** @var    array       freashly installed modules */
     private $modules_install = [];

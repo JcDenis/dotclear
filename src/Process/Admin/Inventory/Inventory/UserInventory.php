@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Catalog\Catalog\UserCatalog
+ * @class Dotclear\Process\Admin\Inventory\Inventory\UserInventory
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Catalog\Catalog;
+namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 
@@ -24,7 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class UserCatalog extends Catalog
+class UserInventory extends Inventory
 {
     /**
      * Display a user list

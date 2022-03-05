@@ -16,8 +16,8 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\PostCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Html\Form;
@@ -44,7 +44,7 @@ class Posts extends Page
         return new PostFilter();
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         # get list params
         $params = $this->filter->params();
@@ -68,7 +68,7 @@ class Posts extends Page
         $posts     = dotclear()->blog()->posts()->getPosts($params);
         $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
-        return new PostCatalog($posts, (int) $counter->f(0));
+        return new PostInventory($posts, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Catalog\Catalog\CommentCatalog
+ * @class Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,12 +11,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Catalog\Catalog;
+namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class CommentCatalog extends Catalog
+class CommentInventory extends Inventory
 {
     /**
      * Display a comment list

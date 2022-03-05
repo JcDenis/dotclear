@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Catalog\Catalog
+ * @class Dotclear\Process\Admin\Inventory\Inventory
  * @brief Dotclear admin list helper
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Catalog;
+namespace Dotclear\Process\Admin\Inventory;
 
 use ArrayObject;
 
@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Catalog
+class Inventory
 {
     /** @var    Record  The catalog record */
     protected $rs;

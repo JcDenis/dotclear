@@ -18,8 +18,8 @@ use ArrayObject;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
-use Dotclear\Process\Admin\Page\Catalog\Catalog;
-use Dotclear\Process\Admin\Page\Catalog\Catalog\BlogCatalog;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Html\Form;
@@ -45,7 +45,7 @@ class Blogs extends Page
         return new BlogFilter(dotclear());
     }
 
-    protected function getCatalogInstance(): ?Catalog
+    protected function GetInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
         $params = new ArrayObject($params);
@@ -64,7 +64,7 @@ class Blogs extends Page
             $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
         }
 
-        return new BlogCatalog($rs, (int) $counter->f(0));
+        return new BlogInventory($rs, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool
