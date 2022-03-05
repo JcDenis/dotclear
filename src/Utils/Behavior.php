@@ -55,7 +55,7 @@ class Behavior
      *
      * @return  array   The stack.
      */
-    public function get(string $group = ''): array
+    public function get(string $group): array
     {
         return !empty($group) && isset($this->stack[$group]) ? $this->stack[$group] : [];
     }
@@ -92,6 +92,16 @@ class Behavior
         }
 
         return null;
+    }
+
+    /**
+     * Dump behaviors stack
+     *
+     * @return  array   Registred behaviors
+     */
+    public function dump()
+    {
+        return $this->stack;
     }
 
     /**
