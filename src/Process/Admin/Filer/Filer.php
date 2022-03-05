@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filer
+ * @class Dotclear\Process\Admin\Filer\Filer
  * @brief Dotclear admin file url helper
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin;
+namespace Dotclear\Process\Admin\Filer;
 
 use Dotclear\File\Files;
 use Dotclear\Html\Html;

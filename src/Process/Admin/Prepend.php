@@ -15,7 +15,7 @@ namespace Dotclear\Process\Admin;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Filer;
+use Dotclear\Process\Admin\Filer\Filer;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
 use Dotclear\Process\Admin\Favorite\Favorite;

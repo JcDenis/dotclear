@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
-use Dotclear\Process\Admin\Filer;
+use Dotclear\Process\Admin\Filer\Filer;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
 use Dotclear\File\Files;
