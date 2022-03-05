@@ -88,4 +88,9 @@ class Configuration
 
         return $new;
     }
+
+    public function dump()
+    {
+        return $this->stack;
+    }
 }
