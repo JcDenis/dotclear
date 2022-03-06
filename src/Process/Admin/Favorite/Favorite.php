@@ -32,13 +32,13 @@ class Favorite
     protected $ws;
 
     /** @var    array   list of user-defined favorite ids */
-    protected $local_prefs;
+    protected $local_prefs = [];
 
     /** @var    array   list of globally-defined favorite ids */
-    protected $global_prefs;
+    protected $global_prefs = [];
 
     /** @var    array   list of user preferences (either one of the 2 above, or not!) */
-    protected $user_prefs;
+    protected $user_prefs = [];
 
     /** @var    array  Default favorites values */
     protected $default_favorites = [
