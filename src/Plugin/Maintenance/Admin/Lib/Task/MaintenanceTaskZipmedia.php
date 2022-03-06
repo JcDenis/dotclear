@@ -37,6 +37,10 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
 
     public function execute()
     {
+        if (!dotclear()->blog()->public_path) {
+            return;
+        }
+
         // Instance media
         dotclear()->media()->chdir('');
         dotclear()->media()->getDir();

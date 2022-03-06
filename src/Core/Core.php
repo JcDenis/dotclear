@@ -77,7 +77,7 @@ class Core
     /** @var    Log   Log instance */
     private $log;
 
-    /** @var    Media   Media instance */
+    /** @var    Media|null  Media instance */
     private $media;
 
     /** @var    Meta   Meta instance */
@@ -395,18 +395,20 @@ class Core
      *
      * @return  Media   Media instance
      */
-    public function media(bool $reload = null): Media
+    public function media(bool $reload = null): ?Media
     {
         if (!($this->media instanceof Media) || $reload) {
             try {
                 $this->media = new Media();
             } catch (\Exception $e) {
+                /*
                 $this->getExceptionLang();
                 $this->throwException(
                     __('Unable to load media'),
                     $e->getMessage(),
                     611
                 );
+                */
             }
         }
 

@@ -778,6 +778,10 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
     private function newMediaObject($blog_id, $user, $pwd, $file)
     {
+        if (!dotclear()->blog()->public_path) {
+            throw new CoreException('No media path');
+        }
+
         if (empty($file['name'])) {
             throw new CoreException('No file name');
         }

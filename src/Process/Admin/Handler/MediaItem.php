@@ -43,6 +43,10 @@ class MediaItem extends Page
 
     protected function getPagePrepend(): ?bool
     {
+        if (!dotclear()->blog()->public_path) {
+            return null;
+        }
+
         $tab = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
@@ -294,6 +298,12 @@ class MediaItem extends Page
 
     protected function getPageContent(): void
     {
+        if (!dotclear()->blog()->public_path) {
+            dotclear()->error()->add(
+                __('There is no writable root directory for the media manager. You should contact your administrator.')
+            );
+        }
+
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
             dotclear()->notice()->success(__('File has been successfully updated.'));
         }

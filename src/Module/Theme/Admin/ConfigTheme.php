@@ -502,11 +502,13 @@ class ConfigTheme
         }
 
         if (is_writable(dirname($img))) {
-            // Delete thumbnails if any
-            try {
-                dotclear()->media()->imageThumbRemove($img);
-            } catch (\Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+            if (dotclear()->blog()->public_path) {
+                // Delete thumbnails if any
+                try {
+                    dotclear()->media()->imageThumbRemove($img);
+                } catch (\Exception $e) {
+                    dotclear()->error()->add($e->getMessage());
+                }
             }
             // Delete image
             @unlink($img);

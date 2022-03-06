@@ -44,8 +44,10 @@ class L10nFaker
         $main   = "<?php\n";
         $plugin = "<?php\n";
         $main .= "# Media sizes\n\n";
-        foreach (dotclear()->media()->thumb_sizes as $k => $v) {
-            $main .= $this->fake_l10n($v[2]);
+        if (!dotclear()->blog()->public_path) {
+            foreach (dotclear()->media()->thumb_sizes as $k => $v) {
+                $main .= $this->fake_l10n($v[2]);
+            }
         }
         $post_types = dotclear()->posttype()->getPostTypes();
         $main .= "\n# Post types\n\n";

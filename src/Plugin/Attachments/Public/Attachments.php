@@ -21,6 +21,10 @@ class Attachments
 {
     public function __construct()
     {
+        if (!dotclear()->blog()->public_path) {
+            return;
+        }
+
         dotclear()->template()->addBlock('Attachments', [__CLASS__, 'Attachments']);
         dotclear()->template()->addBlock('AttachmentsHeader', [__CLASS__, 'AttachmentsHeader']);
         dotclear()->template()->addBlock('AttachmentsFooter', [__CLASS__, 'AttachmentsFooter']);

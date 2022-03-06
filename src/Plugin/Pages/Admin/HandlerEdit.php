@@ -174,10 +174,10 @@ class HandlerEdit extends AbstractPage
                     );
                 }
 
-                try { //!
-                    dotclear()->media();
-                } catch (\Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                if (!dotclear()->blog()->public_path) {
+                    dotclear()->error()->add(
+                        __('There is no writable root directory for the media manager. You should contact your administrator.')
+                    );
                 }
             }
         }

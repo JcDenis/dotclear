@@ -101,7 +101,7 @@ class Blog
             $this->upddt  = (int) strtotime($b->blog_upddt);
             $this->status = (int) $b->blog_status;
 
-            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir));
+            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir)) ?: '';
             $this->public_url  = $this->getQmarkURL() . dotclear()->url()->getURLFor('resources'); //! to enhance
 
             $this->post_status['-2'] = __('Pending');

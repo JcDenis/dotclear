@@ -63,12 +63,19 @@ class Media extends Page
 
     protected function getFilterInstance(): ?Filter
     {
+        if (!dotclear()->blog()->public_path) {
+            return null;
+        }
         # AdminMedia extends MediaFilter
         return new MediaFilter();
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
+        if (!dotclear()->blog()->public_path) {
+            return null;
+        }
+
         # try to load core media and themes
         try {
             dotclear()->media()->setFileSort($this->filter->sortby . '-' . $this->filter->order);
@@ -104,6 +111,14 @@ class Media extends Page
 
     protected function getPagePrepend(): ?bool
     {
+        if (!dotclear()->blog()->public_path) {
+            dotclear()->error()->add(
+                __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).')
+            );
+
+            return true;
+        }
+
         $this->filter->add('handler', 'admin.media');
 
         $this->media_uploader = dotclear()->user()->preference()->interface->enhanceduploader;
@@ -301,6 +316,10 @@ class Media extends Page
 
     protected function getPageContent(): void
     {
+        if (!dotclear()->media()) {
+            return;
+        }
+
         if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .

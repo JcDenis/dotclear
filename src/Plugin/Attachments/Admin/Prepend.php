@@ -63,7 +63,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
     {
-        if ($post !== null) {
+        if ($post !== null && dotclear()->blog()->public_path) {
             $post_media = dotclear()->media()->getPostMedia($post->post_id, null, 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);
