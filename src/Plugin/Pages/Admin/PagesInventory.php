@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\HandlerInventory
+ * @class Dotclear\Plugin\Pages\Admin\PagesInventory
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -25,7 +25,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class HandlerInventory extends Inventory
+class PagesInventory extends Inventory
 {
     public function display($page, $nb_per_page, $enclose_block = '')
     {

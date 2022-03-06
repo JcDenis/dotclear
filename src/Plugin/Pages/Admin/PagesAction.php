@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\HandlerAction
+ * @class Dotclear\Plugin\Pages\Admin\PagesAction
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+use ArrayObject;
+
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
@@ -22,7 +24,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class HandlerAction extends PostAction
+class PagesAction extends PostAction
 {
     public function __construct(string $uri, array $redirect_args = [])
     {
@@ -34,7 +36,7 @@ class HandlerAction extends PostAction
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : null)
-            ->setPageHead(dotclear()->resource()->Load('js/_posts_actions.js'))
+            ->setPageHead(dotclear()->resource()->Load('_posts_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Pages')                                => $this->getRedirection(true),
@@ -50,7 +52,7 @@ class HandlerAction extends PostAction
 
     public function loadDefaults(): void
     {
-        $class = 'Dotclear\\Process\\Admin\\Page\\Action\\Action\\DefaultPostAction';
+        $class = 'Dotclear\\Process\\Admin\\Action\\Action\\DefaultPostAction';
 
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $this->addAction(
@@ -94,7 +96,7 @@ class HandlerAction extends PostAction
         return parent::getPagePrepend();
     }
 
-    public static function doReorderPages(Action $ap, array $post): void
+    public static function doReorderPages(Action $ap, array|ArrayObject $post): void
     {
         foreach ($post['order'] as $post_id => $value) {
             if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {

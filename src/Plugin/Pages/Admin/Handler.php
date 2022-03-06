@@ -18,8 +18,8 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Pages\Admin\HandlerAction;
-use Dotclear\Plugin\Pages\Admin\HandlerInventory;
+use Dotclear\Plugin\Pages\Admin\PagesAction;
+use Dotclear\Plugin\Pages\Admin\PagesInventory;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -37,7 +37,7 @@ class Handler extends AbstractPage
 
     protected function getActionInstance(): ?Action
     {
-        return new HandlerAction(dotclear()->adminurl()->get('admin.plugin.Pages'));
+        return new PagesAction(dotclear()->adminurl()->get('admin.plugin.Pages'));
     }
 
     protected function GetInventoryInstance(): ?Inventory
@@ -60,7 +60,7 @@ class Handler extends AbstractPage
         $pages     = dotclear()->blog()->posts()->getPosts($params);
         $counter   = dotclear()->blog()->posts()->getPosts($params, true);
 
-        return new HandlerInventory($pages, (int) $counter->f(0));
+        return new PagesInventory($pages, (int) $counter->f(0));
     }
 
     protected function getPagePrepend(): ?bool
