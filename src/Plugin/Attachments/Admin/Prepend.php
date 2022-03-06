@@ -31,6 +31,10 @@ class Prepend extends AbstractPrepend
 
     public static function loadModule(): void
     {
+        if (!dotclear()->media()) {
+            return;
+        }
+
         dotclear()->behavior()->add('adminPostFormItems', [__CLASS__, 'behaviorAdminPostFormItems']);
         dotclear()->behavior()->add('adminPostAfterForm', [__CLASS__, 'behaviorAdminPostAfterForm']);
         dotclear()->behavior()->add('adminPostHeaders', [__CLASS__, 'behaviorAdminPostHeaders']);
@@ -63,7 +67,7 @@ class Prepend extends AbstractPrepend
 
     public static function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
     {
-        if ($post !== null && dotclear()->blog()->public_path) {
+        if ($post !== null && dotclear()->media()) {
             $post_media = dotclear()->media()->getPostMedia($post->post_id, null, 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);

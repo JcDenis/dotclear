@@ -395,12 +395,6 @@ class Favorite
                 'small-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
                 'large-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
                 'permissions' => 'categories', ],
-            'media' => [
-                'title'       => __('Media manager'),
-                'url'         => dotclear()->adminurl()->get('admin.media'),
-                'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                'large-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                'permissions' => 'media,media_admin', ],
             'blog_pref' => [
                 'title'       => __('Blog settings'),
                 'url'         => dotclear()->adminurl()->get('admin.blog.pref'),
@@ -429,6 +423,18 @@ class Favorite
                 'small-icon' => 'images/menu/help.svg',
                 'large-icon' => 'images/menu/help.svg', ]
         ]);
+
+        if (dotclear()->blog()->public_path) {
+            $this->register(
+                'media', [
+                    'title'       => __('Media manager'),
+                    'url'         => dotclear()->adminurl()->get('admin.media'),
+                    'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                    'large-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                    'permissions' => 'media,media_admin',
+                ]
+            );
+        }
     }
 
     /**

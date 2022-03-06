@@ -172,11 +172,13 @@ class Post extends Page
                     );
                 }
 
+                /*
                 if (!dotclear()->blog()->public_path) {
                     dotclear()->error()->add(
                         __('There is no writable root directory for the media manager. You should contact your administrator.')
                     );
                 }
+                */
 
                 # Sanitize trackbacks excerpt
                 $this->tb_excerpt = empty($_POST['tb_excerpt']) ?

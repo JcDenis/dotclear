@@ -204,13 +204,15 @@ class Summary extends ArrayObject
             ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
             dotclear()->user()->check('admin', dotclear()->blog()->id)
         );
-        $this->register(
-            'Blog',
-            __('Media manager'),
-            'admin.media',
-            ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-            dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)
-        );
+        if (dotclear()->blog()->public_path) {
+            $this->register(
+                'Blog',
+                __('Media manager'),
+                'admin.media',
+                ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)
+            );
+        }
         $this->register(
             'Blog',
             __('Categories'),

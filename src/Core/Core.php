@@ -393,22 +393,23 @@ class Core
     /**
      * Get media instance
      *
+     * Caller MUST cope with Media instance failure.
+     *
+     * @param   bool    $reload     Force reload of Media instance
+     * @param   bool    $throw      Throw Exception on instance failure
+     *
      * @return  Media   Media instance
      */
-    public function media(bool $reload = null): ?Media
+    public function media(bool $reload = false, bool $throw = false): ?Media
     {
         if (!($this->media instanceof Media) || $reload) {
             try {
                 $this->media = new Media();
             } catch (\Exception $e) {
-                /*
-                $this->getExceptionLang();
-                $this->throwException(
-                    __('Unable to load media'),
-                    $e->getMessage(),
-                    611
-                );
-                */
+                $this->media = null;
+                if ($throw) {
+                    throw $e;
+                }
             }
         }
 

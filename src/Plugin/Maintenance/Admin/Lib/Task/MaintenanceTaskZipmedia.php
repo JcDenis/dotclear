@@ -37,7 +37,7 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
 
     public function execute()
     {
-        if (!dotclear()->blog()->public_path) {
+        if (!dotclear()->media()) {
             return;
         }
 

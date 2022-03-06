@@ -230,11 +230,11 @@ class Home extends Page
 
         # Check public directory
         if (dotclear()->user()->isSuperAdmin()) {
-            if (!is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
+            if (!dotclear()->blog()->public_path || !is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).') . '</p>';
             }
         } else {
-            if (!is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
+            if (!dotclear()->blog()->public_path || !is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable root directory for the media manager. You should contact your administrator.') . '</p>';
             }
         }

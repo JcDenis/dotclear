@@ -484,7 +484,7 @@ class Context
     # First post image helpers
     public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
-        if (!dotclear()->blog()->public_path) {
+        if (!dotclear()->media()) {
             return '';
         }
 
@@ -552,6 +552,10 @@ class Context
 
     private function ContentFirstImageLookup($root, $img, $size)
     {
+        if (!dotclear()->media()) {
+            return false;
+        }
+
         # Image extensions
         $formats = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'wepb'];
 

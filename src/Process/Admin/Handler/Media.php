@@ -63,16 +63,13 @@ class Media extends Page
 
     protected function getFilterInstance(): ?Filter
     {
-        if (!dotclear()->blog()->public_path) {
-            return null;
-        }
         # AdminMedia extends MediaFilter
         return new MediaFilter();
     }
 
     protected function getInventoryInstance(): ?Inventory
     {
-        if (!dotclear()->blog()->public_path) {
+        if (!dotclear()->media()) {
             return null;
         }
 
@@ -111,10 +108,14 @@ class Media extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (!dotclear()->blog()->public_path) {
-            dotclear()->error()->add(
-                __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).')
-            );
+        try {
+
+        if ($this->filter->popup) {
+            $this->setPageType('popup');
+        }
+            dotclear()->media(true, true);
+        } catch (\Exception $e) {
+            dotclear()->error()->add($e->getMessage());
 
             return true;
         }

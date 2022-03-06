@@ -33,10 +33,12 @@ class PostMedia extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        if (!dotclear()->blog()->public_path) {
-            dotclear()->error()->add(
-                __('There is no writable root directory for the media manager. You should contact your administrator.')
-            );
+        try {
+            dotclear()->media(true, true);
+        } catch (\Exception $e) {
+            dotclear()->error()->add($e->getMessage());
+
+            return false;
         }
 
         $post_id   = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;

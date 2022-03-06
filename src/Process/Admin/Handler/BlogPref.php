@@ -354,13 +354,12 @@ class BlogPref extends Page
         }
 
         # Image default size combo
-        $img_default_size_combo = [];
+        $img_default_size_combo[__('original')] = 'o';
 
         try {
-            if (!dotclear()->blog()->public_path) {
+            if (!dotclear()->media()) {
                 throw new AdminException('No media path');
             }
-            $img_default_size_combo[__('original')] = 'o';
             foreach (dotclear()->media()->thumb_sizes as $code => $size) {
                 $img_default_size_combo[__($size[2])] = $code;
             }

@@ -470,7 +470,7 @@ class RestMethods
             throw new AdminException('Permission denied');
         }
 
-        if (!dotclear()->blog()->public_path) {
+        if (!dotclear()->media()) {
             throw new AdminException('No media path');
         }
 

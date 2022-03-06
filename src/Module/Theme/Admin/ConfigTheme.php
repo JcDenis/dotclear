@@ -502,7 +502,7 @@ class ConfigTheme
         }
 
         if (is_writable(dirname($img))) {
-            if (dotclear()->blog()->public_path) {
+            if (dotclear()->media()) {
                 // Delete thumbnails if any
                 try {
                     dotclear()->media()->imageThumbRemove($img);

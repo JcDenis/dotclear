@@ -21,7 +21,7 @@ class Attachments
 {
     public function __construct()
     {
-        if (!dotclear()->blog()->public_path) {
+        if (!dotclear()->media()) {
             return;
         }
 
