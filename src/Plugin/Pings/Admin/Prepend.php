@@ -72,7 +72,7 @@ class Prepend extends AbstractPrepend
 
     public static function pingJS()
     {
-        return dotclear()->resource()->Load('post.js', 'Plugin', 'Pings');
+        return dotclear()->resource()->load('post.js', 'Plugin', 'Pings');
     }
 
     public static function pingsFormItems($main, $sidebar, $post)
