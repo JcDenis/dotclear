@@ -23,7 +23,7 @@ trait TraitModulesPlugin
 
     public function getModulesPath(): array
     {
-        $paths = explode(PATH_SEPARATOR, dotclear()->config()->plugin_dir);
+        $paths = dotclear()->config()->plugin_dirs;
 
         # If a plugin directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {

@@ -23,7 +23,7 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        $paths = explode(PATH_SEPARATOR, dotclear()->config()->theme_dir);
+        $paths = dotclear()->config()->theme_dirs;
 
         # If a theme directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {

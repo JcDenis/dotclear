@@ -73,17 +73,16 @@ return [
     //'session_ttl' => '120 seconds',
 
     // Themes root
-    // Multiple directories can be set using PATH_SEPARATOR ";"
-    //'theme_dir' => root_path('Theme'),
+    // Multiple directories can be set
+    //'theme_dirs' => [root_path('Theme')],
 
     // Plugins root
-    // Multiple directories can be set using PATH_SEPARATOR ";"
-    //'plugin_dir' => root_path('Plugin'),
+    // Multiple directories can be set
+    //'plugin_dirs' => [root_path('Plugin')],
 
     // Iconsets root
-    // Multiple directories can be set using PATH_SEPARATOR ";"
-    //'iconset_dir' => root_path('Iconset']),
-    'iconset_dir' => '', //removed until time to redraw iconsets
+    // Multiple directories can be set
+    //'iconset_dirs' => [root_path('Iconset'])],
 
     // Template cache directory
     //'cache_dir' => root_path('..', 'cache'),

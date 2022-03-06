@@ -313,20 +313,25 @@ class Prepend extends Core
             $this->adminLoadResources($this->config()->l10n_dir);
 
             # Load Modules Iconsets
-            if ('' != $this->config()->iconset_dir) {
+            if (!empty($this->config()->iconset_dirs)) {
                 $this->iconsets = new ModulesIconset();
                 $this->iconsets->loadModules();
             }
 
             # Load Modules Plugins
-            if ('' != $this->config()->plugin_dir) {
+            if (!empty($this->config()->plugin_dirs)) {
                 $this->plugins = new ModulesPlugin();
                 $this->adminLoadModules($this->plugins);
             }
 
             # Load Modules Themes
-            $this->themes = new ModulesTheme();
-            $this->adminLoadModules($this->themes);
+            if (!empty($this->config()->theme_dirs)) {
+                $this->themes = new ModulesTheme();
+                $this->adminLoadModules($this->themes);
+            } else {
+                $this->getExceptionLang();
+                $this->throwException(__('There seems to be no Theme directory set in configuration file.'), '', 611);
+            }
 
             # Add default top menus
             $this->favorite()->setup();
