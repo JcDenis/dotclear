@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Database\Driver\Mysqlmb4;
+namespace Dotclear\Database\Driver\Mysqlimb4;
 
 use Dotclear\Exception\DatabaseException;
 
@@ -212,7 +212,7 @@ class Connection extends BaseConnection implements InterfaceConnection
     public function db_escape_string($str, $handle = null)
     {
         if ($handle instanceof \MySQLi) {
-            return mysqli_real_escape_string($handle, $str);
+            return mysqli_real_escape_string($handle, (string) $str);
         }
 
         return addslashes($str);
