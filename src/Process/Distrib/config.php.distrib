@@ -83,6 +83,7 @@ return [
     // Iconsets root
     // Multiple directories can be set using PATH_SEPARATOR ";"
     //'iconset_dir' => root_path('Iconset']),
+    'iconset_dir' => '', //removed until time to redraw iconsets
 
     // Template cache directory
     //'cache_dir' => root_path('..', 'cache'),
