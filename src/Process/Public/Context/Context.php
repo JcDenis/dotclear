@@ -484,6 +484,10 @@ class Context
     # First post image helpers
     public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
     {
+        if (!dotclear()->blog()->public_path) {
+            return '';
+        }
+
         try {
             $sizes = implode('|', array_keys(dotclear()->media()->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {

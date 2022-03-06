@@ -387,7 +387,7 @@ class Distrib
      *
      * @param   array   $defaults   The defaults settings
      */
-    public static function setBlogDefaultSettings($defaults = null): void
+    public static function setBlogDefaultSettings(array $defaults = null): void
     {
         if (!is_array($defaults)) {
             $defaults = [

@@ -36,10 +36,11 @@ class Wizard
     public function __construct()
     {
         $root_url = preg_replace(
-            ['%admin/install/index.php$%', '%admin/install/$%', '%admin/index.php$%', '%admin/$%', '%index.php$%', '%/$%'],
+            ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
             '',
             filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
         );
+        $install_url = $root_url . '/admin/install/index.php';
 
         # Loading locales for detected language
         $dlang = Http::getAcceptLanguage();
@@ -135,7 +136,7 @@ class Wizard
 
                 $con->close();
 
-                Http::redirect($root_url . '/admin/install/index.php?wiz=1');
+                Http::redirect($install_url . '?wiz=1');
             } catch (InstallException $e) {
                 $err = $e->getMessage();
             }
@@ -186,7 +187,7 @@ class Wizard
 
         '<p>' . __('Please provide the following information needed to create your configuration file.') . '</p>' .
 
-        '<form action="' . $root_url . '/admin/install/index.php" method="post">' .
+        '<form action="' . $install_url . '" method="post">' .
         '<p><label class="required" for="DBDRIVER"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Database type:') . '</label> ' .
         Form::combo('DBDRIVER', [
             __('MySQLi')              => 'mysqli',

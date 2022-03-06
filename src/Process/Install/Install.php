@@ -39,6 +39,7 @@ class Install
             filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
         );
         $admin_url   = $root_url . '/admin/index.php';
+        $install_url = $root_url . '/admin/install/index.php';
         $can_install = true;
         $err         = '';
 
@@ -289,20 +290,19 @@ class Install
           <meta name="GOOGLEBOT" content="NOSNIPPET" />
           <title><?php echo __('Dotclear Install'); ?></title>
 
-            <link rel="stylesheet" href="?df=/css/install.css" type="text/css" media="screen" />
-
+            <link rel="stylesheet" href="?df=css/install.css" type="text/css" media="screen" />
+            <script src="?df=js/prepend.js"></script>
           <?php
           echo
-            dotclear()->resource()->load('prepend.js') .
             dotclear()->resource()->json('pwstrength', [
                 'min' => sprintf(__('Password strength: %s'), __('weak')),
                 'avg' => sprintf(__('Password strength: %s'), __('medium')),
                 'max' => sprintf(__('Password strength: %s'), __('strong'))
             ]) .
-            dotclear()->resource()->load('pwstrength.js') .
-            dotclear()->resource()->load('jquery/jquery.js') .
-            dotclear()->resource()->json('install_show', __('show')) .
-            dotclear()->resource()->load('_install.js'); ?>
+            dotclear()->resource()->json('install_show', __('show')); ?>
+            <script src="?df=js/pwstrength.js"></script>
+            <script src="?df=js/jquery/jquery.js"></script>
+            <script src="?df=js/_install.js"></script>
         </head>
 
         <body id="dotclear-admin" class="install">
@@ -330,7 +330,7 @@ class Install
 
             '<p>' . __('Please provide the following information needed to create the first user.') . '</p>' .
 
-            '<form action="install.php" method="post">' .
+            '<form action="'. $install_url . '" method="post">' .
             '<fieldset><legend>' . __('User information') . '</legend>' .
             '<p><label for="u_firstname">' . __('First Name:') . '</label> ' .
             Form::field('u_firstname', 30, 255, [

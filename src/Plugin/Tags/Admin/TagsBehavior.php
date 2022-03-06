@@ -48,11 +48,11 @@ class TagsBehavior
             return '';
         }
 
-        $tag_url = dotclear()->blog()->url . dotclear()->url->getURLFor('tag');
+        $tag_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('tag');
 
         if ($editor == 'dcLegacyEditor') {
             return
-            dotclear()->resource()->jsonn('legacy_editor_tags', [
+            dotclear()->resource()->json('legacy_editor_tags', [
                 'tag' => [
                     'title' => __('Tag'),
                     'url'   => $tag_url,
@@ -61,7 +61,7 @@ class TagsBehavior
             dotclear()->resource()->load('legacy-post.js', 'Plugin', 'tags');
         } elseif ($editor == 'dcCKEditor') {
             return
-            dotclear()->resource()->jsonn('ck_editor_tags', [
+            dotclear()->resource()->json('ck_editor_tags', [
                 'tag_title' => __('Tag'),
                 'tag_url'   => $tag_url,
             ]);

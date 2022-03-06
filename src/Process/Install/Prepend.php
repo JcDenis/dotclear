@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
-use Dotclear\Process\Admin\Filer\Filer;
+use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
 use Dotclear\File\Files;
@@ -28,8 +28,8 @@ class Prepend extends Core
     /** @var    Favorite   Favorite instance */
     private $favorite;
 
-    /** @var    Filer   Filer instance */
-    private $filer;
+    /** @var    Resource   Resource instance */
+    private $resource;
 
     protected $process = 'Install';
 
@@ -48,24 +48,24 @@ class Prepend extends Core
     }
 
     /**
-     * Get filer instance
+     * Get resource instance
      *
-     * @return  Filer   Filer instance
+     * @return  Resource   Resource instance
      */
-    public function resource(): Filer
+    public function resource(): Resource
     {
-        if (!($this->filer instanceof Filer)) {
-            $this->filer = new Filer();
+        if (!($this->resource instanceof Resource)) {
+            $this->resource = new Resource();
         }
 
-        return $this->filer;
+        return $this->resource;
     }
 
     protected function process(): void
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Files::serveFile($_GET['df'], [root_path('Process', 'Admin', 'resources')], dotclear()->config()->file_sever_type);
+            Files::serveFile($_GET['df'], [root_path('Process', 'Admin', 'resources')]);
             exit;
         }
 
