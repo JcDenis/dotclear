@@ -113,8 +113,8 @@ class Formater
 
         // Fallback with another editor if possible
         foreach ($this->formaters as $editor => $formaters) {
-            if (array_key_exists($name, $formaters)) {
-                return call_user_func($this->formaters[$editor][$name], $str);
+            if (array_key_exists($formater, $formaters)) {
+                return call_user_func($this->formaters[$editor][$formater], $str);
             }
         }
 
