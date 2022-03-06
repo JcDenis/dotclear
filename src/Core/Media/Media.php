@@ -80,11 +80,11 @@ class Media extends Manager
             throw new CoreException(__('No blog defined.'));
         }
 
+        $this->type  = $type;
         $this->table = dotclear()->prefix . 'media';
         $root        = dotclear()->blog()->public_path;
-        $root_url = rawurldecode(dotclear()->blog()->public_url);
 
-        if (!is_dir($root)) {
+        if (!$root || !is_dir($root)) {
             # Check public directory
             if (dotclear()->user()->isSuperAdmin()) {
                 throw new CoreException(__('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).'));
@@ -93,7 +93,7 @@ class Media extends Manager
             throw new CoreException(__('There is no writable root directory for the media manager. You should contact your administrator.'));
         }
 
-        $this->type = $type;
+        $root_url    = rawurldecode(dotclear()->blog()->public_url);
 
         parent::__construct($root, $root_url);
 
