@@ -1,6 +1,6 @@
 <?php
 /**
- * @class  Dotclear\Process\Admin\Page\Service\Updater
+ * @class  Dotclear\Process\Admin\Service\Updater
  * @brief Dotclear core update
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Service;
+namespace Dotclear\Process\Admin\Service;
 
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;

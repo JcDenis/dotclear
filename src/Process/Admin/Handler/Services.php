@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Service\RestMethods;
+use Dotclear\Process\Admin\Service\RestMethods;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

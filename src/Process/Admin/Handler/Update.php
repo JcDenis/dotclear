@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Page\Service\Updater;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
 use Dotclear\File\Zip\Unzip;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
+use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Service\Updater;
+use Dotclear\Utils\ErrorTrait;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -27,7 +28,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Update extends Page
 {
-    use \Dotclear\Utils\ErrorTrait;
+    use ErrorTrait;
 
     private $upd_updater;
     private $upd_step        = '';

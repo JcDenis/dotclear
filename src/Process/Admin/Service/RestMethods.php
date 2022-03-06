@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Service\RestMethods
+ * @class Dotclear\Process\Admin\Service\RestMethods
  * @brief Dotclear common admin REST methods
  *
  * @package Dotclear
@@ -11,15 +11,15 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Page\Service;
+namespace Dotclear\Process\Admin\Service;
 
-use Dotclear\Process\Admin\Page\Service\Updater;
-use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Html;
 use Dotclear\Html\Validator;
 use Dotclear\Html\XmlTag;
+use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Network\Feed\Reader;
+use Dotclear\Process\Admin\Service\Updater;
 use Dotclear\Utils\Dt;
 use Dotclear\Utils\Text;
 
