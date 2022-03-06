@@ -168,9 +168,9 @@ class Favorite
      */
     protected function setUserPrefs(): void
     {
-        $this->user_prefs = $this->getFavorites($this->local_prefs);
+        $this->user_prefs = $this->local_prefs ? $this->getFavorites($this->local_prefs) : [];
         if (empty($this->user_prefs)) {
-            $this->user_prefs = $this->getFavorites($this->global_prefs);
+            $this->user_prefs = $this->global_prefs ? $this->getFavorites($this->global_prefs) : [];
         }
         if (empty($this->user_prefs)) {
             $this->user_prefs = $this->getFavorites(['new_post']);
