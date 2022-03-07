@@ -87,7 +87,7 @@ class Error
      *
      * @return array
      */
-    public function getErrors(): array
+    public function dump(): array
     {
         return $this->errors;
     }

@@ -269,7 +269,7 @@ class Home extends Page
                 if (dotclear()->plugins->error()->flag()) {
                     echo
                     '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
-                    '<ul><li>' . implode("</li>\n<li>", dotclear()->plugins->error()->getErrors()) . '</li></ul></div>';
+                    '<ul><li>' . implode("</li>\n<li>", dotclear()->plugins->error()->dump()) . '</li></ul></div>';
                 }
             }
         }

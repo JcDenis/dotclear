@@ -248,7 +248,7 @@ class Notice
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count(dotclear()->error()->getErrors()) > 1 ? __('Errors:') : __('Error:'),
+                    count(dotclear()->error()->dump()) > 1 ? __('Errors:') : __('Error:'),
                     dotclear()->error()->toHTML()
                 );
             }

@@ -208,7 +208,7 @@ abstract class AbstractModules
 
         # Stop on error in module definition
         if ($define->error()->flag()) {
-            $this->error()->add($define->error()->getErrors());
+            $this->error()->add($define->error()->dump());
 
             return;
         }
@@ -385,7 +385,7 @@ abstract class AbstractModules
                 $sandbox->loadModuleDefine($target, basename($destination));
                 unlink($target . '/Define.php');
 
-                $new_errors = $sandbox->getErrors();
+                $new_errors = $sandbox->error()->dump();
                 if (!empty($new_errors)) {
                     $new_errors = implode(" \n", $new_errors);
 
