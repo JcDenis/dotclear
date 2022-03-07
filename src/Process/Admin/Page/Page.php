@@ -1104,6 +1104,8 @@ abstract class Page
             'show_password' => __('Show password'),
             'hide_password' => __('Hide password'),
 
+            'set_today' => __('Reset to now'),
+
             'adblocker' => __('An ad blocker has been detected on this Dotclear dashboard (Ghostery, Adblock plus, uBlock origin, …) and it may interfere with some features. In this case you should disable it.'),
         ];
 
