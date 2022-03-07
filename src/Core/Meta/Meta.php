@@ -339,7 +339,7 @@ class Meta
             $sql->and('P.post_id' . $sql->in($params['post_id']));
         }
 
-        if (!dotclear()->user->check('contentadmin', dotclear()->blog()->id)) {
+        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $user_id = dotclear()->user()->userID();
 
             $and = ['post_status = 1'];
