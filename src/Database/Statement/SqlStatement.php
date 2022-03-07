@@ -196,24 +196,31 @@ class SqlStatement
      *
      * @param mixed     $c      the from clause(s)
      * @param boolean   $reset  reset previous from(s) first
+     * @param boolean   $first  put the from clause(s) at top of list
      *
      * @return self instance, enabling to chain calls
      */
-    public function from($c, bool $reset = false): SqlStatement
+    public function from($c, bool $reset = false, bool $first = false): SqlStatement
     {
-        $filter = function ($v) {
-            return trim(ltrim($v, ','));
-        };
+        $filter = fn ($v) => trim(ltrim((string) $v, ','));
         if ($reset) {
             $this->from = [];
         }
         // Remove comma on beginning of clause(s) (legacy code)
         if (is_array($c)) {
-            $c          = array_map($filter, $c);   // Cope with legacy code
-            $this->from = array_merge($this->from, $c);
+            $c = array_map($filter, $c);   // Cope with legacy code
+            if ($first) {
+                $this->from = array_merge($c, $this->from);
+            } else {
+                $this->from = array_merge($this->from, $c);
+            }
         } else {
             $c = $filter($c);   // Cope with legacy code
-            array_push($this->from, $c);
+            if ($first) {
+                array_unshift($this->from, $c);
+            } else {
+                array_push($this->from, $c);
+            }
         }
 
         return $this;
