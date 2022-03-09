@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor
+ * @class Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -11,10 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Plugin\Maintenance\Admin\Lib;
+namespace Dotclear\Plugin\Maintenance\Admin;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
+use Dotclear\Plugin\Maintenance\Admin\Maintenance;
+use Dotclear\Html\Html;
 use Dotclear\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -30,6 +31,11 @@ Serve maintenance methods via Dotclear's rest API
  */
 class MaintenanceRest
 {
+    public function __construct()
+    {
+        dotclear()->rest()->addFunction('dcMaintenanceStep', [$this, 'step']);
+    }
+
     /**
      * Serve method to do step by step task for maintenance.
      *
@@ -40,7 +46,7 @@ class MaintenanceRest
      *
      * @return     xmlTag     XML representation of response.
      */
-    public static function step($get, $post)
+    public function step($get, $post)
     {
         if (!isset($post['task'])) {
             throw new AdminException('No task ID');
@@ -60,9 +66,9 @@ class MaintenanceRest
             $code = 0;
         }
 
-        $rsp        = new xmlTag('step');
+        $rsp        = new XmlTag('step');
         $rsp->code  = $code;
-        $rsp->title = html::escapeHTML($task->success());
+        $rsp->title = Html::escapeHTML($task->success());
 
         return $rsp;
     }

@@ -27,13 +27,13 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class BlogrollWidgets
 {
-    public static function initBlogroll()
+    public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [__CLASS__, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [__CLASS__, 'initDefaultWidgets']);
+        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
-    public static function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $w): void
     {
         $br         = new Blogroll();
         $h          = $br->getLinksHierarchy($br->getLinks());
@@ -47,7 +47,7 @@ class BlogrollWidgets
         unset($br, $h);
 
         $w
-            ->create('links', __('Blogroll'), [__CLASS__, 'linksWidget'], null, 'Blogroll list')
+            ->create('links', __('Blogroll'), [$this, 'linksWidget'], null, 'Blogroll list')
             ->addTitle(__('Links'))
             ->setting('category', __('Category'), '', 'combo', $categories)
             ->addHomeOnly()
@@ -56,12 +56,12 @@ class BlogrollWidgets
             ->addOffline();
     }
 
-    public static function initDefaultWidgets(Widgets $w, array $d): void
+    public function initDefaultWidgets(Widgets $w, array $d): void
     {
         $d['extra']->append($w->links);
     }
 
-    public static function linksWidget(Widget $w): string
+    public function linksWidget(Widget $w): string
     {
         if ($w->offline) {
             return '';

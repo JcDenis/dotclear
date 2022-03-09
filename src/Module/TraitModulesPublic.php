@@ -1,7 +1,7 @@
 <?php
 /**
  * @class Dotclear\Module\TraitModulesPublic
- * @brief Dotclear Module Admin specific methods
+ * @brief Dotclear Module Public specific methods
  *
  * @package Dotclear
  * @subpackage Module
@@ -22,7 +22,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 trait TraitModulesPublic
 {
     /**
-     * Load modules Admin specifics
+     * Not used on Public process
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     protected function loadModulesProcess(): void
@@ -30,7 +30,7 @@ trait TraitModulesPublic
         return;
     }
     /**
-     * Load module Admin specifics
+     * Not used on Public process
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     protected function loadModuleProcess(string $id): void
@@ -39,7 +39,7 @@ trait TraitModulesPublic
     }
 
     /**
-     * Check module permissions on Admin on load
+     * Not used on Public process
      * @see Dotclear\Module\AbstractModules::loadModuleDefine()
      */
     protected function loadModuleDefineProcess(AbstractDefine $define): bool

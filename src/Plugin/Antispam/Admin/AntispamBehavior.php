@@ -25,35 +25,40 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class AntispamBehavior
 {
-    public static function initAntispam()
+    public function __construct()
     {
         # Rest service
-        dotclear()->rest()->addFunction('getSpamsCount', [__CLASS__, 'restGetSpamsCount']);
+        dotclear()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
 
         # Admin behaviors
-        dotclear()->behavior()->add('adminDashboardFavsIcon', [__CLASS__, 'behaviorAdminDashboardFavsIcon']);
+        dotclear()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
 
         if (!DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
-            dotclear()->behavior()->add('adminBlogPreferencesForm', [__CLASS__, 'behaviorAdminBlogPreferencesForm']);
-            dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [__CLASS__, 'behaviorAdminBeforeBlogSettingsUpdate']);
-            dotclear()->behavior()->add('adminCommentsSpamForm', [__CLASS__, 'behaviorAdminCommentsSpamForm']);
-            dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'behaviorAdminPageHelpBlock']);
+            dotclear()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
+            dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+            dotclear()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);
+            dotclear()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
         }
     }
 
-    public static function behaviorAdminDashboardFavsIcon(string $name, ArrayObject $icon): void
+    public function behaviorAdminDashboardFavsIcon(string $name, ArrayObject $icon): void
     {
+        $str = '';
         # Check if it is comments favs
         if ($name == 'comments') {
             # Hack comments title if there is at least one spam
-            $str = Antispam::dashboardIconTitle();
+            if (($count = (new Antispam())->countSpam()) > 0) {
+                $str = '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
+                    sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
+            }
+
             if ($str != '') {
                 $icon[0] .= $str;
             }
         }
     }
 
-    public static function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
+    public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
     {
         $found = false;
         foreach ($blocks as $block) {
@@ -69,7 +74,7 @@ class AntispamBehavior
         $blocks[] = 'antispam_comments';
     }
 
-    public static function behaviorAdminCommentsSpamForm(): void
+    public function behaviorAdminCommentsSpamForm(): void
     {
         $ttl = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
         if ($ttl != null && $ttl >= 0) {
@@ -80,7 +85,7 @@ class AntispamBehavior
         }
     }
 
-    public static function behaviorAdminBlogPreferencesForm(Settings $settings)
+    public function behaviorAdminBlogPreferencesForm(Settings $settings)
     {
         $settings->addNamespace('antispam');
         $ttl = $settings->antispam->antispam_moderation_ttl;
@@ -95,7 +100,7 @@ class AntispamBehavior
             '</div>';
     }
 
-    public static function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
+    public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
     {
         $settings->addNamespace('antispam');
         $settings->antispam->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
@@ -108,9 +113,9 @@ class AntispamBehavior
      *
      * @return     xmlTag  The spams count.
      */
-    public static function restGetSpamsCount($get)
+    public function restGetSpamsCount($get)
     {
-        $count = Antispam::countSpam();
+        $count = (new Antispam())->countSpam();
         if ($count > 0) {
             $str = sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
         } else {

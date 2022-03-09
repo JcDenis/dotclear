@@ -15,6 +15,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -24,15 +25,14 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Menu and favs
-        static::addStandardMenu('Plugins');
-        //static::addStandardFavorites('admin');
+        $this->addStandardMenu('Plugins');
+        //$this->addStandardFavorites('admin');
 
         # Settings
         $s = dotclear()->blog()->settings()->addNamespace('dcckeditor');
-
         if (!$s->active) {
             //return;
         }
@@ -47,16 +47,10 @@ class Prepend extends AbstractPrepend
         dotclear()->formater()->addEditorFormater('CKEditor', 'xhtml', fn ($s) => $s);
 
         # Behaviors
-        $class = __NAMESPACE__ . '\\Behavior';
-        dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);
-        dotclear()->behavior()->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-        dotclear()->behavior()->add('adminPopupLink', [$class, 'adminPopupLink']);
-        dotclear()->behavior()->add('adminPopupPosts', [$class, 'adminPopupPosts']);
-        dotclear()->behavior()->add('adminMediaURL', [$class, 'adminMediaURL']);
-        dotclear()->behavior()->add('adminPageHTTPHeaderCSP', [$class, 'adminPageHTTPHeaderCSP']);
+        new CKEditorBehavior();;
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         dotclear()->blog()->settings()->addNamespace('dcckeditor');
         $s = dotclear()->blog()->settings()->dcckeditor;

@@ -111,7 +111,7 @@ class PostsPopup extends Page
         '</p></form>' .
 
         '<div id="form-entries">'; # I know it's not a form but we just need the ID
-        $this->catalog->display($this->page, 10);
+        $this->inventory->display($this->page, 10);
         '</div>' .
 
         '<p><button type="button" id="link-insert-cancel">' . __('cancel') . '</button></p>';

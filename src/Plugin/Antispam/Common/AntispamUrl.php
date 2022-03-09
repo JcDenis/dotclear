@@ -26,25 +26,25 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class AntispamUrl extends Url
 {
-    public static function initAntispam()
+    public function __construct()
     {
-        dotclear()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [__CLASS__, 'spamFeed']);
-        dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [__CLASS__, 'hamFeed']);
+        dotclear()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [$this, 'spamFeed']);
+        dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$this, 'hamFeed']);
     }
 
-    public static function hamFeed($args)
+    public function hamFeed($args)
     {
-        self::genFeed('ham', $args);
+        $this->genFeed('ham', $args);
     }
 
-    public static function spamFeed($args)
+    public function spamFeed($args)
     {
-        self::genFeed('spam', $args);
+        $this->genFeed('spam', $args);
     }
 
-    private static function genFeed($type, $args)
+    private function genFeed($type, $args)
     {
-        $user_id = Antispam::checkUserCode($args);
+        $user_id = (new Antispam())->checkUserCode($args);
 
         if ($user_id === false) {
             dotclear()->url()->p404();

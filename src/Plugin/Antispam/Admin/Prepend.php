@@ -31,22 +31,22 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         if (!defined('DC_ANTISPAM_CONF_SUPER')) {
             define('DC_ANTISPAM_CONF_SUPER', false);
         }
 
         # Menu and favs
-        static::addStandardMenu('Plugins');
-        static::addStandardFavorites('admin');
+        $this->addStandardMenu('Plugins');
+        $this->addStandardFavorites('admin');
 
-        Antispam::initAntispam();
-        AntispamUrl::initAntispam();
-        AntispamBehavior::initAntispam();
+        new Antispam();
+        new AntispamUrl();
+        new AntispamBehavior();
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         $s = new Structure(dotclear()->con(), dotclear()->prefix);
 

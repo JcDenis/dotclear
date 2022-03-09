@@ -25,15 +25,14 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        if (dotclear()->blog()->settings()->system->theme != 'Blowup') {
+        if (!$this->isTheme()) {
             return;
         }
 
         dotclear()->behavior()->add('publicHeadContent', function(): void {
-            $config = new BlowupConfig();
-            $url = $config->publicCssUrlHelper();
+            $url = (new BlowupConfig())->publicCssUrlHelper();
             if ($url) {
                 echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';
             }

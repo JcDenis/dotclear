@@ -25,7 +25,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Widgets
         new SimpleMenuWidgets();

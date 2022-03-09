@@ -15,7 +15,6 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
 use Dotclear\Html\Html;
 use Dotclear\Html\Form;
@@ -24,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class BlogAction extends Action
+class BlogAction extends DefaultBlogAction
 {
     public function __construct(string $uri, array $redirect_args = [])
     {
@@ -51,7 +50,7 @@ class BlogAction extends Action
 
     protected function loadDefaults(): void
     {
-        DefaultBlogAction::BlogsAction($this);
+        $this->loadBlogsAction($this);
     }
 
     public function error(\Exception $e): void

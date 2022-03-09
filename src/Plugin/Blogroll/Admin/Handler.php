@@ -192,8 +192,8 @@ class Handler extends AbstractPage
                 __('Blogroll')                             => '',
             ])
             ->setPageHead(
-                static::jsConfirmClose('links-form', 'add-link-form', 'add-category-form') .
-                static::jsPageTabs($default_tab)
+                dotclear()->resource()->confirmClose('links-form', 'add-link-form', 'add-category-form') .
+                dotclear()->resource()->pageTabs($default_tab)
             )
         ;
 

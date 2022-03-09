@@ -27,6 +27,7 @@ class Handler extends AbstractPage
 {
     protected $workspaces = ['accessibility'];
 
+    private $a_antispam;
     private $a_filters;
     private $a_gui = false;
     private $a_tab = null;
@@ -38,8 +39,9 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        Antispam::initFilters();
-        $this->a_filters = Antispam::$filters->getFilters();
+        $this->a_antispam = new Antispam();
+        $this->a_antispam->initFilters();
+        $this->a_filters = $this->a_antispam->filters->getFilters();
 
         $filter = null;
 
@@ -63,7 +65,7 @@ class Handler extends AbstractPage
             if (!empty($_POST['delete_all'])) {
                 $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->system->blog_timezone);
 
-                Antispam::delAllSpam(dotclear(), $ts);
+                $this->a_antispam->delAllSpam(dotclear(), $ts);
 
                 dotclear()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Antispam');
@@ -107,7 +109,7 @@ class Handler extends AbstractPage
                     }
                 }
 
-                Antispam::$filters->saveFilterOpts($filters_opt);
+                $this->a_antispam->filters->saveFilterOpts($filters_opt);
 
                 dotclear()->notice()->addSuccessNotice(__('Filters configuration has been successfully saved.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Antispam');
@@ -119,7 +121,7 @@ class Handler extends AbstractPage
         # Page setup
         $this
             ->setPageTitle(($this->a_gui !== false ? sprintf(__('%s configuration'), $filter->name) . ' - ' : '') . __('Antispam'))
-            ->setPageHead(static::jsPageTabs($this->a_tab))
+            ->setPageHead(dotclear()->resource()->pageTabs($this->a_tab))
         ;
 
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
@@ -165,8 +167,8 @@ class Handler extends AbstractPage
         }
 
         # Information
-        $spam_count      = Antispam::countSpam();
-        $published_count = Antispam::countPublishedComments();
+        $spam_count      = $this->a_antispam->countSpam();
+        $published_count = $this->a_antispam->countPublishedComments();
         $moderationTTL   = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
 
         echo
@@ -269,11 +271,11 @@ class Handler extends AbstractPage
         if (dotclear()->config()->admin_url != '') {
             $ham_feed = dotclear()->blog()->url . dotclear()->url()->getURLFor(
                 'hamfeed',
-                $code = Antispam::getUserCode()
+                $code = $this->a_antispam->getUserCode()
             );
             $spam_feed = dotclear()->blog()->url . dotclear()->url()->getURLFor(
                 'spamfeed',
-                $code = Antispam::getUserCode()
+                $code = $this->a_antispam->getUserCode()
             );
 
             echo

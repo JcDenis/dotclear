@@ -25,19 +25,18 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        if (dotclear()->blog()->settings()->system->theme == 'Berlin') {
-            dotclear()->behavior()->add('publicHeadContent', [__CLASS__, 'behaviorPublicHeadContent']);
+        if (!$this->isTheme()) {
+            return;
         }
-    }
 
-    public static function behaviorPublicHeadContent()
-    {
-        echo Html::jsJson('dotclear_berlin', [
-            'show_menu'  => __('Show menu'),
-            'hide_menu'  => __('Hide menu'),
-            'navigation' => __('Main menu')
-        ]);
+        dotclear()->behavior()->add('publicHeadContent', function (): void {
+            echo Html::jsJson('dotclear_berlin', [
+                'show_menu'  => __('Show menu'),
+                'hide_menu'  => __('Hide menu'),
+                'navigation' => __('Main menu')
+            ]);
+        });
     }
 }

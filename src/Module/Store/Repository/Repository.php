@@ -83,7 +83,7 @@ class Repository
 
         $raw_datas = !$parser ? [] : $parser->getModules(); // @phpstan-ignore-line
 
-        uasort($raw_datas, ['self', 'sort']);
+        uasort($raw_datas, [$this, 'sort']);
 
         $skipped = array_keys($this->modules->getDisabledModules());
         foreach ($skipped as $id) {
@@ -100,7 +100,7 @@ class Repository
             }
             # main repository
             if (isset($raw_datas[$id])) {
-                if (self::compare($raw_datas[$id]['version'], $module->version(), '>')) {
+                if ($this->compare($raw_datas[$id]['version'], $module->version(), '>')) {
                     $updates[$id]                    = $raw_datas[$id];
                 }
                 unset($raw_datas[$id]);
@@ -111,8 +111,8 @@ class Repository
                     ;
                     if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->cache_dir, $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
-                        if (isset($dcs_raw_datas[$id]) && self::compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
-                            if (!isset($updates[$id]) || self::compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
+                        if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
+                            if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
                                 $dcs_raw_datas[$id]['repository'] = true;
                                 $updates[$id]                    = $dcs_raw_datas[$id];
                             }
@@ -190,7 +190,7 @@ class Repository
         $sorter = [];
 
         # Split query into small clean words
-        if (!($patterns = self::patternize($pattern))) {
+        if (!($patterns = $this->patternize($pattern))) {
             return $result;
         }
 
@@ -207,7 +207,7 @@ class Repository
                 }
 
                 # Split field value into small clean word
-                if (!($subjects = self::patternize($properties[$field]))) {
+                if (!($subjects = $this->patternize($properties[$field]))) {
                     continue;
                 }
 
@@ -310,7 +310,7 @@ class Repository
      *
      * @return  array           Array of cleaned pieces of string or false if none
      */
-    public static function patternize(string|array $str): array
+    public function patternize(string|array $str): array
     {
         $arr = [];
         if (!is_array($str)) {
@@ -336,7 +336,7 @@ class Repository
      *
      * @return  bool            True is comparison is true, dude!
      */
-    private static function compare(string $v1, string $v2, string $op): bool
+    private function compare(string $v1, string $v2, string $op): bool
     {
         return version_compare(
             preg_replace('!-r(\d+)$!', '-p$1', $v1),
@@ -352,7 +352,7 @@ class Repository
      * @param   array   $b      A module
      * @return  int
      */
-    private static function sort(array $a, array $b): int
+    private function sort(array $a, array $b): int
     {
         $c = strtolower($a['id']);
         $d = strtolower($b['id']);

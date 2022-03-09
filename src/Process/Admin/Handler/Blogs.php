@@ -98,7 +98,7 @@ class Blogs extends Page
         $this->filter->display('admin.blogs');
 
         # Show blogs
-        $this->catalog->display($this->filter->page, $this->filter->nb,
+        $this->inventory->display($this->filter->page, $this->filter->nb,
             (dotclear()->user()->isSuperAdmin() ?
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 

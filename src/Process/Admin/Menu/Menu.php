@@ -45,11 +45,6 @@ class Menu
         $this->items     = [];
     }
 
-    public static function setIconset(string $iconset): void
-    {
-        self::$iconset = $iconset;
-    }
-
     /**
      * Adds an item.
      *

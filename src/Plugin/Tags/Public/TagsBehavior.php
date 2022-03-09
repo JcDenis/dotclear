@@ -19,12 +19,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class TagsBehavior
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->behavior()->add('templateBeforeBlock', [__CLASS__, 'templateBeforeBlock']);
+        dotclear()->behavior()->add('templateBeforeBlock', [$this, 'templateBeforeBlock']);
     }
 
-    public static function templateBeforeBlock($b, $attr)
+    public function templateBeforeBlock($b, $attr)
     {
         if (($b == 'Entries' || $b == 'Comments') && isset($attr['tag'])) {
             return

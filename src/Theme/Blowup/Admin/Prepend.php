@@ -25,7 +25,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         dotclear()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
             return $module->id() == 'Blowup' && dotclear()->user()->check('admin', dotclear()->blog()->id) ?
@@ -34,7 +34,7 @@ class Prepend extends AbstractPrepend
         });
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         dotclear()->blog()->settings()->addNamespace('themes');
         dotclear()->blog()->settings()->themes->put('Blowup_style', '', 'string', 'Blow Up  custom style', false);

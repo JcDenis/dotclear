@@ -105,7 +105,7 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Edit theme files'))
             ->setPageHelp('themeEditor')
-            ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
+            ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')                  => dotclear()->adminurl()->get('admin.blog.theme'),
@@ -126,11 +126,11 @@ class Handler extends AbstractPage
                 'confirm_reset_file' => __('Are you sure you want to reset this file?')
             ]) .
             dotclear()->resource()->load('script.js', 'Plugin', 'ThemeEditor') .
-            static::jsConfirmClose('file-form')
+            dotclear()->resource()->confirmClose('file-form')
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                static::jsLoadCodeMirror(dotclear()->user()->preference()->interface->colorsyntax_theme)
+                dotclear()->resource()->loadCodeMirror(dotclear()->user()->preference()->interface->colorsyntax_theme)
             );
         }
         $this->setPageHead(
@@ -196,7 +196,7 @@ class Handler extends AbstractPage
                     'text/html'))));
                 dotclear()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
                 echo dotclear()->resource()->load('mode.js', 'Plugin', 'themeEditor');
-                echo static::jsRunCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
+                echo dotclear()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
             }
         }
 

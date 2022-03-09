@@ -152,7 +152,7 @@ class Comments extends Page
         $this->filter->display('admin.comments');
 
         # Show comments
-        $this->catalog->display($this->filter->page, $this->filter->nb,
+        $this->inventory->display($this->filter->page, $this->filter->nb,
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .

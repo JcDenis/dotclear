@@ -26,10 +26,10 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        static::addStandardMenu('Blog');
-        static::addStandardFavorites();
+        $this->addStandardMenu('Blog');
+        $this->addStandardFavorites();
 
         # Widgets
         if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
@@ -37,7 +37,7 @@ class Prepend extends AbstractPrepend
         }
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         # Menu par défaut
         $blog_url     = Html::stripHostURL(dotclear()->blog()->url);

@@ -15,6 +15,8 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior;
+use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -24,28 +26,23 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        $self_ns = dotclear()->blog()->settings()->addNamespace('LegacyEditor');
+        $s = dotclear()->blog()->settings()->addNamespace('LegacyEditor');
+        if (!$s->active) {
 
-        if ($self_ns->active) {
-            dotclear()->wiki()->initWikiPost();
-
-            dotclear()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-            dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki(), 'wikiTransform']);
-
-            $class = __NAMESPACE__ . '\\Behaviors';
-            dotclear()->behavior()->add('adminPostEditor', [$class, 'adminPostEditor']);
-            dotclear()->behavior()->add('adminPopupMedia', [$class, 'adminPopupMedia']);
-            dotclear()->behavior()->add('adminPopupLink', [$class, 'adminPopupLink']);
-            dotclear()->behavior()->add('adminPopupPosts', [$class, 'adminPopupPosts']);
-
-            $class = __NAMESPACE__ . '\\Rest';
-            dotclear()->rest()->addFunction('wikiConvert', [$class, 'convert']);
+            return;
         }
+
+        dotclear()->wiki()->initWikiPost();
+        dotclear()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+        dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki(), 'wikiTransform']);
+
+        new LegacyEditorBehavior();
+        new LegacyEditorRest();
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         $settings = dotclear()->blog()->settings();
         $settings->addNamespace('LegacyEditor');

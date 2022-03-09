@@ -15,7 +15,6 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -24,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class PostAction extends Action
+class PostAction extends DefaultPostAction
 {
     public function __construct(string $uri, array $redirect_args = [])
     {
@@ -48,7 +47,7 @@ class PostAction extends Action
 
     protected function loadDefaults(): void
     {
-        DefaultPostAction::PostAction($this);
+        $this->loadPostAction($this);
         dotclear()->behavior()->call('adminPostsActionsPage', $this);
     }
 

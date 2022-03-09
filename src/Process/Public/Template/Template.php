@@ -323,7 +323,7 @@ class Template extends BaseTemplate
         return 'dotclear()->context()->global_filters(%s,' . var_export($p, true) . ",'" . addslashes($this->current_tag) . "')";
     }
 
-    public static function getOperator($op)
+    public function getOperator($op)
     {
         switch (strtolower($op)) {
             case 'or':
@@ -406,7 +406,7 @@ class Template extends BaseTemplate
         return implode(', ', $res);
     }
 
-    public static function getAge($attr)
+    public function getAge($attr)
     {
         if (isset($attr['age']) && preg_match('/^(\-[0-9]+|last).*$/i', $attr['age'])) {
             if (($ts = strtotime($attr['age'])) !== false) {

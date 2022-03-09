@@ -18,7 +18,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Lexical;
@@ -40,7 +39,7 @@ class PostFilter extends Filter
         }
 
         $filters = new ArrayObject([
-            Filters::getPageFilter(),
+            $this->getPageFilter(),
             $this->getPostUserFilter(),
             $this->getPostCategoriesFilter(),
             $this->getPostStatusFilter(),
@@ -158,7 +157,7 @@ class PostFilter extends Filter
         }
 
         return (new DefaultFilter('format'))
-            ->param('where', [__CLASS__, 'getPostFormatParam'])
+            ->param('where', [$this, 'getPostFormatParam'])
             ->title(__('Format:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -167,7 +166,7 @@ class PostFilter extends Filter
             ->prime(true);
     }
 
-    public static function getPostFormatParam($f): string
+    public function getPostFormatParam($f): string
     {
         return " AND post_format = '" . $f[0] . "' ";
     }
@@ -178,7 +177,7 @@ class PostFilter extends Filter
     public function getPostPasswordFilter(): DefaultFilter
     {
         return (new DefaultFilter('password'))
-            ->param('where', [__CLASS__, 'getPostPasswordParam'])
+            ->param('where', [$this, 'getPostPasswordParam'])
             ->title(__('Password:'))
             ->options([
                 '-'                    => '',
@@ -188,7 +187,7 @@ class PostFilter extends Filter
             ->prime(true);
     }
 
-    public static function getPostPasswordParam($f): string
+    public function getPostPasswordParam($f): string
     {
         return ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL ';
     }
@@ -246,8 +245,8 @@ class PostFilter extends Filter
         }
 
         return (new DefaultFilter('month'))
-            ->param('post_month', [__CLASS__, 'getPostMonthParam'])
-            ->param('post_year', [__CLASS__, 'getPostYearParam'])
+            ->param('post_month', [$this, 'getPostMonthParam'])
+            ->param('post_year', [$this, 'getPostYearParam'])
             ->title(__('Month:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -255,12 +254,12 @@ class PostFilter extends Filter
             ));
     }
 
-    public static function getPostMonthParam($f): string
+    public function getPostMonthParam($f): string
     {
         return substr($f[0], 4, 2);
     }
 
-    public static function getPostYearParam($f): string
+    public function getPostYearParam($f): string
     {
         return substr($f[0], 0, 4);
     }
@@ -298,7 +297,7 @@ class PostFilter extends Filter
     public function getPostCommentFilter(): DefaultFilter
     {
         return (new DefaultFilter('comment'))
-            ->param('where', [__CLASS__, 'getPostCommentParam'])
+            ->param('where', [$this, 'getPostCommentParam'])
             ->title(__('Comments:'))
             ->options([
                 '-'          => '',
@@ -307,7 +306,7 @@ class PostFilter extends Filter
             ]);
     }
 
-    public static function getPostCommentParam($f): string
+    public function getPostCommentParam($f): string
     {
         return " AND post_open_comment = '" . $f[0] . "' ";
     }
@@ -318,7 +317,7 @@ class PostFilter extends Filter
     public function getPostTrackbackFilter(): DefaultFilter
     {
         return (new DefaultFilter('trackback'))
-            ->param('where', [__CLASS__, 'getPostYearParam'])
+            ->param('where', [$this, 'getPostTrackbackParam'])
             ->title(__('Trackbacks:'))
             ->options([
                 '-'          => '',
@@ -327,7 +326,7 @@ class PostFilter extends Filter
             ]);
     }
 
-    public static function getPostTrackbackParam($f): string
+    public function getPostTrackbackParam($f): string
     {
         return " AND post_open_tb = '" . $f[0] . "' ";
     }

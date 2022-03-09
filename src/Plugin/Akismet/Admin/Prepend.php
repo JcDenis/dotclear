@@ -25,8 +25,8 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        AkismetBehavior::initAkismet();
+        new AkismetBehavior();
     }
 }

@@ -86,7 +86,7 @@ class Handler extends AbstractPage
             ->setPageTitle(__('user:preferences'))
             ->setPageHelp('UserPref')
             ->setPageHead(
-                static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
+                dotclear()->resource()->pageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
                 dotclear()->resource()->load('index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
@@ -180,7 +180,7 @@ class Handler extends AbstractPage
             ksort($s);
             echo sprintf($table_header, ($global ? 'g_' : 'l_') . $ws, $ws);
             foreach ($s as $k => $v) {
-                echo self::prefLine($k, $v, $ws, ($global ? 'gs' : 's'), ($global ? false : !$v['global']));
+                echo $this->prefLine($k, $v, $ws, ($global ? 'gs' : 's'), ($global ? false : !$v['global']));
             }
             echo $table_footer;
         }
@@ -192,7 +192,7 @@ class Handler extends AbstractPage
         '</form>';
     }
 
-    private static function prefLine($id, $s, $ws, $field_name, $strong_label)
+    private function prefLine($id, $s, $ws, $field_name, $strong_label)
     {
         switch ($s['type']) {
             case 'boolean':

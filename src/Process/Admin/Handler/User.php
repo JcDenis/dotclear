@@ -191,7 +191,7 @@ class User extends Page
             ->setPageTitle($page_title)
             ->setPageHelp('core_user')
             ->setPageHead(
-                static::jsConfirmClose('user-form') .
+                dotclear()->resource()->confirmClose('user-form') .
                 dotclear()->resource()->json('pwstrength', [
                     'min' => sprintf(__('Password strength: %s'), __('weak')),
                     'avg' => sprintf(__('Password strength: %s'), __('medium')),

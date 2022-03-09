@@ -185,7 +185,7 @@ class Comment extends Page
             ->setPageTitle(__('Edit comment'))
             ->setPageHelp('core_comments')
             ->setPageHead(
-                static::jsConfirmClose('comment-form') .
+                dotclear()->resource()->confirmClose('comment-form') .
                 dotclear()->resource()->load('_comment.js') .
                 dotclear()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 

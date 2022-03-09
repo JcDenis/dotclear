@@ -98,7 +98,7 @@ class Handler extends AbstractPage
 
         if (!dotclear()->error()->flag()) {
             # Show pages
-            $this->catalog->display(
+            $this->inventory->display(
                 $this->p_page,
                 $this->p_nbbp,
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .

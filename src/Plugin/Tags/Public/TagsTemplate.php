@@ -21,34 +21,34 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class TagsTemplate
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->template()->addBlock('Tags', [__CLASS__, 'Tags']);
-        dotclear()->template()->addBlock('TagsHeader', [__CLASS__, 'TagsHeader']);
-        dotclear()->template()->addBlock('TagsFooter', [__CLASS__, 'TagsFooter']);
-        dotclear()->template()->addBlock('EntryTags', [__CLASS__, 'EntryTags']);
-        dotclear()->template()->addBlock('TagIf', [__CLASS__, 'TagIf']);
-        dotclear()->template()->addValue('TagID', [__CLASS__, 'TagID']);
-        dotclear()->template()->addValue('TagCount', [__CLASS__, 'TagCount']);
-        dotclear()->template()->addValue('TagPercent', [__CLASS__, 'TagPercent']);
-        dotclear()->template()->addValue('TagRoundPercent', [__CLASS__, 'TagRoundPercent']);
-        dotclear()->template()->addValue('TagURL', [__CLASS__, 'TagURL']);
-        dotclear()->template()->addValue('TagCloudURL', [__CLASS__, 'TagCloudURL']);
-        dotclear()->template()->addValue('TagFeedURL', [__CLASS__, 'TagFeedURL']);
+        dotclear()->template()->addBlock('Tags', [$this, 'Tags']);
+        dotclear()->template()->addBlock('TagsHeader', [$this, 'TagsHeader']);
+        dotclear()->template()->addBlock('TagsFooter', [$this, 'TagsFooter']);
+        dotclear()->template()->addBlock('EntryTags', [$this, 'EntryTags']);
+        dotclear()->template()->addBlock('TagIf', [$this, 'TagIf']);
+        dotclear()->template()->addValue('TagID', [$this, 'TagID']);
+        dotclear()->template()->addValue('TagCount', [$this, 'TagCount']);
+        dotclear()->template()->addValue('TagPercent', [$this, 'TagPercent']);
+        dotclear()->template()->addValue('TagRoundPercent', [$this, 'TagRoundPercent']);
+        dotclear()->template()->addValue('TagURL', [$this, 'TagURL']);
+        dotclear()->template()->addValue('TagCloudURL', [$this, 'TagCloudURL']);
+        dotclear()->template()->addValue('TagFeedURL', [$this, 'TagFeedURL']);
 
         # Kept for backward compatibility (for now)
-        dotclear()->template()->addBlock('MetaData', [__CLASS__, 'Tags']);
-        dotclear()->template()->addBlock('MetaDataHeader', [__CLASS__, 'TagsHeader']);
-        dotclear()->template()->addBlock('MetaDataFooter', [__CLASS__, 'TagsFooter']);
-        dotclear()->template()->addValue('MetaID', [__CLASS__, 'TagID']);
-        dotclear()->template()->addValue('MetaPercent', [__CLASS__, 'TagPercent']);
-        dotclear()->template()->addValue('MetaRoundPercent', [__CLASS__, 'TagRoundPercent']);
-        dotclear()->template()->addValue('MetaURL', [__CLASS__, 'TagURL']);
-        dotclear()->template()->addValue('MetaAllURL', [__CLASS__, 'TagCloudURL']);
-        dotclear()->template()->addBlock('EntryMetaData', [__CLASS__, 'EntryTags']);
+        dotclear()->template()->addBlock('MetaData', [$this, 'Tags']);
+        dotclear()->template()->addBlock('MetaDataHeader', [$this, 'TagsHeader']);
+        dotclear()->template()->addBlock('MetaDataFooter', [$this, 'TagsFooter']);
+        dotclear()->template()->addValue('MetaID', [$this, 'TagID']);
+        dotclear()->template()->addValue('MetaPercent', [$this, 'TagPercent']);
+        dotclear()->template()->addValue('MetaRoundPercent', [$this, 'TagRoundPercent']);
+        dotclear()->template()->addValue('MetaURL', [$this, 'TagURL']);
+        dotclear()->template()->addValue('MetaAllURL', [$this, 'TagCloudURL']);
+        dotclear()->template()->addBlock('EntryMetaData', [$this, 'EntryTags']);
     }
 
-    public static function Tags($attr, $content)
+    public function Tags($attr, $content)
     {
         $type = isset($attr['type']) ? addslashes($attr['type']) : 'tag';
 
@@ -80,7 +80,7 @@ class TagsTemplate
         return $res;
     }
 
-    public static function TagsHeader($attr, $content)
+    public function TagsHeader($attr, $content)
     {
         return
             '<?php if (dotclear()->context()->meta->isStart()) : ?>' .
@@ -88,7 +88,7 @@ class TagsTemplate
             '<?php endif; ?>';
     }
 
-    public static function TagsFooter($attr, $content)
+    public function TagsFooter($attr, $content)
     {
         return
             '<?php if (dotclear()->context()->meta->isEnd()) : ?>' .
@@ -96,7 +96,7 @@ class TagsTemplate
             '<?php endif; ?>';
     }
 
-    public static function EntryTags($attr, $content)
+    public function EntryTags($attr, $content)
     {
         $type = isset($attr['type']) ? addslashes($attr['type']) : 'tag';
 
@@ -123,10 +123,10 @@ class TagsTemplate
         return $res;
     }
 
-    public static function TagIf($attr, $content)
+    public function TagIf($attr, $content)
     {
         $if        = [];
-        $operateur = isset($attr['operator']) ? dotclear()->template()::getOperator($attr['operator']) : '&&';
+        $operateur = isset($attr['operator']) ? dotclear()->template()->getOperator($attr['operator']) : '&&';
 
         if (isset($attr['has_entries'])) {
             $sign = (bool) $attr['has_entries'] ? '' : '!';
@@ -140,29 +140,29 @@ class TagsTemplate
         return $content;
     }
 
-    public static function TagID($attr)
+    public function TagID($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, 'dotclear()->context()->meta->meta_id') . '; ?>';
     }
 
-    public static function TagCount($attr)
+    public function TagCount($attr)
     {
         return '<?php echo dotclear()->context()->meta->count; ?>';
     }
 
-    public static function TagPercent($attr)
+    public function TagPercent($attr)
     {
         return '<?php echo dotclear()->context()->meta->percent; ?>';
     }
 
-    public static function TagRoundPercent($attr)
+    public function TagRoundPercent($attr)
     {
         return '<?php echo dotclear()->context()->meta->roundpercent; ?>';
     }
 
-    public static function TagURL($attr)
+    public function TagURL($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -170,14 +170,14 @@ class TagsTemplate
             'rawurlencode(dotclear()->context()->meta->meta_id))') . '; ?>';
     }
 
-    public static function TagCloudURL($attr)
+    public function TagCloudURL($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("tags")') . '; ?>';
     }
 
-    public static function TagFeedURL($attr)
+    public function TagFeedURL($attr)
     {
         $type = !empty($attr['type']) ? $attr['type'] : 'rss2';
 

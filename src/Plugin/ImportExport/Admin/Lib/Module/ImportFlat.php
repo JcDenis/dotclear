@@ -259,7 +259,7 @@ class ImportFlat extends Module
                     # Do not test each zip file content here, its too long
                     if (substr($entry_path, -4) == '.zip') {
                         $public_files[$entry] = $entry_path;
-                    } elseif (self::checkFileContent($entry_path)) {
+                    } elseif ($this->checkFileContent($entry_path)) {
                         $public_files[$entry] = $entry_path;
                     }
                 }
@@ -269,7 +269,7 @@ class ImportFlat extends Module
         return $public_files;
     }
 
-    protected static function checkFileContent($entry_path)
+    protected function checkFileContent($entry_path)
     {
         $ret = false;
 

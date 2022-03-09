@@ -26,13 +26,13 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        if (dotclear()->blog()->settings()->system->theme != 'Ductile') {
+        if (!$this->isTheme()) {
             return;
         }
 
-        DuctileBehavior::initDuctile();
-        DuctileTemplate::initDuctile();
+        new DuctileBehavior();
+        new DuctileTemplate();
     }
 }

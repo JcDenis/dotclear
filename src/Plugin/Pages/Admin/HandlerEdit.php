@@ -350,7 +350,7 @@ class HandlerEdit extends AbstractPage
             ->setPageHelp('page', 'core_wiki')
             ->setPageTitle($page_title . ' - ' . __('Pages'))
             ->setPageHead(
-                static::jsModal() .
+                dotclear()->resource()->modal() .
                 dotclear()->resource()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
                 dotclear()->resource()->load('_post.js') .
                 dotclear()->resource()->load('page.js', 'Plugin', 'Pages')
@@ -392,10 +392,10 @@ class HandlerEdit extends AbstractPage
 
         $this
             ->setPageHead(
-                static::jsConfirmClose('entry-form', 'comment-form') .
+                dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
                 # --BEHAVIOR-- adminPostHeaders
                 dotclear()->behavior()->call('adminPageHeaders') .
-                static::jsPageTabs($default_tab) .
+                dotclear()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([

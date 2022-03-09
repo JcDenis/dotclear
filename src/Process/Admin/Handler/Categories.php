@@ -135,7 +135,7 @@ class Categories extends Page
             ->setPageTitle(__('Categories'))
             ->setPageHelp('core_categories')
             ->setPageHead(
-                static::jsConfirmClose('form-categories') .
+                dotclear()->resource()->confirmClose('form-categories') .
                 dotclear()->resource()->load('_categories.js')
             )
             ->setPageBreadcrumb([

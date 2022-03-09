@@ -29,21 +29,21 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Menu and favs
-        static::addStandardMenu('Blog');
-        static::addStandardFavorites('usage,contentadmin');
+        $this->addStandardMenu('Blog');
+        $this->addStandardFavorites('usage,contentadmin');
 
         # Behaviors and url
-        TagsUrl::initTags();
-        TagsCore::initTags();
-        TagsBehavior::initTags();
-        TagsXmlrpc::initTags();
+        new TagsUrl();
+        new TagsCore();
+        new TagsBehavior();
+        new TagsXmlrpc();
 
         # Widgets
         if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
-            TagsWidgets::initTags();
+            new TagsWidgets();
         }
     }
 }

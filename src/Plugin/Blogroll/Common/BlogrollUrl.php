@@ -26,12 +26,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class BlogrollUrl extends Url
 {
-    public static function initBlogroll()
+    public function __construct()
     {
-        dotclear()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [__CLASS__, 'xbel']);
+        dotclear()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [$this, 'xbel']);
     }
 
-    public static function xbel($args)
+    public function xbel($args)
     {
         $blogroll = new Blogroll();
 

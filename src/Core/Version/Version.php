@@ -102,7 +102,7 @@ class Version
      *
      * @return boolean    True if comparison success
      */
-    public static function compare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
+    public function compare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
     {
         if ($strict) {
             $current_version  = preg_replace('!-r(\d+)$!', '-p$1', $current_version);

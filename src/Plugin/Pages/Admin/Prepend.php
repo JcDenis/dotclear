@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Declare settings name
         dotclear()->blog()->settings()->addNamespace('pages');
@@ -43,7 +43,7 @@ class Prepend extends AbstractPrepend
         );
 
         # Add menu
-        static::addStandardMenu('Blog');
+        $this->addStandardMenu('Blog');
 
         # Add favorites
         dotclear()->behavior()->add('adminDashboardFavorites', function ($favs) {
@@ -102,15 +102,15 @@ class Prepend extends AbstractPrepend
         });
 
         # Urls
-        PagesUrl::initPages();
+        new PagesUrl();
 
         # Widgets
         if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
-            PagesWidgets::initPages();
+            new PagesWidgets();
         }
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         if (dotclear()->version()->get('pages') != null) {
             return null;

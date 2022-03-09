@@ -21,12 +21,12 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class PingsCore
 {
-    public static function initPings()
+    public function __construct()
     {
-        dotclear()->behavior()->add('coreFirstPublicationEntries', [__CLASS__, 'doPings']);
+        dotclear()->behavior()->add('coreFirstPublicationEntries', [$this, 'doPings']);
     }
 
-    public static function doPings($blog, $ids)
+    public function doPings($blog, $ids)
     {
         if (!dotclear()->blog()->settings()->pings->pings_active) {
             return;

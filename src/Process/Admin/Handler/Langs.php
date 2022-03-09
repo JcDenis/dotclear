@@ -58,7 +58,7 @@ class Langs extends Page
                     throw new AdminException(__('Permissions to delete language denied.'));
                 }
 
-                self::addSuccessNotice(__('Language has been successfully deleted.'));
+                dotclear()->notice()->addSuccessNotice(__('Language has been successfully deleted.'));
                 dotclear()->adminurl()->redirect('admin.langs');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -86,7 +86,7 @@ class Langs extends Page
                 $client->get($path);
 
                 try {
-                    $ret_code = self::langInstall($dest);
+                    $ret_code = $this->langInstall($dest);
                 } catch (\Exception $e) {
                     @unlink($dest);
 
@@ -95,9 +95,9 @@ class Langs extends Page
 
                 @unlink($dest);
                 if ($ret_code == 2) {
-                    self::addSuccessNotice(__('Language has been successfully upgraded'));
+                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully upgraded'));
                 } else {
-                    self::addSuccessNotice(__('Language has been successfully installed.'));
+                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully installed.'));
                 }
                 dotclear()->adminurl()->redirect('admin.langs');
             } catch (\Exception $e) {
@@ -119,7 +119,7 @@ class Langs extends Page
                 }
 
                 try {
-                    $ret_code = self::langInstall($dest);
+                    $ret_code = $this->langInstall($dest);
                 } catch (\Exception $e) {
                     @unlink($dest);
 
@@ -288,7 +288,7 @@ class Langs extends Page
         }
     }
 
-    private static function langInstall($file)
+    private function langInstall($file)
     {
         $zip = new Unzip($file);
         $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');

@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class AkismetBehavior
 {
-    public static function initAkismet()
+    public function __construct()
     {
         dotclear()->blog()->settings()->addNamespace('akismet');
 

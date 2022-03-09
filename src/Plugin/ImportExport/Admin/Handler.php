@@ -95,7 +95,7 @@ class Handler extends AbstractPage
 
             $this->setPageContent(
                 '<h3>' . __('Import') . '</h3>' .
-                self::listImportExportModules($modules['import']) .
+                $this->listImportExportModules($modules['import']) .
                 '<h3>' . __('Export') . '</h3>' .
                 '<p class="info">' . sprintf(
                     __('Export functions are in the page %s.'),
@@ -109,7 +109,7 @@ class Handler extends AbstractPage
 
     //protected function getPageContent(): void { }
 
-    private static function listImportExportModules($modules)
+    private function listImportExportModules($modules)
     {
         $res = '';
         foreach ($modules as $id) {

@@ -148,7 +148,7 @@ class Handler extends AbstractPage
                 ]
             )
             ->setPageHead(
-                static::jsPageTabs($this->m_tab) .
+                dotclear()->resource()->pageTabs($this->m_tab) .
                 dotclear()->resource()->load('settings.js', 'Plugin', 'Maintenance')
             )
         ;

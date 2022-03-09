@@ -261,7 +261,7 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Ductile configuration'))
             ->setPageHelp('ductile')
-            ->setPageHead(static::jsPageTabs())
+            ->setPageHead(dotclear()->resource()->pageTabs())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),

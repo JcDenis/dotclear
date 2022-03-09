@@ -26,11 +26,11 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Menu and favs
-        static::addStandardMenu('Plugins');
-        static::addStandardFavorites();
+        $this->addStandardMenu('Plugins');
+        $this->addStandardFavorites();
 
         # ImportExport modules
         dotclear()->behavior()->add('importExportModules', function ($modules) {

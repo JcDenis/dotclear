@@ -418,8 +418,8 @@ class Post extends Page
         }
 
         $this->setPageHead(
-            static::jsModal() .
-            static::jsMetaEditor()
+            dotclear()->resource()->modal() .
+            dotclear()->resource()->metaEditor()
         );
 
         if ($this->post_editor) {
@@ -465,10 +465,10 @@ class Post extends Page
             ->setPageTitle($page_title . ' - ' . __('Posts'))
             ->setPageHead(
                 dotclear()->resource()->load('_post.js') .
-                static::jsConfirmClose('entry-form', 'comment-form') .
+                dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
                 # --BEHAVIOR-- adminPostHeaders
                 dotclear()->behavior()->call('adminPostHeaders') .
-                static::jsPageTabs($default_tab) .
+                dotclear()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([

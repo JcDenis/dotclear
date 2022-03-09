@@ -47,7 +47,7 @@ class Meta
         $res = [];
         foreach (explode(',', $str) as $i => $tag) {
             $tag = trim($tag);
-            $tag = self::sanitizeMetaID($tag);
+            $tag = $this->sanitizeMetaID($tag);
 
             if ($tag != false) {
                 $res[$i] = $tag;
@@ -484,7 +484,7 @@ class Meta
      */
     public function updateMeta(string $meta_id, string $new_meta_id, ?string $type = null, ?string $post_type = null): bool
     {
-        $new_meta_id = self::sanitizeMetaID($new_meta_id);
+        $new_meta_id = $this->sanitizeMetaID($new_meta_id);
 
         if ($new_meta_id == $meta_id) {
             return true;

@@ -27,10 +27,10 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        BlogrollWidgets::initBlogroll();
-        BlogrollTemplate::initBlogroll();
-        BlogrollUrl::initBlogroll();
+        new BlogrollWidgets();
+        new BlogrollTemplate();
+        new BlogrollUrl();
     }
 }

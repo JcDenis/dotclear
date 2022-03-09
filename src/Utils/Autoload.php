@@ -53,10 +53,10 @@ class Autoload
     public function __construct(string $root_prefix = '', string $root_base_dir = '', bool $prepend = false)
     {
         if (!empty($root_prefix)) {
-            $this->root_prefix = static::normalizePrefix($root_prefix);
+            $this->root_prefix = $this->normalizePrefix($root_prefix);
         }
         if (!empty($root_base_dir)) {
-            $this->root_base_dir = static::normalizeBaseDir($root_base_dir);
+            $this->root_base_dir = $this->normalizeBaseDir($root_base_dir);
         }
 
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
@@ -89,7 +89,7 @@ class Autoload
      *
      * @return string Prefix with only right namesapce separator
      */
-    public static function normalizePrefix(string $prefix): string
+    public function normalizePrefix(string $prefix): string
     {
         return ucfirst(trim($prefix, self::NS_SEP)) . self::NS_SEP;
     }
@@ -101,7 +101,7 @@ class Autoload
      *
      * @return string Base dir with right directory separator
      */
-    public static function normalizeBaseDir(string $base_dir): string
+    public function normalizeBaseDir(string $base_dir): string
     {
         return rtrim($base_dir, self::DIR_SEP) . self::DIR_SEP;
     }
@@ -113,7 +113,7 @@ class Autoload
      *
      * @return string|null   Cleaned string or null if empty
      */
-    public static function qualifyNamespace(string $str): ?string
+    public function qualifyNamespace(string $str): ?string
     {
         $str = preg_replace(
             [
@@ -127,7 +127,7 @@ class Autoload
             $str
         );
 
-        return !$str ? null : static::normalizePrefix($str);
+        return emtpy($str) ? null : $this->normalizePrefix($str);
     }
 
     /**
@@ -143,8 +143,8 @@ class Autoload
      */
     public function addNamespace(string $prefix, string $base_dir, bool $prepend = false): void
     {
-        $prefix   = $this->root_prefix . static::normalizePrefix($prefix);
-        $base_dir = $this->root_base_dir . static::normalizeBaseDir($base_dir);
+        $prefix   = $this->root_prefix . $this->normalizePrefix($prefix);
+        $base_dir = $this->root_base_dir . $this->normalizeBaseDir($base_dir);
 
         if (isset($this->prefixes[$prefix]) === false) {
             $this->prefixes[$prefix] = [];
@@ -246,7 +246,7 @@ class Autoload
      *
      * @return array Loaded files list
      */
-    public static function getLoadedFiles(): array
+    public function getLoadedFiles(): array
     {
         return empty(self::$loaded_files) ? [] : array_keys(self::$loaded_files);
     }
@@ -256,7 +256,7 @@ class Autoload
      *
      * @return  int     Number of requests
      */
-    public static function getRequestsCount(): int
+    public function getRequestsCount(): int
     {
         return self::$request_count;
     }

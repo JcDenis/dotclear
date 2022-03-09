@@ -84,7 +84,7 @@ class HandlerTheme extends AbstractPage
                 ->setPageHelp('core_blog_theme')
                 ->setPageHead(
                     dotclear()->resource()->load('_blog_theme.js') .
-                    static::jsPageTabs() .
+                    dotclear()->resource()->pageTabs() .
 
                     # --BEHAVIOR-- pluginsToolsHeaders
                     (string) dotclear()->behavior()->call('themesToolsHeaders', false)

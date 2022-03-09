@@ -73,7 +73,7 @@ class Widgets
     public function elements($sorted = false)
     {
         if ($sorted) {
-            uasort($this->__widgets, ['self', 'sort']);
+            uasort($this->__widgets, [$this, 'sort']);
         }
 
         return $this->__widgets;
@@ -103,7 +103,7 @@ class Widgets
             return false;
         }
 
-        uasort($A, ['self', 'arraySort']);
+        uasort($A, [$this, 'arraySort']);
 
         $result = new Widgets();
         foreach ($A as $v) {
@@ -124,7 +124,7 @@ class Widgets
         return $result;
     }
 
-    private static function arraySort($a, $b)
+    private function arraySort($a, $b)
     {
         if ($a['order'] == $b['order']) {
             return 0;
@@ -133,7 +133,7 @@ class Widgets
         return $a['order'] > $b['order'] ? 1 : -1;
     }
 
-    private static function sort($a, $b)
+    private function sort($a, $b)
     {
         $c = Lexical::removeDiacritics(mb_strtolower($a->name()));
         $d = Lexical::removeDiacritics(mb_strtolower($b->name()));

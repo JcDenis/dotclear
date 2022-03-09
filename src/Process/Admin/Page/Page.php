@@ -20,7 +20,6 @@ use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Exception\AdminException;
 use Dotclear\File\Files;
-use Dotclear\File\Path;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
 use Dotclear\Network\Http;
@@ -33,46 +32,46 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 abstract class Page
 {
-    /** @var string|null            Page type */
+    /** @var string|null    Page type */
     private $page_type = null;
 
-    /** @var string                 Page title */
+    /** @var string         Page title */
     private $page_title = '';
 
-    /** @var string                 Page head */
+    /** @var string         Page head */
     private $page_head = '';
 
-    /** @var string                 Page content */
+    /** @var string         Page content */
     private $page_content = '';
 
-    /** @var array                  Help blocks names */
+    /** @var array          Help blocks names */
     private $page_help = [];
 
-    /** @var array                  Page breadcrumb (brut)) */
+    /** @var array          Page breadcrumb (brut)) */
     private $page_breadcrumb = ['elements' => null, 'options' => []];
 
-    /** @var bool                   Load once xframe */
-    private static $page_xframe_loaded = false;
+    /** @var bool           Load once xframe */
+    private $page_xframe_loaded = false;
 
-    /** @var string                 Handler name that calls page */
+    /** @var string         Handler name that calls page */
     protected $handler;
 
-    /** @var Action                 Action instance */
+    /** @var Action         Action instance */
     protected $action;
 
-    /** @var Filter                 Filter instance */
+    /** @var Filter         Filter instance */
     protected $filter;
 
-    /** @var Inventory                Inventory instance */
-    protected $catalog;
+    /** @var Inventory      Inventory instance */
+    protected $inventory;
 
-    /** @var array                  Blog settings namespace to initialize */
+    /** @var array          Blog settings namespace to initialize */
     protected $namespaces = [];
 
-    /** @var array                  User workswpaces to initialize */
+    /** @var array          User workswpaces to initialize */
     protected $workspaces = [];
 
-    /** @var array                  Misc options for page content */
+    /** @var array          Misc options for page content */
     protected $options = [];
 
     public function __construct(string $handler = 'admin.home')
@@ -189,8 +188,8 @@ abstract class Page
             }
 
             # Load list Inventory
-            if (($catalog_class = $this->GetInventoryInstance()) !== null) {
-                $this->catalog = $catalog_class;
+            if (($inventory_class = $this->GetInventoryInstance()) !== null) {
+                $this->inventory = $inventory_class;
             }
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
@@ -286,9 +285,9 @@ abstract class Page
 
         # Prevents Clickjacking as far as possible
         if (isset($this->options['x-frame-allow'])) {
-            self::setXFrameOptions($headers, $this->options['x-frame-allow']);
+            $this->setXFrameOptions($headers, $this->options['x-frame-allow']);
         } else {
-            self::setXFrameOptions($headers);
+            $this->setXFrameOptions($headers);
         }
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
@@ -388,11 +387,10 @@ abstract class Page
         $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
-        echo dotclear()->resource()->json('dotclear_init', $js);
-
         echo
-        $this->jsCommon() .
-        $this->jsToggles() .
+        dotclear()->resource()->json('dotclear_init', $js) .
+        dotclear()->resource()->common() .
+        dotclear()->resource()->toggles() .
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
@@ -505,11 +503,10 @@ abstract class Page
         $js['debug'] = !dotclear()->production();
 
         // Set JSON data
-        echo dotclear()->resource()->json('dotclear_init', $js);
-
         echo
-        $this->jsCommon() .
-        $this->jsToggles() .
+        dotclear()->resource()->json('dotclear_init', $js) .
+        dotclear()->resource()->common() .
+        dotclear()->resource()->toggles() .
         $this->page_head;
 
         # --BEHAVIOR-- adminPageHTMLHead, string, string
@@ -771,8 +768,8 @@ abstract class Page
         }
         $res.= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
-        $loaded_files = dotclear()->autoload()::getLoadedFiles();
-        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoload()::getRequestsCount() . ' requests)</p>';
+        $loaded_files = dotclear()->autoload()->getLoadedFiles();
+        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoload()->getRequestsCount() . ' requests)</p>';
         //$res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
@@ -801,9 +798,9 @@ abstract class Page
      * @param      array|ArrayObject    $headers  The headers
      * @param      mixed                $origin   The origin
      */
-    public static function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
+    public function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
     {
-        if (self::$page_xframe_loaded) {
+        if ($this->page_xframe_loaded) {
             return;
         }
 
@@ -815,7 +812,7 @@ abstract class Page
         } else {
             $headers['x-frame-options'] = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
         }
-        self::$page_xframe_loaded = true;
+        $this->page_xframe_loaded = true;
     }
     //@}
 
@@ -970,7 +967,7 @@ abstract class Page
      * Get Inventory instance
      *
      * If page contains list Inventory, load instance from here.
-     * It wil be accessible from $this->catalog
+     * It wil be accessible from $this->inventory
      */
     protected function GetInventoryInstance(): ?Inventory
     {
@@ -1011,373 +1008,6 @@ abstract class Page
     protected function getPageEnd(): void
     {
         throw new AdminException('Unknow page type');
-    }
-    //@}
-
-    /// @name Page helper methods
-    //@{
-
-    /**
-     * Get HTML code to load common JS for admin pages
-     *
-     * @return     string
-     */
-    public function jsCommon(): string
-    {
-        if (dotclear()->user()->preference()) {
-            dotclear()->user()->preference()->addWorkspace('interface');
-        }
-
-        $js = [
-            'nonce' => dotclear()->nonce()->get(),
-
-            'img_plus_src' => '?df=images/expand.svg',
-            'img_plus_txt' => '▶',
-            'img_plus_alt' => __('uncover'),
-
-            'img_minus_src' => '?df=images/hide.svg',
-            'img_minus_txt' => '▼',
-            'img_minus_alt' => __('hide'),
-
-            'adblocker_check' => dotclear()->config()->admin_addblocker_check && dotclear()->user()->preference()->interface->nocheckadblocker !== true,
-        ];
-
-        $js_msg = [
-            'help'                                 => __('Need help?'),
-            'new_window'                           => __('new window'),
-            'help_hide'                            => __('Hide'),
-            'to_select'                            => __('Select:'),
-            'no_selection'                         => __('no selection'),
-            'select_all'                           => __('select all'),
-            'invert_sel'                           => __('Invert selection'),
-            'website'                              => __('Web site:'),
-            'email'                                => __('Email:'),
-            'ip_address'                           => __('IP address:'),
-            'error'                                => __('Error:'),
-            'entry_created'                        => __('Entry has been successfully created.'),
-            'edit_entry'                           => __('Edit entry'),
-            'view_entry'                           => __('view entry'),
-            'confirm_delete_posts'                 => __('Are you sure you want to delete selected entries (%s)?'),
-            'confirm_delete_medias'                => __('Are you sure you want to delete selected medias (%d)?'),
-            'confirm_delete_categories'            => __('Are you sure you want to delete selected categories (%s)?'),
-            'confirm_delete_post'                  => __('Are you sure you want to delete this entry?'),
-            'click_to_unlock'                      => __('Click here to unlock the field'),
-            'confirm_spam_delete'                  => __('Are you sure you want to delete all spams?'),
-            'confirm_delete_comments'              => __('Are you sure you want to delete selected comments (%s)?'),
-            'confirm_delete_comment'               => __('Are you sure you want to delete this comment?'),
-            'cannot_delete_users'                  => __('Users with posts cannot be deleted.'),
-            'confirm_delete_user'                  => __('Are you sure you want to delete selected users (%s)?'),
-            'confirm_delete_blog'                  => __('Are you sure you want to delete selected blogs (%s)?'),
-            'confirm_delete_category'              => __('Are you sure you want to delete category "%s"?'),
-            'confirm_reorder_categories'           => __('Are you sure you want to reorder all categories?'),
-            'confirm_delete_media'                 => __('Are you sure you want to remove media "%s"?'),
-            'confirm_delete_directory'             => __('Are you sure you want to remove directory "%s"?'),
-            'confirm_extract_current'              => __('Are you sure you want to extract archive in current directory?'),
-            'confirm_remove_attachment'            => __('Are you sure you want to remove attachment "%s"?'),
-            'confirm_delete_lang'                  => __('Are you sure you want to delete "%s" language?'),
-            'confirm_delete_plugin'                => __('Are you sure you want to delete "%s" plugin?'),
-            'confirm_delete_plugins'               => __('Are you sure you want to delete selected plugins?'),
-            'use_this_theme'                       => __('Use this theme'),
-            'remove_this_theme'                    => __('Remove this theme'),
-            'confirm_delete_theme'                 => __('Are you sure you want to delete "%s" theme?'),
-            'confirm_delete_themes'                => __('Are you sure you want to delete selected themes?'),
-            'confirm_delete_backup'                => __('Are you sure you want to delete this backup?'),
-            'confirm_revert_backup'                => __('Are you sure you want to revert to this backup?'),
-            'zip_file_content'                     => __('Zip file content'),
-            'xhtml_validator'                      => __('XHTML markup validator'),
-            'xhtml_valid'                          => __('XHTML content is valid.'),
-            'xhtml_not_valid'                      => __('There are XHTML markup errors.'),
-            'warning_validate_no_save_content'     => __('Attention: an audit of a content not yet registered.'),
-            'confirm_change_post_format'           => __('You have unsaved changes. Switch post format will loose these changes. Proceed anyway?'),
-            'confirm_change_post_format_noconvert' => __('Warning: post format change will not convert existing content. You will need to apply new format by yourself. Proceed anyway?'),
-            'load_enhanced_uploader'               => __('Loading enhanced uploader, please wait.'),
-
-            'module_author'  => __('Author:'),
-            'module_details' => __('Details'),
-            'module_support' => __('Support'),
-            'module_help'    => __('Help:'),
-            'module_section' => __('Section:'),
-            'module_tags'    => __('Tags:'),
-
-            'close_notice' => __('Hide this notice'),
-
-            'show_password' => __('Show password'),
-            'hide_password' => __('Hide password'),
-
-            'set_today' => __('Reset to now'),
-
-            'adblocker' => __('An ad blocker has been detected on this Dotclear dashboard (Ghostery, Adblock plus, uBlock origin, …) and it may interfere with some features. In this case you should disable it.'),
-        ];
-
-        return
-        dotclear()->resource()->load('prepend.js') .
-        dotclear()->resource()->load('jquery/jquery.js') .
-        (
-            !dotclear()->production() ?
-            dotclear()->resource()->json('dotclear_jquery', [
-                'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
-            ]) .
-            dotclear()->resource()->load('jquery-mute.js') .
-            dotclear()->resource()->load('jquery/jquery-migrate.js') :
-            ''
-        ) .
-
-        dotclear()->resource()->json('dotclear', $js) .
-        dotclear()->resource()->json('dotclear_msg', $js_msg) .
-
-        dotclear()->resource()->load('common.js') .
-        dotclear()->resource()->load('ads.js') .
-        dotclear()->resource()->load('services.js') .
-        dotclear()->resource()->load('prelude.js');
-    }
-
-    /**
-     * Get HTML code to load toggles JS
-     *
-     * @return     string
-     */
-    public function jsToggles(): string
-    {
-        $js = [];
-        if (dotclear()->user()->preference()->toggles) {
-            $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->toggles->unfolded_sections);
-            foreach ($unfolded_sections as $k => &$v) {
-                if ($v !== '') {
-                    $js[$unfolded_sections[$k]] = true;
-                }
-            }
-        }
-
-        return
-        dotclear()->resource()->json('dotclear_toggles', $js) .
-        dotclear()->resource()->load('toggles.js');
-    }
-
-    /**
-     * Get HTML code for filters control JS utility
-     *
-     * @param      bool    $show   Show filters?
-     *
-     * @return     string
-     */
-    public function jsFilterControl(bool $show = true): string
-    {
-        $js   = [
-            'show_filters'      => (bool) $show,
-            'filter_posts_list' => __('Show filters and display options'),
-            'cancel_the_filter' => __('Cancel filters and display options'),
-        ];
-
-        return
-        dotclear()->resource()->json('filter_controls', $js) .
-        dotclear()->resource()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->interface->auto_filter]) .
-        dotclear()->resource()->load('filter-controls.js');
-    }
-
-    /**
-     * Get HTML to load Upload JS utility
-     *
-     * @param      array        $params    The parameters
-     * @param      string|null  $base_url  The base url
-     *
-     * @return     string
-     */
-    public function jsUpload(array $params = [], ?string $base_url = null): string
-    {
-        if (!$base_url) {
-            $base_url = Path::clean(dirname(preg_replace('/(\?.*$)?/', '', $_SERVER['REQUEST_URI']))) . '/';
-        }
-
-        $params = array_merge($params, [
-            'sess_id=' . session_id(),
-            'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . dotclear()->nonce()->get(),
-        ]);
-
-        $js_msg = [
-            'enhanced_uploader_activate' => __('Temporarily activate enhanced uploader'),
-            'enhanced_uploader_disable'  => __('Temporarily disable enhanced uploader'),
-        ];
-        $js = [
-            'msg' => [
-                'limit_exceeded'             => __('Limit exceeded.'),
-                'size_limit_exceeded'        => __('File size exceeds allowed limit.'),
-                'canceled'                   => __('Canceled.'),
-                'http_error'                 => __('HTTP Error:'),
-                'error'                      => __('Error:'),
-                'choose_file'                => __('Choose file'),
-                'choose_files'               => __('Choose files'),
-                'cancel'                     => __('Cancel'),
-                'clean'                      => __('Clean'),
-                'upload'                     => __('Upload'),
-                'send'                       => __('Send'),
-                'file_successfully_uploaded' => __('File successfully uploaded.'),
-                'no_file_in_queue'           => __('No file in queue.'),
-                'file_in_queue'              => __('1 file in queue.'),
-                'files_in_queue'             => __('%d files in queue.'),
-                'queue_error'                => __('Queue error:'),
-            ],
-            'base_url' => $base_url,
-        ];
-
-        return
-        dotclear()->resource()->json('file_upload', $js) .
-        dotclear()->resource()->json('file_upload_msg', $js_msg) .
-        dotclear()->resource()->load('file-upload.js') .
-        dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-        dotclear()->resource()->load('jsUpload/tmpl.js') .
-        dotclear()->resource()->load('jsUpload/template-upload.js') .
-        dotclear()->resource()->load('jsUpload/template-download.js') .
-        dotclear()->resource()->load('jsUpload/load-image.js') .
-        dotclear()->resource()->load('jsUpload/jquery.iframe-transport.js') .
-        dotclear()->resource()->load('jsUpload/jquery.fileupload.js') .
-        dotclear()->resource()->load('jsUpload/jquery.fileupload-process.js') .
-        dotclear()->resource()->load('jsUpload/jquery.fileupload-resize.js') .
-        dotclear()->resource()->load('jsUpload/jquery.fileupload-ui.js');
-    }
-    //@}
-
-
-    /// @name Page helper static methods
-    //@{
-    /**
-     * Get HTML code to load Magnific popup JS
-     *
-     * @return     string
-     */
-    public static function jsModal()
-    {
-        return
-        dotclear()->resource()->load('jquery/jquery.magnific-popup.js');
-    }
-
-    /**
-     * Get HTML code to load ConfirmClose JS
-     *
-     * @param      string  ...$args  The arguments
-     *
-     * @return     string
-     */
-    public static function jsConfirmClose(string ...$args): string
-    {
-        $js = [
-            'prompt' => __('You have unsaved changes.'),
-            'forms'  => $args,
-        ];
-
-        return
-        dotclear()->resource()->json('confirm_close', $js) .
-        dotclear()->resource()->load('confirm-close.js');
-    }
-
-    /**
-     * Get HTML code to load page tabs JS
-     *
-     * @param      mixed   $default  The default
-     *
-     * @return     string
-     */
-    public static function jsPageTabs($default = null): string
-    {
-        $js = [
-            'default' => $default,
-        ];
-
-        return
-        dotclear()->resource()->json('page_tabs', $js) .
-        dotclear()->resource()->load('jquery/jquery.pageTabs.js') .
-        dotclear()->resource()->load('page-tabs.js');
-    }
-
-    /**
-     * Get HTML code to load meta editor
-     *
-     * @return     string
-     */
-    public static function jsMetaEditor()
-    {
-        return dotclear()->resource()->load('meta-editor.js');
-    }
-
-    /**
-     * Get HTML code to load Codemirror
-     *
-     * @param      string  $theme  The theme
-     * @param      bool    $multi  Is multiplex?
-     * @param      array   $modes  The modes
-     *
-     * @return     string
-     */
-    public static function jsLoadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
-    {
-        $ret = dotclear()->resource()->js('codemirror/lib/codemirror.css') .
-        dotclear()->resource()->load('codemirror/lib/codemirror.js');
-        if ($multi) {
-            $ret .= dotclear()->resource()->load('codemirror/addon/mode/multiplex.js');
-        }
-        foreach ($modes as $mode) {
-            $ret .= dotclear()->resource()->load('codemirror/mode/' . $mode . '/' . $mode . '.js');
-        }
-        $ret .= dotclear()->resource()->load('codemirror/addon/edit/closebrackets.js') .
-        dotclear()->resource()->load('codemirror/addon/edit/matchbrackets.js') .
-        dotclear()->resource()->load('codemirror/addon/display/fullscreen.css') .
-        dotclear()->resource()->load('codemirror/addon/display/fullscreen.js');
-        if ($theme != '') {
-            $ret .= dotclear()->resource()->js('codemirror/theme/' . $theme . '.css');
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Get HTML code to run Codemirror
-     *
-     * @param      mixed        $name   The HTML name attribute
-     * @param      mixed        $id     The HTML id attribute
-     * @param      mixed        $mode   The Codemirror mode
-     * @param      string       $theme  The theme
-     *
-     * @return     string
-     */
-    public static function jsRunCodeMirror($name, $id = null, $mode = null, $theme = ''): string
-    {
-        if (is_array($name)) {
-            $js = $name;
-        } else {
-            $js = [[
-                'name'  => $name,
-                'id'    => $id,
-                'mode'  => $mode,
-                'theme' => $theme ?: 'default',
-            ]];
-        }
-
-        return
-            dotclear()->resource()->json('codemirror', $js) .
-            dotclear()->resource()->load('codemirror.js');
-    }
-
-    /**
-     * Gets the codemirror themes list.
-     *
-     * @return     array  The code mirror themes.
-     */
-    public static function getCodeMirrorThemes(): array
-    {
-        $themes      = [];
-        $themes_root = root_path('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
-        if (is_dir($themes_root) && is_readable($themes_root)) {
-            if (($d = @dir($themes_root)) !== false) {
-                while (($entry = $d->read()) !== false) {
-                    if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_readable($themes_root . '/' . $entry)) {
-                        $themes[] = substr($entry, 0, -4); // remove .css extension
-                    }
-                }
-                sort($themes);
-            }
-        }
-
-        return $themes;
     }
     //@}
 }

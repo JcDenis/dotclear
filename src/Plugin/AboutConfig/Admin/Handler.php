@@ -88,7 +88,7 @@ class Handler extends AbstractPage
             ->setPageTitle(__('about:config'))
             ->setPageHelp('aboutConfig')
             ->setPageHead(
-                static::jsPageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
+                dotclear()->resource()->pageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
                 dotclear()->resource()->load('index.js', 'Plugin', 'AboutConfig')
             )
             ->setPageBreadcrumb([

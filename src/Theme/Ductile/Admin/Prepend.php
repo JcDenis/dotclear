@@ -25,7 +25,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         dotclear()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
             return $module->id() == 'Ductile' && dotclear()->user()->check('admin', dotclear()->blog()->id) ?

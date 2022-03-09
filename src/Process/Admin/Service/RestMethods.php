@@ -26,13 +26,44 @@ use Dotclear\Utils\Text;
 class RestMethods
 {
     /**
+     * Register Dotclear default Rest methods
+     */
+    public function __construct()
+    {
+        $methods = [
+            'getPostsCount',
+            'getCommentsCount',
+            'checkNewsUpdate',
+            'checkCoreUpdate',
+            'checkStoreUpdate',
+            'getPostById',
+            'getCommentById',
+            'quickPost',
+            'validatePostMarkup',
+            'getZipMediaContent',
+            'getMeta',
+            'delMeta',
+            'setPostMeta',
+            'searchMeta',
+            'setSectionFold',
+            'getModuleById',
+            'setDashboardPositions',
+            'setListsOptions',
+        ];
+
+        foreach($methods as $method) {
+            dotclear()->rest()->addFunction($method, [$this, $method]);
+        }
+    }
+
+    /**
      * Get number of posts (whatever are their status) for current blog
      *
      * @param   array   $get    Cleaned $_GET
      *
      * @return  XmlTag          The response
      */
-    public static function getPostsCount(array $get): XmlTag
+    public function getPostsCount(array $get): XmlTag
     {
         $count = dotclear()->blog()->posts()->getPosts([], true)->f(0);
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
@@ -50,7 +81,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getCommentsCount(array $get): XmlTag
+    public function getCommentsCount(array $get): XmlTag
     {
         $count = dotclear()->blog()->comments()->getComments([], true)->f(0);
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
@@ -68,7 +99,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function checkNewsUpdate(array $get): XmlTag
+    public function checkNewsUpdate(array $get): XmlTag
     {
         # Dotclear news
 
@@ -120,7 +151,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function checkCoreUpdate(array $get): XmlTag
+    public function checkCoreUpdate(array $get): XmlTag
     {
         # Dotclear updates notifications
 
@@ -184,7 +215,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function checkStoreUpdate(array $get, array $post): XmlTag
+    public function checkStoreUpdate(array $get, array $post): XmlTag
     {
         # Dotclear store updates notifications
 
@@ -235,7 +266,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getPostById(array $get): XmlTag
+    public function getPostById(array $get): XmlTag
     {
         if (empty($get['id'])) {
             throw new AdminException('No post ID');
@@ -308,7 +339,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getCommentById(array $get): XmlTag
+    public function getCommentById(array $get): XmlTag
     {
         if (empty($get['id'])) {
             throw new AdminException('No comment ID');
@@ -355,7 +386,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function quickPost(array $get, array $post): XmlTag
+    public function quickPost(array $get, array $post): XmlTag
     {
         # Create category
         if (!empty($post['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
@@ -413,7 +444,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function validatePostMarkup(array $get, array $post): XmlTag
+    public function validatePostMarkup(array $get, array $post): XmlTag
     {
         if (!isset($post['excerpt'])) {
             throw new AdminException('No entry excerpt');
@@ -458,7 +489,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getZipMediaContent(array $get, array $post): XmlTag
+    public function getZipMediaContent(array $get, array $post): XmlTag
     {
         if (empty($get['id'])) {
             throw new AdminException('No media ID');
@@ -502,7 +533,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getMeta(array $get): XmlTag
+    public function getMeta(array $get): XmlTag
     {
         $postid   = !empty($get['postId']) ? $get['postId'] : null;
         $limit    = !empty($get['limit']) ? $get['limit'] : null;
@@ -566,7 +597,7 @@ class RestMethods
      *
      * @return  bool            The success
      */
-    public static function setPostMeta(array $get, array $post): bool
+    public function setPostMeta(array $get, array $post): bool
     {
         if (empty($post['postId'])) {
             throw new AdminException('No post ID');
@@ -606,7 +637,7 @@ class RestMethods
      *
      * @return  bool            The success
      */
-    public static function delMeta(array $get, array $post): bool
+    public function delMeta(array $get, array $post): bool
     {
         if (empty($post['postId'])) {
             throw new AdminException('No post ID');
@@ -632,7 +663,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function searchMeta(array $get): XmlTag
+    public function searchMeta(array $get): XmlTag
     {
         $q        = !empty($get['q']) ? $get['q'] : null;
         $metaType = !empty($get['metaType']) ? $get['metaType'] : null;
@@ -692,7 +723,7 @@ class RestMethods
      *
      * @return  bool            The success
      */
-    public static function setSectionFold(array $get, array $post): bool
+    public function setSectionFold(array $get, array $post): bool
     {
         if (empty($post['section'])) {
             throw new AdminException('No section name');
@@ -732,7 +763,7 @@ class RestMethods
      *
      * @return  bool            The success
      */
-    public static function setDashboardPositions(array $get, array $post): bool
+    public function setDashboardPositions(array $get, array $post): bool
     {
         if (empty($post['id'])) {
             throw new AdminException('No zone name');
@@ -761,7 +792,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function setListsOptions(array $get, array $post): XmlTag
+    public function setListsOptions(array $get, array $post): XmlTag
     {
         if (empty($post['id'])) {
             throw new AdminException('No list name');
@@ -808,7 +839,7 @@ class RestMethods
      *
      * @return  XmlTag          The response
      */
-    public static function getModuleById(array $get, array $post): XmlTag
+    public function getModuleById(array $get, array $post): XmlTag
     {
         if (empty($get['id'])) {
             throw new AdminException('No module ID');
@@ -854,36 +885,5 @@ class RestMethods
         }
 
         return $rsp;
-    }
-
-    /**
-     * Register Dotclear default Rest methods
-     */
-    public static function initDefaultRestMethods()
-    {
-        $methods = [
-            'getPostsCount',
-            'getCommentsCount',
-            'checkNewsUpdate',
-            'checkCoreUpdate',
-            'checkStoreUpdate',
-            'getPostById',
-            'getCommentById',
-            'quickPost',
-            'validatePostMarkup',
-            'getZipMediaContent',
-            'getMeta',
-            'delMeta',
-            'setPostMeta',
-            'searchMeta',
-            'setSectionFold',
-            'getModuleById',
-            'setDashboardPositions',
-            'setListsOptions',
-        ];
-
-        foreach($methods as $method) {
-            dotclear()->rest()->addFunction($method, [__CLASS__, $method]);
-        }
     }
 }

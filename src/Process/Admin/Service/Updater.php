@@ -498,7 +498,7 @@ class Updater
             $filename = $root . '/' . $m[2];
 
             # Invalid checksum
-            if (!is_readable($filename) || !self::md5_check($filename, $md5)) {
+            if (!is_readable($filename) || !$this->md5_check($filename, $md5)) {
                 $changes[] = substr($m[2], 2);
             }
         }
@@ -520,7 +520,7 @@ class Updater
         $v = $n == 1 ? md5($m[2] . $m[1]) : substr($m[2], 2);
     }
 
-    protected static function md5_check($filename, $md5)
+    protected function md5_check($filename, $md5)
     {
         if (md5_file($filename) == $md5) {
             return true;

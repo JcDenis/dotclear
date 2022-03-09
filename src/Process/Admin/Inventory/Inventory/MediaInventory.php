@@ -114,7 +114,7 @@ class MediaInventory extends Inventory
      *
      * @return  string                          The line
      */
-    public static function mediaLine(MediaFilter $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
+    public function mediaLine(MediaFilter $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
     {
         $fname = $f->basename;
         $file  = $query ? $f->relname : $f->basename;

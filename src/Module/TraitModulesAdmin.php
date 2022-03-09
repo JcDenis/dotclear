@@ -599,7 +599,7 @@ trait TraitModulesAdmin
         $sort_field = $this->getSort();
 
         # Sort modules by $sort_field (default sname)
-        $modules = $this->getSearch() === null ? self::sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
+        $modules = $this->getSearch() === null ? $this->sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
 
         $count = 0;
         foreach ($modules as $id => $module) {

@@ -21,14 +21,14 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class TagsUrl extends Url
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->url()->register('tag', 'tag', '^tag/(.+)$', [__CLASS__, 'tag']);
-        dotclear()->url()->register('tags', 'tags', '^tags$', [__CLASS__, 'tags']);
-        dotclear()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [__CLASS__, 'tagFeed']);
+        dotclear()->url()->register('tag', 'tag', '^tag/(.+)$', [$this, 'tag']);
+        dotclear()->url()->register('tags', 'tags', '^tags$', [$this, 'tags']);
+        dotclear()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [$this, 'tagFeed']);
     }
 
-    public static function tag($args)
+    public function tag($args)
     {
         $n = dotclear()->url()->getPageNumber($args);
 
@@ -75,12 +75,12 @@ class TagsUrl extends Url
         }
     }
 
-    public static function tags($args)
+    public function tags($args)
     {
         dotclear()->url()->serveDocument('tags.html');
     }
 
-    public static function tagFeed($args)
+    public function tagFeed($args)
     {
         if (!preg_match('#^(.+)/(atom|rss2)(/comments)?$#', $args, $m)) {
             dotclear()->url()->p404();

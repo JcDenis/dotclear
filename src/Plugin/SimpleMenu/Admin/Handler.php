@@ -407,7 +407,7 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Simple menu'))
             ->setPageHelp('simpleMenu')
-            ->setPageHead(static::jsConfirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
+            ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
         if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
             $this->setPageHead(

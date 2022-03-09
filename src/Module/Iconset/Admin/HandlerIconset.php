@@ -58,7 +58,7 @@ class HandlerIconset extends AbstractPage
             ->setPageHelp('core_iconset')
             ->setPageHead(
                 dotclear()->resource()->load('_plugins.js') .
-                static::jsPageTabs() .
+                dotclear()->resource()->pageTabs() .
 
                 # --BEHAVIOR-- modulesToolsHeaders
                 (string) dotclear()->behavior()->call('modulesToolsHeaders', false)

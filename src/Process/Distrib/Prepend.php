@@ -52,7 +52,7 @@ class Prepend extends Core
         $this->con()->begin();
 
         try {
-            $changes = Upgrade::dotclearUpgrade();
+            $changes = (new Upgrade())->doUpgrade();
         } catch (\Exception $e) {
             $this->con()->rollback();
 

@@ -21,17 +21,23 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 trait TraitPrependAdmin
 {
-    /** @var    array   Preformated list of favorites modules */
-    protected static $favorites = [];
+    /** @var    array   Module Favorites */
+    private $favorites = [];
 
-    # Install module is optionnal on Admin process
-    public static function checkModule(): bool
+    /**
+     * Module check is optionnal on Admin process
+     * @see Dotclear\Module\AbstractModules::loadModules()
+     */
+    public function checkModule(): bool
     {
         return true;
     }
 
-    # Install module is optionnal on Admin process
-    public static function installModule(): ?bool
+    /**
+     * Module install is optionnal on Admin process
+     * @see Dotclear\Module\AbstractModules::loadModules()
+     */
+    public function installModule(): ?bool
     {
         return null;
     }
@@ -48,56 +54,55 @@ trait TraitPrependAdmin
      * @param   string|null     $menu           The menu name
      * @param   string|null     $permissons     The permissions
      */
-    protected static function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
+    protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!dotclear()->adminurl()->exists('admin.plugin.' . static::$define->id())) {
+        if (!dotclear()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
             return;
         }
         if (!$menu || !isset(dotclear()->summary()[$menu])) {
             $menu = 'Plugins';
         }
         if ($permissions === '') {
-            $permissons = static::$define->permissions();
+            $permissons = $this->define()->permissions();
         }
 
         dotclear()->summary()[$menu]->addItem(
-            static::$define->name(),
-            dotclear()->adminurl()->get('admin.plugin.' . static::$define->id()),
+            $this->define()->name(),
+            dotclear()->adminurl()->get('admin.plugin.' . $this->define()->id()),
             [
-                '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon.svg',
-                '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon-dark.svg',
+                '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
+                '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
-            dotclear()->adminurl()->called() == 'admin.plugin.' . static::$define->id(),
+            dotclear()->adminurl()->called() == 'admin.plugin.' . $this->define()->id(),
             $permissions === null ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
         );
     }
 
     /**
      * Helper to add a standard admin favorites item
+     *
+     * If permissions is not set, defined module permissions are used
+     *
+     * @param   string|null     $permissions    Special permissions to show Favorite
      */
-    protected static function addStandardFavorites(?string $permissions = null): void
+    protected function addStandardFavorites(?string $permissions = null): void
     {
-        if (!dotclear()->adminurl()->exists('admin.plugin.' . static::$define->id())) {
+        if (!dotclear()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
             return;
         }
 
-        # call once for all modules
-        if (empty(static::$favorties)) {
-            dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
-                foreach (static::$favorites as $id => $values) {
-                    $favs->register($id, $values);
-                }
-            });
-        }
+        dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
+            $favs->register($this->define()->id(), $this->favorties);
+        });
 
-        $url = '?df=' . static::$define->type() . '/' . static::$define->id() . '/icon%s.svg';
+        $url = '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
 
-        static::$favorites[static::$define->id()] = [
-            'title'       => static::$define->name(),
-            'url'         => dotclear()->adminurl()->get('admin.plugin.' . static::$define->id()),
+        $this->favorties = [
+            'title'       => $this->define()->name(),
+            'url'         => dotclear()->adminurl()->get('admin.plugin.' . $this->define()->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
-            'permissions' => $permissions ?: static::$define->permissions(),
+            'permissions' => $permissions ?: $this->define()->permissions(),
         ];
     }
 }

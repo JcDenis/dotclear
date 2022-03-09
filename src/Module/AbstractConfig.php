@@ -52,7 +52,7 @@ abstract class AbstractConfig
      *
      * @return  string|null     The permissions to configure module
      */
-    public static function getPermissions(): ?string
+    public function getPermissions(): ?string
     {
         return null;
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\Behavior
+ * @class Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -17,8 +17,18 @@ use ArrayObject;
 
 use Dotclear\Html\Html;
 
-class Behavior
+class CKEditorBehavior
 {
+    public function __construct()
+    {
+        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        dotclear()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
+        dotclear()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
+        dotclear()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
+        dotclear()->behavior()->add('adminMediaURL', [$this, 'adminMediaURL']);
+        dotclear()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
+    }
+
     /**
      * adminPostEditor add javascript to the DOM to load ckeditor depending on context
      *
@@ -29,7 +39,7 @@ class Behavior
      *
      * @return     mixed
      */
-    public static function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = 'xhtml')
+    public function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = 'xhtml')
     {
         if (empty($editor) || $editor != 'CKEditor' || $syntax != 'xhtml') {
             return;
@@ -69,7 +79,7 @@ class Behavior
         return $res;
     }
 
-    public static function adminPopupMedia($editor = '')
+    public function adminPopupMedia($editor = '')
     {
         if (empty($editor) || $editor != 'dcCKEditor') {
             return;
@@ -78,7 +88,7 @@ class Behavior
         return dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
     }
 
-    public static function adminPopupLink($editor = '')
+    public function adminPopupLink($editor = '')
     {
         if (empty($editor) || $editor != 'dcCKEditor') {
             return;
@@ -87,7 +97,7 @@ class Behavior
         return dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
     }
 
-    public static function adminPopupPosts($editor = '')
+    public function adminPopupPosts($editor = '')
     {
         if (empty($editor) || $editor != 'dcCKEditor') {
             return;
@@ -96,14 +106,14 @@ class Behavior
         return dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
-    public static function adminMediaURLParams($p)
+    public function adminMediaURLParams($p)
     {
         if (!empty($_GET['editor'])) {
             $p['editor'] = Html::sanitizeURL($_GET['editor']);
         }
     }
 
-    public static function adminPageHTTPHeaderCSP($csp)
+    public function adminPageHTTPHeaderCSP($csp)
     {
         // add 'unsafe-inline' for CSS, add 'unsafe-eval' for scripts as far as CKEditor 4.x is used
         if (strpos($csp['style-src'], 'unsafe-inline') === false) {

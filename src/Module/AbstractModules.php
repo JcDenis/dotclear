@@ -55,6 +55,8 @@ abstract class AbstractModules
     /** @var    array           Loading process, modules to disable */
     private $to_disable = [];
 
+    private $modules_prepend = [];
+
     public function __construct()
     {
         $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
@@ -173,8 +175,8 @@ abstract class AbstractModules
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
-                $class::setDefine($define);
-                if (true !== $class::checkModule()) {
+                $this->modules_prepend[$id] = $prepend = new $class($define);
+                if (true !== $prepend->checkModule()) {
                     continue;
                 }
             }
@@ -182,12 +184,12 @@ abstract class AbstractModules
             # Load module main l10n
             $this->loadModuleL10N($id, $lang, 'main');
 
-            # Load module process specifics
+            # Load module process specifics (auto register admi nurl, ...)
             $this->loadModuleProcess($id);
 
-            # Load others stuff from module
+            # Load all others stuff from module (menu,favs,behaviors,...)
             if ($has_prepend) {
-                $class::loadModule();
+                $prepend->loadModule();
             }
         }
     }
@@ -339,7 +341,7 @@ abstract class AbstractModules
      *
      * @return  int
      */
-    public static function installPackage(string $zip_file, AbstractModules $modules): int
+    public function installPackage(string $zip_file, AbstractModules $modules): int
     {
         $zip = new Unzip($zip_file);
         $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
@@ -479,7 +481,7 @@ abstract class AbstractModules
      */
     public function installModule(string $id, string &$msg): ?bool
     {
-        if (!isset($this->modules_enabled[$id])) {
+        if (!isset($this->modules_enabled[$id]) || !isset($this->modules_prepend[$id])) {
             return null;
         }
 
@@ -488,17 +490,9 @@ abstract class AbstractModules
             return null;
         }
 
-        # Search module install class
-        $class = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
-        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend')) {
-            return null;
-        }
-
         try {
             # Do module installation
-            $class::setDefine($this->modules_enabled[$id]);
-            $i = $class::installModule();
-            $class::unsetDefine();
+            $i = $this->modules_prepend[$id]->installModule();
 
             # Update module version in db
             dotclear()->version()->set($id, $this->modules_enabled[$id]->version());
@@ -689,7 +683,7 @@ abstract class AbstractModules
      *
      * @return  array               Array of sorted modules
      */
-    public static function sortModules(array $modules, string $field, bool $asc = true): array
+    public function sortModules(array $modules, string $field, bool $asc = true): array
     {
         $origin = $sorter = $final = [];
 

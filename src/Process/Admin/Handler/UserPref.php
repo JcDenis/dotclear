@@ -471,8 +471,8 @@ class UserPref extends Page
                 ]) .
                 dotclear()->resource()->load('pwstrength.js') .
                 dotclear()->resource()->load('_preferences.js') .
-                static::jsPageTabs($default_tab) .
-                static::jsConfirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
+                dotclear()->resource()->pageTabs($default_tab) .
+                dotclear()->resource()->confirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
                 # --BEHAVIOR-- adminPreferencesHeaders
                 dotclear()->behavior()->call('adminPreferencesHeaders')

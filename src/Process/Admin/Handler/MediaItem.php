@@ -265,7 +265,10 @@ class MediaItem extends Page
         }
 
         # Page setup
-        $this->setPageHead(static::jsModal() . dotclear()->resource()->load('_media_item.js'));
+        $this->setPageHead(
+            dotclear()->resource()->modal() .
+            dotclear()->resource()->load('_media_item.js')
+        );
         if ($this->popup && !empty($plugin_id)) {
             $this->setPageHead(dotclear()->behavior()->call('adminPopupMedia', $plugin_id));
         }
@@ -292,7 +295,7 @@ class MediaItem extends Page
 
         if ($this->popup) {
             $this->setPageType('popup');
-            $this->setPageHead(static::jsPageTabs($tab));
+            $this->setPageHead(dotclear()->resource()->pageTabs($tab));
         } else {
             $this->setPageHelp('core_media');
         }

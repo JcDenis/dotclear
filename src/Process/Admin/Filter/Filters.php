@@ -30,7 +30,7 @@ class Filters
     /**
      * Common default input field
      */
-    public static function getInputFilter(string $id, string $title, ?string $param = null): DefaultFilter
+    public function getInputFilter(string $id, string $title, ?string $param = null): DefaultFilter
     {
         return (new DefaultFilter($id))
             ->param($param ?: $id)
@@ -41,7 +41,7 @@ class Filters
     /**
      * Common default select field
      */
-    public static function getSelectFilter(string $id, string $title, array $options, ?string $param = null): ?DefaultFilter
+    public function getSelectFilter(string $id, string $title, array $options, ?string $param = null): ?DefaultFilter
     {
         if (empty($options)) {
             return null;
@@ -56,7 +56,7 @@ class Filters
     /**
      * Common page filter (no field)
      */
-    public static function getPageFilter(string $id = 'page'): DefaultFilter
+    public function getPageFilter(string $id = 'page'): DefaultFilter
     {
         return (new DefaultFilter($id))
             ->value(!empty($_GET[$id]) ? max(1, (int) $_GET[$id]) : 1)
@@ -66,7 +66,7 @@ class Filters
     /**
      * Common search field
      */
-    public static function getSearchFilter(): DefaultFilter
+    public function getSearchFilter(): DefaultFilter
     {
         return (new DefaultFilter('q'))
             ->param('q', function ($f) { return $f['q']; })

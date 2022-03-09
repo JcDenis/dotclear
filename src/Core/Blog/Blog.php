@@ -323,7 +323,7 @@ class Blog
      */
     public function triggerComments($ids, bool $del = false, ?array $affected_posts = null): void
     {
-        $comments_ids = self::cleanIds($ids);
+        $comments_ids = $this->cleanIds($ids);
 
         # Get posts affected by comments edition
         if (empty($affected_posts)) {
@@ -389,7 +389,7 @@ class Blog
      *
      * @return     array
      */
-    public static function cleanIds($ids): array
+    public function cleanIds($ids): array
     {
         $clean_ids = [];
 
@@ -399,7 +399,7 @@ class Blog
 
         foreach ($ids as $id) {
             if (is_array($id) || ($id instanceof ArrayObject)) {
-                $clean_ids = array_merge($clean_ids, self::cleanIds($id));
+                $clean_ids = array_merge($clean_ids, $this->cleanIds($id));
             } else {
                 $id = abs((int) $id);
 

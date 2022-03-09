@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
+use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -26,7 +27,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Filter
+class Filter extends Filters
 {
     /** @var    string  Filter form type (main id) */
     protected $type;

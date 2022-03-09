@@ -18,7 +18,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Html\Html;
 
@@ -36,8 +35,8 @@ class MediaFilter extends Filter
         parent::__construct($type);
 
         $filters = new ArrayObject([
-            Filters::getPageFilter(),
-            Filters::getSearchFilter(),
+            $this->getPageFilter(),
+            $this->getSearchFilter(),
 
             $this->getPostIdFilter(),
             $this->getDirFilter(),
@@ -45,7 +44,7 @@ class MediaFilter extends Filter
             $this->getPluginIdFilter(),
             $this->getLinkTypeFilter(),
             $this->getPopupFilter(),
-            $this->getSelectFilter()
+            $this->getMediaSelectFilter()
         ]);
 
         # --BEHAVIOR-- adminBlogFilter
@@ -149,7 +148,7 @@ class MediaFilter extends Filter
         return new DefaultFilter('popup', $get);
     }
 
-    protected function getSelectFilter(): DefaultFilter
+    protected function getMediaSelectFilter(): DefaultFilter
     {
         // 0 : none, 1 : single media, >1 : multiple media
         $get = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0;

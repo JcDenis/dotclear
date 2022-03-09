@@ -29,11 +29,11 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Menu and Favorties
-        static::addStandardMenu('Blog');
-        static::addStandardFavorites();
+        $this->addStandardMenu('Blog');
+        $this->addStandardFavorites();
 
         # rte
         dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
@@ -44,7 +44,7 @@ class Prepend extends AbstractPrepend
         new WidgetsStack();
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         $widgets  = new Widgets();
         $settings = dotclear()->blog()->settings();

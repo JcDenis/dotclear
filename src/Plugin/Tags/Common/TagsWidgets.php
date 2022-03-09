@@ -25,16 +25,16 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class TagsWidgets
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [__CLASS__, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [__CLASS__, 'initDefaultWidgets']);
+        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
-    public static function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $w): void
     {
         $w
-            ->create('tags', __('Tags'), [__CLASS__, 'tagsWidget'], null, 'Tags cloud')
+            ->create('tags', __('Tags'), [$this, 'tagsWidget'], null, 'Tags cloud')
             ->addTitle(__('Tags'))
             ->setting('limit', __('Limit (empty means no limit):'), '20', 'number')
             ->setting(
@@ -66,12 +66,12 @@ class TagsWidgets
             ->addOffline();
     }
 
-    public static function initDefaultWidgets(Widgets $w, array $d): void
+    public function initDefaultWidgets(Widgets $w, array $d): void
     {
         $d['nav']->append($w->tags);
     }
 
-    public static function tagsWidget(Widget $w): string
+    public function tagsWidget(Widget $w): string
     {
         if ($w->offline) {
             return '';

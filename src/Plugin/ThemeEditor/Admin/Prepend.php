@@ -29,14 +29,14 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        dotclear()->behavior()->add('adminCurrentThemeDetails', [__CLASS__, 'behaviorAdminCurrentThemeDetails']);
-        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'behaviorAdminBeforeUserOptionsUpdate']);
-        dotclear()->behavior()->add('adminPreferencesForm', [__CLASS__, 'behaviorAdminPreferencesForm']);
+        dotclear()->behavior()->add('adminCurrentThemeDetails', [$this, 'behaviorAdminCurrentThemeDetails']);
+        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'behaviorAdminBeforeUserOptionsUpdate']);
+        dotclear()->behavior()->add('adminPreferencesForm', [$this, 'behaviorAdminPreferencesForm']);
     }
 
-    public static function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
+    public function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
     {
         if ($theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
@@ -52,7 +52,7 @@ class Prepend extends AbstractPrepend
         return '';
     }
 
-    public static function behaviorAdminBeforeUserOptionsUpdate(Cursor $cur, string $userID): void
+    public function behaviorAdminBeforeUserOptionsUpdate(Cursor $cur, string $userID): void
     {
         // Get and store user's prefs for plugin options
         dotclear()->user()->preference()->addWorkspace('interface');
@@ -66,12 +66,12 @@ class Prepend extends AbstractPrepend
         }
     }
 
-    public static function behaviorAdminPreferencesForm(): void
+    public function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
         dotclear()->user()->preference()->addWorkspace('interface');
 
-        $themes_list  = Page::getCodeMirrorThemes();
+        $themes_list  = dotclear()->resource()->getCodeMirrorThemes();
         $themes_combo = [__('Default') => ''];
         foreach ($themes_list as $theme) {
             $themes_combo[$theme] = $theme;
@@ -99,7 +99,7 @@ class Prepend extends AbstractPrepend
         }
         echo '</div>';
         echo '<div class="col">';
-        echo Page::jsLoadCodeMirror('', false, ['javascript']);
+        echo dotclear()->resource()->loadCodeMirror('', false, ['javascript']);
         foreach ($themes_list as $theme) {
             echo dotclear()->resource()->js('codemirror/theme/' . $theme . '.css');
         }

@@ -25,24 +25,24 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class TagsBehavior
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->behavior()->add('adminPostFormItems', [__CLASS__, 'tagsField']);
-        dotclear()->behavior()->add('adminAfterPostCreate', [__CLASS__, 'setTags']);
-        dotclear()->behavior()->add('adminAfterPostUpdate', [__CLASS__, 'setTags']);
-        dotclear()->behavior()->add('adminPostHeaders', [__CLASS__, 'postHeaders']);
-        dotclear()->behavior()->add('adminPostsActionsPage', [__CLASS__, 'adminPostsActionsPage']);
-        dotclear()->behavior()->add('adminPreferencesForm', [__CLASS__, 'adminUserForm']);
-        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [__CLASS__, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminUserForm', [__CLASS__, 'adminUserForm']);
-        dotclear()->behavior()->add('adminBeforeUserCreate', [__CLASS__, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminBeforeUserUpdate', [__CLASS__, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminPageHelpBlock', [__CLASS__, 'adminPageHelpBlock']);
-        dotclear()->behavior()->add('adminPostEditor', [__CLASS__, 'adminPostEditor']);
-        dotclear()->behavior()->add('ckeditorExtraPlugins', [__CLASS__, 'ckeditorExtraPlugins']);
+        dotclear()->behavior()->add('adminPostFormItems', [$this, 'tagsField']);
+        dotclear()->behavior()->add('adminAfterPostCreate', [$this, 'setTags']);
+        dotclear()->behavior()->add('adminAfterPostUpdate', [$this, 'setTags']);
+        dotclear()->behavior()->add('adminPostHeaders', [$this, 'postHeaders']);
+        dotclear()->behavior()->add('adminPostsActionsPage', [$this, 'adminPostsActionsPage']);
+        dotclear()->behavior()->add('adminPreferencesForm', [$this, 'adminUserForm']);
+        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'setTagListFormat']);
+        dotclear()->behavior()->add('adminUserForm', [$this, 'adminUserForm']);
+        dotclear()->behavior()->add('adminBeforeUserCreate', [$this, 'setTagListFormat']);
+        dotclear()->behavior()->add('adminBeforeUserUpdate', [$this, 'setTagListFormat']);
+        dotclear()->behavior()->add('adminPageHelpBlock', [$this, 'adminPageHelpBlock']);
+        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        dotclear()->behavior()->add('ckeditorExtraPlugins', [$this, 'ckeditorExtraPlugins']);
     }
 
-    public static function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
+    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
         if (($editor != 'dcLegacyEditor' && $editor != 'dcCKEditor') || $context != 'post') {
             return '';
@@ -68,7 +68,7 @@ class TagsBehavior
         }
     }
 
-    public static function ckeditorExtraPlugins(ArrayObject $extraPlugins, $context)
+    public function ckeditorExtraPlugins(ArrayObject $extraPlugins, $context)
     {
         if ($context != 'post') {
             return;
@@ -80,7 +80,7 @@ class TagsBehavior
         ];
     }
 
-    public static function adminPageHelpBlock($blocks)
+    public function adminPageHelpBlock($blocks)
     {
         $found = false;
         foreach ($blocks as $block) {
@@ -96,12 +96,12 @@ class TagsBehavior
         $blocks[] = 'tag_post';
     }
 
-    public static function coreInitWikiPost($wiki2xhtml)
+    public function coreInitWikiPost($wiki2xhtml)
     {
         $wiki2xhtml->registerFunction('url:tag', [__CLASS__, 'wiki2xhtmlTag']);
     }
 
-    public static function wiki2xhtmlTag($url, $content)
+    public function wiki2xhtmlTag($url, $content)
     {
         $url = substr($url, 4);
         if (strpos($content, 'tag:') === 0) {
@@ -115,7 +115,7 @@ class TagsBehavior
         return $res;
     }
 
-    public static function tagsField($main, $sidebar, $post)
+    public function tagsField($main, $sidebar, $post)
     {
         if (!empty($_POST['post_tags'])) {
             $value = $_POST['post_tags'];
@@ -126,7 +126,7 @@ class TagsBehavior
         '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
     }
 
-    public static function setTags($cur, $post_id)
+    public function setTags($cur, $post_id)
     {
         $post_id = (int) $post_id;
 
@@ -140,7 +140,7 @@ class TagsBehavior
         }
     }
 
-    public static function adminPostsActionsPage($ap)
+    public function adminPostsActionsPage($ap)
     {
         $ap->addAction(
             [__('Tags') => [__('Add tags') => 'tags']],
@@ -155,7 +155,7 @@ class TagsBehavior
         }
     }
 
-    public static function adminAddTags(Action $ap, $post)
+    public function adminAddTags(Action $ap, $post)
     {
         if (!empty($post['new_tags'])) {
             $tags  = dotclear()->meta()->splitMetaValues($post['new_tags']);
@@ -215,7 +215,7 @@ class TagsBehavior
                 ]
             );
             $ap->setPageHead(
-                $ap::jsMetaEditor() .
+                dotclear()->resource()->metaEditor() .
                 dotclear()->resource()->json('editor_tags_options', $editor_tags_options) .
                 dotclear()->resource()->json('editor_tags_msg', $msg) .
                 dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
@@ -236,7 +236,7 @@ class TagsBehavior
             );
         }
     }
-    public static function adminRemoveTags(Action $ap, $post)
+    public function adminRemoveTags(Action $ap, $post)
     {
         if (!empty($post['meta_id']) && dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $posts = $ap->getRS();
@@ -313,7 +313,7 @@ class TagsBehavior
         }
     }
 
-    public static function postHeaders()
+    public function postHeaders()
     {
         $tag_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('tag');
 
@@ -344,7 +344,7 @@ class TagsBehavior
         dotclear()->resource()->load('style.css', 'Plugin', 'Tags');
     }
 
-    public static function adminUserForm($args = null)
+    public function adminUserForm($args = null)
     {
         if ($args === null) {
             $opts = dotclear()->user()->getOptions();
@@ -367,7 +367,7 @@ class TagsBehavior
             '</p></div>';
     }
 
-    public static function setTagListFormat($cur, $user_id = null)
+    public function setTagListFormat($cur, $user_id = null)
     {
         if (!is_null($user_id)) {
             $cur->user_options['tag_list_format'] = $_POST['user_tag_list_format'];

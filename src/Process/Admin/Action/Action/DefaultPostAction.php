@@ -25,9 +25,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class DefaultPostAction
+abstract class DefaultPostAction extends Action
 {
-    public static function PostAction(Action $ap): void
+    public function loadPostAction(Action $ap): void
     {
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
@@ -37,7 +37,7 @@ class DefaultPostAction
                     __('Schedule')        => 'schedule',
                     __('Mark as pending') => 'pending'
                 ]],
-                [__CLASS__, 'doChangePostStatus']
+                [$this, 'doChangePostStatus']
             );
         }
         $ap->addAction(
@@ -45,37 +45,37 @@ class DefaultPostAction
                 __('Mark as selected')   => 'selected',
                 __('Mark as unselected') => 'unselected'
             ]],
-            [__CLASS__, 'doUpdateSelectedPost']
+            [$this, 'doUpdateSelectedPost']
         );
         $ap->addAction(
             [__('Change') => [
                 __('Change category') => 'category'
             ]],
-            [__CLASS__, 'doChangePostCategory']
+            [$this, 'doChangePostCategory']
         );
         $ap->addAction(
             [__('Change') => [
                 __('Change language') => 'lang'
             ]],
-            [__CLASS__, 'doChangePostLang']
+            [$this, 'doChangePostLang']
         );
         if (dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Change') => [
                     __('Change author') => 'author']],
-                [__CLASS__, 'doChangePostAuthor']
+                [$this, 'doChangePostAuthor']
             );
         }
         if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
-                [__CLASS__, 'doDeletePost']
+                [$this, 'doDeletePost']
             );
         }
     }
 
-    public static function doChangePostStatus(Action $ap, array|ArrayObject $post): void
+    public function doChangePostStatus(Action $ap, array|ArrayObject $post): void
     {
         switch ($ap->getAction()) {
             case 'unpublish':
@@ -131,7 +131,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doUpdateSelectedPost(Action $ap, array|ArrayObject $post): void
+    public function doUpdateSelectedPost(Action $ap, array|ArrayObject $post): void
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -161,7 +161,7 @@ class DefaultPostAction
         $ap->redirect(true);
     }
 
-    public static function doDeletePost(Action $ap, array|ArrayObject $post)
+    public function doDeletePost(Action $ap, array|ArrayObject $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
@@ -189,7 +189,7 @@ class DefaultPostAction
         $ap->redirect(false);
     }
 
-    public static function doChangePostCategory(Action $ap, array|ArrayObject $post)
+    public function doChangePostCategory(Action $ap, array|ArrayObject $post)
     {
         if (isset($post['new_cat_id'])) {
             $posts_ids = $ap->getIDs();
@@ -269,7 +269,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostAuthor(Action $ap, array|ArrayObject $post)
+    public function doChangePostAuthor(Action $ap, array|ArrayObject $post)
     {
         if (isset($post['new_auth_id']) && dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $new_user_id = $post['new_auth_id'];
@@ -335,7 +335,7 @@ class DefaultPostAction
         }
     }
 
-    public static function doChangePostLang(Action $ap, array|ArrayObject $post)
+    public function doChangePostLang(Action $ap, array|ArrayObject $post)
     {
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {

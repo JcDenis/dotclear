@@ -17,17 +17,16 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-
 class TagsXmlrpc
 {
-    public static function initTags()
+    public function __construct()
     {
-        dotclear()->behavior()->add('xmlrpcGetPostInfo', [__CLASS__, 'getPostInfo']);
-        dotclear()->behavior()->add('xmlrpcAfterNewPost', [__CLASS__, 'editPost']);
-        dotclear()->behavior()->add('xmlrpcAfterEditPost', [__CLASS__, 'editPost']);
+        dotclear()->behavior()->add('xmlrpcGetPostInfo', [$this, 'getPostInfo']);
+        dotclear()->behavior()->add('xmlrpcAfterNewPost', [$this, 'editPost']);
+        dotclear()->behavior()->add('xmlrpcAfterEditPost', [$this, 'editPost']);
     }
 
-    public static function getPostInfo($x, $type, $res)
+    public function getPostInfo($x, $type, $res)
     {
         $res = &$res[0];
 
@@ -44,7 +43,7 @@ class TagsXmlrpc
     }
 
     # Same function for newPost and editPost
-    public static function editPost($x, $post_id, $cur, $content, $struct, $publish)
+    public function editPost($x, $post_id, $cur, $content, $struct, $publish)
     {
         # Check if we have mt_keywords in struct
         if (isset($struct['mt_keywords'])) {

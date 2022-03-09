@@ -26,16 +26,16 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class PagesWidgets
 {
-    public static function initPages(): void
+    public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [__CLASS__, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [__CLASS__, 'initDefaultWidgets']);
+        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
-    public static function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $w): void
     {
         $w
-            ->create('pages', __('Pages'), [__CLASS__, 'pagesWidget'], null, 'List of published pages')
+            ->create('pages', __('Pages'), [$this, 'pagesWidget'], null, 'List of published pages')
             ->addTitle(__('Pages'))
             ->setting('limit', __('Limit (empty means no limit):'), '10', 'number')
             ->setting(
@@ -65,12 +65,12 @@ class PagesWidgets
             ->addOffline();
     }
 
-    public static function initDefaultWidgets(Widgets $w, array $d): void
+    public function initDefaultWidgets(Widgets $w, array $d): void
     {
         $d['nav']->append($w->pages);
     }
 
-    public static function pagesWidget(Widget $w): string
+    public function pagesWidget(Widget $w): string
     {
         if ($w->offline) {
             return '';

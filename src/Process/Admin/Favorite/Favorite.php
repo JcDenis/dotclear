@@ -368,21 +368,21 @@ class Favorite
                 'small-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
                 'large-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
                 'permissions' => 'usage,contentadmin',
-                'active_cb'   => [__CLASS__, 'cbNewpostActive'], ],
+                'active_cb'   => [$this, 'cbNewpostActive'], ],
             'posts' => [
                 'title'        => __('Posts'),
                 'url'          => dotclear()->adminurl()->get('admin.posts'),
                 'small-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
                 'large-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
-                'dashboard_cb' => [__CLASS__, 'cbPostsDashboard'], ],
+                'dashboard_cb' => [$this, 'cbPostsDashboard'], ],
             'comments' => [
                 'title'        => __('Comments'),
                 'url'          => dotclear()->adminurl()->get('admin.comments'),
                 'small-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
                 'large-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
-                'dashboard_cb' => [__CLASS__, 'cbCommentsDashboard'], ],
+                'dashboard_cb' => [$this, 'cbCommentsDashboard'], ],
             'search' => [
                 'title'       => __('Search'),
                 'url'         => dotclear()->adminurl()->get('admin.search'),
@@ -442,7 +442,7 @@ class Favorite
      *
      * @param   ArrayObject     $v  Favicon object
      */
-    public static function cbPostsDashboard(ArrayObject $v): void
+    public function cbPostsDashboard(ArrayObject $v): void
     {
         $post_count  = (int) dotclear()->blog()->posts()->getPosts([], true)->f(0);
         $str_entries = __('%d post', '%d posts', $post_count);
@@ -456,7 +456,7 @@ class Favorite
      *
      * @return  bool    Active
      */
-    public static function cbNewpostActive(): bool
+    public function cbNewpostActive(): bool
     {
         return dotclear()->adminurl()->called() == 'admin.post' && !isset($_REQUEST['id']);
     }
@@ -466,7 +466,7 @@ class Favorite
      *
      * @param   ArrayObject     $v  Favicon object
      */
-    public static function cbCommentsDashboard(ArrayObject $v): void
+    public function cbCommentsDashboard(ArrayObject $v): void
     {
         $comment_count = (int) dotclear()->blog()->comments()->getComments([], true)->f(0);
         $str_comments  = __('%d comment', '%d comments', $comment_count);

@@ -28,15 +28,15 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class PagesUrl extends Url
 {
-    public static function initPages()
+    public function __construct()
     {
-        dotclear()->url()->register('pages', 'pages', '^pages/(.+)$', [__CLASS__, 'pages']);
-        dotclear()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [__CLASS__, 'pagespreview']);
+        dotclear()->url()->register('pages', 'pages', '^pages/(.+)$', [$this, 'pages']);
+        dotclear()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [$this, 'pagespreview']);
 
         dotclear()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', dotclear()->url()->getURLFor('pages', '%s'), 'Pages');
     }
 
-    public static function pages($args)
+    public function pages($args)
     {
         if ($args == '') {
             # No page was specified.
@@ -196,7 +196,7 @@ class PagesUrl extends Url
         }
     }
 
-    public static function pagespreview($args)
+    public function pagespreview($args)
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             # The specified Preview URL is malformed.
@@ -214,7 +214,7 @@ class PagesUrl extends Url
                     dotclear()->user()->xframeoption = dotclear()->config()->admin_url;
                 }
 
-                self::pages($post_url);
+                $this->pages($post_url);
             }
         }
     }

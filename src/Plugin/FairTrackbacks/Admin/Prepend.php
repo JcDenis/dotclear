@@ -25,7 +25,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         FilterFairtrackbacks::initFairTrackbacks();
     }

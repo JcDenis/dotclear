@@ -23,9 +23,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class DefaultCommentAction
+abstract class DefaultCommentAction extends Action
 {
-    public static function CommentAction(Action $ap): void
+    protected function loadCommentAction(Action $ap): void
     {
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
@@ -35,7 +35,7 @@ class DefaultCommentAction
                     __('Mark as pending') => 'pending',
                     __('Mark as junk')    => 'junk'
                 ]],
-                [__CLASS__, 'doChangeCommentStatus']
+                [$this, 'doChangeCommentStatus']
             );
         }
 
@@ -43,12 +43,12 @@ class DefaultCommentAction
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete']],
-                [__CLASS__, 'doDeleteComment']
+                [$this, 'doDeleteComment']
             );
         }
     }
 
-    public static function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
+    public function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
@@ -80,7 +80,7 @@ class DefaultCommentAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteComment(Action $ap, array|ArrayObject $post): void
+    public function doDeleteComment(Action $ap, array|ArrayObject $post): void
     {
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {

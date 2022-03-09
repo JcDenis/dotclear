@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Attachments\Public\Attachments
+ * @class Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
  * @brief Dotclear Plugin class
  *
  * @package Dotclear
@@ -17,35 +17,31 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class Attachments
+class AttachmentsTemplate
 {
     public function __construct()
     {
-        if (!dotclear()->media()) {
-            return;
-        }
+        dotclear()->template()->addBlock('Attachments', [$this, 'Attachments']);
+        dotclear()->template()->addBlock('AttachmentsHeader', [$this, 'AttachmentsHeader']);
+        dotclear()->template()->addBlock('AttachmentsFooter', [$this, 'AttachmentsFooter']);
+        dotclear()->template()->addValue('AttachmentMimeType', [$this, 'AttachmentMimeType']);
+        dotclear()->template()->addValue('AttachmentType', [$this, 'AttachmentType']);
+        dotclear()->template()->addValue('AttachmentFileName', [$this, 'AttachmentFileName']);
+        dotclear()->template()->addValue('AttachmentSize', [$this, 'AttachmentSize']);
+        dotclear()->template()->addValue('AttachmentTitle', [$this, 'AttachmentTitle']);
+        dotclear()->template()->addValue('AttachmentThumbnailURL', [$this, 'AttachmentThumbnailURL']);
+        dotclear()->template()->addValue('AttachmentURL', [$this, 'AttachmentURL']);
+        dotclear()->template()->addValue('MediaURL', [$this, 'MediaURL']);
+        dotclear()->template()->addBlock('AttachmentIf', [$this, 'AttachmentIf']);
+        dotclear()->template()->addValue('EntryAttachmentCount', [$this, 'EntryAttachmentCount']);
 
-        dotclear()->template()->addBlock('Attachments', [__CLASS__, 'Attachments']);
-        dotclear()->template()->addBlock('AttachmentsHeader', [__CLASS__, 'AttachmentsHeader']);
-        dotclear()->template()->addBlock('AttachmentsFooter', [__CLASS__, 'AttachmentsFooter']);
-        dotclear()->template()->addValue('AttachmentMimeType', [__CLASS__, 'AttachmentMimeType']);
-        dotclear()->template()->addValue('AttachmentType', [__CLASS__, 'AttachmentType']);
-        dotclear()->template()->addValue('AttachmentFileName', [__CLASS__, 'AttachmentFileName']);
-        dotclear()->template()->addValue('AttachmentSize', [__CLASS__, 'AttachmentSize']);
-        dotclear()->template()->addValue('AttachmentTitle', [__CLASS__, 'AttachmentTitle']);
-        dotclear()->template()->addValue('AttachmentThumbnailURL', [__CLASS__, 'AttachmentThumbnailURL']);
-        dotclear()->template()->addValue('AttachmentURL', [__CLASS__, 'AttachmentURL']);
-        dotclear()->template()->addValue('MediaURL', [__CLASS__, 'MediaURL']);
-        dotclear()->template()->addBlock('AttachmentIf', [__CLASS__, 'AttachmentIf']);
-        dotclear()->template()->addValue('EntryAttachmentCount', [__CLASS__, 'EntryAttachmentCount']);
-
-        dotclear()->behavior()->add('tplIfConditions', [__CLASS__, 'tplIfConditions']);
+        dotclear()->behavior()->add('tplIfConditions', [$this, 'tplIfConditions']);
     }
 
     /*dtd
     <!ELEMENT tpl:Attachments - - -- Post Attachments loop -->
      */
-    public static function Attachments($attr, $content)
+    public function Attachments($attr, $content)
     {
         $res = "<?php\n" .
             'if (dotclear()->context()->posts !== null) {' . "\n" .
@@ -66,7 +62,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentsHeader - - -- First attachments result container -->
      */
-    public static function AttachmentsHeader($attr, $content)
+    public function AttachmentsHeader($attr, $content)
     {
         return
             '<?php if ($attach_i == 0) : ?>' .
@@ -77,7 +73,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentsFooter - - -- Last attachments result container -->
      */
-    public static function AttachmentsFooter($attr, $content)
+    public function AttachmentsFooter($attr, $content)
     {
         return
             '<?php if ($attach_i+1 == count(dotclear()->context()->attachments)) : ?>' .
@@ -96,11 +92,11 @@ class Attachments
     is_video    (0|1)    #IMPLIED    -- test if attachment is a video file (value : 1) or not (value : 0)
     >
      */
-    public static function AttachmentIf($attr, $content)
+    public function AttachmentIf($attr, $content)
     {
         $if = [];
 
-        $operator = isset($attr['operator']) ? dotclear()->template()::getOperator($attr['operator']) : '&&';
+        $operator = isset($attr['operator']) ? dotclear()->template()->getOperator($attr['operator']) : '&&';
 
         if (isset($attr['is_image'])) {
             $sign = (boolean) $attr['is_image'] ? '' : '!';
@@ -149,7 +145,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentMimeType - O -- Attachment MIME Type -->
      */
-    public static function AttachmentMimeType($attr)
+    public function AttachmentMimeType($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -159,7 +155,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentType - O -- Attachment type -->
      */
-    public static function AttachmentType($attr)
+    public function AttachmentType($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -169,7 +165,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentFileName - O -- Attachment file name -->
      */
-    public static function AttachmentFileName($attr)
+    public function AttachmentFileName($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -182,7 +178,7 @@ class Attachments
     full    CDATA    #IMPLIED    -- if set, size is rounded to a human-readable value (in KB, MB, GB, TB)
     >
      */
-    public static function AttachmentSize($attr)
+    public function AttachmentSize($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
         if (!empty($attr['full'])) {
@@ -195,7 +191,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentTitle - O -- Attachment title -->
      */
-    public static function AttachmentTitle($attr)
+    public function AttachmentTitle($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -205,7 +201,7 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentThumbnailURL - O -- Attachment square thumbnail URL -->
      */
-    public static function AttachmentThumbnailURL($attr)
+    public function AttachmentThumbnailURL($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -220,14 +216,14 @@ class Attachments
     /*dtd
     <!ELEMENT tpl:AttachmentURL - O -- Attachment URL -->
      */
-    public static function AttachmentURL($attr)
+    public function AttachmentURL($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
         return '<?php echo ' . sprintf($f, '$attach_f->file_url') . '; ?>';
     }
 
-    public static function MediaURL($attr)
+    public function MediaURL($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 
@@ -242,7 +238,7 @@ class Attachments
     more    CDATA    #IMPLIED    -- text to display for "more attachment" (default: %s attachment, %s is replaced by the number of attachments)
     >
      */
-    public static function EntryAttachmentCount($attr)
+    public function EntryAttachmentCount($attr)
     {
         return dotclear()->template()->displayCounter(
             'dotclear()->context()->posts->countMedia(\'attachment\')',
@@ -256,7 +252,7 @@ class Attachments
         );
     }
 
-    public static function tplIfConditions($tag, $attr, $content, $if)
+    public function tplIfConditions($tag, $attr, $content, $if)
     {
         if ($tag == 'EntryIf' && isset($attr['has_attachment'])) {
             $sign = (boolean) $attr['has_attachment'] ? '' : '!';

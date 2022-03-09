@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Attachments\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
-use Dotclear\Plugin\Attachments\Public\Attachments;
+use Dotclear\Plugin\Attachments\Public\AttachmentsTemplate;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -26,8 +26,12 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        new Attachments();
+        if (!dotclear()->media()) {
+            return;
+        }
+
+        new AttachmentsTemplate();
     }
 }

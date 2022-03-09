@@ -25,13 +25,13 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class BlogrollTemplate
 {
-    public static function initBlogroll()
+    public function __construct()
     {
-        dotclear()->template()->addValue('Blogroll', [__CLASS__, 'blogroll']);
-        dotclear()->template()->addValue('BlogrollXbelLink', [__CLASS__, 'blogrollXbelLink']);
+        dotclear()->template()->addValue('Blogroll', [$this, 'blogroll']);
+        dotclear()->template()->addValue('BlogrollXbelLink', [$this, 'blogrollXbelLink']);
     }
 
-    public static function blogroll($attr)
+    public function blogroll($attr)
     {
         $category = '<h3>%s</h3>';
         $block    = '<ul>%s</ul>';
@@ -60,7 +60,7 @@ class BlogrollTemplate
             '?>';
     }
 
-    public static function blogrollXbelLink($attr)
+    public function blogrollXbelLink($attr)
     {
         $f = dotclear()->template()->getFilters($attr);
 

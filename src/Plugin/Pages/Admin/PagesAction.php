@@ -80,7 +80,7 @@ class PagesAction extends PostAction
             );
         }
 
-        $this->actions['reorder'] = [__CLASS__, 'doReorderPages'];
+        $this->actions['reorder'] = [$this, 'doReorderPages'];
 
         dotclear()->behavior()->call('adminPagesActionsPage', $this);
     }
@@ -96,7 +96,7 @@ class PagesAction extends PostAction
         return parent::getPagePrepend();
     }
 
-    public static function doReorderPages(Action $ap, array|ArrayObject $post): void
+    public function doReorderPages(Action $ap, array|ArrayObject $post): void
     {
         foreach ($post['order'] as $post_id => $value) {
             if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {

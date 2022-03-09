@@ -31,12 +31,12 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Search extends Page
 {
-    private $qtype_combo = [];
-    private $args = [];
+    private $s_qtype_combo = [];
+    private $s_args = [];
 
-    protected static $count   = null;
-    protected static $list    = null;
-    protected static $actions = null;
+    protected $s_count   = null;
+    protected $s_list    = null;
+    protected $s_actions = null;
 
     protected $workspaces = ['interface'];
 
@@ -47,24 +47,24 @@ class Search extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        dotclear()->behavior()->add('adminSearchPageCombo', [__CLASS__,'typeCombo']);
-        dotclear()->behavior()->add('adminSearchPageHead', [__CLASS__,'pageHead']);
+        dotclear()->behavior()->add('adminSearchPageCombo', [$this,'typeCombo']);
+        dotclear()->behavior()->add('adminSearchPageHead', [$this,'pageHead']);
         // posts search
-        dotclear()->behavior()->add('adminSearchPageProcess', [__CLASS__,'processPosts']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [__CLASS__,'displayPosts']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [$this,'processPosts']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [$this,'displayPosts']);
         // comments search
-        dotclear()->behavior()->add('adminSearchPageProcess', [__CLASS__,'processComments']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [__CLASS__,'displayComments']);
+        dotclear()->behavior()->add('adminSearchPageProcess', [$this,'processComments']);
+        dotclear()->behavior()->add('adminSearchPageDisplay', [$this,'displayComments']);
 
         $qtype_combo = new ArrayObject();
 
         # --BEHAVIOR-- adminSearchPageCombo
         dotclear()->behavior()->call('adminSearchPageCombo', $qtype_combo);
 
-        $this->qtype_combo = $qtype_combo->getArrayCopy();
+        $this->s_qtype_combo = $qtype_combo->getArrayCopy();
         $q     = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
         $qtype = !empty($_REQUEST['qtype']) ? $_REQUEST['qtype'] : 'p';
-        if (!empty($q) && !in_array($qtype, $this->qtype_combo)) {
+        if (!empty($q) && !in_array($qtype, $this->s_qtype_combo)) {
             $qtype = 'p';
         }
 
@@ -74,15 +74,15 @@ class Search extends Page
             $nb = (int) $_GET['nb'];
         }
 
-        $this->args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
+        $this->s_args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         # --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? dotclear()->behavior()->call('adminSearchPageHead', $this->args) : '';
+        $starting_scripts = $q ? dotclear()->behavior()->call('adminSearchPageHead', $this->s_args) : '';
 
         if ($q) {
 
             # --BEHAVIOR-- adminSearchPageProcess
-            dotclear()->behavior()->call('adminSearchPageProcess', $this->args);
+            dotclear()->behavior()->call('adminSearchPageProcess', $this->s_args);
         }
 
         # Page setup
@@ -105,9 +105,9 @@ class Search extends Page
         '<form action="' . dotclear()->adminurl()->get('admin.search') . '" method="get" role="search">' .
         '<div class="fieldset"><h3>' . __('Search options') . '</h3>' .
         '<p><label for="q">' . __('Query:') . ' </label>' .
-        Form::field('q', 30, 255, Html::escapeHTML($this->args['q'])) . '</p>' .
+        Form::field('q', 30, 255, Html::escapeHTML($this->s_args['q'])) . '</p>' .
         '<p><label for="qtype">' . __('In:') . '</label> ' .
-        Form::combo('qtype', $this->qtype_combo, $this->args['qtype']) . '</p>' .
+        Form::combo('qtype', $this->s_qtype_combo, $this->s_args['qtype']) . '</p>' .
         '<p><input type="submit" value="' . __('Search') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         Form::hidden(['handler'], 'admin.search') .
@@ -115,11 +115,11 @@ class Search extends Page
         '</div>' .
         '</form>';
 
-        if ($this->args['q'] && !dotclear()->error()->flag()) {
+        if ($this->s_args['q'] && !dotclear()->error()->flag()) {
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay
-            dotclear()->behavior()->call('adminSearchPageDisplay', $this->args);
+            dotclear()->behavior()->call('adminSearchPageDisplay', $this->s_args);
 
             $res = ob_get_contents();
             ob_end_clean();
@@ -127,13 +127,13 @@ class Search extends Page
         }
     }
 
-    public static function typeCombo(ArrayObject $combo)
+    public function typeCombo(ArrayObject $combo)
     {
         $combo[__('Search in entries')]  = 'p';
         $combo[__('Search in comments')] = 'c';
     }
 
-    public static function pageHead(array $args)
+    public function pageHead(array $args)
     {
         if ($args['qtype'] == 'p') {
             return dotclear()->resource()->load('_posts_list.js');
@@ -142,7 +142,7 @@ class Search extends Page
         }
     }
 
-    public static function processPosts(array $args)
+    public function processPosts(array $args)
     {
         if ($args['qtype'] != 'p') {
             return null;
@@ -156,10 +156,10 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0);
-            self::$list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), (int) self::$count);
-            self::$actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
-            if (self::$actions->getPagePrepend()) {
+            $this->s_count   = (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0);
+            $this->s_list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), (int) $this->s_count);
+            $this->s_actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
+            if ($this->s_actions->getPagePrepend()) {
                 return;
             }
         } catch (\Exception $e) {
@@ -167,17 +167,17 @@ class Search extends Page
         }
     }
 
-    public static function displayPosts(array $args)
+    public function displayPosts(array $args)
     {
-        if ($args['qtype'] != 'p' || self::$count === null) {
+        if ($args['qtype'] != 'p' || $this->s_count === null) {
             return null;
         }
 
-        if (self::$count > 0) {
-            printf('<h3>' . __('one result', __('%d results'), self::$count) . '</h3>', self::$count);
+        if ($this->s_count > 0) {
+            printf('<h3>' . __('one result', __('%d results'), $this->s_count) . '</h3>', $this->s_count);
         }
 
-        self::$list->display($args['page'], $args['nb'],
+        $this->s_list->display($args['page'], $args['nb'],
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
             '%s' .
@@ -186,16 +186,16 @@ class Search extends Page
             '<p class="col checkboxes-helpers"></p>' .
 
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
-            Form::combo('action', self::$actions->getCombo()) .
+            Form::combo('action', $this->s_actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
             dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
-            preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
+            preg_replace('/%/','%%', $this->s_actions->getHiddenFields()) .
             '</div>' .
             '</form>'
         );
     }
 
-    public static function processComments(array $args)
+    public function processComments(array $args)
     {
         if ($args['qtype'] != 'c') {
             return null;
@@ -209,10 +209,10 @@ class Search extends Page
         ];
 
         try {
-            self::$count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
-            self::$list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), (int) self::$count);
-            self::$actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
-            if (self::$actions->getPagePrepend()) {
+            $this->s_count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
+            $this->s_list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), (int) $this->s_count);
+            $this->s_actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
+            if ($this->s_actions->getPagePrepend()) {
                 return;
             }
         } catch (\Exception $e) {
@@ -220,17 +220,17 @@ class Search extends Page
         }
     }
 
-    public static function displayComments(array $args)
+    public function displayComments(array $args)
     {
-        if ($args['qtype'] != 'c' || self::$count === null) {
+        if ($args['qtype'] != 'c' || $this->s_count === null) {
             return null;
         }
 
-        if (self::$count > 0) {
-            printf('<h3>' . __('one comment found', __('%d comments found'), self::$count) . '</h3>', self::$count);
+        if ($this->s_count > 0) {
+            printf('<h3>' . __('one comment found', __('%d comments found'), $this->s_count) . '</h3>', $this->s_count);
         }
 
-        self::$list->display($args['page'], $args['nb'],
+        $this->s_list->display($args['page'], $args['nb'],
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
@@ -239,10 +239,10 @@ class Search extends Page
             '<p class="col checkboxes-helpers"></p>' .
 
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
-            Form::combo('action', self::$actions->getCombo()) .
+            Form::combo('action', $this->s_actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
             dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
-            preg_replace('/%/','%%', self::$actions->getHiddenFields()) .
+            preg_replace('/%/','%%', $this->s_actions->getHiddenFields()) .
             '</div>' .
             '</form>'
         );

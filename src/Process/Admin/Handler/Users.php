@@ -119,7 +119,7 @@ class Users extends Page
         $this->filter->display('admin.users');
 
         # Show users
-        $this->catalog->display(
+        $this->inventory->display(
             $this->filter->page,
             $this->filter->nb,
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-users">' .

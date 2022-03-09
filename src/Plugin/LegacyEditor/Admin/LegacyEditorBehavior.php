@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\Behaviors
+ * @class Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -15,8 +15,16 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Utils\l10n;
 
-class Behaviors
+class LegacyEditorBehavior
 {
+    public function __construct()
+    {
+        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        dotclear()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
+        dotclear()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
+        dotclear()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
+    }
+
     /**
      * adminPostEditor add javascript to the DOM to load legacy editor depending on context
      *
@@ -28,7 +36,7 @@ class Behaviors
      *
      * @return     mixed
      */
-    public static function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = '')
+    public function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -41,12 +49,12 @@ class Behaviors
         ];
 
         return
-        self::jsToolBar() .
+        $this->jsToolBar() .
         dotclear()->resource()->json('legacy_editor_ctx', $js) .
         dotclear()->resource()->load('_post_editor.js', 'Plugin', 'LegacyEditor');
     }
 
-    public static function adminPopupMedia($editor = '')
+    public function adminPopupMedia($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -55,7 +63,7 @@ class Behaviors
         return dotclear()->resource()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
     }
 
-    public static function adminPopupLink($editor = '')
+    public function adminPopupLink($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -64,7 +72,7 @@ class Behaviors
         return dotclear()->resource()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
     }
 
-    public static function adminPopupPosts($editor = '')
+    public function adminPopupPosts($editor = '')
     {
         if (empty($editor) || $editor != 'LegacyEditor') {
             return;
@@ -73,7 +81,7 @@ class Behaviors
         return dotclear()->resource()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
     }
 
-    protected static function jsToolBar()
+    protected function jsToolBar()
     {
         $rtl = L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT

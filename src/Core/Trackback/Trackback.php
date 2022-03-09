@@ -230,10 +230,10 @@ class Trackback
         }
 
         if (!$err) {
-            $charset = self::getCharsetFromRequest();
+            $charset = $this->getCharsetFromRequest();
 
             if (!$charset) {
-                $charset = self::detectCharset($title . ' ' . $excerpt . ' ' . $blog_name);
+                $charset = $this->detectCharset($title . ' ' . $excerpt . ' ' . $blog_name);
             }
 
             if (strtolower($charset) != 'utf-8') {
@@ -522,7 +522,7 @@ class Trackback
      *
      * @return     mixed   The charset from request.
      */
-    private static function getCharsetFromRequest($header = '')
+    private function getCharsetFromRequest($header = '')
     {
         if (!$header && isset($_SERVER['CONTENT_TYPE'])) {
             $header = $_SERVER['CONTENT_TYPE'];
@@ -542,7 +542,7 @@ class Trackback
      *
      * @return     string
      */
-    private static function detectCharset($content)
+    private function detectCharset($content)
     {
         return mb_detect_encoding($content,
             'UTF-8,ISO-8859-1,ISO-8859-2,ISO-8859-3,' .
@@ -637,9 +637,9 @@ class Trackback
         $remote_content = $http->getContent();
 
         # Convert content charset
-        $charset = self::getCharsetFromRequest($http->getHeader('content-type'));
+        $charset = $this->getCharsetFromRequest($http->getHeader('content-type'));
         if (!$charset) {
-            $charset = self::detectCharset($remote_content);
+            $charset = $this->detectCharset($remote_content);
         }
         if (strtolower($charset) != 'utf-8') {
             $remote_content = iconv($charset, 'UTF-8', $remote_content);

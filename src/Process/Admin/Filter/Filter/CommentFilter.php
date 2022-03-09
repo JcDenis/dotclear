@@ -18,7 +18,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -32,13 +31,13 @@ class CommentFilter extends Filter
         parent::__construct('comments');
 
         $filters = new ArrayObject([
-            Filters::getPageFilter(),
+            $this->getPageFilter(),
             $this->getCommentAuthorFilter(),
             $this->getCommentTypeFilter(),
             $this->getCommentStatusFilter(),
             $this->getCommentIpFilter(),
-            Filters::getInputFilter('email', __('Email:'), 'comment_email'),
-            Filters::getInputFilter('site', __('Web site:'), 'comment_site')
+            $this->getInputFilter('email', __('Email:'), 'comment_email'),
+            $this->getInputFilter('site', __('Web site:'), 'comment_site')
         ]);
 
         # --BEHAVIOR-- adminCommentFilter
@@ -66,7 +65,7 @@ class CommentFilter extends Filter
     public function getCommentTypeFilter(): DefaultFilter
     {
         return (new DefaultFilter('type'))
-            ->param('comment_trackback', [__CLASS__, 'getCommentTypeParam'])
+            ->param('comment_trackback', [$this, 'getCommentTypeParam'])
             ->title(__('Type:'))
             ->options([
                 '-'             => '',
@@ -76,7 +75,7 @@ class CommentFilter extends Filter
             ->prime(true);
     }
 
-    public static function getCommentTypeParam($f): bool
+    public function getCommentTypeParam($f): bool
     {
         return $f[0] == 'tb';
     }

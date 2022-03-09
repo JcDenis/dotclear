@@ -32,11 +32,9 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
 
 class Upgrade
 {
-    public static function dotclearUpgrade(): bool
+    public function __construct()
     {
-        $upgrade = new Upgrade();
 
-        return $upgrade->doUpgrade();
     }
 
     protected function doUpgrade()

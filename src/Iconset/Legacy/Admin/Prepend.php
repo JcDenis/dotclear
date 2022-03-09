@@ -28,13 +28,10 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        dotclear()->behavior()->add('adminIconsetCombo', [__CLASS__, 'adminIconsetCombo']);
-    }
-
-    public static function adminIconsetCombo(ArrayObject $iconsets)
-    {
-        $iconsets['Legacy'] = Path::real(implode_path(__DIR__, '..'));
+        dotclear()->behavior()->add('adminIconsetCombo', function (ArrayObject $iconsets): void {
+            $iconsets['Legacy'] = Path::real(implode_path(__DIR__, '..'));
+        });
     }
 }

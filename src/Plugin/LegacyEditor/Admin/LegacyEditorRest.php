@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\Rest
+ * @class Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
  * @brief Dotclear Plugins class
  *
  * @package Dotclear
@@ -19,9 +19,14 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class Rest
+class LegacyEditorRest
 {
-    public static function convert($get, $post)
+    public function __construct()
+    {
+        dotclear()->rest()->addFunction('wikiConvert', [$this, 'convert']);
+    }
+
+    public function convert($get, $post)
     {
         $wiki = $post['wiki'] ?? '';
         $rsp  = new XmlTag('wiki');

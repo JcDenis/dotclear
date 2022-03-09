@@ -50,7 +50,7 @@ class Help extends Page
 
         $this
             ->setPageTitle(__('Global help'))
-            ->setPageHead(self::jsPageTabs('first-step'))
+            ->setPageHead(dotclear()->resource()->pageTabs('first-step'))
         ;
 
         return true;

@@ -26,7 +26,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         dotclear()->behavior()->add('dcMaintenanceInit', function(Maintenance $maintenance): void {
             $maintenance->addTask('Dotclear\\Plugin\\Buildtools\\Admin\\MaintenanceTaskBuildtools');

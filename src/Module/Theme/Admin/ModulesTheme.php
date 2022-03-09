@@ -70,7 +70,7 @@ class ModulesTheme extends AbstractModules
         $sort_field = $this->getSort();
 
         # Sort modules by id
-        $modules = $this->getSearch() === null ? self::sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
+        $modules = $this->getSearch() === null ? $this->sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
 
         $res   = '';
         $count = 0;

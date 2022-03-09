@@ -24,9 +24,9 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        static::addStandardMenu('System');
-        static::addStandardFavorites();
+        $this->addStandardMenu('System');
+        $this->addStandardFavorites();
     }
 }

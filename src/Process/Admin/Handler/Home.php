@@ -291,9 +291,9 @@ class Home extends Page
         $boxes_contents_order = ($boxes_contents_order != '' ? explode(',', $boxes_contents_order) : []);
 
         # Compose dashboard items (doc, …)
-        $dashboardItems = self::composeItems($boxes_items_order, $__dashboard_items);
+        $dashboardItems = $this->composeItems($boxes_items_order, $__dashboard_items);
         # Compose dashboard contents (plugin's modules)
-        $dashboardContents = self::composeItems($boxes_contents_order, $__dashboard_contents);
+        $dashboardContents = $this->composeItems($boxes_contents_order, $__dashboard_contents);
 
         $__dashboard_boxes = [];
         if ($dashboardItems != '') {
@@ -302,7 +302,7 @@ class Home extends Page
         if ($dashboardContents != '') {
             $__dashboard_boxes[] = '<div class="db-contents" id="db-contents">' . $dashboardContents . '</div>';
         }
-        $dashboardBoxes = self::composeItems($boxes_order, $__dashboard_boxes, true);
+        $dashboardBoxes = $this->composeItems($boxes_order, $__dashboard_boxes, true);
 
         # Compose main area
         $__dashboard_main = [];
@@ -369,12 +369,12 @@ class Home extends Page
         if ($dashboardBoxes != '') {
             $__dashboard_main[] = '<div id="dashboard-boxes">' . $dashboardBoxes . '</div>';
         }
-        $dashboardMain = self::composeItems($main_order, $__dashboard_main, true);
+        $dashboardMain = $this->composeItems($main_order, $__dashboard_main, true);
 
         echo $dragndrop . '<div id="dashboard-main">' . $dashboardMain . '</div>';
     }
 
-    private static function composeItems($list, $blocks, $flat = false)
+    private function composeItems($list, $blocks, $flat = false)
     {
         $ret   = [];
         $items = [];

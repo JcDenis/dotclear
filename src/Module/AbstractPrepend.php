@@ -24,23 +24,27 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 abstract class AbstractPrepend
 {
-    /**
-     * Module Define instance
-     *
-     * Temporary accessible during check/load/install
-     *
-     * @var AbstractDefine|null
-     */
-    protected static $define = null;
+    /** @var    AbstractDefine|null     Module Define instance */
+    private $define = null;
 
-    public static function setDefine(AbstractDefine $define): void
+    /**
+     * Constructor
+     *
+     * @param   AbstractDefine  $define     Module Define instance
+     */
+    public function __construct(AbstractDefine $define)
     {
-        static::$define = $define;
+        $this->define = $define;
     }
 
-    public static function unsetDefine(): void
+    /**
+     * Get module definitions
+     *
+     * @return  AbstractDefine  Module Define instance
+     */
+    protected function define(): AbstractDefine
     {
-        static::$define = null;
+        return $this->define;
     }
 
     /**
@@ -49,9 +53,9 @@ abstract class AbstractPrepend
      * Module can check their specifics requirements here.
      * This methods must exists and return True or False.
      *
-     * @return  bool        False to stop module loading, True to go on
+     * @return  bool    False to stop module loading, True to go on
      */
-    abstract public static function checkModule(): bool;
+    abstract public function checkModule(): bool;
 
     /**
      * Load Module during process (Amdin, Public, Install, ...)
@@ -60,7 +64,7 @@ abstract class AbstractPrepend
      * for backend (Admin) to load admin menu, etc...
      * Prepend class must be present in Admin sub folder.
      */
-    abstract public static function loadModule(): void;
+    abstract public function loadModule(): void;
 
     /**
      * Install Module during process (Amdin, Public, Install, ...)
@@ -70,7 +74,7 @@ abstract class AbstractPrepend
      * Prepend class must be present in current process sub folder.
      * For now only Admin process support install method.
      *
-     * @return  bool        True on success
+     * @return  bool    True on success
      */
-    abstract public static function installModule(): ?bool;
+    abstract public function installModule(): ?bool;
 }

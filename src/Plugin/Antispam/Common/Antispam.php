@@ -30,40 +30,40 @@ if (!defined('DOTCLEAR_PROCESS')) {
 class Antispam
 {
     /** @var Spamfilters Spamfitlers instance */
-    public static $filters;
+    public $filters;
 
-    public static function initAntispam()
+    public function __construct()
     {
         dotclear()->blog()->settings()->addNamespace('antispam');
 
         if ('Public' == DOTCLEAR_PROCESS) {
-            dotclear()->behavior()->add('publicBeforeCommentCreate', [__CLASS__, 'isSpam']);
-            dotclear()->behavior()->add('publicBeforeTrackbackCreate', [__CLASS__, 'isSpam']);
-            dotclear()->behavior()->add('publicBeforeDocument', [__CLASS__, 'purgeOldSpam']);
+            dotclear()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
+            dotclear()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
+            dotclear()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
         } elseif ('Admin' == DOTCLEAR_PROCESS) {
-            dotclear()->behavior()->add('coreAfterCommentUpdate', [__CLASS__, 'trainFilters']);
-            dotclear()->behavior()->add('adminAfterCommentDesc', [__CLASS__, 'statusMessage']);
-            dotclear()->behavior()->add('adminDashboardHeaders', [__CLASS__, 'dashboardHeaders']);
-            dotclear()->behavior()->add('adminCommentsActionsPage', [__CLASS__, 'commentsActionsPage']);
-            dotclear()->behavior()->add('coreBlogGetComments', [__CLASS__, 'blogGetComments']);
-            dotclear()->behavior()->add('adminCommentListHeader', [__CLASS__, 'commentListHeader']);
-            dotclear()->behavior()->add('adminCommentListValue', [__CLASS__, 'commentListValue']);
+            dotclear()->behavior()->add('coreAfterCommentUpdate', [$this, 'trainFilters']);
+            dotclear()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
+            dotclear()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
+            dotclear()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
+            dotclear()->behavior()->add('coreBlogGetComments', [$this, 'blogGetComments']);
+            dotclear()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
+            dotclear()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
         }
     }
 
-    public static function initFilters(): void
+    public function initFilters(): void
     {
-        $spamfilters = new ArrayObject(self::defaultFilters());
+        $spamfilters = new ArrayObject($this->defaultFilters());
 
         # --BEHAVIOR-- antispamInitFilters , ArrayObject
         dotclear()->behavior()->call('antispamInitFilters', $spamfilters);
         $spamfilters = $spamfilters->getArrayCopy();
 
-        self::$filters = new Spamfilters();
-        self::$filters->init($spamfilters);
+        $this->filters = new Spamfilters();
+        $this->filters->init($spamfilters);
     }
 
-    public static function defaultFilters()
+    public function defaultFilters()
     {
         $ns = __NAMESPACE__ . '\\Filter\\';
         $defaultfilters = [
@@ -80,13 +80,13 @@ class Antispam
         return $defaultfilters;
     }
 
-    public static function isSpam(Cursor $cur): void
+    public function isSpam(Cursor $cur): void
     {
-        self::initFilters();
-        self::$filters->isSpam($cur);
+        $this->initFilters();
+        $this->filters->isSpam($cur);
     }
 
-    public static function trainFilters(Blog $blog, Cursor $cur, Record $rs): void
+    public function trainFilters(Blog $blog, Cursor $cur, Record $rs): void
     {
         $status = null;
         # From ham to spam
@@ -103,52 +103,40 @@ class Antispam
         if ($status) {
             $filter_name = $rs->spamFilter() ?: null;
 
-            self::initFilters();
-            self::$filters->trainFilters($rs, $status, $filter_name);
+            $this->initFilters();
+            $this->filters->trainFilters($rs, $status, $filter_name);
         }
     }
 
-    public static function statusMessage(Record $rs): string
+    public function statusMessage(Record $rs): string
     {
         if ($rs->exists('comment_status') && $rs->comment_status == -2) {
             $filter_name = $rs->spamFilter() ?: null;
 
-            self::initFilters();
+            $this->initFilters();
 
             return
             '<p><strong>' . __('This comment is a spam:') . '</strong> ' .
-            self::$filters->statusMessage($rs, $filter_name) . '</p>';
+            $this->filters->statusMessage($rs, $filter_name) . '</p>';
         }
     }
 
-    public static function dashboardIconTitle(): string
-    {
-        if (($count = self::countSpam()) > 0) {
-            $str = ($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)');
-
-            return '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
-            sprintf($str, $count);
-        }
-
-        return '';
-    }
-
-    public static function dashboardHeaders(): string
+    public function dashboardHeaders(): string
     {
         return dotclear()->resource()->load('dashboard.js', 'Plugin', 'Antispam');
     }
 
-    public static function countSpam(): int
+    public function countSpam(): int
     {
         return (int) dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
     }
 
-    public static function countPublishedComments(): int
+    public function countPublishedComments(): int
     {
         return (int) dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->f(0);
     }
 
-    public static function delAllSpam(?string $beforeDate = null): void
+    public function delAllSpam(?string $beforeDate = null): void
     {
         $strReq = 'SELECT comment_id ' .
         'FROM ' . dotclear()->prefix . 'comment C ' .
@@ -175,7 +163,7 @@ class Antispam
         dotclear()->con()->execute($strReq);
     }
 
-    public static function getUserCode(): string
+    public function getUserCode(): string
     {
         $code = pack('a32', dotclear()->user()->userID()) .
         hash(dotclear()->config()->crypt_algo, dotclear()->user()->cryptLegacy(dotclear()->user()->getInfo('user_pwd')));
@@ -183,7 +171,7 @@ class Antispam
         return bin2hex($code);
     }
 
-    public static function checkUserCode(string $code): string|false
+    public function checkUserCode(string $code): string|false
     {
         $code = pack('H*', $code);
 
@@ -217,7 +205,7 @@ class Antispam
         return $rs->user_id;
     }
 
-    public static function purgeOldSpam(): void
+    public function purgeOldSpam(): void
     {
         $defaultDateLastPurge = time();
         $defaultModerationTTL = '7';
@@ -251,34 +239,34 @@ class Antispam
         }
     }
 
-    public static function blogGetComments(Record $rs): void
+    public function blogGetComments(Record $rs): void
     {
         $rs->extend(__NAMESPACE__ . '\\RsExtComment');
     }
 
-    public static function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void
+    public function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void
     {
         if ($spam) {
             $cols['spam_filter'] = '<th scope="col">' . __('Spam filter') . '</th>';
         }
     }
 
-    public static function commentListValue(Record $rs, ArrayObject $cols, bool $spam): void
+    public function commentListValue(Record $rs, ArrayObject $cols, bool $spam): void
     {
         if ($spam) {
             $filter_name = '';
             if ($rs->spamFilter()) {
-                if (!self::$filters) {
-                    self::initFilters();
+                if (!$this->ilters) {
+                    $this->initFilters();
                 }
-                $filter_name = (null !== ($f = self::$filters->getFilter($rs->spamFilter()))) ? $f->name : $rs->spamFilter();
+                $filter_name = (null !== ($f = $this->filters->getFilter($rs->spamFilter()))) ? $f->name : $rs->spamFilter();
             }
             $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
         }
     }
 
     //! todo: manage IPv6
-    public static function commentsActionsPage(Action $ap): void
+    public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
         if (dotclear()->blog()->settings()->antispam->antispam_filters !== null) {
@@ -296,12 +284,12 @@ class Antispam
 
             $ap->addAction(
                 [__('IP address') => $blocklist_actions],
-                [__CLASS__, 'doBlocklistIP']
+                [$this, 'doBlocklistIP']
             );
         }
     }
 
-    public static function doBlocklistIP(Action $ap, $post)
+    public function doBlocklistIP(Action $ap, $post)
     {
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();

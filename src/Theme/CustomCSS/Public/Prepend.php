@@ -24,9 +24,9 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
-        if (dotclear()->blog()->settings()->system->theme != 'CustomCSS') {
+        if (!$this->isTheme()) {
             return;
         }
 

@@ -202,7 +202,7 @@ class Media extends Page
 
                 try {
                     Files::uploadStatus($upfile);
-                    $new_file_id = dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
+                    $new_file_id = (string) dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
 
                     $message['files'][] = [
                         'name' => $upfile['name'],
@@ -301,10 +301,10 @@ class Media extends Page
         } else {
             $this->breadcrumb();
             $this->setPageHead(
-                static::jsModal() .
+                dotclear()->resource()->modal() .
                 $this->filter->js(dotclear()->adminurl()->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(false, true)), '&')) .
                 dotclear()->resource()->load('_media.js') .
-                ($this->mediaWritable() ? static::jsUpload(['d=' . $this->filter->d]) : '')
+                ($this->mediaWritable() ? dotclear()->resource()->upload(['d=' . $this->filter->d]) : '')
             );
         }
 
@@ -482,7 +482,9 @@ class Media extends Page
         $this->filter->display('admin.media', dotclear()->adminurl()->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
 
         # display list
-        $this->catalog->display($this->filter, $fmt_form_media, $this->hasQuery());
+        if ($this->inventory) {
+            $this->inventory->display($this->filter, $fmt_form_media, $this->hasQuery());
+        }
 
         echo '</div>';
 
@@ -732,7 +734,7 @@ class Media extends Page
      */
     public function mediaLine(string $file_id): string
     {
-        return MediaInventory::mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query);
+        return $this->inventory ? $this->inventory->mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query) : '';
     }
 
     /**

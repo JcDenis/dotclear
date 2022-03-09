@@ -247,7 +247,7 @@ class Handler extends AbstractPage
             ' ' . $w->name() .
             ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') . '</p>' .
             '<p class="manual-move remove-if-drag"><label class="classic">' . __('Append to:') . '</label> ' .
-            Form::combo(['addw[' . $w->id() . ']'], self::widgetsAppendCombo()) .
+            Form::combo(['addw[' . $w->id() . ']'], $this->widgetsAppendCombo()) .
             '<input type="submit" name="append[' . $w->id() . ']" value="' . __('Add') . '" /></p>' .
             '<div class="widgetSettings hidden-if-drag">' . $w->formSettings('w[void][0]', $j) . '</div>' .
                 '</li>';
@@ -264,19 +264,19 @@ class Handler extends AbstractPage
         # Nav sidebar
         echo
         '<div id="sidebarNav" class="widgets fieldset">' .
-        self::sidebarWidgets('dndnav', __('Navigation sidebar'), $this->widgets_nav, 'nav', WidgetsStack::$__default_widgets['nav'], $j);
+        $this->sidebarWidgets('dndnav', __('Navigation sidebar'), $this->widgets_nav, 'nav', WidgetsStack::$__default_widgets['nav'], $j);
         echo '</div>';
 
         # Extra sidebar
         echo
         '<div id="sidebarExtra" class="widgets fieldset">' .
-        self::sidebarWidgets('dndextra', __('Extra sidebar'), $this->widgets_extra, 'extra', WidgetsStack::$__default_widgets['extra'], $j);
+        $this->sidebarWidgets('dndextra', __('Extra sidebar'), $this->widgets_extra, 'extra', WidgetsStack::$__default_widgets['extra'], $j);
         echo '</div>';
 
         # Custom sidebar
         echo
         '<div id="sidebarCustom" class="widgets fieldset">' .
-        self::sidebarWidgets('dndcustom', __('Custom sidebar'), $this->widgets_custom, 'custom', WidgetsStack::$__default_widgets['custom'], $j);
+        $this->sidebarWidgets('dndcustom', __('Custom sidebar'), $this->widgets_custom, 'custom', WidgetsStack::$__default_widgets['custom'], $j);
         echo '</div>';
 
         echo
@@ -311,7 +311,7 @@ class Handler extends AbstractPage
         dotclear()->resource()->load('widgets.js', 'Plugin', 'Widgets') .
         (!$user_dm_nodragdrop ? dotclear()->resource()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
         ($rte_flag ? (string) dotclear()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
-        static::jsConfirmClose('sidebarsWidgets');
+        dotclear()->resource()->confirmClose('sidebarsWidgets');
     }
 
     private function widgetsHelp(): stdClass
@@ -362,7 +362,7 @@ class Handler extends AbstractPage
         return $widget_elements;
     }
 
-    private static function sidebarWidgets($id, $title, $widgets, $pr, $default_widgets, &$j)
+    private function sidebarWidgets($id, $title, $widgets, $pr, $default_widgets, &$j)
     {
         $res = '<h3>' . $title . '</h3>';
 
@@ -413,7 +413,7 @@ class Handler extends AbstractPage
         return $res;
     }
 
-    private static function widgetsAppendCombo()
+    private function widgetsAppendCombo()
     {
         return [
             '-'              => 0,
@@ -423,7 +423,7 @@ class Handler extends AbstractPage
         ];
     }
 
-    private static function literalNullString($v)
+    private function literalNullString($v)
     {
         if ($v == '') {
             return '&lt;' . __('empty string') . '&gt;';

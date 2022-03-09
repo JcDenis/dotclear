@@ -149,7 +149,7 @@ class Auth extends Page
         }
         if (empty($get) && empty($_POST)) {
             try {
-                if (($changes = Upgrade::dotclearUpgrade() !== false)) {
+                if (($changes = (new Upgrade())->doUpgrade() !== false)) {
                     $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
             } catch (\Exception $e) {
@@ -354,7 +354,7 @@ class Auth extends Page
 
 
 <?php
-        $this->jsCommon();
+        dotclear()->resource()->common();
 ?>
 
     <link rel="stylesheet" href="?df=css/default.css" type="text/css" media="screen" />

@@ -113,18 +113,18 @@ class Wizard
                 # Creates config.php file
                 $full_conf = Distrib::getConfigFile();
 
-                self::writeConfigValue('database_driver', $DBDRIVER, $full_conf);
-                self::writeConfigValue('database_host', $DBHOST, $full_conf);
-                self::writeConfigValue('database_user', $DBUSER, $full_conf);
-                self::writeConfigValue('database_password', $DBPASSWORD, $full_conf);
-                self::writeConfigValue('database_name', $DBNAME, $full_conf);
-                self::writeConfigValue('database_prefix', $DBPREFIX, $full_conf);
+                $this->writeConfigValue('database_driver', $DBDRIVER, $full_conf);
+                $this->writeConfigValue('database_host', $DBHOST, $full_conf);
+                $this->writeConfigValue('database_user', $DBUSER, $full_conf);
+                $this->writeConfigValue('database_password', $DBPASSWORD, $full_conf);
+                $this->writeConfigValue('database_name', $DBNAME, $full_conf);
+                $this->writeConfigValue('database_prefix', $DBPREFIX, $full_conf);
 
                 $admin_url = $root_url . '/admin/index.php';
-                self::writeConfigValue('admin_url', Http::getHost() . $admin_url, $full_conf);
+                $this->writeConfigValue('admin_url', Http::getHost() . $admin_url, $full_conf);
                 $admin_email = !empty($ADMINMAILFROM) ? $ADMINMAILFROM : 'dotclear@' . $_SERVER['HTTP_HOST'];
-                self::writeConfigValue('admin_mailform', $admin_email, $full_conf);
-                self::writeConfigValue('master_key', md5(uniqid()), $full_conf);
+                $this->writeConfigValue('admin_mailform', $admin_email, $full_conf);
+                $this->writeConfigValue('master_key', md5(uniqid()), $full_conf);
 
                 $fp = @fopen(DOTCLEAR_CONFIG_PATH, 'wb');
                 if ($fp === false) {
@@ -228,7 +228,7 @@ class Wizard
         exit;
     }
 
-    protected static function writeConfigValue(string $name, string $val, string &$str): void
+    protected function writeConfigValue(string $name, string $val, string &$str): void
     {
         $val = str_replace("'", "\'", $val);
         $str = preg_replace('/(\'' . $name . '\')(.*?)$/ms', '$1 => \'' . $val . '\',', $str);

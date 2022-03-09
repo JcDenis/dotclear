@@ -18,7 +18,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
@@ -32,8 +31,8 @@ class BlogFilter extends Filter
         parent::__construct('blogs');
 
         $filters = new ArrayObject([
-            Filters::getPageFilter(),
-            Filters::getSearchFilter(),
+            $this->getPageFilter(),
+            $this->getSearchFilter(),
             $this->getBlogStatusFilter()
         ]);
 

@@ -18,7 +18,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filters;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -31,8 +30,8 @@ class UserFilter extends Filter
         parent::__construct('users');
 
         $filters = new arrayObject([
-            Filters::getPageFilter(),
-            Filters::getSearchFilter()
+            $this->getPageFilter(),
+            $this->getSearchFilter()
         ]);
 
         # --BEHAVIOR-- adminUserFilter

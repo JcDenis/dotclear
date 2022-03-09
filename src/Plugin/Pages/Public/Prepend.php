@@ -26,7 +26,7 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Localized string we find in template
         __('Published on');
@@ -52,8 +52,8 @@ class Prepend extends AbstractPrepend
             }
         });
 
-        static::addTemplatePath();
-        PagesUrl::initPages();
-        PagesWidgets::initPages();
+        $this->addTemplatePath();
+        new PagesUrl();
+        new PagesWidgets();
     }
 }

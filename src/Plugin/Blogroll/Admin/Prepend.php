@@ -26,11 +26,11 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Menu and favs
-        static::addStandardMenu('Blog');
-        static::addStandardFavorites('usage,contentadmin');
+        $this->addStandardMenu('Blog');
+        $this->addStandardFavorites('usage,contentadmin');
 
         # Manage user permissions
         dotclear()->behavior()->add(
@@ -42,11 +42,11 @@ class Prepend extends AbstractPrepend
 
         # Widgets
         if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
-            BlogrollWidgets::initBlogroll();
+            new BlogrollWidgets();
         }
     }
 
-    public static function installModule(): ?bool
+    public function installModule(): ?bool
     {
         $s = new Structure(dotclear()->con(), dotclear()->prefix);
 

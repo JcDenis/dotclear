@@ -339,7 +339,7 @@ class Core
     {
         if (!($this->config instanceof Configuration)) {
             $config_file = defined('DOTCLEAR_CONFIG_PATH') && is_file(DOTCLEAR_CONFIG_PATH) ? DOTCLEAR_CONFIG_PATH : [];
-            $this->config = new Configuration(self::getDefaultConfig(), $config_file);
+            $this->config = new Configuration($this->getDefaultConfig(), $config_file);
 
             # Alias that could be required before first connection instance
             $this->prefix = $this->config->database_prefix;
@@ -816,7 +816,7 @@ class Core
      */
     protected function throwException(string $message, string $detail, int $code): void
     {
-        $title = self::getExceptionTitle($code);
+        $title = $this->getExceptionTitle($code);
 
         # If in non production env and there are some details
         if (!$this->production() && !empty($detail)) {
@@ -854,7 +854,7 @@ class Core
      * @param   int     $code   The code
      * @return  string          The title
      */
-    protected static function getExceptionTitle(int $code): string
+    protected function getExceptionTitle(int $code): string
     {
         $errors = [
             605 => __('no process found'),
@@ -877,7 +877,7 @@ class Core
     /**
      * Empty templates cache directory
      */
-    public static function emptyTemplatesCache(): void //! move this
+    public function emptyTemplatesCache(): void //! move this
     {
         if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
             Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));
@@ -893,7 +893,7 @@ class Core
      *
      * @return  array   Initial configuation
      */
-    private static function getDefaultConfig(): array
+    private function getDefaultConfig(): array
     {
         return [
             'admin_adblocker_check' => [null, false],

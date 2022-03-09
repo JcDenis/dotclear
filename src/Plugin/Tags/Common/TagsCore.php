@@ -22,14 +22,14 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class TagsCore
 {
-    public static function initTags()
+    public function __construct()
     {
         dotclear()->behavior()->add('coreInitWikiPost', function ($wiki2xhtml) {
-            $wiki2xhtml->registerFunction('url:tag', [__CLASS__, 'wiki2xhtmlTag']);
+            $wiki2xhtml->registerFunction('url:tag', [$this, 'wiki2xhtmlTag']);
         });
     }
 
-    public static function wiki2xhtmlTag($url, $content)
+    public function wiki2xhtmlTag($url, $content)
     {
         $url = substr($url, 4);
         if (strpos($content, 'tag:') === 0) {

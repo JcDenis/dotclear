@@ -29,17 +29,17 @@ class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
 
-    public static function loadModule(): void
+    public function loadModule(): void
     {
         # Localized string we find in template
         __("This tag's comments Atom feed");
         __("This tag's entries Atom feed");
 
-        static::addTemplatePath();
-        TagsUrl::initTags();
-        TagsTemplate::initTags();
-        TagsBehavior::initTags();
-        TagsXmlrpc::initTags();
-        TagsWidgets::initTags();
+        $this->addTemplatePath();
+        new TagsUrl();
+        new TagsTemplate();
+        new TagsBehavior();
+        new TagsXmlrpc();
+        new TagsWidgets();
     }
 }

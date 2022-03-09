@@ -696,7 +696,7 @@ class FlatImport extends FlatBackup
             $this->insertPost($post);
             $this->stack['post_id']++;
         } else {
-            self::throwIdError($post->__name, $post->__line, 'category');
+            $this->throwIdError($post->__name, $post->__line, 'category');
         }
     }
 
@@ -706,7 +706,7 @@ class FlatImport extends FlatBackup
             $meta->post_id = $this->old_ids['post'][(int) $meta->post_id];
             $this->insertMeta($meta);
         } else {
-            self::throwIdError($meta->__name, $meta->__line, 'post');
+            $this->throwIdError($meta->__name, $meta->__line, 'post');
         }
     }
 
@@ -732,9 +732,9 @@ class FlatImport extends FlatBackup
 
             $this->insertPostMedia($post_media);
         } elseif (!isset($this->old_ids['media'][(int) $post_media->media_id])) {
-            self::throwIdError($post_media->__name, $post_media->__line, 'media');
+            $this->throwIdError($post_media->__name, $post_media->__line, 'media');
         } else {
-            self::throwIdError($post_media->__name, $post_media->__line, 'post');
+            $this->throwIdError($post_media->__name, $post_media->__line, 'post');
         }
     }
 
@@ -745,7 +745,7 @@ class FlatImport extends FlatBackup
 
             $this->insertPing($ping);
         } else {
-            self::throwIdError($ping->__name, $ping->__line, 'post');
+            $this->throwIdError($ping->__name, $ping->__line, 'post');
         }
     }
 
@@ -760,11 +760,11 @@ class FlatImport extends FlatBackup
             $this->insertComment($comment);
             $this->stack['comment_id']++;
         } else {
-            self::throwIdError($comment->__name, $comment->__line, 'post');
+            $this->throwIdError($comment->__name, $comment->__line, 'post');
         }
     }
 
-    private static function throwIdError($name, $line, $related)
+    private function throwIdError($name, $line, $related)
     {
         throw new ModuleException(sprintf(
             __('ID of "%3$s" does not match on record "%1$s" at line %2$s of backup file.'),

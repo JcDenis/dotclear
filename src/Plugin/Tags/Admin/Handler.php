@@ -113,7 +113,7 @@ class Handler extends AbstractPage
                         'confirm_tag_delete' => sprintf(__('Are you sure you want to remove tag: “%s”?'), html::escapeHTML($this->t_tag)),
                     ]) .
                     dotclear()->resource()->load('posts.js', 'Plugin', 'Tags') .
-                    static::jsConfirmClose('tag_rename')
+                    dotclear()->resource()->confirmClose('tag_rename')
                 )
                 ->setPageBreadcrumb(
                     [

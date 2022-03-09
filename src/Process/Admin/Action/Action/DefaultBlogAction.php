@@ -22,9 +22,9 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class DefaultBlogAction
+abstract class DefaultBlogAction extends Action
 {
-    public static function BlogsAction(Action $ap): void
+    public function loadBlogsAction(Action $ap): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;
@@ -36,16 +36,16 @@ class DefaultBlogAction
                 __('Set offline')    => 'offline',
                 __('Set as removed') => 'remove'
             ]],
-            [__CLASS__, 'doChangeBlogStatus']
+            [$this, 'doChangeBlogStatus']
         );
         $ap->addAction(
             [__('Delete') => [
                 __('Delete') => 'delete']],
-            [__CLASS__, 'doDeleteBlog']
+            [$this, 'doDeleteBlog']
         );
     }
 
-    public static function doChangeBlogStatus(Action $ap, array|ArrayObject $post): void
+    public function doChangeBlogStatus(Action $ap, array|ArrayObject $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;
@@ -84,7 +84,7 @@ class DefaultBlogAction
         $ap->redirect(true);
     }
 
-    public static function doDeleteBlog(Action $ap, array|ArrayObject $post): void
+    public function doDeleteBlog(Action $ap, array|ArrayObject $post): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             return;

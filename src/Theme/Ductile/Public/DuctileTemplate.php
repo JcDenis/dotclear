@@ -21,16 +21,16 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class DuctileTemplate
 {
-    public static function initDuctile()
+    public function __construct()
     {
-        dotclear()->template()->addValue('ductileEntriesList', [__CLASS__, 'ductileEntriesList']);
-        dotclear()->template()->addBlock('EntryIfContentIsCut', [__CLASS__, 'EntryIfContentIsCut']);
-        dotclear()->template()->addValue('ductileNbEntryPerPage', [__CLASS__, 'ductileNbEntryPerPage']);
-        dotclear()->template()->addValue('ductileLogoSrc', [__CLASS__, 'ductileLogoSrc']);
-        dotclear()->template()->addBlock('IfPreviewIsNotMandatory', [__CLASS__, 'IfPreviewIsNotMandatory']);
+        dotclear()->template()->addValue('ductileEntriesList', [$this, 'ductileEntriesList']);
+        dotclear()->template()->addBlock('EntryIfContentIsCut', [$this, 'EntryIfContentIsCut']);
+        dotclear()->template()->addValue('ductileNbEntryPerPage', [$this, 'ductileNbEntryPerPage']);
+        dotclear()->template()->addValue('ductileLogoSrc', [$this, 'ductileLogoSrc']);
+        dotclear()->template()->addBlock('IfPreviewIsNotMandatory', [$this, 'IfPreviewIsNotMandatory']);
     }
 
-    public static function ductileNbEntryPerPage($attr)
+    public function ductileNbEntryPerPage($attr)
     {
         $nb = $attr['nb'] ?? null;
 
@@ -82,7 +82,7 @@ class DuctileTemplate
         }
     }
 
-    public static function EntryIfContentIsCut($attr, $content)
+    public function EntryIfContentIsCut($attr, $content)
     {
         if (empty($attr['cut_string']) || !empty($attr['full'])) {
             return '';
@@ -105,7 +105,7 @@ class DuctileTemplate
             '<?php endif; ?>';
     }
 
-    public static function ductileEntriesList($attr)
+    public function ductileEntriesList($attr)
     {
         $tpl_path   = __DIR__ . '/../templates/tpl/';
         $list_types = ['title', 'short', 'full'];
@@ -160,7 +160,7 @@ class DuctileTemplate
         return $default;
     }
 
-    public static function ductileLogoSrc($attr)
+    public function ductileLogoSrc($attr)
     {
         return '<?php echo ' . __CLASS__ . '::ductileLogoSrcHelper(); ?>';
     }
@@ -197,7 +197,7 @@ class DuctileTemplate
         return $img_url;
     }
 
-    public static function IfPreviewIsNotMandatory($attr, $content)
+    public function IfPreviewIsNotMandatory($attr, $content)
     {
         $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
         if ($s !== null) {

@@ -15,7 +15,6 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\DefaultCommentAction;
 use Dotclear\Html\Form;
 use Dotclear\Html\Html;
@@ -24,7 +23,7 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
 }
 
-class CommentAction extends Action
+class CommentAction extends DefaultCommentAction
 {
     public function __construct(string $uri, array $redirect_args = [])
     {
@@ -49,7 +48,7 @@ class CommentAction extends Action
 
     protected function loadDefaults(): void
     {
-        DefaultCommentAction::CommentAction($this);
+        $this->loadCommentAction($this);
         dotclear()->behavior()->call('adminCommentsActionsPage', $this);
     }
 

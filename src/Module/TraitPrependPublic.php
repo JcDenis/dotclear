@@ -19,16 +19,20 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 trait TraitPrependPublic
 {
-    protected static $template_path = '';
-
-    # Module check is not used on Public process
-    public static function checkModule(): bool
+    /**
+     * Not used on Public process
+     * @see Dotclear\Module\AbstractModules::loadModules()
+     */
+    public function checkModule(): bool
     {
         return true;
     }
 
-    # Module check is not used on Public process
-    public static function installModule(): ?bool
+    /**
+     * Not used on Public process
+     * @see Dotclear\Module\AbstractModules::loadModules()
+     */
+    public function installModule(): ?bool
     {
         return null;
     }
@@ -38,17 +42,26 @@ trait TraitPrependPublic
      *
      * Helper for modules to add their template set
      */
-    public static function addTemplatePath(): void
+    public function addTemplatePath(): void
     {
-        static::$template_path = static::$define->root() . '/templates/';
-        if (is_dir(static::$template_path)) {
+        if (is_dir($this->define()->root() . '/templates/')) {
             dotclear()->behavior()->add('publicBeforeDocument', function () {
                 $tplset = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
                 dotclear()->template()->setPath(
                     dotclear()->template()->getPath(),
-                    static::$template_path . (!empty($tplset) && is_dir(static::$template_path . $tplset) ? $tplset : dotclear()->config()->template_default)
+                    $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : dotclear()->config()->template_default)
                 );
             });
         }
+    }
+
+    /**
+     * Helper to check if current blog theme is this module
+     *
+     * @return  bool    True if blog theme is this modle
+     */
+    protected function isTheme()
+    {
+        return dotclear()->blog()->settings()->system->theme == $this->define()->id();
     }
 }

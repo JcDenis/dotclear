@@ -49,7 +49,7 @@ class Blog extends Page
             ->setPageHelp('core_blog_new')
             ->setPageTitle(__('New blog'))
             ->setPageHead(
-                static::jsConfirmClose('blog-form')
+                dotclear()->resource()->confirmClose('blog-form')
             )
             ->setPageBreadcrumb([
                 __('System')   => '',
