@@ -29,6 +29,6 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         new Antispam();
-        AntispamUrl::initAntispam();
+        new AntispamUrl();
     }
 }
