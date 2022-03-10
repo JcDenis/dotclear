@@ -825,7 +825,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()."resources/"') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
     }
 
     /*dtd
@@ -835,7 +835,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()."resources/"') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
     }
 
     /*dtd
