@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Url;
 
 use ArrayObject;
+use Closure;
 
 use Dotclear\Core\Trackback\Trackback;
 use DOtclear\Core\Common\Xpmlrpc;
@@ -49,17 +50,17 @@ class Url
         $this->initDefaulthandlers();
     }
 
-    protected function getHomeType()
+    protected function getHomeType(): string
     {
         return dotclear()->blog()->settings()->system->static_home ? 'static' : 'default';
     }
 
-    public function isHome($type)
+    public function isHome(string $type): bool
     {
         return $type == $this->getHomeType();
     }
 
-    public function getURLFor($type, $value = '')
+    public function getURLFor(string $type, string $value = ''): string
     {
         $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {
@@ -75,7 +76,7 @@ class Url
         return $url;
     }
 
-    public function register($type, $url, $representation, $handler)
+    public function register(string $type, string $url, string $representation, string|array|Closure $handler): void
     {
         $args = new ArrayObject(func_get_args());
 
@@ -88,36 +89,36 @@ class Url
         ];
     }
 
-    public function registerDefault($handler)
+    public function registerDefault(string|array|Closure  $handler): void
     {
         $this->default_handler = $handler;
     }
 
-    public function registerError($handler)
+    public function registerError(string|array|Closure $handler): void
     {
         array_unshift($this->error_handlers, $handler);
     }
 
-    public function unregister($type)
+    public function unregister(string $type): void
     {
         if (isset($this->types[$type])) {
             unset($this->types[$type]);
         }
     }
 
-    public function getTypes()
+    public function getTypes(): array
     {
         return $this->types;
     }
 
-    public function getBase($type)
+    public function getBase(string $type): string
     {
         if (isset($this->types[$type])) {
             return $this->types[$type]['url'];
         }
     }
 
-    protected function getPageNumber(&$args)
+    protected function getPageNumber(?string &$args): int|false
     {
         if (preg_match('#(^|/)page/([0-9]+)$#', $args, $m)) {
             $n = (int) $m[2];
@@ -131,7 +132,7 @@ class Url
         return false;
     }
 
-    protected function serveDocument($tpl, $content_type = 'text/html', $http_cache = true, $http_etag = true)
+    protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
         if (dotclear()->context()->nb_entry_per_page === null) {
             dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_page;
@@ -200,7 +201,7 @@ class Url
         echo $result['content'];
     }
 
-    public function getDocument()
+    public function getDocument(): void
     {
         $type = $args = '';
 
@@ -247,7 +248,7 @@ class Url
         }
     }
 
-    public function getArgs($part, &$type, &$args)
+    public function getArgs(?string $part, ?string &$type, ?string &$args): void
     {
         if ($part == '') {
             $type = null;
@@ -277,7 +278,7 @@ class Url
         $args = $part;
     }
 
-    public function callHandler($type, $args)
+    public function callHandler(string $type, ?string $args): void
     {
         if (!isset($this->types[$type])) {
             throw new CoreException('Unknown URL type');
@@ -301,7 +302,7 @@ class Url
         }
     }
 
-    public function callDefaultHandler($args)
+    public function callDefaultHandler(?string $args): void
     {
         if (!is_callable($this->default_handler)) {
             throw new CoreException('Unable to call function');
@@ -320,7 +321,7 @@ class Url
         }
     }
 
-    protected function parseQueryString()
+    protected function parseQueryString(): array
     {
         if (!empty($_SERVER['QUERY_STRING'])) {
             $q = explode('&', $_SERVER['QUERY_STRING']);
@@ -342,7 +343,7 @@ class Url
         return [];
     }
 
-    protected function sortTypes()
+    protected function sortTypes(): void
     {
         $r = [];
         foreach ($this->types as $k => $v) {
@@ -351,12 +352,12 @@ class Url
         array_multisort($r, SORT_DESC, $this->types);
     }
 
-    public function p404()
+    public function p404(): void
     {
         throw new CoreException('Page not found', 404);
     }
 
-    public function default404($args, $type, $e)
+    public function default404(?string $args, ?string $type, \Exception $e): void
     {
         if ($e->getCode() != 404) {
             throw $e;
@@ -376,7 +377,7 @@ class Url
         exit;
     }
 
-    public function home($args)
+    public function home(?string $args): void
     {
         // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
         $n = $args ? $this->getPageNumber($args) : dotclear()->context()->page_number();
@@ -406,7 +407,7 @@ class Url
         }
     }
 
-    public function static_home($args)
+    public function static_home(?string $args): void
     {
         dotclear()->url()->type = 'static';
 
@@ -418,7 +419,7 @@ class Url
         }
     }
 
-    public function search()
+    public function search(): void
     {
         if (dotclear()->blog()->settings()->system->no_search) {
 
@@ -438,7 +439,7 @@ class Url
         }
     }
 
-    public function lang($args)
+    public function lang(string $args): void
     {
         $n      = $this->getPageNumber($args);
         $params = new ArrayObject([
@@ -460,7 +461,7 @@ class Url
         }
     }
 
-    public function category($args)
+    public function category(string $args): void
     {
         $n = $this->getPageNumber($args);
 
@@ -489,7 +490,7 @@ class Url
         }
     }
 
-    public function archive($args)
+    public function archive(?string $args): void
     {
         # Nothing or year and month
         if ($args == '') {
@@ -516,7 +517,7 @@ class Url
         }
     }
 
-    public function post($args)
+    public function post(string $args): void
     {
         if ($args == '') {
             # No entry was specified.
@@ -676,7 +677,7 @@ class Url
         }
     }
 
-    public function preview($args)
+    public function preview(string $args): void
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             # The specified Preview URL is malformed.
@@ -698,7 +699,7 @@ class Url
         }
     }
 
-    public function feed($args)
+    public function feed(string $args): void
     {
         $type     = null;
         $comments = false;
@@ -810,7 +811,7 @@ class Url
         }
     }
 
-    public function trackback($args)
+    public function trackback(string $args): void
     {
         if (!preg_match('/^[0-9]+$/', $args)) {
             # The specified trackback URL is not an number
@@ -834,7 +835,7 @@ class Url
         }
     }
 
-    public function webmention($args)
+    public function webmention(?string $args): void
     {
         if (!is_array($args)) {
             $args = [];
@@ -849,7 +850,7 @@ class Url
         $trackback->receiveWebmention();
     }
 
-    public function rsd($args)
+    public function rsd(?string $args): void
     {
         Http::cache($this->mod_files, $this->mod_ts);
 
@@ -879,14 +880,14 @@ class Url
             "</rsd>\n";
     }
 
-    public function xmlrpc($args)
+    public function xmlrpc(string $args): void
     {
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
         $xmlrpc = new Xmlrpc($blog_id);
         $xmlrpc->serve();
     }
 
-    public function resources($args)
+    public function resources(string $args): void
     {
         if (empty($args)) {
             $this->p404();
@@ -953,7 +954,8 @@ class Url
         Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, $this->allow_sub_dir);
     }
 
-    public function initDefaultHandlers()
+    # Do not change 'resources' handler as css and js use hard coded resources urls
+    public function initDefaultHandlers(): void
     {
         $this->registerDefault([$this, 'home']);
         $this->registerError([$this, 'default404']);
