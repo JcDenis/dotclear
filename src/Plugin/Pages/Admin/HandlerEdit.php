@@ -624,8 +624,7 @@ class HandlerEdit extends AbstractPage
                 'accesskey="s" name="save" /> ';
 
             if ($this->post_id) {
-                $preview_url = dotclear()->blog()->url .
-                dotclear()->url()->getURLFor(
+                $preview_url = dotclear()->blog()->getURLFor(
                     'pagespreview',
                     dotclear()->user()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->master_key . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .

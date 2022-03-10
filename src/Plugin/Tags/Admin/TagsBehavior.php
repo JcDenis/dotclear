@@ -48,7 +48,7 @@ class TagsBehavior
             return '';
         }
 
-        $tag_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('tag');
+        $tag_url = dotclear()->blog()->getURLFor('tag');
 
         if ($editor == 'dcLegacyEditor') {
             return
@@ -108,7 +108,7 @@ class TagsBehavior
             $content = substr($content, 4);
         }
 
-        $tag_url        = Html::stripHostURL(dotclear()->blog()->url . dotclear()->url()->getURLFor('tag'));
+        $tag_url        = Html::stripHostURL(dotclear()->blog()->getURLFor('tag'));
         $res['url']     = $tag_url . '/' . rawurlencode(dotclear()->meta()::sanitizeMetaID($url));
         $res['content'] = $content;
 
@@ -186,7 +186,7 @@ class TagsBehavior
             );
             $ap->redirect(true);
         } else {
-            $tag_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('tag');
+            $tag_url = dotclear()->blog()->getURLFor('tag');
 
             $opts = dotclear()->user()->getOptions();
             $type = $opts['tag_list_format'] ?? 'more';
@@ -315,7 +315,7 @@ class TagsBehavior
 
     public function postHeaders()
     {
-        $tag_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('tag');
+        $tag_url = dotclear()->blog()->getURLFor('tag');
 
         $opts = dotclear()->user()->getOptions();
         $type = $opts['tag_list_format'] ?? 'more';

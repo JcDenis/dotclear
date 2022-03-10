@@ -166,7 +166,7 @@ class TagsTemplate
     {
         $f = dotclear()->template()->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("tag",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("tag",' .
             'rawurlencode(dotclear()->context()->meta->meta_id))') . '; ?>';
     }
 
@@ -174,7 +174,7 @@ class TagsTemplate
     {
         $f = dotclear()->template()->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("tags")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("tags")') . '; ?>';
     }
 
     public function TagFeedURL($attr)
@@ -187,7 +187,7 @@ class TagsTemplate
 
         $f = dotclear()->template()->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("tag_feed",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("tag_feed",' .
             'rawurlencode(dotclear()->context()->meta->meta_id)."/' . $type . '")') . '; ?>';
     }
 }

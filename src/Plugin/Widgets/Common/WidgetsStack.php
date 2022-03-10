@@ -88,19 +88,19 @@ class WidgetsStack
             if (dotclear()->blog()->settings()->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
             if (dotclear()->blog()->settings()->system->static_home) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
-                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
+                '<a href="' . dotclear()->blog()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         }
 
         $res .= '<li class="topnav-arch">' .
-        '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('archive') . '">' .
+        '<a href="' . dotclear()->blog()->getURLFor('archive') . '">' .
         __('Archives') . '</a></li>' .
             '</ul></nav>';
 
@@ -144,7 +144,7 @@ class WidgetsStack
                 $res .= '</li><li' . $class . '>';
             }
 
-            $res .= '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('category', $rs->cat_url) . '">' .
+            $res .= '<a href="' . dotclear()->blog()->getURLFor('category', $rs->cat_url) . '">' .
             Html::escapeHTML($rs->cat_title) . '</a>' .
                 ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->nb_total : $rs->nb_post) . ')</span>' : '');
 
@@ -227,7 +227,7 @@ class WidgetsStack
 
             $res .= ' <li>' .
             sprintf($l,
-                '<a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('lang', $rs->post_lang) . '" ' .
+                '<a href="' . dotclear()->blog()->getURLFor('lang', $rs->post_lang) . '" ' .
                 'class="lang-' . $rs->post_lang . '">' .
                 $lang_name . '</a>') .
                 ' </li>';
@@ -263,13 +263,13 @@ class WidgetsStack
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
-        'href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('feed', $type) . '" ' .
+        'href="' . dotclear()->blog()->getURLFor('feed', $type) . '" ' .
         'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
         if (dotclear()->blog()->settings()->system->allow_comments || dotclear()->blog()->settings()->system->allow_trackbacks) {
             $res .= '<li><a type="' . $mime . '" ' .
-            'href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('feed', $type . '/comments') . '" ' .
+            'href="' . dotclear()->blog()->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
             __('Comments feed') . '</a></li>';
         }

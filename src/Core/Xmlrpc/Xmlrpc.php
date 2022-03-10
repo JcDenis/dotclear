@@ -701,10 +701,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
                 'parentId'     => $parent,
                 'description'  => $rs->cat_title,
                 'categoryName' => $rs->cat_url,
-                'htmlUrl'      => dotclear()->blog()->url .
-                dotclear()->url()->getURLFor('category', $rs->cat_url),
-                'rssUrl' => dotclear()->blog()->url .
-                dotclear()->url()->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
+                'htmlUrl'      => dotclear()->blog()->getURLFor('category', $rs->cat_url),
+                'rssUrl'       => dotclear()->blog()->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
             ];
 
             $stack[] = $rs->cat_url;
@@ -1083,18 +1081,14 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $tags->sort('meta_id_lower', 'asc');
 
         $res = [];
-        $url = dotclear()->blog()->url .
-        dotclear()->url()->getURLFor('tag', '%s');
-        $f_url = dotclear()->blog()->url .
-        dotclear()->url()->getURLFor('tag_feed', '%s');
         while ($tags->fetch()) {
             $res[] = [
                 'tag_id'   => $tags->meta_id,
                 'name'     => $tags->meta_id,
                 'count'    => $tags->count,
                 'slug'     => $tags->meta_id,
-                'html_url' => sprintf($url, $tags->meta_id),
-                'rss_url'  => sprintf($f_url, $tags->meta_id)
+                'html_url' => sprintf(dotclear()->blog()->getURLFor('tag', '%s'), $tags->meta_id),
+                'rss_url'  => sprintf(dotclear()->blog()->getURLFor('tag_feed', '%s'), $tags->meta_id)
             ];
         }
 

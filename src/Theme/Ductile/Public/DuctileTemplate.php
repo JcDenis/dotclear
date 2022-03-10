@@ -167,7 +167,7 @@ class DuctileTemplate
 
     public static function ductileLogoSrcHelper()
     {
-        $img_url = dotclear()->blog()->url . 'resources/img/logo.png';
+        $img_url = dotclear()->blog()->getURLFor('resources', 'img/logo.png');
 
         $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
         if ($s === null) {
@@ -188,7 +188,7 @@ class DuctileTemplate
                         $img_url = $s['logo_src'];
                     } else {
                         // relative URL (base = img folder of ductile theme)
-                        $img_url = dotclear()->blog()->url . 'resources/img/' . $s['logo_src'];
+                        $img_url = dotclear()->blog()->getURLFor('resources', 'img/' . $s['logo_src']);
                     }
                 }
             }

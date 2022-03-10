@@ -36,7 +36,7 @@ class TagsCore
             $content = substr($content, 4);
         }
 
-        $tag_url        = Html::stripHostURL(dotclear()->blog()->url . dotclear()->url()->getURLFor('tag'));
+        $tag_url        = Html::stripHostURL(dotclear()->blog()->getURLFor('tag'));
         $res['url']     = $tag_url . '/' . rawurlencode(dotclear()->meta()::sanitizeMetaID($url));
         $res['content'] = $content;
 

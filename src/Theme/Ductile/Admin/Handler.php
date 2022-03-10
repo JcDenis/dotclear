@@ -131,8 +131,7 @@ class Handler extends AbstractPage
 
         $this->Ductile_stickers = [[
             'label' => __('Subscribe'),
-            'url'   => dotclear()->blog()->url .
-            dotclear()->url()->getURLFor('feed', 'atom'),
+            'url'   => dotclear()->blog()->getURLFor('feed', 'atom'),
             'image' => 'sticker-feed.png'
         ]];
 

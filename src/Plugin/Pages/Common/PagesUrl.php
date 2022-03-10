@@ -187,7 +187,7 @@ class PagesUrl extends Url
 
                 # The entry
                 if (dotclear()->context()->posts->trackbacksActive()) {
-                    header('X-Pingback: ' . dotclear()->blog()->url . dotclear()->url()->getURLFor('xmlrpc', dotclear()->blog()->id));
+                    header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
                 }
 
                 # Serve page

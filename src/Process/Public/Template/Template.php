@@ -724,7 +724,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("archive")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("archive")') . '; ?>';
     }
 
     /*dtd
@@ -783,7 +783,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("feed","' . $type . '")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("feed","' . $type . '")') . '; ?>';
     }
 
     /*dtd
@@ -813,7 +813,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php if (dotclear()->context()->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("lang",' .
+        return '<?php if (dotclear()->context()->exists("cur_lang")) echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("lang",' .
             'dotclear()->context()->cur_lang)') . ';
             else echo ' . sprintf($f, 'dotclear()->blog()->url') . '; ?>';
     }
@@ -896,7 +896,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor(\'rsd\')') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor(\'rsd\')') . '; ?>';
     }
 
     /*dtd
@@ -906,7 +906,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor(\'xmlrpc\',dotclear()->blog()->id)') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor(\'xmlrpc\',dotclear()->blog()->id)') . '; ?>';
     }
 
     /*dtd
@@ -959,7 +959,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings()->system->static_home ? dotclear()->blog()->url.dotclear()->url()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
+        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings()->system->static_home ? dotclear()->blog()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
     }
 
     /*dtd
@@ -1185,7 +1185,7 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("feed","category/".' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("feed","category/".' .
             'dotclear()->context()->categories->cat_url."/' . $type . '")') . '; ?>';
     }
 
@@ -1206,7 +1206,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("category",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("category",' .
             'dotclear()->context()->categories->cat_url)') . '; ?>';
     }
 
@@ -2270,7 +2270,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("lang",' .
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("lang",' .
             'dotclear()->context()->langs->post_lang)') . '; ?>';
     }
 

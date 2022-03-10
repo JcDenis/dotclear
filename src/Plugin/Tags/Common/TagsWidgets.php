@@ -134,7 +134,7 @@ class TagsWidgets
                     }
                 }
             }
-            $res .= '<li' . $class . '><a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('tag', rawurlencode($rs->meta_id)) . '" ' .
+            $res .= '<li' . $class . '><a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode($rs->meta_id)) . '" ' .
             'class="tag' . $rs->roundpercent . '">' .
             $rs->meta_id . '</a> </li>';
         }
@@ -142,7 +142,7 @@ class TagsWidgets
         $res .= '</ul>';
 
         if (dotclear()->url()->getURLFor('tags') && !is_null($w->alltagslinktitle) && $w->alltagslinktitle !== '') {
-            $res .= '<p><strong><a href="' . dotclear()->blog()->url . dotclear()->url()->getURLFor('tags') . '">' .
+            $res .= '<p><strong><a href="' . dotclear()->blog()->getURLFor('tags') . '">' .
             Html::escapeHTML($w->alltagslinktitle) . '</a></strong></p>';
         }
 

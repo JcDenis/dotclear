@@ -669,8 +669,8 @@ class Url
 
                 # The entry
                 if (dotclear()->context()->posts->trackbacksActive()) {
-                    header('X-Pingback: ' . dotclear()->blog()->url . dotclear()->url()->getURLFor('xmlrpc', dotclear()->blog()->id));
-                    header('Link: <' . dotclear()->blog()->url . dotclear()->url()->getURLFor('webmention') . '>; rel="webmention"');
+                    header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
+                    header('Link: <' . dotclear()->blog()->getURLFor('webmention') . '>; rel="webmention"');
                 }
                 $this->serveDocument('post.html');
             }

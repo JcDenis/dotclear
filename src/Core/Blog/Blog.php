@@ -102,7 +102,7 @@ class Blog
             $this->status = (int) $b->blog_status;
 
             $this->public_path = Path::real(Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir)) ?: false;
-            $this->public_url  = $this->getQmarkURL() . dotclear()->url()->getURLFor('resources'); //! to enhance
+            $this->public_url  = $this->getURLFor('resources'); //! to enhance
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
@@ -192,6 +192,21 @@ class Blog
         }
 
         return $this->url;
+    }
+
+    /**
+     * Returns URLs from URL handler with blog root URL
+     *
+     * @param   string  $type   The URL handler type
+     * @param   string  $value  The URL handler value
+     *
+     * @return  string          The URL
+     */
+    public function getURLFor(string $type, string $value = ''): string
+    {
+        $url = dotclear()->url()->getURLFor($type, $value);
+
+        return false === strpos($url, 'http') ? $this->url . $url : $url;
     }
 
     /**

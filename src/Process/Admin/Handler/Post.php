@@ -720,7 +720,7 @@ class Post extends Page
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = dotclear()->blog()->url . dotclear()->url()->getURLFor('preview', dotclear()->user()->userID() . '/' .
+                $preview_url = dotclear()->blog()->getURLFor('preview', dotclear()->user()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->master_key . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
                     '/' . $this->post->post_url);
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());

@@ -349,8 +349,7 @@ class DuctileBehavior
         }
 
         if ($default || $res == '') {
-            $res = $this->setSticker(1, true, __('Subscribe'), dotclear()->blog()->url .
-                dotclear()->url()->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
+            $res = $this->setSticker(1, true, __('Subscribe'), dotclear()->blog()->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
         }
 
         if ($res != '') {

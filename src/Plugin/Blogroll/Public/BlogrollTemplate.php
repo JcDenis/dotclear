@@ -64,7 +64,7 @@ class BlogrollTemplate
     {
         $f = dotclear()->template()->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url.dotclear()->url()->getURLFor("xbel")') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("xbel")') . '; ?>';
     }
 
     public static function getList($cat_title = '<h3>%s</h3>', $block = '<ul>%s</ul>', $item = '<li>%s</li>', $category = null)
