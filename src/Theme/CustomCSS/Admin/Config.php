@@ -31,7 +31,7 @@ class Config extends AbstractConfig
 {
     private $customcss_file = '';
 
-    public static function getPermissions(): ?string
+    public function getPermissions(): ?string
     {
         return 'admin';
     }
