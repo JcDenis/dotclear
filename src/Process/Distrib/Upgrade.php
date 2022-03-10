@@ -37,7 +37,7 @@ class Upgrade
 
     }
 
-    protected function doUpgrade()
+    public function doUpgrade()
     {
         $version = dotclear()->version()->get('core');
 
