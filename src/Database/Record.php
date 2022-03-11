@@ -78,7 +78,6 @@ class Record implements \Iterator, \Countable
     public function __call($f, $args)
     {
         if (isset($this->__extend[$f])) {
-            array_unshift($args, $this);
 
             return call_user_func_array($this->__extend[$f], $args);
         }
@@ -164,13 +163,15 @@ class Record implements \Iterator, \Countable
      */
     public function extend($class)
     {
-        if (!class_exists($class)) {
+        if (!is_a($class, __NAMESPACE__ . '\\RecordExtend')) {
             return;
         }
 
+        $class->setRecord($this);
+
         $c = new \ReflectionClass($class);
         foreach ($c->getMethods() as $m) {
-            if ($m->isStatic() && $m->isPublic()) {
+            if ($m->isPublic()) {
                 $this->__extend[$m->name] = [$class, $m->name];
             }
         }

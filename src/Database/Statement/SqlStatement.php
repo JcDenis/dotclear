@@ -14,11 +14,11 @@ class SqlStatement
 {
     protected $ctx; // Context (may be useful for behaviour's callback)
 
-    protected $columns;
-    protected $from;
-    protected $where;
-    protected $cond;
-    protected $sql;
+    protected $columns = [];
+    protected $from    = [];
+    protected $where   = [];
+    protected $cond    = [];
+    protected $sql     = [];
 
     /**
      * Class constructor
@@ -28,8 +28,6 @@ class SqlStatement
     public function __construct($ctx = null)
     {
         $this->ctx  = $ctx;
-
-        $this->columns = $this->from = $this->where = $this->cond = $this->sql = [];
     }
 
     /**

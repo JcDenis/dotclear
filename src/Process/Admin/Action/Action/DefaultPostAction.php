@@ -15,6 +15,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Exception\AdminException;
 use Dotclear\Html\Form;
@@ -304,7 +305,7 @@ abstract class DefaultPostAction extends Action
                 ];
                 $rs       = dotclear()->users()->getUsers($params);
                 $rsStatic = $rs->toStatic();
-                $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
+                $rsStatic->extend(new RsExtUser());
                 $rsStatic = $rsStatic->toExtStatic();
                 $rsStatic->lexicalSort('user_id');
                 while ($rsStatic->fetch()) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtDates
+ * @class Dotclear\Core\RsExt\RsExtDate
  * @brief Dotclear dates record helpers.
  *
  * This class adds new methods to database dates results.
@@ -19,74 +19,63 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Database\Record;
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Utils\Dt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class RsExtDates
+class RsExtDate extends RsExtend
 {
     /**
      * Convert date to timestamp
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     integer
+     * @return  int
      */
-    public static function ts($rs)
+    public function ts(): int
     {
-        return strtotime($rs->dt);
+        return (int) strtotime($this->rs->dt);
     }
 
     /**
      * Get date year
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string
+     * @return  string
      */
-    public static function year($rs)
+    public function year(): string
     {
-        return date('Y', strtotime($rs->dt));
+        return date('Y', $this->ts());
     }
 
     /**
      * Get date month
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string
+     * @return  string
      */
-    public static function month($rs)
+    public function month(): string
     {
-        return date('m', strtotime($rs->dt));
+        return date('m',  $this->ts());
     }
 
     /**
      * Get date day
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string
+     * @return  string
      */
-    public static function day($rs)
+    public function day(): string
     {
-        return date('d', strtotime($rs->dt));
+        return date('d',  $this->ts());
     }
 
     /**
      * Returns date month archive full URL.
      *
-     * @param      record  $rs       Invisible parameter
-     * @param      dcCore  dotclear()     The core
-     *
-     * @return     string
+     * @return  string
      */
-    public static function url($rs)
+    public function url(): string
     {
-        $url = date('Y/m', strtotime($rs->dt));
+        $url = date('Y/m',  $this->ts());
 
         return dotclear()->blog()->getURLFor('archive', $url);
     }
@@ -94,20 +83,18 @@ class RsExtDates
     /**
      * Returns whether date is the first of year.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function yearHeader($rs)
+    public function yearHeader(): bool
     {
-        if ($rs->isStart()) {
+        if ($this->rs->isStart()) {
             return true;
         }
 
-        $y = $rs->year();
-        $rs->movePrev();
-        $py = $rs->year();
-        $rs->moveNext();
+        $y = $this->rs->year();
+        $this->rs->movePrev();
+        $py = $this->rs->year();
+        $this->rs->moveNext();
 
         return $y != $py;
     }
@@ -115,20 +102,18 @@ class RsExtDates
     /**
      * Returns whether date is the last of year.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function yearFooter($rs)
+    public function yearFooter(): bool
     {
-        if ($rs->isEnd()) {
+        if ($this->rs->isEnd()) {
             return true;
         }
 
-        $y = $rs->year();
-        if ($rs->moveNext()) {
-            $ny = $rs->year();
-            $rs->movePrev();
+        $y = $this->rs->year();
+        if ($this->rs->moveNext()) {
+            $ny = $this->rs->year();
+            $this->rs->movePrev();
 
             return $y != $ny;
         }
@@ -140,17 +125,16 @@ class RsExtDates
      * Returns date with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>date_format</var> blog setting.
      *
-     * @param   Record  $rs         Invisible parameter
      * @param   string  $format     The date format pattern
      *
      * @return  string              The date.
      */
-    public static function getDate(Record $rs, string $format = ''): string
+    public function getDate(string $format = ''): string
     {
         if (!$format) {
             $format = dotclear()->blog()->settings()->system->date_format;
         }
 
-        return Dt::dt2str($format, $rs->dt);
+        return Dt::dt2str($format, $this->rs->dt);
     }
 }

@@ -14,9 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Container\User as ContainerUser;
-
-use Dotclear\Core\RsExt\RsExtStaticRecord;
-
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
 
@@ -24,16 +22,14 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class RsExtPost
+class RsExtPost extends RsExtend
 {
     /**
      * Determines whether the specified post is editable.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool    True if the specified rs is editable, False otherwise.
+     * @return  bool    True if the specified rs is editable, False otherwise.
      */
-    public static function isEditable($rs)
+    public function isEditable(): bool
     {
         # If user is admin or contentadmin, true
         if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -41,13 +37,13 @@ class RsExtPost
         }
 
         # No user id in result ? false
-        if (!$rs->exists('user_id')) {
+        if (!$this->rs->exists('user_id')) {
             return false;
         }
 
         # If user is usage and owner of the entrie
         if (dotclear()->user()->check('usage', dotclear()->blog()->id)
-            && $rs->user_id == dotclear()->user()->userID()) {
+            && $this->rs->user_id == dotclear()->user()->userID()) {
             return true;
         }
 
@@ -57,11 +53,9 @@ class RsExtPost
     /**
      * Determines whether the specified post is deletable.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool    True if the specified rs is deletable, False otherwise.
+     * @return  bool    True if the specified rs is deletable, False otherwise.
      */
-    public static function isDeletable($rs)
+    public function isDeletable(): bool
     {
         # If user is admin, or contentadmin, true
         if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -69,13 +63,13 @@ class RsExtPost
         }
 
         # No user id in result ? false
-        if (!$rs->exists('user_id')) {
+        if (!$this->rs->exists('user_id')) {
             return false;
         }
 
         # If user has delete rights and is owner of the entrie
         if (dotclear()->user()->check('delete', dotclear()->blog()->id)
-            && $rs->user_id == dotclear()->user()->userID()) {
+            && $this->rs->user_id == dotclear()->user()->userID()) {
             return true;
         }
 
@@ -85,20 +79,18 @@ class RsExtPost
     /**
      * Returns whether post is the first one of its day.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function firstPostOfDay($rs)
+    public function firstPostOfDay(): bool
     {
-        if ($rs->isStart()) {
+        if ($this->rs->isStart()) {
             return true;
         }
 
-        $cdate = date('Ymd', strtotime($rs->post_dt));
-        $rs->movePrev();
-        $ndate = date('Ymd', strtotime($rs->post_dt));
-        $rs->moveNext();
+        $cdate = date('Ymd', strtotime($this->rs->post_dt));
+        $this->rs->movePrev();
+        $ndate = date('Ymd', strtotime($this->rs->post_dt));
+        $this->rs->moveNext();
 
         return $ndate != $cdate;
     }
@@ -106,20 +98,18 @@ class RsExtPost
     /**
      * Returns whether post is the last one of its day.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function lastPostOfDay($rs)
+    public function lastPostOfDay(): bool
     {
-        if ($rs->isEnd()) {
+        if ($this->rs->isEnd()) {
             return true;
         }
 
-        $cdate = date('Ymd', strtotime($rs->post_dt));
-        $rs->moveNext();
-        $ndate = date('Ymd', strtotime($rs->post_dt));
-        $rs->movePrev();
+        $cdate = date('Ymd', strtotime($this->rs->post_dt));
+        $this->rs->moveNext();
+        $ndate = date('Ymd', strtotime($this->rs->post_dt));
+        $this->rs->movePrev();
 
         return $ndate != $cdate;
     }
@@ -127,282 +117,257 @@ class RsExtPost
     /**
      * Returns whether comments are enabled on post.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function commentsActive($rs)
+    public function commentsActive(): bool
     {
         return
         dotclear()->blog()->settings()->system->allow_comments
-            && $rs->post_open_comment
-            && (dotclear()->blog()->settings()->system->comments_ttl == 0 || time() - (dotclear()->blog()->settings()->system->comments_ttl * 86400) < $rs->getTS());
+            && $this->rs->post_open_comment
+            && (dotclear()->blog()->settings()->system->comments_ttl == 0 || time() - (dotclear()->blog()->settings()->system->comments_ttl * 86400) < $this->getTS());
     }
 
     /**
      * Returns whether trackbacks are enabled on post.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function trackbacksActive($rs)
+    public function trackbacksActive(): bool
     {
         return
         dotclear()->blog()->settings()->system->allow_trackbacks
-            && $rs->post_open_tb
-            && (dotclear()->blog()->settings()->system->trackbacks_ttl == 0 || time() - (dotclear()->blog()->settings()->system->trackbacks_ttl * 86400) < $rs->getTS());
+            && $this->rs->post_open_tb
+            && (dotclear()->blog()->settings()->system->trackbacks_ttl == 0 || time() - (dotclear()->blog()->settings()->system->trackbacks_ttl * 86400) < $this->getTS());
     }
 
     /**
      * Returns whether post has at least one comment.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function hasComments($rs)
+    public function hasComments(): bool
     {
-        return $rs->nb_comment > 0;
+        return $this->rs->nb_comment > 0;
     }
 
     /**
      * Returns whether post has at least one trackbacks.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function hasTrackbacks($rs)
+    public function hasTrackbacks(): bool
     {
-        return $rs->nb_trackback > 0;
+        return $this->rs->nb_trackback > 0;
     }
 
     /**
      * Returns whether post has been updated since publication.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function isRepublished($rs)
+    public function isRepublished(): bool
     {
         // Take care of post_dt does not store seconds
-        return (($rs->getTS('upddt') + Dt::getTimeOffset($rs->post_tz, $rs->getTS('upddt'))) > ($rs->getTS() + 60));
+        return (($this->getTS('upddt') + Dt::getTimeOffset($this->rs->post_tz, $this->getTS('upddt'))) > ($this->getTS() + 60));
     }
 
     /**
      * Gets the full post url.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     string  The url.
+     * @return  string  The url.
      */
-    public static function getURL($rs)
+    public function getURL(): string
     {
         return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
-            $rs->post_type, Html::sanitizeURL($rs->post_url)
+            $this->rs->post_type, Html::sanitizeURL($this->rs->post_url)
         );
     }
 
     /**
      * Returns full post category URL.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     string  The category url.
+     * @return string   The category url.
      */
-    public static function getCategoryURL($rs)
+    public function getCategoryURL(): string
     {
-        return dotclear()->blog()->getURLFor('category', Html::sanitizeURL($rs->cat_url));
+        return dotclear()->blog()->getURLFor('category', Html::sanitizeURL($this->rs->cat_url));
     }
 
     /**
      * Returns whether post has an excerpt.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     bool
+     * @return  bool
      */
-    public static function isExtended($rs)
+    public function isExtended(): bool
     {
-        return $rs->post_excerpt_xhtml != '';
+        return $this->rs->post_excerpt_xhtml != '';
     }
 
     /**
      * Gets the post timestamp.
      *
-     * @param      record  $rs     Invisible parameter
-     * @param      string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return     integer  The ts.
+     * @return  int             The ts.
      */
-    public static function getTS($rs, $type = '')
+    public function getTS(string $type = ''): int
     {
         if ($type == 'upddt') {
-            return strtotime($rs->post_upddt);
+            return strtotime($this->rs->post_upddt);
         } elseif ($type == 'creadt') {
-            return strtotime($rs->post_creadt);
+            return strtotime($this->rs->post_creadt);
         }
 
-        return strtotime($rs->post_dt);
+        return strtotime($this->rs->post_dt);
     }
 
     /**
      * Returns post date formating according to the ISO 8601 standard.
      *
-     * @param      record  $rs     Invisible parameter
-     * @param      string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return     string  The iso 8601 date.
+     * @return  string          The iso 8601 date.
      */
-    public static function getISO8601Date($rs, $type = '')
+    public function getISO8601Date(string $type = ''): string
     {
         if ($type == 'upddt' || $type == 'creadt') {
-            return Dt::iso8601($rs->getTS($type) + Dt::getTimeOffset($rs->post_tz), $rs->post_tz);
+            return Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->post_tz), $this->rs->post_tz);
         }
 
-        return Dt::iso8601($rs->getTS(), $rs->post_tz);
+        return Dt::iso8601($this->getTS(), $this->rs->post_tz);
     }
 
     /**
      * Returns post date formating according to RFC 822.
      *
-     * @param      record  $rs     Invisible parameter
-     * @param      string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return     string  The rfc 822 date.
+     * @return  string          The rfc 822 date.
      */
-    public static function getRFC822Date($rs, $type = '')
+    public function getRFC822Date(string $type = ''): string
     {
         if ($type == 'upddt' || $type == 'creadt') {
-            return Dt::rfc822($rs->getTS($type) + Dt::getTimeOffset($rs->post_tz), $rs->post_tz);
+            return Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->post_tz), $this->rs->post_tz);
         }
 
-        return Dt::rfc822($rs->getTS($type), $rs->post_tz);
+        return Dt::rfc822($this->getTS($type), $this->rs->post_tz);
     }
 
     /**
      * Returns post date with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>date_format</var> blog setting.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $format  The date format pattern
-     * @param      string  $type    The type, (dt|upddt|creadt) defaults to post_dt
+     * @param   string  $format     The date format pattern
+     * @param   string  $type       The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return     string  The date.
+     * @return  string              The date.
      */
-    public static function getDate($rs, $format, $type = '')
+    public function getDate(string $format, string $type = ''): string
     {
         if (!$format) {
             $format = dotclear()->blog()->settings()->system->date_format;
         }
 
         if ($type == 'upddt') {
-            return Dt::dt2str($format, $rs->post_upddt, $rs->post_tz);
+            return Dt::dt2str($format, $this->rs->post_upddt, $this->rs->post_tz);
         } elseif ($type == 'creadt') {
-            return Dt::dt2str($format, $rs->post_creadt, $rs->post_tz);
+            return Dt::dt2str($format, $this->rs->post_creadt, $this->rs->post_tz);
         }
 
-        return Dt::dt2str($format, $rs->post_dt);
+        return Dt::dt2str($format, $this->rs->post_dt);
     }
 
     /**
      * Returns post time with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>time_format</var> blog setting.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $format  The time format pattern
-     * @param      string  $type    The type, (dt|upddt|creadt) defaults to post_dt
+     * @param   string  $format     The time format pattern
+     * @param   string  $type       The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return     string  The time.
+     * @return  string              The time.
      */
-    public static function getTime($rs, $format, $type = '')
+    public function getTime(string $format, string $type = ''): string
     {
         if (!$format) {
             $format = dotclear()->blog()->settings()->system->time_format;
         }
 
         if ($type == 'upddt') {
-            return Dt::dt2str($format, $rs->post_upddt, $rs->post_tz);
+            return Dt::dt2str($format, $this->rs->post_upddt, $this->rs->post_tz);
         } elseif ($type == 'creadt') {
-            return Dt::dt2str($format, $rs->post_creadt, $rs->post_tz);
+            return Dt::dt2str($format, $this->rs->post_creadt, $this->rs->post_tz);
         }
 
-        return Dt::dt2str($format, $rs->post_dt);
+        return Dt::dt2str($format, $this->rs->post_dt);
     }
 
     /**
      * Returns author common name using user_id, user_name, user_firstname and
      * user_displayname fields.
      *
-     * @param      record  $rs      Invisible parameter
-     *
-     * @return     string  The author common name.
+     * @return  string  The author common name.
      */
-    public static function getAuthorCN($rs)
+    public function getAuthorCN(): string
     {
-        return ContainerUser::getUserCN($rs->user_id, $rs->user_name,
-            $rs->user_firstname, $rs->user_displayname);
+        return ContainerUser::getUserCN(
+            $this->rs->user_id,
+            $this->rs->user_name,
+            $this->rs->user_firstname,
+            $this->rs->user_displayname
+        );
     }
 
     /**
      * Returns author common name with a link if he specified one in its preferences.
      *
-     * @param      record  $rs      Invisible parameter
-     *
-     * @return     string
+     * @return  string
      */
-    public static function getAuthorLink($rs)
+    public function getAuthorLink(): string
     {
         $res = '%1$s';
-        $url = $rs->user_url;
+        $url = $this->rs->user_url;
         if ($url) {
             $res = '<a href="%2$s">%1$s</a>';
         }
 
-        return sprintf($res, Html::escapeHTML($rs->getAuthorCN()), Html::escapeHTML($url));
+        return sprintf($res, Html::escapeHTML($this->getAuthorCN()), Html::escapeHTML($url));
     }
 
     /**
      * Returns author e-mail address. If <var>$encoded</var> is true, "@" sign is
      * replaced by "%40" and "." by "%2e".
      *
-     * @param      record  $rs       Invisible parameter
-     * @param      bool    $encoded  Encode address
+     * @param   bool    $encoded    Encode address
      *
-     * @return     string  The author email.
+     * @return  string              The author email.
      */
-    public static function getAuthorEmail($rs, $encoded = true)
+    public function getAuthorEmail(bool $encoded = true): string
     {
         if ($encoded) {
-            return strtr($rs->user_email, ['@' => '%40', '.' => '%2e']);
+            return strtr($this->rs->user_email, ['@' => '%40', '.' => '%2e']);
         }
 
-        return $rs->user_email;
+        return $this->rs->user_email;
     }
 
     /**
      * Gets the post feed unique id.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string  The feed id.
+     * @return  string  The feed id.
      */
-    public static function getFeedID($rs)
+    public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(dotclear()->blog()->uid . $rs->post_id);
+        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->post_id);
     }
 
     /**
      * Returns trackback RDF information block in HTML comment.
      *
-     * @param      record  $rs       Invisible parameter
-     * @param      string  $format   The format (html|xml)
+     * @param   string  $format     The format (html|xml)
      *
-     * @return     string
+     * @return  string
      */
-    public static function getTrackbackData($rs, $format = 'html')
+    public function getTrackbackData(string $format = 'html'): string
     {
         return
         ($format == 'xml' ? "<![CDATA[>\n" : '') .
@@ -411,10 +376,10 @@ class RsExtPost
         '  xmlns:dc="http://purl.org/dc/elements/1.1/"' . "\n" .
         '  xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">' . "\n" .
         "<rdf:Description\n" .
-        '  rdf:about="' . $rs->getURL() . '"' . "\n" .
-        '  dc:identifier="' . $rs->getURL() . '"' . "\n" .
-        '  dc:title="' . htmlspecialchars($rs->post_title, ENT_COMPAT, 'UTF-8') . '"' . "\n" .
-        '  trackback:ping="' . $rs->getTrackbackLink() . '" />' . "\n" .
+        '  rdf:about="' . $this->getURL() . '"' . "\n" .
+        '  dc:identifier="' . $this->getURL() . '"' . "\n" .
+        '  dc:title="' . htmlspecialchars($this->rs->post_title, ENT_COMPAT, 'UTF-8') . '"' . "\n" .
+        '  trackback:ping="' . $this->getTrackbackLink() . '" />' . "\n" .
             "</rdf:RDF>\n" .
             ($format == 'xml' ? '<!]]><!--' : '') .
             "-->\n";
@@ -423,73 +388,68 @@ class RsExtPost
     /**
      * Gets the post trackback full URL.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string  The trackback link.
+     * @return  string  The trackback link.
      */
-    public static function getTrackbackLink($rs)
+    public function getTrackbackLink(): string
     {
-        return dotclear()->blog()->getURLFor('trackback', $rs->post_id);
+        return dotclear()->blog()->getURLFor('trackback', $this->rs->post_id);
     }
 
     /**
      * Returns post content. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param      record  $rs              Invisible parameter
-     * @param      bool    $absolute_urls   With absolute URLs
+     * @param   bool    $absolute_urls  With absolute URLs
      *
-     * @return     string  The content.
+     * @return  string                  The content.
      */
-    public static function getContent($rs, $absolute_urls = false)
+    public function getContent(bool $absolute_urls = false): string
     {
         if ($absolute_urls) {
-            return Html::absoluteURLs($rs->post_content_xhtml, $rs->getURL());
+            return Html::absoluteURLs($this->rs->post_content_xhtml, $this->getURL());
         }
 
-        return $rs->post_content_xhtml;
+        return $this->rs->post_content_xhtml;
     }
 
     /**
      * Returns post excerpt. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param      record  $rs              Invisible parameter
-     * @param      bool    $absolute_urls   With absolute URLs
+     * @param   bool    $absolute_urls  With absolute URLs
      *
-     * @return     string  The excerpt.
+     * @return  string                  The excerpt.
      */
-    public static function getExcerpt($rs, $absolute_urls = false)
+    public function getExcerpt(bool $absolute_urls = false): string
     {
         if ($absolute_urls) {
-            return Html::absoluteURLs($rs->post_excerpt_xhtml, $rs->getURL());
+            return Html::absoluteURLs($this->rs->post_excerpt_xhtml, $this->getURL());
         }
 
-        return $rs->post_excerpt_xhtml;
+        return $this->rs->post_excerpt_xhtml;
     }
 
     /**
      * Returns post media count using a subquery.
      *
-     * @param      record  $rs              Invisible parameter
-     * @param      mixed   $link_type  The link type
+     * @param   mixed   $link_type  The link type
      *
-     * @return     integer Number of media.
+     * @return  int                 Number of media.
      */
-    public static function countMedia($rs, $link_type = null)
+    public function countMedia(mixed $link_type = null): int
     {
-        if (isset($rs->_nb_media[$rs->index()])) {
-            return $rs->_nb_media[$rs->index()];
+        if (isset($this->rs->_nb_media[$this->rs->index()])) {
+            return $this->rs->_nb_media[$this->rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
             'FROM ' . dotclear()->prefix . 'post_media ' .
-            'WHERE post_id = ' . (integer) $rs->post_id . ' ';
+            'WHERE post_id = ' . (int) $this->rs->post_id . ' ';
         if ($link_type != null) {
             $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
 
-        $res                         = (integer) dotclear()->con()->select($strReq)->f(0);
-        $rs->_nb_media[$rs->index()] = $res;
+        $res                               = (int) dotclear()->con()->select($strReq)->f(0);
+        $this->rs->_nb_media[$this->rs->index()] = $res;
 
         return $res;
     }
@@ -497,13 +457,12 @@ class RsExtPost
     /**
      * Returns true if current category if in given cat_url subtree
      *
-     * @param      record   $rs       Invisible parameter
-     * @param      string   $cat_url  The cat url
+     * @param   string      $cat_url    The cat url
      *
-     * @return     boolean  true if current cat is in given cat subtree
+     * @return  bool                    true if current cat is in given cat subtree
      */
-    public static function underCat($rs, $cat_url)
+    public function underCat(string $cat_url): bool
     {
-        return dotclear()->blog()->categories()->IsInCatSubtree($rs->cat_url, $cat_url);
+        return dotclear()->blog()->categories()->IsInCatSubtree($this->rs->cat_url, $cat_url);
     }
 }

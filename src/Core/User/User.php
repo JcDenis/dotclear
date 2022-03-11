@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\User;
 
 use Dotclear\Container\User as Container;
+use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -131,7 +132,7 @@ class User
             return false;
         }
 
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
+        $rs->extend(new RsExtUser());
 
         if ($pwd != '') {
             $rehash = false;

@@ -14,43 +14,42 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtPost;
-
 use Dotclear\Html\Html;
 
 class RsExtPostPublic extends RsExtPost
 {
-    public static function getContent($rs, $absolute_urls = false)
+    public function getContent(bool $absolute_urls = false): string
     {
         # Not very nice hack but it does the job :)
         if (dotclear()->context() && dotclear()->context()->short_feed_items === true) {
-            $c    = parent::getContent($rs, $absolute_urls);
+            $c    = parent::getContent($absolute_urls);
             $c    = dotclear()->conText::remove_html($c);
             $c    = dotclear()->conText::cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
-            '<a href="' . $rs->getURL() . '"><em>' . __('Read') . '</em> ' .
-            Html::escapeHTML($rs->post_title) . '</a></p>';
+            '<a href="' . $this->getURL() . '"><em>' . __('Read') . '</em> ' .
+            Html::escapeHTML($this->rs->post_title) . '</a></p>';
 
             return $c;
         }
 
         if (dotclear()->blog()->settings()->system->use_smilies) {
-            return self::smilies($rs, parent::getContent($rs, $absolute_urls));
+            return $this->smilies(parent::getContent($absolute_urls));
         }
 
-        return parent::getContent($rs, $absolute_urls);
+        return parent::getContent($absolute_urls);
     }
 
-    public static function getExcerpt($rs, $absolute_urls = false)
+    public function getExcerpt(bool $absolute_urls = false): string
     {
         if (dotclear()->blog()->settings()->system->use_smilies) {
-            return self::smilies($rs, parent::getExcerpt($rs, $absolute_urls));
+            return $this->smilies(parent::getExcerpt($absolute_urls));
         }
 
-        return parent::getExcerpt($rs, $absolute_urls);
+        return parent::getExcerpt($absolute_urls);
     }
 
-    protected static function smilies($rs, $c)
+    protected function smilies(string $c): string
     {
         dotclear()->context()->getSmilies();
 

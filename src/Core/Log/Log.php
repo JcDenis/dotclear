@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Log;
 
+use Dotclear\Core\RsExt\RsExtLog;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -117,7 +118,7 @@ class Log
         }
 
         $rs = $sql->select();
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtLog');
+        $rs->extend(new RsExtLog());
 
         return $rs;
     }

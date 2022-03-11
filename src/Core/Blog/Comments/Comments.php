@@ -15,6 +15,7 @@ namespace Dotclear\Core\Blog\Comments;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
@@ -196,7 +197,7 @@ class Comments
         }
 
         $rs = dotclear()->con()->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtComment');
+        $rs->extend(new RsExtComment());
 
         # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
         dotclear()->behavior()->call('coreBlogGetComments', $rs);

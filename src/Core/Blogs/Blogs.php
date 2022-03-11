@@ -15,6 +15,7 @@ namespace Dotclear\Core\Blogs;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
@@ -211,7 +212,7 @@ class Blogs
         $strReq = sprintf($strReq, $join, $where);
 
         $rs = dotclear()->con()->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtBlog');
+        $rs->extend(new RsExtBlog());
 
         return $rs;
     }

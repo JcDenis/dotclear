@@ -117,7 +117,7 @@ class Users
             $strReq .= dotclear()->con()->limit($params['limit']);
         }
         $rs = dotclear()->con()->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtUser');
+        $rs->extend(new RsExtUser());
 
         return $rs;
     }

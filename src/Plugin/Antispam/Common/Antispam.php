@@ -15,13 +15,14 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
 
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Core\Blog;
+use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Plugin\Antispam\Common\Spamfilters;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
+use Dotclear\Process\Admin\Action\Action;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -241,7 +242,7 @@ class Antispam
 
     public function blogGetComments(Record $rs): void
     {
-        $rs->extend(__NAMESPACE__ . '\\RsExtComment');
+        $rs->extend(new RsExtComment());
     }
 
     public function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void

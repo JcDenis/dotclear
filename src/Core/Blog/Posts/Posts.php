@@ -15,6 +15,8 @@ namespace Dotclear\Core\Blog\Posts;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtDate;
+use Dotclear\Core\RsExt\RsExtPost;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Statement\JoinStatement;
@@ -314,7 +316,7 @@ class Posts
 
         $rs            = $sql->select();
         $rs->_nb_media = [];
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtPost');
+        $rs->extend(new RsExtPost());
 
         # --BEHAVIOR-- coreBlogGetPosts
         dotclear()->behavior()->call('coreBlogGetPosts', $rs);
@@ -557,7 +559,7 @@ class Posts
             $limit;
 
         $rs = dotclear()->con()->select($strReq);
-        $rs->extend('Dotclear\\Core\\RsExt\\RsExtDates');
+        $rs->extend(new RsExtDate());
 
         return $rs;
     }

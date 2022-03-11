@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Core\RsExt\RsExtStaticRecord;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class RsExtUser
+class RsExtUser extends RsExtend
 {
     private static $sortfield;
     private static $sortsign;
@@ -27,14 +28,13 @@ class RsExtUser
     /**
      * Returns a user option.
      *
-     * @param      record  $rs       Invisible parameter
-     * @param      string  $name     The name of option
+     * @param   string  $name     The name of option
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public static function option($rs, $name)
+    public function option(string $name)
     {
-        $options = self::options($rs);
+        $options = $this->options();
 
         if (isset($options[$name])) {
             return $options[$name];
@@ -44,13 +44,11 @@ class RsExtUser
     /**
      * Returns all user options.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     array
+     * @return  array
      */
-    public static function options($rs)
+    public function options(): array
     {
-        $options = @unserialize($rs->user_options);
+        $options = @unserialize($this->rs->user_options);
         if (is_array($options)) {
             return $options;
         }
@@ -61,17 +59,15 @@ class RsExtUser
     /**
      * Converts this record to a {@link extStaticRecord} instance.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     extStaticRecord  The extent static record.
+     * @return  extStaticRecord  The extent static record.
      */
-    public static function toExtStatic($rs)
+    public function toExtStatic(): RsExtStaticRecord
     {
-        if ($rs instanceof RsExtStaticRecord) {
-            return $rs;
+        if ($this->rs instanceof RsExtStaticRecord) {
+            return $this->rs;
         }
 
-        return new RsExtStaticRecord($rs);
+        return new RsExtStaticRecord($this->rs);
     }
 }
 

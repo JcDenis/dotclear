@@ -17,16 +17,16 @@ use Dotclear\Core\RsExt\RsExtComment;
 
 class RsExtCommentPublic extends RsExtComment
 {
-    public static function getContent($rs, $absolute_urls = false)
+    public function getContent(bool $absolute_urls = false): string
     {
         if (dotclear()->context() && dotclear()->blog()->settings()->system->use_smilies) {
-            $c = parent::getContent($rs, $absolute_urls);
+            $c = parent::getContent($absolute_urls);
 
             dotclear()->context()->getSmilies();
 
             return dotclear()->context()->addSmilies($c);
         }
 
-        return parent::getContent($rs, $absolute_urls);
+        return parent::getContent($absolute_urls);
     }
 }

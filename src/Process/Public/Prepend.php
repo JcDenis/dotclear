@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public;
 
 use Dotclear\Core\Core;
+use Dotclear\Core\RsExt\RsExtPostPublic;
+use Dotclear\Core\RsExt\RsExtCommentPublic;
 use Dotclear\Database\Record;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
@@ -89,10 +91,10 @@ class Prepend extends Core
 
         # Add Record extensions
         $this->behavior()->add('coreBlogGetPosts', function (Record $rs): void {
-            $rs->extend('Dotclear\\Core\\RsExt\\RsExtPostPublic');
+            $rs->extend(new RsExtPostPublic());
         });
         $this->behavior()->add('coreBlogGetComments', function (Record $rs): void {
-            $rs->extend('Dotclear\\Core\\RsExt\\RsExtCommentPublic');
+            $rs->extend(new RsExtCommentPublic());
         });
 
         # Load blog

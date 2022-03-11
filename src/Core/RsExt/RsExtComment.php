@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Html\Html;
 use Dotclear\Utils\Dt;
@@ -27,132 +28,112 @@ if (!defined('DOTCLEAR_PROCESS')) {
     return;
 }
 
-class RsExtComment
+class RsExtComment extends RsExtend
 {
     /**
      * Returns comment date with <var>$format</var> as formatting pattern. If
      * format is empty, uses <var>date_format</var> blog setting.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $format  The date format pattern
-     * @param      string  $type    The type, (dt|upddt) defaults to comment_dt
+     * @param   string  $format     The date format pattern
+     * @param   string  $type       The type, (dt|upddt) defaults to comment_dt
      *
-     * @return     string  The date.
+     * @return  string              The date.
      */
-    public static function getDate($rs, $format, $type = '')
+    public function getDate(string $format, string $type = ''): string
     {
         if (!$format) {
             $format = dotclear()->blog()->settings()->system->date_format;
         }
 
-        if ($type == 'upddt') {
-            return Dt::dt2str($format, $rs->comment_upddt, $rs->comment_tz);
-        }
-
-        return Dt::dt2str($format, $rs->comment_dt);
+        return $type == 'upddt' ?
+            Dt::dt2str($format, $this->rs->comment_upddt, $this->rs->comment_tz) :
+            Dt::dt2str($format, $this->rs->comment_dt);
     }
 
     /**
      * Returns comment time with <var>$format</var> as formatting pattern. If
      * format is empty, uses <var>time_format</var> blog setting.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $format  The date format pattern
-     * @param      string  $type    The type, (dt|upddt) defaults to comment_dt
+     * @param   string  $format     The date format pattern
+     * @param   string  $type       The type, (dt|upddt) defaults to comment_dt
      *
-     * @return     string  The time.
+     * @return  string              The time.
      */
-    public static function getTime($rs, $format, $type = '')
+    public function getTime(string $format, string $type = ''): string
     {
         if (!$format) {
             $format = dotclear()->blog()->settings()->system->time_format;
         }
 
-        if ($type == 'upddt') {
-            return Dt::dt2str($format, $rs->comment_updt, $rs->comment_tz);
-        }
-
-        return Dt::dt2str($format, $rs->comment_dt);
+        return $type == 'upddt' ?
+            Dt::dt2str($format, $this->rs->comment_updt, $this->rs->comment_tz) :
+            Dt::dt2str($format, $this->rs->comment_dt);
     }
 
     /**
      * Returns comment timestamp.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $type    The type, (dt|upddt) defaults to comment_dt
+     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
      *
-     * @return     integer The timestamp.
+     * @return  int             The timestamp.
      */
-    public static function getTS($rs, $type = '')
+    public function getTS(string $type = ''): int
     {
-        if ($type == 'upddt') {
-            return strtotime($rs->comment_upddt);
-        }
-
-        return strtotime($rs->comment_dt);
+        return $type == 'upddt' ?
+            (int) strtotime($this->rs->comment_upddt) :
+            (int) strtotime($this->rs->comment_dt);
     }
 
     /**
      * Returns comment date formating according to the ISO 8601 standard.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $type    The type, (dt|upddt) defaults to comment_dt
+     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
      *
-     * @return     string  The iso 8601 date.
+     * @return  string          The iso 8601 date.
      */
-    public static function getISO8601Date($rs, $type = '')
+    public function getISO8601Date(string $type = ''): string
     {
-        if ($type == 'upddt') {
-            return Dt::iso8601($rs->getTS($type) + Dt::getTimeOffset($rs->comment_tz), $rs->comment_tz);
-        }
-
-        return Dt::iso8601($rs->getTS(), $rs->comment_tz);
+        return $type == 'upddt' ?
+            Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->comment_tz), $this->rs->comment_tz) :
+            Dt::iso8601($this->getTS(), $this->rs->comment_tz);
     }
 
     /**
      * Returns comment date formating according to RFC 822.
      *
-     * @param      record  $rs      Invisible parameter
-     * @param      string  $type    The type, (dt|upddt) defaults to comment_dt
+     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
      *
-     * @return     string  The rfc 822 date.
+     * @return  string          The rfc 822 date.
      */
-    public static function getRFC822Date($rs, $type = '')
+    public function getRFC822Date(string $type = ''): string
     {
-        if ($type == 'upddt') {
-            return Dt::rfc822($rs->getTS($type) + Dt::getTimeOffset($rs->comment_tz), $rs->comment_tz);
-        }
-
-        return Dt::rfc822($rs->getTS(), $rs->comment_tz);
+        return $type == 'upddt' ?
+            Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->comment_tz), $this->rs->comment_tz) :
+            Dt::rfc822($this->getTS(), $this->rs->comment_tz);
     }
 
     /**
      * Returns comment content. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param      record  $rs              Invisible parameter
-     * @param      bool    $absolute_urls   With absolute URLs
+     * @param   bool    $absolute_urls  With absolute URLs
      *
-     * @return     string  The content.
+     * @return  string                  The content.
      */
-    public static function getContent($rs, $absolute_urls = false)
+    public function getContent(bool $absolute_urls = false): string
     {
-        $res = $rs->comment_content;
+        $res = $this->rs->comment_content;
 
-        if (dotclear()->blog()->settings()->system->comments_nofollow) {
-            $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'noFollowURL'], $res);
-        } else {
-            $res = preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', ['self', 'UgcURL'], $res);
-        }
+        $res = dotclear()->blog()->settings()->system->comments_nofollow ?
+            preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
+            preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'UgcURL'], $res);
 
-        if ($absolute_urls) {
-            $res = Html::absoluteURLs($res, $rs->getPostURL());
-        }
-
-        return $res;
+        return $absolute_urls ?
+            Html::absoluteURLs($res, $this->getPostURL()) :
+            $res;
     }
 
-    private static function noFollowURL($m)
+    private function noFollowURL(array $m): string
     {
         if (preg_match('/rel="ugc nofollow"/', $m[1])) {
             return $m[0];
@@ -161,7 +142,7 @@ class RsExtComment
         return '<a' . $m[1] . ' rel="ugc nofollow">';
     }
 
-    private static function UgcURL($m)
+    private function UgcURL(array $m): string
     {
         if (preg_match('/rel="ugc"/', $m[1])) {
             return $m[0];
@@ -173,42 +154,34 @@ class RsExtComment
     /**
      * Returns comment author link to his website if he specified one.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     mixed  The author url.
+     * @return  string          The author url.
      */
-    public static function getAuthorURL($rs)
+    public function getAuthorURL(): string
     {
-        if (trim($rs->comment_site)) {
-            return trim($rs->comment_site);
-        }
+        return trim((string) $this->rs->comment_site);
     }
 
     /**
      * Returns comment post full URL.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     string  The comment post url.
+     * @return  string          The comment post url.
      */
-    public static function getPostURL($rs)
+    public function getPostURL(): string
     {
         return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
-            $rs->post_type, Html::sanitizeURL($rs->post_url)
+            $this->rs->post_type, Html::sanitizeURL($this->rs->post_url)
         );
     }
 
     /**
      * Returns comment author name in a link to his website if he specified one.
      *
-     * @param      record  $rs     Invisible parameter
-     *
-     * @return     string  The author link.
+     * @return  string          The author link.
      */
-    public static function getAuthorLink($rs)
+    public function getAuthorLink(): string
     {
         $res = '%1$s';
-        $url = $rs->getAuthorURL();
+        $url = $this->getAuthorURL();
         if ($url) {
             $res = '<a href="%2$s" rel="%3$s">%1$s</a>';
         }
@@ -218,75 +191,69 @@ class RsExtComment
             $rel .= ' nofollow';
         }
 
-        return sprintf($res, Html::escapeHTML($rs->comment_author), Html::escapeHTML($url), $rel);
+        return sprintf($res, Html::escapeHTML($this->rs->comment_author), Html::escapeHTML($url), $rel);
     }
 
     /**
      * Returns comment author e-mail address. If <var>$encoded</var> is true,
      * "@" sign is replaced by "%40" and "." by "%2e".
      *
-     * @param      record  $rs       Invisible parameter
-     * @param      bool    $encoded  Encode address
+     * @param   bool    $encoded    Encode address
      *
-     * @return     string  The email.
+     * @return  string              The email.
      */
-    public static function getEmail($rs, $encoded = true)
+    public function getEmail(bool $encoded = true): string
     {
-        return $encoded ? strtr($rs->comment_email, ['@' => '%40', '.' => '%2e']) : $rs->comment_email;
+        return $encoded ? strtr($this->rs->comment_email, ['@' => '%40', '.' => '%2e']) : $this->rs->comment_email;
     }
 
     /**
      * Returns trackback site title if comment is a trackback.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     mixed  The trackback title.
+     * @return  string          The trackback title.
      */
-    public static function getTrackbackTitle($rs)
+    public function getTrackbackTitle(): string
     {
-        if ($rs->comment_trackback == 1 && preg_match('|<p><strong>(.*?)</strong></p>|msU', $rs->comment_content,
-                $match)) {
+        if ($this->rs->comment_trackback == 1 && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->comment_content, $match)) {
             return Html::decodeEntities($match[1]);
         }
+
+        return '';
     }
 
     /**
      * Returns trackback content if comment is a trackback.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     mixed  The trackback content.
+     * @return  string          The trackback content.
      */
-    public static function getTrackbackContent($rs)
+    public static function getTrackbackContent(): string
     {
-        if ($rs->comment_trackback == 1) {
+        if ($this->rs->comment_trackback == 1) {
             return preg_replace('|<p><strong>.*?</strong></p>|msU', '',
-                $rs->comment_content);
+                $this->rs->comment_content);
         }
+
+        return '';
     }
 
     /**
      * Returns comment feed unique ID.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     string  The feed id.
+     * @return  string          The feed id.
      */
-    public static function getFeedID($rs)
+    public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(dotclear()->blog()->uid . $rs->comment_id);
+        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->comment_id);
     }
 
     /**
      * Determines whether the specified comment is from the post author.
      *
-     * @param      record  $rs       Invisible parameter
-     *
-     * @return     bool    True if the specified comment is from the post author, False otherwise.
+     * @return  bool            True if the specified comment is from the post author, False otherwise.
      */
-    public static function isMe($rs)
+    public function isMe(): bool
     {
-        $user_prefs = new Preference($rs->user_id, 'profile');
+        $user_prefs = new Preference($this->rs->user_id, 'profile');
         $user_prefs->addWorkspace('profile');
         $user_profile_mails = $user_prefs->profile->mails ?
             array_map('trim', explode(',', $user_prefs->profile->mails)) :
@@ -296,6 +263,8 @@ class RsExtComment
             [];
 
         return
-            ($rs->comment_email && $rs->comment_site) && ($rs->comment_email == $rs->user_email || in_array($rs->comment_email, $user_profile_mails)) && ($rs->comment_site == $rs->user_url || in_array($rs->comment_site, $user_profile_urls));
+            ($this->rs->comment_email && $this->rs->comment_site)
+            && ($this->rs->comment_email == $this->rs->user_email || in_array($this->rs->comment_email, $user_profile_mails))
+            && ($this->rs->comment_site == $this->rs->user_url || in_array($this->rs->comment_site, $user_profile_urls));
     }
 }

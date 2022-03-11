@@ -15,6 +15,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\UserAction;
@@ -70,7 +71,7 @@ class Users extends Page
         $rsStatic = $rs->toStatic();
         if ($this->filter->sortby != 'nb_post') {
             // Sort user list using lexical order if necessary
-            $rsStatic->extend('Dotclear\\Core\\RsExt\\RsExtUser');
+            $rsStatic->extend(new RsExtUser());
             $rsStatic = $rsStatic->toExtStatic();
             $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
