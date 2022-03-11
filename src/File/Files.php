@@ -119,6 +119,30 @@ class Files
         'webm' => 'video/webm',
     ];
 
+    public static $allowed_served_extensions = [
+        'ico',
+        'png',
+        'jpg',
+        'jpeg',
+        'gif',
+        'svg',
+        'webp',
+        'css',
+        'js',
+        'swf',
+        'svg',
+        'woff',
+        'woff2',
+        'ttf',
+        'otf',
+        'eot',
+        'html',
+        'xml',
+        'json',
+        'txt',
+        'zip',
+    ];
+
     /**
      * Directory scanning
      *
@@ -538,54 +562,65 @@ class Files
     /**
      * Serve file through Http
      *
-     * @param   string      $src            The file to serve
-     * @param   array       $dirs           List of allowed path
-     * @param   array|null  $types          List of allowed file extension
-     * @param   bool        $allow_sub_dir  True to allow ".." directory
+     * @param   string      $needle                 The file to serve
+     * @param   array       $haystack               Paths to search on
+     * @param   array|null  $allowed_extensions     List of allowed file extension
+     * @param   bool        $allow_level_up         True to allow ".." directory
+     * @param   bool        $return_path            If true, return file path, else serve file
+     *
+     * @return string|false                         File path (if $return_path=true)
      */
-    public static function serveFile(string $src, array $dirs, ?array $types = null, bool $allow_sub_dir = false)
+    public static function serveFile(string $needle, array $haystack, ?array $allowed_extensions = null, bool $allow_level_up = false, bool $return_path = false): string|False
     {
         # Set default types
-        if ($types === null) {
-            $types = ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip'];
+        if ($allowed_extensions === null) {
+            $allowed_extensions = self::$allowed_served_extensions;
         }
 
-        # Check directory change ".."
-        if (!$allow_sub_dir && strpos('..', $src) !== false) {
-            header('Content-Type: text/plain');
-            Http::head(403, 'Forbidden');
-            exit;
-        }
-
-        # Clean query parameter
-        $path = Path::clean($src);
-        if (empty($path)) {
-            header('Content-Type: text/plain');
-            Http::head(404, 'Not Found');
-            exit;
-        }
-
-        # Search dirs
-        $file = false;
-        foreach ($dirs as $dir) {
-            $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $path]));
-
-            if ($file !== false) {
-                break;
+        try {
+            # Check directory change ".."
+            if (!$allow_level_up && strpos('..', $needle) !== false) {
+                throw new \Exception('file not found');
             }
-        }
-        unset($dirs);
 
-        # Check file and extension
-        if ($file === false || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $types)) {
+            # Clean query parameter
+            $needle = Path::clean($needle);
+            if (empty($needle)) {
+                throw new \Exception('file not found');
+            }
+
+            # Search dirs
+            $file = false;
+            foreach ($haystack as $dir) {
+                $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $needle]));
+
+                if ($file !== false) {
+                    break;
+                }
+            }
+            unset($dirs);
+
+            # Check file and extension
+            if ($file === false || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $allowed_extensions)) {
+                throw new \Exception('file not found');
+            }
+        } catch (\Exception $e) {
+            if ($return_path) {
+                return false;
+            }
+
             header('Content-Type: text/plain');
             Http::head(404, 'Not Found');
             exit;
+        }
+
+        if ($return_path) {
+            return $file;
         }
 
         # Set http cache (one week)
         Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
-        Http::cache(array_merge([$file], get_included_files()));
+        Http::cache([$file]);
 
         # Send file to output
         header('Content-Type: ' . self::getMimeType($file));

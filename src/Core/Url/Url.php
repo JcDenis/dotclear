@@ -41,13 +41,25 @@ class Url
     public $mod_files = [];
     public $mod_ts = [];
 
-    public $allow_sub_dir = false;
-
     public $args;
 
+    # Do not change 'resources' handler as css and js use hard coded resources urls
     public function __construct()
     {
-        $this->initDefaulthandlers();
+        $this->registerDefault([$this, 'home']);
+        $this->registerError([$this, 'default404']);
+        $this->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$this, 'lang']);
+        $this->register('posts', 'posts', '^posts(/.+)?$', [$this, 'home']);
+        $this->register('post', 'post', '^post/(.+)$', [$this, 'post']);
+        $this->register('preview', 'preview', '^preview/(.+)$', [$this, 'preview']);
+        $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
+        $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
+        $this->register('resources', 'resources', '^resources/(.+)?$', [$this, 'resources']);
+        $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
+        $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
+        $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
+        $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
+        $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
     }
 
     protected function getHomeType(): string
@@ -951,25 +963,12 @@ class Url
         $dirs[] = root_path('Core', 'resources', 'js');
 
         # Search file
-        Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, $this->allow_sub_dir);
-    }
+        if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, false, true))) {
+            $this->p404();
+        }
 
-    # Do not change 'resources' handler as css and js use hard coded resources urls
-    public function initDefaultHandlers(): void
-    {
-        $this->registerDefault([$this, 'home']);
-        $this->registerError([$this, 'default404']);
-        $this->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$this, 'lang']);
-        $this->register('posts', 'posts', '^posts(/.+)?$', [$this, 'home']);
-        $this->register('post', 'post', '^post/(.+)$', [$this, 'post']);
-        $this->register('preview', 'preview', '^preview/(.+)$', [$this, 'preview']);
-        $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
-        $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
-        $this->register('resources', 'resources', '^resources/(.+)?$', [$this, 'resources']);
-        $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
-        $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
-        $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
-        $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
-        $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
+        # Serve file
+        dotclear()->template()->setPath(dirname($file),dotclear()->template()->getPath());
+        $this->serveDocument(basename($file), Files::getMimeType($file));
     }
 }
