@@ -15,6 +15,7 @@ namespace Dotclear\Core\Users;
 
 use ArrayObject;
 
+use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
