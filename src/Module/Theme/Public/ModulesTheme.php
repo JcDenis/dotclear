@@ -19,15 +19,4 @@ use Dotclear\Module\Theme\TraitModulesTheme;
 class ModulesTheme extends AbstractModules
 {
     use TraitModulesPublic, TraitModulesTheme;
-/*
-    public function getModulesURL(array $param = []): string
-    {
-        return '';
-    }
-
-    public function getModuleURL(string $id, array $param = []): string
-    {
-        return '';
-    }
-*/
 }
