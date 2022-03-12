@@ -28,12 +28,16 @@ class PrependException extends \Exception
      * @param   string  $detail  The detail
      * @param   int     $code    The code
      */
-    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, $trace = false)
+    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, bool $trace = false, \Throwable $previous = null)
     {
-        parent::__construct($message, $code, null);
+        parent::__construct($message, $code, $previous);
 
         if ($trace) {
-            $detail .= dotclear_error_trace($this->getTrace());
+            $traces = $this->getTrace();
+            if ($previous) {
+                array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
+            }
+            $detail .= dotclear_error_trace($traces);
         }
         dotclear_error($message, $detail, $code);
     }

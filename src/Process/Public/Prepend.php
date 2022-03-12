@@ -72,7 +72,7 @@ class Prepend extends Core
                 $this->template = new Template($this->config()->cache_dir, 'dotclear()->template()');
             } catch (\Exception $e) {
                 $this->getExceptionLang();
-                $this->throwException(__('Unable to create template'), $e->getMessage(), 640);
+                $this->throwException(__('Unable to create template'), $e->getMessage(), 640, $e);
             }
         }
 
@@ -141,7 +141,7 @@ class Prepend extends Core
             }
         } catch (\Exception $e) {
             $this->getExceptionLang();
-            $this->throwException(__('Unable to load plugins.'), $e->getMessage(), 640);
+            $this->throwException(__('Unable to load plugins.'), $e->getMessage(), 640, $e);
         }
 
         # Load themes
@@ -150,7 +150,7 @@ class Prepend extends Core
             $this->themes->loadModules($this->_lang);
         } catch (\Exception $e) {
             $this->getExceptionLang();
-            $this->throwException(__('Unable to load themes.'), $e->getMessage(), 640);
+            $this->throwException(__('Unable to load themes.'), $e->getMessage(), 640, $e);
         }
 
         # Load current theme definition
@@ -212,7 +212,8 @@ class Prepend extends Core
             $this->throwException(
                 __('Something went wrong while loading template file for your blog.'),
                 sprintf(__('The following error was encountered while trying to load template file: %s'), $e->getMessage()),
-                660
+                660,
+                $e
             );
         }
     }

@@ -171,9 +171,8 @@ if (!function_exists('dotclear_error_trace')) {
     function dotclear_error_trace(array $traces): string
     {
         $res = '';
-        //array_shift($traces);
         foreach($traces as $i => $line) {
-            $res .= '#' . $i .' ' . @$line['class'] .'::' . $line['function'] . ' -- ' . $line['file'] . ":" . $line['line'] . "\n";
+            $res .= '#' . $i .' ' . (!empty($line['class']) ? $line['class'] .'::' : '') . ($line['function'] ?: '') . ' -- ' . $line['file'] . ":" . $line['line'] . "\n";
         }
         return sprintf("\n<pre>Traces : \n%s</pre>", $res);
     }

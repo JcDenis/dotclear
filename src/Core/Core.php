@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 use Closure;
+use Throwable;
 
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Core\Blogs\Blogs;
@@ -322,7 +323,8 @@ class Core
                 $this->throwException(
                     $msg,
                     $msg . '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>',
-                    620
+                    620,
+                    $e
                 );
             }
         }
@@ -824,7 +826,7 @@ class Core
      * @param   string  $detail     The detailed message
      * @param   int     $code       The code
      */
-    protected function throwException(string $message, string $detail, int $code): void
+    protected function throwException(string $message, string $detail, int $code, Throwable $previous = null): void
     {
         $title = $this->getExceptionTitle($code);
 
@@ -838,7 +840,7 @@ class Core
         }
 
         # Use an Exception handler to get trace for non production env
-        throw new PrependException($title, $message, $code, !$this->production());
+        throw new PrependException($title, $message, $code, !$this->production(), $previous);
 
         exit(1);
     }

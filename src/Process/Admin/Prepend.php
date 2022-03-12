@@ -241,7 +241,7 @@ class Prepend extends Core
                 }
             } catch (\Exception $e) {
                 $this->getExceptionLang();
-                $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620);
+                $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620, $e);
             }
 
             # Check nonce from POST requests
@@ -445,7 +445,8 @@ class Prepend extends Core
             $this->throwException(
                 $e->getMessage(),
                 '',
-                628
+                628,
+                $e
             );
         }
 
@@ -460,7 +461,8 @@ class Prepend extends Core
             $this->throwException(
                 __('Failed to load page'),
                 sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
-                601
+                601,
+                $e
             );
         }
     }
