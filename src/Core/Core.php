@@ -699,6 +699,16 @@ class Core
             }
         }
 
+        # Check configuration required values
+        if ($this->config()->error()->flag()) {
+            $this->getExceptionLang();
+            $this->throwException(
+                __('Configuration file is not complete.'),
+                implode("\n", $this->config()->error()->dump()),
+                611
+            );
+        }
+
         # Start l10n
         L10n::init();
 
