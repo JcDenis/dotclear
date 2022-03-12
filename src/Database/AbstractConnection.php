@@ -44,9 +44,20 @@ abstract class AbstractConnection
      */
     public static function init($driver, $host, $database, $user = '', $password = '', $persistent = false)
     {
-        $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
-        if (!class_exists($class)) {
-            trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);
+        $parent = __CLASS__;
+        $class  = '';
+
+        # Set full namespace of distributed database driver
+        if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
+            $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
+        }
+
+        # You can set DOTCLEAR_CON_CLASS to whatever you want.
+        # Your new class *should* inherits Dotclear\Database\AbstractConnection class.
+        $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $class;
+
+        if (!class_exists($class) || !is_subclass_of($class, $parent)) {
+            trigger_error(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));
             exit(1);
         }
 

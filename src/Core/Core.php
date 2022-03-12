@@ -248,24 +248,10 @@ class Core
             try {
                 $prefix = $this->config()->database_prefix;
                 $driver = $this->config()->database_driver;
-                $parent = 'Dotclear\\Database\\AbstractConnection';
-                $class  = '';
-
-                # Set full namespace of distributed database driver
-                if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
-                    $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
-                }
-
-                # You can set DOTCLEAR_CON_CLASS to whatever you want.
-                # Your new class *should* inherits Dotclear\Database\AbstractConnection class.
-                $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $class;
-
-                if (!class_exists($class) || !is_subclass_of($class, $parent)) {
-                    throw new \Exception(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));
-                }
 
                 # Create connection instance
-                $con = new $class(
+                $con = AbstractConnection::init(
+                    $driver,
                     $this->config()->database_host,
                     $this->config()->database_name,
                     $this->config()->database_user,
