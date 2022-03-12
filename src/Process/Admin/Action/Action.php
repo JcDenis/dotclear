@@ -345,7 +345,7 @@ abstract class Action extends Page
                     return true;
                 }
             } catch (\Exception $e) {
-                $this->error()->add($e);
+                $this->error()->add($e->getMessage());
                 return false;
             }
         }

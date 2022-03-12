@@ -256,7 +256,7 @@ class FlatImport extends FlatBackup
             if (dotclear()->con()->syntax() == 'postgresql') {
                 dotclear()->con()->execute('SET CONSTRAINTS ALL DEFERRED');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 
@@ -352,7 +352,7 @@ class FlatImport extends FlatBackup
                 # --BEHAVIOR-- importFull
                 dotclear()->behavior()->call('importFull', $line, $this);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 

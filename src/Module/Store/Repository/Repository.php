@@ -77,7 +77,7 @@ class Repository
 
         try {
             $parser = dotclear()->config()->store_update_noauto ? false : RepositoryReader::quickParse($this->xml_url, dotclear()->config()->cache_dir, $force);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -271,7 +271,7 @@ class Repository
                 $client->setOutput($dest);
                 $client->get($path);
                 unset($client);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 unset($client);
 
                 throw new ModuleException(__('An error occurred while downloading the file.'));

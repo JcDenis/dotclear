@@ -117,7 +117,7 @@ class Behavior
         if (defined('DOTCLEAR_BEHAVIOR_TRACE') && is_callable(DOTCLEAR_BEHAVIOR_TRACE)) {
             try {
                 call_user_func(DOTCLEAR_BEHAVIOR_TRACE, $callback, $args);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
     }

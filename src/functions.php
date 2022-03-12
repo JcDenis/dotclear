@@ -18,7 +18,7 @@ if (!function_exists('dotclear_run')) {
      * @param  string   $process    The process (admin,install,public...)
      * @param  string   $blog_id    The blog id for public process
      */
-    function dotclear_run(string $process, ?string $blog_id = null)
+    function dotclear_run(string $process, ?string $blog_id = null): void
     {
         # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -52,15 +52,17 @@ if (!function_exists('dotclear_run')) {
         } catch (\Exception $e) {
             ob_end_clean();
 
-            if (dotclear() && dotclear()->config()) {
-                if (dotclear()->config()->production === false) {
-                    dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
-                } else {
-                    dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
+            try {
+                if (dotclear() && dotclear()->config()) {
+                    if (dotclear()->production() === false) {
+                        dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
+                    } else {
+                        dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
+                    }
                 }
-            } else {
-                dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
+            } catch (\Exception) {
             }
+            dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
     }
 }

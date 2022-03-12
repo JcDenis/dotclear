@@ -138,7 +138,7 @@ class Server
 
             $result = $this->call($this->message->methodName, $this->message->params);
         } catch (\Exception $e) {
-            $this->error()->add($e);
+            $this->error($e);
         }
 
         # Encode the result

@@ -177,7 +177,7 @@ class ThemeEditor
 
             # Updating inner files list
             $this->updateFileInList($type, $f, $dest);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new AdminException(sprintf(__('Unable to write file %s. Please check your theme files and folders permissions.'), $f));
         }
     }
@@ -226,7 +226,7 @@ class ThemeEditor
                 // Updating template files list
                 $this->findTemplates();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new AdminException(sprintf(__('Unable to delete file %s. Please check your theme files and folders permissions.'), $f));
         }
     }

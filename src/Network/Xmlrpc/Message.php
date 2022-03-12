@@ -87,7 +87,7 @@ class Message
             if ($dom->getElementsByTagName('*')->length > 30000) {
                 throw new NetworkException('XML Parser Error.');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new NetworkException('XML Parser Error.');
         }
         $this->_parser = xml_parser_create();

@@ -100,7 +100,7 @@ class Trackback
                 # Read response status
                 $status     = $http->getStatus();
                 $ping_error = '0';
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 throw new CoreException(__('Unable to ping URL'));
             }
 
@@ -124,7 +124,7 @@ class Trackback
                 $http = self::initHttp($url, $path);
                 $http->post($path, $data, 'UTF-8');
                 $res = $http->getContent();
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 throw new CoreException(__('Unable to ping URL'));
             }
 
@@ -148,7 +148,7 @@ class Trackback
             } catch (xmlrpcException $e) {
                 $ping_error = $e->getCode();
                 $ping_msg   = $e->getMessage();
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 throw new CoreException(__('Unable to ping URL'));
             }
         }
@@ -344,7 +344,7 @@ class Trackback
             }
 
             $this->addBacklink($posts->post_id, $from_url, $blog_name, $title, $excerpt, $comment);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new CoreException(__('Sorry, an internal problem has occured.'), 0);
         }
 
@@ -760,7 +760,7 @@ class Trackback
             $page_content = $http->getContent();
             $pb_url       = $http->getHeader('x-pingback');
             $wm_url       = $http->getHeader('link');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 

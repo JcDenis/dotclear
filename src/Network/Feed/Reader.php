@@ -214,8 +214,7 @@ class Reader extends NetHttp
                     if (Files::putContent($cached_file, serialize($feed))) {
                         Files::inheritChmod($cached_file);
                     }
-                } catch (\Exception $e) {
-                    return $feed;
+                } catch (\Exception) {
                 }
 
                 return $feed;

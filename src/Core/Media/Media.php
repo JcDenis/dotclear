@@ -586,7 +586,7 @@ class Media extends Manager
 
         try {
             usort($this->dir['files'], [$this, 'sortFileHandler']);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
     }
 
@@ -687,7 +687,7 @@ class Media extends Manager
 
         try {
             usort($this->dir['files'], [$this, 'sortFileHandler']);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return (count($f_res) > 0 ? true : false);
@@ -1266,7 +1266,7 @@ class Media extends Manager
             foreach ($this->thumb_sizes as $suffix => $s) {
                 try {
                     parent::moveFile(sprintf($thumb_old, $suffix), sprintf($thumb_new, $suffix));
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
         }
@@ -1294,7 +1294,7 @@ class Media extends Manager
         foreach ($this->thumb_sizes as $suffix => $s) {
             try {
                 parent::removeFile(sprintf($thumb, $suffix));
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
     }

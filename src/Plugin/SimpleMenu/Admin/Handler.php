@@ -93,7 +93,7 @@ class Handler extends AbstractPage
                 $this->sm_pages_combo[$rs->post_title] = $rs->getURL();
             }
             unset($rs);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         # Liste des tags -- Doit être pris en charge plus tard par le plugin ?
@@ -104,7 +104,7 @@ class Handler extends AbstractPage
                 $this->sm_tags_combo[$rs->meta_id] = $rs->meta_id;
             }
             unset($rs);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         # Liste des types d'item de menu

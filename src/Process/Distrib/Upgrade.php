@@ -70,7 +70,7 @@ class Upgrade
                 # Empty templates cache directory
                 try {
                     dotclear()->emptyTemplatesCache();
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
 
                 return (bool) $changes;

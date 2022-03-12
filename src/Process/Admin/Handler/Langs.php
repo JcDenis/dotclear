@@ -175,7 +175,7 @@ class Langs extends Page
             if ($dc_langs !== false) {
                 $dc_langs = $dc_langs->items;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         echo

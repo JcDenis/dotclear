@@ -90,7 +90,7 @@ class FilterFairtrackbacks extends Spamfilter
             if (!preg_match('/' . $pattern . '/', $tb_page)) {
                 throw new \Exception('Unfair');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new \Exception('Trackback not allowed for this URL.');
         }
 

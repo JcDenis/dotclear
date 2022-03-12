@@ -975,7 +975,7 @@ class MediaItem extends Page
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return $defaults;

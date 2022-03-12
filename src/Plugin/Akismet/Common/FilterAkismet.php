@@ -84,7 +84,7 @@ class FilterAkismet extends Spamfilter
                     return true;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         } # If http or akismet is dead, we don't need to know it
 
         return null;
@@ -107,7 +107,7 @@ class FilterAkismet extends Spamfilter
             if ($ak->verify()) {
                 $ak->{$f}($rs->getPostURL(), $type, $author, $email, $site, $content);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         } # If http or akismet is dead, we don't need to know it
     }
 

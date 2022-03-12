@@ -748,13 +748,13 @@ class Core
             if (session_id()) {
                 session_write_close();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
         try {
             if ($this->con) {
                 $this->con->close();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
     }
 

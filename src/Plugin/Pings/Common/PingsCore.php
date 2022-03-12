@@ -43,7 +43,7 @@ class PingsCore
         foreach ($pings_uris as $uri) {
             try {
                 PingsAPI::doPings($uri, dotclear()->blog()->name, $dotclear()->blog()->url);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
     }

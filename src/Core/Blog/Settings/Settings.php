@@ -71,7 +71,7 @@ class Settings
 
         try {
             $rs = dotclear()->con()->select($strReq);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             trigger_error(__('Unable to retrieve namespaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
         }
 

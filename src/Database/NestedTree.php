@@ -191,7 +191,7 @@ abstract class NestedTree
                 $this->setNodeParent($id + 1, $target);
 
                 return $data->{$this->f_id};
-            } catch (DatabaseException $e) {
+            } catch (DatabaseException) {
             } # We don't mind error in this case
         } catch (\Exception $e) {
             $this->con->unlock();

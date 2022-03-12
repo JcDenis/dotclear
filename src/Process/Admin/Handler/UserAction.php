@@ -194,7 +194,7 @@ class UserAction extends Page
             try {
                 $rs      = dotclear()->blogs()->getBlogs();
                 $nb_blog = $rs->count();
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
 
             foreach ($this->users as $u) {

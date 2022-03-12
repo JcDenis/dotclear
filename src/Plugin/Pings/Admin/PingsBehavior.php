@@ -99,7 +99,7 @@ class PingsBehavior
             if (in_array($uri, $pings_uris)) {
                 try {
                     PingsAPI::doPings($uri, dotclear()->blog()->name, dotclear()->blog()->url);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
         }

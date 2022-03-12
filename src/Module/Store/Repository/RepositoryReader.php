@@ -164,7 +164,7 @@ class RepositoryReader extends NetHttp
 
         try {
             return $this->get($path);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             //! @todo Log error when repository query fail
             return false;
         }
@@ -229,7 +229,7 @@ class RepositoryReader extends NetHttp
 
                 try {
                     Files::makeDir(dirname($cached_file), true);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return $modules;
                 }
 

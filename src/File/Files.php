@@ -604,7 +604,7 @@ class Files
             if ($file === false || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $allowed_extensions)) {
                 throw new \Exception('file not found');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             if ($return_path) {
                 return false;
             }

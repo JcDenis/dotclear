@@ -119,7 +119,7 @@ class CspReport extends Page
                     // The file content will have to be enclosed in brackets [] before
                     // beeing decoded with json_decoded(<content>,true);
                     fprintf($fp, ($contents != '' ? ',' : '') . '%s', $output);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     return null;
                 }
             }

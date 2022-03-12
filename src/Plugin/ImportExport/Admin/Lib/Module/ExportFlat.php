@@ -192,7 +192,7 @@ class ExportFlat extends Module
                 unlink($_SESSION['export_file']);
                 unset($zip, $_SESSION['export_file'], $_SESSION['export_filename'], $file_zipname);
                 exit;
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 unset($zip, $_SESSION['export_file'], $_SESSION['export_filename'], $file_zipname);
                 @unlink($_SESSION['export_file']);
 

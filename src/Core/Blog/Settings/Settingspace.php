@@ -86,7 +86,7 @@ class Settingspace
 
             try {
                 $rs = dotclear()->con()->select($strReq);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 trigger_error(__('Unable to retrieve settings:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
         }

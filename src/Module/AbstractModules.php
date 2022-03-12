@@ -523,7 +523,7 @@ abstract class AbstractModules
             try {
                 $this->deactivateModule($module['id']);
                 $reason[] = sprintf('<li>%s : %s</li>', $module['id'], join(',', $module['reason']));
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
         if (count($reason)) {

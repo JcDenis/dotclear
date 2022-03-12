@@ -136,7 +136,7 @@ class RestMethods
                     $ret .= '</dl></div>';
                     $rsp->check = true;
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
         $rsp->ret = $ret;
@@ -509,7 +509,7 @@ class RestMethods
 
         try {
             $file = dotclear()->media()->getFile($id);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         if ($file === null || $file->type != 'application/zip' || !$file->editable) {

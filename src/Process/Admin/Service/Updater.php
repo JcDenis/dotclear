@@ -109,7 +109,7 @@ class Updater
         if (!is_dir($cache_dir)) {
             try {
                 Files::makeDir($cache_dir);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return;
             }
         }
@@ -145,7 +145,7 @@ class Updater
                 throw new AdminException();
             }
             $this->readVersion($client->getContent());
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return;
         }
 
@@ -273,7 +273,7 @@ class Updater
 
                 throw new AdminException();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new AdminException(__('An error occurred while downloading archive.'));
         }
     }
@@ -346,7 +346,7 @@ class Updater
 
             try {
                 $b_zip->addFile($root . '/' . $file, $file);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $not_readable[] = $file;
             }
         }
