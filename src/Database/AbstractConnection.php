@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Database\Connection
+ * @class Dotclear\Database\AbstractConnection
  * @brief Database connector
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -19,7 +19,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Connection
+abstract class AbstractConnection
 {
     protected $__driver  = null; ///< string: Driver name
     protected $__syntax  = null; ///< string: SQL syntax name
@@ -44,11 +44,6 @@ class Connection
      */
     public static function init($driver, $host, $database, $user = '', $password = '', $persistent = false)
     {
-        // PHP 7.0 mysql driver is obsolete, map to mysqli
-        if ($driver === 'mysql') {
-            $driver = 'mysqli';
-        }
-
         $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
         if (!class_exists($class)) {
             trigger_error('Unable to load DB layer for ' . $driver, E_USER_ERROR);

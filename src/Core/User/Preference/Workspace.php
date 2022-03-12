@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User\Preference;
 
-use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 

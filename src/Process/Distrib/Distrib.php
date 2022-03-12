@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Database\Connection;
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
 use Dotclear\File\Files;
 
@@ -314,7 +314,7 @@ class Distrib
         }
     }
 
-    public static function checkRequirements(Connection $con, array &$err): bool
+    public static function checkRequirements(AbstractConnection $con, array &$err): bool
     {
         $err = [];
 

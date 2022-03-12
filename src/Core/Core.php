@@ -30,7 +30,7 @@ use Dotclear\Core\User\User;
 use Dotclear\Core\Users\Users;
 use Dotclear\Core\Version\Version;
 use Dotclear\Core\Wiki\Wiki;
-use Dotclear\Database\Connection;
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\PrependException;
 use Dotclear\File\Files;
 use Dotclear\Html\Html;
@@ -63,7 +63,7 @@ class Core
     /** @var    Blogs   Blogs instance */
     private $blogs;
 
-    /** @var    Connection   Connection instance */
+    /** @var    AbstractConnection   AbstractConnection instance */
     private $con;
 
     /** @var    Configuration   Configuration instance */
@@ -240,41 +240,28 @@ class Core
     /**
      * Get database connection instance
      *
-     * @return  Connection  Connection instance
+     * @return  AbstractConnection  AbstractConnection instance
      */
-    public function con(): Connection
+    public function con(): AbstractConnection
     {
-        if (!($this->con instanceof Connection)) {
+        if (!($this->con instanceof AbstractConnection)) {
             try {
-                $prefix        = $this->config()->database_prefix;
-                $driver        = $this->config()->database_driver;
-                $default_class = 'Dotclear\\Database\\Connection';
-
-                # You can set DOTCLEAR_CON_CLASS to whatever you want.
-                # Your new class *should* inherits Dotclear\Database\Connection class.
-                $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $default_class ;
-
-                if (!class_exists($class)) {
-                    throw new \Exception(sprintf('Database connection class %s does not exist.', $class));
-                }
-
-                if ($class != $default_class && !is_subclass_of($class, $default_class)) {
-                    throw new \Exception(sprintf('Database connection class %s does not inherit %s', $class, $default_class));
-                }
-
-                # PHP 7.0 mysql driver is obsolete, map to mysqli
-                if ($driver === 'mysql') {
-                    $driver = 'mysqli';
-                }
+                $prefix = $this->config()->database_prefix;
+                $driver = $this->config()->database_driver;
+                $parent = 'Dotclear\\Database\\AbstractConnection';
+                $class  = '';
 
                 # Set full namespace of distributed database driver
                 if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
                     $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Connection';
                 }
 
-                # Check if database connection class exists
-                if (!class_exists($class)) {
-                    throw new \Exception(sprintf('Unable to load DB layer for %s', $driver));
+                # You can set DOTCLEAR_CON_CLASS to whatever you want.
+                # Your new class *should* inherits Dotclear\Database\AbstractConnection class.
+                $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $class;
+
+                if (!class_exists($class) || !is_subclass_of($class, $parent)) {
+                    throw new \Exception(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));
                 }
 
                 # Create connection instance

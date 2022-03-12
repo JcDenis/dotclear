@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Settings;
 
-use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 
@@ -23,9 +22,6 @@ if (!defined('DOTCLEAR_PROCESS')) {
 
 class Settingspace
 {
-    /** @var    Connection  Database connection object */
-    protected $con;
-
     /** @var    string     Settings table name */
     protected $table;
 

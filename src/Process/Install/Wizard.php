@@ -17,7 +17,7 @@ use Dotclear\Exception\DatabaseException;
 
 use Dotclear\Process\Distrib\Distrib;
 
-use Dotclear\Database\Connection;
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Schema;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
@@ -83,7 +83,7 @@ class Wizard
 
                 # Tries to connect to database (only using distributed database drivers)
                 try {
-                    $con = Connection::init($DBDRIVER, $DBHOST, $DBNAME, $DBUSER, $DBPASSWORD);
+                    $con = AbstractConnection::init($DBDRIVER, $DBHOST, $DBNAME, $DBUSER, $DBPASSWORD);
                 } catch (DatabaseException $e) {
                     throw new InstallException('<p>' . __($e->getMessage()) . '</p>');
                 }

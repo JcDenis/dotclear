@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Core\Blog\Settings\Settingspace;
-use Dotclear\Database\Connection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 

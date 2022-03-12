@@ -15,17 +15,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Sqlite;
 
-use Dotclear\Exception\DatabaseException;
 
-use Dotclear\Database\Connection as BaseConnection;
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\InterfaceConnection;
 use Dotclear\Database\StaticRecord;
+use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Connection extends BaseConnection implements InterfaceConnection
+class Connection extends AbstractConnection implements InterfaceConnection
 {
     protected $__driver        = 'sqlite';
     protected $__syntax        = 'sqlite';

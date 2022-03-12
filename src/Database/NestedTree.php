@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\DatabaseException;
-
-use Dotclear\Database\Connection;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -40,9 +39,9 @@ abstract class NestedTree
     /**
      * Constructs a new instance.
      *
-     * @param      Connection  $con    The con
+     * @param      AbstractConnection  $con    The con
      */
-    public function __construct(Connection $con)
+    public function __construct(AbstractConnection $con)
     {
         $this->con = $con;
     }

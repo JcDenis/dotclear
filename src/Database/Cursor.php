@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -46,10 +47,10 @@ class Cursor
      * </code>
      *
      * @see AbstractConnection::openCursor()
-     * @param AbstractConnection   $con      Connection object
+     * @param AbstractConnection   $con      AbstractConnection object
      * @param string    $table    Table name
      */
-    public function __construct(Connection $con, string $table)
+    public function __construct(AbstractConnection $con, string $table)
     {
         $this->__con = &$con;
         $this->setTable($table);

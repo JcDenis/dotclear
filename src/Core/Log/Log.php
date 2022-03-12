@@ -18,7 +18,6 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\TruncateStatement;
-use Dotclear\Database\Connection;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;

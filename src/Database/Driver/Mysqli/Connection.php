@@ -15,16 +15,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqli;
 
-use Dotclear\Exception\DatabaseException;
-
-use Dotclear\Database\Connection as BaseConnection;
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\InterfaceConnection;
+use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Connection extends BaseConnection implements InterfaceConnection
+class Connection extends AbstractConnection implements InterfaceConnection
 {
     public static $weak_locks = true; ///< boolean: Enables weak locks if true
 
