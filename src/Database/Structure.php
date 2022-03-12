@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -28,7 +29,7 @@ class Structure
     protected $tables     = [];
     protected $references = [];
 
-    public function __construct($con, string $prefix = '')
+    public function __construct(AbstractConnection $con, string $prefix = '')
     {
         $this->con    = &$con;
         $this->prefix = $prefix;
