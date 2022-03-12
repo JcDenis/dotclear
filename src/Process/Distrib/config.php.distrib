@@ -82,7 +82,7 @@ return [
 
     // Iconsets root
     // Multiple directories can be set
-    //'iconset_dirs' => [root_path('Iconset'])],
+    //'iconset_dirs' => [root_path('Iconset')],
 
     // Template cache directory
     //'cache_dir' => root_path('..', 'cache'),

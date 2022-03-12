@@ -919,7 +919,7 @@ class Core
             'digests_dir'           => [null, root_path('..', 'digests')],
             'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
-            'iconset_dir'           => [null, []], //[null, [root_path('Iconset')],
+            'iconset_dirs'          => [null, []], //[null, [root_path('Iconset')],
             'iconset_official'      => [false, ['Legacy', 'ThomasDaveluy']],
             'iconset_update_url'    => [null, ''],
             'jquery_default'        => [null, '3.6.0'],
