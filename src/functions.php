@@ -20,6 +20,8 @@ if (!function_exists('dotclear_run')) {
      */
     function dotclear_run(string $process, ?string $blog_id = null): void
     {
+        set_error_handler('dotclear_error_handler');
+
         # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', __DIR__);
@@ -174,9 +176,26 @@ if (!function_exists('dotclear_error_trace')) {
     {
         $res = '';
         foreach($traces as $i => $line) {
-            $res .= '#' . $i .' ' . (!empty($line['class']) ? $line['class'] .'::' : '') . ($line['function'] ?: '') . ' -- ' . $line['file'] . ":" . $line['line'] . "\n";
+            $res .=
+                '#' . $i .' ' .
+                (!empty($line['class']) ? $line['class'] .'::' : '') .
+                (!empty($line['function']) ? $line['function'] . ' -- ' : '') .
+                (!empty($line['file']) ? $line['file'] . ":" : '') .
+                (!empty($line['line']) ? $line['line'] : '') .
+                "\n";
         }
         return sprintf("\n<pre>Traces : \n%s</pre>", $res);
+    }
+}
+
+if (!function_exists('dotclear_error_handler')) {
+
+    function dotclear_error_handler(int $errno, string $errstr, string $errfile, int $errline): bool
+    {
+        if (PHP_SAPI == 'cli' || !(error_reporting() & $errno)) {
+            return false;
+        }
+        dotclear_error('Unexpected error', $errstr . "\n" . $errfile . '::' . $errline, $errno);
     }
 }
 
