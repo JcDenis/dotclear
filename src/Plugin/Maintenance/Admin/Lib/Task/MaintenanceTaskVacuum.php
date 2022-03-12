@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
-use Dotclear\Database\Schema;
+use Dotclear\Database\AbstractSchema;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -37,7 +37,7 @@ class MaintenanceTaskVacuum extends MaintenanceTask
 
     public function execute()
     {
-        $schema = Schema::init(dotclear()->con());
+        $schema = AbstractSchema::init(dotclear()->con());
 
         foreach ($schema->getTables() as $table) {
             if (strpos($table, dotclear()->prefix) === 0) {

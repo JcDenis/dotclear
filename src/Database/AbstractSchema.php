@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Database\Schema
+ * @class Dotclear\Database\AbstractSchema
  * @brief Database schema manipulator
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -19,7 +19,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Schema
+abstract class AbstractSchema
 {
     protected $con;
 
@@ -31,25 +31,21 @@ class Schema
     public static function init($con)
     {
         $driver       = $con->driver();
-        $default_class = 'Dotclear\\Database\\Schema';
-
-        # You can set DOTCLEAR_SCH_CLASS to whatever you want.
-        # Your new class *should* inherits Dotclear\Database\Schema class.
-        $class = defined('DOTCLEAR_SCH_CLASS') ? DOTCLEAR_SCH_CLASS : $default_class ;
-
-        if (!class_exists($class)) {
-            trigger_error('Database schema class ' . $class . ' does not exist.');
-            exit(1);
-        }
-
-        if ($class != $default_class && !is_subclass_of($class, $default_class)) {
-            trigger_error('Database schema class ' . $class . ' does not inherit ' . $default_class);
-            exit(1);
-        }
+        $parent = __CLASS__;
+        $class = '';
 
         /* Set full namespace of distributed database driver */
         if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
             $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Schema';
+        }
+
+        # You can set DOTCLEAR_SCH_CLASS to whatever you want.
+        # Your new class *should* inherits Dotclear\Database\Schema class.
+        $class = defined('DOTCLEAR_SCH_CLASS') ? DOTCLEAR_SCH_CLASS : $class;
+
+        if (!class_exists($class) || !is_subclass_of($class, $parent)) {
+            trigger_error('Database schema class ' . $class . ' does not exist or does not inherit ' . $parent);
+            exit(1);
         }
 
         if (!class_exists($class)) {

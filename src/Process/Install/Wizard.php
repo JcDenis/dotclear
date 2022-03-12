@@ -18,7 +18,7 @@ use Dotclear\Exception\DatabaseException;
 use Dotclear\Process\Distrib\Distrib;
 
 use Dotclear\Database\AbstractConnection;
-use Dotclear\Database\Schema;
+use Dotclear\Database\AbstractSchema;
 use Dotclear\Network\Http;
 use Dotclear\Utils\L10n;
 use Dotclear\Utils\Text;
@@ -97,7 +97,7 @@ class Wizard
                 }
 
                 # Check if dotclear is already installed
-                $schema = Schema::init($con);
+                $schema = AbstractSchema::init($con);
                 if (in_array($DBPREFIX . 'version', $schema->getTables())) {
                     throw new InstallException(__('Dotclear is already installed.'));
                 }

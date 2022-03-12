@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Database\Record;
-use Dotclear\Database\Schema;
 use Dotclear\Exception\ModuleException;
 use Dotclear\File\Zip\Zip;
 use DOtclear\Html\Form;

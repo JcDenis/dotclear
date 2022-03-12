@@ -15,16 +15,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Sqlite;
 
-use Dotclear\Exception\DatabaseException;
-
-use Dotclear\Database\Schema as BaseSchema;
+use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\InterfaceSchema;
+use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
 }
 
-class Schema extends BaseSchema implements InterfaceSchema
+class Schema extends AbstractSchema implements InterfaceSchema
 {
     private $table_hist = [];
 

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Distrib;
 
-use Dotclear\Database\Schema;
 use Dotclear\Database\Structure;
 use Dotclear\Process\Distrib\Distrib;
 use Dotclear\Exception\DistribException;

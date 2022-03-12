@@ -14,7 +14,7 @@ namespace Dotclear\Process\Install;
 
 use Dotclear\Container\User as ContainerUser;
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Database\Schema;
+use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
 use Dotclear\Process\Distrib\Distrib;
 use Dotclear\Html\Form;
@@ -58,7 +58,7 @@ class Install
         }
 
         /* Check if dotclear is already installed */
-        $schema = Schema::init(dotclear()->con());
+        $schema = AbstractSchema::init(dotclear()->con());
         if (in_array(dotclear()->prefix . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';

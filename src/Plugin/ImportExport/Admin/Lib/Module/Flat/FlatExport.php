@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 use Dotclear\Database\Record;
-use Dotclear\Database\Schema;
+use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem;
 
@@ -75,7 +75,7 @@ class FlatExport
 
     public function getTables(): array
     {
-        $schema    = Schema::init(dotclear()->con());
+        $schema    = AbstractSchema::init(dotclear()->con());
         $db_tables = $schema->getTables();
 
         $tables = [];
