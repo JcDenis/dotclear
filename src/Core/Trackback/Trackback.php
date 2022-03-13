@@ -453,7 +453,7 @@ class Trackback
 
         $rs = dotclear()->blog()->comments()->getComments($params, true);
         if ($rs && !$rs->isEmpty()) {
-            return ($rs->f(0));
+            return $rs->asInt();
         }
 
         return false;

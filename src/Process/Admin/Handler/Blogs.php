@@ -56,7 +56,7 @@ class Blogs extends Page
 
         $counter  = dotclear()->blogs()->getBlogs($params, true);
         $rs       = dotclear()->blogs()->getBlogs($params);
-        $nb_blog  = $counter->f(0);
+        $nb_blog  = $counter->asInt();
         $rsStatic = $rs->toStatic();
         if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {
             # Sort blog list using lexical order if necessary
@@ -65,7 +65,7 @@ class Blogs extends Page
             $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
         }
 
-        return new BlogInventory($rs, (int) $counter->f(0));
+        return new BlogInventory($rs, $counter->asInt());
     }
 
     protected function getPagePrepend(): ?bool

@@ -70,7 +70,7 @@ class Comments extends Page
 
         return new CommentInventory(
             dotclear()->blog()->comments()->getComments($params),
-            (int) dotclear()->blog()->comments()->getComments($params, true)->f(0)
+            dotclear()->blog()->comments()->getComments($params, true)->asInt()
         );
     }
 
@@ -123,7 +123,7 @@ class Comments extends Page
             unset($_SESSION['comments_del_spam']);
         }
 
-        $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->f(0);
+        $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->asInt();
         if ($spam_count > 0) {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';

@@ -73,8 +73,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
     {
         $strReq = 'SELECT COUNT(post_id) ' .
         'FROM ' . dotclear()->prefix . 'post';
-        $rs    = dotclear()->con()->select($strReq);
-        $count = $rs->f(0);
+        $count = dotclear()->con()->select($strReq)->asInt();
 
         $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
         'FROM ' . dotclear()->prefix . 'post ';

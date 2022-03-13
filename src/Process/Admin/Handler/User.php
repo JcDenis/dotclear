@@ -147,7 +147,7 @@ class User extends Page
                 }
                 # Add user
                 else {
-                    if (dotclear()->users()->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
+                    if (dotclear()->users()->getUsers(['user_id' => $cur->user_id], true)->asInt() > 0) {
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->user_id)));
                     }
 

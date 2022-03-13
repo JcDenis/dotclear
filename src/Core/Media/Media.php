@@ -854,8 +854,7 @@ class Media extends Manager
                     ->from($this->table)
                     ->column('MAX(media_id)');
 
-                $rs       = $sql->select();
-                $media_id = (int) $rs->f(0) + 1;
+                $media_id = $sql->select()->asInt() + 1;
 
                 $cur->media_id     = $media_id;
                 $cur->user_id      = (string) dotclear()->user()->userID();

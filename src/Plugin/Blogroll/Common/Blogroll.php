@@ -96,8 +96,7 @@ class Blogroll
         }
 
         $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
-        $rs           = dotclear()->con()->select($strReq);
-        $cur->link_id = (int) $rs->f(0) + 1;
+        $cur->link_id = dotclear()->con()->select($strReq)->asInt() + 1;
 
         $cur->insert();
         dotclear()->blog()->triggerBlog();
@@ -155,8 +154,7 @@ class Blogroll
         }
 
         $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
-        $rs           = dotclear()->con()->select($strReq);
-        $cur->link_id = (int) $rs->f(0) + 1;
+        $cur->link_id = dotclear()->con()->select($strReq)->asInt() + 1;
 
         $cur->insert();
         dotclear()->blog()->triggerBlog();

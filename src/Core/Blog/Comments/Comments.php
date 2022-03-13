@@ -223,7 +223,7 @@ class Comments
                 'FROM ' . dotclear()->prefix . 'comment '
             );
 
-            $cur->comment_id    = (int) $rs->f(0) + 1;
+            $cur->comment_id    = $rs->asInt() + 1;
             $cur->comment_upddt = date('Y-m-d H:i:s');
 
             $offset          = Dt::getTimeOffset(dotclear()->blog()->settings()->system->blog_timezone);

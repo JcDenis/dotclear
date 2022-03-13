@@ -444,7 +444,7 @@ class Favorite
      */
     public function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = (int) dotclear()->blog()->posts()->getPosts([], true)->f(0);
+        $post_count  = dotclear()->blog()->posts()->getPosts([], true)->asInt();
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -468,7 +468,7 @@ class Favorite
      */
     public function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = (int) dotclear()->blog()->comments()->getComments([], true)->f(0);
+        $comment_count = dotclear()->blog()->comments()->getComments([], true)->asInt();
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }

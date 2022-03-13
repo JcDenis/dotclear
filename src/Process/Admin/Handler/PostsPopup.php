@@ -66,7 +66,7 @@ class PostsPopup extends Page
 
         return new PostMiniInventory(
             dotclear()->blog()->posts()->getPosts($params),
-            (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0)
+            dotclear()->blog()->posts()->getPosts($params, true)->asInt()
         );
     }
 

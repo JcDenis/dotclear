@@ -338,7 +338,7 @@ class Blogs
             $strReq .= "AND post_type = '" . dotclear()->con()->escape($post_type) . "' ";
         }
 
-        return (int) dotclear()->con()->select($strReq)->f(0);
+        return dotclear()->con()->select($strReq)->asInt();
     }
 
 }

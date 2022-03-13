@@ -65,10 +65,10 @@ class Posts extends Page
 
         $params['no_content'] = true;
 
-        $posts     = dotclear()->blog()->posts()->getPosts($params);
-        $counter   = dotclear()->blog()->posts()->getPosts($params, true);
-
-        return new PostInventory($posts, (int) $counter->f(0));
+        return new PostInventory(
+            dotclear()->blog()->posts()->getPosts($params),
+            dotclear()->blog()->posts()->getPosts($params, true)->asInt()
+        );
     }
 
     protected function getPagePrepend(): ?bool

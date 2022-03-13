@@ -436,4 +436,18 @@ class Record implements \Iterator, \Countable
     {
         return $this->__fetch;
     }
+
+    /**
+     * Return as integer the field result
+     *
+     * Usefull with 'count only' request
+     *
+     * @param   string|int  $n  The field
+     *
+     * @return  int
+     */
+    public function asInt(string|int $n = 0): int
+    {
+        return $this->count() == 0 ? 0 : (int) $this->__row[$n];
+    }
 }

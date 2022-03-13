@@ -142,23 +142,12 @@ class FlatImport extends FlatBackup
             "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' "
         );
 
-        $rs                    = dotclear()->con()->select('SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category');
-        $this->stack['cat_id'] = ((int) $rs->f(0)) + 1;
-
-        $rs                     = dotclear()->con()->select('SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link');
-        $this->stack['link_id'] = ((int) $rs->f(0)) + 1;
-
-        $rs                     = dotclear()->con()->select('SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post');
-        $this->stack['post_id'] = ((int) $rs->f(0)) + 1;
-
-        $rs                      = dotclear()->con()->select('SELECT MAX(media_id) FROM ' . dotclear()->prefix . 'media');
-        $this->stack['media_id'] = ((int) $rs->f(0)) + 1;
-
-        $rs                        = dotclear()->con()->select('SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment');
-        $this->stack['comment_id'] = ((int) $rs->f(0)) + 1;
-
-        $rs                    = dotclear()->con()->select('SELECT MAX(log_id) FROM ' . dotclear()->prefix . 'log');
-        $this->stack['log_id'] = ((int) $rs->f(0)) + 1;
+        $this->stack['cat_id']     = dotclear()->con()->select('SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category')->asInt() + 1;
+        $this->stack['link_id']    = dotclear()->con()->select('SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link')->asInt() + 1;
+        $this->stack['post_id']    = dotclear()->con()->select('SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post')->asInt() + 1;
+        $this->stack['media_id']   = dotclear()->con()->select('SELECT MAX(media_id) FROM ' . dotclear()->prefix . 'media')->asInt() + 1;
+        $this->stack['comment_id'] = dotclear()->con()->select('SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment')->asInt() + 1;
+        $this->stack['log_id']     = dotclear()->con()->select('SELECT MAX(log_id) FROM ' . dotclear()->prefix . 'log')->asInt() + 1;
 
         $rs = dotclear()->con()->select(
             'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . dotclear()->prefix . 'category ' .

@@ -65,7 +65,7 @@ class RestMethods
      */
     public function getPostsCount(array $get): XmlTag
     {
-        $count = dotclear()->blog()->posts()->getPosts([], true)->f(0);
+        $count = dotclear()->blog()->posts()->getPosts([], true)->asInt();
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
         $rsp      = new XmlTag('count');
@@ -83,7 +83,7 @@ class RestMethods
      */
     public function getCommentsCount(array $get): XmlTag
     {
-        $count = dotclear()->blog()->comments()->getComments([], true)->f(0);
+        $count = dotclear()->blog()->comments()->getComments([], true)->asInt();
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
         $rsp      = new XmlTag('count');

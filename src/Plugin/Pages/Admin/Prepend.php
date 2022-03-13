@@ -54,7 +54,7 @@ class Prepend extends AbstractPrepend
                 'large-icon'   => ['?df=Plugin/Pages/icon.svg', '?df=Plugin/Pages/icon-dark.svg'],
                 'permissions'  => 'contentadmin,pages',
                 'dashboard_cb' => function ($v) {
-                    $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->f(0);
+                    $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->asInt();
                     if ($page_count > 0) {
                         $str_pages  = ($page_count > 1) ? __('%d pages') : __('%d page');
                         $v['title'] = sprintf($str_pages, $page_count);
@@ -117,9 +117,9 @@ class Prepend extends AbstractPrepend
         }
 
         // Create a first pending page, only on a new installation of this plugin
-        $counter = dotclear()->blog()->posts()->getPosts(['post_type' => 'page', 'no_content' => true], true);
-
-        if ($counter->f(0) == 0 && dotclear()->blog()->settings()->pages->firstpage == null) {
+        if (0 == dotclear()->blog()->posts()->getPosts(['post_type' => 'page', 'no_content' => true], true)->asInt()
+            && dotclear()->blog()->settings()->pages->firstpage == null
+        ) {
             dotclear()->blog()->settings()->pages->put('firstpage', true, 'boolean');
 
             $cur                     = dotclear()->con()->openCursor(dotclear()->prefix . 'post');

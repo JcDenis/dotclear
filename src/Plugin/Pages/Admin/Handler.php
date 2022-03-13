@@ -57,10 +57,10 @@ class Handler extends AbstractPage
         $params['no_content'] = true;
         $params['order']      = 'post_position ASC, post_title ASC';
 
-        $pages     = dotclear()->blog()->posts()->getPosts($params);
-        $counter   = dotclear()->blog()->posts()->getPosts($params, true);
+        $pages = dotclear()->blog()->posts()->getPosts($params);
+        $count = dotclear()->blog()->posts()->getPosts($params, true)->asInt();
 
-        return new PagesInventory($pages, (int) $counter->f(0));
+        return new PagesInventory($pages, $count);
     }
 
     protected function getPagePrepend(): ?bool

@@ -74,8 +74,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
     {
         $strReq = 'SELECT COUNT(comment_id) ' .
         'FROM ' . dotclear()->prefix . 'comment';
-        $rs    = dotclear()->con()->select($strReq);
-        $count = $rs->f(0);
+        $count = dotclear()->con()->select($strReq)->asInt();
 
         $strReq = 'SELECT comment_id, comment_content ' .
         'FROM ' . dotclear()->prefix . 'comment ';

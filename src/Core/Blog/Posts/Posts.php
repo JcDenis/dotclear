@@ -588,7 +588,7 @@ class Posts
                 'FROM ' . dotclear()->prefix . 'post '
             );
 
-            $cur->post_id     = (int) $rs->f(0) + 1;
+            $cur->post_id     = $rs->asInt() + 1;
             $cur->blog_id     = (string) dotclear()->blog()->id;
             $cur->post_creadt = date('Y-m-d H:i:s');
             $cur->post_upddt  = date('Y-m-d H:i:s');

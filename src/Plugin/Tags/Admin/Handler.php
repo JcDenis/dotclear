@@ -91,8 +91,8 @@ class Handler extends AbstractPage
             # Get posts
             try {
                 $this->t_posts     = dotclear()->meta()->getPostsByMeta($params);
-                $counter   = dotclear()->meta()->getPostsByMeta($params, true);
-                $this->t_post_list = new PostInventory($this->t_posts, (int) $counter->f(0));
+                $count             = dotclear()->meta()->getPostsByMeta($params, true)->asInt();
+                $this->t_post_list = new PostInventory($this->t_posts, $count);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

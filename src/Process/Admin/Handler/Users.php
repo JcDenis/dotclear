@@ -67,7 +67,7 @@ class Users extends Page
         dotclear()->behavior()->call('adminGetUsers', $params);
 
         $rs       = dotclear()->users()->getUsers($params);
-        $counter  = dotclear()->users()->getUsers($params, true);
+        $count    = dotclear()->users()->getUsers($params, true)->asInt();
         $rsStatic = $rs->toStatic();
         if ($this->filter->sortby != 'nb_post') {
             // Sort user list using lexical order if necessary
@@ -76,7 +76,7 @@ class Users extends Page
             $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
         }
 
-        return new UserInventory($rsStatic, (int) $counter->f(0));
+        return new UserInventory($rsStatic, $count);
     }
 
     protected function getPagePrepend(): ?bool

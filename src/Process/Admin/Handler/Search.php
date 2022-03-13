@@ -156,8 +156,8 @@ class Search extends Page
         ];
 
         try {
-            $this->s_count   = (int) dotclear()->blog()->posts()->getPosts($params, true)->f(0);
-            $this->s_list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), (int) $this->s_count);
+            $this->s_count   = dotclear()->blog()->posts()->getPosts($params, true)->asInt();
+            $this->s_list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), $this->s_count);
             $this->s_actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;
@@ -209,8 +209,8 @@ class Search extends Page
         ];
 
         try {
-            $this->s_count   = (int) dotclear()->blog()->comments()->getComments($params, true)->f(0);
-            $this->s_list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), (int) $this->s_count);
+            $this->s_count   = dotclear()->blog()->comments()->getComments($params, true)->asInt();
+            $this->s_list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), $this->s_count);
             $this->s_actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;

@@ -421,7 +421,7 @@ class Url
             if ($GLOBALS['_search']) {
                 $params = new ArrayObject(['search' => $GLOBALS['_search']]);
                 dotclear()->behavior()->call('publicBeforeSearchCount', $params);
-                $GLOBALS['_search_count'] = dotclear()->blog()->posts()->getPosts($params, true)->f(0);
+                $GLOBALS['_search_count'] = dotclear()->blog()->posts()->getPosts($params, true)->asInt();
             }
 
             $this->serveDocument('search.html');
