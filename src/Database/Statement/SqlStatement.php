@@ -234,9 +234,7 @@ class SqlStatement
      */
     public function where($c, bool $reset = false): SqlStatement
     {
-        $filter = function ($v) {
-            return preg_replace('/^\s*(AND|OR)\s*/i', '', $v);
-        };
+        $filter = fn ($v) => preg_replace('/^\s*(AND|OR)\s*/i', '', $v);
         if ($reset) {
             $this->where = [];
         }
@@ -296,7 +294,7 @@ class SqlStatement
      */
     public function and($c, bool $reset = false): SqlStatement
     {
-        return $this->cond(array_map(function ($v) {return 'AND ' . $v;}, is_array($c) ? $c : [$c]), $reset);
+        return $this->cond(array_map(fn ($v) => 'AND ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
 
     /**
@@ -323,7 +321,7 @@ class SqlStatement
      */
     public function or($c, bool $reset = false): SqlStatement
     {
-        return $this->cond(array_map(function ($v) {return 'OR ' . $v;}, is_array($c) ? $c : [$c]), $reset);
+        return $this->cond(array_map(fn ($v) => 'OR ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
 
     /**
@@ -393,11 +391,34 @@ class SqlStatement
      * Return an SQL IN (…) fragment
      *
      * @param      mixed  $list   The list
+     * @param      mixed  $list   The list of values
+     * @param      string $cast   Cast given not null values to specified type
      *
      * @return     string
      */
-    public function in($list): string
+    public function in($list, string $cast = ''): string
     {
+        if ($cast !== '') {
+            switch ($cast) {
+                case 'int':
+                    if (is_array($list)) {
+                        $list = array_map(fn ($v) => is_null($v) ? $v : (int) $v, $list);
+                    } else {
+                        $list = is_null($list) ? null : (int) $list;
+                    }
+
+                    break;
+                case 'string':
+                    if (is_array($list)) {
+                        $list = array_map(fn ($v) => is_null($v) ? $v : (string) $v, $list);
+                    } else {
+                        $list = is_null($list) ? null : (string) $list;
+                    }
+
+                    break;
+            }
+        }
+
         return dotclear()->con()->in($list);
     }
 
@@ -559,4 +580,36 @@ class SqlStatement
 
         return ($filter($local) === $filter($external));
     }
+
+    /**
+     * Compare local statement and external one
+     *
+     * @param      string   $external       The external
+     * @param      bool     $trigger_error  True to trigger an error if compare failsl
+     * @param      bool     $dump           True to var_dump() all if compare fails
+     * @param      bool     $print          True to print_r() all if compare fails
+     *
+     * @return     bool
+     */
+    public function compare(string $external, bool $trigger_error = false, bool $dump = false, bool $print = false): bool
+    {
+        $str = $this->statement();
+        if (!$this->isSame($str, $external)) {
+            if ($print) {
+                print_r($str);
+                print_r($external);
+            } elseif ($dump) {
+                var_dump($str);
+                var_dump($external);
+            }
+            if ($trigger_error) {
+                trigger_error('SQL statement error (internal/external): ' . $str . ' / ' . $external, E_USER_ERROR);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }
+

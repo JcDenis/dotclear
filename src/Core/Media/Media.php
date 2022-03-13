@@ -852,7 +852,7 @@ class Media extends Manager
                 $sql = new SelectStatement('dcMediaCreateFile');
                 $sql
                     ->from($this->table)
-                    ->column('MAX(media_id)');
+                    ->column($sql->max('media_id'));
 
                 $media_id = $sql->select()->fInt() + 1;
 

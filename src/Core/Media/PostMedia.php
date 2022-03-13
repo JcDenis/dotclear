@@ -16,6 +16,9 @@ declare(strict_types=1);
 namespace Dotclear\Core\Media;
 
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 
 class PostMedia
 {
@@ -31,45 +34,61 @@ class PostMedia
      */
     public function getPostMedia(array $params = []): Record
     {
-        $strReq = 'SELECT M.media_file, M.media_id, M.media_path, M.media_title, M.media_meta, M.media_dt, ' .
-            'M.media_creadt, M.media_upddt, M.media_private, M.user_id, PM.post_id ';
+        $sql = new SelectStatement('dcPostMediaGetPostMedia');
+        $sql
+            ->columns([
+                'M.media_file',
+                'M.media_id',
+                'M.media_path',
+                'M.media_title',
+                'M.media_meta',
+                'M.media_dt',
+                'M.media_creadt',
+                'M.media_upddt',
+                'M.media_private',
+                'M.user_id',
+                'PM.post_id',
+            ]);
 
         if (!empty($params['columns']) && is_array($params['columns'])) {
-            $strReq .= implode(', ', $params['columns']) . ', ';
+            $sql->columns($params['columns']);
         }
 
-        $strReq .= 'FROM ' . dotclear()->prefix . 'media M ' .
-        'INNER JOIN ' . dotclear()->prefix . $this->table . ' PM ON (M.media_id = PM.media_id) ';
+        $sql
+            ->from(dotclear()->prefix . 'media M')
+            ->join(
+                (new JoinStatement('dcPostMediaGetPostMedia'))
+                ->type('INNER')
+                ->from(dotclear()->prefix . $this->table . ' PM')
+                ->on('M.media_id = PM.media_id')
+                ->statement()
+            );
 
         if (!empty($params['from'])) {
-            $strReq .= $params['from'] . ' ';
+            $sql->from($params['from']);
         }
 
-        $where = [];
+        if (isset($params['link_type'])) {
+            $sql->where('PM.link_type' . $sql->in($params['link_type']));
+        } else {
+            $sql->where('PM.link_type = ' . $sql->quote('attachment'));
+        }
+
         if (isset($params['post_id'])) {
-            $where[] = 'PM.post_id ' . dotclear()->con()->in($params['post_id']);
+            $sql->and('PM.post_id' . $sql->in($params['post_id']));
         }
         if (isset($params['media_id'])) {
-            $where[] = 'M.media_id ' . dotclear()->con()->in($params['media_id']);
+            $sql->and('M.media_id' . $sql->in($params['media_id']));
         }
         if (isset($params['media_path'])) {
-            $where[] = 'M.media_path ' . dotclear()->con()->in($params['media_path']);
+            $sql->and('M.media_path' . $sql->in($params['media_path']));
         }
-        if (isset($params['link_type'])) {
-            $where[] = 'PM.link_type ' . dotclear()->con()->in($params['link_type']);
-        } else {
-            $where[] = "PM.link_type='attachment'";
-        }
-
-        $strReq .= 'WHERE ' . join('AND ', $where) . ' ';
 
         if (isset($params['sql'])) {
-            $strReq .= $params['sql'];
+            $sql->sql($params['sql']);
         }
 
-        $rs = dotclear()->con()->select($strReq);
-
-        return $rs;
+        return $sql->select();
     }
 
     /**
@@ -81,9 +100,6 @@ class PostMedia
      */
     public function addPostMedia(int $post_id, int $media_id, string $link_type = 'attachment'): void
     {
-        $post_id  = (int) $post_id;
-        $media_id = (int) $media_id;
-
         $f = $this->getPostMedia(['post_id' => $post_id, 'media_id' => $media_id, 'link_type' => $link_type]);
 
         if (!$f->isEmpty()) {
@@ -102,22 +118,23 @@ class PostMedia
     /**
      * Detaches a media from a post.
      *
-     * @param      mixed   $post_id    The post identifier
-     * @param      mixed   $media_id   The media identifier
-     * @param      mixed   $link_type  The link type
+     * @param   int             $post_id    The post identifier
+     * @param   int             $media_id   The media identifier
+     * @param   string|null     $link_type  The link type
      */
-    public function removePostMedia($post_id, $media_id, $link_type = null): void
+    public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
-        $post_id  = (integer) $post_id;
-        $media_id = (integer) $media_id;
+        $sql = new DeleteStatement('dcPostMediaRemovePostMedia');
+        $sql
+            ->from(dotclear()->prefix . $this->table)
+            ->where('post_id = ' . $post_id)
+            ->and('media_id = ' . $media_id);
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . $this->table . ' ' .
-            'WHERE post_id = ' . $post_id . ' ' .
-            'AND media_id = ' . $media_id . ' ';
         if ($link_type != null) {
-            $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
+            $sql->and('link_type = ' . $sql->quote($link_type, true));
         }
-        dotclear()->con()->execute($strReq);
+        $sql->delete();
+
         dotclear()->blog()->triggerBlog();
     }
 }

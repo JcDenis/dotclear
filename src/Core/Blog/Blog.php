@@ -19,6 +19,7 @@ use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
@@ -310,7 +311,10 @@ class Blog
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
-        $cur->update("WHERE blog_id = '" . dotclear()->con()->escape($this->id) . "' ");
+        $sql = new UpdateStatement($this->core, 'dcBlogTriggerBlog');
+        $sql->where('blog_id = ' . $sql->quote($this->id, true));
+
+        $sql->update($cur);
 
         # --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBlogAfterTriggerBlog', $cur);

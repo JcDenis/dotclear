@@ -18,6 +18,8 @@ use ArrayObject;
 use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 use Dotclear\Helper\Network\Http;
@@ -59,67 +61,113 @@ class Comments
      *
      * @return   Record      A record with some more capabilities
      */
-    public function getComments(array $params = [], bool $count_only = false): Record
+    public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): Record
     {
+        if (!$sql) {
+            $sql = new SelectStatement('dcBlogGetComments');
+        }
+
         if ($count_only) {
-            $strReq = 'SELECT count(comment_id) ';
+            $sql->column($sql->count('comment_id'));
         } elseif (!empty($params['sql_only'])) {
-            DeprecatedException::throw();
-            $strReq = 'SELECT P.post_id ';
+            $sql->column('P.post_id');
         } else {
             if (!empty($params['no_content'])) {
                 $content_req = '';
             } else {
+                $sql->column('comment_content');
+
                 $content_req = 'comment_content, ';
             }
 
             if (!empty($params['columns']) && is_array($params['columns'])) {
+                $sql->columns($params['columns']);
+
                 $content_req .= implode(', ', $params['columns']) . ', ';
             }
 
-            $strReq = 'SELECT C.comment_id, comment_dt, comment_tz, comment_upddt, ' .
-                'comment_author, comment_email, comment_site, ' .
-                $content_req . ' comment_trackback, comment_status, ' .
-                'comment_ip, ' .
-                'P.post_title, P.post_url, P.post_id, P.post_password, P.post_type, ' .
-                'P.post_dt, P.user_id, U.user_email, U.user_url ';
+            $sql->columns([
+                'C.comment_id',
+                'comment_dt',
+                'comment_tz',
+                'comment_upddt',
+                'comment_author',
+                'comment_email',
+                'comment_site',
+                'comment_trackback',
+                'comment_status',
+                'comment_spam_status',
+                'comment_spam_filter',
+                'comment_ip',
+                'P.post_title',
+                'P.post_url',
+                'P.post_id',
+                'P.post_password',
+                'P.post_type',
+                'P.post_dt',
+                'P.user_id',
+                'U.user_email',
+                'U.user_url',
+            ]);
         }
 
-        $strReq .= 'FROM ' . dotclear()->prefix . 'comment C ' .
-        'INNER JOIN ' . dotclear()->prefix . 'post P ON C.post_id = P.post_id ' .
-        'INNER JOIN ' . dotclear()->prefix . 'user U ON P.user_id = U.user_id ';
+        $sql
+            ->from(dotclear()->prefix . 'comment C')
+            ->join(
+                (new JoinStatement('dcBlogGetComments'))
+                ->type('INNER')
+                ->from(dotclear()->prefix . 'post P')
+                ->on('C.post_id = P.post_id')
+                ->statement()
+            )
+            ->join(
+                (new JoinStatement('dcBlogGetComments'))
+                ->type('INNER')
+                ->from(dotclear()->prefix . 'user U')
+                ->on('P.user_id = U.user_id')
+                ->statement()
+            );
 
         if (!empty($params['from'])) {
-            $strReq .= $params['from'] . ' ';
+            $sql->from($params['from']);
         }
 
-        $strReq .= "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        if (!empty($params['where'])) {
+            // Cope with legacy code
+            $sql->where($params['where']);
+        } else {
+            $sql->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id, true));
+        }
 
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= 'AND ((comment_status = 1 AND P.post_status = 1 ';
+            $user_id = dotclear()->user()->userID();
+
+            $and = [
+                'comment_status = 1',
+                'P.post_status = 1',
+            ];
 
             if (dotclear()->blog()->withoutPassword()) {
-                $strReq .= 'AND post_password IS NULL ';
+                $and[] = 'post_password IS NULL';
             }
-            $strReq .= ') ';
 
-            if (dotclear()->user()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
-            } else {
-                $strReq .= ') ';
+            $or = [$sql->andGroup($and)];
+            if ($user_id) {
+                $or[] = 'P.user_id = ' . $sql->quote($user_id, true);
             }
+            $sql->and($sql->orGroup($or));
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']);
+            $sql->and('post_type' . $sql->in($params['post_type']));
         }
 
         if (isset($params['post_id']) && $params['post_id'] !== '') {
-            $strReq .= 'AND P.post_id = ' . (int) $params['post_id'] . ' ';
+            $sql->and('P.post_id = ' . (int) $params['post_id']);
         }
 
         if (isset($params['cat_id']) && $params['cat_id'] !== '') {
-            $strReq .= 'AND P.cat_id = ' . (int) $params['cat_id'] . ' ';
+            $sql->and('P.cat_id = ' . (int) $params['cat_id']);
         }
 
         if (isset($params['comment_id']) && $params['comment_id'] !== '') {
@@ -128,75 +176,78 @@ class Comments
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
-            $strReq .= 'AND comment_id ' . dotclear()->con()->in($params['comment_id']);
+            $sql->and('comment_id' . $sql->in($params['comment_id']));
         }
 
         if (isset($params['comment_email'])) {
             $comment_email = dotclear()->con()->escape(str_replace('*', '%', $params['comment_email']));
-            $strReq .= "AND comment_email LIKE '" . $comment_email . "' ";
+            $sql->and($sql->like('comment_email', $comment_email));
         }
 
         if (isset($params['comment_site'])) {
             $comment_site = dotclear()->con()->escape(str_replace('*', '%', $params['comment_site']));
-            $strReq .= "AND comment_site LIKE '" . $comment_site . "' ";
+            $sql->and($sql->like('comment_site', $comment_site));
         }
 
         if (isset($params['comment_status'])) {
-            $strReq .= 'AND comment_status = ' . (int) $params['comment_status'] . ' ';
+            $sql->and('comment_status = ' . (int) $params['comment_status']);
         }
 
         if (!empty($params['comment_status_not'])) {
-            $strReq .= 'AND comment_status <> ' . (int) $params['comment_status_not'] . ' ';
+            $sql->and('comment_status <> ' . (int) $params['comment_status_not']);
         }
 
         if (isset($params['comment_trackback'])) {
-            $strReq .= 'AND comment_trackback = ' . (int) (bool) $params['comment_trackback'] . ' ';
+            $sql->and('comment_trackback = ' . (int) (bool) $params['comment_trackback']);
         }
 
         if (isset($params['comment_ip'])) {
             $comment_ip = dotclear()->con()->escape(str_replace('*', '%', $params['comment_ip']));
-            $strReq .= "AND comment_ip LIKE '" . $comment_ip . "' ";
+            $sql->and($sql->like('comment_ip', $comment_ip));
         }
 
         if (isset($params['q_author'])) {
             $q_author = dotclear()->con()->escape(str_replace('*', '%', strtolower($params['q_author'])));
-            $strReq .= "AND LOWER(comment_author) LIKE '" . $q_author . "' ";
+            $sql->and($sql->like('LOWER(comment_author)', $q_author));
         }
 
         if (!empty($params['search'])) {
-            $words = Text::splitWords($params['search']);
+            $words = text::splitWords($params['search']);
 
             if (!empty($words)) {
+                # --BEHAVIOR coreCommentSearch
                 if (dotclear()->behavior()->has('coreCommentSearch')) {
-
-                    # --BEHAVIOR coreCommentSearch, array
-                    dotclear()->behavior()->call('coreCommentSearchs', [&$words, &$strReq, &$params]);
+                    dotclear()->behavior()->call('coreCommentSearch', [&$words, &$strReq, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
-                    $words[$i] = "comment_words LIKE '%" . dotclear()->con()->escape($w) . "%'";
+                    $words[$i] = "comment_words LIKE '%" . $sql->escape($w) . "%'";
                 }
-                $strReq .= 'AND ' . implode(' AND ', $words) . ' ';
+                $sql->and($words);
             }
         }
 
         if (!empty($params['sql'])) {
-            $strReq .= $params['sql'] . ' ';
+            $sql->sql($params['sql']);
         }
 
         if (!$count_only) {
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
+                $sql->order($sql->escape($params['order']));
             } else {
-                $strReq .= 'ORDER BY comment_dt DESC ';
+                $sql->order('comment_dt DESC');
             }
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= dotclear()->con()->limit($params['limit']);
+            $sql->limit($params['limit']);
         }
 
-        $rs = dotclear()->con()->select($strReq);
+        if (!empty($params['sql_only'])) {
+            return $sql->statement();
+        }
+
+        $rs = $sql->select();
         $rs->extend(new RsExtComment());
 
         # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record

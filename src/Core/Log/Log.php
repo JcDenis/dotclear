@@ -56,7 +56,7 @@ class Log
         $sql = new SelectStatement('dcLogGetLogs');
 
         if ($count_only) {
-            $sql->column('COUNT(log_id)');
+            $sql->column($sql->count('log_id'));
         } else {
             $sql->columns([
                 'L.log_id',
