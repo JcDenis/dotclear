@@ -921,7 +921,7 @@ class BlogPref extends Page
                             'post_type' => $type,
                             'user_id'   => $k
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->posts()->getPosts($params, true)->asInt()) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
                     }
                     echo
                         '</ul>';

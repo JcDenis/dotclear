@@ -63,7 +63,7 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
     protected function synchronizeAllPostsmeta($start = null, $limit = null)
     {
         // Get number of posts
-        $count = dotclear()->con()->select('SELECT COUNT(post_id) FROM ' . dotclear()->prefix . 'post')->asInt();
+        $count = dotclear()->con()->select('SELECT COUNT(post_id) FROM ' . dotclear()->prefix . 'post')->fInt();
 
         // Get posts ids to update
         $req_limit = $start !== null && $limit !== null ? dotclear()->con()->limit($start, $limit) : '';

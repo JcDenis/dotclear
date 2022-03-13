@@ -203,7 +203,7 @@ class FilterIpv6 extends Spamfilter
         $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->asInt() + 1;
+            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
 
             $cur->rule_id      = $id;
             $cur->rule_type    = (string) $type;

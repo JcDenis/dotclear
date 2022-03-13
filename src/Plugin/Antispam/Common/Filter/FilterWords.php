@@ -230,7 +230,7 @@ class FilterWords extends Spamfilter
         if (!$rs->isEmpty() && $general) {
             $cur->update('WHERE rule_id = ' . $rs->rule_id);
         } else {
-            $cur->rule_id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->asInt() + 1;
+            $cur->rule_id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
             $cur->insert();
         }
     }

@@ -446,7 +446,7 @@ class Record implements \Iterator, \Countable
      *
      * @return  int
      */
-    public function asInt(string|int $n = 0): int
+    public function fInt(string|int $n = 0): int
     {
         return $this->count() == 0 ? 0 : (int) $this->__row[$n];
     }

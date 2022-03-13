@@ -57,10 +57,10 @@ class PostInventory extends Inventory
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = dotclear()->blog()->posts()->getPosts(['post_status' => 1], true)->asInt();
-                $nb_pending     = dotclear()->blog()->posts()->getPosts(['post_status' => -2], true)->asInt();
-                $nb_programmed  = dotclear()->blog()->posts()->getPosts(['post_status' => -1], true)->asInt();
-                $nb_unpublished = dotclear()->blog()->posts()->getPosts(['post_status' => 0], true)->asInt();
+                $nb_published   = dotclear()->blog()->posts()->getPosts(['post_status' => 1], true)->fInt();
+                $nb_pending     = dotclear()->blog()->posts()->getPosts(['post_status' => -2], true)->fInt();
+                $nb_programmed  = dotclear()->blog()->posts()->getPosts(['post_status' => -1], true)->fInt();
+                $nb_unpublished = dotclear()->blog()->posts()->getPosts(['post_status' => 0], true)->fInt();
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .
                     ($nb_published ?

@@ -345,7 +345,7 @@ class ImportWp extends Module
         $this->post_count = $db->select(
             'SELECT COUNT(ID) FROM ' . $this->vars['db_prefix'] . 'posts ' .
             'WHERE post_type = \'post\' OR post_type = \'page\''
-        )->asInt();
+        )->fInt();
 
         return $db;
     }
@@ -490,7 +490,7 @@ class ImportWp extends Module
 
                 $cur->cat_id = dotclear()->con()->select(
                     'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
-                )->asInt() + 1;
+                )->fInt() + 1;
                 $this->vars['cat_ids'][$rs->term_id] = $cur->cat_id;
                 $cur->insert();
             }
@@ -526,7 +526,7 @@ class ImportWp extends Module
 
                 $cur->link_id = dotclear()->con()->select(
                     'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
-                )->asInt() + 1;
+                )->fInt() + 1;
                 $cur->insert();
             }
 
@@ -693,7 +693,7 @@ class ImportWp extends Module
 
         $cur->post_id = dotclear()->con()->select(
             'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
-        )->asInt() + 1;
+        )->fInt() + 1;
 
         $cur->post_url = dotclear()->blog()->posts()->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, (int) $cur->post_id);
 
@@ -747,7 +747,7 @@ class ImportWp extends Module
 
             $cur->comment_id = dotclear()->con()->select(
                 'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
-            )->asInt() + 1;
+            )->fInt() + 1;
 
             $cur->insert();
 

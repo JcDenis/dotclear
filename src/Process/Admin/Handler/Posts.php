@@ -67,7 +67,7 @@ class Posts extends Page
 
         return new PostInventory(
             dotclear()->blog()->posts()->getPosts($params),
-            dotclear()->blog()->posts()->getPosts($params, true)->asInt()
+            dotclear()->blog()->posts()->getPosts($params, true)->fInt()
         );
     }
 

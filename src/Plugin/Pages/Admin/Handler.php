@@ -58,7 +58,7 @@ class Handler extends AbstractPage
         $params['order']      = 'post_position ASC, post_title ASC';
 
         $pages = dotclear()->blog()->posts()->getPosts($params);
-        $count = dotclear()->blog()->posts()->getPosts($params, true)->asInt();
+        $count = dotclear()->blog()->posts()->getPosts($params, true)->fInt();
 
         return new PagesInventory($pages, $count);
     }

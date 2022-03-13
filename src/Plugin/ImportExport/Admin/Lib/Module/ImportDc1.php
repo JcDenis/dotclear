@@ -298,7 +298,7 @@ class ImportDc1 extends Module
 
         $this->post_count = $db->select(
             'SELECT COUNT(post_id) FROM ' . $this->vars['db_prefix'] . 'post '
-        )->asInt();
+        )->fInt();
 
         return $db;
     }
@@ -401,7 +401,7 @@ class ImportDc1 extends Module
 
                 $cur->cat_id = dotclear()->con()->select(
                     'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
-                )->asInt() + 1;
+                )->fInt() + 1;
                 $this->vars['cat_ids'][$rs->cat_id] = $cur->cat_id;
                 $cur->insert();
             }
@@ -439,7 +439,7 @@ class ImportDc1 extends Module
 
                 $cur->link_id = dotclear()->con()->select(
                     'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
-                )->asInt() + 1;
+                )->fInt() + 1;
                 $cur->insert();
             }
 
@@ -457,7 +457,7 @@ class ImportDc1 extends Module
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
 
-        //! $count = $db->select('SELECT COUNT(post_id) FROM ' . $prefix . 'post')->asInt();
+        //! $count = $db->select('SELECT COUNT(post_id) FROM ' . $prefix . 'post')->fInt();
 
         $rs = $db->select(
             'SELECT * FROM ' . $prefix . 'post ORDER BY post_id ASC ' .
@@ -536,7 +536,7 @@ class ImportDc1 extends Module
 
         $cur->post_id = dotclear()->con()->select(
             'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
-        )->asInt() + 1;
+        )->fInt() + 1;
 
         $cur->insert();
         $this->importComments($rs->post_id, $cur->post_id, $db);
@@ -583,7 +583,7 @@ class ImportDc1 extends Module
 
             $cur->comment_id = dotclear()->con()->select(
                 'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
-            )->asInt() + 1;
+            )->fInt() + 1;
 
             $cur->insert();
 

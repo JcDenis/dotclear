@@ -444,7 +444,7 @@ class User
     public function getBlogCount(): int
     {
         if ($this->blog_count === null) {
-            $this->blog_count = dotclear()->blogs()->getBlogs([], true)->asInt();
+            $this->blog_count = dotclear()->blogs()->getBlogs([], true)->fInt();
         }
 
         return $this->blog_count;

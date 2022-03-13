@@ -162,7 +162,7 @@ class Notice
 
             $rs = $sql->select();
 
-            $cur->notice_id = $rs->asInt() + 1;
+            $cur->notice_id = $rs->fInt() + 1;
             $cur->ses_id    = (string) session_id();
 
             $this->cursor($cur, $cur->notice_id);

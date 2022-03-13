@@ -448,7 +448,7 @@ class RsExtPost extends RsExtend
             $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
 
-        $res                               = dotclear()->con()->select($strReq)->asInt();
+        $res                               = dotclear()->con()->select($strReq)->fInt();
         $this->rs->_nb_media[$this->rs->index()] = $res;
 
         return $res;

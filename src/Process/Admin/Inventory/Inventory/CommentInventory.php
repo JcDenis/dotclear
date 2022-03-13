@@ -66,10 +66,10 @@ class CommentInventory extends Inventory
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->asInt();
-                $nb_spam        = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->asInt();
-                $nb_pending     = dotclear()->blog()->comments()->getComments(['comment_status' => -1], true)->asInt();
-                $nb_unpublished = dotclear()->blog()->comments()->getComments(['comment_status' => 0], true)->asInt();
+                $nb_published   = dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
+                $nb_spam        = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+                $nb_pending     = dotclear()->blog()->comments()->getComments(['comment_status' => -1], true)->fInt();
+                $nb_unpublished = dotclear()->blog()->comments()->getComments(['comment_status' => 0], true)->fInt();
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?

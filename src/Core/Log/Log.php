@@ -140,7 +140,7 @@ class Log
                 ->column('MAX(log_id)')
                 ->from(dotclear()->prefix . $this->log_table);
 
-            $cur->log_id  = $sql->select()->asInt() + 1;
+            $cur->log_id  = $sql->select()->fInt() + 1;
             $cur->blog_id = (string) dotclear()->blog()->id;
             $cur->log_dt  = date('Y-m-d H:i:s');
 
