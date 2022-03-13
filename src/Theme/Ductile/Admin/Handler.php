@@ -97,7 +97,7 @@ class Handler extends AbstractPage
         ];
 
         # Get all _entry-*.html in tpl folder of theme
-        $list_types_templates = Files::scandir( __DIR__ . '/../templates/tpl/');
+        $list_types_templates = Files::scandir( __DIR__ . '/../templates/tpl/', true, false);
         if (is_array($list_types_templates)) {
             foreach ($list_types_templates as $v) {
                 if (preg_match('/^_entry\-(.*)\.html$/', $v, $m)) {
@@ -146,7 +146,7 @@ class Handler extends AbstractPage
             $ductile_stickers_full[] = $v['image'];
         }
 
-        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/resources/img/');
+        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/resources/img/', true, false);
         if (is_array($ductile_stickers_images)) {
             foreach ($ductile_stickers_images as $v) {
                 if (preg_match('/^sticker\-(.*)\.png$/', $v)) {

@@ -188,16 +188,15 @@ class Langs extends Page
         echo
         '<h3>' . __('Installed languages') . '</h3>';
 
-        $locales_content = scandir(dotclear()->config()->l10n_dir);
-        $tmp             = [];
-        foreach ($locales_content as $v) {
+        $locales_content = [];
+        $tmp             = Files::scandir(dotclear()->config()->l10n_dir);
+        foreach ($tmp as $v) {
             $c = ($v == '.' || $v == '..' || $v == 'en' || !is_dir(dotclear()->config()->l10n_dir . '/' . $v) || !isset($this->iso_codes[$v]));
 
             if (!$c) {
-                $tmp[$v] = dotclear()->config()->l10n_dir . '/' . $v;
+                $locales_content[$v] = dotclear()->config()->l10n_dir . '/' . $v;
             }
         }
-        $locales_content = $tmp;
 
         if (empty($locales_content)) {
             echo '<p><strong>' . __('No additional language is installed.') . '</strong></p>';

@@ -405,11 +405,10 @@ class Prepend extends Core
         }
         unset($f);
 
-        if (($hfiles = @scandir(implode_path($dir, $_lang, 'help'))) !== false) {
-            foreach ($hfiles as $hfile) {
-                if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                    $__resources['help'][$m[1]] = implode_path($dir, $_lang, 'help', $hfile);
-                }
+        $hfiles = Files::scandir(implode_path($dir, $_lang, 'help'), true, false);
+        foreach ($hfiles as $hfile) {
+            if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
+                $__resources['help'][$m[1]] = implode_path($dir, $_lang, 'help', $hfile);
             }
         }
         unset($hfiles);

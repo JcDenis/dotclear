@@ -152,25 +152,28 @@ class Files
      *
      * @param   string  $d      Path to scan
      * @param   bool    $order  Order results
+     * @param   bool    $strict Thrown error if not exists
      *
      * @return  array           List of dirs and files
      */
-    public static function scandir(string $d, bool $order = true): array
+    public static function scandir(string $d, bool $order = true, bool $strict = true): array
     {
         $res = [];
         $dh  = @opendir($d);
 
         if ($dh === false) {
-            throw new FileException(__('Unable to open directory.'));
-        }
+            if ($strict) {
+                throw new FileException(__('Unable to open directory.'));
+            }
+        } else {
+            while (($f = readdir($dh)) !== false) {
+                $res[] = $f;
+            }
+            closedir($dh);
 
-        while (($f = readdir($dh)) !== false) {
-            $res[] = $f;
-        }
-        closedir($dh);
-
-        if ($order) {
-            sort($res);
+            if ($order) {
+                sort($res);
+            }
         }
 
         return $res;

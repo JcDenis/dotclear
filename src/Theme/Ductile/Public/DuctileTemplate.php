@@ -111,7 +111,7 @@ class DuctileTemplate
         $list_types = ['title', 'short', 'full'];
 
         // Get all _entry-*.html in tpl folder of theme
-        $list_types_templates = Files::scandir($tpl_path);
+        $list_types_templates = Files::scandir($tpl_path, true, false);
         if (is_array($list_types_templates)) {
             foreach ($list_types_templates as $v) {
                 if (preg_match('/^_entry\-(.*)\.html$/', $v, $m)) {
