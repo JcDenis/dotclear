@@ -15,6 +15,16 @@ namespace Dotclear\Process\Admin;
 
 use ArrayObject;
 
+use Dotclear\Core\Core;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Lexical;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Module\AbstractModules;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Module\Iconset\Admin\ModulesIconset;
+use Dotclear\Module\Theme\Admin\ModulesTheme;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
@@ -22,15 +32,6 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Notice\Notice;
-use Dotclear\Core\Core;
-use Dotclear\Helper\File\Files;
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-use Dotclear\Module\Iconset\Admin\ModulesIconset;
-use Dotclear\Module\Theme\Admin\ModulesTheme;
-use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\L10n;
-use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -247,10 +248,8 @@ class Prepend extends Core
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    Http::head(412);
-                    header('Content-Type: text/plain');
-                    echo 'Precondition Failed';
-                    exit;
+                    $this->getExceptionLang();
+                    $this->throwException(__('Precondition Failed.'), '', 412);
                 }
             }
 
@@ -378,12 +377,12 @@ class Prepend extends Core
         $this->adminGetLang();
 
         L10n::lang($this->_lang);
-        if (L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            L10n::set(implode_path($this->config()->l10n_dir, 'en', 'date'));
+        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'main'));
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'public'));
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'main'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'public'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Lexical::setLexicalLang('admin', $this->_lang);
@@ -398,17 +397,17 @@ class Prepend extends Core
         $__resources = $this->resources;
 
         if ($load_default) {
-            require implode_path($dir, 'en', 'resources.php');
+            require Path::implode($dir, 'en', 'resources.php');
         }
         if (($f = L10n::getFilePath($dir, 'resources.php', $_lang))) {
             require $f;
         }
         unset($f);
 
-        $hfiles = Files::scandir(implode_path($dir, $_lang, 'help'), true, false);
+        $hfiles = Files::scandir(Path::implode($dir, $_lang, 'help'), true, false);
         foreach ($hfiles as $hfile) {
             if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                $__resources['help'][$m[1]] = implode_path($dir, $_lang, 'help', $hfile);
+                $__resources['help'][$m[1]] = Path::implode($dir, $_lang, 'help', $hfile);
             }
         }
         unset($hfiles);

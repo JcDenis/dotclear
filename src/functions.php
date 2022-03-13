@@ -33,13 +33,13 @@ if (!function_exists('dotclear_run')) {
             require $file;
         # Dotclear autoload
         } else {
-            require_once root_path('Helper', 'Autoload.php');
+            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
             $autoload = new Dotclear\Helper\Autoload();
             $autoload->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
         }
 
         # Find process (Admin|Public|Install|...)
-        $class = root_ns('Process', ucfirst(strtolower($process)), 'Prepend');
+        $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             dotclear_error('No process found', 'Something went wrong while trying to start process.');
         }
@@ -196,43 +196,5 @@ if (!function_exists('dotclear_error_handler')) {
             return false;
         }
         dotclear_error('Unexpected error', $errstr . "\n" . $errfile . '::' . $errline, $errno);
-    }
-}
-
-if (!function_exists('root_path')) {
-
-    function root_path(string ...$args): string
-    {
-        if (defined('DOTCLEAR_ROOT_DIR')) {
-            array_unshift($args, DOTCLEAR_ROOT_DIR);
-        }
-
-        return implode(DIRECTORY_SEPARATOR, $args);
-    }
-}
-
-if (!function_exists('implode_path')) {
-
-    function implode_path(string ...$args): string
-    {
-        return implode(DIRECTORY_SEPARATOR, $args);
-    }
-}
-
-if (!function_exists('root_ns')) {
-
-    function root_ns(string ...$args): string
-    {
-        array_unshift($args, 'Dotclear');
-
-        return implode('\\', $args);
-    }
-}
-
-if (!function_exists('implode_ns')) {
-
-    function implode_ns(string ...$args): string
-    {
-        return implode('\\', $args);
     }
 }

@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\Store\Repository\RepositoryReader;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
+use Dotclear\Module\AbstractModules;
+use Dotclear\Module\Store\Repository\RepositoryReader;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -128,7 +128,7 @@ class Repository
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class = root_ns('Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+                $class = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
                 $updates[$id] = new $class($id, $properties);
 
                 if (!empty($updates[$id]->error()->flag())) {
@@ -140,7 +140,7 @@ class Repository
         # Convert new modules from array to Define object
         foreach($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class = root_ns('Module', $this->modules->getModulesType(), 'Define' . $this->modules->getModulesType());
+            $class = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
             $raw_datas[$id] = new $class($id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {

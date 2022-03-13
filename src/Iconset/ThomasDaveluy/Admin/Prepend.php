@@ -15,10 +15,9 @@ namespace Dotclear\Iconset\ThomasDaveluy\Admin;
 
 use ArrayObject;
 
+use Dotclear\Helper\File\Path;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-
-use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -31,7 +30,7 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         dotclear()->behavior()->add('adminIconsetCombo', function(ArrayObject $iconsets): void {
-            $iconsets['Thomas Daveluy'] = Path::real(implode_path(__DIR__, '..'));
+            $iconsets['Thomas Daveluy'] = Path::real(Path::implode(__DIR__, '..'));
         });
     }
 }

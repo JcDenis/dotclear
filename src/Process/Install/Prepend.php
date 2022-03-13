@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
-use Dotclear\Process\Admin\Resource\Resource;
-use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Process\Admin\Resource\Resource;
+use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Install\Install;
 use Dotclear\Process\Install\Wizard;
 
@@ -65,7 +66,7 @@ class Prepend extends Core
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {
-            Files::serveFile($_GET['df'], [root_path('Process', 'Admin', 'resources')]);
+            Files::serveFile($_GET['df'], [Path::implodeRoot('Process', 'Admin', 'resources')]);
             exit;
         }
 

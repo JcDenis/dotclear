@@ -24,7 +24,7 @@ class ModulesIconset extends AbstractModules
     {
         dotclear()->adminurl()->register(
             'admin.iconset',
-            root_ns('Module', 'Iconset', 'Admin', 'HandlerIconset')
+            'Dotclear\\Module\\Iconset\\Admin\\HandlerIconset'
         );
         dotclear()->summary()->register(
             'System',

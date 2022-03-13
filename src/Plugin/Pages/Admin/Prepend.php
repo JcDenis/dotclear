@@ -39,7 +39,7 @@ class Prepend extends AbstractPrepend
         # Add admin url (only page detail, the other one was auto created by Module)
         dotclear()->adminurl()->register(
             'admin.plugin.Page',
-            root_ns('Plugin', 'Pages', 'Admin', 'HandlerEdit')
+            'Dotclear\\Plugin\\Pages\\Admin\\HandlerEdit'
         );
 
         # Add menu

@@ -17,13 +17,14 @@ use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
 use Dotclear\Core\RsExt\RsExtCommentPublic;
 use Dotclear\Database\Record;
-use Dotclear\Process\Public\Template\Template;
-use Dotclear\Process\Public\Context\Context;
-use Dotclear\Module\Plugin\Public\ModulesPlugin;
-use Dotclear\Module\Theme\Public\ModulesTheme;
-use Dotclear\Helper\File\Files;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Module\Plugin\Public\ModulesPlugin;
+use Dotclear\Module\Theme\Public\ModulesTheme;
+use Dotclear\Process\Public\Template\Template;
+use Dotclear\Process\Public\Context\Context;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -112,19 +113,22 @@ class Prepend extends Core
         }
 
         # Cope with static home page option
-        $this->url()->registerDefault(['Dotclear\\Core\\Url\\Url', (bool) $this->blog()->settings()->system->static_home ? 'static_home' : 'home']);
+        $this->url()->registerDefault([
+            'Dotclear\\Core\\Url\\Url',
+            (bool) $this->blog()->settings()->system->static_home ? 'static_home' : 'home'
+        ]);
 
         # Load locales
         $_lang = $this->blog()->settings()->system->lang;
         $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
 
         L10n::lang($this->_lang);
-        if (L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
-            L10n::set(implode_path($this->config()->l10n_dir, 'en', 'date'));
+        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+            L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'main'));
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'public'));
-        L10n::set(implode_path($this->config()->l10n_dir, $this->_lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'main'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'public'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'plugins'));
 
         # Set lexical lang
         Lexical::setLexicalLang('public', $this->_lang);
@@ -183,7 +187,7 @@ class Prepend extends Core
         # Check templateset and add all path to tpl
         $tplset = $this->themes->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = root_path('Process', 'Public', 'templates', $tplset);
+            $tplset_dir = Path::implodeRoot('Process', 'Public', 'templates', $tplset);
             if (is_dir($tplset_dir)) {
                 $this->template()->setPath($path, $tplset_dir, $this->template()->getPath());
             } else {

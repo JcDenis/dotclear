@@ -13,14 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Distrib\Upgrade;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Mail;
+use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\L10n;
-use Dotclear\Helper\Mail;
+use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Distrib\Upgrade;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -83,7 +84,7 @@ class Auth extends Page
         $dlang = ($dlang == '' ? 'en' : $dlang);
         if ($dlang != 'en' && preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $dlang)) {
             L10n::lang($dlang);
-            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
         }
 
         $this->default_lang = $dlang;

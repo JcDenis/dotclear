@@ -44,6 +44,7 @@ use Dotclear\Helper\Error;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
+use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -584,7 +585,7 @@ class Core
             } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
             } else {
-                define('DOTCLEAR_CONFIG_PATH', root_path('config.php'));
+                define('DOTCLEAR_CONFIG_PATH', Path::implodeRoot('config.php'));
             }
         }
 
@@ -825,7 +826,7 @@ class Core
     {
         $dlang = Http::getAcceptLanguages();
         foreach ($dlang as $l) {
-            if ($l == 'en' || $this->config() && L10n::set(implode_path($this->config()->l10n_dir, $l, 'main')) !== false) {
+            if ($l == 'en' || $this->config() && L10n::set(Path::implode($this->config()->l10n_dir, $l, 'main')) !== false) {
                 L10n::lang($l);
 
                 break;
@@ -864,8 +865,8 @@ class Core
      */
     public function emptyTemplatesCache(): void //! move this
     {
-        if (is_dir(implode_path(dotclear()->config()->cache_dir, 'cbtpl'))) {
-            Files::deltree(implode_path(dotclear()->config()->cache_dir, 'cbtpl'));
+        if (is_dir(Path::implode(dotclear()->config()->cache_dir, 'cbtpl'))) {
+            Files::deltree(Path::implode(dotclear()->config()->cache_dir, 'cbtpl'));
         }
     }
 
@@ -885,13 +886,13 @@ class Core
             'admin_mailform'        => [null, ''],
             'admin_ssl'             => [null, true],
             'admin_url'             => [null, ''],
-            'backup_dir'            => [null, root_path()],
-            'base_dir'              => [null, root_path('..')],
-            'cache_dir'             => [null, root_path('..', 'cache')],
+            'backup_dir'            => [null, Path::implodeRoot()],
+            'base_dir'              => [null, Path::implodeRoot('..')],
+            'cache_dir'             => [null, Path::implodeRoot('..', 'cache')],
             'core_update_channel'   => [null, 'stable'],
             'core_update_noauto'    => [null, false],
             'core_update_url'       => [null, 'https://download.dotclear.org/versions.xml'],
-            'core_version'          => [false, trim(file_get_contents(root_path('version')))],
+            'core_version'          => [false, trim(file_get_contents(Path::implodeRoot('version')))],
             'core_version_break'    => [false, '3.0'],
             'crypt_algo'            => [null, 'sha1'],
             'database_driver'       => [true, ''],
@@ -901,36 +902,36 @@ class Core
             'database_persist'      => [null, true],
             'database_prefix'       => [null, 'dc_'],
             'database_user'         => [true, ''],
-            'digests_dir'           => [null, root_path('..', 'digests')],
+            'digests_dir'           => [null, Path::implodeRoot('..', 'digests')],
             'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
-            'iconset_dirs'          => [null, []], //[null, [root_path('Iconset')],
+            'iconset_dirs'          => [null, []], //[null, [Path::implodeRoot('Iconset')],
             'iconset_official'      => [false, ['Legacy', 'ThomasDaveluy']],
             'iconset_update_url'    => [null, ''],
             'jquery_default'        => [null, '3.6.0'],
-            'l10n_dir'              => [null, root_path('locales')],
+            'l10n_dir'              => [null, Path::implodeRoot('locales')],
             'l10n_update_url'       => [null, 'https://services.dotclear.net/dc2.l10n/?version=%s'],
             'media_dir_showhidden'  => [null, false],
             'media_upload_maxsize'  => [false, Files::getMaxUploadFilesize()],
             'master_key'            => [true, ''],
             'module_allow_multi'    => [null, false],
             'php_next_required'     => [false, '7.4'],
-            'plugin_dirs'           => [null, [root_path('Plugin')]],
+            'plugin_dirs'           => [null, [Path::implodeRoot('Plugin')]],
             'plugin_official'       => [false, ['AboutConfig', 'Akismet', 'Antispam', 'Attachments', 'Blogroll', 'Dclegacy', 'FairTrackbacks', 'ImportExport', 'Maintenance', 'Pages', 'Pings', 'SimpleMenu', 'Tags', 'ThemeEditor', 'UserPref', 'Widgets', 'LegacyEditor', 'CKEditor', 'Breadcrumb']],
             'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
             'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'root_dir'              => [false, root_path()], //Alias for DOTCLEAR_ROOT_DIR
+            'root_dir'              => [false, Path::implodeRoot()], //Alias for DOTCLEAR_ROOT_DIR
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
             'store_allow_repo'      => [null, true],
             'store_update_noauto'   => [null, false],
             'template_default'      => [null, 'mustek'],
-            'theme_dirs'            => [null, [root_path('Theme')]],
+            'theme_dirs'            => [null, [Path::implodeRoot('Theme')]],
             'theme_official'        => [false, ['Berlin', 'BlueSilence', 'Blowup', 'CustomCSS', 'Ductile']],
             'theme_update_url'      => [null, 'https://update.dotaddict.org/dc2/themes.xml'],
-            'var_dir'               => [null, root_path('..', 'var')],
+            'var_dir'               => [null, Path::implodeRoot('..', 'var')],
             'vendor_name'           => [null, 'Dotclear'],
             'xmlrpc_url'            => [null, '%1$sxmlrpc/%2$s'],
         ];

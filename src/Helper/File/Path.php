@@ -156,4 +156,30 @@ class Path
 
         return $root . '/' . $p;
     }
+
+    /**
+     * Implode path chunks from Dotclear root directory
+     *
+     * @param   string  $args   The path chunks
+     * @return  string          The cleaned joined path
+     */
+    public static function implodeRoot(string ...$args): string
+    {
+        if (defined('DOTCLEAR_ROOT_DIR')) {
+            array_unshift($args, DOTCLEAR_ROOT_DIR);
+        }
+
+        return self::real(implode(DIRECTORY_SEPARATOR, $args), false);
+    }
+
+    /**
+     * Implode path chunks
+     *
+     * @param   string  $args   The path chunks
+     * @return  string          The cleaned joined path
+     */
+    public static function implode(string ...$args): string
+    {
+        return self::real(implode(DIRECTORY_SEPARATOR, $args), false);
+    }
 }

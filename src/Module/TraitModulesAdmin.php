@@ -120,9 +120,9 @@ trait TraitModulesAdmin
     protected function loadModuleProcess(string $id): void
     {
         # If module has a Admin Page, create an admin url
-        $page = root_ns($this->getModulesType(), $id, 'Admin', 'Handler');
-        if (is_subclass_of($page, 'Dotclear\\Module\\AbstractPage')) {
-            dotclear()->adminurl()->register('admin.plugin.' . $id, $page);
+        $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\Admin\\' . 'Handler';
+        if (is_subclass_of($class, 'Dotclear\\Module\\AbstractPage')) {
+            dotclear()->adminurl()->register('admin.plugin.' . $id, $class);
         }
     }
 
@@ -794,12 +794,12 @@ trait TraitModulesAdmin
                 $config = $index = false;
                 if (!empty($module->type())) {
                     $config       = is_subclass_of(
-                        root_ns($module->type(), $id, 'Admin', 'Config'),
+                        'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
                         'Dotclear\\Module\\AbstractConfig'
                     );
 
                     $index       = is_subclass_of(
-                        root_ns($module->type(), $id, 'Admin', 'Page'),
+                        'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Page',
                         'Dotclear\\Module\\AbstractPage'
                     );
                 }
@@ -888,12 +888,12 @@ trait TraitModulesAdmin
 
         if ($module->type()) { // should be always true
             $config       = is_subclass_of(
-                root_ns($module->type(), $id, 'Admin', 'Config'),
+                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
                 'Dotclear\\Module\\AbstractConfig'
             );
 
             $index        = is_subclass_of(
-                root_ns($module->type(), $id, 'Admin', 'Page'),
+                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Page',
                 'Dotclear\\Module\\AbstractPage'
             );
         }
@@ -1473,8 +1473,8 @@ trait TraitModulesAdmin
         }
 
         # Check config
-        $class  = root_ns($module->type(), $module->id(), DOTCLEAR_PROCESS, 'Config');
-        if (!is_subclass_of($class, 'Dotclear\Module\AbstractConfig')) {
+        $class  = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . DOTCLEAR_PROCESS . '\\Config';
+        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig')) {
             dotclear()->error()->add(__('This module has no configuration file.'));
 
             return false;

@@ -13,15 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Helper\ErrorTrait;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\ErrorTrait;
+use Dotclear\Helper\L10n;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractDefine;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\L10n;
+use Dotclear\Module\AbstractDefine;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;
@@ -130,7 +130,7 @@ abstract class AbstractModules
 
             # Loop through current modules root path
             while (($this->id = $handle->read()) !== false) {
-                $entry_path = implode_path($root, $this->id);
+                $entry_path = Path::implode($root, $this->id);
 
                 # Check dir
                 if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
@@ -146,7 +146,7 @@ abstract class AbstractModules
 
                     # Add module namespace
                     if ($entry_enabled) {
-                        dotclear()->autoload()->addNamespace(root_ns($this->getModulesType(), $this->id), $entry_path);
+                        dotclear()->autoload()->addNamespace('Dotclear\\' . $this->getModulesType() . '\\' . $this->id, $entry_path);
                     # Save module in disabled list
                     } elseif ($this->disabled_meta) {
                         $this->disabled_mode       = false;
@@ -170,7 +170,7 @@ abstract class AbstractModules
         # Load modules stuff
         foreach ($this->modules_enabled as $id => $define) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = root_ns($this->getModulesType(), $id, DOTCLEAR_PROCESS, 'Prepend');
+            $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . DOTCLEAR_PROCESS . '\Prepend';
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
@@ -199,7 +199,7 @@ abstract class AbstractModules
         # Include module Define file
         ob_start();
         try {
-            $class = root_ns('Module', $this->getModulesType(), 'Define' . $this->getModulesType());
+            $class = 'Dotclear\\Module\\' . $this->getModulesType() . '\\Define' . $this->getModulesType();
             $define = new $class($id, $dir . '/define.xml');
         } catch (ModuleException) {
             ob_end_clean();

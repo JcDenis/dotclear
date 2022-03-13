@@ -16,13 +16,14 @@ use Dotclear\Container\User as ContainerUser;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
-use Dotclear\Process\Distrib\Distrib;
-use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Html;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Text;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Process\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;
@@ -47,9 +48,9 @@ class Install
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'date'));
-            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'main'));
-            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
+            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'date'));
+            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
         }
 
         if (dotclear()->config()->master_key == '') {

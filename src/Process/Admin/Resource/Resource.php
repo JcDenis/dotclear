@@ -127,16 +127,16 @@ class Resource
             $module_id   = array_shift($module_src);
 
             # Check module type
-            $modules_class = root_ns('Module', $module_type, 'Admin', 'Modules' . $module_type);
+            $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Admin\\Modules' . $module_type;
             if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
                 $modules = new $modules_class();
                 # Chek if module exists
                 $modules_paths   = $modules->getModulesPath();
                 foreach($modules_paths as $modules_path) {
-                    if (is_dir(implode_path($modules_path, $module_id))) {
-                        $dirs[] = implode_path($modules_path, $module_id, 'Admin', 'resources');
-                        $dirs[] = implode_path($modules_path, $module_id, 'Common', 'resources');
-                        $dirs[] = implode_path($modules_path, $module_id); // required for icons
+                    if (is_dir(Path::implode($modules_path, $module_id))) {
+                        $dirs[] = Path::implode($modules_path, $module_id, 'Admin', 'resources');
+                        $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
+                        $dirs[] = Path::implode($modules_path, $module_id); // required for icons
                         $src    = implode('/', $module_src);
 
                         break;
@@ -146,9 +146,9 @@ class Resource
         }
 
         # List other available file paths
-        $dirs[] = root_path('Process', 'Admin', 'resources');
-        $dirs[] = root_path('Core', 'resources', 'css');
-        $dirs[] = root_path('Core', 'resources', 'js');
+        $dirs[] = Path::implodeRoot('Process', 'Admin', 'resources');
+        $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
+        $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         # Search dirs
         Files::serveFile($src, $dirs, dotclear()->config()->file_sever_type);
@@ -487,7 +487,7 @@ class Resource
     public function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = root_path('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
+        $themes_root = Path::implodeRoot('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (($d = @dir($themes_root)) !== false) {
                 while (($entry = $d->read()) !== false) {

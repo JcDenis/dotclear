@@ -13,16 +13,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Container\User;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Lexical;
+use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
-use Dotclear\Helper\Dt;
-use Dotclear\Helper\Lexical;
+use Dotclear\Process\Admin\Page\Page;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -390,7 +391,7 @@ class BlogPref extends Page
         ];
 
         # jQuery available versions
-        $jquery_root           = root_path('Core', 'resources', 'js', 'jquery');
+        $jquery_root           = Path::implodeRoot('Core', 'resources', 'js', 'jquery');
         $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->jquery_default . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (($d = @dir($jquery_root)) !== false) {

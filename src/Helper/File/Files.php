@@ -596,10 +596,10 @@ class Files
             # Search dirs
             $file = false;
             foreach ($haystack as $dir) {
-                $file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $needle]));
-
-                if ($file !== false) {
-                    break;
+                if (is_string($dir)) {
+                    if (false !== ($file = Path::real(implode(DIRECTORY_SEPARATOR, [$dir, $needle])))) {
+                        break;
+                    }
                 }
             }
             unset($dirs);

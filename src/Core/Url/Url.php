@@ -903,15 +903,15 @@ class Url
                 $module_id   = array_shift($module_args);
 
                 # Check module type
-                $modules_class = root_ns('Module', $module_type, 'Public', 'Modules' . $module_type);
+                $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Public\\Modules' . $module_type;
                 if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
                     $modules = new $modules_class();
                     # Chek if module exists
                     $modules_paths   = $modules->getModulesPath();
                     foreach($modules_paths as $modules_path) {
-                        if (is_dir(implode_path($modules_path, $module_id))) {
-                            $dirs[] = implode_path($modules_path, $module_id, 'Public', 'resources');
-                            $dirs[] = implode_path($modules_path, $module_id, 'Common', 'resources');
+                        if (is_dir(Path::implode($modules_path, $module_id))) {
+                            $dirs[] = Path::implode($modules_path, $module_id, 'Public', 'resources');
+                            $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
                             $args   = implode('/', $module_args);
 
                             break;
@@ -935,9 +935,9 @@ class Url
         }
 
         # List other available file paths
-        $dirs[] = root_path('Process', 'Public', 'resources');
-        $dirs[] = root_path('Core', 'resources', 'css');
-        $dirs[] = root_path('Core', 'resources', 'js');
+        $dirs[] = Path::implodeRoot('Process', 'Public', 'resources');
+        $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
+        $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         # Search file
         if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, false, true))) {

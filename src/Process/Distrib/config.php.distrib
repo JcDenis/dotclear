@@ -10,6 +10,8 @@
  */
 declare(strict_types=1);
 
+use Dotclear\Helper\File\Path;
+
 if (!defined('DOTCLEAR_CONFIG_PATH')) {
   return;
 }
@@ -74,21 +76,21 @@ return [
 
     // Themes root
     // Multiple directories can be set
-    //'theme_dirs' => [root_path('Theme')],
+    //'theme_dirs' => [Path::implodeRoot('Theme')],
 
     // Plugins root
     // Multiple directories can be set
-    //'plugin_dirs' => [root_path('Plugin')],
+    //'plugin_dirs' => [Path::implodeRoot('Plugin')],
 
     // Iconsets root
     // Multiple directories can be set
-    //'iconset_dirs' => [root_path('Iconset')],
+    //'iconset_dirs' => [Path::implodeRoot('Iconset')],
 
     // Template cache directory
-    //'cache_dir' => root_path('..', 'cache'),
+    //'cache_dir' => Path::implodeRoot('..', 'cache'),
 
     // Var directory
-    //'var_dir' => root_path('..', 'var'),
+    //'var_dir' => Path::implodeRoot('..', 'var'),
 
     // Cryptographic algorithm
     'crypt_algo' => 'sha512',

@@ -12,20 +12,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
-use Dotclear\Exception\InstallException;
-use Dotclear\Exception\DatabaseException;
-
-use Dotclear\Process\Distrib\Distrib;
-
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;
-use Dotclear\Helper\Network\Http;
+use Dotclear\Exception\InstallException;
+use Dotclear\Exception\DatabaseException;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Text;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Process\Distrib\Distrib;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;
@@ -46,7 +44,7 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(root_path(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {

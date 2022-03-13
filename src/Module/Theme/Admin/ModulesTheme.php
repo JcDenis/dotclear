@@ -14,7 +14,6 @@ namespace Dotclear\Module\Theme\Admin;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractDefine;
@@ -31,7 +30,7 @@ class ModulesTheme extends AbstractModules
     {
         dotclear()->adminurl()->register(
             'admin.blog.theme',
-            root_ns('Module', 'Theme', 'Admin', 'HandlerTheme')
+            'Dotclear\\Module\\Theme\\Admin\\HandlerTheme'
         );
         dotclear()->summary()->register(
             'Blog',
@@ -219,7 +218,7 @@ class ModulesTheme extends AbstractModules
 
                 $line .= '<div class="current-actions">';
 
-                $config_class = root_ns($module->type(), $id, 'Admin', 'Config');
+                $config_class = 'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config';
                 if (is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {

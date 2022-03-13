@@ -13,12 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Exception\AdminException;
-
-use Dotclear\Helper\File\Path;
-use Dotclear\Helper\File\Files;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Exception\AdminException;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
@@ -44,7 +43,7 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', dotclear()->config()->template_default), false);
+        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->template_default);
         $this->tplset_name  = dotclear()->config()->template_default;
 
         # Current theme
@@ -56,7 +55,7 @@ class ThemeEditor
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', $module->templateset()), false);
+            $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', $module->templateset());
             $this->tplset_name  = $module->templateset();
         }
 

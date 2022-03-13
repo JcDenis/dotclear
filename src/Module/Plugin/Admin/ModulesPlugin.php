@@ -24,7 +24,7 @@ class ModulesPlugin extends AbstractModules
     {
         dotclear()->adminurl()->register(
             'admin.plugins',
-            root_ns('Module', 'Plugin', 'Admin', 'HandlerPlugin')
+            'Dotclear\\Module\\Plugin\\Admin\\HandlerPlugin'
         );
         dotclear()->summary()->register(
             'System',
