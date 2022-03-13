@@ -119,6 +119,7 @@ class Files
         'webm' => 'video/webm',
     ];
 
+    /** @var array  Allowed files extensions to serve  */
     public static $allowed_served_extensions = [
         'ico',
         'png',

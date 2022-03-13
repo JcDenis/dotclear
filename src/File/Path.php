@@ -27,11 +27,12 @@ class Path
      * If parameter $strict is true, file should exist. Returns false if
      * file does not exist.
      *
-     * @param string    $p        Filename
-     * @param boolean    $strict    File should exists
-     * @return string|false
+     * @param   string          $p          The filename
+     * @param   boolean         $strict     File should exists
+     *
+     * @return  string|false                The real path or false
      */
-    public static function real(string $p, bool $strict = true)
+    public static function real(string $p, bool $strict = true): string|false
     {
         $os = (DIRECTORY_SEPARATOR == '\\') ? 'win' : 'nix';
 
@@ -98,8 +99,9 @@ class Path
     /**
      * Returns a clean file path
      *
-     * @param string    $p        File path
-     * @return string
+     * @param   string|null     $p  The file path
+     *
+     * @return  string              The cleaned path
      */
     public static function clean(?string $p): string
     {
@@ -119,7 +121,9 @@ class Path
      * - extension
      * - base (basename without extension)
      *
-     * @param string    $f        File path
+     * @param   string|null     $f  The file path
+     *
+     * @return  array               The file stat
      */
     public static function info(string $f): array
     {
@@ -139,9 +143,10 @@ class Path
      *
      * Returns a path with root concatenation unless path begins with a slash
      *
-     * @param string    $p        File path
-     * @param string    $root    Root path
-     * @return string
+     * @param   string  $p      The file path
+     * @param   string  $root   The root path
+     *
+     * @return  string          The concatened path
      */
     public static function fullFromRoot(string $p, string $root): string
     {
