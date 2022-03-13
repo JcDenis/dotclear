@@ -275,7 +275,7 @@ class ImportFlat extends Module
 
         $fp  = fopen($entry_path, 'rb');
         if (false !== ($line = fgets($fp))) {
-            $ret = strpos($line, '///DOTCLEAR|') === 0;
+            $ret = str_starts_with($line, '///DOTCLEAR|');
         }
         fclose($fp);
 
@@ -300,7 +300,7 @@ class ImportFlat extends Module
 
             # Check zipped file contents
             $content = $zip->unzip($zip_file);
-            if (strpos($content, '///DOTCLEAR|') !== 0) {
+            if (!str_start_with($content, '///DOTCLEAR|')) {
                 unset($content);
 
                 continue;

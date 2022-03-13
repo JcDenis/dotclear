@@ -44,7 +44,7 @@ class Upgrade
             return false;
         }
 
-        if (version_compare($version, dotclear()->config()->core_version, '<') == 1 || strpos(dotclear()->config()->core_version, 'dev')) {
+        if (version_compare($version, dotclear()->config()->core_version, '<') == 1 || str_contains(dotclear()->config()->core_version, 'dev')) {
             try {
                 if (dotclear()->con()->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database

@@ -206,7 +206,7 @@ class Blog
     {
         $url = dotclear()->url()->getURLFor($type, $value);
 
-        return false === strpos($url, 'http') ? $this->url . $url : $url;
+        return str_contains($url, 'http') ? $url : $this->url . $url;
     }
 
     /**

@@ -127,7 +127,7 @@ class Media extends Page
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {
             try {
-                if (strpos(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root)) === 0) {
+                if (str_starts_with(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root))) {
                     # Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
@@ -714,7 +714,7 @@ class Media extends Page
         if (dotclear()->config()->media_dir_showhidden === false) {
             for ($i = count($dir['dirs']) - 1; $i >= 0; $i--) {
                 if ($dir['dirs'][$i]->d) {
-                    if (strpos($dir['dirs'][$i]->basename, '.') === 0) {
+                    if (str_starts_with($dir['dirs'][$i]->basename, '.')) {
                         unset($dir['dirs'][$i]);
                     }
                 }

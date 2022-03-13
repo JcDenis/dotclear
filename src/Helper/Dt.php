@@ -79,7 +79,7 @@ class Dt
         ];
 
         foreach ($invalid as $format) {
-            if (strpos($src, $format) !== false) {
+            if (str_contains($src, $format)) {
                 $invalids[] = $format;
             }
         }

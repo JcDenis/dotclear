@@ -181,7 +181,7 @@ class Summary extends ArrayObject
         }
 
         # By default use Dotclear Admin files
-        if (strpos($img, '?') === false) {
+        if (!str_contains($img, '?')) {
             $img = '?df=' . $img;
         }
 

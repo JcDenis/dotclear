@@ -81,7 +81,7 @@ class Validator extends NetHttp
 
         $result = $this->getContent();
 
-        if (strpos($result, '<p class="success">The document validates according to the specified schema(s).</p>')) {
+        if (str_contains($result, '<p class="success">The document validates according to the specified schema(s).</p>')) {
             return true;
         }
         if ($errors = preg_match('#(<ol>.*</ol>)<p class="failure">There were errors.</p>#msU', $result, $matches)) {

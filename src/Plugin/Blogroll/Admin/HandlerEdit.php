@@ -217,17 +217,17 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::radio(
                 ['friendship'],
                 'contact',
-                strpos($this->br_link_xfn, 'contact') !== false
+                str_contains($this->br_link_xfn, 'contact')
             ) . __('_xfn_Contact') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['friendship'],
                 'acquaintance',
-                strpos($this->br_link_xfn, 'acquaintance') !== false
+                str_contains($this->br_link_xfn, 'acquaintance')
             ) . __('_xfn_Acquaintance') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['friendship'],
                 'friend',
-                strpos($this->br_link_xfn, 'friend') !== false
+                str_contains($this->br_link_xfn, 'friend')
             ) . __('_xfn_Friend') . '</label> ' .
             '<label class="classic">' . Form::radio(['friendship'], '') . __('None') . '</label>' .
             '</p></td>' .
@@ -239,7 +239,7 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::checkbox(
                 ['physical'],
                 'met',
-                strpos($this->br_link_xfn, 'met') !== false
+                str_contains($this->br_link_xfn, 'met')
             ) . __('_xfn_Met') . '</label>' .
             '</p></td>' .
             '</tr>' .
@@ -250,12 +250,12 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::checkbox(
                 ['professional[]'],
                 'co-worker',
-                strpos($this->br_link_xfn, 'co-worker') !== false
+                str_contains($this->br_link_xfn, 'co-worker')
             ) . __('_xfn_Co-worker') . '</label> ' .
             '<label class="classic">' . Form::checkbox(
                 ['professional[]'],
                 'colleague',
-                strpos($this->br_link_xfn, 'colleague') !== false
+                str_contains($this->br_link_xfn, 'colleague')
             ) . __('_xfn_Colleague') . '</label>' .
             '</p></td>' .
             '</tr>' .
@@ -266,12 +266,12 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::radio(
                 ['geographical'],
                 'co-resident',
-                strpos($this->br_link_xfn, 'co-resident') !== false
+                str_contains($this->br_link_xfn, 'co-resident')
             ) . __('_xfn_Co-resident') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['geographical'],
                 'neighbor',
-                strpos($this->br_link_xfn, 'neighbor') !== false
+                str_contains($this->br_link_xfn, 'neighbor')
             ) . __('_xfn_Neighbor') . '</label> ' .
             '<label class="classic">' . Form::radio(['geographical'], '') . __('None') . '</label>' .
             '</p></td>' .
@@ -283,27 +283,27 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::radio(
                 ['family'],
                 'child',
-                strpos($this->br_link_xfn, 'child') !== false
+                str_contains($this->br_link_xfn, 'child')
             ) . __('_xfn_Child') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['family'],
                 'parent',
-                strpos($this->br_link_xfn, 'parent') !== false
+                str_contains($this->br_link_xfn, 'parent')
             ) . __('_xfn_Parent') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['family'],
                 'sibling',
-                strpos($this->br_link_xfn, 'sibling') !== false
+                str_contains($this->br_link_xfn, 'sibling')
             ) . __('_xfn_Sibling') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['family'],
                 'spouse',
-                strpos($this->br_link_xfn, 'spouse') !== false
+                str_contains($this->br_link_xfn, 'spouse')
             ) . __('_xfn_Spouse') . '</label> ' .
             '<label class="classic">' . Form::radio(
                 ['family'],
                 'kin',
-                strpos($this->br_link_xfn, 'kin') !== false
+                str_contains($this->br_link_xfn, 'kin')
             ) . __('_xfn_Kin') . '</label> ' .
             '<label class="classic">' . Form::radio(['family'], '') . __('None') . '</label>' .
             '</p></td>' .
@@ -315,22 +315,22 @@ class HandlerEdit extends AbstractPage
             '<label class="classic">' . Form::checkbox(
                 ['romantic[]'],
                 'muse',
-                strpos($this->br_link_xfn, 'muse') !== false
+                str_contains($this->br_link_xfn, 'muse')
             ) . __('_xfn_Muse') . '</label> ' .
             '<label class="classic">' . Form::checkbox(
                 ['romantic[]'],
                 'crush',
-                strpos($this->br_link_xfn, 'crush') !== false
+                str_contains($this->br_link_xfn, 'crush')
             ) . __('_xfn_Crush') . '</label> ' .
             '<label class="classic">' . Form::checkbox(
                 ['romantic[]'],
                 'date',
-                strpos($this->br_link_xfn, 'date') !== false
+                str_contains($this->br_link_xfn, 'date')
             ) . __('_xfn_Date') . '</label> ' .
             '<label class="classic">' . Form::checkbox(
                 ['romantic[]'],
                 'sweetheart',
-                strpos($this->br_link_xfn, 'sweetheart') !== false
+                str_contains($this->br_link_xfn, 'sweetheart')
             ) . __('_xfn_Sweetheart') . '</label> ' .
             '</p></td>' .
             '</tr>' .

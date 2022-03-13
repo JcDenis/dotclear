@@ -1183,7 +1183,7 @@ class Posts
                 __('Notes') . '</' . $tag . '>%s</div>');
             dotclear()->wiki()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Note') . '</' . $tag . '>%s</div>');
-            if (strpos($lang, 'fr') === 0) {
+            if (str_starts_with($lang, 'fr')) {
                 dotclear()->wiki()->setOpt('active_fr_syntax', 1);
             }
         }

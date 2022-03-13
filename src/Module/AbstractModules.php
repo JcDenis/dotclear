@@ -533,7 +533,7 @@ abstract class AbstractModules
                 join('', $reason)
             );
             dotclear()->notice()->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
-            $url = $redir_url . (strpos($redir_url, '?') ? '&' : '?') . 'dep=1';
+            $url = $redir_url . (str_contains($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 
             return true;

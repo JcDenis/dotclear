@@ -229,7 +229,7 @@ class Handler extends AbstractPage
             $path = dotclear()->themes->getModulesPath();
 
             return !dotclear()->production()
-                || false === strpos(Path::real($theme->root()), Path::real((string) array_pop($path)))
+                || !str_contains(Path::real($theme->root()), Path::real((string) array_pop($path)))
                 || !dotclear()->themes->isDistributedModule($theme->id());
         }
 

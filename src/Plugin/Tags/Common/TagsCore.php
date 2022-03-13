@@ -32,7 +32,7 @@ class TagsCore
     public function wiki2xhtmlTag($url, $content)
     {
         $url = substr($url, 4);
-        if (strpos($content, 'tag:') === 0) {
+        if (str_starts_with($content, 'tag:')) {
             $content = substr($content, 4);
         }
 

@@ -29,7 +29,7 @@ trait TraitModulesTheme
         if (dotclear()->blog()) {
             dotclear()->blog()->settings()->addNamespace('system');
             $path = (string) dotclear()->blog()->settings()->system->module_theme_dir;
-            if (!empty($path) && false !== ($dir = Path::real(strpos('\\', $path) === 0 ? $path : Path::implodeRoot($path), true))) {
+            if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;
             }
         }

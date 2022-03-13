@@ -748,7 +748,7 @@ abstract class Page
                 $res .= '<p>Profiler file : ' . xdebug_get_profiler_filename() . '</p>';
             } else {
                 $prof_url = Http::getSelfURI();
-                $prof_url .= (strpos($prof_url, '?') === false) ? '?' : '&';
+                $prof_url .= str_contains($prof_url, '?') ? '&' : '?';
                 $prof_url .= 'XDEBUG_PROFILE';
                 $res      .= '<p><a href="' . Html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
             }

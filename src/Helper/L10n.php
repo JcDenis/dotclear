@@ -379,7 +379,7 @@ class L10n
                     // previous msgid, msgctxt
                     case '|':
                         // msgid
-                        if (strpos($def[2], 'msgid') === 0) {
+                        if (str_starts_with($def[2], 'msgid')) {
                             $desc['previous-msgid'] = $str;
                         // msgcxt
                         } else {

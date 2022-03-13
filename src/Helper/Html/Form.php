@@ -577,10 +577,10 @@ class Form
             extract($args);
         }
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
-        if (strpos(strtolower($extra_html), 'pattern=') === false) {
+        if (!str_contains(strtolower($extra_html), 'pattern=')) {
             $extra_html .= ' pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"';
         }
-        if (strpos(strtolower($extra_html), 'placeholder') === false) {
+        if (!str_contains(strtolower($extra_html), 'placeholder')) {
             $extra_html .= ' placeholder="1962-05-13T14:45"';
         }
 
@@ -642,10 +642,10 @@ class Form
             extract($args);
         }
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
-        if (strpos(strtolower($extra_html), 'pattern=') === false) {
+        if (!str_contains(strtolower($extra_html), 'pattern=')) {
             $extra_html .= ' pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"';
         }
-        if (strpos(strtolower($extra_html), 'placeholder') === false) {
+        if (!str_contains(strtolower($extra_html), 'placeholder')) {
             $extra_html .= ' placeholder="1962-05-13"';
         }
 
@@ -707,10 +707,10 @@ class Form
             extract($args);
         }
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
-        if (strpos(strtolower($extra_html), 'pattern=') === false) {
+        if (!str_contains(strtolower($extra_html), 'pattern=')) {
             $extra_html .= ' pattern="[0-9]{2}:[0-9]{2}"';
         }
-        if (strpos(strtolower($extra_html), 'placeholder') === false) {
+        if (!str_contains(strtolower($extra_html), 'placeholder')) {
             $extra_html .= ' placeholder="14:45"';
         }
 

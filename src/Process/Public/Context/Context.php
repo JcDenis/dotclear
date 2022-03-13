@@ -336,7 +336,7 @@ class Context
 
         # If search param
         if (!empty($_GET['q'])) {
-            $s = strpos($url, '?') !== false ? '&amp;' : '?';
+            $s = str_contains($url, '?') ? '&amp;' : '?';
             $url .= $s . 'q=' . rawurlencode($_GET['q']);
         }
 

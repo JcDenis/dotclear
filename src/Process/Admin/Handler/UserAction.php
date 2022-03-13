@@ -58,7 +58,7 @@ class UserAction extends Page
         if (!empty($_POST['action']) && !empty($_POST['users'])) {
             $this->user_action = $_POST['action'];
 
-            if (isset($_POST['redir']) && strpos($_POST['redir'], '://') === false) {
+            if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
                 $this->redir = $_POST['redir'];
             } else {
                 $this->redir = dotclear()->adminurl()->get('admin.users', [
@@ -169,7 +169,7 @@ class UserAction extends Page
             $hidden_fields .= Form::hidden(['users[]'], $u);
         }
 
-        if (isset($_POST['redir']) && strpos($_POST['redir'], '://') === false) {
+        if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
             $hidden_fields .= Form::hidden(['redir'], Html::escapeURL($_POST['redir']));
         } else {
             $hidden_fields .=

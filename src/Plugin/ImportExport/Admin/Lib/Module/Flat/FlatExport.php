@@ -81,7 +81,7 @@ class FlatExport
         $tables = [];
         foreach ($db_tables as $t) {
             if (dotclear()->prefix) {
-                if (strpos($t, dotclear()->prefix) === 0) {
+                if (str_starts_with($t, dotclear()->prefix)) {
                     $tables[] = $t;
                 }
             } else {

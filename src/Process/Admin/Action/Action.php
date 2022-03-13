@@ -100,7 +100,7 @@ abstract class Action extends Page
             $this->redir_anchor = '';
         }
         $u                            = explode('?', $_SERVER['REQUEST_URI']);
-        $this->in_plugin              = (strpos($u[0], 'handler=admin.plugin.') !== false);
+        $this->in_plugin              = str_contains($u[0], 'handler=admin.plugin.');
         $this->enable_redir_selection = true;
     }
 
@@ -262,7 +262,7 @@ abstract class Action extends Page
             $redir_args[$this->field_entries] = array_keys($this->entries);
         }
 
-        return $this->uri . (strpos($this->uri, '?') === false ? '?' : '&') . http_build_query($redir_args) . $this->redir_anchor;
+        return $this->uri . (str_contains($this->uri, '?') ? '&' : '?') . http_build_query($redir_args) . $this->redir_anchor;
     }
 
     /**

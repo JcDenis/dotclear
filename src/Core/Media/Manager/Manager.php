@@ -138,7 +138,7 @@ class Manager
     protected function isExclude($f)
     {
         foreach ($this->exclude_list as $v) {
-            if (strpos($f, $v) === 0) {
+            if (str_starts_with($f, $v)) {
                 return true;
             }
         }
@@ -235,7 +235,7 @@ class Manager
                     $d_res[] = $tmp;
                 }
 
-                if (is_file($fname) && strpos($file, '.') !== 0 && !$this->isFileExclude($file)) {
+                if (is_file($fname) && !str_starts_with($file, '.') && !$this->isFileExclude($file)) {
                     $f_res[] = new Item($fname, $this->root, $this->root_url);
                 }
             }

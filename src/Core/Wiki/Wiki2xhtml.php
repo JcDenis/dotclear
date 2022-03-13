@@ -673,10 +673,10 @@ class Wiki2xhtml
             $d     = strlen($mode);
             $delta = $d - $dl;
 
-            if ($delta < 0 && strpos($pre_mode, $mode) !== 0) {
+            if ($delta < 0 && !str_starts_with($pre_mode, $mode)) {
                 $valid = false;
             }
-            if ($delta > 0 && $type == $pre_type && strpos($mode, $pre_mode) !== 0) {
+            if ($delta > 0 && $type == $pre_type && !str_starts_with($mode, $pre_mode)) {
                 $valid = false;
             }
             if ($delta == 0 && $mode != $pre_mode) {
@@ -1079,7 +1079,7 @@ class Wiki2xhtml
     private function __specialUrls(&$url, &$content, &$lang, &$title)
     {
         foreach ($this->functions as $k => $v) {
-            if (strpos($k, 'url:') === 0 && strpos($url, substr($k, 4)) === 0) {
+            if (str_starts_with($k, 'url:') && str_starts_with($url, substr($k, 4))) {
                 $res = call_user_func($v, $url, $content);
 
                 $url     = $res['url']     ?? $url;
@@ -1301,7 +1301,7 @@ class Wiki2xhtml
             $fw = $fl;
 
             if ($fl) {
-                if (strpos($fl, ' ') !== false) {
+                if (str_contains($fl, ' ')) {
                     $fw = substr($fl, 0, strpos($fl, ' '));
                 }
                 $content = implode("\n", array_slice($c, 1));

@@ -35,7 +35,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         $port = false;
 
         if ($host) {
-            if (strpos($host, ':') !== false) {
+            if (str_contains($host, ':')) {
                 $bits = explode(':', $host);
                 $host = array_shift($bits);
                 $port = abs((int) array_shift($bits));

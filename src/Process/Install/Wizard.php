@@ -67,7 +67,7 @@ class Wizard
         if (!empty($_POST)) {
             try {
                 if ($DBDRIVER == 'sqlite') {
-                    if (strpos($DBNAME, '/') === false) {
+                    if (!str_contains($DBNAME, '/')) {
                         $sqlite_db_directory = implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, '..', 'db']);
                         Files::makeDir($sqlite_db_directory, true);
 

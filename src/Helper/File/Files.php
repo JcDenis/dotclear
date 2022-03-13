@@ -583,7 +583,7 @@ class Files
 
         try {
             # Check directory change ".."
-            if (!$allow_level_up && strpos('..', $needle) !== false) {
+            if (!$allow_level_up && str_contains('..', $needle)) {
                 throw new \Exception('file not found');
             }
 

@@ -407,10 +407,10 @@ class Forms
     {
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
         $extra = [];
-        if (strpos(strtolower(($params['extra']) ?? ''), 'pattern=') === false) {
+        if (!str_contains(strtolower(($params['extra']) ?? ''), 'pattern=')) {
             $extra[] = 'pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"';
         }
-        if (strpos(strtolower(($params['extra']) ?? ''), 'placeholder') === false) {
+        if (!str_contains(strtolower(($params['extra']) ?? ''), 'placeholder')) {
             $extra[] = 'placeholder="1962-05-13T14:45"';
         }
         if (count($extra)) {
@@ -450,10 +450,10 @@ class Forms
     {
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
         $extra = [];
-        if (strpos(strtolower(($params['extra']) ?? ''), 'pattern=') === false) {
+        if (!str_contains(strtolower(($params['extra']) ?? ''), 'pattern=')) {
             $extra[] = 'pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"';
         }
-        if (strpos(strtolower(($params['extra']) ?? ''), 'placeholder') === false) {
+        if (!str_contains(strtolower(($params['extra']) ?? ''), 'placeholder')) {
             $extra[] = 'placeholder="1962-05-13"';
         }
         if (count($extra)) {
@@ -493,10 +493,10 @@ class Forms
     {
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
         $extra = [];
-        if (strpos(strtolower(($params['extra']) ?? ''), 'pattern=') === false) {
+        if (!str_containsstrtolower(($params['extra']) ?? ''), 'pattern=')) {
             $extra[] = 'pattern="[0-9]{2}:[0-9]{2}"';
         }
-        if (strpos(strtolower(($params['extra']) ?? ''), 'placeholder') === false) {
+        if (!str_contains(strtolower(($params['extra']) ?? ''), 'placeholder')) {
             $extra[] = 'placeholder="14:45"';
         }
         if (count($extra)) {

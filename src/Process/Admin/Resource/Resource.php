@@ -35,7 +35,7 @@ class Resource
 
     public function url(string $src, ?string $type = null, ?string $id = null, ?string $ext = null): string
     {
-        if (0 === strpos($src, 'http')) {
+        if (str_starts_with($src, 'http')) {
             return $src;
         }
 
@@ -49,7 +49,7 @@ class Resource
             $src = implode('/', [$type, $id, $src]);
         }
 
-        return dotclear()->config()->admin_url . (strpos($src, '?') === false ? '?' : '') . $this->query .'=' . $src;
+        return dotclear()->config()->admin_url . (str_contains($src, '?') ? '' : '?') . $this->query .'=' . $src;
     }
 
     public function css(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
