@@ -55,12 +55,10 @@ if (!function_exists('dotclear_run')) {
             ob_end_clean();
 
             try {
-                if (dotclear() && dotclear()->config()) {
-                    if (dotclear()->production() === false) {
-                        dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
-                    } else {
-                        dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
-                    }
+                if (dotclear()?->production() !== true) {
+                    dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
+                } else {
+                    dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
                 }
             } catch (\Exception) {
             }
