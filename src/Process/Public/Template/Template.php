@@ -3361,7 +3361,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'Http::getSelfURI()') . '; ?>';
+        return '<?php echo ' . sprintf($f, '\Dotclear\Network\Http::getSelfURI()') . '; ?>';
     }
 
     /*dtd
