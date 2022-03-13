@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace Dotclear\Database;
 
 use Dotclear\Database\AbstractConnection;
+use Dotclear\Database\AbstractSchema;
+use Dotclear\Database\Table;
 use Dotclear\Exception\DatabaseException;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -40,14 +42,14 @@ class Structure
         return $this->con->driver();
     }
 
-    public function table(string $name)
+    public function table(string $name): Table
     {
         $this->tables[$name] = new Table($name);
 
         return $this->tables[$name];
     }
 
-    public function __get(string $name)
+    public function __get(string $name): Table
     {
         if (!isset($this->tables[$name])) {
             return $this->table($name);
@@ -56,9 +58,9 @@ class Structure
         return $this->tables[$name];
     }
 
-    public function reverse()
+    public function reverse(): void
     {
-        $schema = Schema::init($this->con);
+        $schema = AbstractSchema::init($this->con);
 
         # Get tables
         $tables = $schema->getTables();
@@ -139,7 +141,7 @@ class Structure
 
         $got_work = false;
 
-        $schema = Schema::init($this->con);
+        $schema = AbstractSchema::init($this->con);
 
         foreach ($tables as $tname => $t) {
             if (!$this->tableExists($tname)) {
