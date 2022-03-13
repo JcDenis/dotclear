@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Xmlrpc\IntrospectionServer
+ * @class Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
  * @brief XML-RPC Introspection Server
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -24,12 +24,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Xmlrpc;
+namespace Dotclear\Helper\Network\Xmlrpc;
 
-use Dotclear\Network\Xmlrpc\Server;
-use Dotclear\Network\Xmlrpc\Date;
-use Dotclear\Network\Xmlrpc\Base64;
-use Dotclear\Network\Xmlrpc\XmlrpcException;
+use Dotclear\Helper\Network\Xmlrpc\Server;
+use Dotclear\Helper\Network\Xmlrpc\Date;
+use Dotclear\Helper\Network\Xmlrpc\Base64;
+use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

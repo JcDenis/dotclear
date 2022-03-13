@@ -15,12 +15,12 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
-use Dotclear\Utils\Crypt;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Crypt;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

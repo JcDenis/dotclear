@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Resource;
 
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

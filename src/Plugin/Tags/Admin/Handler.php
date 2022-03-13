@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

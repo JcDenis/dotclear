@@ -20,7 +20,7 @@ use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\AdminException;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -22,8 +22,8 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
-use Dotclear\Utils\Lexical;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Lexical;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

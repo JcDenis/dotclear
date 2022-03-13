@@ -17,10 +17,10 @@ use Dotclear\Exception\ModuleException;
 
 use Dotclear\Module\AbstractConfig;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\L10n;
-use Dotclear\File\Path;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\File\Path;
 
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

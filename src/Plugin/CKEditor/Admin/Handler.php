@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 use ArrayObject;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

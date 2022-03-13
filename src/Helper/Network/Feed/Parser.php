@@ -1,12 +1,12 @@
 <?php
 /**
- * @class Dotclear\Network\Feed\Parser
+ * @class Dotclear\Helper\Network\Feed\Parser
  * @brief Feed parser
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * This class can read RSS 1.0, RSS 2.0, Atom 0.3 and Atom 1.0 feeds. Works with
- * {@link Dotclear\Network\Feed\Reader}
+ * {@link Dotclear\Helper\Network\Feed\Reader}
  *
  * @package Dotclear
  * @subpackage Network
@@ -16,7 +16,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Feed;
+namespace Dotclear\Helper\Network\Feed;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

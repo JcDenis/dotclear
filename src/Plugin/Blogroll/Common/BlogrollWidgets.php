@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Blogroll\Common;
 
 use ArrayObject;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;

@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 use ArrayObject;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 class CKEditorBehavior
 {

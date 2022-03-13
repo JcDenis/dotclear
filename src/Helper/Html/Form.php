@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form
+ * @class Dotclear\Helper\Html\Form
  * @brief Html form tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html;
+namespace Dotclear\Helper\Html;
 
-use Dotclear\Html\FormSelectOption;
+use Dotclear\Helper\Html\FormSelectOption;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

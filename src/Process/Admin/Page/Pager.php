@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Page;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

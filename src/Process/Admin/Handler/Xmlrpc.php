@@ -15,7 +15,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use DOtclear\Core\Xmlrpc\Xmlrpc;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

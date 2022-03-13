@@ -23,8 +23,8 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

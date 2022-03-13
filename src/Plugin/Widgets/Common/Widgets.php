@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Widgets\Common;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\WidgetsExt;
 use Dotclear\Plugin\Widgets\Common\Widget;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

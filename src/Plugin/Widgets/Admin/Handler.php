@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 use stdClass;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\Widgets;

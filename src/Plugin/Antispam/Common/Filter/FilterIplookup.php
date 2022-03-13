@@ -16,9 +16,9 @@ namespace Dotclear\Plugin\Antispam\Common\Filter;
 
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
-use Dotclear\Html\Html;
-Use Dotclear\Html\Form;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Html;
+Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

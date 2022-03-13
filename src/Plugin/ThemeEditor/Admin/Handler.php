@@ -17,9 +17,9 @@ use stdClass;
 use ArrayObject;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\File\Path;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor;
 

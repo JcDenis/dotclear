@@ -16,11 +16,11 @@ namespace Dotclear\Plugin\Pages\Common;
 use ArrayObject;
 
 use Dotclear\Core\Url\Url;
-use Dotclear\Html\Html;
-use Dotclear\Html\HtmlFilter;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Exception\AdminException;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

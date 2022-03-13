@@ -17,11 +17,11 @@ namespace Dotclear\Process\Admin\Filter;
 
 use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Html\Form\Label;
-use Dotclear\Html\Form\Number;
-use Dotclear\Html\Form\Select;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\Form\Label;
+use Dotclear\Helper\Html\Form\Number;
+use Dotclear\Helper\Html\Form\Select;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

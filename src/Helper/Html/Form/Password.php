@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Password
+ * @class Dotclear\Helper\Html\Form\Password
  * @brief HTML Forms password field creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Input;
+use Dotclear\Helper\Html\Form\Input;
 
 class Password extends Input
 {

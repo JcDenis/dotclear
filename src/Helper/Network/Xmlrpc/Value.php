@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Xmlrpc\Value
+ * @class Dotclear\Helper\Network\Xmlrpc\Value
  * @brief XML-RPC Value
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Xmlrpc;
+namespace Dotclear\Helper\Network\Xmlrpc;
 
-use Dotclear\Network\Xmlrpc\Base64;
+use Dotclear\Helper\Network\Xmlrpc\Base64;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

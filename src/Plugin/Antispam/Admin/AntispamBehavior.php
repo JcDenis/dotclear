@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 use ArrayObject;
 
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 
 if (!defined('DOTCLEAR_PROCESS')) {

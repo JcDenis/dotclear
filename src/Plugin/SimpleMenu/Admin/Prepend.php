@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;

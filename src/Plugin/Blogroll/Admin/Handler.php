@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\File\Files;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Admin\BlogrollImport;
 use Dotclear\Plugin\Blogroll\Admin\HandlerEdit;

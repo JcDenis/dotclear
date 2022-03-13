@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Xmlrpc\Server
+ * @class Dotclear\Helper\Network\Xmlrpc\Server
  * @brief Basic XML-RPC Server
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -23,13 +23,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Xmlrpc;
+namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
 
-use Dotclear\Network\Xmlrpc\Message;
-use Dotclear\Network\Xmlrpc\Value;
-use Dotclear\Network\Xmlrpc\XmlrpcException;
+use Dotclear\Helper\Network\Xmlrpc\Message;
+use Dotclear\Helper\Network\Xmlrpc\Value;
+use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

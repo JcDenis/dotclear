@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Widgets\Common;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\Widget;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

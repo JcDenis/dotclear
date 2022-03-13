@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Radio
+ * @class Dotclear\Helper\Html\Form\Radio
  * @brief HTML Forms radio button creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Input;
+use Dotclear\Helper\Html\Form\Input;
 
 class Radio extends Input
 {

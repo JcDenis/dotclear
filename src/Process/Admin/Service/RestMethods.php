@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Html;
-use Dotclear\Html\Validator;
-use Dotclear\Html\XmlTag;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\Validator;
+use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Module\Store\Repository\Repository;
-use Dotclear\Network\Feed\Reader;
+use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Process\Admin\Service\Updater;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Text;
 
 class RestMethods
 {

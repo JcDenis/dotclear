@@ -22,9 +22,9 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -20,8 +20,8 @@ use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -15,7 +15,7 @@ namespace Dotclear\Process\Install;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Core\Core;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 use Dotclear\Process\Install\Install;
 use Dotclear\Process\Install\Wizard;
 

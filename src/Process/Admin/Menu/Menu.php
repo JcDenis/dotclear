@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

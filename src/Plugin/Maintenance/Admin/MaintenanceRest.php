@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 use Dotclear\Exception\AdminException;
 use Dotclear\Plugin\Maintenance\Admin\Maintenance;
-use Dotclear\Html\Html;
-use Dotclear\Html\XmlTag;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

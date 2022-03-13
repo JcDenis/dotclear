@@ -17,9 +17,9 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

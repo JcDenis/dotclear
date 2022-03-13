@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Container;
 
 
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 trait TraitContainer
 {

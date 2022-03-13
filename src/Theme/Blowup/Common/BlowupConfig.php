@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Blowup\Common;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
 class BlowupConfig

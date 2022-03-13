@@ -21,9 +21,9 @@ use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 use Dotclear\Module\Plugin\Public\ModulesPlugin;
 use Dotclear\Module\Theme\Public\ModulesTheme;
-use Dotclear\File\Files;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

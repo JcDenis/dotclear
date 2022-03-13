@@ -16,9 +16,9 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Favorite\Favorite;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

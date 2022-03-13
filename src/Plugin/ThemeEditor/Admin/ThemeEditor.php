@@ -15,10 +15,10 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 
 use Dotclear\Exception\AdminException;
 
-use Dotclear\File\Path;
-use Dotclear\File\Files;
-use Dotclear\Html\Html;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

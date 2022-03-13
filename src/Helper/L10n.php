@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\L10n
+ * @class Dotclear\Helper\L10n
  * @brief Localisation tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -15,7 +15,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils {
+namespace Dotclear\Helper {
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -995,11 +995,11 @@ class L10n
     //@}
 }
 
-} // end Dotclear\Utils namespace
+} // end Dotclear\Helper namespace
 
 namespace { // enter to global namespace to declare root __() function
 
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\L10n;
 
 /* @cond ONCE */
 if (!function_exists('__')) {

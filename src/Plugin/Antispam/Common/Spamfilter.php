@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Database\Record;
 
 if (!defined('DOTCLEAR_PROCESS')) {

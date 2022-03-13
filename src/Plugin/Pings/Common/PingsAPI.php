@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Common;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Network\Xmlrpc\Client;
+use Dotclear\Helper\Network\Xmlrpc\Client;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

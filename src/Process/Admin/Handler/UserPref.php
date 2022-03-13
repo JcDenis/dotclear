@@ -18,10 +18,10 @@ use ArrayObject;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Container\User as ContainerUser;
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -22,10 +22,10 @@ use ArrayObject;
 
 use Dotclear\Container\User;
 use Dotclear\Database\Record;
-use Dotclear\Html\FormSelectOption;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\Html\FormSelectOption;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

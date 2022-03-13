@@ -16,8 +16,8 @@ namespace Dotclear\Process\Admin\Action\Action;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

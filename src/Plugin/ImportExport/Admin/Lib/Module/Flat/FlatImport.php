@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

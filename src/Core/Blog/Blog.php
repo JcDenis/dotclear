@@ -19,9 +19,9 @@ use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\File\Path;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

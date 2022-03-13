@@ -21,11 +21,11 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\File\Zip\Zip;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Zip\Zip;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

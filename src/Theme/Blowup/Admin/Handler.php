@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\File\Files;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

@@ -18,8 +18,8 @@ namespace Dotclear\Process\Admin\AdminUrl;
 use ArrayObject;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Form;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

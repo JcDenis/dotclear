@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Antispam\Common\Antispam;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

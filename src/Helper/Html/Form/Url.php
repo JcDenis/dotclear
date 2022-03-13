@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Url
+ * @class Dotclear\Helper\Html\Form\Url
  * @brief HTML Forms url field creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Input;
+use Dotclear\Helper\Html\Form\Input;
 
 class Url extends Input
 {

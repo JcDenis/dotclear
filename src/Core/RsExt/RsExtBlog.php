@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtend;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

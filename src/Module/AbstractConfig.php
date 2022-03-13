@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Network\Http;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

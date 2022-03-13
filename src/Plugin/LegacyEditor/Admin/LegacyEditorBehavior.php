@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Utils\l10n;
+use Dotclear\Helper\l10n;
 
 class LegacyEditorBehavior
 {

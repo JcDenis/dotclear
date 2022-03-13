@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Error
+ * @class Dotclear\Helper\Error
  * @brief Dotclear error class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

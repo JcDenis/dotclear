@@ -13,15 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\Utils\ErrorTrait;
+use Dotclear\Helper\ErrorTrait;
 use Dotclear\Exception\ModuleException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\File\Zip\Unzip;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractDefine;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

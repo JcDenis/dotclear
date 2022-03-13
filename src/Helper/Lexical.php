@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Lexical
+ * @class Dotclear\Helper\Lexical
  * @brief Dotclear lexical helper class
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 use ArrayObject;
 

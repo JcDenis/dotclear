@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

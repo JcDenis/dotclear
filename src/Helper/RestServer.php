@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Utils\RestServer
+ * @class Dotclear\Core\Helper\RestServer
  * @brief Dotclear core rest server class
  *
  * @package Dotclear
@@ -11,9 +11,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
-use Dotclear\Html\XmlTag;
+use Dotclear\Helper\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

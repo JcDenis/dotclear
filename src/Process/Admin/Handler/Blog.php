@@ -16,8 +16,8 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Handler\BlogPref;
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

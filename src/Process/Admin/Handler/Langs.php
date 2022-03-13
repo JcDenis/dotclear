@@ -15,13 +15,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\File\Zip\Unzip;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Feed\Reader;
-use Dotclear\Network\NetHttp\NetHttp;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Feed\Reader;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

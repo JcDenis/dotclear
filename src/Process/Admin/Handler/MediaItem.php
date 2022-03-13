@@ -15,11 +15,11 @@ namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -17,7 +17,7 @@ namespace Dotclear\Process\Distrib;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

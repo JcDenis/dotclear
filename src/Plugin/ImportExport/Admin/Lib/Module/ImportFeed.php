@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Feed\Reader;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

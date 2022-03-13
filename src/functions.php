@@ -33,8 +33,8 @@ if (!function_exists('dotclear_run')) {
             require $file;
         # Dotclear autoload
         } else {
-            require_once root_path('Utils', 'Autoload.php');
-            $autoload = new Dotclear\Utils\Autoload();
+            require_once root_path('Helper', 'Autoload.php');
+            $autoload = new Dotclear\Helper\Autoload();
             $autoload->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
         }
 

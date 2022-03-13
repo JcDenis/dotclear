@@ -19,11 +19,11 @@ use Closure;
 use Dotclear\Core\Trackback\Trackback;
 use DOtclear\Core\Common\Xpmlrpc;
 use Dotclear\Exception\CoreException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\XmlTag
+ * @class Dotclear\Helper\Html\XmlTag
  * @brief HTML Validator
  *
  * This class will perform an HTML validation upon WDG validator.
@@ -15,11 +15,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html;
+namespace Dotclear\Helper\Html;
 
 use Dotclear\Exception\HtmlException;
 
-use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class Validator extends NetHttp
 {

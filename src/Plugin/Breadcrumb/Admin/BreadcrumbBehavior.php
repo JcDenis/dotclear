@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Breadcrumb\Admin;
 
 use Dotclear\Core\Blog\Settings\Settings;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

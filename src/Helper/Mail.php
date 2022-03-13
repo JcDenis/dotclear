@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Mail
+ * @class Dotclear\Helper\Mail
  * @brief Basic mail tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -21,7 +21,7 @@ if (!defined('DOTCLEAR_ROOT_DIR')) {
 
 use Dotclear\Exception\UtilsException;
 
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Text;
 
 class Mail
 {

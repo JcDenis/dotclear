@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

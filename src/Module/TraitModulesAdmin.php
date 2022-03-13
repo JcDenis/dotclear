@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use Dotclear\File\Files;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\Store\Repository\Repository;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

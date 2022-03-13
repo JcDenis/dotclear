@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Database\StaticRecord;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

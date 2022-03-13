@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 

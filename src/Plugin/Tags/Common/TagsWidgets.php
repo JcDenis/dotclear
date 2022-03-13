@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Tags\Common;
 
 use ArrayObject;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 

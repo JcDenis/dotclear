@@ -22,8 +22,8 @@ use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
 use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

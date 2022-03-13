@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\File\Path
+ * @class Dotclear\Helper\File\Path
  * @brief Basic path handling tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\File;
+namespace Dotclear\Helper\File;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

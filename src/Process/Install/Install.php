@@ -17,12 +17,12 @@ use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
 use Dotclear\Process\Distrib\Distrib;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;

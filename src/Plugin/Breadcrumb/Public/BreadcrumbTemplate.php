@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

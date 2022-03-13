@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\HtmlFilter
+ * @class Dotclear\Helper\Html\HtmlFilter
  * @brief Html filter
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -19,8 +19,8 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

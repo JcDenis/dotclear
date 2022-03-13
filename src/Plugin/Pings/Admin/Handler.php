@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 

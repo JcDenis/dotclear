@@ -16,8 +16,8 @@ namespace Dotclear\Process\Public\Template;
 use ArrayObject;
 
 use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Dt;
 
 class Template extends BaseTemplate
 {
@@ -3361,7 +3361,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '\Dotclear\Network\Http::getSelfURI()') . '; ?>';
+        return '<?php echo ' . sprintf($f, '\Dotclear\Helper\Network\Http::getSelfURI()') . '; ?>';
     }
 
     /*dtd

@@ -19,7 +19,7 @@ use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

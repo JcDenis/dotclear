@@ -20,7 +20,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtend;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

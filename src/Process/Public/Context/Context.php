@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Context;
 
 use Dotclear\Database\Record;
-use Dotclear\File\Path;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Text;
 
 class Context
 {

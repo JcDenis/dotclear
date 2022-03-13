@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

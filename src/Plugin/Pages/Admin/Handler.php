@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Inventory\Inventory;
-use Dotclear\Html\Html;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Pages\Admin\PagesAction;
 use Dotclear\Plugin\Pages\Admin\PagesInventory;

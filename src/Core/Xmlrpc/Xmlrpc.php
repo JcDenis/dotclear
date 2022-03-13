@@ -18,13 +18,13 @@ use ArrayObject;
 use Dotclear\Container\User as ContainerUser;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\CoreException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Text;
-use Dotclear\Utils\Dt;
-use Dotclear\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
-use Dotclear\Network\Xmlrpc\Date as XmlrpcDate;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Text;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
+use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

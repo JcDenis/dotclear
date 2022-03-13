@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Feed\Reader
+ * @class Dotclear\Helper\Network\Feed\Reader
  * @brief Feed Reader
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -19,12 +19,12 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Feed;
+namespace Dotclear\Helper\Network\Feed;
 
 
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 
-use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

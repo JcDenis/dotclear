@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\NetHttp\NetHttp
+ * @class Dotclear\Helper\Network\NetHttp\NetHttp
  * @brief Net Http client
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -41,11 +41,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\NetHttp;
+namespace Dotclear\Helper\Network\NetHttp;
 
 use Dotclear\Exception\NetworkException;
 
-use Dotclear\Network\Socket\Socket;
+use Dotclear\Helper\Network\Socket\Socket;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

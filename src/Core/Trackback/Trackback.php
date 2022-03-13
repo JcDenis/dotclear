@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace Dotclear\Core\Trackback;
 
 use Dotclear\Exception\CoreException;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\Network\Xmlrpc\Client as XmlrpcClient;
-use Dotclear\Network\NetHttp\NetHttp;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Network\Xmlrpc\Client as XmlrpcClient;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Html\XmlTag;
+use Dotclear\Helper\Html\XmlTag;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

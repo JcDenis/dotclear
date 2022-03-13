@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Autoload
+ * @class Dotclear\Helper\Autoload
  * @brief Helper to autoload class using php namespace
  *
  * Based on PSR-4 Autoloader
@@ -17,7 +17,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

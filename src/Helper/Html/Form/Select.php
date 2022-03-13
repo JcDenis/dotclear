@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Select
+ * @class Dotclear\Helper\Html\Form\Select
  * @brief HTML Forms select creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,11 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Component;
-use Dotclear\Html\Form\Option;
-use Dotclear\Html\Form\Optgroup;
+use Dotclear\Helper\Html\Form\Component;
+use Dotclear\Helper\Html\Form\Option;
+use Dotclear\Helper\Html\Form\Optgroup;
 
 class Select extends Component
 {

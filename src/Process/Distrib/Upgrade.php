@@ -18,8 +18,8 @@ namespace Dotclear\Process\Distrib;
 use Dotclear\Database\Structure;
 use Dotclear\Process\Distrib\Distrib;
 use Dotclear\Exception\DistribException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

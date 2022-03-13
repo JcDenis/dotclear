@@ -23,14 +23,14 @@ use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Notice\Notice;
 use Dotclear\Core\Core;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Module\Iconset\Admin\ModulesIconset;
 use Dotclear\Module\Theme\Admin\ModulesTheme;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Lexical;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Lexical;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;

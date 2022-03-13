@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Dt
+ * @class Dotclear\Helper\Dt
  * @brief Basic date handling tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 use Dotclear\Exception\UtilsException;
 

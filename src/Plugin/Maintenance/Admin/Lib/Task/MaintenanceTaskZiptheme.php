@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
-use Dotclear\File\Zip\Zip;
+use Dotclear\Helper\File\Zip\Zip;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractConfig;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {

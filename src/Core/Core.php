@@ -32,18 +32,18 @@ use Dotclear\Core\Version\Version;
 use Dotclear\Core\Wiki\Wiki;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\PrependException;
-use Dotclear\File\Files;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Autoload;
-use Dotclear\Utils\Behavior;
-use Dotclear\Utils\Configuration;
-use Dotclear\Utils\Crypt;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Error;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\RestServer;
-use Dotclear\Utils\Statistic;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Autoload;
+use Dotclear\Helper\Behavior;
+use Dotclear\Helper\Configuration;
+use Dotclear\Helper\Crypt;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Error;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\RestServer;
+use Dotclear\Helper\Statistic;
 
 if (!defined('DOTCLEAR_ROOT_DIR')) {
     return;
@@ -874,7 +874,7 @@ class Core
      *
      * This configuration must be completed by the config.php file.
      *
-     * @see     Dotclear\Utils\Configuration
+     * @see     Dotclear\Helper\Configuration
      *
      * @return  array   Initial configuation
      */

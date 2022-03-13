@@ -185,7 +185,7 @@ class AttachmentsTemplate
             return '<?php echo ' . sprintf($f, '$attach_f->size') . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, 'Dotclear\File\Files::size($attach_f->size)') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'Dotclear\Helper\File\Files::size($attach_f->size)') . '; ?>';
     }
 
     /*dtd

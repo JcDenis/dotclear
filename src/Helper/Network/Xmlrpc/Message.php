@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Xmlrpc\Message
+ * @class Dotclear\Helper\Network\Xmlrpc\Message
  * @brief XML-RPC Message
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,11 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Xmlrpc;
+namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
 
-use Dotclear\Network\Xmlrpc\Date;
+use Dotclear\Helper\Network\Xmlrpc\Date;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

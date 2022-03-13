@@ -19,9 +19,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Form\Select as FormSelect;
-use Dotclear\Html\Form\Label as FormLabel;
-use Dotclear\Html\Form\Input as FormInput;
+use Dotclear\Helper\Html\Form\Select as FormSelect;
+use Dotclear\Helper\Html\Form\Label as FormLabel;
+use Dotclear\Helper\Html\Form\Input as FormInput;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

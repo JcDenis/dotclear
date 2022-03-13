@@ -20,8 +20,8 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Crypt;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Crypt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

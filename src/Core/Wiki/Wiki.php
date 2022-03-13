@@ -98,7 +98,7 @@ class Wiki
 
         $this->wiki2xhtml()->registerFunction('url:post', [$this, 'wikiPostLink']);
 
-        # --BEHAVIOR-- coreInitWikiPost, Dotclear\Html\Wiki2xhtml
+        # --BEHAVIOR-- coreInitWikiPost, Dotclear\Helper\Html\Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 
@@ -145,7 +145,7 @@ class Wiki
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Html\Wiki2xhtml
+        # --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Helper\Html\Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
     }
 
@@ -191,7 +191,7 @@ class Wiki
             'active_fr_syntax'    => 0
         ]);
 
-        # --BEHAVIOR-- coreInitWikiComment, Dotclear\Html\Wiki2xhtml
+        # --BEHAVIOR-- coreInitWikiComment, Dotclear\Helper\Html\Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
     }
 

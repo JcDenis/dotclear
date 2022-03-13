@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Behavior
+ * @class Dotclear\Helper\Behavior
  * @brief Stack by group of callable functions
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 use Closure;
 

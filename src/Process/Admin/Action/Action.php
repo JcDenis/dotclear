@@ -17,9 +17,9 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Record;
-use Dotclear\Html\Form;
-use Dotclear\Html\FormSelectOption;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\FormSelectOption;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

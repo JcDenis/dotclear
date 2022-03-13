@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\File\Zip\Unzip;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Service\Updater;
-use Dotclear\Utils\ErrorTrait;
+use Dotclear\Helper\ErrorTrait;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

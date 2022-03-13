@@ -16,8 +16,8 @@ namespace Dotclear\Plugin\Blogroll\Common;
 use ArrayObject;
 
 use Dotclear\Core\Url\Url;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 if (!defined('DOTCLEAR_PROCESS')) {

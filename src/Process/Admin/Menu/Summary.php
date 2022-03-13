@@ -18,8 +18,8 @@ namespace Dotclear\Process\Admin\Menu;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Menu\Menu;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

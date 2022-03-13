@@ -15,10 +15,10 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
-use Dotclear\File\Zip\Zip;
+use Dotclear\Helper\File\Zip\Zip;
 use DOtclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport;
 

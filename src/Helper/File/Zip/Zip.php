@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\File\Zip\Zip
+ * @class Dotclear\Helper\File\Zip\Zip
  * @brief Zip tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,11 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\File\Zip;
+namespace Dotclear\Helper\File\Zip;
 
 use Dotclear\Exception\FileException;
 
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

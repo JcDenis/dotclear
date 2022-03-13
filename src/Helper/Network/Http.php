@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Http
+ * @class Dotclear\Helper\Network\Http
  * @brief Basic Http tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,11 +13,11 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network;
+namespace Dotclear\Helper\Network;
 
 use Dotclear\Exception\UtilsException;
 
-use Dotclear\Utils\Crypt;
+use Dotclear\Helper\Crypt;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

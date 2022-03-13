@@ -16,8 +16,8 @@ namespace Dotclear\Module\Store\Repository;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Store\Repository\RepositoryReader;
-use Dotclear\Network\Http;
-use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

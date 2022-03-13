@@ -20,9 +20,9 @@ use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
-use Dotclear\Network\Http;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

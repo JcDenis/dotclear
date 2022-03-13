@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Fieldset
+ * @class Dotclear\Helper\Html\Form\Fieldset
  * @brief HTML Forms fieldset creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,10 +13,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Component;
-use Dotclear\Html\Form\Legend;
+use Dotclear\Helper\Html\Form\Component;
+use Dotclear\Helper\Html\Form\Legend;
 
 class Fieldset extends Component
 {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Configuration
+ * @class Dotclear\Helper\Configuration
  * @brief Dotclear configuration stacker
  *
  * @package Dotclear
@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 use Dotclear\Exception\UtilsException;
-use Dotclear\Utils\ErrorTrait;
+use Dotclear\Helper\ErrorTrait;
 
 class Configuration
 {

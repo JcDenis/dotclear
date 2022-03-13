@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Input
+ * @class Dotclear\Helper\Html\Form\Input
  * @brief HTML Forms input field creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Component;
+use Dotclear\Helper\Html\Form\Component;
 
 class Input extends Component
 {

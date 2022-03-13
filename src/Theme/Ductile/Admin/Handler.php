@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\File\Files;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

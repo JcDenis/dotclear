@@ -20,9 +20,9 @@ declare(strict_types=1);
 namespace Dotclear\Core\Media\Image;
 
 use Dotclear\Exception\UtilsException;
-use Dotclear\File\Files;
-use Dotclear\Html\Html;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Text;
 
 class ImageMeta
 {

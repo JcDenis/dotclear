@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Utils\Statistic
+ * @class Dotclear\Helper\Statistic
  * @brief Basic time and memory usage
  *
  * @package Dotclear
@@ -11,7 +11,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Utils;
+namespace Dotclear\Helper;
 
 class Statistic
 {

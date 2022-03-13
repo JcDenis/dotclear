@@ -20,8 +20,8 @@ use Dotclear\Exception\ModuleException;
 
 use Dotclear\Core\Media;
 
-use Dotclear\File\Path;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Files;
 
 class ConfigTheme
 {

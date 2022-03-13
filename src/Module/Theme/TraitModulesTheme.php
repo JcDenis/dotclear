@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme;
 
-use Dotclear\File\Path;
+use Dotclear\Helper\File\Path;
 
 trait TraitModulesTheme
 {

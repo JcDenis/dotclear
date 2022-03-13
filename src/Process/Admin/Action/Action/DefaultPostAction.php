@@ -18,9 +18,9 @@ use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Exception\AdminException;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Utils\L10n;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\L10n;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

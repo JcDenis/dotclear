@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Cursor;
-use Dotclear\Html\Form;
-use Dotclear\File\Path;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\File\Path;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;

@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
-use Dotclear\Utils\Dt;
+use Dotclear\Helper\Dt;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

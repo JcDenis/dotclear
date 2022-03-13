@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Pages\Common;
 use ArrayObject;
 
 use Dotclear\Database\Record;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 

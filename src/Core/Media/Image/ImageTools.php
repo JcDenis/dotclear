@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Media\Image;
 
 use Dotclear\Exception\UtilsException;
-use Dotclear\File\Files;
+use Dotclear\Helper\File\Files;
 
 class ImageTools
 {

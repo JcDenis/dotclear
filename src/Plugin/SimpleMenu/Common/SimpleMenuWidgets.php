@@ -15,8 +15,8 @@ namespace Dotclear\Plugin\SimpleMenu\Common;
 
 use ArrayObject;
 
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 

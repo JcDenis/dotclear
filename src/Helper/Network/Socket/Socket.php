@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Socket\Socket
+ * @class Dotclear\Helper\Network\Socket\Socket
  * @brief Network base
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -15,7 +15,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Socket;
+namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
 

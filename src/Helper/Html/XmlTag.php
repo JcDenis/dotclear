@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\XmlTag
+ * @class Dotclear\Helper\Html\XmlTag
  * @brief XML tree
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,7 +13,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html;
+namespace Dotclear\Helper\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

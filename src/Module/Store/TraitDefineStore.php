@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Store;
 
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

@@ -19,12 +19,12 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Statistic;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Statistic;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

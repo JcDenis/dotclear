@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Html\Form\Component
+ * @class Dotclear\Helper\Html\Form\Component
  * @brief HTML Forms creation helpers
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Label;
+use Dotclear\Helper\Html\Form\Label;
 
 abstract class Component
 {

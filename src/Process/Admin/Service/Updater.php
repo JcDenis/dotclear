@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\File\Files;
-use Dotclear\File\Zip\Unzip;
-use Dotclear\File\Zip\Zip;
-use Dotclear\Network\Http;
-use Dotclear\Network\NetHttp\NetHttp;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\File\Zip\Zip;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

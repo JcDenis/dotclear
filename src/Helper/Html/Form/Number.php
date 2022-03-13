@@ -13,9 +13,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Html\Form;
+namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Html\Form\Input;
+use Dotclear\Helper\Html\Form\Input;
 
 class Number extends Input
 {

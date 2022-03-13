@@ -20,9 +20,9 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Core\Media;
 use Dotclear\Core\Media\Manager\Item;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\File\Files;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

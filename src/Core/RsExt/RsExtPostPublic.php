@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtPost;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 
 class RsExtPostPublic extends RsExtPost
 {

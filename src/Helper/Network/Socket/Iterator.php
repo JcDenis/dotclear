@@ -1,14 +1,14 @@
 <?php
 /**
- * @class Dotclear\Network\Socket\Socket\Iterator
+ * @class Dotclear\Helper\Network\Socket\Socket\Iterator
  * @brief Network socket iterator
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * This class offers an iterator for network operations made with
- * {@link Dotclear\Network\Socket\Socket}.
+ * {@link Dotclear\Helper\Network\Socket\Socket}.
  *
- * @see Dotclear\Network\Socket\Socket::write()
+ * @see Dotclear\Helper\Network\Socket\Socket::write()
  *
  * @package Dotclear
  * @subpackage Network
@@ -18,7 +18,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Socket;
+namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Network\Xmlrpc\ClientMulticall
+ * @class Dotclear\Helper\Network\Xmlrpc\ClientMulticall
  * @brief Multicall XML-RPC Client
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -19,9 +19,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Network\Xmlrpc;
+namespace Dotclear\Helper\Network\Xmlrpc;
 
-use Dotclear\Network\Xmlrpc\Client;
+use Dotclear\Helper\Network\Xmlrpc\Client;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

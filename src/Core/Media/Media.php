@@ -24,12 +24,12 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
-use Dotclear\File\Files;
-use Dotclear\File\Path;
-use Dotclear\File\Zip\Unzip;
-use Dotclear\Html\XmlTag;
-use Dotclear\Utils\Dt;
-use Dotclear\Utils\Text;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\Html\XmlTag;
+use Dotclear\Helper\Dt;
+use Dotclear\Helper\Text;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

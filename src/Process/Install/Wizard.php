@@ -19,13 +19,13 @@ use Dotclear\Process\Distrib\Distrib;
 
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;
-use Dotclear\Network\Http;
-use Dotclear\Utils\L10n;
-use Dotclear\Utils\Text;
-use Dotclear\File\Path;
-use Dotclear\File\Files;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Text;
+use Dotclear\Helper\File\Path;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
     return;

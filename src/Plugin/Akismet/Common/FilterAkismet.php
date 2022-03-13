@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 use Dotclear\Database\Record;
-Use Dotclear\Html\Form;
-use Dotclear\Html\Html;
-use Dotclear\Network\Http;
+Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Akismet\Common\Akismet;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 

@@ -21,7 +21,7 @@ use Dotclear\Database\Statement\TruncateStatement;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
-use Dotclear\Network\Http;
+use Dotclear\Helper\Network\Http;
 
 if (!defined('DOTCLEAR_PROCESS')) {
     return;

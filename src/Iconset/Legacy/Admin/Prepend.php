@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
-use Dotclear\File\Path;
+use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

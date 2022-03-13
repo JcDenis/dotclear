@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Html\Form;
-use Dotclear\Html\Html;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;

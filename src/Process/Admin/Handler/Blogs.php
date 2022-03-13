@@ -23,7 +23,7 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
-use Dotclear\Html\Form;
+use Dotclear\Helper\Html\Form;
 
 if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
     return;
