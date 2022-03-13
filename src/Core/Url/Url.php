@@ -158,7 +158,6 @@ class Url
             throw new CoreException('Unable to find template ');
         }
 
-
         dotclear()->context()->current_tpl  = $tpl;
         dotclear()->context()->content_type = $content_type;
         dotclear()->context()->http_cache   = $http_cache;
@@ -173,29 +172,7 @@ class Url
 
         header('Content-Type: ' . dotclear()->context()->content_type . '; charset=UTF-8');
 
-        // Additional headers
-        $headers = new ArrayObject();
-        if (dotclear()->blog()->settings()->system->prevents_clickjacking) {
-            if (dotclear()->context()->exists('xframeoption')) {
-                $url    = parse_url(dotclear()->context()->xframeoption);
-                $header = sprintf(
-                    'X-Frame-Options: %s',
-                    is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
-                );
-            } else {
-                // Prevents Clickjacking as far as possible
-                $header = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
-            }
-            $headers->append($header);
-        }
-
-        # --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
-
-        // Send additional headers if any
-        foreach ($headers as $header) {
-            header($header);
-        }
+        $this->additionalHeaders();
 
         $result                 = new ArrayObject();
         $result['content']      = dotclear()->template()->getData(dotclear()->context()->current_tpl);
@@ -967,8 +944,43 @@ class Url
             $this->p404();
         }
 
-        # Serve file
-        dotclear()->template()->setPath(dirname($file),dotclear()->template()->getPath());
-        $this->serveDocument(basename($file), Files::getMimeType($file));
+        if (dotclear()->context()->http_cache) {
+            $this->mod_files = array_merge($this->mod_files, [basename($file)]);
+            Http::cache($this->mod_files, $this->mod_ts);
+        }
+
+        header('Content-Type: ' . Files::getMimeType($file) . ';');
+        $this->additionalHeaders();
+        $content = file_get_contents($file);
+        Http::etag($content, Http::getSelfURI());
+
+        echo $content;
+    }
+
+    protected function additionalHeaders()
+    {
+        // Additional headers
+        $headers = new ArrayObject();
+        if (dotclear()->blog()->settings()->system->prevents_clickjacking) {
+            if (dotclear()->context()->exists('xframeoption')) {
+                $url    = parse_url(dotclear()->context()->xframeoption);
+                $header = sprintf(
+                    'X-Frame-Options: %s',
+                    is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
+                );
+            } else {
+                // Prevents Clickjacking as far as possible
+                $header = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
+            }
+            $headers->append($header);
+        }
+
+        # --BEHAVIOR-- urlHandlerServeDocumentHeaders
+        dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
+
+        // Send additional headers if any
+        foreach ($headers as $header) {
+            header($header);
+        }
     }
 }
