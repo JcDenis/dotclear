@@ -171,7 +171,7 @@ class Summary extends ArrayObject
                     }
                     /*
                     # Not in iconset nor in Dotclear
-                    $icon = Path::real(root_path('Process', 'Admin', 'resources', $img));
+                    $icon = Path::real(root_path('Process', 'Admin', 'resources', $img), false);
                     if ($icon === false || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }

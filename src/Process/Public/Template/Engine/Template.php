@@ -109,7 +109,9 @@ class Template
 
     public function setCacheDir(string $dir)
     {
-        if (!is_dir($dir)) {
+        $dir = Path::real($dir);
+
+        if (!$dir || !is_dir($dir)) {
             throw new TemplateException($dir . ' is not a valid directory.');
         }
 
@@ -117,7 +119,7 @@ class Template
             throw new TemplateException($dir . ' is not writable.');
         }
 
-        $this->cache_dir = Path::real($dir) . '/';
+        $this->cache_dir = $dir . '/';
     }
 
     public function addBlock(string $name, $callback)

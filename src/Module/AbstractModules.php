@@ -238,8 +238,8 @@ abstract class AbstractModules
                 $this->error(sprintf(
                     __('Module "%s" is installed twice in "%s" and "%s".'),
                     '<strong>' . $define->name() . '</strong>',
-                    '<em>' . Path::real($this->modules_enabled[$define->id()]->root()) . '</em>',
-                    '<em>' . Path::real($dir) . '</em>'
+                    '<em>' . Path::real($this->modules_enabled[$define->id()]->root(), false) . '</em>',
+                    '<em>' . Path::real($dir, false) . '</em>'
                 ));
             }
         }

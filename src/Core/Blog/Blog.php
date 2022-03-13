@@ -68,7 +68,7 @@ class Blog
     /** @var string     Blog status */
     public $status;
 
-    /** @var string     Blog public path */
+    /** @var string|false   Blog public path */
     public $public_path;
 
     /** @var string     Blog fake public url */

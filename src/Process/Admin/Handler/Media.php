@@ -261,7 +261,7 @@ class Media extends Page
             $forget          = false;
 
             try {
-                if (is_dir(Path::real(dotclear()->media()->getPwd() . '/' . Path::clean($_POST['remove'])))) {
+                if (is_dir(Path::real(dotclear()->media()->getPwd() . '/' . Path::clean($_POST['remove']), false))) {
                     $msg = __('Directory has been successfully removed.');
                     # Remove dir from recents/favs if necessary
                     $forget = true;

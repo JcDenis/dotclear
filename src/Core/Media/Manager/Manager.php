@@ -40,11 +40,11 @@ class Manager
      * the object's methods.
      *
      * @param string    $root        Root path
-     * @param string    $root_url        Root URL
+     * @param string    $root_url    Root URL
      */
     public function __construct($root, $root_url = '')
     {
-        $this->root     = $this->pwd     = Path::real($root);
+        $this->root     = $this->pwd = Path::real($root);
         $this->root_url = $root_url;
 
         if (!preg_match('#/$#', (string) $this->root_url)) {

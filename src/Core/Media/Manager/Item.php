@@ -56,7 +56,7 @@ class Item
      */
     public function __construct($file, $root, $root_url = '')
     {
-        $file = Path::real($file);
+        $file = Path::real($file, false);
         $stat = stat($file);
         $path = Path::info($file);
 

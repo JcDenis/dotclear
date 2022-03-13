@@ -44,7 +44,7 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', dotclear()->config()->template_default));
+        $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', dotclear()->config()->template_default), false);
         $this->tplset_name  = dotclear()->config()->template_default;
 
         # Current theme
@@ -52,11 +52,11 @@ class ThemeEditor
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }
-        $this->user_theme   = Path::real($module->root());
+        $this->user_theme   = Path::real($module->root(), false);
 
         # Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', $module->templateset()));
+            $this->tplset_theme = Path::real(root_path('Process', 'Public', 'templates', $module->templateset()), false);
             $this->tplset_name  = $module->templateset();
         }
 

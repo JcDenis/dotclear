@@ -241,7 +241,7 @@ class ConfigTheme
      */
     public function cssPath($folder)
     {
-        return Path::real(dotclear()->blog()->public_path) . '/' . $folder;
+        return Path::real(dotclear()->blog()->public_path, false) . '/' . $folder;
     }
 
     /**
@@ -266,7 +266,7 @@ class ConfigTheme
      */
     public function canWriteCss($folder, $create = false)
     {
-        $public = Path::real(dotclear()->blog()->public_path);
+        $public = Path::real(dotclear()->blog()->public_path, false);
         $css    = $this->cssPath($folder);
 
         if (!is_dir($public)) {
@@ -385,7 +385,7 @@ class ConfigTheme
      */
     public function imagesPath($folder)
     {
-        return Path::real(dotclear()->blog()->public_path) . '/' . $folder;
+        return Path::real(dotclear()->blog()->public_path, false) . '/' . $folder;
     }
 
     /**
