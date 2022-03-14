@@ -52,8 +52,6 @@ class PagesAction extends PostAction
 
     public function loadDefaults(): void
     {
-        $class = 'Dotclear\\Process\\Admin\\Action\\Action\\DefaultPostAction';
-
         if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $this->addAction(
                 [__('Status') => [
@@ -62,21 +60,21 @@ class PagesAction extends PostAction
                     __('Schedule')        => 'schedule',
                     __('Mark as pending') => 'pending',
                 ]],
-                [$class, 'doChangePostStatus']
+                [$this, 'doChangePostStatus']
             );
         }
         if (dotclear()->user()->check('admin', dotclear()->blog()->id)) {
             $this->addAction(
                 [__('Change') => [
                     __('Change author') => 'author', ]],
-                [$class, 'doChangePostAuthor']
+                [$this, 'doChangePostAuthor']
             );
         }
         if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $this->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete', ]],
-                [$class, 'doDeletePost']
+                [$this, 'doDeletePost']
             );
         }
 
