@@ -311,7 +311,7 @@ class Blog
 
         $cur->blog_upddt = date('Y-m-d H:i:s');
 
-        $sql = new UpdateStatement($this->core, 'dcBlogTriggerBlog');
+        $sql = new UpdateStatement('dcBlogTriggerBlog');
         $sql->where('blog_id = ' . $sql->quote($this->id, true));
 
         $sql->update($cur);
