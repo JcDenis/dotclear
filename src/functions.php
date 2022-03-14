@@ -20,8 +20,6 @@ if (!function_exists('dotclear_run')) {
      */
     function dotclear_run(string $process, ?string $blog_id = null): void
     {
-        set_error_handler('dotclear_error_handler');
-
         # Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', __DIR__);
@@ -51,7 +49,7 @@ if (!function_exists('dotclear_run')) {
             ob_end_flush();
 
         # Try to display unexpected Exceptions as much cleaned as we can
-        } catch (\Exception $e) {
+        } catch (\Exception | \Error $e) {
             ob_end_clean();
 
             try {
@@ -60,7 +58,7 @@ if (!function_exists('dotclear_run')) {
                 } else {
                     dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
                 }
-            } catch (\Exception) {
+            } catch (\Exception | \Error) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
@@ -183,16 +181,5 @@ if (!function_exists('dotclear_error_trace')) {
                 "\n";
         }
         return sprintf("\n<pre>Traces : \n%s</pre>", $res);
-    }
-}
-
-if (!function_exists('dotclear_error_handler')) {
-
-    function dotclear_error_handler(int $errno, string $errstr, string $errfile, int $errline): bool
-    {
-        if (PHP_SAPI == 'cli' || !(error_reporting() & $errno)) {
-            return false;
-        }
-        dotclear_error('Unexpected error', $errstr . "\n" . $errfile . '::' . $errline, $errno);
     }
 }
