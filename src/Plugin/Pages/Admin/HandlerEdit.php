@@ -31,8 +31,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class HandlerEdit extends AbstractPage
 {
-    protected $workspaces = ['interface'];
-
     private $post_id            = 0;
     private $post_dt            = '';
     private $post_format        = '';

@@ -28,8 +28,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $workspaces = ['accessibility'];
-
     private $widgets_nav = null;
     private $widgets_extra = null;
     private $widgets_custom = null;

@@ -167,9 +167,6 @@ class ListOption
             # --BEHAVIOR-- adminFiltersLists
             dotclear()->behavior()->call('adminFiltersLists', $sorts);
 
-            if (dotclear()->user()->preference()->interface === null) {
-                dotclear()->user()->preference()->addWorkspace('interface');
-            }
             $sorts_user = @dotclear()->user()->preference()->interface->sorts;
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {

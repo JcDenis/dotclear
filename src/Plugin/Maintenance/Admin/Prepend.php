@@ -31,9 +31,6 @@ class Prepend extends AbstractPrepend
         # Menu
         $this->addStandardMenu('Plugins');
 
-        # Workspace
-        dotclear()->user()->preference()->addWorkspace('maintenance');
-
         # Behaviors
         new MaintenanceRest();
         new MaintenanceBehavior();

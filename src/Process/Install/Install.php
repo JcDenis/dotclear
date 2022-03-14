@@ -246,18 +246,15 @@ class Install
                 $plugins_install = $plugins->installModules($dlang);
 
                 /* Add dashboard module options */
-                dotclear()->user()->preference()->addWorkspace('dashboard');
                 dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);
                 dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean', '', null, true);
                 dotclear()->user()->preference()->dashboard->put('quickentry', true, 'boolean', '', null, true);
                 dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
 
                 /* Add accessibility options */
-                dotclear()->user()->preference()->addWorkspace('accessibility');
                 dotclear()->user()->preference()->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
 
                 /* Add user interface options */
-                dotclear()->user()->preference()->addWorkspace('interface');
                 dotclear()->user()->preference()->interface->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 /* Add default favorites */

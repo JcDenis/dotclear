@@ -60,7 +60,6 @@ class User extends Page
                 $this->container->fromRecord($rs);
 
                 $user_prefs = new Preference($this->container->getId(), 'profile');
-                $user_prefs->addWorkspace('profile');
                 $this->user_profile_mails = $user_prefs->profile->mails;
                 $this->user_profile_urls  = $user_prefs->profile->urls;
 
@@ -131,7 +130,6 @@ class User extends Page
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($this->container->getId(), 'profile');
-                    $user_prefs->addWorkspace('profile');
                     $user_prefs->profile->put('mails', $mails, 'string');
                     $user_prefs->profile->put('urls', $urls, 'string');
 
@@ -166,7 +164,6 @@ class User extends Page
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($new_id, 'profile');
-                    $user_prefs->addWorkspace('profile');
                     $user_prefs->profile->put('mails', $mails, 'string');
                     $user_prefs->profile->put('urls', $urls, 'string');
 

@@ -171,7 +171,6 @@ class Resource
     {
         $nocheckadblocker = null;
         if (dotclear()->user()->preference()) {
-            dotclear()->user()->preference()->addWorkspace('interface');
             $nocheckadblocker = dotclear()->user()->preference()->interface->nocheckadblocker;
         }
 

@@ -25,8 +25,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Categories extends Page
 {
-    protected $workspaces = ['accessibility'];
-
     /** @var Record     Categories working on*/
     private $categories;
 

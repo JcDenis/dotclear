@@ -55,8 +55,6 @@ class Prepend extends AbstractPrepend
     public function behaviorAdminBeforeUserOptionsUpdate(Cursor $cur, string $userID): void
     {
         // Get and store user's prefs for plugin options
-        dotclear()->user()->preference()->addWorkspace('interface');
-
         try {
             dotclear()->user()->preference()->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
             dotclear()->user()->preference()->interface->put('colorsyntax_theme',
@@ -69,8 +67,6 @@ class Prepend extends AbstractPrepend
     public function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        dotclear()->user()->preference()->addWorkspace('interface');
-
         $themes_list  = dotclear()->resource()->getCodeMirrorThemes();
         $themes_combo = [__('Default') => ''];
         foreach ($themes_list as $theme) {

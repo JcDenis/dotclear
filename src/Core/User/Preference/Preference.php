@@ -168,9 +168,7 @@ class Preference
      */
     public function get($ws)
     {
-        if ($this->exists($ws)) {
-            return $this->workspaces[$ws];
-        }
+        return $this->exists($ws) ? $this->workspaces[$ws] : $this->addWorkspace($ws);
     }
 
     /**

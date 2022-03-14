@@ -27,8 +27,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $workspaces = ['accessibility'];
-
     private $Ductile_list_types = [];
     private $Ductile_user = [
         // HTML

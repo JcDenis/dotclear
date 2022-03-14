@@ -38,8 +38,6 @@ class Search extends Page
     protected $s_list    = null;
     protected $s_actions = null;
 
-    protected $workspaces = ['interface'];
-
     protected function getPermissions(): string|null|false
     {
         return 'usage,contentadmin';

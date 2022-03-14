@@ -306,8 +306,6 @@ class Prepend extends Core
         # User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
 
-            $this->user()->preference()->addWorkspace('interface');
-
             # Load resources
             $this->adminLoadResources($this->config()->l10n_dir);
 

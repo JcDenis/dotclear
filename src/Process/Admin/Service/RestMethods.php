@@ -728,9 +728,7 @@ class RestMethods
         if (empty($post['section'])) {
             throw new AdminException('No section name');
         }
-        if (dotclear()->user()->preference()->toggles === null) {
-            dotclear()->user()->preference()->addWorkspace('toggles');
-        }
+
         $section = $post['section'];
         $status  = isset($post['value']) && ($post['value'] != 0);
         if (dotclear()->user()->preference()->toggles->prefExists('unfolded_sections')) {
@@ -770,10 +768,6 @@ class RestMethods
         }
         if (empty($post['list'])) {
             throw new AdminException('No sorted list of id');
-        }
-
-        if (dotclear()->user()->preference()->dashboard === null) {
-            dotclear()->user()->preference()->addWorkspace('dashboard');
         }
 
         $zone  = $post['id'];
@@ -821,9 +815,7 @@ class RestMethods
                 $su[$sort_type][2] = $sort_type == $post['id'] && isset($post[$k]) ? abs((int) $post[$k]) : $sort_data[4][1];
             }
         }
-        if (dotclear()->user()->preference()->interface === null) {
-            dotclear()->user()->preference()->addWorkspace('interface');
-        }
+
         dotclear()->user()->preference()->interface->put('sorts', $su, 'array');
 
         $res->msg = __('List options saved');

@@ -29,8 +29,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $workspaces = ['interface'];
-
     private $te_theme;
     private $te_editor;
     private $te_file;

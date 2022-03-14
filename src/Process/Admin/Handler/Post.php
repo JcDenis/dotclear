@@ -31,8 +31,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Post extends Page
 {
-    protected $workspaces = ['interface'];
-
     private $post_id            = null;
     private $cat_id             = '';
     private $post_dt            = '';

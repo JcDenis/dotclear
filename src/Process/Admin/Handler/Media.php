@@ -53,9 +53,6 @@ class Media extends Page
 
     /** @var    bool   Uses enhance uploader */
     protected $media_uploader = null;
-
-    protected $workspaces = ['interface'];
-
     protected function getPermissions(): string|null|false
     {
         return 'media,media_admin';

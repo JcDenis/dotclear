@@ -27,8 +27,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $workspaces = ['accessibility'];
-
     private $sm_items;
     private $sm_step              = 0;
     private $sm_menu              = [];
@@ -362,7 +360,6 @@ class Handler extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        dotclear()->user()->preference()->addWorkspace('accessibility');
                         if (dotclear()->user()->preference()->accessibility->nodragdrop) {
                             # Order menu items
                             $order = [];

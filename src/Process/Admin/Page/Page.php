@@ -65,9 +65,6 @@ abstract class Page
     /** @var Inventory      Inventory instance */
     protected $inventory;
 
-    /** @var array          User workswpaces to initialize */
-    protected $workspaces = [];
-
     /** @var array          Misc options for page content */
     protected $options = [];
 
@@ -107,7 +104,6 @@ abstract class Page
     final public function pageProcess(): void
     {
         $this->pageInstances();
-        $this->pageWorkspaces();
         $action = $this->pagePrepend();
 
         if ($action === null) {
@@ -189,15 +185,6 @@ abstract class Page
             }
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
-        }
-    }
-
-    private function pageWorkspaces(): void
-    {
-        if (!empty($this->workspaces)) {
-            foreach($this->workspaces as $ws) {
-                dotclear()->user()->preference()->addWorkspace($ws);
-            }
         }
     }
 
@@ -354,7 +341,6 @@ abstract class Page
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
-        dotclear()->user()->preference()->addWorkspace('interface');
         if (!dotclear()->user()->preference()->interface->hide_std_favicon) {
             echo
                 '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
@@ -366,7 +352,6 @@ abstract class Page
         $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
         $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
 
-        dotclear()->user()->preference()->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
         $js['debug'] = !dotclear()->production();
@@ -477,14 +462,12 @@ abstract class Page
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
-        dotclear()->user()->preference()->addWorkspace('interface');
         if (dotclear()->user()->preference()->interface->htmlfontsize) {
             $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
         }
         $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
         $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
 
-        dotclear()->user()->preference()->addWorkspace('accessibility');
         $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
 
         $js['debug'] = !dotclear()->production();
@@ -571,7 +554,6 @@ abstract class Page
         if (!dotclear()->user()->preference()) {
             return;
         }
-        dotclear()->user()->preference()->addWorkspace('interface');
         if (dotclear()->user()->preference()->interface->hidehelpbutton) {
             return;
         }

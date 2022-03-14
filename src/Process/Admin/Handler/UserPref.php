@@ -64,8 +64,6 @@ class UserPref extends Page
     protected $user_ui_media_nb_last_dirs = '';
     protected $user_ui_nocheckadblocker   = '';
 
-    protected $workspaces = ['profile', 'dashboard', 'accessibility', 'interface', 'favorites'];
-
     protected function getPermissions(): string|null|false
     {
         return 'usage,contentadmin';

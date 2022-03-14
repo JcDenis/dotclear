@@ -254,7 +254,6 @@ class RsExtComment extends RsExtend
     public function isMe(): bool
     {
         $user_prefs = new Preference($this->rs->user_id, 'profile');
-        $user_prefs->addWorkspace('profile');
         $user_profile_mails = $user_prefs->profile->mails ?
             array_map('trim', explode(',', $user_prefs->profile->mails)) :
             [];
