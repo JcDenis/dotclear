@@ -117,5 +117,6 @@ return [
     //'store_update_noauto' => false,
 
     // Production environment
+    // (set it to false to show more verbose errors and stats)
     //'production' => true,
 ];

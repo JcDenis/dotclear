@@ -15,6 +15,7 @@
 - [ ] fix admin popup
 - [ ] auto create settings namespace and prefs workspace
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
+- [ ] fix install in user's lang
 
 ### Idea
 
