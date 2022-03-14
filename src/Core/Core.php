@@ -80,7 +80,7 @@ class Core
     private $log;
 
     /** @var    Media|null  Media instance */
-    private $media;
+    private $media = null;
 
     /** @var    Meta   Meta instance */
     private $meta;
@@ -128,9 +128,26 @@ class Core
     //@{
     /**
      * Disabled children constructor and direct instance
+     *
+     * Set up some (no config) static features
      */
     final protected function __construct()
     {
+        # Statistic (dev)
+        Statistic::start();
+
+        # Encoding
+        mb_internal_encoding('UTF-8');
+
+        # Timezone
+        Dt::setTZ('UTC');
+
+        # Disallow every special wrapper
+        Http::unregisterWrapper();
+
+        # Add custom regs
+        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
+        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
     }
 
     /*
@@ -163,21 +180,20 @@ class Core
     /**
      * Get core unique instance
      *
+     * Use a two stage instanciation (construct then process).
+     *
      * @param   string|null     $blog_id    Blog ID on first public process call
      *
      * @return  Core|null                   Core (Process) instance
      */
     final public static function singleton(?string $blog_id = null): ?Core
     {
-        if (!static::$instance && static::class != self::class) {
-            Statistic::start();
-
-            # Two stage instanciation (construct then process)
-            static::$instance = new static();
-            static::$instance->process($blog_id);
+        if (!self::$instance && static::class != self::class) {
+            self::$instance = new static();
+            self::$instance->process($blog_id);
         }
 
-        return static::$instance;
+        return self::$instance;
     }
     //@}
 
@@ -565,19 +581,6 @@ class Core
      */
     protected function process(): void
     {
-        # Add custom regs
-        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
-        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
-
-        # Encoding
-        mb_internal_encoding('UTF-8');
-
-        # Timezone
-        Dt::setTZ('UTC');
-
-        # Disallow every special wrapper
-        Http::unregisterWrapper();
-
         # Find configuration file
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
