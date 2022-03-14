@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Berlin\Public;
 
-use DOtclear\Html\Html;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
