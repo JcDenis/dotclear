@@ -893,7 +893,7 @@ trait TraitModulesAdmin
             );
 
             $index        = is_subclass_of(
-                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Page',
+                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
                 'Dotclear\\Module\\AbstractPage'
             );
         }
