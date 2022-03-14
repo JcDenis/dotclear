@@ -82,7 +82,6 @@ class Prepend extends AbstractPrepend
             unset($_o);
         }
 
-        dotclear()->blog()->settings()->addNamespace('antispam');
         dotclear()->blog()->settings()->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;

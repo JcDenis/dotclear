@@ -25,8 +25,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $namespaces = ['maintenance'];
-
     private $m_maintenance;
     private $m_tasks = null;
     private $m_task  = null;

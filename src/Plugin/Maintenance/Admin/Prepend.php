@@ -33,7 +33,6 @@ class Prepend extends AbstractPrepend
 
         # Workspace
         dotclear()->user()->preference()->addWorkspace('maintenance');
-        dotclear()->blog()->settings()->addNamespace('maintenance');
 
         # Behaviors
         new MaintenanceRest();

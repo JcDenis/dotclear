@@ -42,7 +42,6 @@ class BreadcrumbTemplate
         $ret = '';
 
         # Check if breadcrumb enabled for the current blog
-        dotclear()->blog()->settings()->addNamespace('breadcrumb');
         if (!dotclear()->blog()->settings()->breadcrumb->breadcrumb_enabled) {
             return $ret;
         }

@@ -24,7 +24,6 @@ class Config extends AbstractConfig
 {
     public function setConfiguration($post): void
     {
-        dotclear()->blog()->settings()->addNamespace('LegacyEditor');
         dotclear()->blog()->settings()->LegacyEditor->put('active', !empty($post['LegacyEditor_active']), 'boolean');
 
         dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
@@ -33,8 +32,6 @@ class Config extends AbstractConfig
 
     public function getConfiguration(): void
     {
-        dotclear()->blog()->settings()->addNamespace('LegacyEditor');
-
         echo
         '<div class="fieldset">' .
         '<h3>' . __('Plugin activation') . '</h3>' .

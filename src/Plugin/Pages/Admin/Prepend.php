@@ -30,9 +30,6 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Declare settings name
-        dotclear()->blog()->settings()->addNamespace('pages');
-
         # Add pages permissions
         dotclear()->user()->setPermissionType('pages', __('manage pages'));
 

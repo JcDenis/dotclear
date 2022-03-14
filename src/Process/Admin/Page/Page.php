@@ -65,9 +65,6 @@ abstract class Page
     /** @var Inventory      Inventory instance */
     protected $inventory;
 
-    /** @var array          Blog settings namespace to initialize */
-    protected $namespaces = [];
-
     /** @var array          User workswpaces to initialize */
     protected $workspaces = [];
 
@@ -110,7 +107,6 @@ abstract class Page
     final public function pageProcess(): void
     {
         $this->pageInstances();
-        $this->pageNamespaces();
         $this->pageWorkspaces();
         $action = $this->pagePrepend();
 
@@ -201,15 +197,6 @@ abstract class Page
         if (!empty($this->workspaces)) {
             foreach($this->workspaces as $ws) {
                 dotclear()->user()->preference()->addWorkspace($ws);
-            }
-        }
-    }
-
-    private function pageNamespaces(): void
-    {
-        if (!empty($this->namespaces) && dotclear()->blog()->id) {
-            foreach($this->namespaces as $ns) {
-                dotclear()->blog()->settings()->addNamespace($ns);
             }
         }
     }

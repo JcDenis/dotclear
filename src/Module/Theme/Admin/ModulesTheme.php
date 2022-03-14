@@ -277,7 +277,6 @@ class ModulesTheme extends AbstractModules
     {
         $submits = [];
 
-        dotclear()->blog()->settings()->addNamespace('system');
         if ($id != dotclear()->blog()->settings()->system->theme) {
 
             # Select theme to use on curent blog
@@ -427,7 +426,6 @@ class ModulesTheme extends AbstractModules
                     throw new ModuleException(__('No such theme.'));
                 }
 
-                dotclear()->blog()->settings()->addNamespace('system');
                 dotclear()->blog()->settings()->system->put('theme', $id);
                 dotclear()->blog()->triggerBlog();
 

@@ -161,7 +161,6 @@ class Install
                 Distrib::setBlogDefaultSettings();
 
                 $blog_settings = new Settings('default');
-                $blog_settings->addNamespace('system');
                 $blog_settings->system->put('blog_timezone', $default_tz);
                 $blog_settings->system->put('lang', $dlang);
 

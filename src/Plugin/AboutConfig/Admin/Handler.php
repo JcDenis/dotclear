@@ -45,7 +45,6 @@ class Handler extends AbstractPage
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ns => $s) {
-                    dotclear()->blog()->settings()->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['s_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
@@ -66,7 +65,6 @@ class Handler extends AbstractPage
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ns => $s) {
-                    dotclear()->blog()->settings()->addNamespace($ns);
                     foreach ($s as $k => $v) {
                         if ($_POST['gs_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);

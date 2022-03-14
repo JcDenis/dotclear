@@ -35,8 +35,6 @@ class Antispam
 
     public function __construct()
     {
-        dotclear()->blog()->settings()->addNamespace('antispam');
-
         if ('Public' == DOTCLEAR_PROCESS) {
             dotclear()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
             dotclear()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);

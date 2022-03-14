@@ -36,7 +36,6 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->addNamespace('themes');
         dotclear()->blog()->settings()->themes->put('Blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;

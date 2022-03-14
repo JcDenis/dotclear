@@ -113,7 +113,6 @@ class FilterAkismet extends Spamfilter
 
     public function gui(string $url): string
     {
-        dotclear()->blog()->settings()->addNamespace('akismet');
         $ak_key      = dotclear()->blog()->settings()->akismet->ak_key;
         $ak_verified = null;
 

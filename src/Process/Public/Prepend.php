@@ -168,9 +168,6 @@ class Prepend extends Core
                     'about:config module or reinstall default theme. (' . $__theme . ')'), '', 650);
         }
 
-        # Ensure theme's settings namespace exists
-        $this->blog()->settings()->addNamespace('themes');
-
         # If theme has parent load their locales
         if (count($path) > 1) {
             $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'main');

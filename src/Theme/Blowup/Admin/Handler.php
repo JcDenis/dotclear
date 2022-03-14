@@ -212,7 +212,6 @@ class Handler extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dotclear()->blog()->settings()->addNamespace('themes');
                 dotclear()->blog()->settings()->themes->put('Blowup_style', serialize($this->Blowup_user));
                 dotclear()->blog()->triggerBlog();
 

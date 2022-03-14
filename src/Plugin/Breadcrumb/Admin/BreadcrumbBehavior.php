@@ -30,7 +30,6 @@ class BreadcrumbBehavior
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings): void
     {
-        $settings->addNamespace('breadcrumb');
         echo
         '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
         '<p><label class="classic">' .
@@ -44,7 +43,6 @@ class BreadcrumbBehavior
 
     public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
-        $settings->addNamespace('breadcrumb');
         $settings->breadcrumb->put('breadcrumb_enabled', !empty($_POST['breadcrumb_enabled']), 'boolean');
         $settings->breadcrumb->put('breadcrumb_alone', !empty($_POST['breadcrumb_alone']), 'boolean');
     }

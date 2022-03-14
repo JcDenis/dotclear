@@ -32,8 +32,7 @@ class Prepend extends AbstractPrepend
         //$this->addStandardFavorites('admin');
 
         # Settings
-        $s = dotclear()->blog()->settings()->addNamespace('dcckeditor');
-        if (!$s->active) {
+        if (!dotclear()->blog()->settings()->dcckeditor->active) {
             //return;
         }
 
@@ -52,7 +51,6 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->addNamespace('dcckeditor');
         $s = dotclear()->blog()->settings()->dcckeditor;
 
         $s->put('active', true, 'boolean', 'dcCKEditor plugin activated?', false, true);

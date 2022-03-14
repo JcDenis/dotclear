@@ -1552,8 +1552,6 @@ class XmlRpc extends xmlrpcIntrospectionServer
         $blog_changes = false;
         $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
 
-        dotclear()->blog()->settings()->addNamespace('system');
-
         foreach ($options as $name => $value) {
             if (!isset($opt[$name]) || $opt[$name]['readonly']) {
                 continue;

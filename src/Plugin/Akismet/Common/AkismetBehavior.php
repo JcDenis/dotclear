@@ -23,8 +23,6 @@ class AkismetBehavior
 {
     public function __construct()
     {
-        dotclear()->blog()->settings()->addNamespace('akismet');
-
         dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
             $spamfilters[] = __NAMESPACE__ . '\\FilterAkismet';
         });

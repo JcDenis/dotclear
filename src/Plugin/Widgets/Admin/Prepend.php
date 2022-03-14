@@ -48,7 +48,6 @@ class Prepend extends AbstractPrepend
     {
         $widgets  = new Widgets();
         $settings = dotclear()->blog()->settings();
-        $settings->addNamespace('widgets');
         if ($settings->widgets->widgets_nav != null) {
             $settings->widgets->put('widgets_nav', $widgets->load($settings->widgets->widgets_nav)->store());
         } else {

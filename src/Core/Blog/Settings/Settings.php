@@ -170,11 +170,11 @@ class Settings
      *
      * @param   string  $ns     Namespace name
      *
-     * @return  Settingspace|null
+     * @return  Settingspace
      */
-    public function get(string $ns): ?Settingspace
+    public function get(string $ns): Settingspace
     {
-        return $this->namespaces[$ns] ?? null;
+        return $this->addNamespace($ns);
     }
 
     /**

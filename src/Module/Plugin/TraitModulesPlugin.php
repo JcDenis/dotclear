@@ -27,7 +27,6 @@ trait TraitModulesPlugin
 
         # If a plugin directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
-            dotclear()->blog()->settings()->addNamespace('system');
             $path = trim((string) dotclear()->blog()->settings()->system->module_plugin_dir);
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;

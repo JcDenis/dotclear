@@ -28,8 +28,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        $s = dotclear()->blog()->settings()->addNamespace('LegacyEditor');
-        if (!$s->active) {
+        if (!dotclear()->blog()->settings()->LegacyEditor->active) {
 
             return;
         }
@@ -44,9 +43,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        $settings = dotclear()->blog()->settings();
-        $settings->addNamespace('LegacyEditor');
-        $settings->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
+        dotclear()->blog()->settings()->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 
         return true;
     }

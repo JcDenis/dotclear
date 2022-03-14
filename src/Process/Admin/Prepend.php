@@ -347,9 +347,6 @@ class Prepend extends Core
                 $this->blog()->settings()->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
             }
 
-            # Ensure theme's settings namespace exists
-            $this->blog()->settings()->addNamespace('themes');
-
         # No user session and not on auth page, go on
         } elseif ($this->adminurl()->called() != 'admin.auth') {
             $this->adminurl()->redirect('admin.auth');

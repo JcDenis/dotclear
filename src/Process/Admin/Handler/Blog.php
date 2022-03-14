@@ -74,7 +74,6 @@ class Blog extends Page
 
                 # Default settings and override some
                 $blog_settings = new Settings($cur->blog_id);
-                $blog_settings->addNamespace('system');
                 $blog_settings->system->put('lang', dotclear()->user()->getInfo('user_lang'));
                 $blog_settings->system->put('blog_timezone', dotclear()->user()->getInfo('user_tz'));
 

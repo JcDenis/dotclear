@@ -589,7 +589,6 @@ class WidgetsStack
     public function widgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog()->settings()->addNamespace('widgets');
         $widgets = dotclear()->blog()->settings()->widgets->{$wtype};
 
         if (!$widgets) {
@@ -641,7 +640,6 @@ class WidgetsStack
     public function ifWidgetsHandler($type, $disable = '')
     {
         $wtype = 'widgets_' . $type;
-        dotclear()->blog()->settings()->addNamespace('widgets');
         $widgets = dotclear()->blog()->settings()->widgets->{$wtype};
 
         if (!$widgets) {

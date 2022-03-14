@@ -23,8 +23,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class HandlerPost extends AbstractPage
 {
-    protected $namespaces = ['dcckeditor'];
-
     protected function getPermissions(): string|null|false
     {
         return 'admin';

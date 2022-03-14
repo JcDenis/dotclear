@@ -26,8 +26,6 @@ class Handler extends AbstractPage
 {
     private $pings_uris = [];
 
-    protected $namespaces = ['pings'];
-
     protected function getPermissions(): string|null|false
     {
         return null;

@@ -190,8 +190,6 @@ class BlogPref extends Page
                     $this->blog_id = $cur->blog_id;
                 }
 
-                $this->blog_settings->addNamespace('system');
-
                 $this->blog_settings->system->put('editor', $_POST['editor']);
                 $this->blog_settings->system->put('copyright_notice', $_POST['copyright_notice']);
                 $this->blog_settings->system->put('post_url_format', $_POST['post_url_format']);

@@ -25,8 +25,6 @@ if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
 
 class Handler extends AbstractPage
 {
-    protected $namespaces = ['dcckeditor'];
-
     private $ckes;
 
     protected function getPermissions(): string|null|false
