@@ -37,8 +37,7 @@ class PrependException extends \Exception
             if ($previous) {
                 array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
             }
-            $detail .= dotclear_error_trace($traces);
         }
-        dotclear_error($message, $detail, $code);
+        dotclear_error($message, $detail, $code, $traces);
     }
 }

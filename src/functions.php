@@ -53,11 +53,7 @@ if (!function_exists('dotclear_run')) {
             ob_end_clean();
 
             try {
-                if (dotclear()?->production() !== true) {
-                    dotclear_error(get_class($e), $e->getMessage() . dotclear_error_trace($e->getTrace()), $e->getCode());
-                } else {
-                    dotclear_error(get_class($e), $e->getMessage(), $e->getCode());
-                }
+               dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), dotclear()?->production() === false ? $e->getTrace() : null);
             } catch (\Exception | \Error) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
@@ -91,7 +87,7 @@ if (!function_exists('dotclear_error')) {
      * @param   string  $detail     The detail
      * @param   int     $code       The code
      */
-    function dotclear_error(string $message, string $detail = '', int $code = 0): void
+    function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {
         @ob_clean();
 
@@ -105,6 +101,20 @@ if (!function_exists('dotclear_error')) {
 
         # Display error through an internal error page
         } else {
+            if (!empty($traces)) {
+                $res = '';
+                foreach($traces as $i => $line) {
+                    $res .=
+                        '#' . $i .' ' .
+                        (!empty($line['class']) ? $line['class'] . '::' : '') .
+                        (!empty($line['function']) ? $line['function'] . ' -- ' : '') .
+                        (!empty($line['file']) ? $line['file'] . ":" : '') .
+                        (!empty($line['line']) ? $line['line'] : '') .
+                        "\n";
+                }
+                $detail .= sprintf("\n<pre>Traces : \n%s</pre>", $res);
+            }
+
             $detail = str_replace("\n", '<br />', $detail);
 
             header('Content-Type: text/html; charset=utf-8');
@@ -163,23 +173,5 @@ if (!function_exists('dotclear_error')) {
 <?php
             exit(0);
         }
-    }
-}
-
-if (!function_exists('dotclear_error_trace')) {
-
-    function dotclear_error_trace(array $traces): string
-    {
-        $res = '';
-        foreach($traces as $i => $line) {
-            $res .=
-                '#' . $i .' ' .
-                (!empty($line['class']) ? $line['class'] .'::' : '') .
-                (!empty($line['function']) ? $line['function'] . ' -- ' : '') .
-                (!empty($line['file']) ? $line['file'] . ":" : '') .
-                (!empty($line['line']) ? $line['line'] : '') .
-                "\n";
-        }
-        return sprintf("\n<pre>Traces : \n%s</pre>", $res);
     }
 }
