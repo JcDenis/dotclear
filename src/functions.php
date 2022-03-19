@@ -53,7 +53,15 @@ if (!function_exists('dotclear_run')) {
             ob_end_clean();
 
             try {
-               dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), dotclear()?->production() === false ? $e->getTrace() : null);
+                $traces = null;
+                if (false === dotclear()?->production()) {
+                    $traces = $e->getTrace();
+                    array_unshift($traces, ['file' => $e->getFile(), 'line' => $e->getLine()]);
+                    if (null != ($previous = $e->getPrevious())) {
+                        array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
+                    }
+                }
+               dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), $traces);
             } catch (\Exception | \Error) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
@@ -137,7 +145,7 @@ if (!function_exists('dotclear_error')) {
     padding : 0;
   }
   #content {
-      margin: 1em 20%;
+      margin: 1em 5%;
       padding: 1px 1em 2em;
       background: #272b30;
       font-size: 1.3em;
