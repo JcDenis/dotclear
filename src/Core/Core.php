@@ -522,7 +522,7 @@ class Core
                 $this->getExceptionLang();
                 $this->throwException(
                     __('Unable to do authentication'),
-                    sprtinf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
+                    sprintf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
                     611
                 );
             }
