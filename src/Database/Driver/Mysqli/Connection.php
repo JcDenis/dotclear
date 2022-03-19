@@ -331,4 +331,14 @@ class Connection extends AbstractConnection implements InterfaceConnection
 
         return $type;
     }
+
+    public function db_field_cast($str, $type)
+    {
+        return match ($type) {
+            'int', 'timestamp'  => (int) $str,
+            'real' => (float) $str,
+            'string', 'date', 'time', 'datetime', 'year', 'blob' => (string) $str,
+            default => $str
+        };
+    }
 }

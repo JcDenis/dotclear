@@ -121,6 +121,14 @@ class Record implements \Iterator, \Countable
      */
     public function field($n)
     {
+        if (method_exists($this->__info['con'], 'db_field_cast')) {
+            $types = is_numeric($n) ?
+                $this->__info['info']['type'] :
+                array_combine($this->__info['info']['name'], $this->__info['info']['type']);
+
+            return $this->__info['con']->db_field_cast($this->__row[$n], $types[$n]);
+        }
+
         return $this->__row[$n];
     }
 
