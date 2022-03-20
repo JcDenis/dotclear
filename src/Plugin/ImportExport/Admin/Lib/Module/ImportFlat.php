@@ -300,7 +300,7 @@ class ImportFlat extends Module
 
             # Check zipped file contents
             $content = $zip->unzip($zip_file);
-            if (!str_start_with($content, '///DOTCLEAR|')) {
+            if (!str_starts_with($content, '///DOTCLEAR|')) {
                 unset($content);
 
                 continue;
