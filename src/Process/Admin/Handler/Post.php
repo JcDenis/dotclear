@@ -817,7 +817,7 @@ class Post extends Page
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML(dotclear()->user()->getInfo('user_cn')),
+                'default'    => Html::escapeHTML(dotclear()->user()->userCN()),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .

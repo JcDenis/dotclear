@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Container\User as ContainerUser;
+use Dotclear\Container\UserContainer;
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
@@ -309,7 +309,7 @@ class RsExtPost extends RsExtend
      */
     public function getAuthorCN(): string
     {
-        return ContainerUser::getUserCN(
+        return UserContainer::getUserCN(
             $this->rs->user_id,
             $this->rs->user_name,
             $this->rs->user_firstname,

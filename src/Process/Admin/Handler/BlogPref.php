@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Container\User;
+use Dotclear\Container\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
@@ -900,7 +900,7 @@ class BlogPref extends Page
                     echo
                     '<div class="user-perm' . ($v['super'] ? ' user_super' : '') . '">' .
                     '<h4>' . sprintf($user_url_p, Html::escapeHTML($k)) .
-                    ' (' . Html::escapeHTML(User::getUserCN(
+                    ' (' . Html::escapeHTML(UserContainer::getUserCN(
                         $k, $v['name'], $v['firstname'], $v['displayname']
                     )) . ')</h4>';
 

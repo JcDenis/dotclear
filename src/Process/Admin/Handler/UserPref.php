@@ -16,7 +16,7 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Container\User as ContainerUser;
+use Dotclear\Container\UserContainer;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -73,9 +73,7 @@ class UserPref extends Page
     {
         $page_title = __('My preferences');
 
-        $this->container = new ContainerUser();
-
-        $this->container->fromRecord(dotclear()->users()->getUser(dotclear()->user()->userID()));
+        $this->container = new UserContainer(dotclear()->users()->getUser(dotclear()->user()->userID()));
 
         if (empty($this->container->getOption('editor'))) {
             $this->container->setOption('editor', []);
@@ -169,19 +167,19 @@ class UserPref extends Page
             try {
                 $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->user()->checkPassword($_POST['cur_pwd']);
 
-                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->container->getEmail() != $_POST['user_email']) {
+                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->container->user_email != $_POST['user_email']) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
-                $cur->user_name        = $this->container->setName($_POST['user_name']);
-                $cur->user_firstname   = $this->container->setFirstname($_POST['user_firstname']);
-                $cur->user_displayname = $this->container->setDisplayname($_POST['user_displayname']);
-                $cur->user_email       = $this->container->setEmail($_POST['user_email']);
-                $cur->user_url         = $this->container->setURL($_POST['user_url']);
-                $cur->user_lang        = $this->container->setLang($_POST['user_lang']);
-                $cur->user_tz          = $this->container->setTZ($_POST['user_tz']);
+                $cur->user_name        = $this->container->user_name = $_POST['user_name'];
+                $cur->user_firstname   = $this->container->user_firstname = $_POST['user_firstname'];
+                $cur->user_displayname = $this->container->user_displayname = $_POST['user_displayname'];
+                $cur->user_email       = $this->container->user_email = $_POST['user_email'];
+                $cur->user_url         = $this->container->user_url = $_POST['user_url'];
+                $cur->user_lang        = $this->container->user_lang = $_POST['user_lang'];
+                $cur->user_tz          = $this->container->user_tz = $_POST['user_tz'];
 
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
@@ -231,14 +229,14 @@ class UserPref extends Page
             try {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
-                $cur->user_name        = $this->container->getName();
-                $cur->user_firstname   = $this->container->getFirstname();
-                $cur->user_displayname = $this->container->getDisplayname();
-                $cur->user_email       = $this->container->getEmail();
-                $cur->user_url         = $this->container->getURL();
-                $cur->user_lang        = $this->container->getLang();
-                $cur->user_tz          = $this->container->getTZ();
-                $cur->user_post_status = $this->container->setPostStatus($_POST['user_post_status']);
+                $cur->user_name        = $this->container->user_name;
+                $cur->user_firstname   = $this->container->user_firstname;
+                $cur->user_displayname = $this->container->user_displayname;
+                $cur->user_email       = $this->container->user_email;
+                $cur->user_url         = $this->container->user_url;
+                $cur->user_lang        = $this->container->user_lang;
+                $cur->user_tz          = $this->container->user_tz;
+                $cur->user_post_status = $this->container->user_post_status = $_POST['user_post_status'];
 
                 $this->container->setOption('edit_size', $_POST['user_edit_size'], 'int');
                 if ($this->container->getOption('edit_size') < 1) {
@@ -518,28 +516,28 @@ class UserPref extends Page
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
         Form::field('user_name', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->getName()),
+            'default'      => Html::escapeHTML($this->container->user_name),
             'autocomplete' => 'family-name',
         ]) .
         '</p>' .
 
         '<p><label for="user_firstname">' . __('First Name:') . '</label>' .
         Form::field('user_firstname', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->getFirstname()),
+            'default'      => Html::escapeHTML($this->container->user_firstname),
             'autocomplete' => 'given-name',
         ]) .
         '</p>' .
 
         '<p><label for="user_displayname">' . __('Display name:') . '</label>' .
         Form::field('user_displayname', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->getDisplayname()),
+            'default'      => Html::escapeHTML($this->container->user_displayname),
             'autocomplete' => 'nickname',
         ]) .
         '</p>' .
 
         '<p><label for="user_email">' . __('Email:') . '</label>' .
         Form::email('user_email', [
-            'default'      => Html::escapeHTML($this->container->getEmail()),
+            'default'      => Html::escapeHTML($this->container->user_email),
             'autocomplete' => 'email',
         ]) .
         '</p>' .
@@ -554,7 +552,7 @@ class UserPref extends Page
         '<p><label for="user_url">' . __('URL:') . '</label>' .
         Form::url('user_url', [
             'size'         => 30,
-            'default'      => Html::escapeHTML($this->container->getURL()),
+            'default'      => Html::escapeHTML($this->container->user_url),
             'autocomplete' => 'url',
         ]) .
         '</p>' .
@@ -567,10 +565,10 @@ class UserPref extends Page
         '<p class="form-note info" id="sanitize_urls">' . __('Invalid URLs will be automatically removed from list.') . '</p>' .
 
         '<p><label for="user_lang">' . __('Language for my interface:') . '</label>' .
-        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->container->getlang(), 'l10n') . '</p>' .
+        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->container->user_lang, 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
-        Form::combo('user_tz', Dt::getZones(true, true), $this->container->getTZ()) . '</p>';
+        Form::combo('user_tz', Dt::getZones(true, true), $this->container->user_tz) . '</p>';
 
         if (dotclear()->user()->allowPassChange()) {
             echo
@@ -759,7 +757,7 @@ class UserPref extends Page
 
         echo
         '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
-        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->container->getPostStatus()) . '</p>' .
+        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->container->user_post_status) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
         Form::number('user_edit_size', 10, 999, (string) $this->container->getOption('edit_size')) . '</p>' .

@@ -20,7 +20,7 @@ namespace Dotclear\Process\Admin\Combo;
 
 use ArrayObject;
 
-use Dotclear\Container\User;
+use Dotclear\Container\UserContainer;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
@@ -86,8 +86,12 @@ class Combo
     {
         $users_combo = [];
         while ($users->fetch()) {
-            $user_cn = User::getUserCN($users->user_id, $users->user_name,
-                $users->user_firstname, $users->user_displayname);
+            $user_cn = UserContainer::getUserCN(
+                $users->user_id,
+                $users->user_name,
+                $users->user_firstname,
+                $users->user_displayname
+            );
 
             if ($user_cn != $users->user_id) {
                 $user_cn .= ' (' . $users->user_id . ')';

@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
-use Dotclear\Container\User as ContainerUser;
+use Dotclear\Container\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
@@ -145,7 +145,7 @@ class Install
                 $cur->user_tz        = $default_tz;
                 $cur->user_creadt    = date('Y-m-d H:i:s');
                 $cur->user_upddt     = date('Y-m-d H:i:s');
-                $cur->user_options   = serialize(ContainerUser::defaultOptions());
+                $cur->user_options   = serialize(UserContainer::defaultOptions());
                 $cur->insert();
 
                 dotclear()->user()->checkUser($u_login);

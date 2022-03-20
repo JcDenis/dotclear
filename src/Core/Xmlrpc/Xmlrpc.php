@@ -15,7 +15,7 @@ namespace Dotclear\Core\Xmlrpc;
 
 use ArrayObject;
 
-use Dotclear\Container\User as ContainerUser;
+use Dotclear\Container\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\File\Files;
@@ -1064,7 +1064,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             $res[] = [
                 'user_id'      => $k,
                 'user_login'   => $k,
-                'display_name' => ContainerUser::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
+                'display_name' => UserContainer::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
             ];
         }
 
@@ -1260,7 +1260,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
-        $cur->comment_author = dotclear()->user()->getInfo('user_cn');
+        $cur->comment_author = dotclear()->user()->userCN();
         $cur->comment_email  = dotclear()->user()->getInfo('user_email');
         $cur->comment_site   = dotclear()->user()->getInfo('user_url');
 
