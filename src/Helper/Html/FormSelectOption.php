@@ -37,7 +37,7 @@ class FormSelectOption
      * @param string  $class_name  Element class name
      * @param string  $html        Extra HTML attributes
      */
-    public function __construct(string $name, $value, string $class_name = '', string $html = '')
+    public function __construct(string $name, mixed $value, string $class_name = '', string $html = '')
     {
         $this->name       = $name;
         $this->value      = $value;
@@ -50,10 +50,10 @@ class FormSelectOption
      *
      * Returns option HTML code
      *
-     * @param string  $default  Value of selected option
-     * @return string
+     * @param   mixed   $default    Value of selected option
+     * @return  string
      */
-    public function render(?string $default): string
+    public function render(mixed $default): string
     {
         $attr = $this->html ? ' ' . $this->html : '';
         $attr .= $this->class_name ? ' class="' . $this->class_name . '"' : '';

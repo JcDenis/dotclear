@@ -72,7 +72,7 @@ class Url
         return $type == $this->getHomeType();
     }
 
-    public function getURLFor(string $type, string $value = ''): string
+    public function getURLFor(string $type, string|int $value = ''): string
     {
         $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {

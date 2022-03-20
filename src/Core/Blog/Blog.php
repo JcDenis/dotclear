@@ -198,12 +198,12 @@ class Blog
     /**
      * Returns URLs from URL handler with blog root URL
      *
-     * @param   string  $type   The URL handler type
-     * @param   string  $value  The URL handler value
+     * @param   string      $type   The URL handler type
+     * @param   string|int  $value  The URL handler value
      *
-     * @return  string          The URL
+     * @return  string              The URL
      */
-    public function getURLFor(string $type, string $value = ''): string
+    public function getURLFor(string $type, string|int $value = ''): string
     {
         $url = dotclear()->url()->getURLFor($type, $value);
 

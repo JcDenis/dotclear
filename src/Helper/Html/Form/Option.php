@@ -25,10 +25,10 @@ class Option extends Component
      * Constructs a new instance.
      *
      * @param      string       $name     The option name
-     * @param      string       $value    The option value
+     * @param      string|int   $value    The option value
      * @param      null|string  $element  The element
      */
-    public function __construct(string $name, string $value, ?string $element = null)
+    public function __construct(string $name, string|int $value, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this
