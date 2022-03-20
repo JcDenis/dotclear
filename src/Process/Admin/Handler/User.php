@@ -113,7 +113,7 @@ class User extends Page
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 
                 # Udate user
-                if ($this->container->user_id) {
+                if (!empty($_REQUEST['id'])) {
                     # --BEHAVIOR-- adminBeforeUserUpdate
                     dotclear()->behavior()->call('adminBeforeUserUpdate', $cur, $this->container->user_id);
 
