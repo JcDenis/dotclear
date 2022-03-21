@@ -74,7 +74,9 @@ class AbstractContainer
     public function set(string $key, mixed $value): mixed
     {
         $this->exists($key, true);
-        settype($value, gettype($this->row[$key]));
+        if (!settype($value, gettype($this->row[$key]))) {
+            throw new \Exception(sprintf('Wrong container value type for key %s', $key));
+        }
         $this->row[$key] = $this->change[$key] = $value;
 
         return $this->row[$key];
