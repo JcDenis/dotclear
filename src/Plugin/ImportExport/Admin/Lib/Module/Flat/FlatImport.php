@@ -788,7 +788,7 @@ class FlatImport extends FlatBackup
                     $this->cur_user->user_id  = (string) $user_id;
                     $this->cur_user->user_pwd = md5(uniqid());
 
-                    $this->core->addUser($this->cur_user);
+                    dotclear()->users()->addUser($this->cur_user);
 
                     $this->stack['users'][$user_id] = true;
                 }

@@ -55,7 +55,7 @@ class Handler extends AbstractPage
             try {
                 $module->process($_REQUEST['do']);
             } catch (\Exception $e) {
-                $core->error->add($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
             }
         }
 
