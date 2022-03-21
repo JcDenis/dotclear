@@ -84,7 +84,7 @@ class Auth extends Page
         $dlang = ($dlang == '' ? 'en' : $dlang);
         if ($dlang != 'en' && preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $dlang)) {
             L10n::lang($dlang);
-            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'main'));
         }
 
         $this->default_lang = $dlang;

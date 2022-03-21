@@ -48,9 +48,9 @@ class Install
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'date'));
-            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
-            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
+            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'date'));
+            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
         }
 
         if (dotclear()->config()->master_key == '') {

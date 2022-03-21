@@ -44,7 +44,7 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ($dlang != 'en') {
             L10n::init($dlang);
-            L10n::set(Path::implodeRoot(dotclear()->config()->l10n_dir, $dlang, 'main'));
+            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'main'));
         }
 
         if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
