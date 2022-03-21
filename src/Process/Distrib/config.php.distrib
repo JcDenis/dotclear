@@ -13,7 +13,7 @@ declare(strict_types=1);
 use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_CONFIG_PATH')) {
-  return;
+  exit(1);
 }
 
 // If you have PATH_INFO issue, uncomment following lines

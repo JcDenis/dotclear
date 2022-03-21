@@ -17,10 +17,6 @@ use Dotclear\Core\Media;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 /**
  * Do not use l10nFaker with DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin
  */

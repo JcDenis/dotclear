@@ -15,10 +15,6 @@ namespace Dotclear\Theme\Ductile\Public;
 
 use Dotclear\Helper\File\Files;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class DuctileTemplate
 {
     public function __construct()

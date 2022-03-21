@@ -20,10 +20,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class SimpleMenuWidgets
 {
     public static $widgets;

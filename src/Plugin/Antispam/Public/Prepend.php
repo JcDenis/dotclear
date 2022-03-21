@@ -18,10 +18,6 @@ use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

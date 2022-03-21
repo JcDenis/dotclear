@@ -17,10 +17,6 @@ use Dotclear\Exception\DistribException
 use Dotclear\Core\Core;
 use Dotclear\Process\Distrib\Upgrade;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Prepend extends Core
 {
     protected $process = 'Distrib';

@@ -17,10 +17,6 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

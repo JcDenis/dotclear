@@ -20,10 +20,6 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class PostMiniInventory extends Inventory
 {
     /**

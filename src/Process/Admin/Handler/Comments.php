@@ -23,10 +23,6 @@ use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Comments extends Page
 {
     protected function getPermissions(): string|null|false

@@ -44,12 +44,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\NetHttp;
 
 use Dotclear\Exception\NetworkException;
-
 use Dotclear\Helper\Network\Socket\Socket;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class NetHttp extends Socket
 {

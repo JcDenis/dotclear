@@ -21,10 +21,6 @@ use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Blogs
 {
     /**

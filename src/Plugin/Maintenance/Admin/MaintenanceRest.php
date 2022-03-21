@@ -18,10 +18,6 @@ use Dotclear\Plugin\Maintenance\Admin\Maintenance;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\XmlTag;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 /**
 @ingroup PLUGIN_MAINTENANCE
 @nosubgrouping

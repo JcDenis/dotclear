@@ -18,10 +18,6 @@ use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Spamfilters
 {
     private $filters     = [];

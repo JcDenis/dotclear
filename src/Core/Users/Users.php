@@ -21,10 +21,6 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Users
 {
     /**

@@ -15,10 +15,6 @@ namespace Dotclear\Module;
 
 use Dotclear\Module\AbstractDefine;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 trait TraitModulesPublic
 {
     /**

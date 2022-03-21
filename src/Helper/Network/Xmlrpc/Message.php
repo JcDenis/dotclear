@@ -16,12 +16,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
-
 use Dotclear\Helper\Network\Xmlrpc\Date;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class Message
 {

@@ -22,10 +22,6 @@ use Dotclear\Plugin\Blogroll\Admin\BlogrollImport;
 use Dotclear\Plugin\Blogroll\Admin\HandlerEdit;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $br_blogroll;

@@ -23,10 +23,6 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\File\Path;
 
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Config extends AbstractConfig
 {
     private $customcss_file = '';

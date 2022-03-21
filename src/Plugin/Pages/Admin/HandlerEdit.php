@@ -25,10 +25,6 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class HandlerEdit extends AbstractPage
 {
     private $post_id            = 0;

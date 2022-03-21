@@ -19,10 +19,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class BlogrollTemplate
 {
     public function __construct()

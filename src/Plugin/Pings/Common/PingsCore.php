@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Pings\Common;
 
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class PingsCore
 {
     public function __construct()

@@ -19,10 +19,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class HandlerEdit extends AbstractPage
 {
     private $br_blogroll;

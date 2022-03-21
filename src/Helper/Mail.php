@@ -15,12 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 use Dotclear\Exception\UtilsException;
-
 use Dotclear\Helper\Text;
 
 class Mail

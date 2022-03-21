@@ -17,10 +17,6 @@ namespace Dotclear\Process\Admin\Menu;
 
 use Dotclear\Helper\Lexical;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Menu
 {
     private $id;

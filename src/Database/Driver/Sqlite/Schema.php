@@ -19,10 +19,6 @@ use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\InterfaceSchema;
 use Dotclear\Exception\DatabaseException;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Schema extends AbstractSchema implements InterfaceSchema
 {
     private $table_hist = [];

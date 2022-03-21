@@ -15,10 +15,6 @@ namespace Dotclear\Database;
 
 use Dotclear\Database\Record;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 abstract class RecordExtend
 {
     protected $rs;

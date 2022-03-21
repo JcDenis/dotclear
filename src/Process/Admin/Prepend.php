@@ -33,10 +33,6 @@ use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Notice\Notice;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Prepend extends Core
 {
     /** @var    AdminUrl    AdminUrl instance */

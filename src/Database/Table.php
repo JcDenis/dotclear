@@ -17,10 +17,6 @@ namespace Dotclear\Database;
 
 use Dotclear\Exception\DatabaseException;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Table
 {
     protected $name;

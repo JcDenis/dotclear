@@ -46,10 +46,6 @@ use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
 use Dotclear\Helper\File\Path;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Core
 {
     /** @var    Autoload   Autoload instance */

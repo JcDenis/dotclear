@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class TagsXmlrpc
 {
     public function __construct()

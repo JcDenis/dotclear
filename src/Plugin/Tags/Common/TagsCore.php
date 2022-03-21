@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Tags\Common;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class TagsCore
 {
     public function __construct()

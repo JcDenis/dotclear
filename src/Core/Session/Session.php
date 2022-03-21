@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Session;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Session
 {
     private $table;

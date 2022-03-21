@@ -18,10 +18,6 @@ use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Pings\Admin\PingsBehavior;
 use Dotclear\Plugin\Pings\Common\PingsCore;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

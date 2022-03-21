@@ -21,10 +21,6 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class PagesInventory extends Inventory
 {
     public function display($page, $nb_per_page, $enclose_block = '')

@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Breadcrumb\Admin;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class BreadcrumbBehavior
 {
     public function __construct()

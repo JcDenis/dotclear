@@ -18,10 +18,6 @@ use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Theme\Ductile\Public\DuctileBehavior;
 use Dotclear\Theme\Ductile\Public\DuctileTemplate;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

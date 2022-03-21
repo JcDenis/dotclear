@@ -18,10 +18,6 @@ use ArrayObject;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Exception\AdminException;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 abstract class DefaultBlogAction extends Action
 {
     public function loadBlogsAction(Action $ap): void

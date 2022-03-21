@@ -20,10 +20,6 @@ use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class PagesAction extends PostAction
 {
     public function __construct(string $uri, array $redirect_args = [])

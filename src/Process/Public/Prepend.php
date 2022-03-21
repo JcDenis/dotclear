@@ -26,10 +26,6 @@ use Dotclear\Module\Theme\Public\ModulesTheme;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Prepend extends Core
 {
     /** @var    Context     Context instance */

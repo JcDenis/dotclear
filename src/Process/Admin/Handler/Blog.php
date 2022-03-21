@@ -19,10 +19,6 @@ use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Blog extends Page
 {
     private $blog_id   = '';

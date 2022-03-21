@@ -17,10 +17,6 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

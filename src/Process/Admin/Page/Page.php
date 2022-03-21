@@ -26,10 +26,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Statistic;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 abstract class Page
 {
     /** @var string|null    Page type */

@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Widgets\Common;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Widget
 {
     private $id;

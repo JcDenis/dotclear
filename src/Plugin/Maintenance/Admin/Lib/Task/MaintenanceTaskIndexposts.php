@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class MaintenanceTaskIndexposts extends MaintenanceTask
 {
     protected $ajax  = true;

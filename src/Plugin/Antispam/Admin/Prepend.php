@@ -23,10 +23,6 @@ use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

@@ -25,10 +25,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Post extends Page
 {
     private $post_id            = null;

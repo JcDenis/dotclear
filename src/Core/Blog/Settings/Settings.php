@@ -17,10 +17,6 @@ use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Settings
 {
     /** @var    string  Setting table name */

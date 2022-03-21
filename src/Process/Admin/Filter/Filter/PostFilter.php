@@ -21,10 +21,6 @@ use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
-
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
 class PostFilter extends Filter
 {
     protected $post_type = 'post';

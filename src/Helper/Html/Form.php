@@ -17,10 +17,6 @@ namespace Dotclear\Helper\Html;
 
 use Dotclear\Helper\Html\FormSelectOption;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Form
 {
     /**

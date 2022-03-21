@@ -16,10 +16,6 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\Container\UserContainer;
 use Dotclear\Core\RsExt\RsExtend;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 /**
  * Extent log record class.
  */

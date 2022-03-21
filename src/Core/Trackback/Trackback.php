@@ -23,10 +23,6 @@ use Dotclear\Helper\Network\Xmlrpc\Client as XmlrpcClient;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Trackback
 {
     /** @var    string  Trackback table name */

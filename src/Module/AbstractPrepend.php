@@ -18,10 +18,6 @@ namespace Dotclear\Module;
 
 use Dotclear\Module\AbstractDefine;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 abstract class AbstractPrepend
 {
     /** @var    AbstractDefine|null     Module Define instance */

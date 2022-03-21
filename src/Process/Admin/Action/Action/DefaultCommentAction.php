@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Exception\AdminException;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 abstract class DefaultCommentAction extends Action
 {
     protected function loadCommentAction(Action $ap): void

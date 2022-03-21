@@ -15,10 +15,6 @@ namespace Dotclear\Core\Wiki;
 
 use Dotclear\Core\Wiki\Wiki2xhtml;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Wiki
 {
     /** @var    Wiki2xhtml   Wiki2xhtml instance */

@@ -18,10 +18,6 @@ use Dotclear\Module\TraitPrependPublic;
 
 use Dotclear\Plugin\Attachments\Public\AttachmentsTemplate;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

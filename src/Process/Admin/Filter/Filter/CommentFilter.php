@@ -20,10 +20,6 @@ use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class CommentFilter extends Filter
 {
     public function __construct()

@@ -26,10 +26,6 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class XmlRpc extends xmlrpcIntrospectionServer
 {
     private $blog_id;

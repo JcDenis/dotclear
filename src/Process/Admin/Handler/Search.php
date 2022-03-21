@@ -25,10 +25,6 @@ use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Search extends Page
 {
     private $s_qtype_combo = [];

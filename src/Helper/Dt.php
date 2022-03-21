@@ -17,10 +17,6 @@ namespace Dotclear\Helper;
 
 use Dotclear\Exception\UtilsException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Dt
 {
     private static $timezones = null;

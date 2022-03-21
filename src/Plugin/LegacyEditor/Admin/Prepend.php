@@ -18,10 +18,6 @@ use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior;
 use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

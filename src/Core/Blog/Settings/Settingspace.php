@@ -16,10 +16,6 @@ namespace Dotclear\Core\Blog\Settings;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Settingspace
 {
     /** @var    string     Settings table name */

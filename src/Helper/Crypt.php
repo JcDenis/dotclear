@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Crypt
 {
     /**

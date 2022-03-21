@@ -21,10 +21,6 @@ use Dotclear\Plugin\Tags\Common\TagsWidgets;
 use Dotclear\Plugin\Tags\Public\TagsBehavior;
 use Dotclear\Plugin\Tags\Public\TagsTemplate;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

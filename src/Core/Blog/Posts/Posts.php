@@ -26,10 +26,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Posts
 {
     /**

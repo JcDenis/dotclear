@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Breadcrumb\Public;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class BreadcrumbTemplate
 {
     public function __construct()

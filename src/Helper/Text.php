@@ -17,10 +17,6 @@ namespace Dotclear\Helper;
 
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Text
 {
     /**

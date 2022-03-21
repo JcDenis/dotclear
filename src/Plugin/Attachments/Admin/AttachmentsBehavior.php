@@ -19,10 +19,6 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class AttachmentsBehavior
 {
     public function __construct()

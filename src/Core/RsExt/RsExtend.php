@@ -15,10 +15,6 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Database\RecordExtend;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 abstract class RsExtend extends RecordExtend
 {
     public function __construct()

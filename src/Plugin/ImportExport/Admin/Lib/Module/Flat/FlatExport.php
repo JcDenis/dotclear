@@ -18,10 +18,6 @@ use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class FlatExport
 {
     private $line_reg = ['/\\\\/u', '/\n/u', '/\r/u', '/"/u'];

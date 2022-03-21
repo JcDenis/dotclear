@@ -20,10 +20,6 @@ use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Updater
 {
     public const ERR_FILES_CHANGED    = 101;

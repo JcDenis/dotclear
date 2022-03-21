@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class XmlTag
 {
     private $_name;

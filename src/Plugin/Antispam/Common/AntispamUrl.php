@@ -20,10 +20,6 @@ use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class AntispamUrl extends Url
 {
     public function __construct()

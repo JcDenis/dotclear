@@ -26,14 +26,9 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
-
 use Dotclear\Helper\Network\Xmlrpc\Message;
 use Dotclear\Helper\Network\Xmlrpc\Value;
 use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class Server
 {

@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class BlogAction extends DefaultBlogAction
 {
     public function __construct(string $uri, array $redirect_args = [])

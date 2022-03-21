@@ -16,10 +16,6 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Help extends Page
 {
     private $help_title   = '';

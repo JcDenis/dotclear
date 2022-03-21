@@ -18,10 +18,6 @@ use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtPost extends RsExtend
 {
     /**

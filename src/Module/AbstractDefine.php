@@ -22,10 +22,6 @@ use Dotclear\Helper\ErrorTrait;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 abstract class AbstractDefine
 {
     use ErrorTrait;

@@ -22,10 +22,6 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Notice
 {
     /** @var string     notices table prefix */

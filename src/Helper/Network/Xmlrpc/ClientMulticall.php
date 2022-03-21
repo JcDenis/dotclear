@@ -23,10 +23,6 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Helper\Network\Xmlrpc\Client;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class ClientMulticall extends Client
 {
     protected $calls = []; ///< array

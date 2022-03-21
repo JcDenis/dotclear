@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Antispam\Common\Filter;
 
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class FilterLinkslookup extends Spamfilter
 {
     public $name = 'Links Lookup';

@@ -16,10 +16,6 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Helper\Lexical;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtStaticRecord extends StaticRecord
 {
     private $sortfield;

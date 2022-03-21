@@ -16,10 +16,6 @@ namespace Dotclear\Theme\Ductile\Public;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class DuctileBehavior
 {
     private $config;

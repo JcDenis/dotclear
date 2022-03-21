@@ -15,10 +15,6 @@ namespace Dotclear\Helper;
 
 use Dotclear\Helper\Html\XmlTag;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RestServer
 {
     /**

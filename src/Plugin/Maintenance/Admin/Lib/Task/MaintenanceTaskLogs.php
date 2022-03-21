@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class MaintenanceTaskLogs extends MaintenanceTask
 {
     public static $keep_maintenance_logs = true;

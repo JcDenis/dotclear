@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class PostAction extends DefaultPostAction
 {
     public function __construct(string $uri, array $redirect_args = [])

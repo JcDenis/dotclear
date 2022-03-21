@@ -21,10 +21,6 @@ use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class CspReport extends Page
 {
     # not used but required

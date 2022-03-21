@@ -20,10 +20,6 @@ use Dotclear\Exception\DatabaseException;
 use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
 use Dotclear\Database\InterfaceConnection;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Connection extends BaseConnection implements InterfaceConnection
 {
     public static $weak_locks = true; ///< boolean: Enables weak locks if true

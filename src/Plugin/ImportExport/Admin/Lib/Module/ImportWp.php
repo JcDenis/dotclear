@@ -22,10 +22,6 @@ use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ImportWp extends Module
 {
     protected $action = null;

@@ -15,10 +15,6 @@ namespace Dotclear\Helper;
 
 use Dotclear\Helper\Error;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 trait ErrorTrait
 {
     /** @var    Error   Error instance */

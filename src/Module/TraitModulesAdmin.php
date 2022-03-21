@@ -21,10 +21,6 @@ use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 trait TraitModulesAdmin
 {
     /** @var    Store   Store instance */

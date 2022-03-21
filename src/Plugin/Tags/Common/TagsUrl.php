@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Tags\Common;
 
 use Dotclear\Core\Url\Url;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class TagsUrl extends Url
 {
     public function __construct()

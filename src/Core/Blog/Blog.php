@@ -24,10 +24,6 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Blog
 {
     /** @var    Categories   Categories instance */

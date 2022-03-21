@@ -15,10 +15,6 @@ namespace Dotclear\Core\Formater;
 
 use Closure;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Formater
 {
     /** @var array              formaters container */

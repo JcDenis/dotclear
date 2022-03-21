@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class FlatBackup
 {
     protected $fp;

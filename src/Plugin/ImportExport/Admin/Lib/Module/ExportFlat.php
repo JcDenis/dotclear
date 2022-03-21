@@ -22,10 +22,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ExportFlat extends Module
 {
     public function setInfo()

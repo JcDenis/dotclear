@@ -15,10 +15,6 @@ namespace Dotclear\Module\Iconset;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\TraitDefine;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class DefineIconset extends AbstractDefine
 {
     use TraitDefine;

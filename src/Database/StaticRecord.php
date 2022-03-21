@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class StaticRecord extends Record
 {
     public $__data = []; ///< array: Data array

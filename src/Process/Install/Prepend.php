@@ -20,10 +20,6 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Install\Install;
 use Dotclear\Process\Install\Wizard;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Prepend extends Core
 {
     /** @var    Favorite   Favorite instance */

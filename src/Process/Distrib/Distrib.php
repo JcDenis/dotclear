@@ -19,10 +19,6 @@ use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
 use Dotclear\Helper\File\Files;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Distrib
 {
     public static function getConfigFile(): string

@@ -22,16 +22,10 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
-
+use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 use Dotclear\Helper\Network\Xmlrpc\Message;
 use Dotclear\Helper\Network\Xmlrpc\Request;
-
-use Dotclear\Helper\Network\NetHttp\NetHttp;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class Client extends NetHttp
 {

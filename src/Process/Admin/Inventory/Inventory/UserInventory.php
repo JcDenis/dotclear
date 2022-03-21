@@ -20,10 +20,6 @@ use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class UserInventory extends Inventory
 {
     /**

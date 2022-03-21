@@ -5,10 +5,6 @@ namespace Dotclear\Database\Statement;
 
 use Dotclear\Database\Cursor;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 /**
  * Update Statement : small utility to build update queries
  */

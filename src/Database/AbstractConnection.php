@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 abstract class AbstractConnection
 {
     protected $__driver  = null; ///< string: Driver name

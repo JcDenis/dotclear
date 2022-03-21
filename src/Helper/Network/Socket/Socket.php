@@ -19,10 +19,6 @@ namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Socket
 {
     protected $_host;           ///< string: Server host

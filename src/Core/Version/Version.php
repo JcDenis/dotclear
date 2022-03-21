@@ -16,10 +16,6 @@ namespace Dotclear\Core\Version;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Version
 {
     /** @var    string  The version table name */

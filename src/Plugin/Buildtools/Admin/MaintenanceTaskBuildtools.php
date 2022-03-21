@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 use Dotclear\Plugin\Buildtools\Admin\L10nFaker;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class MaintenanceTaskBuildtools extends MaintenanceTask
 {
     protected $tab   = 'dev';

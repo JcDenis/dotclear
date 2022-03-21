@@ -17,10 +17,6 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Helper\Network\Xmlrpc\Value;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Request
 {
     public $method; ///< string Request method name

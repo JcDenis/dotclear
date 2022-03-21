@@ -21,10 +21,6 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 use Dotclear\Database\Record;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtComment
 {
     public static function spamFilter(Record $rs): ?string

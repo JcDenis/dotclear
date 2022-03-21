@@ -21,10 +21,6 @@ use Dotclear\Database\InterfaceConnection;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\DatabaseException;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Connection extends AbstractConnection implements InterfaceConnection
 {
     protected $__driver        = 'sqlite';

@@ -14,10 +14,6 @@ namespace Dotclear\Module\Plugin;
 
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 trait TraitDefinePlugin
 {
     public function permissions(): ?string

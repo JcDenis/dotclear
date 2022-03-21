@@ -15,10 +15,6 @@ namespace Dotclear\Module;
 
 use Dotclear\Process\Admin\Favorite\Favorite;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 trait TraitPrependAdmin
 {
     /** @var    array   Module Favorites */

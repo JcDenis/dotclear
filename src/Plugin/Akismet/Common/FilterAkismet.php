@@ -20,10 +20,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Akismet\Common\Akismet;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class FilterAkismet extends Spamfilter
 {
     public $name    = 'Akismet';

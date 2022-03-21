@@ -15,10 +15,6 @@ namespace Dotclear\Module;
 
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 trait TraitDefine
 {
     public function name(): string

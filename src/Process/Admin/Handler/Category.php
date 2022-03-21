@@ -18,10 +18,6 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Category extends Page
 {
     private $cat_id          = '';

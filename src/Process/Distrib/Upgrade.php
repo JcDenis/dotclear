@@ -21,10 +21,6 @@ use Dotclear\Exception\DistribException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
     define('DOTCLEAR_OLD_ROOT_DIR', DOTCLEAR_ROOT_DIR . '/../');
 }

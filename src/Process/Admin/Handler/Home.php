@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Home extends Page
 {
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];

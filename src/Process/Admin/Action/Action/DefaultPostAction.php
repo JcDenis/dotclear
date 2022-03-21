@@ -22,10 +22,6 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 abstract class DefaultPostAction extends Action
 {
     public function loadPostAction(Action $ap): void

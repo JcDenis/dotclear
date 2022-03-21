@@ -23,10 +23,6 @@ use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Posts extends Page
 {
     protected function getPermissions(): string|null|false

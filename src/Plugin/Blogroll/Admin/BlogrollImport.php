@@ -17,10 +17,6 @@ use StdClass;
 
 use Dotclear\Exception\ModuleException
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class BlogrollImport
 {
     protected $entries = null;

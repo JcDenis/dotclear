@@ -25,10 +25,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
-    return;
-}
-
 class Wizard
 {
     public function __construct()

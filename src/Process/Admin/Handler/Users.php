@@ -26,10 +26,6 @@ use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Users extends Page
 {
     protected function getPermissions(): string|null|false

@@ -23,10 +23,6 @@ use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Log
 {
     /** @var string     Log table name */

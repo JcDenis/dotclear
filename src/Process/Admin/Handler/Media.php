@@ -27,10 +27,6 @@ use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Media extends Page
 {
     /** @var    bool    Page has a valid query */

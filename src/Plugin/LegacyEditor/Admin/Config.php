@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractConfig;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Config extends AbstractConfig
 {
     public function setConfiguration($post): void

@@ -16,10 +16,6 @@ namespace Dotclear\Process\Admin\Page;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Pager
 {
     protected $env;

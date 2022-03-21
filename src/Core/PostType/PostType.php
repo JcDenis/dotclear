@@ -15,10 +15,6 @@ namespace Dotclear\Core\PostType;
 
 use Dotclear\Helper\Html\Html;;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class PostType
 {
     /** @var array              formaters container */

@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 /**
 Main class to call everything related to maintenance.
  */

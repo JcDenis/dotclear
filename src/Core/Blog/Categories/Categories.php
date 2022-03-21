@@ -23,10 +23,6 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Categories
 {
     /** @var    CategoriesTree   CategoriesTree instance */

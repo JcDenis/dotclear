@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Public;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class AttachmentsTemplate
 {
     public function __construct()

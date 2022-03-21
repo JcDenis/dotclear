@@ -19,10 +19,6 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $a_antispam;

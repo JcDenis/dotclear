@@ -19,10 +19,6 @@ use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class AntispamBehavior
 {
     public function __construct()

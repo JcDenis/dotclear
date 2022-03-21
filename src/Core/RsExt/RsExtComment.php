@@ -24,10 +24,6 @@ use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtComment extends RsExtend
 {
     /**

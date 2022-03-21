@@ -20,10 +20,6 @@ use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class FilterIpv6 extends Spamfilter
 {
     public $name    = 'IP Filter v6';

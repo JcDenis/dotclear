@@ -17,10 +17,6 @@ namespace Dotclear\Helper\Html;
 
 use Dotclear\Helper\Html\HtmlFilter;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Html
 {
     public static $url_root;

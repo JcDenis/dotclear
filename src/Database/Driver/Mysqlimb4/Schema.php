@@ -17,10 +17,6 @@ namespace Dotclear\Database\Driver\Mysqlimb4;
 
 use Dotclear\Database\Driver\Mysqli\Schema as BaseSchema;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Schema extends BaseSchema
 {
     public function db_create_table(string $name, array $fields): void

@@ -19,10 +19,6 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Module\Store\Repository\RepositoryParser;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RepositoryReader extends NetHttp
 {
     /** @var    string    User agent used to query repository */

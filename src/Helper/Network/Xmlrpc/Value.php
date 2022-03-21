@@ -17,10 +17,6 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Helper\Network\Xmlrpc\Base64;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Value
 {
     protected $data; ///< mixed Data value

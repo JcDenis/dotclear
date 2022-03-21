@@ -15,10 +15,6 @@ namespace Dotclear\Core\Blog\Categories;
 
 use Dotclear\Database\NestedTree;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class CategoriesTree extends NestedTree
 {
     protected $f_left  = 'cat_lft';

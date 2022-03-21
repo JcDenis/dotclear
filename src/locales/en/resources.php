@@ -7,8 +7,6 @@
  * @copyright GPL-2.0-only
  */
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {return;}
-
 $__resources['rss_news'] = 'https://dotclear.org/blog/feed/category/News/atom';
 
 $__resources['doc'] = array(

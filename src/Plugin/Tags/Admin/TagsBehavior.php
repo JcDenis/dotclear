@@ -20,10 +20,6 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class TagsBehavior
 {
     public function __construct()

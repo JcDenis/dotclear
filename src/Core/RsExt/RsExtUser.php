@@ -16,10 +16,6 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Core\RsExt\RsExtStaticRecord;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtUser extends RsExtend
 {
     private static $sortfield;

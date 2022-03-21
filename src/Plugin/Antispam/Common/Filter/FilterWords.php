@@ -20,10 +20,6 @@ use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class FilterWords extends Spamfilter
 {
     public $has_gui = true;

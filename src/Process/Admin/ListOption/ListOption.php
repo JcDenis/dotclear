@@ -20,10 +20,6 @@ namespace Dotclear\Process\Admin\ListOption;
 
 use ArrayObject;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ListOption
 {
     /** @var    ArrayObject     Sorts filters preferences*/

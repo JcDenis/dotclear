@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class PostsPopup extends Page
 {
     private $plugin_id = '';

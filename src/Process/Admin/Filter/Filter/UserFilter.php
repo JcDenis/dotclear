@@ -19,10 +19,6 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Filter\Filter;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class UserFilter extends Filter
 {
     public function __construct()

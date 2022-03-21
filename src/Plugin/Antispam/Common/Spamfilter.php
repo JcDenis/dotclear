@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Antispam\Common;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Database\Record;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Spamfilter
 {
     public $id;

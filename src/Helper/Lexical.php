@@ -15,10 +15,6 @@ namespace Dotclear\Helper;
 
 use ArrayObject;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Lexical
 {
     protected static $lexical_lang = '';

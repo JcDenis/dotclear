@@ -14,10 +14,6 @@ namespace Dotclear\Module\Store;
 
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 trait TraitDefineStore
 {
     public function file(): string

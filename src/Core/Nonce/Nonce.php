@@ -15,10 +15,6 @@ namespace Dotclear\Core\Nonce;
 
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Nonce
 {
     /**

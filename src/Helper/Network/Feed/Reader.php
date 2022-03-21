@@ -21,14 +21,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
-
 use Dotclear\Helper\File\Files;
-
 use Dotclear\Helper\Network\NetHttp\NetHttp;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class Reader extends NetHttp
 {

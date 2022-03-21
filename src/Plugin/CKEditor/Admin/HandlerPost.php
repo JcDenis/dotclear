@@ -17,10 +17,6 @@ use ArrayObject;
 
 use Dotclear\Module\AbstractPage;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class HandlerPost extends AbstractPage
 {
     protected function getPermissions(): string|null|false

@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat as BaseExportFlat;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ExportFlat extends BaseExportFlat
 {
     /**

@@ -18,10 +18,6 @@ use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Blogroll
 {
     private $table = 'link';

@@ -19,10 +19,6 @@ use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Manager
 {
     public $root;                                               ///< string: Files manager root path

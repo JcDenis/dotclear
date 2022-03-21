@@ -16,10 +16,6 @@ namespace Dotclear\Core\User\Preference;
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Preference
 {
     protected $table;   ///< <b>string</b> Prefs table name

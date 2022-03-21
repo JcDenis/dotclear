@@ -22,10 +22,6 @@ use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Service\Updater;
 use Dotclear\Helper\ErrorTrait;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Update extends Page
 {
     use ErrorTrait;

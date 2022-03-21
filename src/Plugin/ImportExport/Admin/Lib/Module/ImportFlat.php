@@ -23,10 +23,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ImportFlat extends Module
 {
     protected $status = false;

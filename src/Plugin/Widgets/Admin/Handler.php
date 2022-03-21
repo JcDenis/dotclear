@@ -22,10 +22,6 @@ use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $widgets_nav = null;

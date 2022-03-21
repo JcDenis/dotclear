@@ -18,10 +18,6 @@ use Dotclear\Module\Plugin\TraitDefinePlugin;
 use Dotclear\Module\Store\TraitDefineStore;
 use Dotclear\Module\Theme\TraitDefineTheme;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class DefineTheme extends AbstractDefine
 {
     use TraitDefineTheme, TraitDefinePlugin, TraitDefineStore, TraitDefine;

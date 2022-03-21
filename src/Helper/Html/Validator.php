@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Html;
 
 use Dotclear\Exception\HtmlException;
-
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class Validator extends NetHttp

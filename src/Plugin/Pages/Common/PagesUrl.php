@@ -22,10 +22,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class PagesUrl extends Url
 {
     public function __construct()

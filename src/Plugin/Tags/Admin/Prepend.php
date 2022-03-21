@@ -21,10 +21,6 @@ use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
 use Dotclear\Plugin\Tags\Common\TagsWidgets;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

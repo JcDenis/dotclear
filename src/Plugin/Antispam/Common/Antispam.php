@@ -24,10 +24,6 @@ use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Antispam
 {
     /** @var Spamfilters Spamfitlers instance */

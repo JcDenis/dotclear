@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Dotclear\Helper\File;
 
 use Dotclear\Exception\FileException;
-
 use Dotclear\Helper\Text;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;

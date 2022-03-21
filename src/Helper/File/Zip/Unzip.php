@@ -16,12 +16,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\File\Zip;
 
 use Dotclear\Exception\FileException;
-
 use Dotclear\Helper\File\Files;
-
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
 
 class Unzip
 {

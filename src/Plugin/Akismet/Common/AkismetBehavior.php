@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Akismet\Common;
 
 use ArrayObject;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class AkismetBehavior
 {
     public function __construct()

@@ -3,10 +3,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 /**
  * SQL Statement : small utility to build SQL queries
  */

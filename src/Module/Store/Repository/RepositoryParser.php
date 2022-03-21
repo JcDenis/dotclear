@@ -19,10 +19,6 @@ use SimpleXMLElement;
 
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RepositoryParser
 {
     /** @var    SimpleXMLElement    XML object of feed contents */

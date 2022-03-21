@@ -16,10 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\NetHttp;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Client extends NetHttp
 {
     public function getError()

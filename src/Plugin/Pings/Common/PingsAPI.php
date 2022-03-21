@@ -16,10 +16,6 @@ namespace Dotclear\Plugin\Pings\Common;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Network\Xmlrpc\Client;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class PingsAPI extends Client
 {
     public static function doPings($srv_uri, $site_name, $site_url)

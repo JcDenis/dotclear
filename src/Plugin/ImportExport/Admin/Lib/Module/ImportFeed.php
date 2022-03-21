@@ -19,10 +19,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class ImportFeed extends Module
 {
     protected $status   = false;

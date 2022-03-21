@@ -18,10 +18,6 @@ use ArrayObject;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class FilterFairtrackbacks extends Spamfilter
 {
     public $name    = 'Fair Trackbacks';

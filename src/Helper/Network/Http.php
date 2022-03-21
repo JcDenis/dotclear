@@ -19,10 +19,6 @@ use Dotclear\Exception\UtilsException;
 
 use Dotclear\Helper\Crypt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Http
 {
     public static $https_scheme_on_443 = false; ///< boolean: Force HTTPS scheme on server port 443 in {@link getHost()}

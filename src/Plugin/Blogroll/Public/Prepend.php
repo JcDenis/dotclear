@@ -19,10 +19,6 @@ use Dotclear\Plugin\Blogroll\Common\BlogrollUrl;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

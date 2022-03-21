@@ -18,10 +18,6 @@ use Dotclear\Plugin\Widgets\Common\Widget;
 
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class WidgetsStack
 {
     public static $stack;

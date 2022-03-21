@@ -17,10 +17,6 @@ use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 use Dotclear\Database\AbstractSchema;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class MaintenanceTaskVacuum extends MaintenanceTask
 {
     protected $group = 'optimize';

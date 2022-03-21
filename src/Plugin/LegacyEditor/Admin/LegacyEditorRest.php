@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Helper\Html\XmlTag;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class LegacyEditorRest
 {
     public function __construct()

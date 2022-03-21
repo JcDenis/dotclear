@@ -20,10 +20,6 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $Blowup_can_write_images = false;

@@ -17,10 +17,6 @@ use Dotclear\Module\TraitDefine;
 use Dotclear\Module\Plugin\TraitDefinePlugin;
 use Dotclear\Module\Store\TraitDefineStore;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class DefinePlugin extends AbstractDefine
 {
     use TraitDefinePlugin, TraitDefineStore, TraitDefine;

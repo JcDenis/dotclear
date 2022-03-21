@@ -19,10 +19,6 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Store\Repository\RepositoryReader;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Repository
 {
     /** @var    Modules     Modules instance */

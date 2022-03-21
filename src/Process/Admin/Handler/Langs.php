@@ -23,10 +23,6 @@ use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\L10n;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Langs extends Page
 {
     private $is_writable = false;

@@ -21,10 +21,6 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Pages\Admin\PagesAction;
 use Dotclear\Plugin\Pages\Admin\PagesInventory;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $p_page = 1;

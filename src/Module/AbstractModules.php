@@ -23,10 +23,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Module\AbstractDefine;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 abstract class AbstractModules
 {
     use ErrorTrait;

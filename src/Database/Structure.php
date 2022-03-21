@@ -20,10 +20,6 @@ use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Table;
 use Dotclear\Exception\DatabaseException;
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class Structure
 {
     protected $con;

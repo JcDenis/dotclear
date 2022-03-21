@@ -18,10 +18,6 @@ use Dotclear\Plugin\Widgets\Common\WidgetsExt;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Helper\Lexical;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Widgets
 {
     private $__widgets = [];

@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Tags\Public;
 
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class TagsTemplate
 {
     public function __construct()

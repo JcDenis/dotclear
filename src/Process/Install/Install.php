@@ -25,10 +25,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Process\Distrib\Distrib;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Install') {
-    return;
-}
-
 class Install
 {
     public function __construct()

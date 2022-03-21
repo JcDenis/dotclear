@@ -23,10 +23,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Lexical;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class UserPref extends Page
 {
     /** @var string     User other emails (comma separated list ) */

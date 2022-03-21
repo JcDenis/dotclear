@@ -17,10 +17,6 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class FlatImport extends FlatBackup
 {
     private $dc_version;

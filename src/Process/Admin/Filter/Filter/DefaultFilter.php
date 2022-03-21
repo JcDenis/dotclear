@@ -23,10 +23,6 @@ use Dotclear\Helper\Html\Form\Select as FormSelect;
 use Dotclear\Helper\Html\Form\Label as FormLabel;
 use Dotclear\Helper\Html\Form\Input as FormInput;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class DefaultFilter
 {
     /** @var    array   The filter properties */

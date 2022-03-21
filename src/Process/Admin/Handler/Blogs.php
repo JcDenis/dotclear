@@ -25,10 +25,6 @@ use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Blogs extends Page
 {
     protected function getPermissions(): string|null|false

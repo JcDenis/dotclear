@@ -18,10 +18,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Parser
 {
     public $feed_type;   ///< string Feed type

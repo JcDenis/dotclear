@@ -23,10 +23,6 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Crypt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class User
 {
     /** @var    UserContainer   Container instance */

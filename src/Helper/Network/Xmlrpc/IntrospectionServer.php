@@ -31,10 +31,6 @@ use Dotclear\Helper\Network\Xmlrpc\Date;
 use Dotclear\Helper\Network\Xmlrpc\Base64;
 use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class IntrospectionServer extends Server
 {
     protected $signatures;

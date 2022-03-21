@@ -17,10 +17,6 @@ use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class LinkPopup extends Page
 {
     protected function getPermissions(): string|null|false

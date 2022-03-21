@@ -15,10 +15,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Base64
 {
     protected $data; ///< string

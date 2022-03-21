@@ -18,10 +18,6 @@ namespace Dotclear\Core\Media\Manager;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Item
 {
     public $file;           ///< string: Complete path to file

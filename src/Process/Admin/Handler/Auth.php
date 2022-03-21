@@ -23,10 +23,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Distrib\Upgrade;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Auth extends Page
 {
     /** @var    string  default lang */

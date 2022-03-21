@@ -21,10 +21,6 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 abstract class Action extends Page
 {
     /** @var string form submit uri */

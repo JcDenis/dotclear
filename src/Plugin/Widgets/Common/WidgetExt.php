@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Widgets\Common;
 
 use Dotclear\Plugin\Widgets\Common\Widget;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class WidgetExt extends Widget
 {
     public const ALL_PAGES   = 0; // Widget displayed on every page

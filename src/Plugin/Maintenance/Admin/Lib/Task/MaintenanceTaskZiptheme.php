@@ -17,10 +17,6 @@ use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 use Dotclear\Helper\File\Zip\Zip;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class MaintenanceTaskZiptheme extends MaintenanceTask
 {
     protected $perm  = 'admin';

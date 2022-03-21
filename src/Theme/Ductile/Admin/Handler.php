@@ -21,10 +21,6 @@ use Dotclear\Module\Theme\Admin\ConfigTheme;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\L10n;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Handler extends AbstractPage
 {
     private $Ductile_list_types = [];

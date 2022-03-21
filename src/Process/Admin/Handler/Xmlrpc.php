@@ -17,10 +17,6 @@ use Dotclear\Process\Admin\Page\Page;
 use DOtclear\Core\Xmlrpc\Xmlrpc;
 use Dotclear\Helper\Network\Http;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Xmlrpc extends Page
 {
     protected function getPermissions(): string|null|false

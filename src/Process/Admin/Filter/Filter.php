@@ -23,10 +23,6 @@ use Dotclear\Helper\Html\Form\Label;
 use Dotclear\Helper\Html\Form\Number;
 use Dotclear\Helper\Html\Form\Select;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Filter extends Filters
 {
     /** @var    string  Filter form type (main id) */

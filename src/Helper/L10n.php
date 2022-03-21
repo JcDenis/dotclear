@@ -17,10 +17,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper {
 
-if (!defined('DOTCLEAR_ROOT_DIR')) {
-    return;
-}
-
 class L10n
 {
     public static $l10n_trans = [];

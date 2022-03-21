@@ -21,10 +21,6 @@ namespace Dotclear\Process\Admin\Filter;
 
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Filters
 {
     /**

@@ -16,10 +16,6 @@ namespace Dotclear\Core\User\Preference;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Workspace
 {
     /** @var    string      Preferences table name */

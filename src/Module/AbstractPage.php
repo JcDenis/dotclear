@@ -18,10 +18,6 @@ namespace Dotclear\Module;
 
 use Dotclear\Process\Admin\Page\Page;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 abstract class AbstractPage extends Page
 {
     # @see Dotclear\Process\Admin\Page\Page for all others methods

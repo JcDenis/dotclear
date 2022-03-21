@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Public;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class TagsBehavior
 {
     public function __construct()

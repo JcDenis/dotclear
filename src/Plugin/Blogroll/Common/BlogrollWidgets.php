@@ -21,10 +21,6 @@ use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class BlogrollWidgets
 {
     public function __construct()

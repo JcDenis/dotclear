@@ -22,10 +22,6 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Helper\Dt;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class RsExtDate extends RsExtend
 {
     /**

@@ -17,10 +17,6 @@ use ArrayObject;
 
 use Dotclear\Database\Record;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Inventory
 {
     /** @var    Record  The catalog record */

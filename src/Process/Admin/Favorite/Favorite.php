@@ -19,10 +19,6 @@ use ArrayObject;
 
 use Dotclear\Process\Admin\Menu\Summary;
 
-if (!defined('DOTCLEAR_PROCESS') || !in_array(DOTCLEAR_PROCESS, ['Admin', 'Install'])) {
-    return;
-}
-
 class Favorite
 {
     /** @var    ArrayObject     list of favorite definitions  */

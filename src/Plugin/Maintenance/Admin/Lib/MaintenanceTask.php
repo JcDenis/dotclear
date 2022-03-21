@@ -15,10 +15,6 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 /**
 @brief Maintenance plugin task class.
 

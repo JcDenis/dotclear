@@ -25,10 +25,6 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Process\Admin\Page\Page;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class BlogPref extends Page
 {
     /** @var bool   Standalone config */

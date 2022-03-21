@@ -27,10 +27,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Combo
 {
     /**

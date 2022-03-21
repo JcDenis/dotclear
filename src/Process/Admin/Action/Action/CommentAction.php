@@ -19,10 +19,6 @@ use Dotclear\Process\Admin\Action\Action\DefaultCommentAction;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class CommentAction extends DefaultCommentAction
 {
     public function __construct(string $uri, array $redirect_args = [])

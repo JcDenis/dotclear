@@ -16,10 +16,6 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Process\Admin\Service\RestMethods;
 
-if (!defined('DOTCLEAR_PROCESS') || DOTCLEAR_PROCESS != 'Admin') {
-    return;
-}
-
 class Services extends Page
 {
     protected function getPermissions(): string|null|false

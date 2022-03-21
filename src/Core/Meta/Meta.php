@@ -25,10 +25,6 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\Text;
 
-if (!defined('DOTCLEAR_PROCESS')) {
-    return;
-}
-
 class Meta
 {
     /** @var    string  Meta table name */
