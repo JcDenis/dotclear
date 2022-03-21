@@ -491,10 +491,10 @@ class User
     public function userCN(): string
     {
         return $this->container->getUserCN(
-            $this->user_id,
-            $this->user_name,
-            $this->user_firstname,
-            $this->user_displayname
+            $this->container->user_id,
+            $this->container->user_name,
+            $this->container->user_firstname,
+            $this->container->user_displayname
         );
     }
 
