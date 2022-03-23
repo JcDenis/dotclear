@@ -63,8 +63,9 @@ class Prepend extends AbstractPrepend
     public function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        $themes_list  = dotclear()->resource()->getCodeMirrorThemes();
-        $themes_combo = [__('Default') => ''];
+        $current_theme = (string) dotclear()->user()->preference()->interface->colorsyntax_theme ?? 'default';
+        $themes_list   = dotclear()->resource()->getCodeMirrorThemes();
+        $themes_combo  = [__('Default') => ''];
         foreach ($themes_list as $theme) {
             $themes_combo[$theme] = $theme;
         }
@@ -83,7 +84,7 @@ class Prepend extends AbstractPrepend
             '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
             Form::combo('colorsyntax_theme', $themes_combo,
                 [
-                    'default' => (string) dotclear()->user()->preference()->interface->colorsyntax_theme
+                    'default' => $current_theme
                 ]) .
                 '</p>';
         } else {
@@ -92,8 +93,8 @@ class Prepend extends AbstractPrepend
         echo '</div>';
         echo '<div class="col">';
         echo dotclear()->resource()->loadCodeMirror('', false, ['javascript']);
-        foreach ($themes_list as $theme) {
-            echo dotclear()->resource()->js('codemirror/theme/' . $theme . '.css');
+        if ($current_theme !== 'default') {
+            echo dotclear()->resource()->js('codemirror/theme/' . $current_theme . '.css');
         }
         echo '
 <textarea id="codemirror" name="codemirror" readonly="true">
@@ -110,7 +111,7 @@ function findSequence(goal) {
   return find(1, "1");
 }</textarea>';
         echo
-        dotclear()->resource()->json('theme_editor_current', ['theme' => dotclear()->user()->preference()->interface->colorsyntax_theme != '' ? dotclear()->user()->preference()->interface->colorsyntax_theme : 'default']) .
+        dotclear()->resource()->json('theme_editor_current', ['theme' => $current_theme]) .
         dotclear()->resource()->load('theme.js', 'Plugin', 'ThemeEditor');
         echo '</div>';
         echo '</div>';

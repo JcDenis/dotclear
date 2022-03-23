@@ -1,4 +1,4 @@
-/*global $, jQuery, dotclear */
+/*global $, dotclear */
 /*exported chainHandler */
 'use strict';
 
@@ -28,19 +28,18 @@ document.documentElement.style.setProperty('--dark-mode', dotclear.data.theme ==
 /* ChainHandler, py Peter van der Beken
 -------------------------------------------------------- */
 function chainHandler(obj, handlerName, handler) {
-  obj[handlerName] = (() =>
-    {
-      const existingFunction = handlerName in obj ? obj[handlerName] : null;
-      return function () {
-        handler.apply(this, arguments);
-        if (existingFunction) existingFunction.apply(this, arguments);
-      };
-    })();
+  obj[handlerName] = (() => {
+    const existingFunction = handlerName in obj ? obj[handlerName] : null;
+    return function () {
+      handler.apply(this, arguments);
+      if (existingFunction) existingFunction.apply(this, arguments);
+    };
+  })();
 }
 
 /* jQuery extensions
 -------------------------------------------------------- */
-jQuery.fn.check = function () {
+$.fn.check = function () {
   return this.each(function () {
     if (this.checked != undefined) {
       this.checked = true;
@@ -48,7 +47,7 @@ jQuery.fn.check = function () {
   });
 };
 
-jQuery.fn.unCheck = function () {
+$.fn.unCheck = function () {
   return this.each(function () {
     if (this.checked != undefined) {
       this.checked = false;
@@ -56,7 +55,7 @@ jQuery.fn.unCheck = function () {
   });
 };
 
-jQuery.fn.setChecked = function (status) {
+$.fn.setChecked = function (status) {
   return this.each(function () {
     if (this.checked != undefined) {
       this.checked = status;
@@ -64,7 +63,7 @@ jQuery.fn.setChecked = function (status) {
   });
 };
 
-jQuery.fn.toggleCheck = function () {
+$.fn.toggleCheck = function () {
   return this.each(function () {
     if (this.checked != undefined) {
       this.checked = !this.checked;
@@ -72,7 +71,7 @@ jQuery.fn.toggleCheck = function () {
   });
 };
 
-jQuery.fn.enableShiftClick = function () {
+$.fn.enableShiftClick = function () {
   this.on('click', function (event) {
     if (event.shiftKey) {
       if (dotclear.lastclicked != '') {
@@ -91,7 +90,7 @@ jQuery.fn.enableShiftClick = function () {
   });
 };
 
-jQuery.fn.toggleWithLegend = function (target, s) {
+$.fn.toggleWithLegend = function (target, s) {
   const defaults = {
     img_on_txt: dotclear.img_plus_txt,
     img_on_alt: dotclear.img_plus_alt,
@@ -104,7 +103,7 @@ jQuery.fn.toggleWithLegend = function (target, s) {
     user_pref: false,
     reverse_user_pref: false, // Reverse user pref behavior
   };
-  const p = jQuery.extend(defaults, s);
+  const p = $.extend(defaults, s);
   if (!target) {
     return this;
   }
@@ -149,7 +148,7 @@ jQuery.fn.toggleWithLegend = function (target, s) {
     }
     $(ctarget).on('click', (e) => {
       if (p.user_pref && set_user_pref) {
-        jQuery.post(
+        $.post(
           '?handler=admin.services',
           {
             f: 'setSectionFold',
@@ -227,9 +226,9 @@ jQuery.fn.toggleWithLegend = function (target, s) {
     }
     return action;
   };
-})(jQuery);
+})($);
 
-jQuery.fn.helpViewer = function () {
+$.fn.helpViewer = function () {
   if (this.length < 1) {
     return this;
   }
@@ -663,6 +662,36 @@ dotclear.passwordHelpers = () => {
     passwordField.classList.add('pwd_helper');
     button.addEventListener('click', togglePasswordHelper);
   }
+};
+
+// REST services helper
+dotclear.services = (
+  fn, // REST method
+  onSuccess = (data) => {}, // Used when fetch is successful
+  onError = (error) => {}, // Used when fetch failed
+  get = true, // Use GET method if true, POST if false
+  params = {}, // Optional parameters
+) => {
+  const service = new URL('services.php', window.location.origin + window.location.pathname);
+  dotclear.mergeDeep(params, { f: fn, xd_check: dotclear.nonce });
+  const init = { method: get ? 'GET' : 'POST' };
+  if (get) {
+    service.search = new URLSearchParams(params).toString();
+  } else {
+    const data = new FormData();
+    // Warning: cope only with single level object (key → value)
+    Object.keys(params).forEach((key) => data.append(key, params[key]));
+    init.body = data;
+  }
+  fetch(service, init)
+    .then((p) => {
+      if (!p.ok) {
+        throw Error(p.statusText);
+      }
+      return p.text();
+    })
+    .then((data) => onSuccess(data))
+    .catch((error) => onError(error));
 };
 
 /* On document ready

@@ -248,7 +248,7 @@ class Resource
 
             'set_today' => __('Reset to now'),
 
-            'adblocker' => __('An ad blocker has been detected on this Dotclear dashboard (Ghostery, Adblock plus, uBlock origin, …) and it may interfere with some features. In this case you should disable it.'),
+            'adblocker' => __('An ad blocker has been detected on this Dotclear dashboard (Ghostery, Adblock plus, uBlock origin, …) and it may interfere with some features. In this case you should disable it. Note that this detection may be disabled in your preferences.'),
         ];
 
         return
@@ -439,7 +439,7 @@ class Resource
         $this->load('codemirror/addon/edit/matchbrackets.js') .
         $this->js('codemirror/addon/display/fullscreen.css') .
         $this->load('codemirror/addon/display/fullscreen.js');
-        if ($theme != '') {
+        if ($theme != '' && $theme !== 'default') {
             $ret .= $this->js('codemirror/theme/' . $theme . '.css');
         }
 

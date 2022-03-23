@@ -200,7 +200,7 @@ class Context
         // This function will remove those cases from string
 
         // <figure><img …><figcaption>isolated text</figcaption></figure>
-        $str = preg_replace('/<figure[^>]*>([\t\n\r\s]*)(a[^>]*>)*<img[^>]*>([\t\n\r\s]*)(\/a[^>]*>)*([\t\n\r\s]*)<figcaption[^>]*>(.*?)<\/figcaption>([\t\n\r\s]*)<\/figure>/', '', (string) $str);
+        $str = preg_replace('/<figure[^>]*>([\t\n\r\s]*)(<a[^>]*>)*<img[^>]*>([\t\n\r\s]*)(<\/a[^>]*>)*([\t\n\r\s]*)<figcaption[^>]*>(.*?)<\/figcaption>([\t\n\r\s]*)<\/figure>/', '', (string) $str);
 
         // <figure><figcaption>isolated text</figcaption><audio…>…</audio></figure>
         $str = preg_replace('/<figure[^>]*>([\t\n\r\s]*)<figcaption[^>]*>(.*)<\/figcaption>([\t\n\r\s]*)<audio[^>]*>(([\t\n\r\s]|.)*)<\/audio>([\t\n\r\s]*)<\/figure>/', '', $str);

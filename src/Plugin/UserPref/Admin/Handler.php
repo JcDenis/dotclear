@@ -146,7 +146,7 @@ class Handler extends AbstractPage
     private function prefMenu(array $combo, bool $global): void
     {
         echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+        '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
