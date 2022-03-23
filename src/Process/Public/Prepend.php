@@ -133,12 +133,6 @@ class Prepend extends Core
         try {
             $this->plugins = new ModulesPlugin();
             $this->plugins->loadModules($this->_lang);
-
-            # Load loang resources for each plugins
-            foreach($this->plugins->getModules() as $module) {
-                $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'main');
-                $this->plugins->loadModuleL10N($module->id(), $this->_lang, 'public');
-            }
         } catch (\Exception $e) {
             $this->getExceptionLang();
             $this->throwException(__('Unable to load plugins.'), $e->getMessage(), 640, $e);
@@ -147,7 +141,7 @@ class Prepend extends Core
         # Load themes
         try {
             $this->themes = new ModulesTheme();
-            $this->themes->loadModules($this->_lang);
+            $this->themes->loadModules();
         } catch (\Exception $e) {
             $this->getExceptionLang();
             $this->throwException(__('Unable to load themes.'), $e->getMessage(), 640, $e);

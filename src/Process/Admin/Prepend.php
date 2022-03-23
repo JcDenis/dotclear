@@ -358,8 +358,6 @@ class Prepend extends Core
         # Load lang resources for each module
         foreach($modules->getModules() as $module) {
             $this->adminLoadResources($module->root() . '/locales', false);
-            $modules->loadModuleL10N($module->id(), $this->_lang, 'main');
-            $modules->loadModuleL10N($module->id(), $this->_lang, 'admin');
         }
     }
 

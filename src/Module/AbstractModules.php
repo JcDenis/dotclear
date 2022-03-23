@@ -178,7 +178,10 @@ abstract class AbstractModules
             }
 
             # Load module main l10n
-            $this->loadModuleL10N($id, $lang, 'main');
+            if ($lang) {
+                $this->loadModuleL10N($id, $lang, 'main');
+                $this->loadModuleL10N($id, $lang, strtolower(DOTCLEAR_PROCESS));
+            }
 
             # Load module process specifics (auto register admi nurl, ...)
             $this->loadModuleProcess($id);
