@@ -113,6 +113,7 @@ class Prepend extends Core
     {
         if (!($this->favorite instanceof Favorite)) {
             $this->favorite = new Favorite();
+            $this->favorite->setup();
         }
 
         return $this->favorite;
@@ -141,6 +142,7 @@ class Prepend extends Core
     {
         if (!($this->summary instanceof Summary)) {
             $this->summary = new Summary();
+            $this->summary->setup();
         }
 
         return $this->summary;
@@ -327,11 +329,9 @@ class Prepend extends Core
             }
 
             # Add default top menus
-            $this->favorite()->setup();
             if (!$this->user()->preference()->interface->nofavmenu) {
                 $this->favorite()->appendMenu($this->summary());
             }
-            $this->summary()->setup();
 
             # Set jquery stuff
             if (empty($this->blog()->settings()->system->jquery_migrate_mute)) {
