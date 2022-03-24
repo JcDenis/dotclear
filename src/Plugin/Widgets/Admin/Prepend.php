@@ -31,13 +31,13 @@ class Prepend extends AbstractPrepend
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites();
 
-        # rte
-        dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
-            $rte['widgets_text'] = [true, __('Widget\'s textareas')];
-        });
-
-        # Widgets
-        new WidgetsStack();
+        # Widgets and rte
+        if (dotclear()->adminurl()->called('admin.plugin.Widgets')) {
+            dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
+                $rte['widgets_text'] = [true, __('Widget\'s textareas')];
+            });
+            dotclear()->behavior()->add('adminPrepend', fn () => new WidgetsStack());
+        }
     }
 
     public function installModule(): ?bool

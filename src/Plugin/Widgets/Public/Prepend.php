@@ -24,7 +24,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Load widgets
-        new WidgetsStack();
+        # Widgets
+        dotclear()->behavior()->add('publicPrepend', fn () => new WidgetsStack());
     }
 }
