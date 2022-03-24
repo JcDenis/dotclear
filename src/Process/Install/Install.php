@@ -22,7 +22,6 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
 use Dotclear\Process\Distrib\Distrib;
 
 class Install
@@ -234,12 +233,6 @@ class Install
                 $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
                     "view your blog's comments. Then you might remove or edit it.</p>");
                 dotclear()->blog()->comments()->addComment($cur);
-
-                /*  Plugins initialization */
-                # Only if plugin has Install/Prepend.php file using Install process
-                # Else install will be made from admin home page through Admin/Prepend.php file.
-                $plugins = new ModulesPlugin();
-                $plugins_install = $plugins->installModules($dlang);
 
                 /* Add dashboard module options */
                 dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);

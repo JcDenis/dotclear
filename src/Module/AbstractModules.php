@@ -53,11 +53,6 @@ abstract class AbstractModules
 
     private $modules_prepend = [];
 
-    public function __construct()
-    {
-        $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
-    }
-
     /**
      * Get modules type
      *
@@ -103,15 +98,13 @@ abstract class AbstractModules
     abstract protected function loadModuleDefineProcess(AbstractDefine $define): bool;
 
     /**
-     * Loads modules.
-     *
-     * <var>$lang</var> indicates if we need to load a lang file on module
-     * loading.
+     * Constructor, load Modules
      *
      * @param   string|null     $lang   The language
      */
-    public function loadModules(?string $lang = null): void
+    public function __construct(?string $lang = null)
     {
+        $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
         # Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
             # Check dir

@@ -22,9 +22,6 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Module\AbstractModules;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-use Dotclear\Module\Iconset\Admin\ModulesIconset;
-use Dotclear\Module\Theme\Admin\ModulesTheme;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
@@ -307,25 +304,28 @@ class Prepend extends Core
             # Load resources
             $this->adminLoadResources($this->config()->l10n_dir);
 
-            # Load Modules Iconsets
-            if (!empty($this->config()->iconset_dirs)) {
-                $this->iconsets = new ModulesIconset();
-                $this->iconsets->loadModules();
+            # Load modules
+            $types = [
+                [&$this->iconsets, $this->config()->iconset_dirs, '\\Dotclear\\Module\\Iconset\\Admin\\ModulesIconset'],
+                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Admin\\ModulesPlugin'],
+                [&$this->themes, $this->config()->theme_dirs, '\\Dotclear\\Module\\Theme\\Admin\\ModulesTheme'],
+            ];
+            foreach($types as $t) {
+                # Modules directories
+                if (!empty($t[1])) {
+                    # Load Modules instance
+                    $t[0] = new $t[2]($this->_lang);
+                    # Load lang resources for each module
+                    foreach($t[0]->getModules() as $module) {
+                        $this->adminLoadResources($module->root() . '/locales', false);
+                    }
+                }
             }
 
-            # Load Modules Plugins
-            if (!empty($this->config()->plugin_dirs)) {
-                $this->plugins = new ModulesPlugin();
-                $this->adminLoadModules($this->plugins);
-            }
-
-            # Load Modules Themes
-            if (!empty($this->config()->theme_dirs)) {
-                $this->themes = new ModulesTheme();
-                $this->adminLoadModules($this->themes);
-            } else {
+            # Stop if no themes found
+            if (!$this->themes) {
                 $this->getExceptionLang();
-                $this->throwException(__('There seems to be no Theme directory set in configuration file.'), '', 611);
+                $this->throwException(__('There seems to be no valid Theme directory set in configuration file.'), '', 611);
             }
 
             # Add default top menus
@@ -349,16 +349,6 @@ class Prepend extends Core
 
         # Load requested admin page
         $this->adminLoadPage();
-    }
-
-    private function adminLoadModules(AbstractModules $modules): void
-    {
-        $modules->loadModules($this->_lang);
-
-        # Load lang resources for each module
-        foreach($modules->getModules() as $module) {
-            $this->adminLoadResources($module->root() . '/locales', false);
-        }
     }
 
     private function adminLoadLocales(): void
@@ -422,6 +412,10 @@ class Prepend extends Core
 
         # Create page instance
         try {
+
+            # --BEHAVIOR-- adminPrepend
+            $this->behavior()->call('adminPrepend');
+
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\Page')) {
                 $this->getExceptionLang();

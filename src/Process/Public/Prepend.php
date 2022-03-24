@@ -21,8 +21,6 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\Plugin\Public\ModulesPlugin;
-use Dotclear\Module\Theme\Public\ModulesTheme;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 
@@ -129,22 +127,22 @@ class Prepend extends Core
         # Set lexical lang
         Lexical::setLexicalLang('public', $this->_lang);
 
-        # Load plugins
+        # Load modules
         try {
-            $this->plugins = new ModulesPlugin();
-            $this->plugins->loadModules($this->_lang);
+            $types = [
+                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Public\\ModulesPlugin', $this->_lang],
+                [&$this->themes, $this->config()->theme_dirs, '\\Dotclear\\Module\\Theme\\Public\\ModulesTheme', null],
+            ];
+            foreach($types as $t) {
+                # Modules directories
+                if (!empty($t[1])) {
+                    # Load Modules instance
+                    $t[0] = new $t[2]($t[3]);
+                }
+            }
         } catch (\Exception $e) {
             $this->getExceptionLang();
-            $this->throwException(__('Unable to load plugins.'), $e->getMessage(), 640, $e);
-        }
-
-        # Load themes
-        try {
-            $this->themes = new ModulesTheme();
-            $this->themes->loadModules();
-        } catch (\Exception $e) {
-            $this->getExceptionLang();
-            $this->throwException(__('Unable to load themes.'), $e->getMessage(), 640, $e);
+            $this->throwException(__('Unable to load modules.'), $e->getMessage(), 640, $e);
         }
 
         # Load current theme definition
