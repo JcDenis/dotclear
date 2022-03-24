@@ -49,6 +49,7 @@ class Media extends Page
 
     /** @var    bool   Uses enhance uploader */
     protected $media_uploader = null;
+
     protected function getPermissions(): string|null|false
     {
         return 'media,media_admin';
@@ -115,7 +116,7 @@ class Media extends Page
 
         $this->filter->add('handler', 'admin.media');
 
-        $this->media_uploader = dotclear()->user()->preference()->interface->enhanceduploader;
+        $this->media_uploader = (bool) dotclear()->user()->preference()->interface->enhanceduploader;
 
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {
