@@ -521,7 +521,7 @@ class WidgetsStack
         $w
             ->addTitle(__('Last entries'))
             ->setting('category', __('Category:'), '', 'combo', $categories);
-        if (dotclear()->plugins->hasModule('Tags')) {
+        if (dotclear()->plugins()->hasModule('Tags')) {
             $w->setting('tag', __('Tag:'), '');
         }
         $w

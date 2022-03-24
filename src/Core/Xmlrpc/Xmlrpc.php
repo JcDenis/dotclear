@@ -309,8 +309,8 @@ class XmlRpc extends xmlrpcIntrospectionServer
             throw new CoreException('Not enough permissions on this blog.');
         }
 
-        if (isset(dotclear()->plugins)) {
-            foreach (dotclear()->plugins->getModules() as $module) {
+        if (dotclear()->plugins()) {
+            foreach (dotclear()->plugins()->getModules() as $module) {
                 $modules->loadModuleL10N($module->id(), dotclear()->_lang, 'xmlrpc');
             }
         }
@@ -945,7 +945,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
     private function checkPagesPermission()
     {
-        if (!dotclear()->plugins->moduleExists('pages')) {
+        if (!dotclear()->plugins()?->hasModule('Pages')) {
             throw new CoreException('Pages management is not available on this blog.');
         }
 

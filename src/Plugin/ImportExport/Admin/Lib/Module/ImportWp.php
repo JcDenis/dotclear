@@ -131,7 +131,7 @@ class ImportWp extends Module
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
-                if (dotclear()->plugins->moduleExists('blogroll')) {
+                if (dotclear()->plugins()->hasModule('Blogroll')) {
                     $this->step = 4;
                     echo $this->progressBar(5);
                 } else {

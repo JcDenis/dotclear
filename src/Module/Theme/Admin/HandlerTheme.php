@@ -31,14 +31,14 @@ class HandlerTheme extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->themes->disableModulesDependencies(dotclear()->adminurl()->get('admin.blog.theme'))) {
+        if (dotclear()->themes()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.blog.theme'))) {
             exit;
         }
 
         # Module configuration
-        if (dotclear()->themes->loadModuleConfiguration()) {
+        if (dotclear()->themes()?->loadModuleConfiguration()) {
 
-            dotclear()->themes->parseModuleConfiguration();
+            dotclear()->themes()->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Blog appearance'));
@@ -51,7 +51,7 @@ class HandlerTheme extends AbstractPage
             }
             $this->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name)                            => '',
-                __('Blog appearance')                                             => dotclear()->themes->getURL('', false),
+                __('Blog appearance')                                             => dotclear()->themes()->getURL('', false),
                 '<span class="page-title">' . __('Theme configuration') . '</span>' => ''
             ]);
 
@@ -63,15 +63,15 @@ class HandlerTheme extends AbstractPage
 
             # -- Execute actions --
             try {
-                dotclear()->themes->doActions();
+                dotclear()->themes()->doActions();
             } catch (\Exception $e) {
-                dotclear()->themes->add($e->getMessage());
+                dotclear()->themes()->add($e->getMessage());
             }
 
             # -- Plugin install --
             $this->modules_install = null;
             if (!dotclear()->error()->flag()) {
-                $this->modules_install = dotclear()->themes->installModules();
+                $this->modules_install = dotclear()->themes()->installModules();
             }
 
             # Page setup
@@ -103,7 +103,7 @@ class HandlerTheme extends AbstractPage
             '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dotclear()->themes->getSettingsUrls($k, true));
+                $info = implode(' - ', dotclear()->themes()->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -125,7 +125,7 @@ class HandlerTheme extends AbstractPage
         }
 
         if ($this->from_configuration) {
-            echo dotclear()->themes->displayModuleConfiguration();
+            echo dotclear()->themes()->displayModuleConfiguration();
 
             return;
         }
@@ -139,7 +139,7 @@ class HandlerTheme extends AbstractPage
             }
 
             # Updated modules from repo
-            $modules = dotclear()->themes->store->get(true);
+            $modules = dotclear()->themes()->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update themes')) . '">' .
@@ -149,7 +149,7 @@ class HandlerTheme extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                dotclear()->themes
+                dotclear()->themes()
                     ->setList('theme-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -168,7 +168,7 @@ class HandlerTheme extends AbstractPage
                     '</div>';
             } else {
                 echo
-                '<form action="' . dotclear()->themes->getURL('', false) . '" method="get">' .
+                '<form action="' . dotclear()->themes()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of themes') . '" /></p>' .
                 Form::hidden(['handler'], dotclear()->adminurl()->called()) .
@@ -177,14 +177,14 @@ class HandlerTheme extends AbstractPage
         }
 
         # Activated modules
-        $modules = dotclear()->themes->getModules();
+        $modules = dotclear()->themes()->getModules();
         if (!empty($modules)) {
             echo
             '<div class="multi-part" id="themes" title="' . __('Installed themes') . '">' .
             '<h3>' . __('Installed themes') . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed themes from this list.') . '</p>';
 
-            dotclear()->themes
+            dotclear()->themes()
                 ->setList('theme-activate')
                 ->setTab('themes')
                 ->setData($modules)
@@ -199,14 +199,14 @@ class HandlerTheme extends AbstractPage
 
         # Deactivated modules
         if (dotclear()->user()->isSuperAdmin()) {
-            $modules = dotclear()->themes->getDisabledModules();
+            $modules = dotclear()->themes()->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="deactivate" title="' . __('Deactivated themes') . '">' .
                 '<h3>' . __('Deactivated themes') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated themes are installed but not usable. You can activate them from here.') . '</p>';
 
-                dotclear()->themes
+                dotclear()->themes()
                     ->setList('theme-deactivate')
                     ->setTab('themes')
                     ->setData($modules)
@@ -220,18 +220,18 @@ class HandlerTheme extends AbstractPage
             }
         }
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->themes->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && dotclear()->themes()->isWritablePath()) {
 
             # New modules from repo
-            $search  = dotclear()->themes->getSearch();
-            $modules = $search ? dotclear()->themes->store->search($search) : dotclear()->themes->store->get();
+            $search  = dotclear()->themes()->getSearch();
+            $modules = $search ? dotclear()->themes()->store->search($search) : dotclear()->themes()->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add themes') . '">' .
                 '<h3>' . __('Add themes from repository') . '</h3>';
 
-                dotclear()->themes
+                dotclear()->themes()
                     ->setList('theme-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -259,7 +259,7 @@ class HandlerTheme extends AbstractPage
             '<h3>' . __('Add themes from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install themes by uploading or downloading zip files.') . '</p>';
 
-            dotclear()->themes->displayManualForm();
+            dotclear()->themes()->displayManualForm();
 
             echo
                 '</div>';
@@ -269,7 +269,7 @@ class HandlerTheme extends AbstractPage
         dotclear()->behavior()->call('themesToolsTabs');
 
         # -- Notice for super admin --
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->themes->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && !dotclear()->themes()->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your themes directory to enable them.') . '</p>';
         }

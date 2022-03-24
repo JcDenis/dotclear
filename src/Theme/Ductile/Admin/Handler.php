@@ -318,7 +318,7 @@ class Handler extends AbstractPage
         Form::checkbox('subtitle_hidden', 1, $this->Ductile_user['subtitle_hidden']) . '</p>';
         echo '<p class="field"><label for="logo_src">' . __('Logo URL:') . '</label> ' .
         Form::field('logo_src', 40, 255, $this->Ductile_user['logo_src']) . '</p>';
-        if (dotclear()->plugins->hasModule('SimpleMenu')) {
+        if (dotclear()->plugins()->hasModule('SimpleMenu')) {
             echo '<p>' . sprintf(__('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
                 dotclear()->adminurl()->get('admin.plugin.SimpleMenu')) . '</p>';
         }

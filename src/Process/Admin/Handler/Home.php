@@ -59,12 +59,12 @@ class Home extends Page
         ];
 
         # Module Plugin //! move this to Modules Plugin
-        if (dotclear()->plugins) {
-            if (dotclear()->plugins->disableModulesDependencies(dotclear()->adminurl()->get('admin.home'))) {
+        if (dotclear()->plugins()) {
+            if (dotclear()->plugins()->disableModulesDependencies(dotclear()->adminurl()->get('admin.home'))) {
                 exit;
             }
 
-            $this->plugins_install = dotclear()->plugins->installModules();
+            $this->plugins_install = dotclear()->plugins()->installModules();
         }
 
         # Check dashboard module prefs
@@ -240,12 +240,12 @@ class Home extends Page
         }
 
         # Module Plugin
-        if (dotclear()->plugins) {
+        if (dotclear()->plugins()) {
             # Plugins install messages
             if (!empty($this->plugins_install['success'])) {
                 echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
                 foreach ($this->plugins_install['success'] as $k => $v) {
-                    $info = implode(' - ', dotclear()->plugins->getSettingsUrls($k, true));
+                    $info = implode(' - ', dotclear()->plugins()->getSettingsUrls($k, true));
                     echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
                 }
                 echo '</ul></div>';
@@ -260,10 +260,10 @@ class Home extends Page
 
             # Errors modules notifications
             if (dotclear()->user()->isSuperAdmin()) {
-                if (dotclear()->plugins->error()->flag()) {
+                if (dotclear()->plugins()->error()->flag()) {
                     echo
                     '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
-                    '<ul><li>' . implode("</li>\n<li>", dotclear()->plugins->error()->dump()) . '</li></ul></div>';
+                    '<ul><li>' . implode("</li>\n<li>", dotclear()->plugins()->error()->dump()) . '</li></ul></div>';
                 }
             }
         }

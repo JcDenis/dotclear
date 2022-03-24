@@ -57,13 +57,13 @@ class Prepend extends Core
     protected $process = 'Admin';
 
     /** @var    ModulesPlugin|null  ModulesPlugin instance */
-    public $plugins = null;
+    private $plugins = null;
 
     /** @var    ModulesIconset|null ModulesIconset instance */
-    public $iconsets = null;
+    private $iconsets = null;
 
     /** @var    ModulesTheme|null   ModulesTheme instance */
-    public $themes = null;
+    private $themes = null;
 
     /** @var    string  user lang */
     public $_lang = 'en';
@@ -171,6 +171,21 @@ class Prepend extends Core
         }
 
         return $this->listoption;
+    }
+
+    public function iconsets(): ?AbstractModules
+    {
+        return $this->iconsets;
+    }
+
+    public function plugins(): ?AbstractModules
+    {
+        return $this->plugins;
+    }
+
+    public function themes(): ?AbstractModules
+    {
+        return $this->themes;
     }
 
     /**

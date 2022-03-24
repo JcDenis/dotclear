@@ -49,7 +49,7 @@ class Formater
         $editors = [];
 
         foreach (array_keys($this->formaters) as $editor) {
-            if (null !== ($module = dotclear()->plugins->getModule($editor))) {
+            if (null !== ($module = dotclear()->plugins()?->getModule($editor))) {
                 $editors[$editor] = $module->name();
             }
         }

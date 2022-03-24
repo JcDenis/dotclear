@@ -95,7 +95,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
         if (!$theme) {
             return;
         }
@@ -122,7 +122,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
         if (!$theme) {
             return;
         }

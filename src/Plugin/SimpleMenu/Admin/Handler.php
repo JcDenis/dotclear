@@ -118,12 +118,12 @@ class Handler extends AbstractPage
         if (count($this->sm_months_combo) > 1) {
             $this->sm_items['archive'] = new ArrayObject([__('Archive'), true]);
         }
-        if (dotclear()->plugins->hasModule('pages')) {
+        if (dotclear()->plugins()->hasModule('pages')) {
             if (count($this->sm_pages_combo)) {
                 $this->sm_items['pages'] = new ArrayObject([__('Page'), true]);
             }
         }
-        if (dotclear()->plugins->hasModule('tags')) {
+        if (dotclear()->plugins()->hasModule('tags')) {
             if (count($this->sm_tags_combo) > 1) {
                 $this->sm_items['tags'] = new ArrayObject([__('Tags'), true]);
             }

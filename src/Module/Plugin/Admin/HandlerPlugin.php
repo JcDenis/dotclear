@@ -32,14 +32,14 @@ class HandlerPlugin extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->plugins->disableModulesDependencies(dotclear()->adminurl()->get('admin.plugins'))) {
+        if (dotclear()->plugins()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.plugins'))) {
             exit;
         }
 
         # Module configuration
-        if (dotclear()->plugins->loadModuleConfiguration()) {
+        if (dotclear()->plugins()?->loadModuleConfiguration()) {
 
-            dotclear()->plugins->parseModuleConfiguration();
+            dotclear()->plugins()->parseModuleConfiguration();
 
             # Page setup
             $this->setPageTitle(__('Plugins management'));
@@ -52,7 +52,7 @@ class HandlerPlugin extends AbstractPage
             }
             $this->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name)                            => '',
-                __('Plugins management')                                             => dotclear()->plugins->getURL('', false),
+                __('Plugins management')                                             => dotclear()->plugins()->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>' => ''
             ]);
 
@@ -64,7 +64,7 @@ class HandlerPlugin extends AbstractPage
 
             # -- Execute actions --
             try {
-                dotclear()->plugins->doActions();
+                dotclear()->plugins()->doActions();
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -72,7 +72,7 @@ class HandlerPlugin extends AbstractPage
             # -- Plugin install --
             $this->modules_install = null;
             if (!dotclear()->error()->flag()) {
-                $this->modules_install = dotclear()->plugins->installModules();
+                $this->modules_install = dotclear()->plugins()->installModules();
             }
 
             # Page setup
@@ -104,7 +104,7 @@ class HandlerPlugin extends AbstractPage
             '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dotclear()->plugins->getSettingsUrls($k, true));
+                $info = implode(' - ', dotclear()->plugins()->getSettingsUrls($k, true));
                 echo
                     '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
             }
@@ -126,7 +126,7 @@ class HandlerPlugin extends AbstractPage
         }
 
         if ($this->from_configuration) {
-            echo dotclear()->plugins->displayModuleConfiguration();
+            echo dotclear()->plugins()->displayModuleConfiguration();
 
             return;
         }
@@ -140,7 +140,7 @@ class HandlerPlugin extends AbstractPage
             }
 
             # Updated modules from repo
-            $modules = dotclear()->plugins->store->get(true);
+            $modules = dotclear()->plugins()->store->get(true);
             if (!empty($modules)) {
                 echo
                 '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
@@ -150,7 +150,7 @@ class HandlerPlugin extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                dotclear()->plugins
+                dotclear()->plugins()
                     ->setList('plugin-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -169,7 +169,7 @@ class HandlerPlugin extends AbstractPage
                     '</div>';
             } else {
                 echo
-                '<form action="' . dotclear()->plugins->getURL('', false) . '" method="get">' .
+                '<form action="' . dotclear()->plugins()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
                 Form::hidden(['handler'], dotclear()->adminurl()->called()) .
@@ -181,13 +181,13 @@ class HandlerPlugin extends AbstractPage
         '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         # Activated modules
-        $modules = dotclear()->plugins->getModules();
+        $modules = dotclear()->plugins()->getModules();
         if (!empty($modules)) {
             echo
             '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            dotclear()->plugins
+            dotclear()->plugins()
                 ->setList('plugin-activate')
                 ->setTab('plugins')
                 ->setData($modules)
@@ -199,13 +199,13 @@ class HandlerPlugin extends AbstractPage
 
         # Deactivated modules
         if (dotclear()->user()->isSuperAdmin()) {
-            $modules = dotclear()->plugins->getDisabledModules();
+            $modules = dotclear()->plugins()->getDisabledModules();
             if (!empty($modules)) {
                 echo
                 '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                dotclear()->plugins
+                dotclear()->plugins()
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
                     ->setData($modules)
@@ -219,18 +219,18 @@ class HandlerPlugin extends AbstractPage
         echo
             '</div>';
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->plugins->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && dotclear()->plugins()->isWritablePath()) {
 
             # New modules from repo
-            $search  = dotclear()->plugins->getSearch();
-            $modules = $search ? dotclear()->plugins->store->search($search) : dotclear()->plugins->store->get();
+            $search  = dotclear()->plugins()->getSearch();
+            $modules = $search ? dotclear()->plugins()->store->search($search) : dotclear()->plugins()->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo
                 '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                dotclear()->plugins
+                dotclear()->plugins()
                     ->setList('plugin-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -258,7 +258,7 @@ class HandlerPlugin extends AbstractPage
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            dotclear()->plugins->displayManualForm();
+            dotclear()->plugins()->displayManualForm();
 
             echo
                 '</div>';
@@ -268,7 +268,7 @@ class HandlerPlugin extends AbstractPage
         dotclear()->behavior()->call('pluginsToolsTabs');
 
         # -- Notice for super admin --
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->plugins->isWritablePath()) {
+        if (dotclear()->user()->isSuperAdmin() && !dotclear()->plugins()->isWritablePath()) {
             echo
             '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }

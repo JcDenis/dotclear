@@ -21,6 +21,7 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Module\AbstractModules;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 
@@ -36,10 +37,10 @@ class Prepend extends Core
     protected $process = 'Public';
 
     /** @var ModulesPlugin|null ModulesPlugin instance */
-    public $plugins = null;
+    private $plugins = null;
 
     /** @var ModulesTheme|null  ModulesTheme instance */
-    public $themes = null;
+    private $themes = null;
 
     /**
      * Get context instance
@@ -72,6 +73,16 @@ class Prepend extends Core
         }
 
         return $this->template;
+    }
+
+    public function plugins(): ?AbstractModules
+    {
+        return $this->plugins;
+    }
+
+    public function themes(): ?AbstractModules
+    {
+        return $this->themes;
     }
 
     /**

@@ -32,7 +32,7 @@ class MaintenanceTaskBuildtools extends MaintenanceTask
     public function execute()
     {
         /*
-        $widget = dotclear()->plugins->getModules('widgets');
+        $widget = dotclear()->plugins()?->getModules('widgets');
         include $widget['root'] . '/_default_widgets.php';
         */
 

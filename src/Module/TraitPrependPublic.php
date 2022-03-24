@@ -42,7 +42,7 @@ trait TraitPrependPublic
     {
         if (is_dir($this->define()->root() . '/templates/')) {
             dotclear()->behavior()->add('publicBeforeDocument', function () {
-                $tplset = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
+                $tplset = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
                 dotclear()->template()->setPath(
                     dotclear()->template()->getPath(),
                     $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : dotclear()->config()->template_default)

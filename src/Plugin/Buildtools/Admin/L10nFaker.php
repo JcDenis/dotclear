@@ -61,7 +61,7 @@ class L10nFaker
         file_put_contents(DOTCLEAR_ROOT_DIR . '/Core/_fake_l10n.php', $main);
         $plugin .= "\n# Plugin names\n\n";
         foreach ($this->bundled_plugins as $id) {
-            $p = dotclear()->plugins->getModule($id);
+            $p = dotclear()->plugins()?->getModule($id);
             if (!$p) {
                 continue; // cope with dev branch and maybe unknow plugins
             }

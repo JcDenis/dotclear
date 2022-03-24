@@ -231,10 +231,10 @@ class RestMethods
         }
 
         if ($post['store'] == 'themes') {
-            $mod = dotclear()->themes;
+            $mod = dotclear()->themes();
             $url = dotclear()->blog()->settings()->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {
-            $mod = dotclear()->plugins;
+            $mod = dotclear()->plugins();
             $url = dotclear()->blog()->settings()->system->store_plugin_url;
         } else {
 
@@ -845,14 +845,14 @@ class RestMethods
         $module = [];
 
         if ($list == 'plugin-activate') {
-            $modules = dotclear()->plugins->getModules();
+            $modules = dotclear()->plugins()->getModules();
             if (empty($modules) || !isset($modules[$id])) {
                 throw new AdminException('Unknown module ID');
             }
             $module = $modules[$id];
         } elseif ($list == 'plugin-new') {
             $store = new Repository(
-                dotclear()->plugins,
+                dotclear()->plugins(),
                 dotclear()->blog()->settings()->system->store_plugin_url
             );
             $store->check();

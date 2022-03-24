@@ -57,7 +57,7 @@ class Handler extends AbstractPage
         $user_ui_colorsyntax = dotclear()->user()->preference()->interface->colorsyntax;
 
         # Loading themes
-        $this->te_theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $this->te_theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -218,13 +218,13 @@ class Handler extends AbstractPage
 
     private function isEditableTheme()
     {
-        $theme = dotclear()->themes->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
         if ($theme && $theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
-            $path = dotclear()->themes->getModulesPath();
+            $path = dotclear()->themes()->getModulesPath();
 
             return !dotclear()->production()
                 || !str_contains(Path::real($theme->root()), Path::real((string) array_pop($path)))
-                || !dotclear()->themes->isDistributedModule($theme->id());
+                || !dotclear()->themes()->isDistributedModule($theme->id());
         }
 
         return false;

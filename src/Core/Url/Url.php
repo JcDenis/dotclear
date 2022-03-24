@@ -918,10 +918,10 @@ class Url
         }
 
         # Current Theme paths
-        if (empty($dirs)) {
+        if (empty($dirs) && dotclear()->themes()) {
             $dirs = array_merge(
-                array_values(dotclear()->themes->getThemePath('Public/resources')),
-                array_values(dotclear()->themes->getThemePath('Common/resources'))
+                array_values(dotclear()->themes()->getThemePath('Public/resources')),
+                array_values(dotclear()->themes()->getThemePath('Common/resources'))
             );
         }
 
