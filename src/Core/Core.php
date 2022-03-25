@@ -114,6 +114,9 @@ class Core
     /** @var    string  Current Process */
     protected $process;
 
+    /** @var    string  Current lang */
+    protected $lang = 'en';
+
     /** @var    array   top behaviors */
     protected static $top_behaviors = [];
 
@@ -698,6 +701,16 @@ class Core
 
         # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
+    }
+
+    /**
+     * Get current lang
+     * 
+     * @return  string  Lang
+     */
+    public function lang(): string
+    {
+        return $this->lang;
     }
 
     /**

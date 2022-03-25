@@ -311,7 +311,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
 
         if (dotclear()->plugins()) {
             foreach (dotclear()->plugins()->getModules() as $module) {
-                $modules->loadModuleL10N($module->id(), dotclear()->_lang, 'xmlrpc');
+                $modules->loadModuleL10N($module->id(), dotclear()->lang(), 'xmlrpc');
             }
         }
 

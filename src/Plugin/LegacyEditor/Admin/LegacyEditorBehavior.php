@@ -83,7 +83,7 @@ class LegacyEditorBehavior
 
     protected function jsToolBar()
     {
-        $rtl = L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl' ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;

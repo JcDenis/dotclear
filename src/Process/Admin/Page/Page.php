@@ -333,7 +333,7 @@ abstract class Page
 
         echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
-        if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl') {
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
@@ -454,7 +454,7 @@ abstract class Page
 
         echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
-        if (L10n::getLanguageTextDirection(dotclear()->_lang) == 'rtl') {
+        if (L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl') {
             echo dotclear()->resource()->load('default-rtl.css');
         }
 

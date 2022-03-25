@@ -33,14 +33,14 @@ class Prepend extends Core
     /** @var    Template    Template instance */
     private $template;
 
-    /** @var    string      Current Process */
-    protected $process = 'Public';
-
-    /** @var ModulesPlugin|null ModulesPlugin instance */
+    /** @var    AbstractModules|null    ModulesPlugin instance */
     private $plugins = null;
 
-    /** @var ModulesTheme|null  ModulesTheme instance */
+    /** @var    AbstractModules|null    ModulesTheme instance */
     private $themes = null;
+
+    /** @var    string      Current Process */
+    protected $process = 'Public';
 
     /**
      * Get context instance
@@ -124,24 +124,24 @@ class Prepend extends Core
         ]);
 
         # Load locales
-        $_lang = $this->blog()->settings()->system->lang;
-        $this->_lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_lang) ? $_lang : 'en';
+        $lang = $this->blog()->settings()->system->lang;
+        $this->lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $lang) ? $lang : 'en';
 
-        L10n::lang($this->_lang);
-        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'date')) === false && $this->_lang != 'en') {
+        L10n::lang($this->lang);
+        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) === false && $this->lang != 'en') {
             L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'main'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'public'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->_lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'main'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->_ang, 'public'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'plugins'));
 
         # Set lexical lang
-        Lexical::setLexicalLang('public', $this->_lang);
+        Lexical::setLexicalLang('public', $this->lang);
 
         # Load modules
         try {
             $types = [
-                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Public\\ModulesPlugin', $this->_lang],
+                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Public\\ModulesPlugin', $this->lang],
                 [&$this->themes, $this->config()->theme_dirs, '\\Dotclear\\Module\\Theme\\Public\\ModulesTheme', null],
             ];
             foreach($types as $t) {
@@ -169,13 +169,13 @@ class Prepend extends Core
 
         # If theme has parent load their locales
         if (count($path) > 1) {
-            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'main');
-            $this->themes->loadModuleL10N(array_key_last($path), $this->_lang, 'public');
+            $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'main');
+            $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'public');
         }
 
         # Themes locales
-        $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'main');
-        $this->themes->loadModuleL10N(array_key_first($path), $this->_lang, 'public');
+        $this->themes->loadModuleL10N(array_key_first($path), $this->lang, 'main');
+        $this->themes->loadModuleL10N(array_key_first($path), $this->lang, 'public');
 
         # --BEHAVIOR-- publicPrepend
         $this->behavior()->call('publicPrepend');
