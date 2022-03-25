@@ -261,7 +261,7 @@ abstract class Page
         }
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!$safe_mode && dotclear()->blog()->settings()->system->csp_admin_on) {
+        if (!dotclear()->rescue() && dotclear()->blog()->settings()->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject([]);
 
@@ -367,10 +367,8 @@ abstract class Page
         echo
         "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
-        ($safe_mode ? ' safe-mode' : '') .
-        (!dotclear()->production() ?
-            ' debug-mode' :
-            '') .
+        (dotclear()->rescue() ? ' safe-mode' : '') .
+        (dotclear()->production() ? '' : ' debug-mode') .
         '">' . "\n" .
 
         '<ul id="prelude">' .
@@ -406,7 +404,7 @@ abstract class Page
             '<div id="content" class="clearfix">' . "\n";
 
         # Safe mode
-        if ($safe_mode) {
+        if (dotclear()->rescue()) {
             echo
             '<div class="warning" role="alert"><h3>' . __('Safe mode') . '</h3>' .
             '<p>' . __('You are in safe mode. All plugins have been temporarily disabled. Remind to log out then log in again normally to get back all functionalities') . '</p>' .
@@ -428,8 +426,6 @@ abstract class Page
     public function pageOpenPopup(): void
     {
         $js   = [];
-
-        $safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
 
         # Display
         header('Content-Type: text/html; charset=UTF-8');
@@ -481,10 +477,8 @@ abstract class Page
         echo
             "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
-            ($safe_mode ? ' safe-mode' : '') .
-            (!dotclear()->production() ?
-                ' debug-mode' :
-                '') .
+            (dotclear()->rescue() ? ' safe-mode' : '') .
+            (dotclear()->production() ? '' : ' debug-mode') .
             '">' . "\n" .
 
             '<h1>' . dotclear()->config()->vendor_name . '</h1>' . "\n";

@@ -724,6 +724,16 @@ class Core
     }
 
     /**
+     * Check rescue mode
+     * 
+     * @return  bool    True for rescue mode
+     */
+    public function rescue()
+    {
+        return isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
+    }
+
+    /**
      * Shutdown method
      *
      * Close properly session and connection.

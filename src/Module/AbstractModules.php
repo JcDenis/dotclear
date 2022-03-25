@@ -27,9 +27,6 @@ abstract class AbstractModules
 {
     use ErrorTrait;
 
-    /** @var    bool    Safe mode is active */
-    protected $safe_mode;
-
     /** @var    array   List of enabled modules */
     protected $modules_enabled = [];
 
@@ -104,7 +101,6 @@ abstract class AbstractModules
      */
     public function __construct(?string $lang = null)
     {
-        $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
         # Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
             # Check dir
@@ -125,7 +121,7 @@ abstract class AbstractModules
                 if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
 
                     # Module will be disabled
-                    $entry_enabled = !file_exists($entry_path . '/_disabled') && !$this->safe_mode;
+                    $entry_enabled = !file_exists($entry_path . '/_disabled') && !dotclear()->rescue();
                     if (!$entry_enabled) {
                         $this->disabled_mode = true;
                     }
