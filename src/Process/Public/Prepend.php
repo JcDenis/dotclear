@@ -132,7 +132,7 @@ class Prepend extends Core
             L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
         L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'main'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->_ang, 'public'));
+        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'public'));
         L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'plugins'));
 
         # Set lexical lang
