@@ -7,6 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-if (!isset($__resources['help']['userPref'])) {
-    $__resources['help']['userPref'] = __DIR__ . '/help/help.html';
-}
+$this->context('userPref', __DIR__ . '/help/help.html');

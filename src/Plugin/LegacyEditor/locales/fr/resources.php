@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$__resources['help']['LegacyEditor'] = __DIR__ . '/help/legacy_editor.html';
+$this->context('LegacyEditor', __DIR__ . '/help/legacy_editor.html');

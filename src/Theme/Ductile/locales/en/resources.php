@@ -7,6 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-if (!isset($__resources['help']['ductile'])) {
-    $__resources['help']['ductile'] = __DIR__ . '/help/help.html';
-}
+$this->context('ductile', __DIR__ . '/help/help.html');

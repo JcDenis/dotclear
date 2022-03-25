@@ -151,10 +151,10 @@ class Home extends Page
 
         # Documentation links
         if (dotclear()->user()->preference()->dashboard->doclinks) {
-            if (!empty(dotclear()->resources['doc'])) {
+            if (!empty(dotclear()->help()->doc())) {
                 $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
 
-                foreach (dotclear()->resources['doc'] as $k => $v) {
+                foreach (dotclear()->help()->doc() as $k => $v) {
                     $doc_links .= '<li><a class="outgoing" href="' . $v . '" title="' . $k . '">' . $k .
                         ' <img src="?df=images/outgoing-link.svg" alt="" /></a></li>';
                 }

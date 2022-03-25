@@ -6,9 +6,5 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!isset($__resources['help']['pings'])) {
-    $__resources['help']['pings'] = __DIR__ . '/help/pings.html';
-}
-if (!isset($__resources['help']['pings_post'])) {
-    $__resources['help']['pings_post'] = __DIR__ . '/help/pings_post.html';
-}
+$this->context('pings', __DIR__ . '/help/pings.html');
+$this->context('pings_post', __DIR__ . '/help/pings_post.html');

@@ -7,12 +7,11 @@
  * @copyright GPL-2.0-only
  */
 
-$__resources['rss_news'] = 'https://dotclear.org/blog/feed/category/News/atom';
-
-$__resources['doc'] = array(
+$this->news('https://dotclear.org/blog/feed/category/News/atom';
+$this->doc([
     "Dotclear-dokumentaatio"     => 'https://dotclear.org/documentation/2.0',
     'Dotclearin esittely'        => 'https://dotclear.org/documentation/2.0/overview/tour',
     "Käyttäjän opas"             => 'https://dotclear.org/documentation/2.0/usage',
     "Asennus- ja hallintaoppaat" => 'https://dotclear.org/documentation/2.0/admin',
-    "Dotclearin tukipalstat"     => 'https://forum.dotclear.net/'
-);
+    "Dotclearin tukipalstat"     => 'https://forum.dotclear.net/',
+]);

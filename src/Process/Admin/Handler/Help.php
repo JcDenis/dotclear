@@ -57,12 +57,12 @@ class Help extends Page
         echo $this->help_content;
 
         # Prevents global help link display
-        dotclear()->__resources['ctxhelp'] = true;
+        dotclear()->help()->flag(true);
     }
 
     private function getHelpContent(...$args): void
     {
-        if (empty($args) || empty(dotclear()->resources['help'])) {
+        if (empty($args)) {
             return;
         }
 
@@ -73,10 +73,9 @@ class Help extends Page
                 continue;
             }
 
-            if (!isset(dotclear()->resources['help'][$v])) {
+            if (!($f = dotclear()->help()->context($v))) {
                 continue;
             }
-            $f = dotclear()->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }

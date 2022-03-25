@@ -7,6 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-if (!isset($__resources['help']['themeEditor'])) {
-    $__resources['help']['themeEditor'] = dirname(__FILE__) . '/help/help.html';
-}
+$this->context('themeEditor', dirname(__FILE__) . '/help/help.html');

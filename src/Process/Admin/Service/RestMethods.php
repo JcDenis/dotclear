@@ -109,14 +109,14 @@ class RestMethods
 
         if (dotclear()->user()->preference()->dashboard->dcnews) {
             try {
-                if (empty(dotclear()->resources['rss_news'])) {
+                if (!dotclear()->help()->news()) {
                     throw new AdminException();
                 }
                 $feed_reader = new Reader();
                 $feed_reader->setCacheDir(dotclear()->config()->cache_dir);
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
-                $feed = $feed_reader->parse(dotclear()->resources['rss_news']);
+                $feed = $feed_reader->parse(dotclear()->help()->news());
                 if ($feed) {
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;

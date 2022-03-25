@@ -563,10 +563,6 @@ abstract class Page
             return;
         };
 
-        if (empty(dotclear()->resources['help'])) {
-            return;
-        }
-
         $content = '';
         foreach ($args as $v) {
             if (is_object($v) && isset($v->content)) {
@@ -575,10 +571,9 @@ abstract class Page
                 continue;
             }
 
-            if (!isset(dotclear()->resources['help'][$v])) {
+            if (!($f = dotclear()->help()->context($v))) {
                 continue;
             }
-            $f = dotclear()->resources['help'][$v];
             if (!file_exists($f) || !is_readable($f)) {
                 continue;
             }
@@ -596,7 +591,7 @@ abstract class Page
         }
 
         // Set contextual help global flag
-        dotclear()->resources['ctxhelp'] = true;
+        dotclear()->help()->flag(true);
 
         echo
         '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
@@ -633,7 +628,7 @@ abstract class Page
 
     private function pageClose(): void
     {
-        if (!dotclear()->resources['ctxhelp'] && !dotclear()->user()->preference()->interface->hidehelpbutton) {
+        if (!dotclear()->help()->flag() && !dotclear()->user()->preference()->interface->hidehelpbutton) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 dotclear()->adminurl()->get('admin.help'),

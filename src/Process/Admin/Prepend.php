@@ -22,13 +22,14 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Module\AbstractModules;
-use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
 use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Help\Help;
 use Dotclear\Process\Admin\ListOption\ListOption;
-use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Notice\Notice;
+use Dotclear\Process\Admin\Menu\Summary;
+use Dotclear\Process\Admin\Resource\Resource;
 
 class Prepend extends Core
 {
@@ -41,17 +42,20 @@ class Prepend extends Core
     /** @var    Favorite    Favorite instance */
     private $favorite;
 
-    /** @var    Resource    Resource instance */
-    private $resource;
+    /** @var    Help    Help instance */
+    private $help;
 
-    /** @var    Summary     Summary instance */
-    private $summary;
+    /** @var    ListOption  ListOption instance */
+    private $listoption;
 
     /** @var    Notice   Notice instance */
     private $notice;
 
-    /** @var    ListOption  ListOption instance */
-    private $listoption;
+    /** @var    Summary     Summary instance */
+    private $summary;
+
+    /** @var    Resource    Resource instance */
+    private $resource;
 
     /** @var    string  Current Process */
     protected $process = 'Admin';
@@ -67,9 +71,6 @@ class Prepend extends Core
 
     /** @var    string  user lang */
     public $_lang = 'en';
-
-    /** @var    array   help resources container */
-    public $resources = [];
 
     /**
      * Get adminurl instance
@@ -114,6 +115,20 @@ class Prepend extends Core
         }
 
         return $this->favorite;
+    }
+
+    /**
+     * Get help instance
+     *
+     * @return  Help   Help instance
+     */
+    public function help(): Help
+    {
+        if (!($this->help instanceof Help)) {
+            $this->help = new Help();
+        }
+
+        return $this->help;
     }
 
     /**
@@ -388,28 +403,25 @@ class Prepend extends Core
 
         # for now keep old ressources files "as is"
         $_lang        = $this->_lang;
-        $__resources = $this->resources;
 
         if ($load_default) {
-            require Path::implode($dir, 'en', 'resources.php');
+            $this->help()->file(Path::implode($dir, 'en', 'resources.php'));
         }
         if (($f = L10n::getFilePath($dir, 'resources.php', $_lang))) {
-            require $f;
+            $this->help()->file($f);
         }
         unset($f);
 
         $hfiles = Files::scandir(Path::implode($dir, $_lang, 'help'), true, false);
         foreach ($hfiles as $hfile) {
             if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                $__resources['help'][$m[1]] = Path::implode($dir, $_lang, 'help', $hfile);
+                $this->help()->context($m[1], Path::implode($dir, $_lang, 'help', $hfile));
             }
         }
         unset($hfiles);
 
         # Contextual help flag
-        $__resources['ctxhelp'] = false;
-
-        $this->resources = $__resources;
+        $this->help()->flag(false);
     }
 
     private function adminGetLang(): void

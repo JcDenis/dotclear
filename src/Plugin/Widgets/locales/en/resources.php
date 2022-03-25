@@ -7,6 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-if (!isset($__resources['help']['widgets'])) {
-    $__resources['help']['widgets'] = __DIR__ . '/help/help.html';
-}
+$this->context('widgets', __DIR__ . '/help/help.html');
