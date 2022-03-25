@@ -42,7 +42,7 @@ class Blogs extends Page
         return new BlogFilter(dotclear());
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
         $params = new ArrayObject($params);

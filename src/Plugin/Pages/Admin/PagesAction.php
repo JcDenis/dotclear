@@ -31,7 +31,7 @@ class PagesAction extends PostAction
         # Page setup
         $this
             ->setPageTitle(__('Blogs'))
-            ->setPageType($this->in_plugin ? 'plugin' : null)
+            ->setPageType($this->in_plugin ? 'plugin' : 'full')
             ->setPageHead(dotclear()->resource()->Load('_posts_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',

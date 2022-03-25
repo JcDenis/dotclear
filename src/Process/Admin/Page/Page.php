@@ -64,71 +64,19 @@ abstract class Page
     /** @var array          Misc options for page content */
     protected $options = [];
 
+    /**
+     * Constructor
+     * 
+     * Check user permissions to load this page
+     * 
+     * @param   string  $handler    Used handler name
+     */
     public function __construct(string $handler = 'admin.home')
     {
         $this->handler = $handler;
 
-        # Check user permissions
-        $this->pagePermissions();
-    }
-
-    /**
-     * Check if current page is home page
-     *
-     * @return  bool    Is home page
-     */
-    final public function isHome(): bool
-    {
-        return $this->handler == 'admin.home';
-    }
-
-    /**
-     * Check if current page is authentication page
-     *
-     * @return  bool    Is auth page
-     */
-    final public function isAuth(): bool
-    {
-        return $this->handler == 'admin.auth';
-    }
-
-    /**
-     * Process page display
-     *
-     * Split process into readable methods
-     */
-    final public function pageProcess(): void
-    {
-        $this->pageInstances();
-        $action = $this->pagePrepend();
-
-        if ($action === null) {
-            return;
-        }
-
-        $this->pageBegin();
-        $this->pageBreadcrumb();
-        $this->pageNotices();
-        $this->pageContent();
-        $this->pageHelp();
-        $this->pageEnd();
-
-        if ($action !== null) {
-            exit;
-        }
-    }
-
-    /// @name Page internal methods
-    //@{
-    /**
-     * Check user permissions to load this page
-     */
-    private function pagePermissions(): void
-    {
-        $permissions = $this->getPermissions();
-
         # No permissions required
-        if ($permissions === false) {
+        if (false === ($permissions = $this->getPermissions())) {
             return;
         }
 
@@ -143,7 +91,7 @@ abstract class Page
         }
 
         # Check if dashboard is not the current page and if it is granted for the user
-        if (!$this->isHome && dotclear()->blog() && dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if ('admin.home' != $this->handler && dotclear()->blog() && dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             # Go back to the dashboard
             dotclear()->adminurl()->redirect('admin.home');
         }
@@ -157,62 +105,73 @@ abstract class Page
     }
 
     /**
-     * Load into page usefull instance
+     * Process page display
      *
-     * Class type is verified by abstract class type hint.
+     * Split process into readable methods
      */
-    private function pageInstances(): void
+    final public function pageProcess(): void
     {
+        # Load into page usefull class instance, type is verified by abstract class type hint.
         try {
             # Load and process page Action
-            if (($action_class = $this->getActionInstance()) !== null) {
+            if (null !== ($action_class = $this->getActionInstance())) {
                 $this->action = $action_class;
                 $this->action->pageProcess();
             }
 
             # Load list Filter
-            if (($filter_class = $this->getFilterInstance()) !== null) {
+            if (null !== ($filter_class = $this->getFilterInstance())) {
                 $this->filter = $filter_class;
             }
 
             # Load list Inventory
-            if (($inventory_class = $this->GetInventoryInstance()) !== null) {
+            if (null !== ($inventory_class = $this->getInventoryInstance())) {
                 $this->inventory = $inventory_class;
             }
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
-    }
 
-    private function pagePrepend(): ?bool
-    {
-        return $this->getPagePrepend();
-    }
+        # Get page Prepend actions (stop process loop on null)
+        if (null === ($action = $this->getPagePrepend())) {
+            return;
+        }
 
-    private function pageBegin(): void
-    {
-        switch ($this->page_type) {
-            case null:
-            case 'full':
-                $this->pageOpen();
-                break;
+        # Open specific type of page
+        match ($this->page_type) {
+            null, 'full' => $this->pageOpen(),
+            'plugin'     => $this->pageOpenPlugin(),
+            'popup'      => $this->pageOpenPopup(),
+            'standalone' => '',
+            default      => $this->getPageBegin(),
+        };
 
-            case 'plugin':
-                $this->pageOpenPlugin();
-                break;
+        $this->pageBreadcrumb();
 
-            case 'popup':
-                $this->pageOpenPopup();
-                break;
+        # Get notices
+        echo dotclear()->notice()->getNotices();
 
-            case 'standalone':
-                break;
+        # Get page content
+        $this->getPageContent();
 
-            default:
-                $this->getPageBegin();
-                break;
+        # Get page help
+        $this->pageHelp();
+
+        # Close specific type of page
+        match ($this->page_type) {
+            null, 'full', 'plugin' => $this->pageClose(),
+            'popup'                => $this->pageClosePopup(),
+            'standalone'           => '',
+            default                => $this->getPageEnd(),
+        };
+
+        if (null !== $action) {
+            exit;
         }
     }
+
+    /// @name Page internal methods
+    //@{
 
     /**
      * The top of a popup.
@@ -222,11 +181,11 @@ abstract class Page
         $js   = [];
 
         # List of user's blogs
-        if (dotclear()->user()->getBlogCount() == 1 || dotclear()->user()->getBlogCount() > 20) {
+        if (1 == dotclear()->user()->getBlogCount() || 20 < dotclear()->user()->getBlogCount()) {
             $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog()->url) . '">' .
             Html::escapeHTML(dotclear()->blog()->name) . '</strong>';
 
-            if (dotclear()->user()->getBlogCount() > 20) {
+            if (20 < dotclear()->user()->getBlogCount()) {
                 $blog_box .= ' - <a href="' . dotclear()->adminurl()->get('admin.blogs') . '">' . __('Change blog') . '</a>';
             }
             $blog_box .= '</p>';
@@ -241,8 +200,6 @@ abstract class Page
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
-
-        $safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
 
         # Display
         $headers = new ArrayObject([]);
@@ -333,7 +290,7 @@ abstract class Page
 
         echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
-        if (L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl') {
+        if ('rtl' == L10n::getLanguageTextDirection(dotclear()->lang())) {
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
@@ -494,7 +451,7 @@ abstract class Page
         $elements = $this->page_breadcrumb['elements'];
         $options  = $this->page_breadcrumb['options'];
 
-        if ($elements === null) {
+        if (null === $elements) {
             return;
         }
 
@@ -510,30 +467,20 @@ abstract class Page
             '<img class="go_home light-only" src="?df=css/dashboard-alt.svg" alt="" />' .
             '<img class="go_home dark-only" src="?df=css/dashboard-alt-dark.svg" alt="" />');
         $index = 0;
-        if ($hl_pos < 0) {
+        if (0 > $hl_pos) {
             $hl_pos = count($elements) + $hl_pos;
         }
         foreach ($elements as $element => $url) {
             if ($hl && $index == $hl_pos) {
                 $element = sprintf('<span class="page-title">%s</span>', $element);
             }
-            $res .= ($with_home_link ? ($index == 1 ? ' : ' : ' &rsaquo; ') : ($index == 0 ? ' ' : ' &rsaquo; ')) .
+            $res .= ($with_home_link ? (1 == $index ? ' : ' : ' &rsaquo; ') : (0 == $index ? ' ' : ' &rsaquo; ')) .
                 ($url ? '<a href="' . $url . '">' : '') . $element . ($url ? '</a>' : '');
             $index++;
         }
         $res .= '</h2>';
 
         echo $res;
-    }
-
-    private function pageNotices(): void
-    {
-        echo dotclear()->notice()->getNotices();
-    }
-
-    private function pageContent(): void
-    {
-        $this->getPageContent();
     }
 
     /**
@@ -596,28 +543,6 @@ abstract class Page
         sprintf(__('See also %s'), sprintf('<a href="' . dotclear()->adminurl()->get('admin.help') . '">%s</a>', __('the global help'))) .
             '.</p>' .
             '</div></div>';
-    }
-
-    private function pageEnd(): void
-    {
-        switch ($this->page_type) {
-            case null:
-            case 'full':
-            case 'plugin':
-                $this->pageClose();
-                break;
-
-            case 'popup':
-                $this->pageClosePopup();
-                break;
-
-            case 'standalone':
-                break;
-
-            default:
-                $this->getPageEnd();
-                break;
-        }
     }
 
     private function pageClose(): void
@@ -758,7 +683,7 @@ abstract class Page
             return;
         }
 
-        if ($origin !== null) {
+        if (null !== $origin) {
             $url                        = parse_url($origin);
             $headers['x-frame-options'] = sprintf('X-Frame-Options: %s', is_array($url) && isset($url['host']) ?
                 ('ALLOW-FROM ' . (isset($url['scheme']) ? $url['scheme'] . ':' : '') . '//' . $url['host']) :
@@ -782,11 +707,9 @@ abstract class Page
      * - 'popup',
      * - ...
      *
-     * If not default value, this should be set before page opening.
-     *
-     * @param   string|null     $page_type  The page type
+     * @param   string  $page_type  The page type
      */
-    final public function setPageType(?string $page_type = null): Page
+    final public function setPageType(string $page_type = null): Page
     {
         $this->page_type = is_string($page_type) ? $page_type : 'full';
 
@@ -923,7 +846,7 @@ abstract class Page
      * If page contains list Inventory, load instance from here.
      * It wil be accessible from $this->inventory
      */
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         return null;
     }

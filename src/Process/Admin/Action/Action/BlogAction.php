@@ -35,7 +35,7 @@ class BlogAction extends DefaultBlogAction
         # Page setup
         $this
             ->setPageTitle(__('Blogs'))
-            ->setPageType($this->in_plugin ? 'plugin' : null)
+            ->setPageType($this->in_plugin ? 'plugin' : 'full')
             ->setPageHead(dotclear()->resource()->load('_blogs_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',

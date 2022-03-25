@@ -36,7 +36,7 @@ class Handler extends AbstractPage
         return new PagesAction(dotclear()->adminurl()->get('admin.plugin.Pages'));
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         $params = [
             'post_type' => 'page',

@@ -40,7 +40,7 @@ class Posts extends Page
         return new PostFilter();
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         # get list params
         $params = $this->filter->params();

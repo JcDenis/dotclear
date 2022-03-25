@@ -32,7 +32,7 @@ class PostsPopup extends Page
         return 'usage,contentadmin';
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         $this->plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
         $this->q         = !empty($_GET['q']) ? $_GET['q'] : null;

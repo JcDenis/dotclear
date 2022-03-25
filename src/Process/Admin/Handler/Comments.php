@@ -40,7 +40,7 @@ class Comments extends Page
         return new CommentFilter();
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
 

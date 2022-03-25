@@ -32,7 +32,7 @@ class PostAction extends DefaultPostAction
 
         # Page setup
         $this->setPageTitle(__('Posts'));
-        $this->setPageType($this->in_plugin ? 'plugin' : null);
+        $this->setPageType($this->in_plugin ? 'plugin' : 'full');
         $this->setPageHead(dotclear()->resource()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',

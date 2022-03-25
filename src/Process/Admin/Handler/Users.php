@@ -38,7 +38,7 @@ class Users extends Page
         return new UserFilter();
     }
 
-    protected function GetInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?Inventory
     {
         $params = $this->filter->params();
 
