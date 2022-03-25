@@ -99,7 +99,7 @@ class Configuration
         return $new;
     }
 
-    public function dump()
+    public function dump(): array
     {
         return $this->stack;
     }
