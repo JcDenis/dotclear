@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Distrib;
 
-use Dotclear\Exception\DistribException
+use Dotclear\Exception\DistribException;
 
 use Dotclear\Core\Core;
 use Dotclear\Process\Distrib\Upgrade;

@@ -11,8 +11,8 @@
  */
 
 try {
-    require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'Process.php']);
-    new Dotclear('Distrib');
+    require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'functions.php']);
+    dotclear_run('Distrib');
     exit(0);
 } catch (\Exception $e) {
     echo $e->getMessage() . "\n";
