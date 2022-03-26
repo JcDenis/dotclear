@@ -373,9 +373,8 @@ class Prepend extends Core
 
     private function adminLoadLocales(): void
     {
-        $this->adminGetLang();
+        $this->lang($this->user()->getInfo('user_lang'));
 
-        L10n::lang($this->lang);
         if (L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) === false && $this->lang != 'en') {
             L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
@@ -389,7 +388,7 @@ class Prepend extends Core
 
     private function adminLoadResources(string $dir, bool $load_default = true): void
     {
-        $this->adminGetLang();
+        $this->lang($this->user()->getInfo('user_lang'));
 
         if ($load_default) {
             $this->help()->file(Path::implode($dir, 'en', 'resources.php'));
@@ -409,12 +408,6 @@ class Prepend extends Core
 
         # Contextual help flag
         $this->help()->flag(false);
-    }
-
-    private function adminGetLang(): void
-    {
-        $lang       = $this->user()->getInfo('user_lang') ?? 'en';
-        $this->lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $lang) ? $lang : 'en';
     }
 
     private function adminLoadPage(?string $handler = null): void

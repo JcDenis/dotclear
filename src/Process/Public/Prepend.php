@@ -121,10 +121,8 @@ class Prepend extends Core
         ]);
 
         # Load locales
-        $lang = $this->blog()->settings()->system->lang;
-        $this->lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $lang) ? $lang : 'en';
+        $this->lang($this->blog()->settings()->system->lang);
 
-        L10n::lang($this->lang);
         if (L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) === false && $this->lang != 'en') {
             L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }

@@ -618,7 +618,7 @@ class Core
         # Find a default appropriate language (used by Exceptions)
         foreach (Http::getAcceptLanguages() as $lang) {
             if ('en' == $lang || $this->config() && false !== L10n::set(Path::implode($this->config()->l10n_dir, $lang, 'main'))) {
-                L10n::lang($lang);
+                $this->lang($lang);
                 break;
             }
         }
@@ -707,10 +707,20 @@ class Core
     /**
      * Get current lang
      * 
-     * @return  string  Lang
+     * @param   string  $lang   Lang to switch on
+     * 
+     * @return  string          Lang
      */
-    public function lang(): string
+    public function lang(string $lang = null): string
     {
+        if (null !== $lang) {
+            $lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $lang) ? $lang : 'en';
+            if ($lang != $this->lang) {
+                $this->lang = $lang;
+                L10n::lang($this->lang);
+            }
+        }
+
         return $this->lang;
     }
 

@@ -75,15 +75,7 @@ class Auth extends Page
             dotclear()->adminurl()->redirect('admin.home');
         }
 
-        # Loading locales for detected language
-        $dlang = Http::getAcceptLanguage();
-        $dlang = ($dlang == '' ? 'en' : $dlang);
-        if ($dlang != 'en' && preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $dlang)) {
-            L10n::lang($dlang);
-            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'main'));
-        }
-
-        $this->default_lang = $dlang;
+        $this->default_lang = dotclear()->lang();
         $this->page_url     = dotclear()->adminurl()->get('admin.auth');
         $this->change_pwd   = dotclear()->user()->allowPassChange() && isset($_POST['new_pwd']) && isset($_POST['new_pwd_c']) && isset($_POST['login_data']);
         $this->login_data   = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
