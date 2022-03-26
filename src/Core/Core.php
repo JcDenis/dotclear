@@ -295,7 +295,6 @@ class Core
 
                 $this->con =  $con;
             } catch (\Exception $e) {
-                $this->getExceptionLang();
                 $msg = sprintf(
                     __('<p>This either means that the username and password information in ' .
                     'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
@@ -518,7 +517,6 @@ class Core
 
                 $this->user = new $class();
             } catch (\Exception $e) {
-                $this->getExceptionLang();
                 $this->throwException(
                     __('Unable to do authentication'),
                     sprintf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
@@ -614,6 +612,17 @@ class Core
             error_reporting(E_ALL | E_STRICT);
         }
 
+        # Start l10n
+        L10n::init();
+
+        # Find a default appropriate language (used by Exceptions)
+        foreach (Http::getAcceptLanguages() as $lang) {
+            if ('en' == $lang || $this->config() && false !== L10n::set(Path::implode($this->config()->l10n_dir, $lang, 'main'))) {
+                L10n::lang($lang);
+                break;
+            }
+        }
+
         # Set some Http stuff
         Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
         Http::$reverse_proxy = $this->config()->reverse_proxy;
@@ -621,7 +630,6 @@ class Core
 
         # Check master key
         if (32 > strlen($this->config()->master_key)) {
-                $this->getExceptionLang();
                 $this->throwException(
                     __('Unsufficient master key'),
                     __('Master key is not strong enough, please change it.'),
@@ -633,7 +641,6 @@ class Core
         if ('sha1' == $this->config()->crypt_algo) {
             # Check length of cryptographic algorithm result and exit if less than 40 characters long
             if (40 > strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo))) {
-                $this->getExceptionLang();
                 $this->throwException(
                     __('Cryptographic error'),
                     sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->crypt_algo),
@@ -653,7 +660,6 @@ class Core
             /* Try to create it */
             @Files::makeDir($this->config()->cache_dir);
             if (!is_dir($this->config()->cache_dir)) {
-                $this->getExceptionLang();
                 $this->throwException(
                     __('Unable to find cache directory'),
                     sprintf(__('%s directory does not exist. Please create it.'), $this->config()->cache_dir),
@@ -667,7 +673,6 @@ class Core
             // Try to create it
             @Files::makeDir($this->config()->var_dir);
             if (!is_dir($this->config()->var_dir)) {
-                $this->getExceptionLang();
                 $this->throwException(
                     __('Unable to find var directory'),
                     sprintf(
@@ -679,16 +684,12 @@ class Core
 
         # Check configuration required values
         if ($this->config()->error()->flag()) {
-            $this->getExceptionLang();
             $this->throwException(
                 __('Configuration file is not complete.'),
                 implode("\n", $this->config()->error()->dump()),
                 611
             );
         }
-
-        # Start l10n
-        L10n::init();
 
         # Define current process for files check
         define('DOTCLEAR_PROCESS', $this->process);
@@ -793,7 +794,6 @@ class Core
         try {
             $this->blog = new Blog($blog_id);
         } catch (\Exception $e) {
-            $this->getExceptionLang();
             $this->throwException(
                 __('Unable to load blog'),
                 sprintf(__('Something went wrong while trying to load blog: %s'), $e->getMessage()),
@@ -839,20 +839,6 @@ class Core
         throw new PrependException($title, $message, $code, !$this->production(), $previous);
 
         exit(1);
-    }
-
-    /**
-     * Load locales for detected language
-     */
-    protected function getExceptionLang(): void
-    {
-        foreach (Http::getAcceptLanguages() as $lang) {
-            if ('en' == $lang || $this->config() && false !== L10n::set(Path::implode($this->config()->l10n_dir, $lang, 'main'))) {
-                L10n::lang($lang);
-
-                break;
-            }
-        }
     }
 
     /**

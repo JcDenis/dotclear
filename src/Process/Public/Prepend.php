@@ -67,7 +67,6 @@ class Prepend extends Core
             try {
                 $this->template = new Template($this->config()->cache_dir, 'dotclear()->template()');
             } catch (\Exception $e) {
-                $this->getExceptionLang();
                 $this->throwException(__('Unable to create template'), $e->getMessage(), 640, $e);
             }
         }
@@ -107,13 +106,11 @@ class Prepend extends Core
         $this->setBlog($blog_id ?: '');
 
         if ($this->blog()->id == null) {
-            $this->getExceptionLang();
             $this->throwException(__('Did you change your Blog ID?'), '', 630);
         }
 
         if ((bool) !$this->blog()->status) {
             $this->unsetBlog();
-            $this->getExceptionLang();
             $this->throwException(__('This blog is offline. Please try again later.'), '', 670);
         }
 
@@ -152,7 +149,6 @@ class Prepend extends Core
                 }
             }
         } catch (\Exception $e) {
-            $this->getExceptionLang();
             $this->throwException(__('Unable to load modules.'), $e->getMessage(), 640, $e);
         }
 
@@ -161,7 +157,6 @@ class Prepend extends Core
 
         # If theme doesn't exist, stop everything
         if (!count($path)) {
-            $this->getExceptionLang();
             $this->throwException(__('This either means you removed your default theme or set a wrong theme ' .
                     'path in your blog configuration. Please check theme_path value in ' .
                     'about:config module or reinstall default theme. (' . $__theme . ')'), '', 650);
@@ -208,7 +203,6 @@ class Prepend extends Core
             # --BEHAVIOR-- publicAfterDocument
             $this->behavior()->call('publicAfterDocument');
         } catch (\Exception $e) {
-            $this->getExceptionLang();
             $this->throwException(
                 __('Something went wrong while loading template file for your blog.'),
                 sprintf(__('The following error was encountered while trying to load template file: %s'), $e->getMessage()),

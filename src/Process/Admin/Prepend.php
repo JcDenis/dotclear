@@ -225,20 +225,17 @@ class Prepend extends Core
             $_COOKIE[$this->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->user()->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
-                $this->getExceptionLang();
                 $this->throwException(__('Invalid session data.'), '', 625);
             }
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                $this->getExceptionLang();
                 $this->throwException(__('Precondition Failed.'), '', 625);
                 }
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                $this->getExceptionLang();
                 $this->throwException(__('Permission denied.'), '', 625);
             }
 
@@ -247,7 +244,6 @@ class Prepend extends Core
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog()->id) {
-                $this->getExceptionLang();
                 $this->throwException(__('Permission denied.'), '', 625);
             }
         } elseif ($this->user()->sessionExists()) {
@@ -263,14 +259,12 @@ class Prepend extends Core
                     exit;
                 }
             } catch (\Exception $e) {
-                $this->getExceptionLang();
                 $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620, $e);
             }
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    $this->getExceptionLang();
                     $this->throwException(__('Precondition Failed.'), '', 412);
                 }
             }
@@ -351,7 +345,6 @@ class Prepend extends Core
 
             # Stop if no themes found
             if (!$this->themes) {
-                $this->getExceptionLang();
                 $this->throwException(__('There seems to be no valid Theme directory set in configuration file.'), '', 611);
             }
 
@@ -439,7 +432,6 @@ class Prepend extends Core
 
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\Page')) {
-                $this->getExceptionLang();
                 throw new \Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
             }
             $page = new $class($handler);
