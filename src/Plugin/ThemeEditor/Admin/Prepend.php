@@ -93,7 +93,7 @@ class Prepend extends AbstractPrepend
         echo '</div>';
         echo '<div class="col">';
         echo dotclear()->resource()->loadCodeMirror('', false, ['javascript']);
-        if ($current_theme !== 'default') {
+        if (!empty($current_theme) && 'default' !== $current_theme) {
             echo dotclear()->resource()->js('codemirror/theme/' . $current_theme . '.css');
         }
         echo '
