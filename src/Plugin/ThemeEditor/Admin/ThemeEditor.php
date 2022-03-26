@@ -261,50 +261,29 @@ class ThemeEditor
 
     protected function getFilesFromType($type)
     {
-        switch ($type) {
-            case 'tpl':
-                return $this->tpl;
-            case 'css':
-                return $this->css;
-            case 'js':
-                return $this->js;
-            case 'po':
-                return $this->po;
-            case 'php':
-                return $this->php;
-            default:
-                return [];
-        }
+        return match ($type) {
+            'tpl'   => $this->tpl,
+            'css'   => $this->css,
+            'js'    => $this->js,
+            'po'    => $this->po,
+            'php'   => $this->php,
+            default => [],
+        };
     }
 
     protected function updateFileInList($type, $f, $file)
     {
-        switch ($type) {
-            case 'tpl':
-                $list = &$this->tpl;
-
-                break;
-            case 'css':
-                $list = &$this->css;
-
-                break;
-            case 'js':
-                $list = &$this->js;
-
-                break;
-            case 'po':
-                $list = &$this->po;
-
-                break;
-            case 'php':
-                $list = &$this->php;
-
-                break;
-            default:
-                return;
+        $file = match ($type) {
+            'tpl'   => &$this->tpl,
+            'css'   => &$this->css,
+            'js'    => &$this->js,
+            'po'    => &$this->po,
+            'php'   => &$this->php,
+            default = [];
         }
-
-        $list[$f] = $file;
+        if ($list) {
+            $list[$f] = $file;
+        }
     }
 
     protected function findTemplates()

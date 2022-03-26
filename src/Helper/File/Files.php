@@ -477,25 +477,16 @@ class Files
             throw new FileException(__('Not an uploaded file.'));
         }
 
-        switch ($file['error']) {
-            case UPLOAD_ERR_OK:
-                return true;
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                throw new FileException(__('The uploaded file exceeds the maximum file size allowed.'));
-            case UPLOAD_ERR_PARTIAL:
-                throw new FileException(__('The uploaded file was only partially uploaded.'));
-            case UPLOAD_ERR_NO_FILE:
-                throw new FileException(__('No file was uploaded.'));
-            case UPLOAD_ERR_NO_TMP_DIR:
-                throw new FileException(__('Missing a temporary folder.'));
-            case UPLOAD_ERR_CANT_WRITE:
-                throw new FileException(__('Failed to write file to disk.'));
-            case UPLOAD_ERR_EXTENSION:
-                throw new FileException(__('A PHP extension stopped the file upload.'));
-            default:
-                return true;
-        }
+        return match ($file['error']) {
+            UPLOAD_ERR_OK => true,
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => throw new FileException(__('The uploaded file exceeds the maximum file size allowed.')),
+            UPLOAD_ERR_PARTIAL => throw new FileException(__('The uploaded file was only partially uploaded.')),
+            UPLOAD_ERR_NO_FILE => throw new FileException(__('No file was uploaded.')),
+            UPLOAD_ERR_NO_TMP_DIR => throw new FileException(__('Missing a temporary folder.')),
+            UPLOAD_ERR_CANT_WRITE => throw new FileException(__('Failed to write file to disk.')),
+            UPLOAD_ERR_EXTENSION => throw new FileException(__('A PHP extension stopped the file upload.')),
+            default => true,
+        };
     }
 
     /**

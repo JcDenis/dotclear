@@ -74,24 +74,12 @@ abstract class DefaultPostAction extends Action
 
     public function doChangePostStatus(Action $ap, array|ArrayObject $post): void
     {
-        switch ($ap->getAction()) {
-            case 'unpublish':
-                $status = 0;
-
-                break;
-            case 'schedule':
-                $status = -1;
-
-                break;
-            case 'pending':
-                $status = -2;
-
-                break;
-            default:
-                $status = 1;
-
-                break;
-        }
+        $status = match ($ap->getAction()) {
+            'unpublish' => 0,
+            'schedule'  => -1,
+            'pending'   => -2,
+            default     => 1,
+        };
         $posts_ids = $ap->getIDs();
         if (empty($posts_ids)) {
             throw new AdminException(__('No entry selected'));

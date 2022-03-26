@@ -660,22 +660,12 @@ class ImportWp extends Module
         $cur->post_content_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->post_content);
         $cur->post_excerpt_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->post_excerpt);
 
-        switch ($rs->post_status) {
-            case 'publish':
-                $cur->post_status = 1;
-
-                break;
-            case 'draft':
-                $cur->post_status = 0;
-
-                break;
-            case 'pending':
-                $cur->post_status = -2;
-
-                break;
-            default:
-                $cur->post_status = -2;
-        }
+        $cur->post_status = match ($rs->post_status) {
+            'publish' => 1,
+            'draft'   => 0,
+            'pending' => -2,
+            default   => -2,
+        };
         $cur->post_type         = $rs->post_type;
         $cur->post_password     = $rs->post_password ?: null;
         $cur->post_open_comment = $rs->comment_status == 'open' ? 1 : 0;

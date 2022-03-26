@@ -325,15 +325,10 @@ class Template extends BaseTemplate
 
     public function getOperator($op)
     {
-        switch (strtolower($op)) {
-            case 'or':
-            case '||':
-                return '||';
-            case 'and':
-            case '&&':
-            default:
-                return '&&';
-        }
+        retutn match (strtolower($op)) {
+            'or', '||' => '||',
+            default => '&&',
+        };
     }
 
     public function getSortByStr($attr, $table = null)

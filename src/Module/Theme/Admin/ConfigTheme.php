@@ -83,29 +83,16 @@ class ConfigTheme
         } else {
             return '';
         }
-        switch ($m[2]) {
-            case '%':
-                $s = (float) $m[1] / 100;
-
-                break;
-            case 'pt':
-                $s = (float) $m[1] / 12;
-
-                break;
-            case 'px':
-                $s = (float) $m[1] / 16;
-
-                break;
-            case 'em':
-                $s = (float) $m[1];
-
-                break;
-            case 'ex':
-                $s = (float) $m[1] / 2;
-
-                break;
-            default:
-                return '';
+        $s = match ($m[2]) {
+            '%'  => (float) $m[1] / 100,
+            'pt' => (float) $m[1] / 12,
+            'px' => (float) $m[1] / 16,
+            'em' => (float) $m[1],
+            'ex' => (float) $m[1] / 2,
+            default: false,
+        }
+        if (false === $s) {
+            return;
         }
 
         $large = ((($s > 1.5) && ($bold == false)) || (($s > 1.2) && ($bold == true)));

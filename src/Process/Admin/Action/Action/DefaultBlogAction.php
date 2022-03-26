@@ -52,24 +52,12 @@ abstract class DefaultBlogAction extends Action
         if (empty($ids)) {
             throw new AdminException(__('No blog selected'));
         }
-        switch ($action) {
-            case 'online':
-                $status = 1;
-
-                break;
-            case 'offline':
-                $status = 0;
-
-                break;
-            case 'remove':
-                $status = -1;
-
-                break;
-            default:
-                $status = 1;
-
-                break;
-        }
+        $status = match ($action) {
+            'online'  => 1,
+            'offline' => 0,
+            'remove'  => -1,
+            default   => 1,
+        };
 
         $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
         $cur->blog_status = $status;

@@ -727,25 +727,13 @@ class MediaItem extends Page
                 echo '<ul>';
                 while ($rs->fetch()) {
                     $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-                    $img_status = '';
-                    switch ($rs->post_status) {
-                        case 1:
-                            $img_status = sprintf($img, __('published'), 'check-on.png');
-
-                            break;
-                        case 0:
-                            $img_status = sprintf($img, __('unpublished'), 'check-off.png');
-
-                            break;
-                        case -1:
-                            $img_status = sprintf($img, __('scheduled'), 'scheduled.png');
-
-                            break;
-                        case -2:
-                            $img_status = sprintf($img, __('pending'), 'check-wrn.png');
-
-                            break;
-                    }
+                    $img_status = match ($rs->post_status) {
+                        1  => sprintf($img, __('published'), 'check-on.png'),
+                        0  => sprintf($img, __('unpublished'), 'check-off.png'),
+                        -1 => sprintf($img, __('scheduled'), 'scheduled.png'),
+                        -2 => sprintf($img, __('pending'), 'check-wrn.png'),
+                        default => '',
+                    };
                     echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
                     $rs->post_title . '</a>' .
                     ($rs->post_type != 'post' ? ' (' . Html::escapeHTML($rs->post_type) . ')' : '') .

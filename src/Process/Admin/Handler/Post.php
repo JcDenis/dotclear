@@ -385,26 +385,13 @@ class Post extends Page
         }
 
         if ($this->post_id) {
-            switch ($this->post_status) {
-                case 1:
-                    $this->img_status = sprintf($this->img_status_pattern, __('Published'), 'check-on.png');
-
-                    break;
-                case 0:
-                    $this->img_status = sprintf($this->img_status_pattern, __('Unpublished'), 'check-off.png');
-
-                    break;
-                case -1:
-                    $this->img_status = sprintf($this->img_status_pattern, __('Scheduled'), 'scheduled.png');
-
-                    break;
-                case -2:
-                    $this->img_status = sprintf($this->img_status_pattern, __('Pending'), 'check-wrn.png');
-
-                    break;
-                default:
-                    $this->img_status = '';
-            }
+            $this->img_status = match ($this->post_status) {
+                1  => sprintf($this->img_status_pattern, __('Published'), 'check-on.png'),
+                0  => sprintf($this->img_status_pattern, __('Unpublished'), 'check-off.png'),
+                -1 => sprintf($this->img_status_pattern, __('Scheduled'), 'scheduled.png'),
+                -2 => sprintf($this->img_status_pattern, __('Pending'), 'check-wrn.png'),
+                default => '',
+            };
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
             $page_title_edit = sprintf($edit_entry_str, Html::escapeHTML(trim(Html::clean($this->post_title)))) . ' ' . $this->img_status;
         } else {

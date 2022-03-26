@@ -307,7 +307,7 @@ class Core
                     '<p>If you\'re unsure what these terms mean you should probably contact ' .
                     'your host. If you still need help you can always visit the ' .
                     '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>'),
-                    ($this->config()->database_host != '' ? $this->config()->database_host : 'localhost')
+                    ('' != $this->config()->database_host ? $this->config()->database_host : 'localhost')
                 );
                 $this->throwException(
                     $msg,
@@ -393,7 +393,7 @@ class Core
      */
     public function media(bool $reload = false, bool $throw = false): ?Media
     {
-        if (!($this->media instanceof Media) || $reload) {
+        if ($reload || !($this->media instanceof Media)) {
             try {
                 $this->media = new Media();
             } catch (\Exception $e) {
@@ -594,7 +594,7 @@ class Core
         # No configuration ? start installalation process
         if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             # Stop core process here in installalation process
-            if ($this->process == 'Install') {
+            if ('Install' == $this->process) {
 
                 return;
             }
@@ -630,9 +630,9 @@ class Core
         }
 
         # Check cryptography algorithm
-        if ($this->config()->crypt_algo != 'sha1') {
+        if ('sha1' == $this->config()->crypt_algo) {
             # Check length of cryptographic algorithm result and exit if less than 40 characters long
-            if (strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo)) < 40) {
+            if (40 > strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo))) {
                 $this->getExceptionLang();
                 $this->throwException(
                     __('Cryptographic error'),
@@ -720,7 +720,7 @@ class Core
      */
     public function production(): bool
     {
-        return !($this->config() && $this->config()->production === false);
+        return !($this->config() && false === $this->config()->production);
     }
 
     /**
@@ -846,10 +846,9 @@ class Core
      */
     protected function getExceptionLang(): void
     {
-        $dlang = Http::getAcceptLanguages();
-        foreach ($dlang as $l) {
-            if ($l == 'en' || $this->config() && L10n::set(Path::implode($this->config()->l10n_dir, $l, 'main')) !== false) {
-                L10n::lang($l);
+        foreach (Http::getAcceptLanguages() as $lang) {
+            if ('en' == $lang || $this->config() && false !== L10n::set(Path::implode($this->config()->l10n_dir, $lang, 'main'))) {
+                L10n::lang($lang);
 
                 break;
             }

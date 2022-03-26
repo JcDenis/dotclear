@@ -188,46 +188,35 @@ class Handler extends AbstractPage
 
     private function prefLine($id, $s, $ws, $field_name, $strong_label)
     {
-        switch ($s['type']) {
-            case 'boolean':
-                $field = Form::combo(
+        $field = match ($s['type']) {
+            'boolean' => 
+                Form::combo(
                     [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
                     [__('yes') => 1, __('no') => 0],
                     $s['value'] ? 1 : 0
-                );
-
-                break;
-
-            case 'array':
-                $field = Form::field(
+                ),
+            'array' => 
+                Form::field(
                     [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
                     40,
                     null,
                     Html::escapeHTML(json_encode($s['value']))
-                );
-
-                break;
-
-            case 'integer':
-                $field = Form::number(
+                ),
+            'integer' =>
+                Form::number(
                     [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
                     null,
                     null,
                     Html::escapeHTML((string) $s['value'])
-                );
-
-                break;
-
-            default:
-                $field = Form::field(
+                ),
+            default => 
+                Form::field(
                     [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
                     40,
                     null,
                     Html::escapeHTML($s['value'])
-                );
-
-                break;
-        }
+                ),
+        };
         $type = Form::hidden([$field_name . '_type' . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id . '_type'],
             Html::escapeHTML($s['type']));
 

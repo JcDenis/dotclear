@@ -1161,20 +1161,11 @@ class Posts
         if ($format == 'wiki') {
             dotclear()->wiki()->initWikiPost();
             dotclear()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
-            switch (dotclear()->blog()->settings()->system->note_title_tag) {
-                case 1:
-                    $tag = 'h3';
-
-                    break;
-                case 2:
-                    $tag = 'p';
-
-                    break;
-                default:
-                    $tag = 'h4';
-
-                    break;
-            }
+            $tag = match (dotclear()->blog()->settings()->system->note_title_tag) {
+                1 => 'h3',
+                2 => 'p',
+                default => 'h4',
+            };
             dotclear()->wiki()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Notes') . '</' . $tag . '>%s</div>');
             dotclear()->wiki()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
