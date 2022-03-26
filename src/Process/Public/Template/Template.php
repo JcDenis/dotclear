@@ -325,7 +325,7 @@ class Template extends BaseTemplate
 
     public function getOperator($op)
     {
-        retutn match (strtolower($op)) {
+        return match (strtolower($op)) {
             'or', '||' => '||',
             default => '&&',
         };
