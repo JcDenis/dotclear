@@ -343,7 +343,7 @@ class Auth extends Page
 
 
 <?php
-        dotclear()->resource()->common();
+        echo dotclear()->resource()->common();
 ?>
 
     <link rel="stylesheet" href="?df=css/default.css" type="text/css" media="screen" />
