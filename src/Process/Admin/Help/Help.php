@@ -34,8 +34,11 @@ class Help
     public function doc(array $values = null, bool $replace = true): array
     {
         if ($values) {
+            if ($replace) {
+                $this->doc = [];
+            }
             foreach($values as $key => $value) {
-                if ($replace || !array_key_exists($key, $this->doc)) {
+                if (!array_key_exists($key, $this->doc)) {
                     $this->doc[$key] = (string) $value;
                 }
             }
