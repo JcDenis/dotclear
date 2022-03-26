@@ -106,7 +106,7 @@ class Validator extends NetHttp
      * Static validation method of an HTML fragment. Returns an array with the
      * following parameters:
      *
-     * - valid (boolean)
+     * - valid (bool)
      * - errors (string)
      *
      * @param string    $fragment            HTML content

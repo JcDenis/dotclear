@@ -289,7 +289,7 @@ class WidgetsStack
             return;
         }
 
-        $limit = abs((integer) $w->limit);
+        $limit = abs((int) $w->limit);
 
         try {
             $feed = Reader::quickParse($w->url, dotclear()->config()->cache_dir);
@@ -356,7 +356,7 @@ class WidgetsStack
             return;
         }
 
-        $params['limit']      = abs((integer) $w->limit);
+        $params['limit']      = abs((int) $w->limit);
         $params['order']      = 'post_dt desc';
         $params['no_content'] = true;
 
@@ -364,7 +364,7 @@ class WidgetsStack
             if ($w->category == 'null') {
                 $params['sql'] = ' AND P.cat_id IS NULL ';
             } elseif (is_numeric($w->category)) {
-                $params['cat_id'] = (integer) $w->category;
+                $params['cat_id'] = (int) $w->category;
             } else {
                 $params['cat_url'] = $w->category;
             }
@@ -408,7 +408,7 @@ class WidgetsStack
             return;
         }
 
-        $params['limit'] = abs((integer) $w->limit);
+        $params['limit'] = abs((int) $w->limit);
         $params['order'] = 'comment_dt desc';
         $rs              = dotclear()->blog()->comments()->getComments($params);
 
@@ -420,7 +420,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $res .= '<li class="' .
-            ((boolean) $rs->comment_trackback ? 'last-tb' : 'last-comment') .
+            ((bool) $rs->comment_trackback ? 'last-tb' : 'last-comment') .
             '"><a href="' . $rs->getPostURL() . '#c' . $rs->comment_id . '">' .
             Html::escapeHTML($rs->post_title) . ' - ' .
             Html::escapeHTML($rs->comment_author) .

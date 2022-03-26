@@ -399,7 +399,7 @@ abstract class AbstractConnection
      * array param:
      *    key        : decription
      *    field    : field name (string)
-     *    collate    : True or False (boolean) (Alphabetical order / Binary order)
+     *    collate    : True or False (bool) (Alphabetical order / Binary order)
      *    order    : ASC or DESC (string) (Ascending order / Descending order)
      *
      * string param field name (Binary ascending order)

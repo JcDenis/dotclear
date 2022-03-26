@@ -237,11 +237,11 @@ class FilterWords extends Spamfilter
 
         if (is_array($ids)) {
             foreach ($ids as &$v) {
-                $v = (integer) $v;
+                $v = (int) $v;
             }
             $strReq .= 'WHERE rule_id IN (' . implode(',', $ids) . ') ';
         } else {
-            $ids = (integer) $ids;
+            $ids = (int) $ids;
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 

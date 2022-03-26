@@ -227,7 +227,7 @@ class MaintenanceTask
      */
     public function ajax()
     {
-        return (boolean) $this->ajax;
+        return (bool) $this->ajax;
     }
 
     /**

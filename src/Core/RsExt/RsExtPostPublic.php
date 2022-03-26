@@ -42,11 +42,9 @@ class RsExtPostPublic extends RsExtPost
 
     public function getExcerpt(bool $absolute_urls = false): string
     {
-        if (dotclear()->blog()->settings()->system->use_smilies) {
-            return $this->smilies(parent::getExcerpt($absolute_urls));
-        }
-
-        return parent::getExcerpt($absolute_urls);
+        return dotclear()->blog()->settings()->system->use_smilies ?
+            $this->smilies(parent::getExcerpt($absolute_urls)) :
+            parent::getExcerpt($absolute_urls);
     }
 
     protected function smilies(string $c): string

@@ -165,7 +165,7 @@ class Handler extends AbstractPage
             $this->sm_item_url    = $_POST['item_url']    ?? '';
             $item_targetBlank     = isset($_POST['item_targetBlank']) ? (empty($_POST['item_targetBlank'])) ? false : true : false;
             # Traitement
-            $this->sm_step = (!empty($_GET['add']) ? (integer) $_GET['add'] : 0);
+            $this->sm_step = (!empty($_GET['add']) ? (int) $_GET['add'] : 0);
             if (($this->sm_step > 4) || ($this->sm_step < 0)) {
                 $this->sm_step = 0;
             }
@@ -554,7 +554,7 @@ class Handler extends AbstractPage
         // Formulaire d'activation
         if (!$this->sm_step) {
             echo '<form id="settings" action="' . dotclear()->adminurl()->root() . '" method="post">' .
-            '<p>' . form::checkbox('active', 1, (boolean) dotclear()->blog()->settings()->system->simpleMenu_active) .
+            '<p>' . form::checkbox('active', 1, (bool) dotclear()->blog()->settings()->system->simpleMenu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
             '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true) .
             '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .

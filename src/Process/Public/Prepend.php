@@ -105,11 +105,11 @@ class Prepend extends Core
         # Load blog
         $this->setBlog($blog_id ?: '');
 
-        if ($this->blog()->id == null) {
+        if (null == $this->blog()->id) {
             $this->throwException(__('Did you change your Blog ID?'), '', 630);
         }
 
-        if ((bool) !$this->blog()->status) {
+        if (!$this->blog()->status) {
             $this->unsetBlog();
             $this->throwException(__('This blog is offline. Please try again later.'), '', 670);
         }
@@ -123,7 +123,7 @@ class Prepend extends Core
         # Load locales
         $this->lang($this->blog()->settings()->system->lang);
 
-        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) === false && $this->lang != 'en') {
+        if (false === L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) && 'en' != $this->lang) {
             L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
         }
         L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'main'));
@@ -157,11 +157,11 @@ class Prepend extends Core
         if (!count($path)) {
             $this->throwException(__('This either means you removed your default theme or set a wrong theme ' .
                     'path in your blog configuration. Please check theme_path value in ' .
-                    'about:config module or reinstall default theme. (' . $__theme . ')'), '', 650);
+                    'about:config module or reinstall default theme. (Berlin)'), '', 650);
         }
 
         # If theme has parent load their locales
-        if (count($path) > 1) {
+        if (1 < count($path)) {
             $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'main');
             $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'public');
         }
@@ -190,7 +190,7 @@ class Prepend extends Core
         # Prepare the HTTP cache thing
         $this->url()->mod_files = $this->autoload()->getLoadedFiles();
         $this->url()->mod_ts    = [$this->blog()->upddt];
-        $this->url()->mode = (string) $this->blog()->settings()->system->url_scan;
+        $this->url()->mode      = (string) $this->blog()->settings()->system->url_scan;
 
         try {
             # --BEHAVIOR-- publicBeforeDocument

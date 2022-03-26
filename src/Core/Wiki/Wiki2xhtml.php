@@ -1030,7 +1030,7 @@ class Wiki2xhtml
             $content  = $data[0];
             $lang     = (!empty($data[2])) ? $this->protectAttr($data[2], true) : '';
             $title    = (!empty($data[3])) ? $data[3] : '';
-            $no_image = (!empty($data[4])) ? (boolean) $data[4] : false;
+            $no_image = (!empty($data[4])) ? (bool) $data[4] : false;
         }
 
         # Remplacement si URL spéciale
@@ -1290,7 +1290,7 @@ class Wiki2xhtml
 
     private function __putMacro($id): string
     {
-        $id = is_array($id) ? (integer) $id[1] : (integer) $id;
+        $id = is_array($id) ? (int) $id[1] : (int) $id;
         if (isset($this->macros[$id])) {
             $content = str_replace("\r", '', $this->macros[$id]);
 

@@ -77,11 +77,7 @@ class Meta
     {
         $meta = @unserialize($str);
 
-        if (!is_array($meta)) {
-            return [];
-        }
-
-        return $meta;
+        return is_array($meta) ? $meta : [];
     }
 
     /**
@@ -97,11 +93,7 @@ class Meta
     {
         $meta = $this->getMetaArray($str);
 
-        if (!isset($meta[$type])) {
-            return '';
-        }
-
-        return implode(', ', $meta[$type]);
+        return isset($meta[$type]) ? implode(', ', $meta[$type]) : '';
     }
 
     /**

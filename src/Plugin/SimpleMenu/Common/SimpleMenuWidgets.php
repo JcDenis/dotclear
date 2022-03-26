@@ -54,7 +54,7 @@ class SimpleMenuWidgets
     # Template function
     public function simpleMenu($attr)
     {
-        if (!(boolean) dotclear()->blog()->settings()->system->simpleMenu_active) {
+        if (!(bool) dotclear()->blog()->settings()->system->simpleMenu_active) {
             return '';
         }
 
@@ -107,7 +107,7 @@ class SimpleMenuWidgets
     {
         $ret = '';
 
-        if (!(boolean) dotclear()->blog()->settings()->system->simpleMenu_active) {
+        if (!(bool) dotclear()->blog()->settings()->system->simpleMenu_active) {
             return $ret;
         }
 

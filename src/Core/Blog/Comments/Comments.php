@@ -34,15 +34,15 @@ class Comments
      *
      * - no_content: Don't retrieve comment content
      * - post_type: Get only entries with given type (default no type, array for many types)
-     * - post_id: (integer) Get comments belonging to given post_id
+     * - post_id: (int) Get comments belonging to given post_id
      * - cat_id: (integer or array) Get comments belonging to entries of given category ID
      * - comment_id: (integer or array) Get comment with given ID (or IDs)
      * - comment_site: (string) Get comments with given comment_site
-     * - comment_status: (integer) Get comments with given comment_status
-     * - comment_trackback: (integer) Get only comments (0) or trackbacks (1)
+     * - comment_status: (int) Get comments with given comment_status
+     * - comment_trackback: (int) Get only comments (0) or trackbacks (1)
      * - comment_ip: (string) Get comments with given IP address
      * - post_url: Get entry with given post_url field
-     * - user_id: (integer) Get entries belonging to given user ID
+     * - user_id: (int) Get entries belonging to given user ID
      * - q_author: Search comments by author
      * - sql: Append SQL string at the end of the query
      * - from: Append SQL string after "FROM" statement in query

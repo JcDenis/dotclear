@@ -1532,7 +1532,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['selected'])) {
             $sign = (bool) $attr['selected'] ? '' : '!';
-            $if[] = $sign . '(boolean)dotclear()->context()->posts->post_selected';
+            $if[] = $sign . '(bool)dotclear()->context()->posts->post_selected';
         }
 
         if (isset($attr['has_category'])) {
@@ -1578,7 +1578,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['republished'])) {
             $sign = (bool) $attr['republished'] ? '' : '!';
-            $if[] = $sign . '(boolean)dotclear()->context()->posts->isRepublished()';
+            $if[] = $sign . '(bool)dotclear()->context()->posts->isRepublished()';
         }
 
         if (isset($attr['author'])) {

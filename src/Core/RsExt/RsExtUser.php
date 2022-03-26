@@ -45,11 +45,8 @@ class RsExtUser extends RsExtend
     public function options(): array
     {
         $options = @unserialize($this->rs->user_options);
-        if (is_array($options)) {
-            return $options;
-        }
-
-        return [];
+        
+        return is_array($options) ? $options : [];
     }
 
     /**
@@ -59,11 +56,8 @@ class RsExtUser extends RsExtend
      */
     public function toExtStatic(): RsExtStaticRecord
     {
-        if ($this->rs instanceof RsExtStaticRecord) {
-            return $this->rs;
-        }
-
-        return new RsExtStaticRecord($this->rs);
+        return ($this->rs instanceof RsExtStaticRecord) ? 
+            $this->rs :
+            new RsExtStaticRecord($this->rs);
     }
 }
-

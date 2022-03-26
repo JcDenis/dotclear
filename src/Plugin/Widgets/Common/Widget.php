@@ -158,7 +158,7 @@ class Widget
     public function setting($name, $title, $value, $type = 'text')
     {
         $types = [
-            // type (string) => list of items may be provided (boolean)
+            // type (string) => list of items may be provided (bool)
             'text'     => false,
             'textarea' => false,
             'check'    => false,

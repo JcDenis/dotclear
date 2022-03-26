@@ -36,16 +36,16 @@ class Posts
      * - post_type: Get only entries with given type (default "post", array for many types and '' for no type)
      * - post_id: (integer or array) Get entry with given post_id
      * - post_url: Get entry with given post_url field
-     * - user_id: (integer) Get entries belonging to given user ID
+     * - user_id: (int) Get entries belonging to given user ID
      * - cat_id: (string or array) Get entries belonging to given category ID
      * - cat_id_not: deprecated (use cat_id with "id ?not" instead)
      * - cat_url: (string or array) Get entries belonging to given category URL
      * - cat_url_not: deprecated (use cat_url with "url ?not" instead)
-     * - post_status: (integer) Get entries with given post_status
-     * - post_selected: (boolean) Get select flaged entries
-     * - post_year: (integer) Get entries with given year
-     * - post_month: (integer) Get entries with given month
-     * - post_day: (integer) Get entries with given day
+     * - post_status: (int) Get entries with given post_status
+     * - post_selected: (bool) Get select flaged entries
+     * - post_year: (int) Get entries with given year
+     * - post_month: (int) Get entries with given month
+     * - post_day: (int) Get entries with given day
      * - post_lang: Get entries with given language code
      * - search: Get entries corresponding of the following search string
      * - columns: (array) More columns to retrieve
@@ -442,10 +442,10 @@ class Posts
      * <var>$params</var> is an array taking the following optionnal parameters:
      *
      * - type: (day|month|year) Get days, months or years
-     * - year: (integer) Get dates for given year
-     * - month: (integer) Get dates for given month
-     * - day: (integer) Get dates for given day
-     * - cat_id: (integer) Category ID filter
+     * - year: (int) Get dates for given year
+     * - month: (int) Get dates for given month
+     * - day: (int) Get dates for given day
+     * - cat_id: (int) Category ID filter
      * - cat_url: Category URL filter
      * - post_lang: lang of the posts
      * - next: Get date following match

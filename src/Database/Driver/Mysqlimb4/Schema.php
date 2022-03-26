@@ -25,7 +25,7 @@ class Schema extends BaseSchema
 
         foreach ($fields as $n => $f) {
             $type    = $f['type'];
-            $len     = (integer) $f['len'];
+            $len     = (int) $f['len'];
             $default = $f['default'];
             $null    = $f['null'];
 

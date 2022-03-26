@@ -122,8 +122,8 @@ class Schema extends AbstractSchema implements InterfaceSchema
         while ($rs->fetch()) {
             $k = [
                 'name'    => $rs->idxname,
-                'primary' => (boolean) $rs->indisprimary,
-                'unique'  => (boolean) $rs->indisunique,
+                'primary' => (bool) $rs->indisprimary,
+                'unique'  => (bool) $rs->indisunique,
                 'cols'    => []
             ];
 
@@ -230,7 +230,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         foreach ($fields as $n => $f) {
             $type    = $f['type'];
-            $len     = (integer) $f['len'];
+            $len     = (int) $f['len'];
             $default = $f['default'];
             $null    = $f['null'];
 

@@ -131,7 +131,7 @@ class Handler extends AbstractPage
                 $this->Blowup_user['body_txt_c']       = $this->Blowup_config->utils->adjustColor($_POST['body_txt_c']);
                 $this->Blowup_user['body_line_height'] = $this->Blowup_config->utils->adjustFontSize($_POST['body_line_height']);
 
-                $this->Blowup_user['blog_title_hide'] = (integer) !empty($_POST['blog_title_hide']);
+                $this->Blowup_user['blog_title_hide'] = (int) !empty($_POST['blog_title_hide']);
                 $update_blog_title              = !$this->Blowup_user['blog_title_hide'] && (
                     !empty($_POST['blog_title_f']) || !empty($_POST['blog_title_s']) || !empty($_POST['blog_title_c']) || !empty($_POST['blog_title_a']) || !empty($_POST['blog_title_p'])
                 );

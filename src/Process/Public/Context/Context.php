@@ -121,7 +121,7 @@ class Context
                 return $this->encode_xml($str);
 
             case 'cut_string':
-                return $this->cut_string($str, (integer) $arg);
+                return $this->cut_string($str, (int) $arg);
 
             case 'lower_case':
                 return $this->lower_case($str);

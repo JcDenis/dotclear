@@ -401,11 +401,9 @@ class RsExtPost extends RsExtend
      */
     public function getContent(bool $absolute_urls = false): string
     {
-        if ($absolute_urls) {
-            return Html::absoluteURLs($this->rs->post_content_xhtml, $this->getURL());
-        }
-
-        return $this->rs->post_content_xhtml;
+        return $absolute_urls ?
+            Html::absoluteURLs($this->rs->post_content_xhtml, $this->getURL()) :
+            $this->rs->post_content_xhtml;
     }
 
     /**
@@ -418,11 +416,9 @@ class RsExtPost extends RsExtend
      */
     public function getExcerpt(bool $absolute_urls = false): string
     {
-        if ($absolute_urls) {
-            return Html::absoluteURLs($this->rs->post_excerpt_xhtml, $this->getURL());
-        }
-
-        return $this->rs->post_excerpt_xhtml;
+        return $absolute_urls ?
+            Html::absoluteURLs($this->rs->post_excerpt_xhtml, $this->getURL()) :
+            $this->rs->post_excerpt_xhtml;
     }
 
     /**

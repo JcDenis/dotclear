@@ -41,7 +41,7 @@ class Trackback
     {
         $strReq = 'SELECT ping_url, ping_dt ' .
         'FROM ' . dotclear()->prefix . $this->table . ' ' .
-        'WHERE post_id = ' . (integer) $post_id;
+        'WHERE post_id = ' . (int) $post_id;
 
         return dotclear()->con()->select($strReq);
     }
@@ -65,7 +65,7 @@ class Trackback
             return false;
         }
 
-        $post_id = (integer) $post_id;
+        $post_id = (int) $post_id;
 
         # Check for previously done trackback
         $strReq = 'SELECT post_id, ping_url FROM ' . dotclear()->prefix . $this->table . ' ' .
@@ -184,7 +184,7 @@ class Trackback
             return;
         }
 
-        $post_id = (integer) $post_id;
+        $post_id = (int) $post_id;
 
         $title     = !empty($_POST['title']) ? $_POST['title'] : '';
         $excerpt   = !empty($_POST['excerpt']) ? $_POST['excerpt'] : '';
@@ -264,7 +264,7 @@ class Trackback
 
         $resp = '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
         "<response>\n" .
-        '  <error>' . (integer) $err . "</error>\n";
+        '  <error>' . (int) $err . "</error>\n";
 
         if ($msg) {
             $resp .= '  <message>' . $msg . "</message>\n";
@@ -505,7 +505,7 @@ class Trackback
     {
         dotclear()->con()->execute(
             'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-            'WHERE post_id = ' . ((integer) $post_id) . ' ' .
+            'WHERE post_id = ' . ((int) $post_id) . ' ' .
             "AND comment_site = '" . dotclear()->con()->escape((string) $url) . "' " .
             'AND comment_trackback = 1 '
         );

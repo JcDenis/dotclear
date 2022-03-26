@@ -45,17 +45,17 @@ class DuctileTemplate
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
-                            $nb_first = $nb_other = (integer) $s['default'];
+                            $nb_first = $nb_other = (int) $s['default'];
                         }
                         if (isset($s['default-page'])) {
-                            $nb_other = (integer) $s['default-page'];
+                            $nb_other = (int) $s['default-page'];
                         }
 
                         break;
                     default:
                         if (isset($s[dotclear()->url()->type])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (integer) $s[dotclear()->url()->type];
+                            $nb_first = $nb_other = (int) $s[dotclear()->url()->type];
                         }
 
                         break;

@@ -124,27 +124,17 @@ class RsExtComment extends RsExtend
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'UgcURL'], $res);
 
-        return $absolute_urls ?
-            Html::absoluteURLs($res, $this->getPostURL()) :
-            $res;
+        return $absolute_urls ? Html::absoluteURLs($res, $this->getPostURL()) : $res;
     }
 
     private function noFollowURL(array $m): string
     {
-        if (preg_match('/rel="ugc nofollow"/', $m[1])) {
-            return $m[0];
-        }
-
-        return '<a' . $m[1] . ' rel="ugc nofollow">';
+        return preg_match('/rel="ugc nofollow"/', $m[1]) ? $m[0] : '<a' . $m[1] . ' rel="ugc nofollow">';
     }
 
     private function UgcURL(array $m): string
     {
-        if (preg_match('/rel="ugc"/', $m[1])) {
-            return $m[0];
-        }
-
-        return '<a' . $m[1] . ' rel="ugc">';
+        return preg_match('/rel="ugc"/', $m[1]) ? $m[0] : '<a' . $m[1] . ' rel="ugc">';
     }
 
     /**
@@ -210,11 +200,8 @@ class RsExtComment extends RsExtend
      */
     public function getTrackbackTitle(): string
     {
-        if ($this->rs->comment_trackback == 1 && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->comment_content, $match)) {
-            return Html::decodeEntities($match[1]);
-        }
-
-        return '';
+        return $this->rs->comment_trackback == 1 && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->comment_content, $match) ?
+            Html::decodeEntities($match[1]) : '';
     }
 
     /**
@@ -224,12 +211,8 @@ class RsExtComment extends RsExtend
      */
     public static function getTrackbackContent(): string
     {
-        if ($this->rs->comment_trackback == 1) {
-            return preg_replace('|<p><strong>.*?</strong></p>|msU', '',
-                $this->rs->comment_content);
-        }
-
-        return '';
+        return $this->rs->comment_trackback == 1 ? 
+            preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->comment_content) : '';
     }
 
     /**

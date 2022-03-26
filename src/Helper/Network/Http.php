@@ -311,7 +311,7 @@ class Http
 
         # Common headers list
         $headers[] = 'Last-Modified: ' . gmdate('D, d M Y H:i:s', $ts) . ' GMT';
-        $headers[] = 'Cache-Control: must-revalidate, max-age=' . abs((integer) self::$cache_max_age);
+        $headers[] = 'Cache-Control: must-revalidate, max-age=' . abs((int) self::$cache_max_age);
         $headers[] = 'Pragma:';
 
         if ($since >= $ts) {

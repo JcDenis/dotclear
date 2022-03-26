@@ -38,10 +38,7 @@ class RsExtBlog extends RsExtend
      */
     public function getISO8601Date(string $tz = ''): string
     {
-        if (!$tz) {
-            $tz = dotclear()->blog()->settings()->system->blog_timezone;
-        }
-        return Dt::iso8601($this->getTS(), $tz);
+        return Dt::iso8601($this->getTS(), $tz ?: dotclear()->blog()->settings()->system->blog_timezone);
     }
 
     /**
@@ -53,11 +50,7 @@ class RsExtBlog extends RsExtend
      */
     public function getRFC822Date(string $tz = ''): string
     {
-        if (!$tz) {
-            $tz = dotclear()->blog()->settings()->system->blog_timezone;
-        }
-
-        return Dt::rfc822($this->getTS(), $tz);
+        return Dt::rfc822($this->getTS(), $tz ?: dotclear()->blog()->settings()->system->blog_timezone);
     }
 
     /**
@@ -70,11 +63,7 @@ class RsExtBlog extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        if (!$format) {
-            $format = dotclear()->blog()->settings()->system->date_format;
-        }
-
-        return Dt::dt2str($format, $this->rs->blog_upddt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->date_format, $this->rs->blog_upddt);
     }
 
     /**
@@ -87,10 +76,6 @@ class RsExtBlog extends RsExtend
      */
     public function getTime(string $format): string
     {
-        if (!$format) {
-            $format = dotclear()->blog()->settings()->system->time_format;
-        }
-
-        return Dt::dt2str($format, $this->rs->blog_upddt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->time_format, $this->rs->blog_upddt);
     }
 }

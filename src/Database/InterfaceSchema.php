@@ -31,7 +31,7 @@ interface InterfaceSchema
      *
      * - [type] data type (string)
      * - [len] data length (integer or null)
-     * - [null] is null? (boolean)
+     * - [null] is null? (bool)
      * - [default] default value (string)
      *
      * @param      string $table Table name
@@ -44,8 +44,8 @@ interface InterfaceSchema
      * <var>$table</var>. Each line value is an array with following values:
      *
      * - [name] index name (string)
-     * - [primary] primary key (boolean)
-     * - [unique] unique key (boolean)
+     * - [primary] primary key (bool)
+     * - [unique] unique key (bool)
      * - [cols] columns (array)
      *
      * @param      string $table Table name

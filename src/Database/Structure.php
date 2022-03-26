@@ -342,12 +342,12 @@ class Structure
     private function fieldsDiffer($db_field, $schema_field): bool
     {
         $d_type    = $db_field['type'];
-        $d_len     = (integer) $db_field['len'];
+        $d_len     = (int) $db_field['len'];
         $d_default = $db_field['default'];
         $d_null    = $db_field['null'];
 
         $s_type    = $schema_field['type'];
-        $s_len     = (integer) $schema_field['len'];
+        $s_len     = (int) $schema_field['len'];
         $s_default = $schema_field['default'];
         $s_null    = $schema_field['null'];
 

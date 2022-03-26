@@ -52,9 +52,9 @@ class RsExtStaticRecord extends StaticRecord
         $b = $b[$this->sortfield];
 
         # Integer values
-        if ($a == (string) (integer) $a && $b == (string) (integer) $b) {
-            $a = (integer) $a;
-            $b = (integer) $b;
+        if ($a == (string) (int) $a && $b == (string) (int) $b) {
+            $a = (int) $a;
+            $b = (int) $b;
 
             return ($a - $b) * $this->sortsign;
         }

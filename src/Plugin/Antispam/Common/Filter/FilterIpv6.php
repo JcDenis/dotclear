@@ -215,7 +215,7 @@ class FilterIpv6 extends Spamfilter
         } else {
             $cur->rule_type    = (string) $type;
             $cur->rule_content = (string) $pattern;
-            $cur->update('WHERE rule_id = ' . (integer) $old->rule_id);
+            $cur->update('WHERE rule_id = ' . (int) $old->rule_id);
         }
     }
 
@@ -269,11 +269,11 @@ class FilterIpv6 extends Spamfilter
 
         if (is_array($ids)) {
             foreach ($ids as $i => $v) {
-                $ids[$i] = (integer) $v;
+                $ids[$i] = (int) $v;
             }
             $strReq .= 'WHERE rule_id IN (' . implode(',', $ids) . ') ';
         } else {
-            $ids = (integer) $ids;
+            $ids = (int) $ids;
             $strReq .= 'WHERE rule_id = ' . $ids . ' ';
         }
 
@@ -370,11 +370,11 @@ class FilterIpv6 extends Spamfilter
                 $mask = $this->long2ip_v6($mask);
             }
         } else {
-            //$mask = ~((1 << (128 - min((integer) $bits[1], 128))) - 1);
+            //$mask = ~((1 << (128 - min((int) $bits[1], 128))) - 1);
             if (function_exists('gmp_init')) {
-                $mask = gmp_mul(gmp_init(1), gmp_pow(gmp_init(2), 128 - min((integer) $bits[1], 128)));
+                $mask = gmp_mul(gmp_init(1), gmp_pow(gmp_init(2), 128 - min((int) $bits[1], 128)));
             } elseif (function_exists('bcadd')) {
-                $mask = bcmul(1, bcpow(2, 128 - min((integer) $bits[1], 128))); // @phpstan-ignore-line
+                $mask = bcmul(1, bcpow(2, 128 - min((int) $bits[1], 128))); // @phpstan-ignore-line
             } else {
                 trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
             }

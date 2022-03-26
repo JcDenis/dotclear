@@ -160,9 +160,9 @@ class Handler extends AbstractPage
             try {
                 # HTML
                 if ($this->Ductile_conf_tab == 'html') {
-                    $this->Ductile_user['subtitle_hidden']       = (integer) !empty($_POST['subtitle_hidden']);
+                    $this->Ductile_user['subtitle_hidden']       = (int) !empty($_POST['subtitle_hidden']);
                     $this->Ductile_user['logo_src']              = $_POST['logo_src'];
-                    $this->Ductile_user['preview_not_mandatory'] = (integer) !empty($_POST['preview_not_mandatory']);
+                    $this->Ductile_user['preview_not_mandatory'] = (int) !empty($_POST['preview_not_mandatory']);
 
                     $this->Ductile_stickers = [];
                     for ($i = 0; $i < count($_POST['sticker_image']); $i++) {
@@ -212,25 +212,25 @@ class Handler extends AbstractPage
                     $this->Ductile_user['alternate_webfont_url']    = $_POST['alternate_webfont_url'];
                     $this->Ductile_user['alternate_webfont_api']    = $_POST['alternate_webfont_api'];
 
-                    $this->Ductile_user['blog_title_w'] = (integer) !empty($_POST['blog_title_w']);
+                    $this->Ductile_user['blog_title_w'] = (int) !empty($_POST['blog_title_w']);
                     $this->Ductile_user['blog_title_s'] = $this->Ductile_config->adjustFontSize($_POST['blog_title_s']);
                     $this->Ductile_user['blog_title_c'] = $this->Ductile_config->adjustColor($_POST['blog_title_c']);
 
-                    $this->Ductile_user['post_title_w'] = (integer) !empty($_POST['post_title_w']);
+                    $this->Ductile_user['post_title_w'] = (int) !empty($_POST['post_title_w']);
                     $this->Ductile_user['post_title_s'] = $this->Ductile_config->adjustFontSize($_POST['post_title_s']);
                     $this->Ductile_user['post_title_c'] = $this->Ductile_config->adjustColor($_POST['post_title_c']);
 
-                    $this->Ductile_user['post_link_w']   = (integer) !empty($_POST['post_link_w']);
+                    $this->Ductile_user['post_link_w']   = (int) !empty($_POST['post_link_w']);
                     $this->Ductile_user['post_link_v_c'] = $this->Ductile_config->adjustColor($_POST['post_link_v_c']);
                     $this->Ductile_user['post_link_f_c'] = $this->Ductile_config->adjustColor($_POST['post_link_f_c']);
 
                     $this->Ductile_user['post_simple_title_c'] = $this->Ductile_config->adjustColor($_POST['post_simple_title_c']);
 
-                    $this->Ductile_user['blog_title_w_m'] = (integer) !empty($_POST['blog_title_w_m']);
+                    $this->Ductile_user['blog_title_w_m'] = (int) !empty($_POST['blog_title_w_m']);
                     $this->Ductile_user['blog_title_s_m'] = $this->Ductile_config->adjustFontSize($_POST['blog_title_s_m']);
                     $this->Ductile_user['blog_title_c_m'] = $this->Ductile_config->adjustColor($_POST['blog_title_c_m']);
 
-                    $this->Ductile_user['post_title_w_m'] = (integer) !empty($_POST['post_title_w_m']);
+                    $this->Ductile_user['post_title_w_m'] = (int) !empty($_POST['post_title_w_m']);
                     $this->Ductile_user['post_title_s_m'] = $this->Ductile_config->adjustFontSize($_POST['post_title_s_m']);
                     $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
                 }

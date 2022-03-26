@@ -36,7 +36,7 @@ class Handler extends AbstractPage
     {
         $this->m_maintenance = new Maintenance();
         $this->m_tasks       = $this->m_maintenance->getTasks();
-        $this->m_code        = empty($_POST['code']) ? null : (integer) $_POST['code'];
+        $this->m_code        = empty($_POST['code']) ? null : (int) $_POST['code'];
         $this->m_tab         = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
 
         # Get task object
@@ -92,7 +92,7 @@ class Handler extends AbstractPage
                     }
                     dotclear()->blog()->settings()->maintenance->put(
                         'ts_' . $t->id(),
-                        abs((integer) $ts),
+                        abs((int) $ts),
                         'integer',
                         sprintf('Recall time for task %s', $t->id()),
                         true,

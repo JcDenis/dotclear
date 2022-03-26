@@ -71,9 +71,7 @@ class RsExtDate extends RsExtend
      */
     public function url(): string
     {
-        $url = date('Y/m',  $this->ts());
-
-        return dotclear()->blog()->getURLFor('archive', $url);
+        return dotclear()->blog()->getURLFor('archive', date('Y/m',  $this->ts()));
     }
 
     /**
@@ -127,10 +125,6 @@ class RsExtDate extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        if (!$format) {
-            $format = dotclear()->blog()->settings()->system->date_format;
-        }
-
-        return Dt::dt2str($format, $this->rs->dt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->date_format, $this->rs->dt);
     }
 }
