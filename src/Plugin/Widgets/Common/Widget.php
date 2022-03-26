@@ -18,10 +18,6 @@ use Dotclear\Helper\Html\Form;
 
 class Widget
 {
-    private $id;
-    private $name;
-    private $desc;
-    private $public_callback = null;
     public $append_callback  = null;
     protected $settings      = [];
 
@@ -38,12 +34,8 @@ class Widget
         return $values;
     }
 
-    public function __construct($id, $name, $callback, $desc = '')
+    public function __construct(private string $id, private string $name, private mixed $callback, private string $desc = '')
     {
-        $this->public_callback = $callback;
-        $this->id              = $id;
-        $this->name            = $name;
-        $this->desc            = $desc;
     }
 
     public function id()
@@ -63,13 +55,13 @@ class Widget
 
     public function getCallback()
     {
-        return $this->public_callback;
+        return $this->callback;
     }
 
     public function call($i = 0)
     {
-        if (is_callable($this->public_callback)) {
-            return call_user_func($this->public_callback, $this, $i);
+        if (is_callable($this->callback)) {
+            return call_user_func($this->callback, $this, $i);
         }
 
         return '<p>Callback not found for widget ' . $this->id . '</p>';

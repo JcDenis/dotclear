@@ -21,8 +21,6 @@ use Dotclear\Exception\DatabaseException;
 
 abstract class NestedTree
 {
-    protected $con;
-
     protected $table;
     protected $f_left;
     protected $f_right;
@@ -37,9 +35,8 @@ abstract class NestedTree
      *
      * @param      AbstractConnection  $con    The con
      */
-    public function __construct(AbstractConnection $con)
+    public function __construct(protected AbstractConnection $con)
     {
-        $this->con = $con;
     }
 
     /**

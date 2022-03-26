@@ -22,11 +22,8 @@ class Resource
     /** @var    array   Stack to keep track of loaded files */
     private static $stack  = [];
 
-    protected $query = 'df';
-
-    public function __construct(string $query = 'df')
+    public function __construct(protected string $query = 'df')
     {
-        $this->query = $query;
     }
 
     public function url(string $src, ?string $type = null, ?string $id = null, ?string $ext = null): string

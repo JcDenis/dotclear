@@ -18,13 +18,9 @@ use Dotclear\Process\Public\Template\Engine\TplNode;
 
 class TplNodeText extends TplNode
 {
-    // Simple text node, only holds its content
-    protected $content;
-
-    public function __construct(string $text)
+    public function __construct(protected string $content)
     {
         parent::__construct();
-        $this->content = $text;
     }
 
     public function compile(Template $tpl): string

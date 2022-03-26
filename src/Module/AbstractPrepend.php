@@ -20,17 +20,13 @@ use Dotclear\Module\AbstractDefine;
 
 abstract class AbstractPrepend
 {
-    /** @var    AbstractDefine|null     Module Define instance */
-    private $define = null;
-
     /**
      * Constructor
      *
      * @param   AbstractDefine  $define     Module Define instance
      */
-    public function __construct(AbstractDefine $define)
+    public function __construct(private AbstractDefine $define)
     {
-        $this->define = $define;
     }
 
     /**

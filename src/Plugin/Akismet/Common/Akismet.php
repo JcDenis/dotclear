@@ -23,14 +23,8 @@ class Akismet extends NetHttp
     protected $ak_version = '1.1';
     protected $ak_path    = '/%s/%s';
 
-    protected $ak_key = null;
-    protected $blog_url;
-
-    public function __construct($blog_url, $api_key)
+    public function __construct(protected string $blog_url, protected string $ak_key)
     {
-        $this->blog_url = $blog_url;
-        $this->ak_key   = $api_key;
-
         $this->ak_path = sprintf($this->ak_path, $this->ak_version, '%s');
         $this->ak_host = $this->ak_key . '.' . $this->base_host;
 

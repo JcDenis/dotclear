@@ -19,11 +19,8 @@ use Dotclear\Helper\Lexical;
 
 class Menu
 {
-    private $id;
-    protected $itemSpace;
-    protected $pinned;
-    protected $items;
-    protected $title;
+    protected $pinned = [];
+    protected $items  = [];
 
     /**
      * Constructor
@@ -32,13 +29,8 @@ class Menu
      * @param   string  $title      The title
      * @param   string  $itemSpace  The item space
      */
-    public function __construct(string $id, string $title, string $itemSpace = '')
+    public function __construct(private string $id, protected string $title, protected string $itemSpace = '')
     {
-        $this->id        = $id;
-        $this->title     = $title;
-        $this->itemSpace = $itemSpace;
-        $this->pinned    = [];
-        $this->items     = [];
     }
 
     /**

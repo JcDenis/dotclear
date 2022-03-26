@@ -19,7 +19,6 @@ use Dotclear\Exception\CoreException;
 class Preference
 {
     protected $table;   ///< <b>string</b> Prefs table name
-    protected $user_id; ///< <b>string</b> User ID
 
     protected $workspaces = []; ///< <b>array</b> Associative workspaces array
 
@@ -31,13 +30,12 @@ class Preference
      * Object constructor. Retrieves user prefs and puts them in $workspaces
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param      string      $user_id   The user identifier
-     * @param      string|null $workspace The workspace to load
+     * @param   string          $user_id    The user identifier
+     * @param   string|null     $workspace  The workspace to load
      */
-    public function __construct($user_id, $workspace = null)
+    public function __construct(protected string $user_id, $workspace = null)
     {
-        $this->table   = dotclear()->prefix . 'pref';
-        $this->user_id = $user_id;
+        $this->table = dotclear()->prefix . 'pref';
 
         try {
             $this->loadPrefs($workspace);

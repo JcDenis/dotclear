@@ -25,9 +25,6 @@ use Dotclear\Helper\Html\Form\Select;
 
 class Filter extends Filters
 {
-    /** @var    string  Filter form type (main id) */
-    protected $type;
-
     /** @var    array   Filters objects */
     protected $filters = [];
 
@@ -42,10 +39,8 @@ class Filter extends Filters
      *
      * @param string $type  The filter form main id
      */
-    public function __construct(string $type)
+    public function __construct(protected string $type)
     {
-        $this->type = $type;
-
         $this->parseOptions();
     }
 

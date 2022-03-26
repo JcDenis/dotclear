@@ -19,7 +19,6 @@ use Dotclear\Exception\DatabaseException;
 
 class Table
 {
-    protected $name;
     protected $has_primary = false;
 
     protected $fields     = [];
@@ -51,9 +50,8 @@ class Table
         'char', 'varchar', 'text'
     ];
 
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
     }
 
     public function getFields(): array

@@ -44,9 +44,9 @@ class Message
      *
      * @param string        $message        XML Message
      */
-    public function __construct($message)
+    public function __construct(protected string $message)
     {
-        $this->brutxml = $this->message = $message;
+        $this->brutxml = $this->message;
     }
 
     /**

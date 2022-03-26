@@ -19,21 +19,16 @@ use Dotclear\Helper\Network\Xmlrpc\Value;
 
 class Request
 {
-    public $method; ///< string Request method name
-    public $args;   ///< array Request method arguments
     public $xml;    ///< string Request XML string
 
     /**
      * Constructor
      *
-     * @param string    $method        Method name
-     * @param array        $args        Method arguments
+     * @param   string  $method     Method name
+     * @param   array   $args       Method arguments
      */
-    public function __construct($method, $args)
+    public function __construct(public string $method, public array $args)
     {
-        $this->method = $method;
-        $this->args   = $args;
-
         $this->xml = '<?xml version="1.0"?>' . "\n" .
         "<methodCall>\n" .
         '  <methodName>' . $this->method . "</methodName>\n" .

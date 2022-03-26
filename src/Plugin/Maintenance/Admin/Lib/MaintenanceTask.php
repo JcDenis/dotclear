@@ -22,7 +22,6 @@ Every task of maintenance must extend this class.
  */
 class MaintenanceTask
 {
-    protected $maintenance;
     protected $p_url;
     protected $code;
     protected $ts      = 0;
@@ -51,9 +50,8 @@ class MaintenanceTask
      *
      * @param      Maintenance  $maintenance  The maintenance
      */
-    final public function __construct(Maintenance $maintenance)
+    final public function __construct(protected Maintenance $maintenance)
     {
-        $this->maintenance = $maintenance;
         $this->init();
         $this->id = null;
 

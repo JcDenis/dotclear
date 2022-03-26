@@ -10,7 +10,7 @@ use Dotclear\Database\Cursor;
  */
 class UpdateStatement extends SqlStatement
 {
-    protected $set;
+    protected $set = [];
 
     /**
      * Class constructor
@@ -19,8 +19,6 @@ class UpdateStatement extends SqlStatement
      */
     public function __construct($ctx = null)
     {
-        $this->set = [];
-
         parent::__construct($ctx);
     }
 

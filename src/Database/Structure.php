@@ -22,15 +22,11 @@ use Dotclear\Exception\DatabaseException;
 
 class Structure
 {
-    protected $con;
-    protected $prefix;
     protected $tables     = [];
     protected $references = [];
 
-    public function __construct(AbstractConnection $con, string $prefix = '')
+    public function __construct(protected AbstractConnection $con, protected string $prefix = '')
     {
-        $this->con    = &$con;
-        $this->prefix = $prefix;
     }
 
     public function driver(): string

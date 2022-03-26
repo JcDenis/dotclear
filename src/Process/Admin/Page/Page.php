@@ -49,9 +49,6 @@ abstract class Page
     /** @var bool           Load once xframe */
     private $page_xframe_loaded = false;
 
-    /** @var string         Handler name that calls page */
-    protected $handler;
-
     /** @var Action         Action instance */
     protected $action;
 
@@ -71,10 +68,8 @@ abstract class Page
      * 
      * @param   string  $handler    Used handler name
      */
-    public function __construct(string $handler = 'admin.home')
+    public function __construct(protected string $handler = 'admin.home')
     {
-        $this->handler = $handler;
-
         # No permissions required
         if (false === ($permissions = $this->getPermissions())) {
             return;

@@ -26,7 +26,7 @@ class Template extends BaseTemplate
     protected $unknown_value_handler = null;
     protected $unknown_block_handler = null;
 
-    public function __construct($cache_dir, $self_name)
+    public function __construct(string $cache_dir, string $self_name)
     {
         parent::__construct($cache_dir, $self_name);
 

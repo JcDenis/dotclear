@@ -17,11 +17,6 @@ namespace Dotclear\Helper\Html;
 
 class FormSelectOption
 {
-    public $name;       ///< string Option name
-    public $value;      ///< mixed  Option value
-    public $class_name; ///< string Element class name
-    public $html;       ///< string Extra HTML attributes
-
     /**
      * sprintf template for option
      * @var string $option
@@ -37,12 +32,8 @@ class FormSelectOption
      * @param string  $class_name  Element class name
      * @param string  $html        Extra HTML attributes
      */
-    public function __construct(string $name, mixed $value, string $class_name = '', string $html = '')
+    public function __construct(public string $name, public mixed $value, public string $class_name = '', public string $html = '')
     {
-        $this->name       = $name;
-        $this->value      = $value;
-        $this->class_name = $class_name;
-        $this->html       = $html;
     }
 
     /**

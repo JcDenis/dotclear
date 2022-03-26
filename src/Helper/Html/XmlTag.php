@@ -17,7 +17,6 @@ namespace Dotclear\Helper\Html;
 
 class XmlTag
 {
-    private $_name;
     private $_attr  = [];
     private $_nodes = [];
 
@@ -27,13 +26,11 @@ class XmlTag
      * Creates the root XML tag named <var>$name</var>. If content is given,
      * it will be appended to root tag with {@link insertNode()}
      *
-     * @param string    $name        Tag name
-     * @param mixed        $content        Tag content
+     * @param   string|null     $_name       Tag name
+     * @param   mixed           $content    Tag content
      */
-    public function __construct($name = null, $content = null)
+    public function __construct(private string|null $_name = null, mixed $content = null)
     {
-        $this->_name = $name;
-
         if ($content !== null) {
             $this->insertNode($content);
         }

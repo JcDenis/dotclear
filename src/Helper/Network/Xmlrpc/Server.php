@@ -34,7 +34,6 @@ class Server
 {
     protected $callbacks = []; ///< array Server methods
     protected $data;                ///< string Received data
-    protected $encoding;            ///< string Server encoding
     protected $message;             ///< xmlrpcMessage Returned message
     protected $capabilities;        ///< array Server capabilities
 
@@ -47,9 +46,8 @@ class Server
      * @param mixed     $data            Server data
      * @param string    $encoding        Server encoding
      */
-    public function __construct($callbacks = false, $data = false, $encoding = 'UTF-8')
+    public function __construct($callbacks = false, $data = false, protected string $encoding = 'UTF-8')
     {
-        $this->encoding = $encoding;
         $this->setCapabilities();
         if ($callbacks) {
             $this->callbacks = $callbacks;

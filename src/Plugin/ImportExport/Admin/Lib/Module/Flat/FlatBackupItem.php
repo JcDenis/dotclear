@@ -15,15 +15,8 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 class FlatBackupItem
 {
-    public $__name;
-    public $__line;
-    private $__data = [];
-
-    public function __construct($name, $data, $line)
+    public function __construct(public string $__name, private array $__data, public int $__line)
     {
-        $this->__name = $name;
-        $this->__data = $data;
-        $this->__line = $line;
     }
 
     public function f($name)

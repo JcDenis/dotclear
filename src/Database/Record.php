@@ -18,8 +18,6 @@ namespace Dotclear\Database;
 class Record implements \Iterator, \Countable
 {
     protected $__link;             ///< resource: Database resource link
-    protected $__result;           ///< resource: Query result resource
-    protected $__info;             ///< array: Result information array
     protected $__extend = []; ///< array: List of static functions that extend record
     protected $__index  = 0;       ///< integer: Current result position
     protected $__row    = false;   ///< array: Current result row content
@@ -38,14 +36,12 @@ class Record implements \Iterator, \Countable
      * - info[name] => an array with columns names
      * - info[type] => an array with columns types
      *
-     * @param mixed        $result      Resource result
-     * @param array        $info        Information array
+     * @param   mixed   $result     Resource result
+     * @param   array   $info       Information array
      */
-    public function __construct($result, $info)
+    public function __construct(protected mixed $__result, protected array $__info)
     {
-        $this->__result = $result;
-        $this->__info   = $info;
-        $this->__link   = $info['con']->link();
+        $this->__link = $this->__info['con']->link();
         $this->index(0);
     }
 

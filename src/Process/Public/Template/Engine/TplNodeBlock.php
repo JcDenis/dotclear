@@ -18,18 +18,12 @@ use Dotclear\Process\Public\Template\Engine\TplNode;
 
 class TplNodeBlock extends TplNode
 {
-    protected $attr;
-    protected $tag;
-    protected $closed;
-    protected $content;
+    protected $closed = false;
+    protected $content = '';
 
-    public function __construct(string $tag, array $attr)
+    public function __construct(protected string $tag, protected array $attr)
     {
         parent::__construct();
-        $this->content = '';
-        $this->tag     = $tag;
-        $this->attr    = $attr;
-        $this->closed  = false;
     }
     public function setClosing()
     {

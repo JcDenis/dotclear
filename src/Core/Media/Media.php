@@ -34,7 +34,6 @@ use Dotclear\Helper\Text;
 class Media extends Manager
 {
     protected $table; ///< <b>string</b> Media table name
-    protected $type;  ///< <b>string</b> Media type filter
     protected $file_sort = 'name-asc';
 
     protected $path;
@@ -70,13 +69,12 @@ class Media extends Manager
      *
      * @throws     Exception  (description)
      */
-    public function __construct($type = '')
+    public function __construct(protected string $type = '')
     {
         if (dotclear()->blog() == null) {
             throw new CoreException(__('No blog defined.'));
         }
 
-        $this->type  = $type;
         $this->table = dotclear()->prefix . 'media';
         $root        = dotclear()->blog()->public_path;
 

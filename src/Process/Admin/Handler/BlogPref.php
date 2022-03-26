@@ -27,9 +27,6 @@ use Dotclear\Process\Admin\Page\Page;
 
 class BlogPref extends Page
 {
-    /** @var bool   Standalone config */
-    private $standalone = true;
-
     private $blog_id       = true;
     private $blog_status   = 0;
     private $blog_name     = '';
@@ -37,10 +34,8 @@ class BlogPref extends Page
     private $blog_settings = null;
     private $blog_url      = '';
 
-    public function __construct(string $handler = 'admin.home', bool $standalone = true)
+    public function __construct(string $handler = 'admin.home', private bool $standalone = true)
     {
-        $this->standalone = $standalone;
-
         parent::__construct($handler);
     }
 

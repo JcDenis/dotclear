@@ -20,9 +20,7 @@ use Dotclear\Exception\DatabaseException;
 
 class Cursor
 {
-    private $__con;
     private $__data = [];
-    private $__table;
 
     /**
      * Constructor
@@ -46,10 +44,8 @@ class Cursor
      * @param AbstractConnection   $con      AbstractConnection object
      * @param string    $table    Table name
      */
-    public function __construct(AbstractConnection $con, string $table)
+    public function __construct(private AbstractConnection $__con, private string $__table)
     {
-        $this->__con = &$con;
-        $this->setTable($table);
     }
 
     /**

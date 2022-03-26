@@ -21,9 +21,6 @@ class Settingspace
     /** @var    string     Settings table name */
     protected $table;
 
-    /** @var    string     Blog ID*/
-    protected $blog_id;
-
     /** @var    array       Global settings array */
     protected $global_settings = [];
 
@@ -51,7 +48,7 @@ class Settingspace
      *
      * @throws     CoreException
      */
-    public function __construct(?string $blog_id, string $name, ?Record $rs = null)
+    public function __construct(protected string|null $blog_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::NS_NAME_SCHEMA, $name)) {
             $this->ns = $name;
@@ -59,8 +56,7 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->table   = dotclear()->prefix . 'setting';
-        $this->blog_id = $blog_id;
+        $this->table = dotclear()->prefix . 'setting';
 
         $this->getSettings($rs);
     }

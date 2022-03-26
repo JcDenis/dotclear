@@ -20,8 +20,6 @@ use Dotclear\Helper\Html\Html;
 
 class Template
 {
-    private $self_name;
-
     public $use_cache = true;
 
     protected $blocks = [];
@@ -45,11 +43,9 @@ class Template
     protected static $_n;
     protected static $_r;
 
-    public function __construct(string $cache_dir, string $self_name)
+    public function __construct(string $cache_dir, private string $self_name)
     {
         $this->setCacheDir($cache_dir);
-
-        $this->self_name = $self_name;
         $this->addValue('include', [$this, 'includeFile']);
         $this->addBlock('Block', [$this, 'blockSection']);
     }

@@ -8,8 +8,6 @@ namespace Dotclear\Database\Statement;
  */
 class SqlStatement
 {
-    protected $ctx; // Context (may be useful for behaviour's callback)
-
     protected $columns = [];
     protected $from    = [];
     protected $where   = [];
@@ -21,9 +19,8 @@ class SqlStatement
      *
      * @param mixed     $ctx    optional context
      */
-    public function __construct($ctx = null)
+    public function __construct(protected string|null $ctx = null)
     {
-        $this->ctx  = $ctx;
     }
 
     /**

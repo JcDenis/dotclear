@@ -20,16 +20,13 @@ use Dotclear\Helper\Network\Http;
 
 abstract class AbstractConfig
 {
-    private $redirection = '';
-
     /**
      * Constructor
      *
-     * @param   string  $redir  Page redirection on validation
+     * @param   string  $redirection  Page redirection on validation
      */
-    public function __construct(string $redirection)
+    public function __construct(private string $redirection = '')
     {
-        $this->redirection = $redirection;
     }
 
     /**

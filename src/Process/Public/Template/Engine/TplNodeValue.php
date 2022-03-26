@@ -18,18 +18,11 @@ use Dotclear\Process\Public\Template\Engine\TplNode;
 
 class TplNodeValue extends TplNode
 {
-    protected $attr;
-    protected $str_attr;
-    protected $tag;
-    protected $content;
+    protected $content = '';
 
-    public function __construct(string $tag, array $attr, string $str_attr)
+    public function __construct(protected string $tag, protected array $attr, protected string $str_attr)
     {
         parent::__construct();
-        $this->content  = '';
-        $this->tag      = $tag;
-        $this->attr     = $attr;
-        $this->str_attr = $str_attr;
     }
 
     public function compile(Template $tpl): string

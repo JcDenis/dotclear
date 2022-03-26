@@ -23,9 +23,6 @@ use Dotclear\Helper\Network\Http;
 
 abstract class Action extends Page
 {
-    /** @var string form submit uri */
-    protected $uri = '';
-
     /** @var array action combo box */
     protected $combo = [];
 
@@ -37,9 +34,6 @@ abstract class Action extends Page
 
     /** @var Record record that challenges ids against permissions */
     protected $rs;
-
-    /** @var array redirection $_GET arguments, if any (does not contain ids by default, ids may be merged to it) */
-    protected $redir_args = [];
 
     /** @var array list of $_POST fields used to build the redirection  */
     protected $redirect_fields = [];
@@ -72,16 +66,14 @@ abstract class Action extends Page
      * Constructor
      *
      * @param   string  $uri            Form URI
-     * @param   array   $redirect_args  Redirect arguments
+     * @param   array   $redir_args     Redirect arguments
      */
-    public function __construct(string $uri, array $redirect_args = [])
+    public function __construct(protected string $uri, protected array $redir_args = [])
     {
         parent::__construct();
 
         $this->actions         = new ArrayObject();
         $this->combo           = [];
-        $this->uri             = $uri;
-        $this->redir_args      = $redirect_args;
         $this->redirect_fields = [];
         $this->action          = '';
         $this->cb_title        = __('Title');

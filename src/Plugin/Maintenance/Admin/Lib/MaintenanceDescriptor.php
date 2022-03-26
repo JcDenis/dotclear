@@ -21,10 +21,6 @@ but in futur it could be completed with advance methods.
  */
 class MaintenanceDescriptor
 {
-    protected $id;
-    protected $name;
-    protected $options;
-
     /**
      * Constructs a new instance.
      *
@@ -32,11 +28,8 @@ class MaintenanceDescriptor
      * @param      string  $name     The name
      * @param      array   $options  The options
      */
-    public function __construct($id, $name, $options = [])
+    public function __construct(protected string $id, protected string $name, protected array $options = [])
     {
-        $this->id      = (string) $id;
-        $this->name    = (string) $name;
-        $this->options = (array) $options;
     }
 
     /**

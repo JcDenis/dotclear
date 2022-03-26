@@ -21,9 +21,6 @@ class Workspace
     /** @var    string      Preferences table name */
     protected $table;
 
-    /** @var    string      User ID */
-    protected $user_id;
-
     /** @var    array       Global prefs array */
     protected $global_prefs = [];
 
@@ -51,7 +48,7 @@ class Workspace
      *
      * @throws  CoreException
      */
-    public function __construct(string $user_id, string $name, ?Record $rs = null)
+    public function __construct(protected string $user_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;
@@ -59,8 +56,7 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->table   = dotclear()->prefix . 'pref';
-        $this->user_id = $user_id;
+        $this->table = dotclear()->prefix . 'pref';
 
         try {
             $this->getPrefs($rs);

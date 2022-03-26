@@ -21,24 +21,20 @@ use Dotclear\Exception\NetworkException;
 
 class Socket
 {
-    protected $_host;           ///< string: Server host
-    protected $_port;           ///< integer: Server port
     protected $_transport = ''; ///< string: Server transport
-    protected $_timeout;        ///< integer: Connection timeout
     protected $_handle;         ///< resource: Resource handler
 
     /**
      * Class constructor
      *
-     * @param string        $host        Server host
-     * @param string         $port        Server port
-     * @param int        $timeout        Connection timeout
+     * @param   string  $host       Server host
+     * @param   string  $port       Server port
+     * @param   int     $timeout    Connection timeout
      */
-    public function __construct($host, $port, $timeout = 10)
+    public function __construct(protected string $_host, protected int $_port, protected int $_timeout = 10)
     {
-        $this->_host    = $host;
-        $this->_port    = abs((int) $port);
-        $this->_timeout = abs((int) $timeout);
+        $this->_port    = abs($this->_port);
+        $this->_timeout = abs($this->_timeout);
     }
 
     /**

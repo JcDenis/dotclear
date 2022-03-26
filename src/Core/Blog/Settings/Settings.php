@@ -22,9 +22,6 @@ class Settings
     /** @var    string  Setting table name */
     protected $table;
 
-    /** @var    string  Blog ID */
-    protected $blog_id;
-
     /** @var    array   Associative namespaces array */
     protected $namespaces = [];
 
@@ -41,10 +38,9 @@ class Settings
      *
      * @param   string|null     $blog_id    The blog identifier
      */
-    public function __construct(?string $blog_id)
+    public function __construct(protected string|null $blog_id)
     {
-        $this->table   = dotclear()->prefix . 'setting';
-        $this->blog_id = $blog_id;
+        $this->table = dotclear()->prefix . 'setting';
         $this->loadSettings();
     }
 

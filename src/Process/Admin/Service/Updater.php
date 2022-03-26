@@ -26,9 +26,6 @@ class Updater
     public const ERR_FILES_UNREADABLE = 102;
     public const ERR_FILES_UNWRITALBE = 103;
 
-    protected $url;
-    protected $subject;
-    protected $version;
     protected $cache_file;
 
     protected $version_info = [
@@ -46,16 +43,13 @@ class Updater
     /**
      * Constructor
      *
-     * @param string $url           Versions file URL
-     * @param string $subject       Subject to check
-     * @param string $version       Version type
-     * @param string $cache_dir     Directory cache path
+     * @param   string  $url        Versions file URL
+     * @param   string  $subject    Subject to check
+     * @param   string  $version    Version type
+     * @param   string  $cache_dir  Directory cache path
      */
-    public function __construct($url, $subject, $version, $cache_dir)
+    public function __construct(protected string $url, protected string $subject, protected string $version, string $cache_dir)
     {
-        $this->url        = $url;
-        $this->subject    = $subject;
-        $this->version    = $version;
         $this->cache_file = $cache_dir . '/' . $subject . '-' . $version;
     }
 

@@ -19,12 +19,6 @@ use Dotclear\Database\Record;
 
 class Inventory
 {
-    /** @var    Record  The catalog record */
-    protected $rs;
-
-    /** @var    int     The catalog count */
-    protected $rs_count;
-
     /** @var    string  The HTML representation of previous */
     protected $html_prev;
 
@@ -37,10 +31,8 @@ class Inventory
      * @param   Record  $rs         The record
      * @param   int     $rs_count   The rs count
      */
-    public function __construct(Record $rs, int $rs_count)
+    public function __construct(protected Record $rs, protected int $rs_count)
     {
-        $this->rs        = $rs;
-        $this->rs_count  = (int) $rs_count;
         $this->html_prev = __('&#171; prev.');
         $this->html_next = __('next &#187;');
     }

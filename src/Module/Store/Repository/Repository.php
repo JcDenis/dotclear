@@ -21,9 +21,6 @@ use Dotclear\Module\Store\Repository\RepositoryReader;
 
 class Repository
 {
-    /** @var    Modules     Modules instance */
-    public $modules;
-
     /** @var    array    Modules fields to search on and their weighting */
     public static $weighting = [
         'id'     => 10,
@@ -36,9 +33,6 @@ class Repository
     /** @var    string    User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /** @var    string    XML feed URL */
-    protected $xml_url;
-
     /** @var    array    Array of new/update modules from repository */
     protected $data;
 
@@ -49,10 +43,8 @@ class Repository
      * @param   string              $xml_url    XML feed URL
      * @param   bool                $force      Force query repository
      */
-    public function __construct(AbstractModules $modules, string $xml_url, bool $force = false)
+    public function __construct(public AbstractModules $modules, protected string $xml_url, bool $force = false)
     {
-        $this->modules    = $modules;
-        $this->xml_url    = $xml_url;
         $this->user_agent = sprintf('Dotclear/%s)', dotclear()->config()->core_version);
 
         $this->check($force);

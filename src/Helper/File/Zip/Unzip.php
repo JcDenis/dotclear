@@ -20,7 +20,6 @@ use Dotclear\Helper\File\Files;
 
 class Unzip
 {
-    protected $file_name;
     protected $compressed_list = [];
     protected $eo_central      = [];
 
@@ -33,9 +32,8 @@ class Unzip
 
     protected $exclude_pattern = '';
 
-    public function __construct($file_name)
+    public function __construct(protected string $file_name)
     {
-        $this->file_name = $file_name;
     }
 
     public function __destruct()

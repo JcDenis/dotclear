@@ -19,7 +19,6 @@ use Dotclear\Helper\Network\Xmlrpc\Base64;
 
 class Value
 {
-    protected $data; ///< mixed Data value
     protected $type; ///< string Data type
 
     /**
@@ -28,9 +27,8 @@ class Value
      * @param mixed    $data        Data value
      * @param mixed    $type        Data type
      */
-    public function __construct($data, $type = false)
+    public function __construct(protected mixed $data, string $type = '')
     {
-        $this->data = $data;
         if (!$type) {
             $type = $this->calculateType();
         }

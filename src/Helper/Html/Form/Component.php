@@ -19,15 +19,14 @@ use Dotclear\Helper\Html\Form\Label;
 
 abstract class Component
 {
-    private $_type;     // Component type
-    private $_element;  // HTML element
-    private $_data;     // Custom component properties (see __get() and __set())
+    /** @var    array   Custom component properties (see __get() and __set()) */
+    private $_data = [];
 
-    public function __construct(?string $type = null, ?string $_element = null)
+    public function __construct(private string|null $_type = null, private string|null $_element = null)
     {
-        $this->_type    = $type ?? __CLASS__;
-        $this->_element = $_element;
-        $this->_data    = [];
+        if (!$this->_type) {
+            $this->_type = __CLASS__;
+        }
     }
 
     /**

@@ -23,15 +23,15 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
 class PostFilter extends Filter
 {
-    protected $post_type = 'post';
-
-    public function __construct(string $type = 'posts', string $post_type = '')
+    public function __construct(string $type = 'posts', protected string $post_type = 'post')
     {
         parent::__construct($type);
 
-        if (!empty($post_type) && array_key_exists($post_type, dotclear()->posttype()->getPostTypes())) {
-            $this->post_type = $post_type;
-            $this->add((new DefaultFilter('post_type', $post_type))->param('post_type'));
+        if (empty($this->post_type) || !array_key_exists($this->post_type, dotclear()->posttype()->getPostTypes())) {
+            $this->post_type = 'post';
+            if ($this->post_type != 'post') {
+                $this->add((new DefaultFilter('post_type', $this->post_type))->param('post_type'));
+            }
         }
 
         $filters = new ArrayObject([

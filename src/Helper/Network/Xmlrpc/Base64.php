@@ -17,8 +17,6 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 class Base64
 {
-    protected $data; ///< string
-
     /**
      * Constructor
      *
@@ -26,9 +24,8 @@ class Base64
      *
      * @param string        $data        Data
      */
-    public function __construct($data)
+    public function __construct(protected strnig $data)
     {
-        $this->data = $data;
     }
 
     /**

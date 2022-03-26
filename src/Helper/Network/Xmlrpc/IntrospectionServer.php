@@ -44,9 +44,8 @@ class IntrospectionServer extends Server
      *
      * @param string    $encoding            Server encoding
      */
-    public function __construct($encoding = 'UTF-8')
+    public function __construct(protected string $encoding = 'UTF-8')
     {
-        $this->encoding = $encoding;
         $this->setCallbacks();
         $this->setCapabilities();
 

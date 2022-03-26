@@ -22,7 +22,7 @@ class StaticRecord extends Record
     private $__sortfield;
     private $__sortsign;
 
-    public function __construct($result, $info)
+    public function __construct(mixed $result, array $info)
     {
         if (is_array($result)) {
             $this->__info = $info;

@@ -18,11 +18,6 @@ use Dotclear\Helper\Html\Html;
 
 class Pager
 {
-    protected $env;
-    protected $nb_elements;
-    protected $nb_per_page;
-    protected $nb_pages_per_group;
-
     protected $nb_pages;
     protected $nb_groups;
     protected $env_group;
@@ -56,12 +51,12 @@ class Pager
      * @param   int     $nb_per_page            Number of items per page
      * @param   int     $nb_pages_per_group     Number of pages per group
      */
-    public function __construct(int $env, int $nb_elements, int $nb_per_page = 10, int $nb_pages_per_group = 10)
+    public function __construct(protected int $env, protected int $nb_elements, protected int $nb_per_page = 10, protected int $nb_pages_per_group = 10)
     {
-        $this->env                = abs((int) $env);
-        $this->nb_elements        = abs((int) $nb_elements);
-        $this->nb_per_page        = abs((int) $nb_per_page);
-        $this->nb_pages_per_group = abs((int) $nb_pages_per_group);
+        $this->env                = abs($this->env);
+        $this->nb_elements        = abs($this->nb_elements);
+        $this->nb_per_page        = abs($this->nb_per_page);
+        $this->nb_pages_per_group = abs($this->nb_pages_per_group);
 
         # Pages count
         $this->nb_pages = ceil($this->nb_elements / $this->nb_per_page);

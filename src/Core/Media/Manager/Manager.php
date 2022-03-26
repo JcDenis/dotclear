@@ -21,8 +21,6 @@ use Dotclear\Helper\File\Files;
 
 class Manager
 {
-    public $root;                                               ///< string: Files manager root path
-    public $root_url;                                           ///< string: Files manager root URL
     protected $pwd;                                             ///< string: Working (current) director
     protected $exclude_list    = [];                            ///< array: Array of regexps defining excluded items
     protected $exclude_pattern = '';                            ///< string: Files exclusion regexp pattern
@@ -38,17 +36,16 @@ class Manager
      * @param string    $root        Root path
      * @param string    $root_url    Root URL
      */
-    public function __construct($root, $root_url = '')
+    public function __construct(public string $root, public string $root_url = '')
     {
-        $this->root     = $this->pwd = Path::real($root);
-        $this->root_url = $root_url;
-
-        if (!preg_match('#/$#', (string) $this->root_url)) {
-            $this->root_url = $this->root_url . '/';
-        }
+        $this->root = $this->pwd = Path::real($this->root);
 
         if (!$this->root) {
             throw new FileException('Invalid root directory.');
+        }
+
+        if (!preg_match('#/$#', (string) $this->root_url)) {
+            $this->root_url = $this->root_url . '/';
         }
     }
 

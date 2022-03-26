@@ -28,18 +28,15 @@ use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 
 class XmlRpc extends xmlrpcIntrospectionServer
 {
-    private $blog_id;
     private $blog_loaded    = false;
     private $debug          = false;
     private $debug_file     = '/tmp/dotclear-xmlrpc.log';
     private $trace_args     = true;
     private $trace_response = true;
 
-    public function __construct($blog_id)
+    public function __construct(private string|null $blog_id)
     {
         parent::__construct();
-
-        $this->blog_id = $blog_id;
 
         # Blogger methods
         $this->addCallback('blogger.newPost', [$this, 'blogger_newPost'],
