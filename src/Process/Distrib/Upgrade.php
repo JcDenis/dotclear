@@ -27,12 +27,7 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
 
 class Upgrade
 {
-    public function __construct()
-    {
-
-    }
-
-    public function doUpgrade()
+    public function doUpgrade(): int|false
     {
         $version = dotclear()->version()->get('core');
 
@@ -68,7 +63,7 @@ class Upgrade
                 } catch (\Exception) {
                 }
 
-                return (bool) $changes;
+                return $changes;
             } catch (\Exception $e) {
                 throw new DistribException(
                     __('Something went wrong with auto upgrade:') . ' ' . $e->getMessage()
