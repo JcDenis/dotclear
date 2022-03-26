@@ -714,11 +714,7 @@ class Core
     public function lang(string $lang = null): string
     {
         if (null !== $lang) {
-            $lang = preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $lang) ? $lang : 'en';
-            if ($lang != $this->lang) {
-                $this->lang = $lang;
-                L10n::lang($this->lang);
-            }
+            $this->lang = L10n::lang($lang);
         }
 
         return $this->lang;
