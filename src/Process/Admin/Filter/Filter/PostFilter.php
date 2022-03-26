@@ -114,7 +114,7 @@ class PostFilter extends Filter
             $combo[
                 str_repeat('&nbsp;', ($categories->level - 1) * 4) .
                 Html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')'
-            ] = $categories->cat_id;
+            ] = (string) $categories->cat_id;
         }
 
         return (new DefaultFilter('cat_id'))
