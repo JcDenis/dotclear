@@ -353,14 +353,6 @@ class Prepend extends Core
                 $this->favorite()->appendMenu($this->summary());
             }
 
-            # Set jquery stuff
-            if (empty($this->blog()->settings()->system->jquery_migrate_mute)) {
-                $this->blog()->settings()->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
-            }
-            if (empty($this->blog()->settings()->system->jquery_allow_old_version)) {
-                $this->blog()->settings()->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
-            }
-
         # No user session and not on auth page, go on
         } elseif ($this->adminurl()->called() != 'admin.auth') {
             $this->adminurl()->redirect('admin.auth');

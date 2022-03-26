@@ -253,7 +253,7 @@ class Resource
         (
             !dotclear()->production() ?
             $this->json('dotclear_jquery', [
-                'mute' => (empty(dotclear()->blog()) || dotclear()->blog()->settings()->system->jquery_migrate_mute),
+                'mute' => false === dotclear()->blog()?->settings()->system->jquery_migrate_mute,
             ]) .
             $this->load('jquery-mute.js') .
             $this->load('jquery/jquery-migrate.js') :

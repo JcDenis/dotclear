@@ -218,7 +218,7 @@ class Blog
             // Version not set, use default one
             $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
         } else {
-            if (!$this->settings()->system->jquery_allow_old_version) {
+            if (true !== $this->settings()->system->jquery_allow_old_version) {
                 // Use the blog defined version only if more recent than default
                 if (version_compare($version, dotclear()->config()->jquery_default, '<')) {
                     $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php

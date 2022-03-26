@@ -201,6 +201,10 @@ class Install
                 $blog_settings->system->put('csp_admin_img',
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:", 'string', 'CSP img-src directive', true, true);
 
+                /* JQuery stuff */
+                $blog_settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+                $blog_settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+
                 /* Add Dotclear version */
                 $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
                 $cur->module  = 'core';
