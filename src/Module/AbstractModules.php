@@ -97,10 +97,15 @@ abstract class AbstractModules
     /**
      * Constructor, load Modules
      *
-     * @param   string|null     $lang   The language
+     * @param   string|null     $lang       The language
+     * @param   bool            $no_load    Only create Modules instance without loading modules
      */
-    public function __construct(?string $lang = null)
+    public function __construct(?string $lang = null, bool $no_load = false)
     {
+        if ($no_load) {
+            return;
+        }
+
         # Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
             # Check dir

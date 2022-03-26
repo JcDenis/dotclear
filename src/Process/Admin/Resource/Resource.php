@@ -122,10 +122,9 @@ class Resource
             # Check module type
             $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Admin\\Modules' . $module_type;
             if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
-                $modules = new $modules_class();
-                # Chek if module exists
-                $modules_paths   = $modules->getModulesPath();
-                foreach($modules_paths as $modules_path) {
+                $modules = new $modules_class(null, true);
+                # Chek if module path exists
+                foreach($modules->getModulesPath() as $modules_path) {
                     if (is_dir(Path::implode($modules_path, $module_id))) {
                         $dirs[] = Path::implode($modules_path, $module_id, 'Admin', 'resources');
                         $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
