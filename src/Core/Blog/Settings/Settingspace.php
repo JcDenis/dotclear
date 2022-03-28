@@ -46,7 +46,7 @@ class Settingspace
      * @param   string          $name       The namespace ID
      * @param   Record|null     $rs
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     public function __construct(protected string|null $blog_id, string $name, ?Record $rs = null)
     {
@@ -61,6 +61,13 @@ class Settingspace
         $this->getSettings($rs);
     }
 
+    /**
+     * Load settings from database
+     * 
+     * @param   Record  $rs
+     * 
+     * @return  bool
+     */
     private function getSettings(Record $rs = null): bool
     {
         if ($rs == null) {
@@ -98,14 +105,14 @@ class Settingspace
 
             settype($value, $type);
 
-            $array = $rs->blog_id ? 'local' : 'global';
+            $array = $rs->f('blog_id') ? 'local' : 'global';
 
             $this->{$array . '_settings'}[$id] = [
                 'ns'     => $this->ns,
                 'value'  => $value,
                 'type'   => $type,
                 'label'  => (string) $rs->f('setting_label'),
-                'global' => $rs->blog_id == '',
+                'global' => $rs->f('blog_id') == '',
             ];
         }
 
@@ -295,10 +302,10 @@ class Settingspace
             $value = json_encode($value);
         }
 
-        $cur                = dotclear()->con()->openCursor($this->table);
-        $cur->setting_value = ($type == 'boolean') ? (string) (int) $value : (string) $value;
-        $cur->setting_type  = $type;
-        $cur->setting_label = $label;
+        $cur = dotclear()->con()->openCursor($this->table);
+        $cur->setField('setting_value', ($type == 'boolean') ? (string) (int) $value : (string) $value);
+        $cur->setField('setting_type', $type);
+        $cur->setField('setting_label', $label);
 
         #If we are local, compare to global value
         if (!$global && $this->settingExists($id, true)) {
@@ -322,9 +329,9 @@ class Settingspace
 
             $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($id) . "' AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ");
         } else {
-            $cur->setting_id = $id;
-            $cur->blog_id    = $global ? null : $this->blog_id;
-            $cur->setting_ns = $this->ns;
+            $cur->setField('setting_id', $id);
+            $cur->setField('blog_id', $global ? null : $this->blog_id);
+            $cur->setField('setting_ns', $this->ns);
 
             $cur->insert();
         }

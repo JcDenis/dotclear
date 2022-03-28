@@ -55,9 +55,9 @@ class UserAction extends Page
             $this->user_action = $_POST['action'];
 
             if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
-                $this->redir = $_POST['redir'];
+                $this->user_redir = $_POST['redir'];
             } else {
-                $this->redir = dotclear()->adminurl()->get('admin.users', [
+                $this->user_redir = dotclear()->adminurl()->get('admin.users', [
                     'q'      => $_POST['q'] ?? '',
                     'sortby' => $_POST['sortby'] ?? '',
                     'order'  => $_POST['order'] ?? '',
@@ -71,7 +71,7 @@ class UserAction extends Page
             }
 
             # --BEHAVIOR-- adminUsersActions
-            dotclear()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->redir);
+            dotclear()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->user_redir);
 
             # Delete users
             if ($this->user_action == 'deleteuser' && !empty($this->users)) {
@@ -91,7 +91,7 @@ class UserAction extends Page
                 }
                 if (!dotclear()->error()->flag()) {
                     dotclear()->notice()->addSuccessNotice(__('User has been successfully deleted.'));
-                    Http::redirect($this->redir);
+                    Http::redirect($this->user_redir);
                 }
             }
 
@@ -122,7 +122,7 @@ class UserAction extends Page
                 }
                 if (!dotclear()->error()->flag()) {
                     dotclear()->notice()->addSuccessNotice(__('User has been successfully updated.'));
-                    Http::redirect($this->redir);
+                    Http::redirect($this->user_redir);
                 }
             }
         }
@@ -176,7 +176,7 @@ class UserAction extends Page
             Form::hidden(['nb'], $_POST['nb'] ?? '');
         }
 
-        echo '<p><a class="back" href="' . Html::escapeURL($this->redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
+        echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
 
         # --BEHAVIOR-- adminUsersActionsContent
         dotclear()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
@@ -250,7 +250,7 @@ class UserAction extends Page
 
         # Permissions list for each selected blogs
         } elseif (!empty($this->blogs) && !empty($this->users) && $this->user_action == 'perms') {
-            $user_perm = [];
+            $user_perm = $user_list = [];
             if (count($this->users) == 1) {
                 $user_perm = dotclear()->users()->getUserPermissions($this->users[0]);
             }

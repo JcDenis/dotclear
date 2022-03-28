@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
-use Dotclear\Core\Media;
+use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;

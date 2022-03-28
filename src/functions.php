@@ -31,9 +31,9 @@ if (!function_exists('dotclear_run')) {
             require $file;
         # Dotclear autoload
         } else {
-            require_once implode(DIRECTORY_SEPARATOR, [DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
+            require_once implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
             $autoload = new Dotclear\Helper\Autoload();
-            $autoload->addNamespace('Dotclear', DOTCLEAR_ROOT_DIR);
+            $autoload->addNamespace('Dotclear', \DOTCLEAR_ROOT_DIR);
         }
 
         # Find process (Admin|Public|Install|...)
@@ -43,13 +43,13 @@ if (!function_exists('dotclear_run')) {
         }
 
         # Execute Process
-        try {
+//        try {
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
 
         # Try to display unexpected Exceptions as much cleaned as we can
-        } catch (\Exception | \Error $e) {
+/*        } catch (\Exception | \Error $e) {
             ob_end_clean();
 
             try {
@@ -66,7 +66,7 @@ if (!function_exists('dotclear_run')) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
-    }
+*/    }
 }
 
 if (!function_exists('dotclear')) {
@@ -74,7 +74,7 @@ if (!function_exists('dotclear')) {
     /**
      * Singleton Dotclear Core
      *
-     * @return  Core|null   Singleton core instance
+     * @return  Dotclear\Core\Core|null   Singleton core instance
      */
     function dotclear(): ?Dotclear\Core\Core
     {
@@ -83,6 +83,8 @@ if (!function_exists('dotclear')) {
         }
 
         dotclear_error('Runtime error', 'Core instance can not be called directly.', 601);
+
+        return null;
     }
 }
 
@@ -104,8 +106,8 @@ if (!function_exists('dotclear_error')) {
             trigger_error($message, E_USER_ERROR);
 
         # Display error through a plateform custom error page
-        } elseif (defined('DOTCLEAR_ERROR_FILE') && is_file(DOTCLEAR_ERROR_FILE)) {
-            include DOTCLEAR_ERROR_FILE;
+        } elseif (defined('DOTCLEAR_ERROR_FILE') && is_file(\DOTCLEAR_ERROR_FILE)) {
+            include \DOTCLEAR_ERROR_FILE;
 
         # Display error through an internal error page
         } else {

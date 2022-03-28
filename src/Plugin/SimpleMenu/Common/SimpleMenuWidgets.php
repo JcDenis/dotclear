@@ -27,7 +27,7 @@ class SimpleMenuWidgets
     public function __construct()
     {
         dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
-        if (DOTCLEAR_PROCESS == "Public") {
+        if (dotclear()->processed('Public')) {
             dotclear()->template()->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
         self::$widgets = $this;

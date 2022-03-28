@@ -206,7 +206,7 @@ class PagesUrl extends Url
                 dotclear()->url()->p404();
             } else {
                 dotclear()->user()->preview = true;
-                if (DOTCLEAR_PROCESS == 'Admin') {
+                if (\DOTCLEAR_PROCESS == 'Admin') {
                     dotclear()->user()->xframeoption = dotclear()->config()->admin_url;
                 }
 

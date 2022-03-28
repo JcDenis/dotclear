@@ -23,8 +23,8 @@ class RsExtPostPublic extends RsExtPost
         # Not very nice hack but it does the job :)
         if (dotclear()->context() && dotclear()->context()->short_feed_items === true) {
             $c    = parent::getContent($absolute_urls);
-            $c    = dotclear()->conText::remove_html($c);
-            $c    = dotclear()->conText::cut_string($c, 350);
+            $c    = dotclear()->context()->remove_html($c);
+            $c    = dotclear()->context()->cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $this->getURL() . '"><em>' . __('Read') . '</em> ' .

@@ -50,8 +50,6 @@ class Session
 
     /**
      * Get session ttl
-     *
-     * @return  string|null  The TTL
      */
     private function getTTL(): void
     {

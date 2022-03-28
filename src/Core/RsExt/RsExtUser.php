@@ -18,9 +18,6 @@ use Dotclear\Core\RsExt\RsExtStaticRecord;
 
 class RsExtUser extends RsExtend
 {
-    private static $sortfield;
-    private static $sortsign;
-
     /**
      * Returns a user option.
      *
@@ -50,9 +47,9 @@ class RsExtUser extends RsExtend
     }
 
     /**
-     * Converts this record to a {@link extStaticRecord} instance.
+     * Converts this record to a {@link RsExtStaticRecord} instance.
      *
-     * @return  extStaticRecord  The extent static record.
+     * @return  RsExtStaticRecord  The extent static record.
      */
     public function toExtStatic(): RsExtStaticRecord
     {

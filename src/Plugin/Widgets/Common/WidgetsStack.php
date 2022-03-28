@@ -29,7 +29,7 @@ class WidgetsStack
         $this->initWidgets();
         self::$stack = $this;
 
-        if (DOTCLEAR_PROCESS == "Public") {
+        if (dotclear()->processed('Public')) {
             dotclear()->template()->addValue('Widgets', [$this, 'tplWidgets']);
             dotclear()->template()->addBlock('Widget', [$this, 'tplWidget']);
             dotclear()->template()->addBlock('IfWidgets', [$this, 'tplIfWidgets']);

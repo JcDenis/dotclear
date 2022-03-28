@@ -244,7 +244,7 @@ class Context
     public function page_number($p = null)
     {
         if ($p !== null) {
-            $this->page_number = abs((int) $p) + 0;
+            $this->page_number = (int) abs((int) $p) + 0;
         }
 
         return $this->page_number;
@@ -272,23 +272,23 @@ class Context
     }
 
     # Static methods for pagination
-    public function PaginationNbPages()
+    public function PaginationNbPages(): int|false
     {
         if ($this->pagination === null) {
             return false;
         }
 
-        $nb_posts = $this->pagination->f(0);
+        $nb_posts = $this->pagination->fInt();
         if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {
             $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
         } else {
             $nb_pages = ceil($nb_posts / (int) $this->nb_entry_per_page);
         }
 
-        return $nb_pages;
+        return (int) $nb_pages;
     }
 
-    public function PaginationPosition($offset = 0)
+    public function PaginationPosition(int $offset = 0): int
     {
         $p = $this->page_number();
         if (!$p) {

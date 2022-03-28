@@ -67,17 +67,17 @@ class StaticRecord extends Record
         return new self($data, $info);
     }
 
-    public function field($n)
+    public function field(string|int $n): mixed
     {
         return $this->__data[$this->__index][$n];
     }
 
-    public function exists($n)
+    public function exists(string $n): bool
     {
         return isset($this->__data[$this->__index][$n]);
     }
 
-    public function index($row = null)
+    public function index(int $row = null): int|bool
     {
         if ($row === null) {
             return $this->__index;
@@ -92,7 +92,7 @@ class StaticRecord extends Record
         return true;
     }
 
-    public function rows()
+    public function rows(): array
     {
         return $this->__data;
     }

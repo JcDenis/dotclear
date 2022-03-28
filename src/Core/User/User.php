@@ -369,9 +369,9 @@ class User
      *
      * @param string    $blog_id        Blog ID
      *
-     * @return array
+     * @return array|false
      */
-    public function getPermissions(string $blog_id): array
+    public function getPermissions(string $blog_id): array|false
     {
         if (isset($this->blogs[$blog_id])) {
             return $this->blogs[$blog_id];
@@ -405,7 +405,7 @@ class User
 
         $rs = $sql->select();
 
-        $this->blogs[$blog_id] = $rs->isEmpty() ? [] : $this->parsePermissions($rs->permissions);
+        $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->permissions);
 
         return $this->blogs[$blog_id];
     }
@@ -656,7 +656,7 @@ class User
 
     /** @name User management callbacks
     This 3 functions only matter if you extend this class and use
-    DOTCLEAR_USER_CLASS constant.
+    \DOTCLEAR_USER_CLASS constant.
     These are called after core user management functions.
     Could be useful if you need to add/update/remove stuff in your
     LDAP directory    or other third party authentication database.

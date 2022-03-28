@@ -31,11 +31,11 @@ class Antispam
 
     public function __construct()
     {
-        if ('Public' == DOTCLEAR_PROCESS) {
+        if (dotclear()->processed('Public')) {
             dotclear()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
             dotclear()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
             dotclear()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
-        } elseif ('Admin' == DOTCLEAR_PROCESS) {
+        } elseif (dotclear()->processed('Admin')) {
             dotclear()->behavior()->add('coreAfterCommentUpdate', [$this, 'trainFilters']);
             dotclear()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
             dotclear()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);

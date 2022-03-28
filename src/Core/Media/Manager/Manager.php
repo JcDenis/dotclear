@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Manager;
 
+use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
@@ -455,7 +456,7 @@ class Manager
     {
         $d = Path::real($this->pwd . '/' . Path::clean($d));
 
-        if ($f === false) {
+        if ($d === false) {
             return;
         }
 
@@ -478,11 +479,12 @@ class Manager
      * This method is called by {@link getDir()} to sort files. Can be overrided
      * in inherited classes.
      *
-     * @param fileItem    $a            fileItem object
-     * @param fileItem    $b            fileItem object
-     * @return integer
+     * @param   Item    $a  Item object
+     * @param   Item    $b  Item object
+     * 
+     * @return  int
      */
-    protected function sortHandler($a, $b)
+    protected function sortHandler(Item $a, Item $b): int
     {
         if ($a->parent && !$b->parent || !$a->parent && $b->parent) {
             return ($a->parent) ? -1 : 1;

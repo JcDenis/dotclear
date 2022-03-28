@@ -22,7 +22,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 
 if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
-    define('DOTCLEAR_OLD_ROOT_DIR', DOTCLEAR_ROOT_DIR . '/../');
+    define('DOTCLEAR_OLD_ROOT_DIR', \DOTCLEAR_ROOT_DIR . '/../');
 }
 
 class Upgrade

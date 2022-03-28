@@ -89,8 +89,8 @@ class ConfigTheme
             'px' => (float) $m[1] / 16,
             'em' => (float) $m[1],
             'ex' => (float) $m[1] / 2,
-            default: false,
-        }
+            default => false,
+        };
         if (false === $s) {
             return;
         }

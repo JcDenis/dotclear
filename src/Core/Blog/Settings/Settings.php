@@ -249,19 +249,19 @@ class Settings
      */
     public function updateSetting(Record $rs): void
     {
-        $cur                = dotclear()->con()->openCursor($this->table);
-        $cur->setting_id    = $rs->setting_id;
-        $cur->setting_value = $rs->setting_value;
-        $cur->setting_type  = $rs->setting_type;
-        $cur->setting_label = $rs->setting_label;
-        $cur->blog_id       = $rs->blog_id;
-        $cur->setting_ns    = $rs->setting_ns;
-        if ($cur->blog_id == null) {
-            $where = 'WHERE blog_id IS NULL ';
-        } else {
-            $where = "WHERE blog_id = '" . dotclear()->con()->escape($cur->blog_id) . "' ";
-        }
-        $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($cur->setting_id) . "' AND setting_ns = '" . dotclear()->con()->escape($cur->setting_ns) . "' ");
+        $cur = dotclear()->con()->openCursor($this->table);
+        $cur->setField('setting_id', $rs->f('setting_id'));
+        $cur->setField('setting_value', $rs->f('setting_value'));
+        $cur->setField('setting_type', $rs->f('setting_type'));
+        $cur->setField('setting_label', $rs->f('setting_label'));
+        $cur->setField('blog_id', $rs->f('blog_id'));
+        $cur->setField('setting_ns', $rs->f('setting_ns'));
+
+        $where = null == $cur->getField('blog_id') ?
+            'WHERE blog_id IS NULL ' :
+            "WHERE blog_id = '" . dotclear()->con()->escape($cur->getField('blog_id')) . "' ";
+
+        $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($cur->getField('setting_id')) . "' AND setting_ns = '" . dotclear()->con()->escape($cur->getField('setting_ns')) . "' ");
     }
 
     /**
@@ -273,14 +273,16 @@ class Settings
      */
     public function dropSetting(Record $rs): int
     {
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
-        if ($rs->blog_id == null) {
-            $strReq .= 'WHERE blog_id IS NULL ';
-        } else {
-            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($rs->blog_id) . "' ";
-        }
-        $strReq .= "AND setting_id = '" . dotclear()->con()->escape($rs->setting_id) . "' AND setting_ns = '" . dotclear()->con()->escape($rs->setting_ns) . "' ";
+        $strReq = 
+            'DELETE FROM ' . $this->table . ' ' .
+            (null == $rs->f('blog_id') ?
+                'WHERE blog_id IS NULL ' :
+                "WHERE blog_id = '" . dotclear()->con()->escape($rs->f('blog_id')) . "' "
+            ) .
+            "AND setting_id = '" . dotclear()->con()->escape($rs->f('setting_id')) . "' AND setting_ns = '" . dotclear()->con()->escape($rs->f('setting_ns')) . "' ";
 
-        return dotclear()->con()->execute($strReq);
+        dotclear()->con()->execute($strReq);
+
+        return dotclear()->con()->changes();
     }
 }

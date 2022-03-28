@@ -25,10 +25,10 @@ use Dotclear\Helper\Network\Http;
 
 class Log
 {
-    /** @var string     Log table name */
+    /** @var    string  Log table name */
     protected $log_table = 'log';
 
-    /** @var string     User table name */
+    /** @var    string  User table name */
     protected $user_table = 'user';
 
     /**
@@ -42,10 +42,10 @@ class Log
      * - order: Order of results (default "ORDER BY log_dt DESC")
      * - limit: Limit parameter
      *
-     * @param      array   $params      The parameters
-     * @param      bool    $count_only  Count only resultats
+     * @param   array   $params         The parameters
+     * @param   bool    $count_only     Count only resultats
      *
-     * @return     Record  The logs.
+     * @return  Record                  The logs.
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
@@ -121,9 +121,9 @@ class Log
     /**
      * Creates a new log. Takes a cursor as input and returns the new log ID.
      *
-     * @param      Cursor  $cur    The current
+     * @param   Cursor  $cur    The current
      *
-     * @return     int
+     * @return  int
      */
     public function add(Cursor $cur): int
     {
@@ -136,11 +136,11 @@ class Log
                 ->column('MAX(log_id)')
                 ->from(dotclear()->prefix . $this->log_table);
 
-            $cur->log_id  = $sql->select()->fInt() + 1;
-            $cur->blog_id = (string) dotclear()->blog()->id;
-            $cur->log_dt  = date('Y-m-d H:i:s');
+            $cur->setField('log_id', $sql->select()->fInt() + 1);
+            $cur->setField('blog_id', (string) dotclear()->blog()->id);
+            $cur->setField('log_dt', date('Y-m-d H:i:s'));
 
-            $this->cursor($cur, $cur->log_id);
+            $this->cursor($cur, $cur->getField('log_id'));
 
             # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
             dotclear()->behavior()->call('coreBeforeLogCreate', $this, $cur);
@@ -156,14 +156,14 @@ class Log
         # --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreAfterLogCreate', $this, $cur);
 
-        return (int) $cur->log_id;
+        return $cur->getField('log_id');
     }
 
     /**
      * Deletes a log.
      *
-     * @param      int|array    $id     The identifier
-     * @param      bool         $all    Remove all logs
+     * @param   int|array   $id     The identifier
+     * @param   bool        $all    Remove all logs
      */
     public function delete(int|array $id, bool $all = false): void
     {
@@ -184,33 +184,33 @@ class Log
     /**
      * Gets the log cursor.
      *
-     * @param      Cursor     $cur     The current
-     * @param      int|null   $log_id  The log identifier
+     * @param   Cursor      $cur        The current
+     * @param   int|null    $log_id     The log identifier
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     private function cursor(Cursor $cur, ?int $log_id = null)
     {
-        if ($cur->log_msg === '') {
+        if ('' === $cur->getField('log_msg')) {
             throw new CoreException(__('No log message'));
         }
 
-        if ($cur->log_table === null) {
-            $cur->log_table = 'none';
+        if (null === $cur->getField('log_table')) {
+            $cur->setField('log_table', 'none');
         }
 
-        if ($cur->user_id === null) {
-            $cur->user_id = 'unknown';
+        if (null === $cur->getField('user_id')) {
+            $cur->setField('user_id', 'unknown');
         }
 
-        if ($cur->log_dt === '' || $cur->log_dt === null) {
-            $cur->log_dt = date('Y-m-d H:i:s');
+        if ('' === $cur->getField('log_dt') || null === $cur->getField('log_dt')) {
+            $cur->setField('log_dt', date('Y-m-d H:i:s'));
         }
 
-        if ($cur->log_ip === null) {
-            $cur->log_ip = Http::realIP();
+        if (null === $cur->getField('log_ip')) {
+            $cur->setField('log_ip', Http::realIP());
         }
 
-        $log_id = is_int($log_id) ? $log_id : (int) $cur->log_id;
+        $log_id = is_int($log_id) ? $log_id : (int) $cur->getField('log_id');
     }
 }

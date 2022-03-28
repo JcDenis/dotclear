@@ -35,9 +35,9 @@ abstract class AbstractSchema
             $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Schema';
         }
 
-        # You can set DOTCLEAR_SCH_CLASS to whatever you want.
+        # You can set \DOTCLEAR_SCH_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Database\Schema class.
-        $class = defined('DOTCLEAR_SCH_CLASS') ? DOTCLEAR_SCH_CLASS : $class;
+        $class = defined('DOTCLEAR_SCH_CLASS') ? \DOTCLEAR_SCH_CLASS : $class;
 
         if (!class_exists($class) || !is_subclass_of($class, $parent)) {
             trigger_error('Database schema class ' . $class . ' does not exist or does not inherit ' . $parent);

@@ -190,7 +190,7 @@ class DuctileBehavior
         # Inside posts links colors (hover, active, focus)
         $selectors = '.post-excerpt a:hover, .post-excerpt a:active, .post-excerpt a:focus, .post-content a:hover, .post-content a:active, .post-content a:focus';
         if (isset($s['post_link_f_c'])) {
-            self::$config->prop($css, $selectors, 'color', $s['post_link_f_c']);
+            $this->config->prop($css, $selectors, 'color', $s['post_link_f_c']);
         }
 
         # Style directives
@@ -279,7 +279,7 @@ class DuctileBehavior
         # Blog title color
         $selectors = 'h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_c_m'])) {
-            self::$config->prop($css_small, $selectors, 'color', $s['blog_title_c_m']);
+            $this->config->prop($css_small, $selectors, 'color', $s['blog_title_c_m']);
         }
 
         # Post title font weight
@@ -331,7 +331,7 @@ class DuctileBehavior
             if (!is_array($s)) {
                 $default = true;
             } else {
-                $s = array_filter($s, '$this->cleanStickers');
+                $s = array_filter($s, $this->cleanStickers);
                 if (count($s) == 0) {
                     $default = true;
                 } else {

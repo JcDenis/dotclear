@@ -1469,7 +1469,7 @@ trait TraitModulesAdmin
         }
 
         # Check config
-        $class  = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . DOTCLEAR_PROCESS . '\\Config';
+        $class  = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . dotclear()->processed() . '\\Config';
         if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig')) {
             dotclear()->error()->add(__('This module has no configuration file.'));
 

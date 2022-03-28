@@ -250,8 +250,10 @@ class Handler extends AbstractPage
         '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
-            Notices::message(__('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
-                $this->Blowup_notices, false, true);
+            dotclear()->notice()->message(
+                __('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
+                $this->Blowup_notices, false, true
+            );
         }
 
         echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">';
@@ -265,7 +267,7 @@ class Handler extends AbstractPage
             form::color('body_bg_c', ['default' => $this->Blowup_user['body_bg_c']]) . '</p>' .
 
             '<p class="field"><label for="body_bg_g">' . __('Background color fill:') . '</label> ' .
-            form::combo('body_bg_g', self::BlowupGradientTypesCombo(), $this->Blowup_user['body_bg_g']) . '</p>';
+            form::combo('body_bg_g', $this->BlowupGradientTypesCombo(), $this->Blowup_user['body_bg_g']) . '</p>';
         }
 
         echo

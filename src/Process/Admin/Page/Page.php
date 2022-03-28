@@ -197,7 +197,7 @@ abstract class Page
         }
 
         # Display
-        $headers = new ArrayObject([]);
+        $headers = new ArrayObject();
 
         # Content-Type
         $headers['content-type'] = 'Content-Type: text/html; charset=UTF-8';
@@ -215,7 +215,7 @@ abstract class Page
         # Content-Security-Policy (only if safe mode if not active, it may help)
         if (!dotclear()->rescue() && dotclear()->blog()->settings()->system->csp_admin_on) {
             // Get directives from settings if exist, else set defaults
-            $csp = new ArrayObject([]);
+            $csp = new ArrayObject();
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
@@ -670,7 +670,7 @@ abstract class Page
      * Sets the x frame options.
      *
      * @param      array|ArrayObject    $headers  The headers
-     * @param      mixed                $origin   The origin
+     * @param      string|null          $origin   The origin
      */
     public function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
     {

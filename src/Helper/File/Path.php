@@ -162,7 +162,7 @@ class Path
     public static function implodeRoot(string ...$args): string
     {
         if (defined('DOTCLEAR_ROOT_DIR')) {
-            array_unshift($args, DOTCLEAR_ROOT_DIR);
+            array_unshift($args, \DOTCLEAR_ROOT_DIR);
         }
 
         return self::real(implode(DIRECTORY_SEPARATOR, $args), false);

@@ -41,7 +41,7 @@ class Spamfilter
             $this->name = $this->id;
         }
 
-        if (DOTCLEAR_PROCESS == 'Admin') {
+        if (dotclear()->processed('Admin')) {
             $this->gui_url = dotclear()->adminurl()->get('admin.plugin.Antispam', ['f' => $this->id], '&');
         }
     }

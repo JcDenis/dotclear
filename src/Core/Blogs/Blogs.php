@@ -93,13 +93,13 @@ class Blogs
         $res = [];
 
         while ($rs->fetch()) {
-            $res[$rs->user_id] = [
-                'name'        => $rs->user_name,
-                'firstname'   => $rs->user_firstname,
-                'displayname' => $rs->user_displayname,
-                'email'       => $rs->user_email,
-                'super'       => (bool) $rs->user_super,
-                'p'           => dotclear()->user()->parsePermissions($rs->permissions)
+            $res[$rs->f('user_id')] = [
+                'name'        => $rs->f('user_name'),
+                'firstname'   => $rs->f('user_firstname'),
+                'displayname' => $rs->f('user_displayname'),
+                'email'       => $rs->f('user_email'),
+                'super'       => (bool) $rs->f('user_super'),
+                'p'           => dotclear()->user()->parsePermissions($rs->f('permissions'))
             ];
         }
 
@@ -117,11 +117,7 @@ class Blogs
     {
         $blog = $this->getBlogs(['blog_id' => $blog_id]);
 
-        if ($blog->isEmpty()) {
-            return null;
-        }
-
-        return $blog;
+       return $blog->isEmpty() ? null : $blog;
     }
 
     /**
@@ -185,11 +181,11 @@ class Blogs
             $where = 'AND blog_status IN (1,0) ';
         }
 
-        if (isset($params['blog_status']) && $params['blog_status'] !== '' && dotclear()->user()->isSuperAdmin()) {
+        if (isset($params['blog_status']) && '' !== $params['blog_status'] && dotclear()->user()->isSuperAdmin()) {
             $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
         }
 
-        if (isset($params['blog_id']) && $params['blog_id'] !== '') {
+        if (isset($params['blog_id']) && '' !== $params['blog_id']) {
             if (!is_array($params['blog_id'])) {
                 $params['blog_id'] = [$params['blog_id']];
             }
@@ -228,9 +224,9 @@ class Blogs
 
         $this->getBlogCursor($cur);
 
-        $cur->blog_creadt = date('Y-m-d H:i:s');
-        $cur->blog_upddt  = date('Y-m-d H:i:s');
-        $cur->blog_uid    = md5(uniqid());
+        $cur->setField('blog_creadt', date('Y-m-d H:i:s'));
+        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('blog_uid', md5(uniqid()));
 
         $cur->insert();
     }
@@ -245,7 +241,7 @@ class Blogs
     {
         $this->getBlogCursor($cur);
 
-        $cur->blog_upddt = date('Y-m-d H:i:s');
+        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
 
         $cur->update("WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "'");
     }
@@ -259,21 +255,20 @@ class Blogs
      */
     private function getBlogCursor(Cursor $cur): void
     {
-        if (($cur->blog_id !== null
-            && !preg_match('/^[A-Za-z0-9._-]{2,}$/', $cur->blog_id)) || (!$cur->blog_id)) {
+        if (null !== $cur->getField('blog_id') && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cur->getField('blog_id')) || !$cur->getField('blog_id')) {
             throw new CoreException(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
-        if (($cur->blog_name !== null && $cur->blog_name == '') || (!$cur->blog_name)) {
+        if (null !== $cur->getField('blog_name') && '' == $cur->getField('blog_name') || !$cur->getField('blog_name')) {
             throw new CoreException(__('No blog name'));
         }
 
-        if (($cur->blog_url !== null && $cur->blog_url == '') || (!$cur->blog_url)) {
+        if (null !== $cur->getField('blog_url') && '' == $cur->getField('blog_url') || !$cur->getField('blog_url')) {
             throw new CoreException(__('No blog URL'));
         }
 
-        if ($cur->blog_desc !== null) {
-            $cur->blog_desc = Html::clean($cur->blog_desc);
+        if (null !== $cur->getField('blog_desc')) {
+            $cur->setField('blog_desc', Html::clean($cur->getField('blog_desc')));
         }
     }
 

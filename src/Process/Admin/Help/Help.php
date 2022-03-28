@@ -68,8 +68,8 @@ class Help
     public function file(string $file): void
     {
         # Do not require twice the same file (prevent loop)
-        if (!isset(static::$file[$file])) {
-            static::$file[$file] = true;
+        if (!isset(self::$file[$file])) {
+            self::$file[$file] = true;
             ob_start();
             require_once $file;
             ob_end_clean();
@@ -83,7 +83,7 @@ class Help
             'doc'     => $this->doc,
             'context' => $this->context,
             'flag'    => $this->flag,
-            'files'   => static::$files,
+            'files'   => self::$file,
         ];
     }
 }

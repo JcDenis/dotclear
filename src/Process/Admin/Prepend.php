@@ -222,9 +222,9 @@ class Prepend extends Core
         # Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
-            $_COOKIE[$this->config()->session_name] = DOTCLEAR_AUTH_SESS_ID;
+            $_COOKIE[$this->config()->session_name] = \DOTCLEAR_AUTH_SESS_ID;
 
-            if (!$this->user()->checkSession(DOTCLEAR_AUTH_SESS_UID)) {
+            if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
                 $this->throwException(__('Invalid session data.'), '', 625);
             }
 
@@ -294,11 +294,11 @@ class Prepend extends Core
 
             # Check blog to use and log out if no result
             if (isset($_SESSION['sess_blog_id'])) {
-                if ($this->user()->getPermissions($_SESSION['sess_blog_id']) === false) {
+                if (false === $this->user()->getPermissions($_SESSION['sess_blog_id'])) {
                     unset($_SESSION['sess_blog_id']);
                 }
             } else {
-                if (($b = $this->user()->findUserBlog($this->user()->getInfo('user_default_blog'))) !== false) {
+                if (false !== ($b = $this->user()->findUserBlog($this->user()->getInfo('user_default_blog')))) {
                     $_SESSION['sess_blog_id'] = $b;
                     unset($b);
                 }
@@ -420,27 +420,27 @@ class Prepend extends Core
                 throw new \Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
             }
             $page = new $class($handler);
+
+            # Process page
+            try {
+                ob_start();
+                $page->pageProcess();
+                ob_end_flush();
+            } catch (\Exception $e) {
+                ob_end_clean();
+
+                $this->throwException(
+                    __('Failed to load page'),
+                    sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
+                    601,
+                    $e
+                );
+            }
         } catch (\Exception $e) {
             $this->throwException(
                 $e->getMessage(),
                 '',
                 628,
-                $e
-            );
-        }
-
-        # Process page
-        try {
-            ob_start();
-            $page->pageProcess();
-            ob_end_flush();
-        } catch (\Exception $e) {
-            ob_end_clean();
-
-            $this->throwException(
-                __('Failed to load page'),
-                sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
-                601,
                 $e
             );
         }

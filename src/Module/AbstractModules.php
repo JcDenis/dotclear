@@ -160,7 +160,7 @@ abstract class AbstractModules
         # Load modules stuff
         foreach ($this->modules_enabled as $id => $define) {
             # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . DOTCLEAR_PROCESS . '\Prepend';
+            $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . dotclear()->processed() . '\Prepend';
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             # Check module and stop if method not returns True statement
@@ -174,7 +174,7 @@ abstract class AbstractModules
             # Load module main l10n
             if ($lang) {
                 $this->loadModuleL10N($id, $lang, 'main');
-                $this->loadModuleL10N($id, $lang, strtolower(DOTCLEAR_PROCESS));
+                $this->loadModuleL10N($id, $lang, strtolower(dotclear()->processed()));
             }
 
             # Load module process specifics (auto register admi nurl, ...)

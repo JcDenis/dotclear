@@ -73,7 +73,7 @@ class Url
         $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
-            if ($value) {
+            if ('' !== $value) {
                 if ($url) {
                     $url .= '/';
                 }

@@ -32,7 +32,7 @@ class Html
      */
     public static function escapeHTML(?string $str): string
     {
-        return htmlspecialchars($str ?: '', ENT_COMPAT, 'UTF-8');
+        return htmlspecialchars($str ?? '', ENT_COMPAT, 'UTF-8');
     }
 
     /**

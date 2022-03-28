@@ -107,11 +107,9 @@ class Cursor
      * @see __get()
      * @return mixed    value for a field named <var>$n</var>
      */
-    public function getField(string $n)
+    public function getField(string $n): mixed
     {
-        if (isset($this->__data[$n])) {
-            return $this->__data[$n];
-        }
+        return isset($this->__data[$n]) ? $this->__data[$n] : null;
     }
 
     /**

@@ -234,14 +234,14 @@ class UserPref extends Page
                 $cur->user_tz          = $this->container->user_tz;
                 $cur->user_post_status = $this->container->user_post_status = $_POST['user_post_status'];
 
-                $this->container->setOption('edit_size', $_POST['user_edit_size'], 'int');
+                $this->container->setOption('edit_size', $_POST['user_edit_size']);
                 if ($this->container->getOption('edit_size') < 1) {
                     $this->container->setOption('edit_size', 10);
                 }
                 $this->container->setOption('post_format', $_POST['user_post_format']);
-                $this->container->setOption('editor', $_POST['user_editor'], 'array');
-                $this->container->setOption('enable_wysiwyg', !empty($_POST['user_wysiwyg']), 'int');
-                $this->container->setOption('toolbar_bottom', !empty($_POST['user_toolbar_bottom']), 'int');
+                $this->container->setOption('editor', $_POST['user_editor']);
+                $this->container->setOption('enable_wysiwyg', !empty($_POST['user_wysiwyg']));
+                $this->container->setOption('toolbar_bottom', !empty($_POST['user_toolbar_bottom']));
 
                 $cur->user_options = new ArrayObject($this->container->getOptions());
 

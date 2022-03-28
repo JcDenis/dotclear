@@ -18,7 +18,7 @@ use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 
 /**
- * Do not use l10nFaker with DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin
+ * Do not use l10nFaker with \DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin
  */
 class L10nFaker
 {
@@ -58,7 +58,7 @@ class L10nFaker
                 $main .= $this->fake_l10n($fav['title']);
             }
         }
-        file_put_contents(DOTCLEAR_ROOT_DIR . '/Core/_fake_l10n.php', $main);
+        file_put_contents(\DOTCLEAR_ROOT_DIR . '/Core/_fake_l10n.php', $main);
         $plugin .= "\n# Plugin names\n\n";
         foreach ($this->bundled_plugins as $id) {
             $p = dotclear()->plugins()?->getModule($id);

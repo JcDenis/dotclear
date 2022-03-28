@@ -20,9 +20,10 @@ class Configuration
 {
     use ErrorTrait;
 
+    /** @var    array   Read files */
     private static $file = [];
 
-    /** @var array Stack */
+    /** @var    array   Stack */
     private $stack = [];
 
     /**
@@ -52,10 +53,10 @@ class Configuration
 
         foreach($default as $k => $v) {
             # Read only (or from scratch)
-            if ($v[0] === false || empty($new)) {
+            if (false === $v[0] || empty($new)) {
                 $this->stack[$k] = $v[1];
             # Required
-            } elseif ($v[0] === true && !isset($new[$k])) {
+            } elseif (true === $v[0] && !isset($new[$k])) {
                 $this->error()->add(sprintf(
                     'Required configuration key "%s" is not set', $k
                 ));
@@ -66,21 +67,57 @@ class Configuration
         }
     }
 
-    public function __get($k)
+    /**
+     * Get a configuration value
+     * 
+     * @param   string  $key    The key
+     * 
+     * @return  mixed           The value
+     */
+    public function get(string $key): mixed
     {
-        return array_key_exists($k, $this->stack) ? $this->stack[$k] : null;
+        return array_key_exists($key, $this->stack) ? $this->stack[$key] : null; 
     }
 
-    public function __isset($k)
+    /**
+     * @see self::get()
+     */
+    public function __get($key)
     {
-        return isset($this->stack[$k]);
+        return $this->get($key);
     }
 
+    /**
+     * Check if a key exists
+     * 
+     * @param   string  $key    The key
+     * 
+     * @return  bool            True if it exists
+     */
+    public function exists(string $key): bool
+    {
+        return isset($this->stack[$key]);
+    }
+
+    /**
+     * @see self::exists()
+     */
+    public function __isset($key)
+    {
+        return $this->exists($key);
+    }
+
+    /**
+     * Avoid magic set
+     */
     public function __set($k, $v)
     {
         throw new UtilsException('Configuration properties are read only.');
     }
 
+    /**
+     * Read configuration from a file
+     */
     private function fromFile(string $file): array
     {
         $new = [];
@@ -99,6 +136,11 @@ class Configuration
         return $new;
     }
 
+    /**
+     * Dump configuration
+     * 
+     * @return  array
+     */
     public function dump(): array
     {
         return $this->stack;

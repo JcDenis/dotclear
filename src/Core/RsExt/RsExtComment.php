@@ -209,7 +209,7 @@ class RsExtComment extends RsExtend
      *
      * @return  string          The trackback content.
      */
-    public static function getTrackbackContent(): string
+    public function getTrackbackContent(): string
     {
         return $this->rs->comment_trackback == 1 ? 
             preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->comment_content) : '';

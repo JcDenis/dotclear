@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog;
 
 use ArrayObject;
-
 use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
@@ -26,79 +25,79 @@ use Dotclear\Helper\Dt;
 
 class Blog
 {
-    /** @var    Categories   Categories instance */
+    /** @var    Categories  Categories instance */
     private $categories;
 
-    /** @var    Comments   Comments instance */
+    /** @var    Comments    Comments instance */
     private $comments;
 
     /** @var    Posts   Posts instance */
     private $posts;
 
-    /** @var    Settings   Settings instance */
+    /** @var    Settings    Settings instance */
     private $settings;
 
-    /** @var string     Blog ID */
+    /** @var    string  Blog ID */
     public $id;
 
-    /** @var string     Blog unique ID */
+    /** @var    string  Blog unique ID */
     public $uid;
 
-    /** @var string     Blog name */
+    /** @var    string  Blog name */
     public $name;
 
-    /** @var string     Blog description */
+    /** @var    string  Blog description */
     public $desc;
 
-    /** @var string     Blog URL */
+    /** @var    string  Blog URL */
     public $url;
 
-    /** @var string     Blog host */
+    /** @var    string  Blog host */
     public $host;
 
-    /** @var int        Blog creation date */
+    /** @var    int     Blog creation date */
     public $creadt;
 
-    /** @var int        Blog last update date */
+    /** @var    int     Blog last update date */
     public $upddt;
 
-    /** @var string     Blog status */
+    /** @var    int     Blog status */
     public $status;
 
-    /** @var string|false   Blog public path */
+    /** @var    string|false    Blog public path */
     public $public_path;
 
-    /** @var string     Blog fake public url */
+    /** @var    string  Blog fake public url */
     public $public_url;
 
-    /** @var array      post status list */
+    /** @var    array   post status list */
     private $post_status    = [];
 
-    /** @var array      comment status list */
+    /** @var    array   comment status list */
     private $comment_status = [];
 
-    /** @var bool       Disallow entries password protection */
+    /** @var    bool    Disallow entries password protection */
     public $without_password = true;
 
     /**
      * Constructs a new instance.
      *
-     * @param      string   $id     The blog identifier
+     * @param   string  $id     The blog identifier
      */
     public function __construct(string $id)
     {
-        if (($b = dotclear()->blogs()->getBlog($id)) !== null) {
+        if (null !== ($rs = dotclear()->blogs()->getBlog($id))) {
             $this->id     = $id;
-            $this->uid    = $b->blog_uid;
-            $this->name   = $b->blog_name;
-            $this->desc   = $b->blog_desc;
-            $this->url    = $b->blog_url;
+            $this->uid    = $rs->f('blog_uid');
+            $this->name   = $rs->f('blog_name');
+            $this->desc   = $rs->f('blog_desc');
+            $this->url    = $rs->f('blog_url');
             $this->host   = Http::getHostFromURL($this->url);
-            $this->creadt = (int) strtotime($b->blog_creadt);
-            $this->upddt  = (int) strtotime($b->blog_upddt);
-            $this->status = (int) $b->blog_status;
+            $this->creadt = (int) strtotime($rs->f('blog_creadt'));
+            $this->upddt  = (int) strtotime($rs->f('blog_upddt'));
+            $this->status = (int) $rs->f('blog_status');
 
-            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->system->public_path, dotclear()->config()->base_dir));
+            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), dotclear()->config()->get('base_dir')));
             $this->public_url  = $this->getURLFor('resources'); //! to enhance
 
             $this->post_status['-2'] = __('Pending');
@@ -180,15 +179,11 @@ class Blog
     /**
      * Returns blog URL ending with a question mark.
      *
-     * @return     string  The qmark url.
+     * @return  string  The qmark url.
      */
     public function getQmarkURL(): string
     {
-        if (substr($this->url, -1) != '?') {
-            return $this->url . '?';
-        }
-
-        return $this->url;
+        return '?' != substr($this->url, -1) ? $this->url . '?' : $this->url;
     }
 
     /**
@@ -209,19 +204,19 @@ class Blog
     /**
      * Gets the jQuery version.
      *
-     * @return     string
+     * @return  string
      */
     public function getJsJQuery(): string
     {
-        $version = $this->settings()->system->jquery_version;
-        if ($version == '') {
+        $version = $this->settings()->get('system')->get('jquery_version');
+        if ('' == $version) {
             // Version not set, use default one
-            $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
+            $version = dotclear()->config()->get('jquery_default'); // defined in inc/prepend.php
         } else {
-            if (true !== $this->settings()->system->jquery_allow_old_version) {
+            if (true !== $this->settings()->get('system')->get('jquery_allow_old_version')) {
                 // Use the blog defined version only if more recent than default
-                if (version_compare($version, dotclear()->config()->jquery_default, '<')) {
-                    $version = dotclear()->config()->jquery_default; // defined in inc/prepend.php
+                if (version_compare($version, dotclear()->config()->get('jquery_default'), '<')) {
+                    $version = dotclear()->config()->get('jquery_default'); // defined in inc/prepend.php
                 }
             }
         }
@@ -230,26 +225,24 @@ class Blog
     }
 
     /**
-     * Returns an entry status name given to a code. Status are translated, never
-     * use it for tests. If status code does not exist, returns <i>unpublished</i>.
+     * Returns an entry status name given to a code. 
+     * 
+     * Status are translated, never use it for tests. 
+     * If status code does not exist, returns <i>unpublished</i>.
      *
-     * @param      int  $s      The status code
+     * @param   int  $s     The status code
      *
-     * @return     string  The post status.
+     * @return  string      The post status.
      */
     public function getPostStatus(int $s): string
     {
-        if (isset($this->post_status[$s])) {
-            return $this->post_status[$s];
-        }
-
-        return $this->post_status['0'];
+        return isset($this->post_status[$s]) ? $this->post_status[$s] : $this->post_status['0'];
     }
 
     /**
      * Returns an array of available entry status codes and names.
      *
-     * @return     array  Simple array with codes in keys and names in value.
+     * @return  array   Simple array with codes in keys and names in value.
      */
     public function getAllPostStatus(): array
     {
@@ -259,7 +252,7 @@ class Blog
     /**
      * Returns an array of available comment status codes and names.
      *
-     * @return    array Simple array with codes in keys and names in value
+     * @return  array   Simple array with codes in keys and names in value
      */
     public function getAllCommentStatus(): array
     {
@@ -267,10 +260,12 @@ class Blog
     }
 
     /**
-     * Disallows entries password protection. You need to set it to
-     * <var>false</var> while serving a public blog.
+     * Disallows entries password protection. 
+     * 
+     * You need to set it to <var>false</var> while serving a public blog.
+     * Set it to null to read current value.
      *
-     * @param   bool|null   $v
+     * @param   bool|null   $v  Set password usage
      */
     public function withoutPassword(?bool $v = null): bool
     {
@@ -281,12 +276,19 @@ class Blog
         return $this->without_password;
     }
 
-    public function getUpdateDate(string $format = ''): string
+    /**
+     * Get (non-)formatted blog update date
+     * 
+     * @param   string  $format     The date format
+     * 
+     * @return  string|int          The formatted update date
+     */
+    public function getUpdateDate(string $format = ''): int|string
     {
-        if ($format == 'rfc822') {
-            return Dt::rfc822($this->upddt, $this->settings()->system->blog_timezone);
-        } elseif ($format == 'iso8601') {
-            return Dt::iso8601($this->upddt, $this->settings()->system->blog_timezone);
+        if ('rfc822' == $format) {
+            return Dt::rfc822($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
+        } elseif ('iso8601' == $format) {
+            return Dt::iso8601($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
         } elseif (!$format) {
             return Dt::str($format, $this->upddt);
         }
@@ -298,14 +300,16 @@ class Blog
     /// @name Triggers methods
     //@{
     /**
-     * Updates blog last update date. Should be called every time you change
+     * Updates blog last update date. 
+     * 
+     * Should be called every time you change
      * an element related to the blog.
      */
     public function triggerBlog(): void
     {
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
 
-        $cur->blog_upddt = date('Y-m-d H:i:s');
+        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
 
         $sql = new UpdateStatement('dcBlogTriggerBlog');
         $sql->where('blog_id = ' . $sql->quote($this->id, true));
@@ -320,23 +324,25 @@ class Blog
      * Updates comment and trackback counters in post table. Should be called
      * every time a comment or trackback is added, removed or changed its status.
      *
-     * @param      int  $id     The comment identifier
-     * @param      bool     $del    If comment is deleted, set this to true
+     * @param   int     $id     The comment identifier
+     * @param   bool    $del    If comment is deleted, set this to true
      */
     public function triggerComment(int $id, bool $del = false): void
     {
-        $this->triggerComments($id, $del);
+        $this->triggerComments([$id], $del);
     }
 
     /**
-     * Updates comments and trackbacks counters in post table. Should be called
-     * every time comments or trackbacks are added, removed or changed their status.
+     * Updates comments and trackbacks counters in post table. 
+     * 
+     * Should be called every time comments or trackbacks are 
+     * added, removed or changed their status.
      *
-     * @param      int|array|ArrayObject    $ids             The identifiers
-     * @param      bool                     $del             If comment is delete, set this to true
-     * @param      null|array               $affected_posts  The affected posts IDs
+     * @param   array|ArrayObject   $ids                The identifiers
+     * @param   bool                $del                If comment is delete, set this to true
+     * @param   null|array          $affected_posts     The affected posts IDs
      */
-    public function triggerComments($ids, bool $del = false, ?array $affected_posts = null): void
+    public function triggerComments(array|ArrayObject $ids, bool $del = false, ?array $affected_posts = null): void
     {
         $comments_ids = $this->cleanIds($ids);
 
@@ -351,7 +357,7 @@ class Blog
 
             $affected_posts = [];
             while ($rs->fetch()) {
-                $affected_posts[] = (int) $rs->post_id;
+                $affected_posts[] = (int) $rs->f('post_id');
             }
         }
 
@@ -370,10 +376,10 @@ class Blog
 
         $posts = [];
         while ($rs->fetch()) {
-            if ($rs->comment_trackback) {
-                $posts[$rs->post_id]['trackback'] = $rs->nb_comment;
+            if ($rs->f('comment_trackback')) {
+                $posts[$rs->f('post_id')]['trackback'] = $rs->f('nb_comment');
             } else {
-                $posts[$rs->post_id]['comment'] = $rs->nb_comment;
+                $posts[$rs->f('post_id')]['comment'] = $rs->f('nb_comment');
             }
         }
 
@@ -383,11 +389,11 @@ class Blog
             $cur->clean();
 
             if (!array_key_exists($post_id, $posts)) {
-                $cur->nb_trackback = 0;
-                $cur->nb_comment   = 0;
+                $cur->setField('nb_trackback', 0);
+                $cur->setField('nb_comment', 0);
             } else {
-                $cur->nb_trackback = empty($posts[$post_id]['trackback']) ? 0 : $posts[$post_id]['trackback'];
-                $cur->nb_comment   = empty($posts[$post_id]['comment']) ? 0 : $posts[$post_id]['comment'];
+                $cur->setField('nb_trackback', empty($posts[$post_id]['trackback']) ? 0 : $posts[$post_id]['trackback']);
+                $cur->setField('nb_comment', empty($posts[$post_id]['comment']) ? 0 : $posts[$post_id]['comment']);
             }
 
             $cur->update('WHERE post_id = ' . $post_id);
@@ -400,9 +406,9 @@ class Blog
     /**
      * Cleanup a list of IDs
      *
-     * @param      mixed  $ids    The identifiers
+     * @param   mixed   $ids    The identifiers
      *
-     * @return     array
+     * @return  array
      */
     public function cleanIds($ids): array
     {

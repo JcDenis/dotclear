@@ -54,7 +54,7 @@ class Core
     /** @var    Behavior    Behavior instance */
     private $behavior;
 
-    /** @var    Blog    Blog instance */
+    /** @var    Blog|null   Blog instance */
     private $blog = null;
 
     /** @var    Blogs   Blogs instance */
@@ -87,7 +87,7 @@ class Core
     /** @var    PostType   PostType instance */
     private $posttype;
 
-    /** @var    Rest   Rest instance */
+    /** @var    RestServer   RestServer instance */
     private $rest;
 
     /** @var    Session   Session instance */
@@ -96,13 +96,13 @@ class Core
     /** @var    Url     Url instance */
     private $url;
 
-    /** @var    Auth    Auth instance */
+    /** @var    User    User instance */
     private $user;
 
     /** @var    Users   Users instance */
     private $users;
 
-    /** @var    Verion  Version instance */
+    /** @var    Version     Version instance */
     private $version;
 
     /** @var    Wiki    Wiki instance */
@@ -155,7 +155,6 @@ class Core
     final public function __clone()
     {
         trigger_error('Core instance can not be cloned.', E_USER_ERROR);
-        exit(1);
     }
 
     /**
@@ -164,7 +163,6 @@ class Core
     final public function __sleep()
     {
         trigger_error('Core instance can not be serialized.', E_USER_ERROR);
-        exit(1);
     }
 
     /**
@@ -173,7 +171,6 @@ class Core
     final public function __wakeup()
     {
         trigger_error('Core instance can not be deserialized.', E_USER_ERROR);
-        exit(1);
     }
 
     /**
@@ -262,17 +259,17 @@ class Core
     {
         if (!($this->con instanceof AbstractConnection)) {
             try {
-                $prefix = $this->config()->database_prefix;
-                $driver = $this->config()->database_driver;
+                $prefix = $this->config()->get('database_prefix');
+                $driver = $this->config()->get('database_driver');
 
                 # Create connection instance
                 $con = AbstractConnection::init(
                     $driver,
-                    $this->config()->database_host,
-                    $this->config()->database_name,
-                    $this->config()->database_user,
-                    $this->config()->database_password,
-                    $this->config()->database_persist
+                    $this->config()->get('database_host'),
+                    $this->config()->get('database_name'),
+                    $this->config()->get('database_user'),
+                    $this->config()->get('database_password'),
+                    $this->config()->get('database_persist')
                 );
 
                 # Define weak_locks for mysql
@@ -306,7 +303,7 @@ class Core
                     '<p>If you\'re unsure what these terms mean you should probably contact ' .
                     'your host. If you still need help you can always visit the ' .
                     '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>'),
-                    ('' != $this->config()->database_host ? $this->config()->database_host : 'localhost')
+                    ('' != $this->config()->get('database_host') ? $this->config()->get('database_host') : 'localhost')
                 );
                 $this->throwException(
                     $msg,
@@ -328,11 +325,11 @@ class Core
     public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
-            $config_file = defined('DOTCLEAR_CONFIG_PATH') && is_file(DOTCLEAR_CONFIG_PATH) ? DOTCLEAR_CONFIG_PATH : [];
+            $config_file = defined('DOTCLEAR_CONFIG_PATH') && is_file(\DOTCLEAR_CONFIG_PATH) ? \DOTCLEAR_CONFIG_PATH : [];
             $this->config = new Configuration($this->getDefaultConfig(), $config_file);
 
             # Alias that could be required before first connection instance
-            $this->prefix = $this->config->database_prefix;
+            $this->prefix = $this->config->get('database_prefix');
         }
 
         return $this->config;
@@ -493,7 +490,7 @@ class Core
     /**
      * Get user (auth) instance
      *
-     * You can set DOTCLEAR_USER_CLASS to whatever you want.
+     * You can set \DOTCLEAR_USER_CLASS to whatever you want.
      * Your new class *should* inherits Dotclear\Core\User\User class.
      *
      * @return  User  User instance
@@ -503,7 +500,7 @@ class Core
         if (!($this->user instanceof User)) {
             try {
                 $dc_user_class = __NAMESPACE__ . '\\User\\User';
-                $class = defined('DOTCLEAR_USER_CLASS') ? DOTCLEAR_USER_CLASS : $dc_user_class;
+                $class = defined('DOTCLEAR_USER_CLASS') ? \DOTCLEAR_USER_CLASS : $dc_user_class;
 
                 # Check if auth class exists
                 if (!class_exists($class)) {
@@ -582,15 +579,15 @@ class Core
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
-            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
+            } elseif (isset($_SERVER['REDIRECT_\DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_\DOTCLEAR_CONFIG_PATH']);
             } else {
                 define('DOTCLEAR_CONFIG_PATH', Path::implodeRoot('config.php'));
             }
         }
 
         # No configuration ? start installalation process
-        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
+        if (!is_file(\DOTCLEAR_CONFIG_PATH)) {
             # Stop core process here in installalation process
             if ('Install' == $this->process) {
 
@@ -617,19 +614,19 @@ class Core
 
         # Find a default appropriate language (used by Exceptions)
         foreach (Http::getAcceptLanguages() as $lang) {
-            if ('en' == $lang || $this->config() && false !== L10n::set(Path::implode($this->config()->l10n_dir, $lang, 'main'))) {
+            if ('en' == $lang || false !== L10n::set(Path::implode($this->config()->get('l10n_dir'), $lang, 'main'))) {
                 $this->lang($lang);
                 break;
             }
         }
 
         # Set some Http stuff
-        Http::$https_scheme_on_443 = $this->config()->force_scheme_443;
-        Http::$reverse_proxy = $this->config()->reverse_proxy;
+        Http::$https_scheme_on_443 = $this->config()->get('force_scheme_443');
+        Http::$reverse_proxy = $this->config()->get('reverse_proxy');
         Http::trimRequest();
 
         # Check master key
-        if (32 > strlen($this->config()->master_key)) {
+        if (32 > strlen($this->config()->get('master_key'))) {
                 $this->throwException(
                     __('Unsufficient master key'),
                     __('Master key is not strong enough, please change it.'),
@@ -638,45 +635,44 @@ class Core
         }
 
         # Check cryptography algorithm
-        if ('sha1' == $this->config()->crypt_algo) {
+        if ('sha1' == $this->config()->get('crypt_algo')) {
             # Check length of cryptographic algorithm result and exit if less than 40 characters long
-            if (40 > strlen(Crypt::hmac($this->config()->master_key, $this->config()->vendor_name, $this->config()->crypt_algo))) {
+            if (40 > strlen(Crypt::hmac($this->config()->get('master_key'), $this->config()->get('vendor_name'), $this->config()->get('crypt_algo')))) {
                 $this->throwException(
                     __('Cryptographic error'),
-                    sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->crypt_algo),
+                    sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->get('crypt_algo')),
                     611
                 );
             }
         }
 
         # Check existence of digests directory
-        if (!is_dir($this->config()->digests_dir)) {
+        if (!is_dir($this->config()->get('digests_dir'))) {
             /* Try to create it */
-            @Files::makeDir($this->config()->digests_dir);
+            @Files::makeDir($this->config()->get('digests_dir'));
         }
 
         # Check existence of cache directory
-        if (!is_dir($this->config()->cache_dir)) {
+        if (!is_dir($this->config()->get('cache_dir'))) {
             /* Try to create it */
-            @Files::makeDir($this->config()->cache_dir);
-            if (!is_dir($this->config()->cache_dir)) {
+            @Files::makeDir($this->config()->get('cache_dir'));
+            if (!is_dir($this->config()->get('cache_dir'))) {
                 $this->throwException(
                     __('Unable to find cache directory'),
-                    sprintf(__('%s directory does not exist. Please create it.'), $this->config()->cache_dir),
+                    sprintf(__('%s directory does not exist. Please create it.'), $this->config()->get('cache_dir')),
                     611
                 );
             }
         }
 
         # Check existence of var directory
-        if (!is_dir($this->config()->var_dir)) {
+        if (!is_dir($this->config()->get('var_dir'))) {
             // Try to create it
-            @Files::makeDir($this->config()->var_dir);
-            if (!is_dir($this->config()->var_dir)) {
+            @Files::makeDir($this->config()->get('var_dir'));
+            if (!is_dir($this->config()->get('var_dir'))) {
                 $this->throwException(
                     __('Unable to find var directory'),
-                    sprintf(
-                    '%s directory does not exist. Please create it.', $this->config()->var_dir),
+                    sprintf('%s directory does not exist. Please create it.', $this->config()->get('var_dir')),
                     611
                 );
             }
@@ -691,9 +687,6 @@ class Core
             );
         }
 
-        # Define current process for files check
-        define('DOTCLEAR_PROCESS', $this->process);
-
         # Add top behaviors
         $this->registerTopBehaviors();
 
@@ -702,6 +695,18 @@ class Core
 
         # Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
+    }
+
+    /**
+     * Check current process
+     * 
+     * @param   string|null     $process    Process name to check, or null to get its name
+     * 
+     * @return  string|bool                 True this is the process, or the process name
+     */
+    public function processed(?string $process = null): string|bool
+    {
+        return null === $process ? $this->process : strtolower($this->process) == strtolower($process);
     }
 
     /**
@@ -727,7 +732,7 @@ class Core
      */
     public function production(): bool
     {
-        return !($this->config() && false === $this->config()->production);
+        return false !== $this->config()->get('production');
     }
 
     /**
@@ -754,9 +759,7 @@ class Core
         } catch (\Exception) {
         }
         try {
-            if ($this->con) {
-                $this->con->close();
-            }
+            $this->con->close();
         } catch (\Exception) {
         }
     }
@@ -836,15 +839,13 @@ class Core
         if (!$this->production() && !empty($detail)) {
             $message = $detail;
         # If error code is higher than 630 and in plublic, then show a standard message
-        } elseif (630 <= $code && !in_array(DOTCLEAR_PROCESS, ['Admin', 'Install'])) {
+        } elseif (630 <= $code && !in_array(dotclear()->processed(), ['Admin', 'Install'])) {
             $title = __('Site temporarily unavailable');
             $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
         }
 
         # Use an Exception handler to get trace for non production env
         throw new PrependException($title, $message, $code, !$this->production(), $previous);
-
-        exit(1);
     }
 
     /**
@@ -878,8 +879,8 @@ class Core
      */
     public function emptyTemplatesCache(): void //! move this
     {
-        if (is_dir(Path::implode(dotclear()->config()->cache_dir, 'cbtpl'))) {
-            Files::deltree(Path::implode(dotclear()->config()->cache_dir, 'cbtpl'));
+        if (is_dir(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'))) {
+            Files::deltree(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'));
         }
     }
 
@@ -935,7 +936,7 @@ class Core
             'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'root_dir'              => [false, Path::implodeRoot()], //Alias for DOTCLEAR_ROOT_DIR
+            'root_dir'              => [false, Path::implodeRoot()], //Alias for \DOTCLEAR_ROOT_DIR
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
             'store_allow_repo'      => [null, true],

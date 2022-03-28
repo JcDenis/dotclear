@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Comments;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
@@ -50,14 +49,13 @@ class Comments
      * - limit: Limit parameter
      * - sql_only : return the sql request instead of results. Only ids are selected
      *
-     * @since 3.0 remove sql_only param: reimplement something later
+     * @param   array                   $params         Parameters
+     * @param   bool                    $count_only     Only counts results
+     * @param   SelectStatement|null    $sql            previous sql statement
      *
-     * @param    array      $params        Parameters
-     * @param    bool       $count_only    Only counts results
-     *
-     * @return   Record      A record with some more capabilities
+     * @return   string|Record                          A record with some more capabilities (or sql statement)
      */
-    public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): Record
+    public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
     {
         if (!$sql) {
             $sql = new SelectStatement('dcBlogGetComments');
@@ -158,17 +156,17 @@ class Comments
             $sql->and('post_type' . $sql->in($params['post_type']));
         }
 
-        if (isset($params['post_id']) && $params['post_id'] !== '') {
+        if (isset($params['post_id']) && '' !== $params['post_id']) {
             $sql->and('P.post_id = ' . (int) $params['post_id']);
         }
 
-        if (isset($params['cat_id']) && $params['cat_id'] !== '') {
+        if (isset($params['cat_id']) && '' !== $params['cat_id']) {
             $sql->and('P.cat_id = ' . (int) $params['cat_id']);
         }
 
-        if (isset($params['comment_id']) && $params['comment_id'] !== '') {
+        if (isset($params['comment_id']) && '' !== $params['comment_id']) {
             if (is_array($params['comment_id'])) {
-                array_walk($params['comment_id'], function (&$v, $k) { if ($v !== null) {$v = (int) $v;}});
+                array_walk($params['comment_id'], function (&$v, $k) { if (null !== $v) {$v = (int) $v;}});
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
@@ -213,7 +211,7 @@ class Comments
             if (!empty($words)) {
                 # --BEHAVIOR coreCommentSearch
                 if (dotclear()->behavior()->has('coreCommentSearch')) {
-                    dotclear()->behavior()->call('coreCommentSearch', [&$words, &$strReq, &$params]);
+                    dotclear()->behavior()->call('coreCommentSearch', [&$words, &$sql, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -255,9 +253,9 @@ class Comments
     /**
      * Creates a new comment. Takes a cursor as input and returns the new comment ID.
      *
-     * @param      Cursor  $cur    The comment cursor
+     * @param   Cursor  $cur    The comment cursor
      *
-     * @return     int
+     * @return  int
      */
     public function addComment(Cursor $cur): int
     {
@@ -270,17 +268,17 @@ class Comments
                 'FROM ' . dotclear()->prefix . 'comment '
             );
 
-            $cur->comment_id    = $rs->fInt() + 1;
-            $cur->comment_upddt = date('Y-m-d H:i:s');
+            $cur->setField('comment_id', $rs->fInt() + 1);
+            $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
 
-            $offset          = Dt::getTimeOffset(dotclear()->blog()->settings()->system->blog_timezone);
-            $cur->comment_dt = date('Y-m-d H:i:s', time() + $offset);
-            $cur->comment_tz = dotclear()->blog()->settings()->system->blog_timezone;
+            $offset = Dt::getTimeOffset(dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+            $cur->setField('comment_dt', date('Y-m-d H:i:s', time() + $offset));
+            $cur->setField('comment_tz', dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
 
             $this->getCommentCursor($cur);
 
-            if ($cur->comment_ip === null) {
-                $cur->comment_ip = Http::realIP();
+            if (null === $cur->getField('comment_ip')) {
+                $cur->setField('comment_ip', Http::realIP());
             }
 
             # --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
@@ -297,29 +295,27 @@ class Comments
         # --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
         dotclear()->behavior()->call('coreAfterCommentCreate', $this, $cur);
 
-        dotclear()->blog()->triggerComment($cur->comment_id);
-        if ($cur->comment_status != -2) {
+        dotclear()->blog()->triggerComment($cur->getField('comment_id'));
+        if (-2 != $cur->getField('comment_status')) {
             dotclear()->blog()->triggerBlog();
         }
 
-        return (int) $cur->comment_id;
+        return $cur->getField('comment_id');
     }
 
     /**
      * Updates an existing comment.
      *
-     * @param      int      $id     The comment identifier
-     * @param      Cursor   $cur    The comment cursor
+     * @param   int     $id     The comment identifier
+     * @param   Cursor  $cur    The comment cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     public function updComment(int $id, Cursor $cur): void
     {
         if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
         }
-
-        $id = (int) $id;
 
         if (empty($id)) {
             throw new CoreException(__('No such comment ID'));
@@ -333,14 +329,14 @@ class Comments
 
         #If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            if ($rs->user_id != dotclear()->user()->userID()) {
+            if ($rs->f('user_id') != dotclear()->user()->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
 
         $this->getCommentCursor($cur);
 
-        $cur->comment_upddt = date('Y-m-d H:i:s');
+        $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
 
         if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             $cur->unsetField('comment_status');
@@ -361,30 +357,29 @@ class Comments
     /**
      * Updates comment status.
      *
-     * @param      int      $id      The comment identifier
-     * @param      int      $status  The comment status
+     * @param   int     $id         The comment identifier
+     * @param   int     $status     The comment status
      */
     public function updCommentStatus(int $id, int $status): void
     {
-        $this->updCommentsStatus($id, $status);
+        $this->updCommentsStatus([$id], $status);
     }
 
     /**
      * Updates comments status.
      *
-     * @param      int|array|ArrayObject    $ids     The identifiers
-     * @param      int                      $status  The status
+     * @param   array|ArrayObject   $ids        The identifiers
+     * @param   int                 $status     The status
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function updCommentsStatus($ids, int $status): void
+    public function updCommentsStatus(array|ArrayObject $ids, int $status): void
     {
         if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
         $co_ids = dotclear()->blog()->cleanIds($ids);
-        $status = (int) $status;
 
         $strReq = 'UPDATE ' . dotclear()->prefix . 'comment ' .
             'SET comment_status = ' . $status . ' ';
@@ -404,21 +399,21 @@ class Comments
     /**
      * Delete a comment.
      *
-     * @param      int  $id     The comment identifier
+     * @param   int     $id     The comment identifier
      */
     public function delComment(int $id): void
     {
-        $this->delComments($id);
+        $this->delComments([$id]);
     }
 
     /**
      * Delete comments.
      *
-     * @param      int|array|ArrayObject    $ids    The comments identifiers
+     * @param   array|ArrayObject   $ids    The comments identifiers
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function delComments($ids): void
+    public function delComments(array|ArrayObject $ids): void
     {
         if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
@@ -440,7 +435,7 @@ class Comments
         $rs = dotclear()->con()->select($strReq);
 
         while ($rs->fetch()) {
-            $affected_posts[] = (int) $rs->post_id;
+            $affected_posts[] = $rs->fInt('post_id');
         }
 
         $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
@@ -461,7 +456,7 @@ class Comments
     /**
      * Delete Junk comments
      *
-     * @throws     CoreException  (description)
+     * @throws  CoreException  (description)
      */
     public function delJunkComments():void
     {
@@ -486,39 +481,39 @@ class Comments
     /**
      * Gets the comment cursor.
      *
-     * @param      Cursor     $cur    The comment cursor
+     * @param   Cursor  $cur    The comment cursor
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     private function getCommentCursor(Cursor $cur): void
     {
-        if ($cur->comment_content !== null && $cur->comment_content == '') {
+        if (null !== $cur->getField('comment_content') && '' == $cur->getField('comment_content')) {
             throw new CoreException(__('You must provide a comment'));
         }
 
-        if ($cur->comment_author !== null && $cur->comment_author == '') {
+        if (null !== $cur->getField('comment_author') && '' == $cur->getField('comment_author')) {
             throw new CoreException(__('You must provide an author name'));
         }
 
-        if ($cur->comment_email != '' && !Text::isEmail($cur->comment_email)) {
+        if ('' != $cur->getField('comment_email') && !Text::isEmail($cur->getField('comment_email'))) {
             throw new CoreException(__('Email address is not valid.'));
         }
 
-        if ($cur->comment_site !== null && $cur->comment_site != '') {
-            if (!preg_match('|^http(s?)://|i', $cur->comment_site, $matches)) {
-                $cur->comment_site = 'http://' . $cur->comment_site;
+        if (null !== $cur->getField('comment_site') && '' != $cur->getField('comment_site')) {
+            if (!preg_match('|^http(s?)://|i', $cur->getField('comment_site'), $matches)) {
+                $cur->setField('comment_site', 'http://' . $cur->getField('comment_site'));
             } else {
-                $cur->comment_site = strtolower($matches[0]) . substr($cur->comment_site, strlen($matches[0]));
+                $cur->setField('comment_site', strtolower($matches[0]) . substr($cur->getField('comment_site'), strlen($matches[0])));
             }
         }
 
-        if ($cur->comment_status === null) {
-            $cur->comment_status = (int) dotclear()->blog()->settings()->system->comments_pub;
+        if (null === $cur->getField('comment_status')) {
+            $cur->setField('comment_status', (int) dotclear()->blog()->settings()->get('system')->get('comments_pub'));
         }
 
         # Words list
-        if ($cur->comment_content !== null) {
-            $cur->comment_words = implode(' ', Text::splitWords($cur->comment_content));
+        if (null !== $cur->getField('comment_content')) {
+            $cur->setField('comment_words', implode(' ', Text::splitWords($cur->getField('comment_content'))));
         }
     }
 }

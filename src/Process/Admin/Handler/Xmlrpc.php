@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use DOtclear\Core\Xmlrpc\Xmlrpc;
+use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
 use Dotclear\Helper\Network\Http;
 
 class Xmlrpc extends Page
@@ -45,7 +45,7 @@ class Xmlrpc extends Page
         dotclear()->setBlog($blog_id);
 
         # Start XML-RPC server
-        $xmlrpc = new Xmlrpc($blog_id);
+        $xmlrpc = new CoreXmlrpc($blog_id);
         $xmlrpc->serve();
 
         return null;

@@ -19,9 +19,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Database\Record;
 
-class RsExtComment
+class RsExtComment extends RsExtend
 {
     public static function spamFilter(Record $rs): ?string
     {

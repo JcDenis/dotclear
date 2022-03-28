@@ -32,7 +32,7 @@ class Prepend extends Core
         } elseif (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
             $dc_conf = realpath($_SERVER['DOTCLEAR_CONFIG_PATH']);
         } else {
-            $dc_conf = DOTCLEAR_ROOT_DIR . '/config.php';
+            $dc_conf = \DOTCLEAR_ROOT_DIR . '/config.php';
         }
 
         if (!is_file($dc_conf)) {

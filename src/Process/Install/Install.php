@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
+use DateTimeZone;
+
 use Dotclear\Container\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
+use Dotclear\Exception\InstallException;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Text;
 use Dotclear\Helper\File\Path;
@@ -370,27 +373,8 @@ class Install
             '<p><input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>';
         } elseif ($can_install && $step == 1) {
-            # Plugins install messages
-            $plugins_install_result = '';
-            if (!empty($plugins_install['success'])) {
-                $plugins_install_result .= '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
-                foreach ($plugins_install['success'] as $k => $v) {
-                    $plugins_install_result .= '<li>' . $k . '</li>';
-                }
-                $plugins_install_result .= '</ul></div>';
-            }
-            if (!empty($plugins_install['failure'])) {
-                $plugins_install_result .= '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
-                foreach ($plugins_install['failure'] as $k => $v) {
-                    $plugins_install_result .= '<li>' . $k . ' (' . $v . ')</li>';
-                }
-                $plugins_install_result .= '</ul></div>';
-            }
-
             echo
             '<h2>' . __('All done!') . '</h2>' .
-
-            $plugins_install_result .
 
             '<p class="success" role="alert">' . __('Dotclear has been successfully installed. Here is some useful information you should keep.') . '</p>' .
 

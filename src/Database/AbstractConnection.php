@@ -48,9 +48,9 @@ abstract class AbstractConnection
             $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
         }
 
-        # You can set DOTCLEAR_CON_CLASS to whatever you want.
+        # You can set \DOTCLEAR_CON_CLASS to whatever you want.
         # Your new class *should* inherits Dotclear\Database\AbstractConnection class.
-        $class = defined('DOTCLEAR_CON_CLASS') ? DOTCLEAR_CON_CLASS : $class;
+        $class = defined('DOTCLEAR_CON_CLASS') ? \DOTCLEAR_CON_CLASS : $class;
 
         if (!class_exists($class) || !is_subclass_of($class, $parent)) {
             trigger_error(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));

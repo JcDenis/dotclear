@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Feed;
 
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Network\Feed\Parser;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class Reader extends NetHttp
@@ -50,10 +51,10 @@ class Reader extends NetHttp
      * Returns a new Parser instance for given URL or false if source URL is
      * not a valid feed.
      *
-     * @uses feedParser
+     * @uses Parser
      *
      * @param string    $url            Feed URL
-     * @return feedParser|false
+     * @return Parser|false
      */
     public function parse($url)
     {
@@ -75,12 +76,12 @@ class Reader extends NetHttp
     /**
      * Quick Parse
      *
-     * This static method returns a new {@link feedParser} instance for given URL. If a
+     * This static method returns a new {@link Parser} instance for given URL. If a
      * <var>$cache_dir</var> is specified, cache will be activated.
      *
      * @param string    $url            Feed URL
      * @param string    $cache_dir    Cache directory
-     * @return feedParser|false
+     * @return Parser|false
      */
     public static function quickParse($url, $cache_dir = null)
     {
@@ -156,11 +157,11 @@ class Reader extends NetHttp
     /**
      * Cache content
      *
-     * Returns feedParser object from cache if present or write it to cache and
+     * Returns Parser object from cache if present or write it to cache and
      * returns result.
      *
      * @param string    $url            Feed URL
-     * @return feedParser|false
+     * @return Parser|false
      */
     protected function withCache($url)
     {

@@ -19,7 +19,8 @@ use Dotclear\Core\Media\PostMedia;
 use Dotclear\Core\Media\Image\ImageTools;
 use Dotclear\Core\Media\Image\ImageMeta;
 use Dotclear\Core\Media\Manager\Manager;
-use Dotclear\Core\Media\Manager\Item as fileItem;
+use Dotclear\Core\Media\Manager\Item;
+use Dotclear\Database\Cursor;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -67,7 +68,7 @@ class Media extends Manager
      *
      * @param      string     $type   The media type filter
      *
-     * @throws     Exception  (description)
+     * @throws     CoreException
      */
     public function __construct(protected string $type = '')
     {
@@ -95,7 +96,7 @@ class Media extends Manager
 
         $this->path = dotclear()->blog()->settings()->system->public_path;
 //!
-        $this->addExclusion(DOTCLEAR_ROOT_DIR);
+        $this->addExclusion(dotclear()->config()->root_dir);
         $this->addExclusion(__DIR__ . '/../');
 
         $this->exclude_pattern = dotclear()->blog()->settings()->system->media_exclusion;
@@ -213,7 +214,7 @@ class Media extends Manager
         }
 
         if (!$this->isFileExclude($this->root . '/' . $rs->media_file) && is_file($this->root . '/' . $rs->media_file)) {
-            $f = new fileItem($this->root . '/' . $rs->media_file, $this->root, $this->root_url);
+            $f = new Item($this->root . '/' . $rs->media_file, $this->root, $this->root_url);
 
             if ($this->type && $f->type_prefix != $this->type) {
                 return;
@@ -435,8 +436,6 @@ class Media extends Manager
      * Gets current working directory content.
      *
      * @param      mixed      $type   The media type filter
-     *
-     * @throws     Exception
      */
     public function getDir($type = null)
     {
@@ -589,7 +588,7 @@ class Media extends Manager
      *
      * @param      mixed  $id     The file identifier
      *
-     * @return     fileItem  The file.
+     * @return     Item  The file.
      */
     public function getFile($id)
     {
@@ -689,13 +688,13 @@ class Media extends Manager
 
     /**
      * Returns media items attached to a blog post. Result is an array containing
-     * fileItems objects.
+     * Item objects.
      *
      * @param      integer  $post_id    The post identifier
      * @param      mixed    $media_id   The media identifier
      * @param      mixed    $link_type  The link type
      *
-     * @return     array   Array of fileItems.
+     * @return     array   Array of Item.
      */
     public function getPostMedia($post_id, $media_id = null, $link_type = null)
     {
@@ -730,7 +729,7 @@ class Media extends Manager
      *
      * @param      string     $pwd    The directory to rebuild
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function rebuild($pwd = '')
     {
@@ -810,7 +809,7 @@ class Media extends Manager
      * @param      mixed      $dt       File date
      * @param      bool       $force    The force flag
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     integer|bool     New media ID or false
      */
@@ -899,10 +898,10 @@ class Media extends Manager
     /**
      * Updates a file in database.
      *
-     * @param      fileItem     $file     The file
-     * @param      fileItem     $newFile  The new file
+     * @param      Item     $file     The file
+     * @param      Item     $newFile  The new file
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function updateFile($file, $newFile)
     {
@@ -972,7 +971,7 @@ class Media extends Manager
      * @param      bool       $private    File is private
      * @param      bool       $overwrite  File should be overwrite
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     mixed      New media ID or false
      */
@@ -995,7 +994,7 @@ class Media extends Manager
      * @param      string     $name   The file name (relative to working directory)
      * @param      mixed      $bits   The binary file contentits
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     mixed      New media ID or false
      */
@@ -1017,7 +1016,7 @@ class Media extends Manager
      *
      * @param      string     $f      filename
      *
-     * @throws     Exception
+     * @throws     CoreException
      */
     public function removeFile($f)
     {
@@ -1053,7 +1052,7 @@ class Media extends Manager
      *
      * Returns an array of directory under {@link $root} directory.
      *
-     * @uses fileItem
+     * @uses Item
      *
      * @return array
      */
@@ -1081,10 +1080,10 @@ class Media extends Manager
     /**
      * Extract zip file in current location.
      *
-     * @param      fileItem     $f           fileItem object
+     * @param      Item         $f           Item object
      * @param      bool         $create_dir  Create dir
      *
-     * @throws     Exception
+     * @throws     CoreException
      *
      * @return     string     destination
      */
@@ -1139,7 +1138,7 @@ class Media extends Manager
     /**
      * Gets the zip content.
      *
-     * @param      fileItem  $f      fileItem object
+     * @param      Item  $f      Item object
      *
      * @return     array  The zip content.
      */
@@ -1155,7 +1154,7 @@ class Media extends Manager
     /**
      * Calls file handlers registered for recreate event.
      *
-     * @param      fileItem  $f      fileItem object
+     * @param      Item  $f      Item object
      */
     public function mediaFireRecreateEvent($f)
     {
@@ -1168,11 +1167,11 @@ class Media extends Manager
     /**
      * Create image thumbnails
      *
-     * @param      mixed   $cur    The cursor
-     * @param      string  $f      Image filename
-     * @param      bool    $force  Force creation
+     * @param   Cursor|null     $cur    The cursor
+     * @param   string          $f      Image filename
+     * @param   bool            $force  Force creation
      *
-     * @return     mixed
+     * @return  mixed
      */
     public function imageThumbCreate($cur, $f, $force = true)
     {
@@ -1226,8 +1225,8 @@ class Media extends Manager
     /**
      * Update image thumbnails
      *
-     * @param      fileItem  $file     The file
-     * @param      fileItem  $newFile  The new file
+     * @param      Item  $file     The file
+     * @param      Item  $newFile  The new file
      */
     protected function imageThumbUpdate($file, $newFile)
     {
@@ -1295,7 +1294,7 @@ class Media extends Manager
     /**
      * Create image meta
      *
-     * @param      cursor  $cur    The cursor
+     * @param      Cursor  $cur    The cursor
      * @param      string  $f      Image filename
      * @param      mixed   $id     The media identifier
      *

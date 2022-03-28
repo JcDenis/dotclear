@@ -42,14 +42,14 @@ abstract class NestedTree
     /**
      * Gets the children.
      *
-     * @param      mixed         $start   The start
-     * @param      mixed         $id      The identifier
-     * @param      string        $sort    The sort
-     * @param      array         $fields  The fields
+     * @param   int         $start      The start
+     * @param   int|null    $id         The identifier
+     * @param   string      $sort       The sort
+     * @param   array       $fields     The fields
      *
-     * @return     record        The children.
+     * @return  Record                  The children.
      */
-    public function getChildren($start = 0, $id = null, $sort = 'asc', $fields = [])
+    public function getChildren(int $start = 0, ?int $id = null, string $sort = 'asc', array $fields = []): Record
     {
         $fields = count($fields) > 0 ? ', C2.' . implode(', C2.', $fields) : '';
 
@@ -65,15 +65,15 @@ abstract class NestedTree
         . 'ORDER BY C2.' . $this->f_left . ' ' . ($sort == 'asc' ? 'ASC' : 'DESC') . ' ';
 
         $from = $where = '';
-        if ($start > 0) {
+        if (0 < $start) {
             $from  = ', ' . $this->table . ' AS C3';
-            $where = 'AND C3.' . $this->f_id . ' = ' . (int) $start . ' AND C1.' . $this->f_left . ' >= C3.' . $this->f_left . ' AND C1.' . $this->f_right . ' <= C3.' . $this->f_right;
+            $where = 'AND C3.' . $this->f_id . ' = ' . $start . ' AND C1.' . $this->f_left . ' >= C3.' . $this->f_left . ' AND C1.' . $this->f_right . ' <= C3.' . $this->f_right;
             $where .= $this->getCondition('AND', 'C3.');
         }
 
         $having = '';
-        if ($id !== null) {
-            $having = ' HAVING C2.' . $this->f_id . ' = ' . (int) $id;
+        if (null !== $id) {
+            $having = ' HAVING C2.' . $this->f_id . ' = ' . $id;
         }
 
         $sql = sprintf($sql, $from, $where, $having);
@@ -84,19 +84,19 @@ abstract class NestedTree
     /**
      * Gets the parents.
      *
-     * @param      mixed         $id      The identifier
-     * @param      array         $fields  The fields
+     * @param   int     $id         The identifier
+     * @param   array   $fields     The fields
      *
-     * @return     record        The parents.
+     * @return  Record              The parents.
      */
-    public function getParents($id, $fields = [])
+    public function getParents(int $id, array $fields = []): Record
     {
         $fields = count($fields) > 0 ? ', C1.' . implode(', C1.', $fields) : '';
 
         return $this->con->select(
             'SELECT C1.' . $this->f_id . ' ' . $fields . ' '
             . 'FROM ' . $this->table . ' C1, ' . $this->table . ' C2 '
-            . 'WHERE C2.' . $this->f_id . ' = ' . (int) $id . ' '
+            . 'WHERE C2.' . $this->f_id . ' = ' . $id . ' '
             . 'AND C1.' . $this->f_left . ' < C2.' . $this->f_left . ' '
             . 'AND C1.' . $this->f_right . ' > C2.' . $this->f_right . ' '
             . $this->getCondition('AND', 'C2.')
@@ -108,19 +108,19 @@ abstract class NestedTree
     /**
      * Gets the parent.
      *
-     * @param      mixed        $id      The identifier
-     * @param      array        $fields  The fields
+     * @param   int     $id         The identifier
+     * @param   array   $fields     The fields
      *
-     * @return     record        The parent.
+     * @return  Record              The parent.
      */
-    public function getParent($id, $fields = [])
+    public function getParent(int $id, array $fields = []): Record
     {
         $fields = count($fields) > 0 ? ', C1.' . implode(', C1.', $fields) : '';
 
         return $this->con->select(
             'SELECT C1.' . $this->f_id . ' ' . $fields . ' '
             . 'FROM ' . $this->table . ' C1, ' . $this->table . ' C2 '
-            . 'WHERE C2.' . $this->f_id . ' = ' . (int) $id . ' '
+            . 'WHERE C2.' . $this->f_id . ' = ' . $id . ' '
             . 'AND C1.' . $this->f_left . ' < C2.' . $this->f_left . ' '
             . 'AND C1.' . $this->f_right . ' > C2.' . $this->f_right . ' '
             . $this->getCondition('AND', 'C2.')
@@ -136,14 +136,14 @@ abstract class NestedTree
     /**
      * Adds a node.
      *
-     * @param      mixed      $data    The data
-     * @param      int        $target  The target
+     * @param   mixed   $data       The data
+     * @param   int     $target     The target
      *
-     * @throws     Exception
+     * @throws  Exception
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function addNode($data, $target = 0)
+    public function addNode(mixed $data, int $target = 0): mixed
     {
         if (!is_array($data) && !($data instanceof cursor)) {
             throw new DatabaseException('Invalid data block');
@@ -195,11 +195,11 @@ abstract class NestedTree
     /**
      * Update position
      *
-     * @param      mixed  $id     The identifier
-     * @param      mixed  $left   The left
-     * @param      mixed  $right  The right
+     * @param   mixed   $id     The identifier
+     * @param   mixed   $left   The left
+     * @param   mixed   $right  The right
      */
-    public function updatePosition($id, $left, $right)
+    public function updatePosition(mixed $id, mixed $left, mixed $right): void
     {
         $node_left  = (int) $left;
         $node_right = (int) $right;
@@ -225,12 +225,12 @@ abstract class NestedTree
     /**
      * Delete a node
      *
-     * @param      mixed      $node           The node
-     * @param      bool       $keep_children  keep children
+     * @param   mixed   $node           The node
+     * @param   bool    $keep_children  keep children
      *
-     * @throws     Exception
+     * @throws  Exception
      */
-    public function deleteNode($node, $keep_children = true)
+    public function deleteNode(mixed $node, bool $keep_children = true): void
     {
         $node = (int) $node;
 
@@ -296,7 +296,7 @@ abstract class NestedTree
     /**
      * Reset order
      */
-    public function resetOrder()
+    public function resetOrder(): void
     {
         $rs = $this->con->select(
             'SELECT ' . $this->f_id . ' '
@@ -329,12 +329,12 @@ abstract class NestedTree
     /**
      * Sets the node parent.
      *
-     * @param      mixed        $node    The node
-     * @param      mixed        $target  The target
+     * @param   mixed   $node       The node
+     * @param   mixed   $target     The target
      *
-     * @throws     Exception
+     * @throws  Exception
      */
-    public function setNodeParent($node, $target = 0)
+    public function setNodeParent(mixed $node, mixed $target = 0): void
     {
         if ($node == $target) {
             return;
@@ -434,13 +434,13 @@ abstract class NestedTree
     /**
      * Sets the node position.
      *
-     * @param      mixed     $nodeA     The node a
-     * @param      mixed     $nodeB     The node b
-     * @param      string    $position  The position
+     * @param   mixed   $nodeA      The node a
+     * @param   mixed   $nodeB      The node b
+     * @param   string  $position   The position
      *
-     * @throws     Exception
+     * @throws  Exception
      */
-    public function setNodePosition($nodeA, $nodeB, $position = 'after')
+    public function setNodePosition(mixed $nodeA, mixed $nodeB, string $position = 'after'): void
     {
         $nodeA = (int) $nodeA;
         $nodeB = (int) $nodeB;
@@ -515,12 +515,12 @@ abstract class NestedTree
     /**
      * Gets the condition.
      *
-     * @param      string  $start   The start
-     * @param      string  $prefix  The prefix
+     * @param   string  $start      The start
+     * @param   string  $prefix     The prefix
      *
-     * @return     string  The condition.
+     * @return  string              The condition.
      */
-    protected function getCondition($start = 'AND', $prefix = '')
+    protected function getCondition(string $start = 'AND', string $prefix = ''): string
     {
         if (empty($this->add_condition)) {
             return '';

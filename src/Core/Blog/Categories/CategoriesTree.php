@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Categories;
 
 use Dotclear\Database\NestedTree;
+use Dotclear\Database\Record;
 
 class CategoriesTree extends NestedTree
 {
@@ -38,14 +39,14 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the category children.
      *
-     * @param      int     $start   The start
-     * @param      mixed   $id      The identifier
-     * @param      string  $sort    The sort
-     * @param      array   $fields  The fields
+     * @param   int         $start      The start
+     * @param   int|null    $id         The identifier
+     * @param   string      $sort       The sort
+     * @param   array       $fields     The fields
      *
-     * @return     record  The children.
+     * @return  Record                  The children.
      */
-    public function getChildren($start = 0, $id = null, $sort = 'asc', $fields = [])
+    public function getChildren(int $start = 0, ?int $id = null, string $sort = 'asc', array $fields = []): Record
     {
         $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
 
@@ -55,12 +56,12 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the parents.
      *
-     * @param      int     $id      The category identifier
-     * @param      array   $fields  The fields
+     * @param   int     $id         The identifier
+     * @param   array   $fields     The fields
      *
-     * @return     record  The parents.
+     * @return  Record              The parents.
      */
-    public function getParents($id, $fields = [])
+    public function getParents(int $id, array $fields = []): Record
     {
         $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
 
@@ -70,12 +71,12 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the parent.
      *
-     * @param      integer  $id      The category identifier
-     * @param      array    $fields  The fields
+     * @param   int     $id         The identifier
+     * @param   array   $fields     The fields
      *
-     * @return     record  The parent.
+     * @return  Record              The parent.
      */
-    public function getParent($id, $fields = [])
+    public function getParent(int $id, array $fields = []): Record
     {
         $fields = array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields);
 
