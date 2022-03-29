@@ -134,7 +134,7 @@ class MediaItem extends Page
                 $newFile->relname = $newFile->basename;
             }
             $newFile->media_title = Html::escapeHTML($_POST['media_title']);
-            $newFile->media_dt    = strtotime($_POST['media_dt']);
+            $newFile->media_dt    = (int) strtotime($_POST['media_dt']);
             $newFile->media_dtstr = $_POST['media_dt'];
             $newFile->media_priv  = !empty($_POST['media_private']);
 
@@ -830,7 +830,7 @@ class MediaItem extends Page
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
             }
             echo
-            Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', $this->file->media_dt))]) .
+            Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->file->media_dt))]) .
             '</p>' .
             '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->file->media_priv) . ' ' .
             __('Private') . '</label></p>' .

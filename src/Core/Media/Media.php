@@ -257,7 +257,7 @@ class Media extends Manager
             $f->media_meta  = $meta instanceof \SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
             $f->media_user  = $rs->f('user_id');
             $f->media_priv  = (bool) $rs->f('media_private');
-            $f->media_dt    = strtotime($rs->f('media_dt'));
+            $f->media_dt    = (int) strtotime($rs->f('media_dt'));
             $f->media_dtstr = Dt::str('%Y-%m-%d %H:%M', $f->media_dt);
 
             $f->media_image = false;
@@ -857,7 +857,7 @@ class Media extends Manager
                 $cur->setField('media_upddt', date('Y-m-d H:i:s'));
                 $cur->setField('media_title', !$title ? (string) $name : (string) $title);
                 $cur->setField('media_private', (int) (bool) $private);
-                $cur->setField('media_dt', $dt ? (string) $dt : @strftime('%Y-%m-%d %H:%M:%S', filemtime($file)));
+                $cur->setField('media_dt', (string) ($dt ? $dt : @strftime('%Y-%m-%d %H:%M:%S', filemtime($file))));
 
                 try {
                     $cur->insert();
@@ -1319,7 +1319,7 @@ class Media extends Manager
         if ($meta['DateTimeOriginal'] && '' === $cur->getField('media_dt')) {
             # We set picture time to user timezone
             $media_ts = strtotime($meta['DateTimeOriginal']);
-            if ($media_ts !== false) {
+            if (false !== $media_ts) {
                 $o           = Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'), $media_ts);
                 $c->setField('media_dt', Dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o));
             }

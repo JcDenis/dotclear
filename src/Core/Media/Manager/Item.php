@@ -97,11 +97,11 @@ class Item
     /** @var    string  $media_user     Media owner */
     public $media_user  = '';
 
-    /** @var    bool   $media_priv   Media is private *:
+    /** @var    bool   $media_priv   Media is private */
     public $media_priv  = false;
 
-    /** @var    string  $media_dt   Media date */
-    public $media_dt    = '';
+    /** @var    int     $media_dt   Media date */
+    public $media_dt    = 0;
 
     /** @var    string  $media_dtstr    Media date */
     public $media_dtstr = '';
