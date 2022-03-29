@@ -111,7 +111,7 @@ class MediaItem extends Page
         if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                dotclear()->media()->uploadFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
+                dotclear()->media()->uploadMediaFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
 
                 dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
@@ -145,7 +145,7 @@ class MediaItem extends Page
                     foreach ($this->file->media_meta as $k => $v) {
                         if ($k == 'Description') {
                             // Update value
-                            $v[0] = $desc;  // @phpstan-ignore-line
+                            $v[0] = $desc;
 
                             break;
                         }
@@ -623,7 +623,7 @@ class MediaItem extends Page
                 $class = !$S || ($S[1] > 500) ? ' class="overheight"' : '';
                 unset($S);
                 echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->file->file_url . '">' .
-                '<img src="' . $this->file->file_url . '?' . time() * rand() . '" alt="" />' .
+                '<img src="' . $this->file->file_url . '&' . time() * rand() . '" alt="" />' .
                     '</a></p>';
             }
 
@@ -952,7 +952,7 @@ class MediaItem extends Page
                 $local .= '.json';
             }
             if (file_exists($local)) {
-                if ($specifics = json_decode(file_get_contents($local) ?? '', true)) {  // @phpstan-ignore-line
+                if ($specifics = json_decode(file_get_contents($local) ?? '', true)) {
                     foreach ($defaults as $key => $value) {
                         $defaults[$key]       = $specifics[$key] ?? $defaults[$key];
                         $defaults['mediadef'] = true;

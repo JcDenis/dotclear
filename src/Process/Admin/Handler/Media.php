@@ -196,7 +196,7 @@ class Media extends Page
 
                 try {
                     Files::uploadStatus($upfile);
-                    $new_file_id = (string) dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
+                    $new_file_id = (int) dotclear()->media()->uploadMediaFile($upfile['tmp_name'], $upfile['name'], $upfile['title']);
 
                     $message['files'][] = [
                         'name' => $upfile['name'],
@@ -220,7 +220,7 @@ class Media extends Page
                 $f_title   = (isset($_POST['upfiletitle']) ? Html::escapeHTML($_POST['upfiletitle']) : '');
                 $f_private = ($_POST['upfilepriv'] ?? false);
 
-                dotclear()->media()->uploadFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
+                dotclear()->media()->uploadMediaFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
 
                 dotclear()->notice()->addSuccessNotice(__('Files have been successfully uploaded.'));
                 dotclear()->adminurl()->redirect('admin.media', $this->filter->values());
@@ -722,11 +722,11 @@ class Media extends Page
     /**
      * Return html code of an element of list or grid items list
      *
-     * @param   string  $file_id    The file id
+     * @param   int     $file_id    The file id
      *
      * @return  string              The element
      */
-    public function mediaLine(string $file_id): string
+    public function mediaLine(int $file_id): string
     {
         return $this->inventory ? $this->inventory->mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query) : '';
     }

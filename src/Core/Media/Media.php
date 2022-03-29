@@ -15,12 +15,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media;
 
+use Closure;
 use Dotclear\Core\Media\PostMedia;
 use Dotclear\Core\Media\Image\ImageTools;
 use Dotclear\Core\Media\Image\ImageMeta;
 use Dotclear\Core\Media\Manager\Manager;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -34,17 +36,30 @@ use Dotclear\Helper\Text;
 
 class Media extends Manager
 {
-    protected $table; ///< <b>string</b> Media table name
+    /** @var    string  $table  Media table name */
+    protected $table = 'media';
+
+    /** @var    string  $file_sort  Sort field */
     protected $file_sort = 'name-asc';
 
-    protected $path;
-    protected $relpwd;
+    /** @var    string  $path   Media path */
+    protected $path = '';
 
-    protected $file_handler = []; ///< <b>array</b> Array of callbacks
+    /** @var    string  $relpwd     Relative path */
+    protected $relpwd = '';
 
-    public $thumb_tp       = '%s/.%s_%s.jpg';  ///< <b>string</b> Thumbnail file pattern
-    public $thumb_tp_alpha = '%s/.%s_%s.png';  ///< <b>string</b> Thumbnail file pattern (with alpha layer)
-    public $thumb_tp_webp  = '%s/.%s_%s.webp'; ///< <b>string</b> Thumbnail file pattern (webp)
+    /** @var    array   $file_handler   File handler callback */
+    protected $file_handler = [];
+
+    /** @var    string  $thumb_tp   Thumbnail file pattern */
+    public $thumb_tp = '%s/.%s_%s.jpg';
+
+    /** @var    string  $thumb_tp_alpha     Thumbnail file pattern (with alpha layer) */ 
+    public $thumb_tp_alpha = '%s/.%s_%s.png';
+
+    /** @var    string  $thumb_tp_webp  Thumbnail file pattern (webp) */
+    public $thumb_tp_webp = '%s/.%s_%s.webp';
+
     /**
      * Tubmnail sizes:
      * - m: medium image
@@ -52,7 +67,7 @@ class Media extends Manager
      * - t: thumbnail image
      * - sq: square image
      *
-     * @var        array
+     * @var     array   $thumb_sizes    Tubmnail sizes
      */
     public $thumb_sizes = [
         'm'  => [448, 'ratio', 'medium'],
@@ -61,18 +76,19 @@ class Media extends Manager
         'sq' => [48, 'crop', 'square'],
     ];
 
-    public $icon_img = '?df=images/media/%s.png'; ///< <b>string</b> Icon file pattern
+    /** @var    string  $icon_img   Icon file URL pattern */
+    public $icon_img = '?df=images/media/%s.png';
 
     /**
-     * Constructs a new instance.
+     * Constructor
      *
-     * @param      string     $type   The media type filter
+     * @param   string  $type   The media type filter
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
     public function __construct(protected string $type = '')
     {
-        if (dotclear()->blog() == null) {
+        if (!dotclear()->blog()) {
             throw new CoreException(__('No blog defined.'));
         }
 
@@ -94,12 +110,12 @@ class Media extends Manager
 
         $this->chdir('');
 
-        $this->path = dotclear()->blog()->settings()->system->public_path;
+        $this->path = (string) dotclear()->blog()->settings()->get('system')->get('public_path');
 //!
-        $this->addExclusion(dotclear()->config()->root_dir);
+        $this->addExclusion(dotclear()->config()->get('root_dir'));
         $this->addExclusion(__DIR__ . '/../');
 
-        $this->exclude_pattern = dotclear()->blog()->settings()->system->media_exclusion;
+        $this->exclude_pattern = dotclear()->blog()->settings()->get('system')->get('media_exclusion');
 
         # Event handlers
         $this->addFileHandler('image/jpeg', 'create', [$this, 'imageThumbCreate']);
@@ -126,9 +142,9 @@ class Media extends Manager
         $this->addFileHandler('image/webp', 'recreate', [$this, 'imageThumbCreate']);
 
         # Thumbnails sizes
-        $this->thumb_sizes['m'][0] = abs(dotclear()->blog()->settings()->system->media_img_m_size);
-        $this->thumb_sizes['s'][0] = abs(dotclear()->blog()->settings()->system->media_img_s_size);
-        $this->thumb_sizes['t'][0] = abs(dotclear()->blog()->settings()->system->media_img_t_size);
+        $this->thumb_sizes['m'][0] = abs(dotclear()->blog()->settings()->get('system')->get('media_img_m_size'));
+        $this->thumb_sizes['s'][0] = abs(dotclear()->blog()->settings()->get('system')->get('media_img_s_size'));
+        $this->thumb_sizes['t'][0] = abs(dotclear()->blog()->settings()->get('system')->get('media_img_t_size'));
 
         # Thumbnails sizes names
         $this->thumb_sizes['m'][2]  = __($this->thumb_sizes['m'][2]);
@@ -143,9 +159,9 @@ class Media extends Manager
     /**
      * Changes working directory.
      *
-     * @param      string  $dir    The directory name
+     * @param   string|null     $dir    The directory name
      */
-    public function chdir($dir)
+    public function chdir(?string $dir): void
     {
         parent::chdir($dir);
         $this->relpwd = preg_replace('/^' . preg_quote($this->root, '/') . '\/?/', '', $this->pwd);
@@ -159,18 +175,25 @@ class Media extends Manager
      * - update: file update
      * - remove: file deletion
      *
-     * @param      string    $type      The media type
-     * @param      string    $event     The event
-     * @param      callable  $function  The callback
+     * @param   string                  $type       The media type
+     * @param   string                  $event      The event
+     * @param   string|array|Closure    $function   The callback
      */
-    public function addFileHandler($type, $event, $function)
+    public function addFileHandler(string $type, string $event, string|array|Closure $function): void
     {
         if (is_callable($function)) {
             $this->file_handler[$type][$event][] = $function;
         }
     }
 
-    protected function callFileHandler($type, $event, ...$args)
+    /**
+     * Call file handler
+     * 
+     * @param   string  $type   The media type
+     * @param   string  $event  The event
+     * @param   mixed   $args   The callback
+     */
+    protected function callFileHandler(string $type, string $event, mixed ...$args): void
     {
         if (!empty($this->file_handler[$type][$event])) {
             foreach ($this->file_handler[$type][$event] as $f) {
@@ -182,20 +205,20 @@ class Media extends Manager
     /**
      * Returns HTML breadCrumb for media manager navigation.
      *
-     * @param      string  $href   The URL pattern
-     * @param      string  $last   The last item pattern
+     * @param   string  $href   The URL pattern
+     * @param   string  $last   The last item pattern
      *
-     * @return     string  HTML code
+     * @return  string          HTML code
      */
-    public function breadCrumb($href, $last = '')
+    public function breadCrumb(string $href, string $last = ''): string
     {
         $res = '';
-        if ($this->relpwd && $this->relpwd != '.') {
+        if ($this->relpwd && '.' != $this->relpwd) {
             $pwd   = '';
             $arr   = explode('/', $this->relpwd);
             $count = count($arr);
             foreach ($arr as $v) {
-                if (($last != '') && (0 === --$count)) {
+                if ('' != $last && 0 === --$count) {
                     $res .= sprintf($last, $v);
                 } else {
                     $pwd .= rawurlencode($v) . '/';
@@ -207,34 +230,41 @@ class Media extends Manager
         return $res;
     }
 
-    protected function fileRecord($rs)
+    /**
+     * Build record from mdeia item
+     * 
+     * @param   Record  $rs     Media record
+     * 
+     * @return  Item|null       Media Item
+     */
+    protected function fileRecord(Record $rs): ?Item
     {
-        if ($rs->isEmpty()) {
-            return;
-        }
-
-        if (!$this->isFileExclude($this->root . '/' . $rs->media_file) && is_file($this->root . '/' . $rs->media_file)) {
-            $f = new Item($this->root . '/' . $rs->media_file, $this->root, $this->root_url);
+        if (!$rs->isEmpty() 
+            && !$this->isFileExclude($this->root . '/' . $rs->f('media_file')) 
+            && is_file($this->root . '/' . $rs->f('media_file'))
+        ) {
+            $f = new Item($this->root . '/' . $rs->f('media_file'), $this->root, $this->root_url);
 
             if ($this->type && $f->type_prefix != $this->type) {
-                return;
+                return null;
             }
 
-            $meta = @simplexml_load_string((string) $rs->media_meta);
+            $meta = @simplexml_load_string((string) $rs->f('media_meta'));
 
             $f->editable    = true;
-            $f->media_id    = $rs->media_id;
-            $f->media_title = $rs->media_title;
+            $f->media_id    = $rs->f('media_id');
+            $f->media_title = $rs->f('media_title');
             $f->media_meta  = $meta instanceof \SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
-            $f->media_user  = $rs->user_id;
-            $f->media_priv  = (bool) $rs->media_private;
-            $f->media_dt    = strtotime($rs->media_dt);
+            $f->media_user  = $rs->f('user_id');
+            $f->media_priv  = (bool) $rs->f('media_private');
+            $f->media_dt    = strtotime($rs->f('media_dt'));
             $f->media_dtstr = Dt::str('%Y-%m-%d %H:%M', $f->media_dt);
 
             $f->media_image = false;
 
             if (!dotclear()->user()->check('media_admin', dotclear()->blog()->id)
-                && dotclear()->user()->userID() != $f->media_user) {
+                && dotclear()->user()->userID() != $f->media_user
+            ) {
                 $f->del      = false;
                 $f->editable = false;
             }
@@ -242,77 +272,50 @@ class Media extends Manager
             $type_prefix = explode('/', $f->type);
             $type_prefix = $type_prefix[0];
 
-            switch ($type_prefix) {
-                case 'image':
-                    $f->media_image = true;
-                    $f->media_icon  = 'image';
-
-                    break;
-                case 'audio':
-                    $f->media_icon = 'audio';
-
-                    break;
-                case 'text':
-                    $f->media_icon = 'text';
-
-                    break;
-                case 'video':
-                    $f->media_icon = 'video';
-
-                    break;
-                default:
-                    $f->media_icon = 'blank';
-            }
-            switch ($f->type) {
-                case 'application/msword':
-                case 'application/vnd.oasis.opendocument.text':
-                case 'application/vnd.sun.xml.writer':
-                case 'application/pdf':
-                case 'application/postscript':
-                    $f->media_icon = 'document';
-
-                    break;
-                case 'application/msexcel':
-                case 'application/vnd.oasis.opendocument.spreadsheet':
-                case 'application/vnd.sun.xml.calc':
-                    $f->media_icon = 'spreadsheet';
-
-                    break;
-                case 'application/mspowerpoint':
-                case 'application/vnd.oasis.opendocument.presentation':
-                case 'application/vnd.sun.xml.impress':
-                    $f->media_icon = 'presentation';
-
-                    break;
-                case 'application/x-debian-package':
-                case 'application/x-bzip':
-                case 'application/x-gzip':
-                case 'application/x-java-archive':
-                case 'application/rar':
-                case 'application/x-redhat-package-manager':
-                case 'application/x-tar':
-                case 'application/x-gtar':
-                case 'application/zip':
-                    $f->media_icon = 'package';
-
-                    break;
-                case 'application/octet-stream':
-                    $f->media_icon = 'executable';
-
-                    break;
-                case 'application/x-shockwave-flash':
-                    $f->media_icon = 'video';
-
-                    break;
-                case 'application/ogg':
-                    $f->media_icon = 'audio';
-
-                    break;
-                case 'text/html':
-                    $f->media_icon = 'html';
-
-                    break;
-            }
+            $f->media_icon = match ($type_prefix) {
+                'image' => 'image',
+                'audio' => 'audio',
+                'text'  => 'text',
+                'video' => 'video',
+                default => 'blank',
+            };
+            $f->media_image = 'image' == $f->media_icon;
+            $f->media_icon = match ($f->type) {
+                'application/msword',
+                'application/vnd.oasis.opendocument.text',
+                'application/vnd.sun.xml.writer',
+                'application/pdf',
+                'application/postscript',
+                    => 'document',
+                'application/msexcel',
+                'application/vnd.oasis.opendocument.spreadsheet',
+                'application/vnd.sun.xml.calc',
+                    => 'spreadsheet',
+                'application/mspowerpoint',
+                'application/vnd.oasis.opendocument.presentation',
+                'application/vnd.sun.xml.impress',
+                    => 'presentation',
+                'application/x-debian-package',
+                'application/x-bzip',
+                'application/x-gzip',
+                'application/x-java-archive',
+                'application/rar',
+                'application/x-redhat-package-manager',
+                'application/x-tar',
+                'application/x-gtar',
+                'application/zip',
+                    => 'package',
+                'application/octet-stream',
+                    => 'executable',
+                'application/x-shockwave-flash',
+                    => 'video',
+                'application/ogg',
+                    => 'audio',
+                'text/html',
+                    => 'html',
+                default 
+                    => $f->media_icon,
+            };
 
             $f->media_type = $f->media_icon;
             $f->media_icon = sprintf($this->icon_img, $f->media_icon);
@@ -362,72 +365,60 @@ class Media extends Manager
                 }
             }
 
-            if ($f->media_type === 'image') {
+            if ('image' === $f->media_type) {
                 if (isset($f->media_thumb['sq'])) {
                     $f->media_icon = $f->media_thumb['sq'];
-                } elseif (strtolower($p['extension']) === 'svg') {
+                } elseif ('svg' === strtolower($p['extension'])) {
                     $f->media_icon = $this->root_url . $p['dirname'] . '/' . $p['base'] . '.' . $p['extension'];
                 }
             }
 
             return $f;
         }
+
+        return null;
     }
 
     /**
      * Sets the file sort.
      *
-     * @param      string  $type   The type
+     * @param   string  $type   The type
      */
-    public function setFileSort($type = 'name')
+    public function setFileSort(string $type = 'name'): void
     {
         if (in_array($type, ['size-asc', 'size-desc', 'name-asc', 'name-desc', 'date-asc', 'date-desc'])) {
             $this->file_sort = $type;
         }
     }
 
-    protected function sortFileHandler($a, $b)
+    /**
+     * Sort file handler
+     * 
+     * @param   Item    $a
+     * @param   Item    $b
+     * 
+     * @return  int     Comparison result
+     */
+    protected function sortFileHandler(Item $a, Item $b): int
     {
         if (is_null($a) || is_null($b)) {
-            return (is_null($a) ? 1 : -1);
+            return is_null($a) ? 1 : -1;
         }
-        switch ($this->file_sort) {
-            case 'size-asc':
-                if ($a->size == $b->size) {
-                    return 0;
-                }
 
-                return ($a->size < $b->size) ? -1 : 1;
-            case 'size-desc':
-                if ($a->size == $b->size) {
-                    return 0;
-                }
-
-                return ($a->size > $b->size) ? -1 : 1;
-            case 'date-asc':
-                if ($a->media_dt == $b->media_dt) {
-                    return 0;
-                }
-
-                return ($a->media_dt < $b->media_dt) ? -1 : 1;
-            case 'date-desc':
-                if ($a->media_dt == $b->media_dt) {
-                    return 0;
-                }
-
-                return ($a->media_dt > $b->media_dt) ? -1 : 1;
-            case 'name-desc':
-                return strcasecmp($b->basename, $a->basename);
-            case 'name-asc':
-            default:
-                return strcasecmp($a->basename, $b->basename);
-        }
+        return match ($this->file_sort) {
+            'size-asc'  => $a->size == $b->size ? 0 : ($a->size < $b->size ? -1 : 1),
+            'size-desc' =>  $a->size == $b->size ? 0 : ($a->size > $b->size ? -1 : 1),
+            'date-asc'  => $a->media_dt == $b->media_dt ? 0 : ($a->media_dt < $b->media_dt ? -1 : 1),
+            'date-desc' => $a->media_dt == $b->media_dt ? 0 : ($a->media_dt > $b->media_dt ? -1 : 1),
+            'name-desc' => strcasecmp($b->basename, $a->basename),
+            default     => strcasecmp($a->basename, $b->basename),
+        };
     }
 
     /**
      * Gets current working directory content (using filesystem).
      */
-    public function getFSDir()
+    public function getFSDir(): void
     {
         parent::getDir();
     }
@@ -435,9 +426,9 @@ class Media extends Manager
     /**
      * Gets current working directory content.
      *
-     * @param      mixed      $type   The media type filter
+     * @param   string|null     $type   The media type filter
      */
-    public function getDir($type = null)
+    public function getDir(?string $type = null): void
     {
         if ($type) {
             $this->type = $type;
@@ -497,7 +488,7 @@ class Media extends Manager
         $privates = [];
         while ($rsp->fetch()) {
             # File in subdirectory, forget about it!
-            if (dirname($rsp->media_file) != '.' && dirname($rsp->media_file) != $this->relpwd) {
+            if ('.' != dirname($rsp->media_file) && $this->relpwd != dirname($rsp->media_file)) {
                 continue;
             }
             if ($f = $this->fileRecord($rsp)) {
@@ -523,14 +514,14 @@ class Media extends Manager
 
         while ($rs->fetch()) {
             # File in subdirectory, forget about it!
-            if (dirname($rs->media_file) != '.' && dirname($rs->media_file) != $this->relpwd) {
+            if ('.' != dirname($rs->f('media_file')) && $this->relpwd != dirname($rs->f('media_file'))) {
                 continue;
             }
 
-            if ($this->inFiles($rs->media_file)) {
+            if ($this->inFiles($rs->f('media_file'))) {
                 $f = $this->fileRecord($rs);
-                if ($f !== null) {
-                    if (isset($f_reg[$rs->media_file])) {
+                if (null !== $f) {
+                    if (isset($f_reg[$rs->f('media_file')])) {
                         # That media is duplicated in the database,
                         # time to do a bit of house cleaning.
                         $sql = new DeleteStatement('dcMediaGetDir');
@@ -541,10 +532,10 @@ class Media extends Manager
                         $sql->delete();
                     } else {
                         $f_res[]                = $this->fileRecord($rs);
-                        $f_reg[$rs->media_file] = 1;
+                        $f_reg[$rs->f('media_file')] = 1;
                     }
                 }
-            } elseif (!empty($p_dir['files']) && $this->relpwd == '') {
+            } elseif (!empty($p_dir['files']) && '' == $this->relpwd) {
                 # Physical file does not exist remove it from DB
                 # Because we don't want to erase everything on
                 # dotclear upgrade, do it only if there are files
@@ -553,10 +544,10 @@ class Media extends Manager
                 $sql
                     ->from($this->table)
                     ->where('media_path = ' . $sql->quote($this->path, true))
-                    ->and('media_file = ' . $sql->quote($rs->media_file, true));
+                    ->and('media_file = ' . $sql->quote($rs->f('media_file'), true));
 
                 $sql->delete();
-                $this->callFileHandler(Files::getMimeType($rs->media_file), 'remove', $this->pwd . '/' . $rs->media_file);
+                $this->callFileHandler(Files::getMimeType($rs->f('media_file')), 'remove', $this->pwd . '/' . $rs->f('media_file'));
             }
         }
 
@@ -570,7 +561,7 @@ class Media extends Manager
             foreach ($p_dir['files'] as $f) {
                 // Warning a file may exist in DB but in private mode for the user, so we don't have to recreate it
                 if (!isset($f_reg[$f->relname]) && !in_array($f->relname, $privates)) {
-                    if (($id = $this->createFile($f->basename, null, false, null, false)) !== false) {
+                    if (false !== ($id = $this->createFile($f->basename, null, false, null, false))) {
                         $this->dir['files'][] = $this->getFile($id);
                     }
                 }
@@ -584,13 +575,13 @@ class Media extends Manager
     }
 
     /**
-     * Gets file by its id. Returns a filteItem object.
+     * Gets file by its id.
      *
-     * @param      mixed  $id     The file identifier
+     * @param   int     $id     The file identifier
      *
-     * @return     Item  The file.
+     * @return  Item|null       The file.
      */
-    public function getFile($id)
+    public function getFile(int $id): ?Item
     {
         $sql = new SelectStatement('dcMediaGetFile');
         $sql
@@ -626,11 +617,11 @@ class Media extends Manager
     /**
      * Search into media db (only).
      *
-     * @param      string  $query  The search query
+     * @param   string  $query  The search query
      *
-     * @return     bool    true or false if nothing found
+     * @return  bool            True or false if nothing found
      */
-    public function searchMedia($query)
+    public function searchMedia(string $query): bool
     {
         if ($query == '') {
             return false;
@@ -687,16 +678,17 @@ class Media extends Manager
     }
 
     /**
-     * Returns media items attached to a blog post. Result is an array containing
-     * Item objects.
+     * Returns media items attached to a blog post. 
+     * 
+     * Result is an array containing Item objects.
      *
-     * @param      integer  $post_id    The post identifier
-     * @param      mixed    $media_id   The media identifier
-     * @param      mixed    $link_type  The link type
+     * @param   int             $post_id    The post identifier
+     * @param   int|null        $media_id   The media identifier
+     * @param   string|null     $link_type  The link type
      *
-     * @return     array   Array of Item.
+     * @return  array                       Array of Item.
      */
-    public function getPostMedia($post_id, $media_id = null, $link_type = null)
+    public function getPostMedia(int $post_id, ?int $media_id = null, ?string $link_type = null): array
     {
         $params = [
             'post_id'    => $post_id,
@@ -715,7 +707,7 @@ class Media extends Manager
 
         while ($rs->fetch()) {
             $f = $this->fileRecord($rs);
-            if ($f !== null) {
+            if (null !== $f) {
                 $res[] = $f;
             }
         }
@@ -724,14 +716,16 @@ class Media extends Manager
     }
 
     /**
-     * Rebuilds database items collection. Optional <var>$pwd</var> parameter is
+     * Rebuilds database items collection. 
+     * 
+     * Optional <var>$pwd</var> parameter is
      * the path where to start rebuild.
      *
-     * @param      string     $pwd    The directory to rebuild
+     * @param   string  $pwd    The directory to rebuild
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function rebuild($pwd = '')
+    public function rebuild(string $pwd = ''): void
     {
         if (!dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not a super administrator.'));
@@ -756,7 +750,12 @@ class Media extends Manager
         $this->rebuildDB($pwd);
     }
 
-    protected function rebuildDB($pwd)
+    /**
+     * Rebuild database
+     *
+     * @param   string  $pwd    The directory to rebuild
+     */
+    protected function rebuildDB(string $pwd): void
     {
         $media_dir = $pwd ?: '.';
 
@@ -791,9 +790,9 @@ class Media extends Manager
     /**
      * Makes a dir.
      *
-     * @param      string  $d      the directory to create
+     * @param   string  $d  the directory to create
      */
-    public function makeDir($d)
+    public function makeDir(string $d): void
     {
         $d = Files::tidyFileName($d);
         parent::makeDir($d);
@@ -803,17 +802,17 @@ class Media extends Manager
      * Creates or updates a file in database. Returns new media ID or false if
      * file does not exist.
      *
-     * @param      string     $name     The file name (relative to working directory)
-     * @param      mixed      $title    The file title
-     * @param      bool       $private  File is private
-     * @param      mixed      $dt       File date
-     * @param      bool       $force    The force flag
+     * @param   string          $name       The file name (relative to working directory)
+     * @param   string|null     $title      The file title
+     * @param   bool            $private    File is private
+     * @param   string|null     $dt         File date
+     * @param   bool            $force      The force flag
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     integer|bool     New media ID or false
+     * @return  int|false                   New media ID or false
      */
-    public function createFile($name, $title = null, $private = false, $dt = null, $force = true)
+    public function createFile(string $name, ?string $title = null, bool $private = false, ?string $dt = null, bool $force = true): int|false
     {
         if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -849,22 +848,16 @@ class Media extends Manager
 
                 $media_id = $sql->select()->fInt() + 1;
 
-                $cur->media_id     = $media_id;
-                $cur->user_id      = (string) dotclear()->user()->userID();
-                $cur->media_path   = (string) $this->path;
-                $cur->media_file   = (string) $media_file;
-                $cur->media_dir    = (string) dirname($media_file);
-                $cur->media_creadt = date('Y-m-d H:i:s');
-                $cur->media_upddt  = date('Y-m-d H:i:s');
-
-                $cur->media_title   = !$title ? (string) $name : (string) $title;
-                $cur->media_private = (int) (bool) $private;
-
-                if ($dt) {
-                    $cur->media_dt = (string) $dt;
-                } else {
-                    $cur->media_dt = @strftime('%Y-%m-%d %H:%M:%S', filemtime($file));
-                }
+                $cur->setField('media_id', $media_id);
+                $cur->setField('user_id', (string) dotclear()->user()->userID());
+                $cur->setField('media_path', (string) $this->path);
+                $cur->setField('media_file', (string) $media_file);
+                $cur->setField('media_dir', (string) dirname($media_file));
+                $cur->setField('media_creadt', date('Y-m-d H:i:s'));
+                $cur->setField('media_upddt', date('Y-m-d H:i:s'));
+                $cur->setField('media_title', !$title ? (string) $name : (string) $title);
+                $cur->setField('media_private', (int) (bool) $private);
+                $cur->setField('media_dt', $dt ? (string) $dt : @strftime('%Y-%m-%d %H:%M:%S', filemtime($file)));
 
                 try {
                     $cur->insert();
@@ -880,9 +873,9 @@ class Media extends Manager
                 throw $e;
             }
         } else {
-            $media_id = (int) $rs->media_id;
+            $media_id = $rs->fInt('media_id');
 
-            $cur->media_upddt = date('Y-m-d H:i:s');
+            $cur->setField('media_upddt', date('Y-m-d H:i:s'));
 
             $sql = new UpdateStatement('dcMediaCreateFile');
             $sql->where('media_id = ' . $media_id);
@@ -898,12 +891,12 @@ class Media extends Manager
     /**
      * Updates a file in database.
      *
-     * @param      Item     $file     The file
-     * @param      Item     $newFile  The new file
+     * @param   Item    $file       The file
+     * @param   Item    $newFile    The new file
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function updateFile($file, $newFile)
+    public function updateFile(Item $file, Item $newFile): void
     {
         if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -941,17 +934,17 @@ class Media extends Manager
 
             $this->moveFile($file->relname, $newFile->relname);
 
-            $cur->media_file = (string) $newFile->relname;
-            $cur->media_dir  = (string) dirname($newFile->relname);
+            $cur->setField('media_file', (string) $newFile->relname);
+            $cur->setField('media_dir', (string) dirname($newFile->relname));
         }
 
-        $cur->media_title   = (string) $newFile->media_title;
-        $cur->media_dt      = (string) $newFile->media_dtstr;
-        $cur->media_upddt   = date('Y-m-d H:i:s');
-        $cur->media_private = (int) $newFile->media_priv;
+        $cur->setField('media_title', (string) $newFile->media_title);
+        $cur->setField('media_dt', (string) $newFile->media_dtstr);
+        $cur->setField('media_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('media_private', (int) $newFile->media_priv);
 
         if ($newFile->media_meta instanceof \SimpleXMLElement) {
-            $cur->media_meta = $newFile->media_meta->asXML();
+            $cur->setField('media_meta', $newFile->media_meta->asXML());
         }
 
         $sql = new UpdateStatement('dcMediaCreateFile');
@@ -965,17 +958,17 @@ class Media extends Manager
     /**
      * Uploads a file.
      *
-     * @param      string     $tmp        The full path of temporary uploaded file
-     * @param      string     $name       The file name (relative to working directory)me
-     * @param      mixed      $title      The file title
-     * @param      bool       $private    File is private
-     * @param      bool       $overwrite  File should be overwrite
+     * @param   string          $tmp        The full path of temporary uploaded file
+     * @param   string          $name       The file name (relative to working directory)me
+     * @param   string|null     $title      The file title
+     * @param   bool            $private    File is private
+     * @param   bool            $overwrite  File should be overwrite
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     mixed      New media ID or false
+     * @return  int|false                   New media ID or false
      */
-    public function uploadFile($tmp, $name, $title = null, $private = false, $overwrite = false)
+    public function uploadMediaFile(string $tmp, string $name, ?string $title = null, bool $private = false, bool $overwrite = false): int|false
     {
         if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -991,14 +984,14 @@ class Media extends Manager
     /**
      * Creates a file from binary content.
      *
-     * @param      string     $name   The file name (relative to working directory)
-     * @param      mixed      $bits   The binary file contentits
+     * @param   string  $name   The file name (relative to working directory)
+     * @param   string  $bits   The binary file contentits
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     mixed      New media ID or false
+     * @return  int|false       New media ID or false
      */
-    public function uploadBits($name, $bits)
+    public function uploadMediaBits($name, $bits): int|false
     {
         if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -1014,11 +1007,11 @@ class Media extends Manager
     /**
      * Removes a file.
      *
-     * @param      string     $f      filename
+     * @param   string  $f  The filename
      *
-     * @throws     CoreException
+     * @throws  CoreException
      */
-    public function removeFile($f)
+    public function removeFile(string $f): void
     {
         if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -1052,11 +1045,11 @@ class Media extends Manager
      *
      * Returns an array of directory under {@link $root} directory.
      *
-     * @uses Item
+     * @uses    Item
      *
-     * @return array
+     * @return  array
      */
-    public function getDBDirs()
+    public function getDBDirs(): array
     {
         $dir       = [];
         $media_dir = $this->relpwd ?: '.';
@@ -1070,7 +1063,7 @@ class Media extends Manager
         $rs = $sql->select();
         while ($rs->fetch()) {
             if (is_dir($this->root . '/' . $rs->media_dir)) {
-                $dir[] = ($rs->media_dir == '.' ? '' : $rs->media_dir);
+                $dir[] = ('.' == $rs->media_dir ? '' : $rs->media_dir);
             }
         }
 
@@ -1080,14 +1073,14 @@ class Media extends Manager
     /**
      * Extract zip file in current location.
      *
-     * @param      Item         $f           Item object
-     * @param      bool         $create_dir  Create dir
+     * @param   Item    $f              Item object
+     * @param   bool    $create_dir     Create dir
      *
-     * @throws     CoreException
+     * @throws  CoreException
      *
-     * @return     string     destination
+     * @return  string                  Destination
      */
-    public function inflateZipFile($f, $create_dir = true)
+    public function inflateZipFile(Item $f, bool $create_dir = true): string
     {
         $zip = new Unzip($f->file);
         $zip->setExcludePattern($this->exclude_pattern);
@@ -1138,11 +1131,11 @@ class Media extends Manager
     /**
      * Gets the zip content.
      *
-     * @param      Item  $f      Item object
+     * @param   Item    $f  Item object
      *
-     * @return     array  The zip content.
+     * @return  array       The zip content.
      */
-    public function getZipContent($f)
+    public function getZipContent(Item $f): array
     {
         $zip  = new Unzip($f->file);
         $list = $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
@@ -1154,9 +1147,9 @@ class Media extends Manager
     /**
      * Calls file handlers registered for recreate event.
      *
-     * @param      Item  $f      Item object
+     * @param   Item    $f  Item object
      */
-    public function mediaFireRecreateEvent($f)
+    public function mediaFireRecreateEvent(Item $f)
     {
         $media_type = Files::getMimeType($f->basename);
         $this->callFileHandler($media_type, 'recreate', null, $f->basename); // Args list to be completed as necessary (Franck)
@@ -1171,9 +1164,9 @@ class Media extends Manager
      * @param   string          $f      Image filename
      * @param   bool            $force  Force creation
      *
-     * @return  mixed
+     * @return  bool
      */
-    public function imageThumbCreate($cur, $f, $force = true)
+    public function imageThumbCreate(?Cursor $cur, string $f, bool $force = true): bool
     {
         $file = $this->pwd . '/' . $f;
 
@@ -1206,7 +1199,7 @@ class Media extends Manager
 
             foreach ($this->thumb_sizes as $suffix => $s) {
                 $thumb_file = sprintf($thumb, $suffix);
-                if (!file_exists($thumb_file) && $s[0] > 0 && ($suffix == 'sq' || $w > $s[0] || $h > $s[0])) {
+                if (!file_exists($thumb_file) && $s[0] > 0 && ('sq' == $suffix || $w > $s[0] || $h > $s[0])) {
                     $rate = ($s[0] < 100 ? 95 : ($s[0] < 600 ? 90 : 85));
                     $img->resize($s[0], $s[0], $s[1]);
                     $img->output(($alpha || $webp ? strtolower($p['extension']) : 'jpeg'), $thumb_file, $rate);
@@ -1220,20 +1213,22 @@ class Media extends Manager
                 throw $e;
             }
         }
+
+        return true;
     }
 
     /**
      * Update image thumbnails
      *
-     * @param      Item  $file     The file
-     * @param      Item  $newFile  The new file
+     * @param   Item    $file       The file
+     * @param   Item    $newFile    The new file
      */
-    protected function imageThumbUpdate($file, $newFile)
+    protected function imageThumbUpdate(Item $file, Item $newFile): void
     {
         if ($file->relname != $newFile->relname) {
             $p         = Path::info($file->relname);
-            $alpha     = strtolower($p['extension']) === 'png';
-            $webp      = strtolower($p['extension']) === 'webp';
+            $alpha     = 'png' === strtolower($p['extension']);
+            $webp      = 'webp' === strtolower($p['extension']);
             $thumb_old = sprintf(
                 ($alpha ? $this->thumb_tp_alpha :
                 ($webp ? $this->thumb_tp_webp :
@@ -1244,8 +1239,8 @@ class Media extends Manager
             );
 
             $p         = Path::info($newFile->relname);
-            $alpha     = strtolower($p['extension']) === 'png';
-            $webp      = strtolower($p['extension']) === 'webp';
+            $alpha     = 'png' === strtolower($p['extension']);
+            $webp      = 'webp' === strtolower($p['extension']);
             $thumb_new = sprintf(
                 ($alpha ? $this->thumb_tp_alpha :
                 ($webp ? $this->thumb_tp_webp :
@@ -1267,13 +1262,13 @@ class Media extends Manager
     /**
      * Remove image thumbnails
      *
-     * @param      string  $f      Image filename
+     * @param   string  $f  Image filename
      */
-    public function imageThumbRemove($f)
+    public function imageThumbRemove(string $f): void
     {
         $p     = Path::info($f);
-        $alpha = strtolower($p['extension']) === 'png';
-        $webp  = strtolower($p['extension']) === 'webp';
+        $alpha = 'png' === strtolower($p['extension']);
+        $webp  = 'webp' === strtolower($p['extension']);
         $thumb = sprintf(
             ($alpha ? $this->thumb_tp_alpha :
             ($webp ? $this->thumb_tp_webp :
@@ -1294,13 +1289,13 @@ class Media extends Manager
     /**
      * Create image meta
      *
-     * @param      Cursor  $cur    The cursor
-     * @param      string  $f      Image filename
-     * @param      mixed   $id     The media identifier
+     * @param   Cursor  $cur    The cursor
+     * @param   string  $f      Image filename
+     * @param   int     $id     The media identifier
      *
-     * @return     mixed
+     * @return  bool
      */
-    protected function imageMetaCreate($cur, $f, $id)
+    protected function imageMetaCreate(Cursor $cur, string $f, int $id): bool
     {
         $file = $this->pwd . '/' . $f;
 
@@ -1312,21 +1307,21 @@ class Media extends Manager
         $meta = ImageMeta::readMeta($file);
         $xml->insertNode($meta);
 
-        $c             = dotclear()->con()->openCursor($this->table);
-        $c->media_meta = $xml->toXML();
+        $c = dotclear()->con()->openCursor($this->table);
+        $c->setField('media_meta', $xml->toXML());
 
-        if ($cur->media_title !== null && $cur->media_title == basename($cur->media_file)) {
+        if (null !== $cur->getField('media_title') && basename($cur->getField('media_file')) == $cur->getField('media_title')) {
             if ($meta['Title']) {
-                $c->media_title = $meta['Title'];
+                $c->setField('media_title', $meta['Title']);
             }
         }
 
-        if ($meta['DateTimeOriginal'] && $cur->media_dt === '') {
+        if ($meta['DateTimeOriginal'] && '' === $cur->getField('media_dt')) {
             # We set picture time to user timezone
             $media_ts = strtotime($meta['DateTimeOriginal']);
             if ($media_ts !== false) {
                 $o           = Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'), $media_ts);
-                $c->media_dt = Dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o);
+                $c->setField('media_dt', Dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o));
             }
         }
 
@@ -1337,21 +1332,23 @@ class Media extends Manager
         $sql->where('media_id = ' . $id);
 
         $sql->update($c);
+
+        return true;
     }
 
     /**
      * Returns HTML code for audio player (HTML5)
      *
-     * @param      string  $type      The audio mime type (not used)
-     * @param      string  $url       The audio URL to play
-     * @param      mixed   $player    The player URL (not used)
-     * @param      mixed   $args      The player arguments (not used)
-     * @param      bool    $fallback  The fallback (not more used)
-     * @param      bool    $preload   Add preload="auto" attribute if true, else preload="none"
+     * @param   string          $type       The audio mime type (not used)
+     * @param   string          $url        The audio URL to play
+     * @param   string|null     $player     The player URL (not used)
+     * @param   array|null      $args       The player arguments (not used)
+     * @param   bool            $fallback   The fallback (not more used)
+     * @param   bool            $preload    Add preload="auto" attribute if true, else preload="none"
      *
-     * @return     string
+     * @return  string
      */
-    public static function audioPlayer($type, $url, $player = null, $args = null, $fallback = false, $preload = true)
+    public static function audioPlayer(string $type, string $url, ?string $player = null, ?array $args = null, bool $fallback = false, bool $preload = true): string
     {
         return
             '<audio controls preload="' . ($preload ? 'auto' : 'none') . '">' .
@@ -1362,16 +1359,16 @@ class Media extends Manager
     /**
      * Returns HTML code for video player (HTML5)
      *
-     * @param      string  $type      The video mime type
-     * @param      string  $url       The video URL to play
-     * @param      mixed   $player    The player URL
-     * @param      mixed   $args      The player arguments
-     * @param      bool    $fallback  The fallback (not more used)
-     * @param      bool    $preload   Add preload="auto" attribute if true, else preload="none"
+     * @param   string          $type       The audio mime type (not used)
+     * @param   string          $url        The audio URL to play
+     * @param   string|null     $player     The player URL (not used)
+     * @param   array|null      $args       The player arguments (not used)
+     * @param   bool            $fallback   The fallback (not more used)
+     * @param   bool            $preload    Add preload="auto" attribute if true, else preload="none"
      *
-     * @return     string
+     * @return  string
      */
-    public static function videoPlayer($type, $url, $player = null, $args = null, $fallback = false, $preload = true)
+    public static function videoPlayer(string $type, string $url, ?string $player = null, ?array $args = null, bool $fallback = false, bool $preload = true): string
     {
         $video = '';
 
@@ -1401,32 +1398,16 @@ class Media extends Manager
     /**
      * Returns HTML code for MP3 player (HTML5)
      *
-     * @param      string  $url       The audio URL to play
-     * @param      mixed   $player    The player URL
-     * @param      mixed   $args      The player arguments
-     * @param      bool    $fallback  The fallback (not more used)
-     * @param      bool    $preload   Add preload="auto" attribute if true, else preload="none"
+     * @param   string          $url        The audio URL to play
+     * @param   string|null     $player     The player URL (not used)
+     * @param   array|null      $args       The player arguments (not used)
+     * @param   bool            $fallback   The fallback (not more used)
+     * @param   bool            $preload    Add preload="auto" attribute if true, else preload="none"
      *
      * @return     string
      */
-    public static function mp3player($url, $player = null, $args = null, $fallback = false, $preload = true)
+    public static function mp3player(string $url, ?string $player = null, ?array $args = null, bool $fallback = false, bool $preload = true): string
     {
         return self::audioPlayer('audio/mp3', $url, $player, $args, false, $preload);
-    }
-
-    /**
-     * Returns HTML code for FLV player
-     *
-     * @obsolete since 2.15
-     *
-     * @param      string  $url     The url
-     * @param      mixed   $player  The player
-     * @param      mixed   $args    The arguments
-     *
-     * @return     string
-     */
-    public static function flvplayer($url, $player = null, $args = null)
-    {
-        return '';
     }
 }

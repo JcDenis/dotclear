@@ -22,15 +22,15 @@ use Dotclear\Database\Statement\SelectStatement;
 
 class PostMedia
 {
-    /** @var string         post media table name */
+    /** @var    string  Post media table name */
     protected $table = 'post_media';
 
     /**
      * Returns media items attached to a blog post.
      *
-     * @param      array   $params  The parameters
+     * @param   array   $params     The parameters
      *
-     * @return     Record  The post media.
+     * @return  Record              The post media.
      */
     public function getPostMedia(array $params = []): Record
     {
@@ -94,9 +94,9 @@ class PostMedia
     /**
      * Attaches a media to a post.
      *
-     * @param      int   $post_id    The post identifier
-     * @param      int   $media_id   The media identifier
-     * @param      string  $link_type  The link type (default: attachment)
+     * @param   int     $post_id    The post identifier
+     * @param   int     $media_id   The media identifier
+     * @param   string  $link_type  The link type (default: attachment)
      */
     public function addPostMedia(int $post_id, int $media_id, string $link_type = 'attachment'): void
     {
@@ -106,10 +106,10 @@ class PostMedia
             return;
         }
 
-        $cur            = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->post_id   = $post_id;
-        $cur->media_id  = $media_id;
-        $cur->link_type = $link_type;
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('post_id', $post_id);
+        $cur->setField('media_id', $media_id);
+        $cur->setField('link_type', $link_type);
 
         $cur->insert();
         dotclear()->blog()->triggerBlog();
@@ -130,7 +130,7 @@ class PostMedia
             ->where('post_id = ' . $post_id)
             ->and('media_id = ' . $media_id);
 
-        if ($link_type != null) {
+        if (null != $link_type) {
             $sql->and('link_type = ' . $sql->quote($link_type, true));
         }
         $sql->delete();

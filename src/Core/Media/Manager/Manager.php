@@ -22,10 +22,17 @@ use Dotclear\Helper\File\Files;
 
 class Manager
 {
-    protected $pwd;                                             ///< string: Working (current) director
-    protected $exclude_list    = [];                            ///< array: Array of regexps defining excluded items
-    protected $exclude_pattern = '';                            ///< string: Files exclusion regexp pattern
-    public $dir                = ['dirs' => [], 'files' => []]; ///< array: Current directory content array
+    /** @var    string  $pwd   Working (current) director */ 
+    protected $pwd = '';
+
+    /** @var    array   $exclude_list   Array of regexps defining excluded items */
+    protected $exclude_list = [];
+
+    /** @var    string  $exclude_pattern    Files exclusion regexp pattern */
+    protected $exclude_pattern = '';
+
+    /** @var    array   $dir    Current directory content array */
+    public $dir = ['dirs' => [], 'files' => []];
 
     /**
      * Constructor
@@ -34,8 +41,8 @@ class Manager
      * path. You won't be able to access files outside {@link $root} path with
      * the object's methods.
      *
-     * @param string    $root        Root path
-     * @param string    $root_url    Root URL
+     * @param   string  $root       Root path
+     * @param   string  $root_url   Root URL
      */
     public function __construct(public string $root, public string $root_url = '')
     {
@@ -56,9 +63,9 @@ class Manager
      * Changes working directory. $dir is relative to instance {@link $root}
      * directory.
      *
-     * @param string    $dir            Directory
+     * @param   string|null     $dir    Directory
      */
-    public function chdir($dir)
+    public function chdir(?string $dir): void
     {
         $realdir = Path::real($this->root . '/' . Path::clean($dir));
         if (!$realdir || !is_dir($realdir)) {
@@ -75,11 +82,9 @@ class Manager
     /**
      * Get working directory
      *
-     * Returns working directory path.
-     *
-     * @return string
+     * @return  string
      */
-    public function getPwd()
+    public function getPwd(): string
     {
         return $this->pwd;
     }
@@ -87,15 +92,11 @@ class Manager
     /**
      * Current directory is writable
      *
-     * @return boolean    true if working directory is writable
+     * @return  bool    True if working directory is writable
      */
-    public function writable()
+    public function writable(): bool
     {
-        if (!$this->pwd) {
-            return false;
-        }
-
-        return is_writable($this->pwd);
+        return !$this->pwd ? false : is_writable($this->pwd);
     }
 
     /**
@@ -103,10 +104,11 @@ class Manager
      *
      * Appends an exclusion to exclusions list. $f should be a regexp.
      *
-     * @see $exclude_list
-     * @param array|string    $f            Exclusion regexp
+     * @see     $exclude_list
+     * 
+     * @param   array|string    $f  Exclusion regexp
      */
-    public function addExclusion($f)
+    public function addExclusion(array|string $f): void
     {
         if (is_array($f)) {
             foreach ($f as $v) {
@@ -126,10 +128,12 @@ class Manager
      * relative to {@link $root} path.
      *
      * @see $exclude_list
-     * @param string    $f            Path to match
-     * @return boolean
+     * 
+     * @param   string  $f  Path to match
+     * 
+     * @return  bool
      */
-    protected function isExclude($f)
+    protected function isExclude(string $f): bool
     {
         foreach ($this->exclude_list as $v) {
             if (str_starts_with($f, $v)) {
@@ -147,16 +151,14 @@ class Manager
      * path.
      *
      * @see $exclude_pattern
-     * @param string    $f            File to match
-     * @return boolean
+     * 
+     * @param   string  $f  File to match
+     * 
+     * @return  bool
      */
-    protected function isFileExclude($f)
+    protected function isFileExclude(string $f): bool
     {
-        if (!$this->exclude_pattern) {
-            return false;
-        }
-
-        return preg_match($this->exclude_pattern, (string) $f);
+        return !$this->exclude_pattern ? false : (bool) preg_match($this->exclude_pattern, (string) $f);
     }
 
     /**
@@ -165,18 +167,15 @@ class Manager
      * Returns true if file or directory $f is in jail (ie. not outside the
      * {@link $root} directory).
      *
-     * @param string    $f            Path to match
-     * @return boolean
+     * @param   string  $f  Path to match
+     * 
+     * @return  bool
      */
-    protected function inJail($f)
+    protected function inJail(string $f): bool
     {
         $f = Path::real($f);
 
-        if ($f !== false) {
-            return preg_match('|^' . preg_quote($this->root, '|') . '|', (string) $f);
-        }
-
-        return false;
+        return false !== $f ? (bool) preg_match('|^' . preg_quote($this->root, '|') . '|', (string) $f) : false;
     }
 
     /**
@@ -184,10 +183,11 @@ class Manager
      *
      * Returns true if file $f is in files array of {@link $dir}.
      *
-     * @param string    $f            File to match
-     * @return boolean
+     * @param   string  $f  File to match
+     * 
+     * @return  bool
      */
-    public function inFiles($f)
+    public function inFiles(string $f): bool
     {
         foreach ($this->dir['files'] as $v) {
             if ($v->relname == $f) {
@@ -205,23 +205,23 @@ class Manager
      *
      * @uses sortHandler(), fileItem
      */
-    public function getDir()
+    public function getDir(): void
     {
         $dir = Path::clean($this->pwd);
 
         $dh = @opendir($dir);
 
-        if ($dh === false) {
+        if (false === $dh) {
             throw new FileException('Unable to read directory.');
         }
 
         $d_res = $f_res = [];
 
-        while (($file = readdir($dh)) !== false) {
+        while (false !== ($file = readdir($dh))) {
             $fname = $dir . '/' . $file;
 
             if ($this->inJail($fname) && !$this->isExclude($fname)) {
-                if (is_dir($fname) && $file != '.') {
+                if (is_dir($fname) && '.' != $file) {
                     $tmp = new Item($fname, $this->root, $this->root_url);
                     if ($file == '..') {
                         $tmp->parent = true;
@@ -246,10 +246,11 @@ class Manager
      *
      * Returns an array of directory under {@link $root} directory.
      *
-     * @uses fileItem
-     * @return array
+     * @uses Item
+     * 
+     * @return  array
      */
-    public function getRootDirs()
+    public function getRootDirs(): array
     {
         $d = Files::getDirList($this->root);
 
@@ -274,12 +275,16 @@ class Manager
      * or PHP native functions.
      *
      * @see Files::uploadStatus()
-     * @param string    $tmp            Temporary uploaded file path
-     * @param string    $dest        Destination file
-     * @param boolean    $overwrite    overwrite mode
-     * @return string                Destination real path
+     * 
+     * @throws  FileException
+     * 
+     * @param   string  $tmp        Temporary uploaded file path
+     * @param   string  $dest       Destination file
+     * @param   bool    $overwrite  Overwrite mode
+     * 
+     * @return  string              Destination real path
      */
-    public function uploadFile($tmp, $dest, $overwrite = false)
+    public function uploadFile(string $tmp, string $dest, bool $overwrite = false): string
     {
         $dest = $this->pwd . '/' . Path::clean($dest);
 
@@ -299,7 +304,7 @@ class Manager
             throw new FileException(__('Cannot write in this directory.'));
         }
 
-        if (@move_uploaded_file($tmp, $dest) === false) {
+        if (false === @move_uploaded_file($tmp, $dest)) {
             throw new FileException(__('An error occurred while writing the file.'));
         }
 
@@ -315,12 +320,15 @@ class Manager
      * return the destination file path.
      * <var>$name</var> should be in jail. This method will throw exception
      * if file cannot be written.
+     * 
+     * @throws  FileException
      *
-     * @param string    $bits        Destination file content
-     * @param string    $name        Destination file
-     * @return string                Destination real path
+     * @param   string  $bits   Destination file content
+     * @param   string  $name   Destination file
+     * 
+     * @return  string          Destination real path
      */
-    public function uploadBits($name, $bits)
+    public function uploadBits(string $name, string $bits): string
     {
         $dest = $this->pwd . '/' . Path::clean($name);
 
@@ -337,7 +345,7 @@ class Manager
         }
 
         $fp = @fopen($dest, 'wb');
-        if ($fp === false) {
+        if (false === $fp) {
             throw new FileException(__('An error occurred while writing the file.'));
         }
 
@@ -353,9 +361,9 @@ class Manager
      *
      * Creates a new directory <var>$d</var> relative to working directory.
      *
-     * @param string    $d            Directory name
+     * @param   string  $d  Directory name
      */
-    public function makeDir($d)
+    public function makeDir(string $d): void
     {
         Files::makeDir($this->pwd . '/' . Path::clean($d));
     }
@@ -366,15 +374,17 @@ class Manager
      * Moves a file <var>$s</var> to a new destination <var>$d</var>. Both
      * <var>$s</var> and <var>$d</var> are relative to {@link $root}.
      *
-     * @param string    $s            Source file
-     * @param string    $d            Destination file
+     * @throws  FileException
+     *
+     * @param   string  $s  Source file
+     * @param   string  $d  Destination file
      */
-    public function moveFile($s, $d)
+    public function moveFile(string $s, string $d): void
     {
         $s = $this->root . '/' . Path::clean($s);
         $d = $this->root . '/' . Path::clean($d);
 
-        if (($s = Path::real($s)) === false) {
+        if (false === ($s = Path::real($s))) {
             throw new FileException(__('Source file does not exist.'));
         }
 
@@ -391,7 +401,7 @@ class Manager
             throw new FileException(__('Destination directory is not writable.'));
         }
 
-        if (@rename($s, $d) === false) {
+        if (false === @rename($s, $d)) {
             throw new FileException(__('Unable to rename file.'));
         }
     }
@@ -402,13 +412,13 @@ class Manager
      * Removes a file or directory <var>$f</var> which is relative to working
      * directory.
      *
-     * @param string    $f            Path to remove
+     * @param   string  $f  Path to remove
      */
-    public function removeItem($f)
+    public function removeItem(string $f): void
     {
         $file = Path::real($this->pwd . '/' . Path::clean($f));
 
-        if ($file === false) {
+        if (false === $file) {
             return;
         } elseif (is_file($file)) {
             $this->removeFile($f);
@@ -422,13 +432,15 @@ class Manager
      *
      * Removes a file <var>$f</var> which is relative to working directory.
      *
-     * @param string    $f            File to remove
+     * @throws  FileException
+     *
+     * @param   string  $f  File to remove
      */
-    public function removeFile($f)
+    public function removeFile(string $f): void
     {
         $f = Path::real($this->pwd . '/' . Path::clean($f));
 
-        if ($f === false) {
+        if (false === $f) {
             return;
         }
 
@@ -440,7 +452,7 @@ class Manager
             throw new FileException(__('File cannot be removed.'));
         }
 
-        if (@unlink($f) === false) {
+        if (false === @unlink($f)) {
             throw new FileException(__('File cannot be removed.'));
         }
     }
@@ -450,9 +462,11 @@ class Manager
      *
      * Removes a directory <var>$d</var> which is relative to working directory.
      *
-     * @param string    $d            Directory to remove
+     * @throws  FileException
+     *
+     * @param   string  $d  Directory to remove
      */
-    public function removeDir($d)
+    public function removeDir(string $d): void
     {
         $d = Path::real($this->pwd . '/' . Path::clean($d));
 

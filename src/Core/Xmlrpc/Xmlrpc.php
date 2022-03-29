@@ -801,7 +801,7 @@ class XmlRpc extends xmlrpcIntrospectionServer
             }
         }
 
-        $media_id = dotclear()->media()->uploadBits($file_name, $file_bits);
+        $media_id = dotclear()->media()->uploadMediaBits($file_name, $file_bits);
 
         $f = dotclear()->media()->getFile($media_id);
 

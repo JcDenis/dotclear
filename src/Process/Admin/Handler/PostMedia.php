@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Core\Media\PostMedia;
+use Dotclear\Core\Media\PostMedia as CoreMedia;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -50,9 +50,9 @@ class PostMedia extends Page
         }
 
         try {
-            $postmedia = new PostMedia();
+            $postmedia = new CoreMedia();
 
-            if ($post_id && $media_id && !empty($_REQUEST['attach'])) { // @phpstan-ignore-line
+            if ($post_id && $media_id && !empty($_REQUEST['attach'])) {
                 $postmedia->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
