@@ -394,12 +394,12 @@ class Media extends Manager
     /**
      * Sort file handler
      * 
-     * @param   Item    $a
-     * @param   Item    $b
+     * @param   Item|null   $a
+     * @param   Item|null   $b
      * 
      * @return  int     Comparison result
      */
-    protected function sortFileHandler(Item $a, Item $b): int
+    protected function sortFileHandler(?Item $a, ?Item $b): int
     {
         if (is_null($a) || is_null($b)) {
             return is_null($a) ? 1 : -1;

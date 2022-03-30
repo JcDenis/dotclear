@@ -16,23 +16,28 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Image;
 
+use \GdImage;
 use Dotclear\Exception\UtilsException;
 use Dotclear\Helper\File\Files;
 
 class ImageTools
 {
-    public $res; ///< resource: Image resource
+    /** @var    GdImage|false   $res    Image resource */
+    public $res = false;
+
+    /** @ var   string  $memory_limit   Memory limit */
     public $memory_limit = null;
 
     /**
-     * Constructor, no parameters.
+     * Constructor.
+     * 
+     * @throws  UtilsException
      */
     public function __construct()
     {
         if (!function_exists('imagegd2')) {
             throw new UtilsException('GD is not installed');
         }
-        $this->res = null;
     }
 
     /**
@@ -40,7 +45,7 @@ class ImageTools
      *
      * Destroy image resource
      */
-    public function close()
+    public function close(): void
     {
         if (!empty($this->res)) {
             imagedestroy($this->res);
@@ -55,16 +60,18 @@ class ImageTools
      * Load image
      *
      * Loads an image content in memory and set {@link $res} property.
+     * 
+     * @throws  UtilsException
      *
-     * @param string    $f        Image file path
+     * @param   string $f   Image file path
      */
-    public function loadImage($f)
+    public function loadImage(string $f): void
     {
         if (!file_exists($f)) {
             throw new UtilsException('Image doest not exists');
         }
 
-        if (($info = @getimagesize($f)) !== false) {
+        if (false !== ($info = @getimagesize($f))) {
             $this->memoryAllocate(
                 $info[0],
                 $info[1],
@@ -111,24 +118,33 @@ class ImageTools
     /**
      * Image width
      *
-     * @return integer            Image width
+     * @return  int     Image width
      */
-    public function getW()
+    public function getW(): int
     {
-        return imagesx($this->res);
+        return $this->res ? imagesx($this->res) : 0;
     }
 
     /**
      * Image height
      *
-     * @return integer            Image height
+     * @return  int     Image height
      */
-    public function getH()
+    public function getH(): int
     {
-        return imagesy($this->res);
+        return $this->res ? imagesy($this->res) : 0;
     }
 
-    public function memoryAllocate($w, $h, $bpp = 4)
+    /**
+     * Allocate memory
+     * 
+     * @throws  UtilsException
+     * 
+     * @param   int     $w  Image with
+     * @param   int     $h  Image height
+     * @param   int     $bpp
+     */
+    public function memoryAllocate(int $w, int $h, int $bpp = 4): void
     {
         $mem_used  = function_exists('memory_get_usage') ? @memory_get_usage() : 4000000;
         $mem_limit = @ini_get('memory_limit');
@@ -158,11 +174,13 @@ class ImageTools
      *
      * Returns image content in a file or as HTML output (with headers)
      *
-     * @param string         $type        Image type (png or jpg)
-     * @param string|null    $file        Output file. If null, output will be echoed in STDOUT
-     * @param integer        $qual        JPEG image quality
+     * @param   string          $type   Image type (png or jpg)
+     * @param   string|null     $file   Output file. If null, output will be echoed in STDOUT
+     * @param   int             $qual   JPEG image quality
+     * 
+     * @return  bool
      */
-    public function output($type = 'png', $file = null, $qual = 90)
+    public function output(string $type = 'png', ?string $file = null, int $qual = 90): bool
     {
         if (!$file) {
             header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -215,12 +233,14 @@ class ImageTools
     /**
      * Resize image
      *
-     * @param mixed         $WIDTH          Image width (px or percent)
-     * @param mixed         $HEIGHT         Image height (px or percent)
-     * @param string        $MODE           Crop mode (force, crop, ratio)
-     * @param boolean       $EXPAND         Allow resize of image
+     * @param   string|int  $WIDTH      Image width (px or percent)
+     * @param   string|int  $HEIGHT     Image height (px or percent)
+     * @param   string      $MODE       Crop mode (force, crop, ratio)
+     * @param   bool        $EXPAND     Allow resize of image
+     * 
+     * @return bool
      */
-    public function resize($WIDTH, $HEIGHT, $MODE = 'ratio', $EXPAND = false)
+    public function resize($WIDTH, $HEIGHT, string $MODE = 'ratio', bool $EXPAND = false): bool
     {
         $_h = 0;
         $_w = 0;

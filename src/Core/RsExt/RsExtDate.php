@@ -31,7 +31,7 @@ class RsExtDate extends RsExtend
      */
     public function ts(): int
     {
-        return (int) strtotime($this->rs->dt);
+        return (int) strtotime($this->rs->f('dt'));
     }
 
     /**
@@ -125,6 +125,6 @@ class RsExtDate extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->date_format, $this->rs->dt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('dt'));
     }
 }

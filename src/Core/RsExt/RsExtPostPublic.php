@@ -21,19 +21,19 @@ class RsExtPostPublic extends RsExtPost
     public function getContent(bool $absolute_urls = false): string
     {
         # Not very nice hack but it does the job :)
-        if (dotclear()->context() && dotclear()->context()->short_feed_items === true) {
+        if (dotclear()->context() && true === dotclear()->context()->short_feed_items) {
             $c    = parent::getContent($absolute_urls);
             $c    = dotclear()->context()->remove_html($c);
             $c    = dotclear()->context()->cut_string($c, 350);
 
             $c = '<p>' . $c . '... ' .
             '<a href="' . $this->getURL() . '"><em>' . __('Read') . '</em> ' .
-            Html::escapeHTML($this->rs->post_title) . '</a></p>';
+            Html::escapeHTML($this->rs->f('post_title')) . '</a></p>';
 
             return $c;
         }
 
-        if (dotclear()->blog()->settings()->system->use_smilies) {
+        if (dotclear()->blog()->settings()->get('system')->get('use_smilies')) {
             return $this->smilies(parent::getContent($absolute_urls));
         }
 
@@ -42,7 +42,7 @@ class RsExtPostPublic extends RsExtPost
 
     public function getExcerpt(bool $absolute_urls = false): string
     {
-        return dotclear()->blog()->settings()->system->use_smilies ?
+        return dotclear()->blog()->settings()->get('system')->get('use_smilies') ?
             $this->smilies(parent::getExcerpt($absolute_urls)) :
             parent::getExcerpt($absolute_urls);
     }

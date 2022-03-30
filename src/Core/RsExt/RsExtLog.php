@@ -29,10 +29,10 @@ class RsExtLog extends RsExtend
     public function getUserCN()
     {
         $user = UserContainer::getUserCN(
-            $this->rs->user_id,
-            $this->rs->user_name,
-            $this->rs->user_firstname,
-            $this->rs->user_displayname
+            $this->rs->f('user_id'),
+            $this->rs->f('user_name'),
+            $this->rs->f('user_firstname'),
+            $this->rs->f('user_displayname')
         );
 
         if ($user === 'unknown') {

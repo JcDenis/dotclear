@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Xmlrpc;
 
 use ArrayObject;
-
 use Dotclear\Container\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\CoreException;
@@ -26,7 +25,7 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 
-class XmlRpc extends xmlrpcIntrospectionServer
+class Xmlrpc extends XmlrpcIntrospectionServer
 {
     private $blog_loaded    = false;
     private $debug          = false;

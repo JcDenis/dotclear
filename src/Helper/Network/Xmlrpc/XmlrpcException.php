@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
-class XmlrpcException extends Exception
+class XmlrpcException extends \Exception
 {
     /**
      * @param string    $message        Exception message

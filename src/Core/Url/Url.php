@@ -15,9 +15,8 @@ namespace Dotclear\Core\Url;
 
 use ArrayObject;
 use Closure;
-
 use Dotclear\Core\Trackback\Trackback;
-use DOtclear\Core\Common\Xpmlrpc;
+use Dotclear\Core\Xmlrpc\Xmlrpc;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -27,19 +26,35 @@ use Dotclear\Helper\Text;
 
 class Url
 {
+    /** @var    array   $types  URL registered types */
     protected $types = [];
+
+    /** @var    string|array|Closure  $default_handler    Default URL handler callback */
     protected $default_handler;
+
+    /** @var    array   $error_handlers     Error URL handler */
     protected $error_handlers = [];
 
+    /** @var    string  $mode   URL mode */
     public $mode = 'path_info';
+
+    /** @var    string  $type   URL handler current type */
     public $type = 'default';
 
+    /** @var    array   $mod_files  List of script used files */
     public $mod_files = [];
+
+    /** @var    array   $mod_ts     List of timestamp */
     public $mod_ts = [];
 
+    /** @var    string  $args   URL args */
     public $args;
 
-    # Do not change 'resources' handler as css and js use hard coded resources urls
+    /**
+     * Constructor
+     * 
+     * Do not change 'resources' handler as css and js use hard coded resources urls
+     */
     public function __construct()
     {
         $this->registerDefault([$this, 'home']);
@@ -58,16 +73,36 @@ class Url
         $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
     }
 
+    /**
+     * Get home type
+     * 
+     * @return  string  Home type
+     */
     protected function getHomeType(): string
     {
-        return dotclear()->blog()->settings()->system->static_home ? 'static' : 'default';
+        return dotclear()->blog()->settings()->get('system')->get('static_home') ? 'static' : 'default';
     }
 
+    /**
+     * Is current URL is home
+     * 
+     * @param   string  $type   The type
+     * 
+     * @return  bool    True if type correspond
+     */
     public function isHome(string $type): bool
     {
         return $type == $this->getHomeType();
     }
 
+    /**
+     * Get URL for given type and optionnal value
+     * 
+     * @param   string      $type   The type
+     * @param   string|int  $value  The value
+     * 
+     * @return  string              The URL
+     */
     public function getURLFor(string $type, string|int $value = ''): string
     {
         $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
@@ -84,6 +119,14 @@ class Url
         return $url;
     }
 
+    /**
+     * Register a URL
+     * 
+     * @param   string                  $type           The type
+     * @param   string                  $url            The URL
+     * @param   string                  $representation The representation
+     * @param   string|array|Closure    $handler        The URL handler callback
+     */
     public function register(string $type, string $url, string $representation, string|array|Closure $handler): void
     {
         $args = new ArrayObject(func_get_args());
@@ -97,16 +140,31 @@ class Url
         ];
     }
 
+    /**
+     * Register default handler
+     * 
+     * @param   string|array|Closure    $handler    The handler
+     */
     public function registerDefault(string|array|Closure  $handler): void
     {
         $this->default_handler = $handler;
     }
 
+    /**
+     * Register an error handler
+     * 
+     * @param   string|array|Closure    $handler    The handler
+     */
     public function registerError(string|array|Closure $handler): void
     {
         array_unshift($this->error_handlers, $handler);
     }
 
+    /**
+     * Unregister a URL type
+     * 
+     * @param   string  $type   The type
+     */
     public function unregister(string $type): void
     {
         if (isset($this->types[$type])) {
@@ -114,23 +172,40 @@ class Url
         }
     }
 
+    /**
+     * Get registered tyeps
+     * 
+     * @return  array   The types
+     */
     public function getTypes(): array
     {
         return $this->types;
     }
 
-    public function getBase(string $type): string
+    /**
+     * Get base URL for a type
+     * 
+     * @param   string  $type   The type
+     * 
+     * @return  string|null     The base URL
+     */
+    public function getBase(string $type): ?string
     {
-        if (isset($this->types[$type])) {
-            return $this->types[$type]['url'];
-        }
+        return isset($this->types[$type]) ? $this->types[$type]['url'] : null;
     }
 
+    /**
+     * Get current patge number
+     * 
+     * @param   string|null     $args   Url args
+     * 
+     * @return  int|false               The page number or false
+     */
     protected function getPageNumber(?string &$args): int|false
     {
         if (preg_match('#(^|/)page/([0-9]+)$#', $args, $m)) {
             $n = (int) $m[2];
-            if ($n > 0) {
+            if (0 < $n) {
                 $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
 
                 return $n;
@@ -140,12 +215,20 @@ class Url
         return false;
     }
 
+    /**
+     * Serve document
+     * 
+     * @param   string  $tpl            The template name to serve
+     * @param   string  $content_type   The content type (as of HTTP header)
+     * @param   bool    $http_cache     Use HTTP cache  
+     * @param   bool    $http_etag      Use HTTP etag
+     */
     protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
-        if (dotclear()->context()->nb_entry_per_page === null) {
-            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_page;
+        if (null === dotclear()->context()->nb_entry_per_page) {
+            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->get('system')->get('nb_post_per_page');
         }
-        if (dotclear()->context()->nb_entry_first_page === null) {
+        if (null === dotclear()->context()->nb_entry_first_page) {
             dotclear()->context()->nb_entry_first_page = dotclear()->context()->nb_entry_per_page;
         }
 
@@ -186,11 +269,16 @@ class Url
         echo $result['content'];
     }
 
+    /**
+     * Get document
+     * 
+     * Parse URL query and search registered URL handler
+     */
     public function getDocument(): void
     {
         $type = $args = '';
 
-        if ($this->mode == 'path_info') {
+        if ('path_info' == $this->mode) {
             $part = substr($_SERVER['PATH_INFO'], 1);
         } else {
             $part = '';
@@ -207,7 +295,7 @@ class Url
                 $_REQUEST = array_merge($qs, $_REQUEST);
 
                 foreach ($qs as $k => $v) {
-                    if ($v === null) {
+                    if (null === $v) {
                         $part = $k;
                         unset($_GET[$k], $_REQUEST[$k]);
                     }
@@ -233,9 +321,16 @@ class Url
         }
     }
 
+    /**
+     * Parse URL arguments
+     * 
+     * @param   string|null     $part   The part
+     * @param   string|null     $type   The type
+     * @param   string|null     $args   The arguments
+     */
     public function getArgs(?string $part, ?string &$type, ?string &$args): void
     {
-        if ($part == '') {
+        if ('' == $part) {
             $type = null;
             $args = null;
 
@@ -263,6 +358,12 @@ class Url
         $args = $part;
     }
 
+    /**
+     * Call URL handler
+     * 
+     * @param   string          $type   The type
+     * @param   string|null     $args   The arguments
+     */
     public function callHandler(string $type, ?string $args): void
     {
         if (!isset($this->types[$type])) {
@@ -287,6 +388,11 @@ class Url
         }
     }
 
+    /**
+     * Call default URL handler
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function callDefaultHandler(?string $args): void
     {
         if (!is_callable($this->default_handler)) {
@@ -306,6 +412,11 @@ class Url
         }
     }
 
+    /**
+     * Parse query string
+     * 
+     * @return  array   The arguments
+     */
     protected function parseQueryString(): array
     {
         if (!empty($_SERVER['QUERY_STRING'])) {
@@ -315,11 +426,7 @@ class Url
                 $t = explode('=', $v, 2);
 
                 $t[0] = rawurldecode($t[0]);
-                if (!isset($t[1])) {
-                    $T[$t[0]] = null;
-                } else {
-                    $T[$t[0]] = urldecode($t[1]);
-                }
+                $T[$t[0]] = isset($t[1]) ? urldecode($t[1]) : null;
             }
 
             return $T;
@@ -328,6 +435,9 @@ class Url
         return [];
     }
 
+    /**
+     * Sort types
+     */
     protected function sortTypes(): void
     {
         $r = [];
@@ -337,11 +447,21 @@ class Url
         array_multisort($r, SORT_DESC, $this->types);
     }
 
+    /**
+     * Get page 404
+     */
     public function p404(): void
     {
         throw new CoreException('Page not found', 404);
     }
 
+    /**
+     * Get default page 404
+     * 
+     * @param   string|null     $args   The arguments
+     * @param   string|null     $type   The type
+     * @param   \Exception       $e
+     */
     public function default404(?string $args, ?string $type, \Exception $e): void
     {
         if ($e->getCode() != 404) {
@@ -362,6 +482,11 @@ class Url
         exit;
     }
 
+    /**
+     * Get home page
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function home(?string $args): void
     {
         // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
@@ -375,14 +500,14 @@ class Url
             dotclear()->url()->type = 'default';
             if ($n) {
                 dotclear()->context()->page_number($n);
-                if ($n > 1) {
+                if (1 < $n) {
                     dotclear()->url()->type = 'default-page';
                 }
             }
 
             if (empty($_GET['q'])) {
-                if (dotclear()->blog()->settings()->system->nb_post_for_home !== null) {
-                    dotclear()->context()->nb_entry_first_page = dotclear()->blog()->settings()->system->nb_post_for_home;
+                if (null !== dotclear()->blog()->settings()->get('system')->get('nb_post_for_home')) {
+                    dotclear()->context()->nb_entry_first_page = dotclear()->blog()->settings()->get('system')->get('nb_post_for_home');
                 }
                 $this->serveDocument('home.html');
                 dotclear()->blog()->posts()->publishScheduledEntries();
@@ -392,6 +517,11 @@ class Url
         }
     }
 
+    /**
+     * Get static home page
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function static_home(?string $args): void
     {
         dotclear()->url()->type = 'static';
@@ -404,9 +534,12 @@ class Url
         }
     }
 
+    /**
+     * Get search page
+     */
     public function search(): void
     {
-        if (dotclear()->blog()->settings()->system->no_search) {
+        if (dotclear()->blog()->settings()->get('system')->get('no_search')) {
 
             # Search is disabled for this blog.
             $this->p404();
@@ -424,11 +557,15 @@ class Url
         }
     }
 
+    /**
+     * Get lang page
+     * 
+     * @param   string  $args   The lang
+     */
     public function lang(string $args): void
     {
         $n      = $this->getPageNumber($args);
-        $params = new ArrayObject([
-            'lang' => $args]);
+        $params = new ArrayObject(['lang' => $args]);
 
         dotclear()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
 
@@ -446,11 +583,16 @@ class Url
         }
     }
 
+    /**
+     * Get category page
+     * 
+     * @param   string     $args   The category
+     */
     public function category(string $args): void
     {
         $n = $this->getPageNumber($args);
 
-        if ($args == '' && !$n) {
+        if ('' == $args && !$n) {
             # No category was specified.
             $this->p404();
         } else {
@@ -475,10 +617,15 @@ class Url
         }
     }
 
+    /**
+     * Get archive page
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function archive(?string $args): void
     {
         # Nothing or year and month
-        if ($args == '') {
+        if ('' == $args) {
             $this->serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
             $params = new ArrayObject([
@@ -502,9 +649,14 @@ class Url
         }
     }
 
+    /**
+     * Get post page
+     * 
+     * @param   string  $args   The post URL
+     */
     public function post(string $args): void
     {
-        if ($args == '') {
+        if ('' == $args) {
             # No entry was specified.
             $this->p404();
         } else {
@@ -532,8 +684,8 @@ class Url
                 # The specified entry does not exist.
                 $this->p404();
             } else {
-                $post_id       = dotclear()->context()->posts->post_id;
-                $post_password = dotclear()->context()->posts->post_password;
+                $post_id       = dotclear()->context()->posts->f('post_id');
+                $post_password = dotclear()->context()->posts->f('post_password');
 
                 # Password protected entry
                 if ($post_password != '' && !dotclear()->context()->preview) {
@@ -552,8 +704,9 @@ class Url
                     # Check for match
                     # Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
                     # because MyArray["12345"] is treated as MyArray[12345]
-                    if ((!empty($_POST['password']) && $_POST['password'] == $post_password)
-                        || (isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password)) {
+                    if (!empty($_POST['password']) && $_POST['password'] == $post_password
+                        || isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password
+                    ) {
                         $pwd_cookie['#' . $post_id] = $post_password;
                         setcookie('dc_passwd', json_encode($pwd_cookie), 0, '/');
                     } else {
@@ -582,13 +735,13 @@ class Url
                     $content = $_POST['c_content'];
                     $preview = !empty($_POST['preview']);
 
-                    if ($content != '') {
+                    if ('' != $content) {
                         # --BEHAVIOR-- publicBeforeCommentTransform
                         $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
-                        if ($buffer != '') {
+                        if ('' != $buffer) {
                             $content = $buffer;
                         } else {
-                            if (dotclear()->blog()->settings()->system->wiki_comments) {
+                            if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {
                                 dotclear()->wiki()->initWikiComment();
                             } else {
                                 dotclear()->wiki()->initWikiSimpleComment();
@@ -611,33 +764,33 @@ class Url
                         dotclear()->context()->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
-                        $cur->comment_author  = $name;
-                        $cur->comment_site    = Html::clean($site);
-                        $cur->comment_email   = Html::clean($mail);
-                        $cur->comment_content = $content;
-                        $cur->post_id         = dotclear()->context()->posts->post_id;
-                        $cur->comment_status  = dotclear()->blog()->settings()->system->comments_pub ? 1 : -1;
-                        $cur->comment_ip      = Http::realIP();
+                        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                        $cur->setField('comment_author', $name);
+                        $cur->setField('comment_site', Html::clean($site));
+                        $cur->setField('comment_email', Html::clean($mail));
+                        $cur->setField('comment_content', $content);
+                        $cur->setField('post_id', (string) dotclear()->context()->posts->f('post_id'));
+                        $cur->setField('comment_status', (string) (dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1));
+                        $cur->setField('comment_ip', Http::realIP());
 
                         $redir = dotclear()->context()->posts->getURL();
-                        $redir .= dotclear()->blog()->settings()->system->url_scan == 'query_string' ? '&' : '?';
+                        $redir .= 'query_string' == dotclear()->blog()->settings()->get('system')->get('url_scan') ? '&' : '?';
 
                         try {
-                            if (!Text::isEmail($cur->comment_email)) {
+                            if (!Text::isEmail($cur->getField('comment_email'))) {
                                 throw new CoreException(__('You must provide a valid email address.'));
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
                             dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
-                            if ($cur->post_id) {
+                            if ($cur->getField('post_id')) {
                                 $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
                                 dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
-                            if ($cur->comment_status == 1) {
+                            if (1 == (int) $cur->getField('comment_status')) {
                                 $redir_arg = 'pub=1';
                             } else {
                                 $redir_arg = 'pub=0';
@@ -662,6 +815,11 @@ class Url
         }
     }
 
+    /**
+     * Get preview page (for admin)
+     * 
+     * @param   string  $args   The preview URL
+     */
     public function preview(string $args): void
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
@@ -676,14 +834,19 @@ class Url
                 $this->p404();
             } else {
                 dotclear()->context()->preview = true;
-                if (dotclear()->config()->admin_url != '') {
-                    dotclear()->context()->xframeoption = dotclear()->config()->admin_url;
+                if ('' != dotclear()->config()->get('admin_url')) {
+                    dotclear()->context()->xframeoption = dotclear()->config()->get('admin_url');
                 }
                 $this->post($post_url);
             }
         }
     }
 
+    /**
+     * Get feed page
+     * 
+     * @param   string     $args   The arguments
+     */
     public function feed(string $args): void
     {
         $type     = null;
@@ -753,7 +916,7 @@ class Url
                 return;
             }
 
-            $subtitle = ' - ' . dotclear()->context()->categories->cat_title;
+            $subtitle = ' - ' . dotclear()->context()->categories->f('cat_title');
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
@@ -770,32 +933,37 @@ class Url
                 return;
             }
 
-            $subtitle = ' - ' . dotclear()->context()->posts->post_title;
+            $subtitle = ' - ' . dotclear()->context()->posts->f('post_title');
         }
 
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->system->nb_comment_per_feed;
+            dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed');
         } else {
-            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_feed;
-            dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->system->short_feed_items;
+            dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed');
+            dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->get('system')->get('short_feed_items');
         }
         $tpl .= '.xml';
 
-        if ($type == 'atom') {
+        if ('atom' == $type) {
             $mime = 'application/atom+xml';
         }
 
         dotclear()->context()->feed_subtitle = $subtitle;
 
-        header('X-Robots-Tag: ' . dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->system->robots_policy, ''));
+        header('X-Robots-Tag: ' . dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->get('system')->get('robots_policy'), ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
             dotclear()->blog()->posts()->publishScheduledEntries();
         }
     }
 
+    /**
+     * Get trackback action page
+     * 
+     * @param   string     $args   The trackback id
+     */
     public function trackback(string $args): void
     {
         if (!preg_match('/^[0-9]+$/', $args)) {
@@ -805,10 +973,7 @@ class Url
             // Save locally post_id from args
             $post_id = (int) $args;
 
-            if (!is_array($args)) {
-                $args = [];
-            }
-
+            $args = [];
             $args['post_id'] = $post_id;
             $args['type']    = 'trackback';
 
@@ -820,13 +985,14 @@ class Url
         }
     }
 
+    /**
+     * Get webmention action page
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function webmention(?string $args): void
     {
-        if (!is_array($args)) {
-            $args = [];
-        }
-
-        $args['type'] = 'webmention';
+        $args = ['type' => 'webmention'];
 
         # --BEHAVIOR-- publicBeforeReceiveTrackback
         dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
@@ -835,6 +1001,11 @@ class Url
         $trackback->receiveWebmention();
     }
 
+    /**
+     * Get rsd page
+     * 
+     * @param   string|null     $args   The arguments
+     */
     public function rsd(?string $args): void
     {
         Http::cache($this->mod_files, $this->mod_ts);
@@ -848,8 +1019,8 @@ class Url
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
         '  <homePageLink>' . Html::escapeHTML(dotclear()->blog()->url) . "</homePageLink>\n";
 
-        if (dotclear()->blog()->settings()->system->enable_xmlrpc) {
-            $u = sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog()->url, dotclear()->blog()->id); // @phpstan-ignore-line
+        if (dotclear()->blog()->settings()->get('system')->get('enable_xmlrpc')) {
+            $u = sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id);
 
             echo
                 "  <apis>\n" .
@@ -865,6 +1036,11 @@ class Url
             "</rsd>\n";
     }
 
+    /**
+     * Get xml rpc page
+     * 
+     * @param   string  $args   The blog id
+     */
     public function xmlrpc(string $args): void
     {
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
@@ -872,6 +1048,11 @@ class Url
         $xmlrpc->serve();
     }
 
+    /**
+     * Get resource
+     * 
+     * @param   string     $args   The arguments
+     */
     public function resources(string $args): void
     {
         if (empty($args)) {
@@ -881,13 +1062,11 @@ class Url
         $dirs = [];
 
         # Check if it in Var path
-        if (empty($dirs)) {
-            $var_args = explode('/', $args);
-            $var_path = dotclear()->config()->var_dir;
-            if (1 < count($var_args) && array_shift($var_args) == 'var' && !empty($var_path) && is_dir($var_path)) {
-                $dirs[] = $var_path;
-                $args   = implode('/', $var_args);
-            }
+        $var_args = explode('/', $args);
+        $var_path = dotclear()->config()->get('var_dir');
+        if (1 < count($var_args) && 'var' == array_shift($var_args) && !empty($var_path) && is_dir($var_path)) {
+            $dirs[] = $var_path;
+            $args   = implode('/', $var_args);
         }
 
         # Try to find module id and type
@@ -935,7 +1114,7 @@ class Url
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         # Search file
-        if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->file_sever_type, false, true))) {
+        if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->get('file_sever_type'), false, true))) {
             $this->p404();
         }
 
@@ -952,11 +1131,14 @@ class Url
         echo $content;
     }
 
+    /**
+     * Get additionnal headers
+     */
     protected function additionalHeaders()
     {
         // Additional headers
         $headers = new ArrayObject();
-        if (dotclear()->blog()->settings()->system->prevents_clickjacking) {
+        if (dotclear()->blog()->settings()->get('system')->get('prevents_clickjacking')) {
             if (dotclear()->context()->exists('xframeoption')) {
                 $url    = parse_url(dotclear()->context()->xframeoption);
                 $header = sprintf(

@@ -382,11 +382,11 @@ class Posts
      * - lang: retrieve post count for selected lang
      * - order: order statement (default post_lang DESC)
      *
-     * @param   array   $params     The parameters
+     * @param   array|ArrayObject   $params     The parameters
      *
      * @return  Record              The langs.
      */
-    public function getLangs(array $params = []): Record
+    public function getLangs(array|ArrayObject $params = []): Record
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
         'FROM ' . dotclear()->prefix . 'post ' .
@@ -1244,7 +1244,7 @@ class Posts
                 $clause = "~ '^" . dotclear()->con()->escape(preg_quote($url)) . "[0-9]+$'";
             } else {
                 $clause = "LIKE '" .
-                dotclear()->con()->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
+                dotclear()->con()->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
             }
             $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
             'WHERE post_url ' . $clause . ' ' .

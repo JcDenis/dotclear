@@ -58,7 +58,7 @@ class Prepend extends Core
         return $this->resource;
     }
 
-    protected function process(): void
+    protected function process(string $_ = null): void
     {
         /* Serve a file (css, png, ...) */
         if (!empty($_GET['df'])) {

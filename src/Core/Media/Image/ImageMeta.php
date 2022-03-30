@@ -26,212 +26,16 @@ use Dotclear\Helper\Text;
 
 class ImageMeta
 {
-    protected $xmp  = []; ///< array: Internal XMP array
-    protected $iptc = []; ///< array: Internal IPTC array
-    protected $exif = []; ///< array: Internal EXIF array
+    /** @var    array   $xmp    Internal XMP array */
+    protected $xmp  = [];
 
-    /**
-     * Read metadata
-     *
-     * Returns all image metadata in an array as defined in {@link $properties}.
-     *
-     * @param string    $f        Image file path
-     * @return array
-     */
-    public static function readMeta($f)
-    {
-        $o = new self;
-        $o->loadFile($f);
+    /** @var    array   $xmp    Internal IPTC array */
+    protected $iptc = [];
 
-        return $o->getMeta();
-    }
+    /** @var    array   $xmp    Internal EXIF array */
+    protected $exif = [];
 
-    /**
-     * Get metadata
-     *
-     * Returns all image metadata in an array as defined in {@link $properties}.
-     * Should call {@link loadFile()} before.
-     *
-     * @return array
-     */
-    public function getMeta()
-    {
-        foreach ($this->properties as $k => $v) {
-            if (!empty($this->xmp[$k])) {
-                $this->properties[$k] = $this->xmp[$k];
-            } elseif (!empty($this->iptc[$k])) {
-                $this->properties[$k] = $this->iptc[$k];
-            } elseif (!empty($this->exif[$k])) {
-                $this->properties[$k] = $this->exif[$k];
-            }
-        }
-
-        # Fix date format
-        if ($this->properties['DateTimeOriginal'] !== null) {
-            $this->properties['DateTimeOriginal'] = preg_replace(
-                '/^(\d{4}):(\d{2}):(\d{2})/',
-                '$1-$2-$3',
-                $this->properties['DateTimeOriginal']
-            );
-        }
-
-        return $this->properties;
-    }
-
-    /**
-     * Load file
-     *
-     * Loads a file and read its metadata.
-     *
-     * @param string    $f        Image file path
-     */
-    public function loadFile($f)
-    {
-        if (!is_file($f) || !is_readable($f)) {
-            throw new UtilsException('Unable to read file');
-        }
-
-        $this->readXMP($f);
-        $this->readIPTC($f);
-        $this->readExif($f);
-    }
-
-    /**
-     * Read XMP
-     *
-     * Reads XML metadata and assigns values to {@link $xmp}.
-     *
-     * @param string    $f        Image file path
-     */
-    protected function readXMP($f)
-    {
-        if (($fp = @fopen($f, 'rb')) === false) {
-            throw new UtilsException('Unable to open image file');
-        }
-
-        $inside = false;
-        $done   = false;
-        $xmp    = null;
-
-        while (!feof($fp)) {
-            $buffer = fgets($fp, 4096);
-
-            $xmp_start = strpos($buffer, '<x:xmpmeta');
-
-            if ($xmp_start !== false) {
-                $buffer = substr($buffer, $xmp_start);
-                $inside = true;
-            }
-
-            if ($inside) {
-                $xmp_end = strpos($buffer, '</x:xmpmeta>');
-                if ($xmp_end !== false) {
-                    $buffer = substr($buffer, $xmp_end, 12);
-                    $inside = false;
-                    $done   = true;
-                }
-
-                $xmp .= $buffer;
-            }
-
-            if ($done) {
-                break;
-            }
-        }
-        fclose($fp);
-
-        if (!$xmp) {
-            return;
-        }
-
-        foreach ($this->xmp_reg as $code => $patterns) {
-            foreach ($patterns as $p) {
-                if (preg_match($p, $xmp, $m)) {
-                    $this->xmp[$code] = $m[1];
-
-                    break;
-                }
-            }
-        }
-
-        if (preg_match('%<dc:subject>\s*<rdf:Bag>(.+?)</rdf:Bag%msu', $xmp, $m)
-            && preg_match_all('%<rdf:li>(.+?)</rdf:li>%msu', $m[1], $m)) {
-            $this->xmp['Keywords'] = implode(',', $m[1]);
-        }
-
-        foreach ($this->xmp as $k => $v) {
-            $this->xmp[$k] = Html::decodeEntities(Text::toUTF8($v));
-        }
-    }
-
-    /**
-     * Read IPTC
-     *
-     * Reads IPTC metadata and assigns values to {@link $iptc}.
-     *
-     * @param string    $f        Image file path
-     */
-    protected function readIPTC($f)
-    {
-        if (!function_exists('iptcparse')) {
-            return;
-        }
-
-        $imageinfo = null;
-        @getimagesize($f, $imageinfo);
-
-        if (!is_array($imageinfo) || !isset($imageinfo['APP13'])) {
-            return;
-        }
-
-        $iptc = @iptcparse($imageinfo['APP13']);
-
-        if (!is_array($iptc)) {
-            return;
-        }
-
-        foreach ($this->iptc_ref as $k => $v) {
-            if (isset($iptc[$k]) && isset($this->iptc_to_property[$v])) {
-                $this->iptc[$this->iptc_to_property[$v]] = Text::toUTF8(trim(implode(',', $iptc[$k])));
-            }
-        }
-    }
-
-    /**
-     * Read EXIF
-     *
-     * Reads EXIF metadata and assigns values to {@link $exif}.
-     *
-     * @param string    $f        Image file path
-     */
-    protected function readEXIF($f)
-    {
-        if (!function_exists('exif_read_data')) {
-            return;
-        }
-
-        $d = @exif_read_data($f, 'ANY_TAG');
-
-        if (!is_array($d)) {
-            return;
-        }
-
-        foreach ($this->exif_to_property as $k => $v) {
-            if (isset($d[$k])) {
-                if (is_array($d[$k])) {
-                    foreach ($d[$k] as $kk => $vv) {
-                        $this->exif[$v . '.' . $kk] = Text::toUTF8((string) $vv);
-                    }
-                } else {
-                    $this->exif[$v] = Text::toUTF8((string) $d[$k]);
-                }
-            }
-        }
-    }
-
-    /**
-     * array $properties Final properties array
-     */
+    /** @var    array   $properties     Final properties array */
     protected $properties = [
         'Title'             => null,
         'Description'       => null,
@@ -256,7 +60,7 @@ class ImageMeta
         'Keywords'          => null
     ];
 
-    # XMP
+    /** @var    array   $xmp_reg     XMP */
     protected $xmp_reg = [
         'Title' => [
             '%<dc:title>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu'
@@ -335,7 +139,7 @@ class ImageMeta
         ]
     ];
 
-    # IPTC
+    /** @var    array   $iptc_reg     IPTC */
     protected $iptc_ref = [
         '1#090' => 'Iptc.Envelope.CharacterSet', // Character Set used (32 chars max)
         '2#005' => 'Iptc.ObjectName',            // Title (64 chars max)
@@ -363,6 +167,7 @@ class ImageMeta
         '2#122' => 'Iptc.CaptionWriter'         // Caption Writer/Editor (32 chars max)
     ];
 
+    /** @var    array   $iptc_to_property   IPTC props */
     protected $iptc_to_property = [
         'Iptc.ObjectName'    => 'Title',
         'Iptc.Caption'       => 'Description',
@@ -375,7 +180,7 @@ class ImageMeta
         'Iptc.Keywords'      => 'Keywords'
     ];
 
-    # EXIF
+    /** @var    array   $exif_to_property   EXIF props */
     protected $exif_to_property = [
         //'' => 'Title',
         'ImageDescription'  => 'Description',
@@ -399,4 +204,203 @@ class ImageMeta
         //'' => 'City',
         //'' => 'Keywords'
     ];
+
+    /**
+     * Read metadata
+     *
+     * Returns all image metadata in an array as defined in {@link $properties}.
+     *
+     * @param   string  $f  Image file path
+     * 
+     * @return  array
+     */
+    public static function readMeta(string $f): array
+    {
+        $o = new self;
+        $o->loadFile($f);
+
+        return $o->getMeta();
+    }
+
+    /**
+     * Get metadata
+     *
+     * Returns all image metadata in an array as defined in {@link $properties}.
+     * Should call {@link loadFile()} before.
+     *
+     * @return  array
+     */
+    public function getMeta(): array
+    {
+        foreach ($this->properties as $k => $v) {
+            if (!empty($this->xmp[$k])) {
+                $this->properties[$k] = $this->xmp[$k];
+            } elseif (!empty($this->iptc[$k])) {
+                $this->properties[$k] = $this->iptc[$k];
+            } elseif (!empty($this->exif[$k])) {
+                $this->properties[$k] = $this->exif[$k];
+            }
+        }
+
+        # Fix date format
+        if (null !== $this->properties['DateTimeOriginal']) {
+            $this->properties['DateTimeOriginal'] = preg_replace(
+                '/^(\d{4}):(\d{2}):(\d{2})/',
+                '$1-$2-$3',
+                $this->properties['DateTimeOriginal']
+            );
+        }
+
+        return $this->properties;
+    }
+
+    /**
+     * Load file
+     *
+     * Loads a file and read its metadata.
+     *
+     * @param   string  $f  Image file path
+     */
+    public function loadFile(string $f): void
+    {
+        if (!is_file($f) || !is_readable($f)) {
+            throw new UtilsException('Unable to read file');
+        }
+
+        $this->readXMP($f);
+        $this->readIPTC($f);
+        $this->readExif($f);
+    }
+
+    /**
+     * Read XMP
+     *
+     * Reads XML metadata and assigns values to {@link $xmp}.
+     *
+     * @param   string  $f  Image file path
+     */
+    protected function readXMP(string $f): void
+    {
+        if (false === ($fp = @fopen($f, 'rb'))) {
+            throw new UtilsException('Unable to open image file');
+        }
+
+        $inside = false;
+        $done   = false;
+        $xmp    = null;
+
+        while (!feof($fp)) {
+            $buffer = fgets($fp, 4096);
+
+            $xmp_start = strpos($buffer, '<x:xmpmeta');
+
+            if (false !== $xmp_start) {
+                $buffer = substr($buffer, $xmp_start);
+                $inside = true;
+            }
+
+            if ($inside) {
+                $xmp_end = strpos($buffer, '</x:xmpmeta>');
+                if (false !== $xmp_end) {
+                    $buffer = substr($buffer, $xmp_end, 12);
+                    $inside = false;
+                    $done   = true;
+                }
+                $xmp .= $buffer;
+            }
+
+            if ($done) {
+                break;
+            }
+        }
+        fclose($fp);
+
+        if (!$xmp) {
+            return;
+        }
+
+        foreach ($this->xmp_reg as $code => $patterns) {
+            foreach ($patterns as $p) {
+                if (preg_match($p, $xmp, $m)) {
+                    $this->xmp[$code] = $m[1];
+
+                    break;
+                }
+            }
+        }
+
+        if (preg_match('%<dc:subject>\s*<rdf:Bag>(.+?)</rdf:Bag%msu', $xmp, $m)
+            && preg_match_all('%<rdf:li>(.+?)</rdf:li>%msu', $m[1], $m)) {
+            $this->xmp['Keywords'] = implode(',', $m[1]);
+        }
+
+        foreach ($this->xmp as $k => $v) {
+            $this->xmp[$k] = Html::decodeEntities(Text::toUTF8($v));
+        }
+    }
+
+    /**
+     * Read IPTC
+     *
+     * Reads IPTC metadata and assigns values to {@link $iptc}.
+     *
+     * @param   string  $f  Image file path
+     */
+    protected function readIPTC(string $f): void
+    {
+        if (!function_exists('iptcparse')) {
+            return;
+        }
+
+        $imageinfo = null;
+        @getimagesize($f, $imageinfo);
+
+        if (!is_array($imageinfo) || !isset($imageinfo['APP13'])) {
+            return;
+        }
+
+        $iptc = @iptcparse($imageinfo['APP13']);
+
+        if (!is_array($iptc)) {
+            return;
+        }
+
+        foreach ($this->iptc_ref as $k => $v) {
+            if (isset($iptc[$k]) && isset($this->iptc_to_property[$v])) {
+                $this->iptc[$this->iptc_to_property[$v]] = Text::toUTF8(trim(implode(',', $iptc[$k])));
+            }
+        }
+    }
+
+    /**
+     * Read EXIF
+     *
+     * Reads EXIF metadata and assigns values to {@link $exif}.
+     *
+     * @param   string  $f  Image file path
+     */
+    protected function readEXIF(string$f): void
+    {
+        if (!function_exists('exif_read_data')) {
+            return;
+        }
+
+        $d = @exif_read_data($f, 'ANY_TAG');
+
+        if (!is_array($d)) {
+            return;
+        }
+
+        foreach ($this->exif_to_property as $k => $v) {
+            if (isset($d[$k])) {
+                if (is_array($d[$k])) {
+                    foreach ($d[$k] as $kk => $vv) {
+                        $this->exif[$v . '.' . $kk] = Text::toUTF8((string) $vv);
+                    }
+                } else {
+                    $this->exif[$v] = Text::toUTF8((string) $d[$k]);
+                }
+            }
+        }
+    }
 }

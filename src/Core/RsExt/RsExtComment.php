@@ -38,12 +38,12 @@ class RsExtComment extends RsExtend
     public function getDate(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->system->date_format;
+            $format = dotclear()->blog()->settings()->get('system')->get('date_format');
         }
 
-        return $type == 'upddt' ?
-            Dt::dt2str($format, $this->rs->comment_upddt, $this->rs->comment_tz) :
-            Dt::dt2str($format, $this->rs->comment_dt);
+        return 'upddt' == $type ?
+            Dt::dt2str($format, $this->rs->f('comment_upddt'), $this->rs->f('comment_tz')) :
+            Dt::dt2str($format, $this->rs->f('comment_dt'));
     }
 
     /**
@@ -58,12 +58,12 @@ class RsExtComment extends RsExtend
     public function getTime(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->system->time_format;
+            $format = dotclear()->blog()->settings()->get('system')->get('time_format');
         }
 
-        return $type == 'upddt' ?
-            Dt::dt2str($format, $this->rs->comment_updt, $this->rs->comment_tz) :
-            Dt::dt2str($format, $this->rs->comment_dt);
+        return 'upddt' == $type ?
+            Dt::dt2str($format, $this->rs->f('comment_updt'), $this->rs->f('comment_tz')) :
+            Dt::dt2str($format, $this->rs->f('comment_dt'));
     }
 
     /**
@@ -75,9 +75,9 @@ class RsExtComment extends RsExtend
      */
     public function getTS(string $type = ''): int
     {
-        return $type == 'upddt' ?
-            (int) strtotime($this->rs->comment_upddt) :
-            (int) strtotime($this->rs->comment_dt);
+        return 'upddt' == $type ?
+            (int) strtotime($this->rs->f('comment_upddt')) :
+            (int) strtotime($this->rs->f('comment_dt'));
     }
 
     /**
@@ -89,9 +89,9 @@ class RsExtComment extends RsExtend
      */
     public function getISO8601Date(string $type = ''): string
     {
-        return $type == 'upddt' ?
-            Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->comment_tz), $this->rs->comment_tz) :
-            Dt::iso8601($this->getTS(), $this->rs->comment_tz);
+        return 'upddt' == $type ?
+            Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->f('comment_tz')), $this->rs->f('comment_tz')) :
+            Dt::iso8601($this->getTS(), $this->rs->f('comment_tz'));
     }
 
     /**
@@ -103,9 +103,9 @@ class RsExtComment extends RsExtend
      */
     public function getRFC822Date(string $type = ''): string
     {
-        return $type == 'upddt' ?
-            Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->comment_tz), $this->rs->comment_tz) :
-            Dt::rfc822($this->getTS(), $this->rs->comment_tz);
+        return 'upddt' == $type ?
+            Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->f('comment_tz')), $this->rs->f('comment_tz')) :
+            Dt::rfc822($this->getTS(), $this->rs->f('comment_tz'));
     }
 
     /**
@@ -118,9 +118,9 @@ class RsExtComment extends RsExtend
      */
     public function getContent(bool $absolute_urls = false): string
     {
-        $res = $this->rs->comment_content;
+        $res = $this->rs->f('comment_content');
 
-        $res = dotclear()->blog()->settings()->system->comments_nofollow ?
+        $res = dotclear()->blog()->settings()->get('system')->get('comments_nofollow') ?
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'UgcURL'], $res);
 
@@ -144,7 +144,7 @@ class RsExtComment extends RsExtend
      */
     public function getAuthorURL(): string
     {
-        return trim((string) $this->rs->comment_site);
+        return trim((string) $this->rs->f('comment_site'));
     }
 
     /**
@@ -155,7 +155,7 @@ class RsExtComment extends RsExtend
     public function getPostURL(): string
     {
         return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
-            $this->rs->post_type, Html::sanitizeURL($this->rs->post_url)
+            $this->rs->f('post_type'), Html::sanitizeURL($this->rs->f('post_url'))
         );
     }
 
@@ -173,11 +173,11 @@ class RsExtComment extends RsExtend
         }
 
         $rel = 'ugc';
-        if (dotclear()->blog()->settings()->system->comments_nofollow) {
+        if (dotclear()->blog()->settings()->get('system')->get('comments_nofollow')) {
             $rel .= ' nofollow';
         }
 
-        return sprintf($res, Html::escapeHTML($this->rs->comment_author), Html::escapeHTML($url), $rel);
+        return sprintf($res, Html::escapeHTML($this->rs->f('comment_author')), Html::escapeHTML($url), $rel);
     }
 
     /**
@@ -190,7 +190,7 @@ class RsExtComment extends RsExtend
      */
     public function getEmail(bool $encoded = true): string
     {
-        return $encoded ? strtr($this->rs->comment_email, ['@' => '%40', '.' => '%2e']) : $this->rs->comment_email;
+        return $encoded ? strtr($this->rs->f('comment_email'), ['@' => '%40', '.' => '%2e']) : $this->rs->f('comment_email');
     }
 
     /**
@@ -200,7 +200,7 @@ class RsExtComment extends RsExtend
      */
     public function getTrackbackTitle(): string
     {
-        return $this->rs->comment_trackback == 1 && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->comment_content, $match) ?
+        return 1 == $this->rs->f('comment_trackback') && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->f('comment_content'), $match) ?
             Html::decodeEntities($match[1]) : '';
     }
 
@@ -211,8 +211,8 @@ class RsExtComment extends RsExtend
      */
     public function getTrackbackContent(): string
     {
-        return $this->rs->comment_trackback == 1 ? 
-            preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->comment_content) : '';
+        return 1 == $this->rs->f('comment_trackback') ? 
+            preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->f('comment_content')) : '';
     }
 
     /**
@@ -222,7 +222,7 @@ class RsExtComment extends RsExtend
      */
     public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->comment_id);
+        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->f('comment_id'));
     }
 
     /**
@@ -232,17 +232,17 @@ class RsExtComment extends RsExtend
      */
     public function isMe(): bool
     {
-        $user_prefs = new Preference($this->rs->user_id, 'profile');
-        $user_profile_mails = $user_prefs->profile->mails ?
-            array_map('trim', explode(',', $user_prefs->profile->mails)) :
+        $user_prefs = new Preference($this->rs->f('user_id'), 'profile');
+        $user_profile_mails = $user_prefs->get('profile')->get('mails') ?
+            array_map('trim', explode(',', $user_prefs->get('profile')->get('mails'))) :
             [];
-        $user_profile_urls = $user_prefs->profile->urls ?
-            array_map('trim', explode(',', $user_prefs->profile->urls)) :
+        $user_profile_urls = $user_prefs->get('profile')->get('urls') ?
+            array_map('trim', explode(',', $user_prefs->get('profile')->get('urls'))) :
             [];
 
         return
-            ($this->rs->comment_email && $this->rs->comment_site)
-            && ($this->rs->comment_email == $this->rs->user_email || in_array($this->rs->comment_email, $user_profile_mails))
-            && ($this->rs->comment_site == $this->rs->user_url || in_array($this->rs->comment_site, $user_profile_urls));
+            ($this->rs->f('comment_email') && $this->rs->f('comment_site'))
+            && ($this->rs->f('comment_email') == $this->rs->f('user_email') || in_array($this->rs->f('comment_email'), $user_profile_mails))
+            && ($this->rs->f('comment_site') == $this->rs->f('user_url') || in_array($this->rs->f('comment_site'), $user_profile_urls));
     }
 }

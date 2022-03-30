@@ -21,7 +21,7 @@ class Prepend extends Core
 {
     protected $process = 'Distrib';
 
-    protected function process(): void
+    protected function process(string $_ = null): void
     {
         if ('cli' != PHP_SAPI) {
             throw new DistribException('Not in CLI mode');

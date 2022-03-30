@@ -22,11 +22,11 @@ class RsExtBlog extends RsExtend
     /**
      * Gets the blog update date timestamp.
      *
-     * @return integer          The ts.
+     * @return  int     The ts.
      */
     public function getTS(): int
     {
-        return (int) strtotime($this->rs->blog_upddt);
+        return (int) strtotime($this->rs->f('blog_upddt'));
     }
 
     /**
@@ -38,7 +38,7 @@ class RsExtBlog extends RsExtend
      */
     public function getISO8601Date(string $tz = ''): string
     {
-        return Dt::iso8601($this->getTS(), $tz ?: dotclear()->blog()->settings()->system->blog_timezone);
+        return Dt::iso8601($this->getTS(), $tz ?: dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
     }
 
     /**
@@ -50,7 +50,7 @@ class RsExtBlog extends RsExtend
      */
     public function getRFC822Date(string $tz = ''): string
     {
-        return Dt::rfc822($this->getTS(), $tz ?: dotclear()->blog()->settings()->system->blog_timezone);
+        return Dt::rfc822($this->getTS(), $tz ?: dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
     }
 
     /**
@@ -63,7 +63,7 @@ class RsExtBlog extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->date_format, $this->rs->blog_upddt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('blog_upddt'));
     }
 
     /**
@@ -76,6 +76,6 @@ class RsExtBlog extends RsExtend
      */
     public function getTime(string $format): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->system->time_format, $this->rs->blog_upddt);
+        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('blog_upddt'));
     }
 }

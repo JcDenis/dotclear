@@ -203,7 +203,7 @@ class Prepend extends Core
     /**
      * Start Dotclear Admin process
      */
-    protected function process(): void
+    protected function process(string $_ = null): void
     {
         # Load core prepend and so on
         parent::process();

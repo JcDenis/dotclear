@@ -15,12 +15,25 @@ namespace Dotclear\Core\Session;
 
 class Session
 {
+    /** @var    string  $table  Session table name */
     private $table;
+
+    /** @var    string  $cookie_name    Session cookie name */
     private $cookie_name;
+
+    /** @var    string  $cookie_path    Session cookie path */
     private $cookie_path;
+
+    /** @var    string  $cookie_domain  Session cookie domani */
     private $cookie_domain;
+
+    /** @var    string  $cookie_secure  Session cookie is secure */
     private $cookie_secure;
+
+    /** @var    string  $ttl    Session time to live */
     private $ttl       = '-120 minutes';
+
+    /** @var    bool    $transient  Session transient */
     private $transient = false;
 
     /**
@@ -31,10 +44,10 @@ class Session
     public function __construct()
     {
         $this->table         = dotclear()->prefix . 'session';
-        $this->cookie_name   = dotclear()->config()->session_name;
+        $this->cookie_name   = dotclear()->config()->get('session_name');
         $this->cookie_path   = '/';
         $this->cookie_domain = '';
-        $this->cookie_secure = dotclear()->config()->admin_ssl;
+        $this->cookie_secure = dotclear()->config()->get('admin_ssl');
         $this->getTTL();
 
         if (function_exists('ini_set')) {
@@ -54,8 +67,8 @@ class Session
     private function getTTL(): void
     {
         # Session time
-        $ttl = dotclear()->config()->session_ttl;
-        if (!is_null($ttl)) {   // @phpstan-ignore-line
+        $ttl = dotclear()->config()->get('session_ttl');
+        if (!is_null($ttl)) {
             $tll = (string) $ttl;
             if (substr(trim($ttl), 0, 1) != '-') {
                 // We requires negative session TTL
@@ -82,7 +95,7 @@ class Session
     /**
      * Session Start
      */
-    public function start()
+    public function start(): void
     {
         session_set_save_handler(
             [&$this, '_open'],
@@ -110,7 +123,7 @@ class Session
      *
      * This method destroies all session data and removes cookie.
      */
-    public function destroy()
+    public function destroy(): void
     {
         $_SESSION = [];
         session_unset();
@@ -123,9 +136,9 @@ class Session
      *
      * This method set the transient flag of the session
      *
-     * @param boolean     $transient     Session transient flag
+     * @param   bool    $transient  Session transient flag
      */
-    public function setTransientSession($transient = false)
+    public function setTransientSession(bool $transient = false): void
     {
         $this->transient = $transient;
     }
@@ -135,10 +148,12 @@ class Session
      *
      * This method returns an array of all session cookie parameters.
      *
-     * @param mixed        $value        Cookie value
-     * @param integer    $expire        Cookie expiration timestamp
+     * @param   mixed   $value      Cookie value
+     * @param   int     $expire     Cookie expiration timestamp
+     * 
+     * @return  array               All cookie params
      */
-    public function getCookieParameters($value = null, $expire = 0)
+    public function getCookieParameters(mixed $value = null, int $expire = 0): array
     {
         return [
             session_name(),
@@ -184,15 +199,15 @@ class Session
 
         $rs = dotclear()->con()->select($strReq);
 
-        $cur            = dotclear()->con()->openCursor($this->table);
-        $cur->ses_time  = (string) time();
-        $cur->ses_value = (string) $data;
+        $cur = dotclear()->con()->openCursor($this->table);
+        $cur->setField('ses_time', (string) time());
+        $cur->setField('ses_value', (string) $data);
 
         if (!$rs->isEmpty()) {
             $cur->update("WHERE ses_id = '" . $this->checkID($ses_id) . "' ");
         } else {
-            $cur->ses_id    = (string) $this->checkID($ses_id);
-            $cur->ses_start = (string) time();
+            $cur->setField('ses_id', (string) $this->checkID($ses_id));
+            $cur->setField('ses_start', (string) time());
 
             $cur->insert();
         }
@@ -223,7 +238,7 @@ class Session
 
         dotclear()->con()->execute($strReq);
 
-        if (dotclear()->con()->changes() > 0) {
+        if (0 < dotclear()->con()->changes()) {
             $this->_optimize();
         }
 

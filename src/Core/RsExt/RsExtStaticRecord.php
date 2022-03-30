@@ -21,7 +21,12 @@ class RsExtStaticRecord extends StaticRecord
     private $sortfield;
     private $sortsign;
 
-    public function __construct($rs)
+    /**
+     * Constructor
+     * 
+     * @params  StaticRecord    $rs     StaticRecord instance
+     */
+    public function __construct(StaticRecord $rs)
     {
         parent::__construct($rs->__data, $rs->__info);
     }
@@ -29,10 +34,10 @@ class RsExtStaticRecord extends StaticRecord
     /**
      * Lexically sort.
      *
-     * @param      string  $field  The field
-     * @param      string  $order  The order
+     * @param   string  $field  The field
+     * @param   string  $order  The order
      */
-    public function lexicalSort($field, $order = 'asc')
+    public function lexicalSort(string $field, string $order = 'asc'): void
     {
         $this->sortfield = $field;
         $this->sortsign  = strtolower($order) == 'asc' ? 1 : -1;
@@ -42,7 +47,16 @@ class RsExtStaticRecord extends StaticRecord
         $this->sortfield = null;
         $this->sortsign  = null;
     }
-    private function lexicalSortCallback($a, $b)
+
+    /**
+     * Lexical sort field
+     * 
+     * @param   array   $a
+     * @param   array   $b
+     * 
+     * @return  int
+     */
+    private function lexicalSortCallback(array $a, array $b): int
     {
         if (!isset($a[$this->sortfield]) || !isset($b[$this->sortfield])) {
             return 0;

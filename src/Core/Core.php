@@ -573,7 +573,7 @@ class Core
     /**
      * Start Dotclear Core process
      */
-    protected function process(): void
+    protected function process(string $_ = null): void
     {
         # Find configuration file
         if (!defined('DOTCLEAR_CONFIG_PATH')) {

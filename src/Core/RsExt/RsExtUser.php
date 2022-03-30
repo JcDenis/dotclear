@@ -25,13 +25,11 @@ class RsExtUser extends RsExtend
      *
      * @return  mixed
      */
-    public function option(string $name)
+    public function option(string $name): mixed
     {
         $options = $this->options();
 
-        if (isset($options[$name])) {
-            return $options[$name];
-        }
+        return isset($options[$name]) ? $options[$name] : null;
     }
 
     /**
@@ -41,7 +39,7 @@ class RsExtUser extends RsExtend
      */
     public function options(): array
     {
-        $options = @unserialize($this->rs->user_options);
+        $options = @unserialize($this->rs->f('user_options'));
         
         return is_array($options) ? $options : [];
     }

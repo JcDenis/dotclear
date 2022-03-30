@@ -112,9 +112,9 @@ class SqlStatement
      *
      * @param mixed     $c      the context(s)
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function ctx($c): SqlStatement
+    public function ctx($c): static
     {
         $this->ctx = $c;
 
@@ -127,9 +127,9 @@ class SqlStatement
      * @param mixed     $c      the column(s)
      * @param boolean   $reset  reset previous column(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function columns($c, bool $reset = false): SqlStatement
+    public function columns($c, bool $reset = false): static
     {
         if ($reset) {
             $this->columns = [];
@@ -149,9 +149,9 @@ class SqlStatement
      * @param mixed     $c      the column(s)
      * @param boolean   $reset  reset previous column(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function fields($c, bool $reset = false): SqlStatement
+    public function fields($c, bool $reset = false): static
     {
         return $this->columns($c, $reset);
     }
@@ -162,9 +162,9 @@ class SqlStatement
      * @param      mixed    $c      the column(s)
      * @param      boolean  $reset  reset previous column(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function column($c, bool $reset = false): SqlStatement
+    public function column($c, bool $reset = false): static
     {
         return $this->columns($c, $reset);
     }
@@ -175,9 +175,9 @@ class SqlStatement
      * @param      mixed    $c      the column(s)
      * @param      boolean  $reset  reset previous column(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function field($c, bool $reset = false): SqlStatement
+    public function field($c, bool $reset = false): static
     {
         return $this->column($c, $reset);
     }
@@ -189,9 +189,9 @@ class SqlStatement
      * @param boolean   $reset  reset previous from(s) first
      * @param boolean   $first  put the from clause(s) at top of list
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function from($c, bool $reset = false, bool $first = false): SqlStatement
+    public function from($c, bool $reset = false, bool $first = false): static
     {
         $filter = fn ($v) => trim(ltrim((string) $v, ','));
         if ($reset) {
@@ -223,9 +223,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous where(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function where($c, bool $reset = false): SqlStatement
+    public function where($c, bool $reset = false): static
     {
         $filter = fn ($v) => preg_replace('/^\s*(AND|OR)\s*/i', '', $v);
         if ($reset) {
@@ -248,9 +248,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous where(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function on($c, bool $reset = false): SqlStatement
+    public function on($c, bool $reset = false): static
     {
         return $this->where($c, $reset);
     }
@@ -261,9 +261,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function cond($c, bool $reset = false): SqlStatement
+    public function cond($c, bool $reset = false): static
     {
         if ($reset) {
             $this->cond = [];
@@ -283,9 +283,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function and($c, bool $reset = false): SqlStatement
+    public function and($c, bool $reset = false): static
     {
         return $this->cond(array_map(fn ($v) => 'AND ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
@@ -310,9 +310,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function or($c, bool $reset = false): SqlStatement
+    public function or($c, bool $reset = false): static
     {
         return $this->cond(array_map(fn ($v) => 'OR ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
@@ -337,9 +337,9 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous generic clause(s) first
      *
-     * @return self instance, enabling to chain calls
+     * @return  SqlStatement    enabling to chain calls
      */
-    public function sql($c, bool $reset = false): SqlStatement
+    public function sql($c, bool $reset = false): static
     {
         if ($reset) {
             $this->sql = [];

@@ -17,7 +17,7 @@ use Dotclear\Helper\Html\Html;;
 
 class PostType
 {
-    /** @var array              formaters container */
+    /** @var    array   Formaters container */
     private $post_types  = [];
 
     /**
