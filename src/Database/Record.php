@@ -452,6 +452,6 @@ class Record implements Iterator, Countable
      */
     public function fInt(string|int $n = 0): int
     {
-        return $this->count() == 0 ? 0 : (int) $this->__row[$n];
+        return $this->count() == 0 ? 0 : (int) $this->field($n);
     }
 }
