@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin;
 
 use Dotclear\Exception\AdminException;
-use Dotclear\Plugin\Maintenance\Admin\Maintenance;
+use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\XmlTag;
 
