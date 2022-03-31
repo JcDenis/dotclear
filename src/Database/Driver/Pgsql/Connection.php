@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Pgsql;
 
 use Dotclear\Database\AbstractConnection;
+use Dotclear\Database\Record;
 use Dotclear\Exception\DatabaseException;
 
 class Connection extends AbstractConnection
@@ -129,6 +130,8 @@ class Connection extends AbstractConnection
 
             return $res;
         }
+
+        return null;
     }
 
     public function db_exec(mixed $handle, string $query): mixed

@@ -16,9 +16,8 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Pgsql;
 
 use Dotclear\Database\AbstractSchema;
-use Dotclear\Database\InterfaceSchema;
 
-class Schema extends AbstractSchema implements InterfaceSchema
+class Schema extends AbstractSchema
 {
     protected $ref_actions_map = [
         'a' => 'no action',
@@ -28,14 +27,14 @@ class Schema extends AbstractSchema implements InterfaceSchema
         'd' => 'set default'
     ];
 
-    public function dbt2udt(string $type, ?int &$len, &$default): string
+    public function dbt2udt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::dbt2udt($type, $len, $default);
 
         return $type;
     }
 
-    public function udt2dbt(string $type, ?int &$len, &$default): string
+    public function udt2dbt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::udt2dbt($type, $len, $default);
 
@@ -69,11 +68,11 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $field   = trim($rs->column_name);
-            $type    = trim($rs->udt_name);
-            $null    = strtolower($rs->is_nullable) == 'yes';
-            $default = $rs->column_default;
-            $len     = (int) $rs->character_maximum_length;
+            $field   = trim($rs->f('column_name'));
+            $type    = trim($rs->f('udt_name'));
+            $null    = strtolower($rs->f('is_nullable')) == 'yes';
+            $default = $rs->f('column_default');
+            $len     = (int) $rs->f('character_maximum_length');
 
             if (!$len) {
                 $len = null;
@@ -121,14 +120,14 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $res = [];
         while ($rs->fetch()) {
             $k = [
-                'name'    => $rs->idxname,
-                'primary' => (bool) $rs->indisprimary,
-                'unique'  => (bool) $rs->indisunique,
+                'name'    => $rs->f('idxname'),
+                'primary' => (bool) $rs->f('indisprimary'),
+                'unique'  => (bool) $rs->f('indisunique'),
                 'cols'    => []
             ];
 
-            for ($i = 1; $i <= $rs->indnatts; $i++) {
-                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->oid . '::oid, ' . $i . ', true);');
+            for ($i = 1; $i <= (int) $rs->f('indnatts'); $i++) {
+                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
                 $k['cols'][] = $cols->f(0);
             }
 
@@ -161,13 +160,13 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $res = [];
         while ($rs->fetch()) {
             $k = [
-                'name' => $rs->idxname,
-                'type' => $rs->amname,
+                'name' => $rs->f('idxname'),
+                'type' => $rs->f('amname'),
                 'cols' => []
             ];
 
-            for ($i = 1; $i <= $rs->indnatts; $i++) {
-                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->oid . '::oid, ' . $i . ', true);');
+            for ($i = 1; $i <= (int) $rs->f('indnatts'); $i++) {
+                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
                 $k['cols'][] = $cols->f(0);
             }
 
@@ -200,22 +199,22 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $conkey  = preg_replace('/[^\d]/', '', $rs->conkey);
-            $confkey = preg_replace('/[^\d]/', '', $rs->confkey);
+            $conkey  = preg_replace('/[^\d]/', '', $rs->f('conkey'));
+            $confkey = preg_replace('/[^\d]/', '', $rs->f('confkey'));
 
             $k = [
-                'name'    => $rs->conname,
+                'name'    => $rs->f('conname'),
                 'c_cols'  => [],
-                'p_table' => $rs->reftab,
+                'p_table' => $rs->f('reftab'),
                 'p_cols'  => [],
-                'update'  => $this->ref_actions_map[$rs->confupdtype],
-                'delete'  => $this->ref_actions_map[$rs->confdeltype]
+                'update'  => $this->ref_actions_map[$rs->f('confupdtype')],
+                'delete'  => $this->ref_actions_map[$rs->f('confdeltype')]
             ];
 
-            $cols = $this->con->select(sprintf($cols_sql, $rs->conrelid, $conkey, $rs->confrelid, $confkey));
+            $cols = $this->con->select(sprintf($cols_sql, $rs->f('conrelid'), $conkey, $rs->f('confrelid'), $confkey));
             while ($cols->fetch()) {
-                $k['c_cols'][] = $cols->conattname;
-                $k['p_cols'][] = $cols->confattname;
+                $k['c_cols'][] = $cols->f('conattname');
+                $k['p_cols'][] = $cols->f('confattname');
             }
 
             $res[] = $k;
@@ -257,7 +256,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $this->con->execute($sql);
     }
 
-    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, $default): void
+    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, mixed $default): void
     {
         $type = $this->udt2dbt($type, $len, $default);
 

@@ -16,11 +16,10 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Mysqli;
 
 use Dotclear\Database\AbstractSchema;
-use Dotclear\Database\InterfaceSchema;
 
-class Schema extends AbstractSchema implements InterfaceSchema
+class Schema extends AbstractSchema
 {
-    public function dbt2udt(string $type, ?int &$len, &$default): string
+    public function dbt2udt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::dbt2udt($type, $len, $default);
 
@@ -69,7 +68,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         return $type;
     }
 
-    public function udt2dbt(string $type, ?int &$len, &$default): string
+    public function udt2dbt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::udt2dbt($type, $len, $default);
 
@@ -287,7 +286,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $this->con->execute($sql);
     }
 
-    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, $default): void
+    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, mixed $default): void
     {
         $type = $this->udt2dbt($type, $len, $default);
 

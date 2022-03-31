@@ -39,9 +39,9 @@ abstract class AbstractConnection implements InterfaceConnection
      * @param   string  $password       Password
      * @param   bool    $persistent     Persistent connection
      * 
-     * @return object
+     * @return  AbstractConnection
      */
-    public static function init(string $driver, string $host, string $database, string $user = '', string $password = '', bool $persistent = false): static
+    public static function init(string $driver, string $host, string $database, string $user = '', string $password = '', bool $persistent = false): AbstractConnection
     {
         $parent = __CLASS__;
         $class  = '';

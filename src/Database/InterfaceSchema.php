@@ -84,7 +84,7 @@ interface InterfaceSchema
 
     public function db_create_table(string $name, array $fields): void;
 
-    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, $default): void;
+    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, mixed $default): void;
 
     public function db_create_primary(string $table, string $name, array $cols): void;
 

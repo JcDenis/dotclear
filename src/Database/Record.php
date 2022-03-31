@@ -40,8 +40,8 @@ class Record implements Iterator, Countable
      * - info[name] => an array with columns names
      * - info[type] => an array with columns types
      *
-     * @param   mixed   $result     Resource result
-     * @param   array   $info       Information array
+     * @param   mixed   $__result   Resource result
+     * @param   array   $__info     Information array
      */
     public function __construct(protected mixed $__result, protected array $__info)
     {

@@ -16,17 +16,16 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Sqlite;
 
 use Dotclear\Database\AbstractSchema;
-use Dotclear\Database\InterfaceSchema;
 use Dotclear\Exception\DatabaseException;
 
-class Schema extends AbstractSchema implements InterfaceSchema
+class Schema extends AbstractSchema
 {
     private $table_hist = [];
 
     private $table_stack = []; // Stack for tables creation
     private $x_stack     = []; // Execution stack
 
-    public function dbt2udt(string $type, ?int &$len, &$default): string
+    public function dbt2udt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::dbt2udt($type, $len, $default);
 
@@ -58,7 +57,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         return $type;
     }
 
-    public function udt2dbt(string $type, ?int &$len, &$default): string
+    public function udt2dbt(string $type, ?int &$len, mixed &$default): string
     {
         $type = parent::udt2dbt($type, $len, $default);
 
@@ -105,7 +104,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $res[] = $rs->tbl_name;
+            $res[] = $rs->f('tbl_name');
         }
 
         return $res;
@@ -118,10 +117,10 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $field   = trim($rs->name);
-            $type    = trim($rs->type);
-            $null    = trim($rs->notnull) == 0;
-            $default = trim($rs->dflt_value);
+            $field   = trim($rs->f('name'));
+            $type    = trim($rs->f('type'));
+            $null    = trim($rs->f('notnull')) == 0;
+            $default = trim($rs->f('dflt_value'));
 
             $len = null;
             if (preg_match('/^(.+?)\(([\d,]+)\)$/si', $type, $m)) {
@@ -154,7 +153,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         }
 
         # Get primary keys
-        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+PRIMARY\s+KEY\s+\((.+?)\)/msi', $rs->sql, $match);
+        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+PRIMARY\s+KEY\s+\((.+?)\)/msi', $rs->f('sql'), $match);
         if ($n > 0) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
@@ -168,7 +167,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         }
 
         # Get unique keys
-        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+UNIQUE\s+\((.+?)\)/msi', $rs->sql, $match);
+        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+UNIQUE\s+\((.+?)\)/msi', $rs->f('sql'), $match);
         if ($n > 0) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
@@ -191,18 +190,18 @@ class Schema extends AbstractSchema implements InterfaceSchema
 
         $res = [];
         while ($rs->fetch()) {
-            if (preg_match('/^sqlite_/', $rs->name)) {
+            if (preg_match('/^sqlite_/', $rs->f('name'))) {
                 continue;
             }
 
-            $idx  = $this->con->select('PRAGMA index_info(' . $this->con->escapeSystem($rs->name) . ')');
+            $idx  = $this->con->select('PRAGMA index_info(' . $this->con->escapeSystem($rs->f('name')) . ')');
             $cols = [];
             while ($idx->fetch()) {
-                $cols[] = $idx->name;
+                $cols[] = $idx->f('name');
             }
 
             $res[] = [
-                'name' => $rs->name,
+                'name' => $rs->f('name'),
                 'type' => 'btree',
                 'cols' => $cols
             ];
@@ -220,13 +219,13 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $bir = $this->con->select(sprintf($sql, $this->con->escape($table), 'bir'));
         $bur = $this->con->select(sprintf($sql, $this->con->escape($table), 'bur'));
 
-        if ($bir->isEmpty() || $bur->isempty()) {
+        if ($bir->isEmpty() || $bur->isEmpty()) {
             return $res;
         }
 
         while ($bir->fetch()) {
             # Find child column and parent table and column
-            if (!preg_match('/FROM\s+(.+?)\s+WHERE\s+(.+?)\s+=\s+NEW\.(.+?)\s*?\) IS\s+NULL/msi', $bir->sql, $m)) {
+            if (!preg_match('/FROM\s+(.+?)\s+WHERE\s+(.+?)\s+=\s+NEW\.(.+?)\s*?\) IS\s+NULL/msi', $bir->f('sql'), $m)) {
                 continue;
             }
 
@@ -238,19 +237,19 @@ class Schema extends AbstractSchema implements InterfaceSchema
             $on_update = 'restrict';
             $aur       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'aur'));
             while ($aur->fetch()) {
-                if (!preg_match('/AFTER\s+UPDATE/msi', $aur->sql)) {
+                if (!preg_match('/AFTER\s+UPDATE/msi', $aur->f('sql'))) {
                     continue;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NEW.' . $p_col .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->sql)) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->f('sql'))) {
                     $on_update = 'cascade';
 
                     break;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NULL' .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->sql)) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->f('sql'))) {
                     $on_update = 'set null';
 
                     break;
@@ -261,18 +260,18 @@ class Schema extends AbstractSchema implements InterfaceSchema
             $on_delete = 'restrict';
             $bdr       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'bdr'));
             while ($bdr->fetch()) {
-                if (!preg_match('/BEFORE\s+DELETE/msi', $bdr->sql)) {
+                if (!preg_match('/BEFORE\s+DELETE/msi', $bdr->f('sql'))) {
                     continue;
                 }
 
-                if (preg_match('/DELETE\s+FROM\s+' . $table . '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->sql)) {
+                if (preg_match('/DELETE\s+FROM\s+' . $table . '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->f('sql'))) {
                     $on_delete = 'cascade';
 
                     break;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NULL' .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->sql)) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->f('sql'))) {
                     $on_update = 'set null';
 
                     break;
@@ -280,7 +279,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
             }
 
             $res[] = [
-                'name'    => substr($bir->name, 4),
+                'name'    => substr($bir->f('name'), 4),
                 'c_cols'  => [$c_col],
                 'p_table' => $p_table,
                 'p_cols'  => [$p_col],
@@ -321,7 +320,7 @@ class Schema extends AbstractSchema implements InterfaceSchema
         $this->table_hist[$name]    = $fields;
     }
 
-    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, $default): void
+    public function db_create_field(string $table, string $name, string $type, ?int $len, bool $null, mixed $default): void
     {
         $type = $this->udt2dbt($type, $len, $default);
 
