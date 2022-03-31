@@ -15,19 +15,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqlimb4;
 
+use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
 use Dotclear\Exception\DatabaseException;
 
-use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
-use Dotclear\Database\InterfaceConnection;
-
-class Connection extends BaseConnection implements InterfaceConnection
+class Connection extends BaseConnection
 {
     public static $weak_locks = true; ///< boolean: Enables weak locks if true
 
     protected $__driver = 'mysqlimb4';
     protected $__syntax = 'mysql';
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database): mixed
     {
         if (!function_exists('mysqli_connect')) {
             throw new DatabaseException('PHP MySQLi functions are not available');
@@ -58,7 +56,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return $link;
     }
 
-    public function db_pconnect($host, $user, $password, $database)
+    public function db_pconnect(string $host, string $user, string $password, string $database): mixed
     {
         // No pconnect with mysqli, below code is for comatibility
         return $this->db_connect($host, $user, $password, $database);
@@ -82,14 +80,14 @@ class Connection extends BaseConnection implements InterfaceConnection
         }
     }
 
-    public function db_close($handle)
+    public function db_close(mixed $handle): void
     {
         if ($handle instanceof \MySQLi) {
             mysqli_close($handle);
         }
     }
 
-    public function db_version($handle)
+    public function db_version(mixed $handle): string
     {
         if ($handle instanceof \MySQLi) {
             $v = mysqli_get_server_version($handle);
@@ -100,7 +98,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_query($handle, $query)
+    public function db_query(mixed $handle, string $query): mixed
     {
         if ($handle instanceof \MySQLi) {
             $res = @mysqli_query($handle, $query);
@@ -116,12 +114,12 @@ class Connection extends BaseConnection implements InterfaceConnection
         return null;
     }
 
-    public function db_exec($handle, $query)
+    public function db_exec(mixed $handle, string $query): mixed
     {
         return $this->db_query($handle, $query);
     }
 
-    public function db_num_fields($res)
+    public function db_num_fields(mixed $res): int
     {
         if ($res instanceof \MySQLi_Result) {
             //return mysql_num_fields($res);
@@ -131,7 +129,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_num_rows($res)
+    public function db_num_rows(mixed $res): int
     {
         if ($res instanceof \MySQLi_Result) {
             return $res->num_rows;
@@ -140,7 +138,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_field_name($res, $position)
+    public function db_field_name(mixed $res, int $position): string
     {
         if ($res instanceof \MySQLi_Result) {
             $res->field_seek($position);
@@ -152,7 +150,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_field_type($res, $position)
+    public function db_field_type(mixed $res, int $position): string
     {
         if ($res instanceof \MySQLi_Result) {
             $res->field_seek($position);
@@ -164,7 +162,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_fetch_assoc($res)
+    public function db_fetch_assoc(mixed $res): array|false
     {
         if ($res instanceof \MySQLi_Result) {
             $v = $res->fetch_assoc();
@@ -175,7 +173,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_result_seek($res, $row)
+    public function db_result_seek(mixed $res, int $row): bool
     {
         if ($res instanceof \MySQLi_Result) {
             return $res->data_seek($row);
@@ -184,7 +182,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_changes($handle, $res)
+    public function db_changes(mixed $handle, mixed $res): int
     {
         if ($handle instanceof \MySQLi) {
             return mysqli_affected_rows($handle);
@@ -193,7 +191,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_last_error($handle)
+    public function db_last_error(mixed $handle): string|false
     {
         if ($handle instanceof \MySQLi) {
             $e = mysqli_error($handle);
@@ -205,7 +203,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_escape_string($str, $handle = null)
+    public function db_escape_string(string $str, mixed $handle = null): string
     {
         if ($handle instanceof \MySQLi) {
             return mysqli_real_escape_string($handle, (string) $str);
@@ -214,7 +212,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return addslashes($str);
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table): void
     {
         try {
             $this->execute('LOCK TABLES ' . $this->escapeSystem($table) . ' WRITE');
@@ -226,7 +224,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         }
     }
 
-    public function db_unlock()
+    public function db_unlock(): void
     {
         try {
             $this->execute('UNLOCK TABLES');
@@ -237,19 +235,19 @@ class Connection extends BaseConnection implements InterfaceConnection
         }
     }
 
-    public function vacuum($table)
+    public function db_vacuum(string $table): void
     {
         $this->execute('OPTIMIZE TABLE ' . $this->escapeSystem($table));
     }
 
-    public function dateFormat($field, $pattern)
+    public function dateFormat(string $field, string $pattern): string
     {
         $pattern = str_replace('%M', '%i', $pattern);
 
         return 'DATE_FORMAT(' . $field . ',' . "'" . $this->escape($pattern) . "') ";
     }
 
-    public function orderBy()
+    public function orderBy(): string
     {
         $default = [
             'order'   => '',
@@ -268,7 +266,7 @@ class Connection extends BaseConnection implements InterfaceConnection
         return empty($res) ? '' : ' ORDER BY ' . implode(',', $res) . ' ';
     }
 
-    public function lexFields()
+    public function lexFields(): string
     {
         $fmt = '%s COLLATE utf8mb4_unicode_ci';
         foreach (func_get_args() as $v) {
@@ -282,19 +280,19 @@ class Connection extends BaseConnection implements InterfaceConnection
         return empty($res) ? '' : implode(',', $res);
     }
 
-    public function concat()
+    public function concat(): string 
     {
         $args = func_get_args();
 
         return 'CONCAT(' . implode(',', $args) . ')';
     }
 
-    public function escapeSystem($str)
+    public function escapeSystem(string $str): string
     {
         return '`' . $str . '`';
     }
 
-    protected function _convert_types($id)
+    protected function _convert_types(mixed $id): string
     {
         $id2type = [
             '1' => 'int',

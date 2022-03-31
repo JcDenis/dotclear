@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-abstract class AbstractConnection
+use Dotclear\Database\InterfaceConnection;
+
+abstract class AbstractConnection implements InterfaceConnection
 {
     protected $__driver  = null; ///< string: Driver name
     protected $__syntax  = null; ///< string: SQL syntax name
@@ -30,15 +32,16 @@ abstract class AbstractConnection
      * Static function to use to init database layer. Returns a object extending
      * dbLayer.
      *
-     * @param string    $driver        Driver name
-     * @param string    $host        Database hostname
-     * @param string    $database        Database name
-     * @param string    $user        User ID
-     * @param string    $password        Password
-     * @param boolean   $persistent    Persistent connection
+     * @param   string  $driver         Driver name
+     * @param   string  $host           Database hostname
+     * @param   string  $database       Database name
+     * @param   string  $user           User ID
+     * @param   string  $password       Password
+     * @param   bool    $persistent     Persistent connection
+     * 
      * @return object
      */
-    public static function init($driver, $host, $database, $user = '', $password = '', $persistent = false)
+    public static function init(string $driver, string $host, string $database, string $user = '', string $password = '', bool $persistent = false): static
     {
         $parent = __CLASS__;
         $class  = '';
@@ -61,13 +64,14 @@ abstract class AbstractConnection
     }
 
     /**
-     * @param string    $host        Database hostname
-     * @param string    $database        Database name
-     * @param string    $user        User ID
-     * @param string    $password        Password
-     * @param boolean   $persistent    Persistent connection
+     * @param   string  $host           Database hostname
+     * @param   string  $database       Database name
+     * @param   string  $user           User ID
+     * @param   string  $password       Password
+     * 
+     * @param   bool    $persistent     Persistent connection
      */
-    public function __construct($host, $database, $user = '', $password = '', $persistent = false)
+    public function __construct(string $host, string $database, string $user = '', string $password = '', bool $persistent = false)
     {
         if ($persistent) {
             /* @phpstan-ignore-next-line */
@@ -85,7 +89,7 @@ abstract class AbstractConnection
     /**
      * Closes database connection.
      */
-    public function close()
+    public function close(): void
     {
         /* @phpstan-ignore-next-line */
         $this->db_close($this->__link);
@@ -94,9 +98,9 @@ abstract class AbstractConnection
     /**
      * Returns database driver name
      *
-     * @return string
+     * @return  string
      */
-    public function driver()
+    public function driver(): string
     {
         return $this->__driver;
     }
@@ -104,9 +108,9 @@ abstract class AbstractConnection
     /**
      * Returns database SQL syntax name
      *
-     * @return string
+     * @return  string
      */
-    public function syntax()
+    public function syntax(): string
     {
         return $this->__syntax;
     }
@@ -114,9 +118,9 @@ abstract class AbstractConnection
     /**
      * Returns database driver version
      *
-     * @return string
+     * @return  string
      */
-    public function version()
+    public function version(): string
     {
         return $this->__version;
     }
@@ -124,9 +128,9 @@ abstract class AbstractConnection
     /**
      * Returns current database name
      *
-     * @return string
+     * @return  string
      */
-    public function database()
+    public function database(): string
     {
         return $this->__database;
     }
@@ -134,9 +138,9 @@ abstract class AbstractConnection
     /**
      * Returns link resource
      *
-     * @return resource
+     * @return  mixed   The resource
      */
-    public function link()
+    public function link(): mixed
     {
         return $this->__link;
     }
@@ -146,10 +150,11 @@ abstract class AbstractConnection
      *
      * Executes a query and return a {@link Record} object.
      *
-     * @param string    $sql            SQL query
-     * @return Record
+     * @param   string  $sql    SQL query
+     * 
+     * @return  Record
      */
-    public function select($sql)
+    public function select(string $sql): Record
     {
         /* @phpstan-ignore-next-line */
         $result = $this->db_query($this->__link, $sql);
@@ -181,7 +186,7 @@ abstract class AbstractConnection
      *
      * @return Record
      */
-    public function nullRecord()
+    public function nullRecord(): Record
     {
         $result = false;
 
@@ -199,10 +204,11 @@ abstract class AbstractConnection
      *
      * Executes a query and return true if succeed
      *
-     * @param string    $sql            SQL query
-     * @return true
+     * @param   string  $sql    SQL query
+     * 
+     * @return  bool            True
      */
-    public function execute($sql)
+    public function execute(string $sql): bool
     {
         /* @phpstan-ignore-next-line */
         $result = $this->db_exec($this->__link, $sql);
@@ -218,7 +224,7 @@ abstract class AbstractConnection
      * Begins a transaction. Transaction should be {@link commit() commited}
      * or {@link rollback() rollbacked}.
      */
-    public function begin()
+    public function begin(): void
     {
         $this->execute('BEGIN');
     }
@@ -228,7 +234,7 @@ abstract class AbstractConnection
      *
      * Commits a previoulsy started transaction.
      */
-    public function commit()
+    public function commit(): void
     {
         $this->execute('COMMIT');
     }
@@ -238,7 +244,7 @@ abstract class AbstractConnection
      *
      * Rollbacks a previously started transaction.
      */
-    public function rollback()
+    public function rollback(): void
     {
         $this->execute('ROLLBACK');
     }
@@ -248,9 +254,9 @@ abstract class AbstractConnection
      *
      * This method lock the given table in write access.
      *
-     * @param string    $table        Table name
+     * @param   string  $table  Table name
      */
-    public function writeLock($table)
+    public function writeLock(string $table): void
     {
         /* @phpstan-ignore-next-line */
         $this->db_write_lock($table);
@@ -261,7 +267,7 @@ abstract class AbstractConnection
      *
      * This method releases an acquiered lock.
      */
-    public function unlock()
+    public function unlock(): void
     {
         /* @phpstan-ignore-next-line */
         $this->db_unlock();
@@ -270,10 +276,12 @@ abstract class AbstractConnection
     /**
      * Vacuum the table given in argument.
      *
-     * @param string    $table        Table name
+     * @param   string  $table Table name
      */
-    public function vacuum($table)
+    public function vacuum(string $table): void
     {
+        /* @phpstan-ignore-next-line */
+        $this->db_vacuum($table);
     }
 
     /**
@@ -282,9 +290,9 @@ abstract class AbstractConnection
      * Returns the number of lines affected by the last DELETE, INSERT or UPDATE
      * query.
      *
-     * @return integer
+     * @return  int
      */
-    public function changes()
+    public function changes(): int
     {
         /* @phpstan-ignore-next-line */
         return $this->db_changes($this->__link, $this->__last_result);
@@ -295,18 +303,12 @@ abstract class AbstractConnection
      *
      * Returns the last database error or false if no error.
      *
-     * @return string|false
+     * @return  string|false
      */
-    public function error()
+    public function error(): string|false
     {
         /* @phpstan-ignore-next-line */
-        $err = $this->db_last_error($this->__link);
-
-        if (!$err) {
-            return false;
-        }
-
-        return $err;
+        return $this->db_last_error($this->__link) ?: false;
     }
 
     /**
@@ -323,11 +325,12 @@ abstract class AbstractConnection
      * - %S : Seconds (00..59)
      * - %Y : Year, numeric, four digits
      *
-     * @param string    $field            Field name
-     * @param string    $pattern            Date format
-     * @return string
+     * @param   string  $field      Field name
+     * @param   string  $pattern    Date format
+     * 
+     * @return  string
      */
-    public function dateFormat($field, $pattern)
+    public function dateFormat(string $field, string $pattern): string
     {
         return
         'TO_CHAR(' . $field . ',' . "'" . $this->escape($pattern) . "') ";
@@ -340,11 +343,12 @@ abstract class AbstractConnection
      * offset and limit or an integer which is only limit. If <var>$arg2</var>
      * is given and <var>$arg1</var> is an integer, it would become limit.
      *
-     * @param array|integer    $arg1        array or integer with limit intervals
-     * @param array|null        $arg2        integer or null
-     * @return string
+     * @param   array|int   $arg1   array or integer with limit intervals
+     * @param   array|null  $arg2   integer or null
+     * 
+     * @return  string
      */
-    public function limit($arg1, $arg2 = null)
+    public function limit(array|int $arg1, array|null $arg2 = null): string
     {
         if (is_array($arg1)) {
             $arg1 = array_values($arg1);
@@ -367,10 +371,11 @@ abstract class AbstractConnection
      * Returns a IN query fragment where $in could be an array, a string,
      * an integer or null
      *
-     * @param array|string|integer|null        $in        "IN" values
-     * @return string
+     * @param   array|string|int|null   $in     "IN" values
+     * 
+     * @return  string
      */
-    public function in($in)
+    public function in(array|string|int|null $in): string
     {
         if (is_null($in)) {
             return ' IN (NULL) ';
@@ -404,9 +409,9 @@ abstract class AbstractConnection
      *
      * string param field name (Binary ascending order)
      *
-     * @return string
+     * @return  string
      */
-    public function orderBy()
+    public function orderBy(): string
     {
         $default = [
             'order'   => '',
@@ -433,9 +438,9 @@ abstract class AbstractConnection
      * array param: list of field names
      * string param: field name
      *
-     * @return string
+     * @return  string
      */
-    public function lexFields()
+    public function lexFields(): string
     {
         $fmt = 'LOWER(%s)';
         foreach (func_get_args() as $v) {
@@ -455,9 +460,9 @@ abstract class AbstractConnection
      * Returns SQL concatenation of methods arguments. Theses arguments
      * should be properly escaped when needed.
      *
-     * @return string
+     * @return  string
      */
-    public function concat()
+    public function concat(): string
     {
         $args = func_get_args();
 
@@ -469,10 +474,11 @@ abstract class AbstractConnection
      *
      * Returns SQL protected string or array values.
      *
-     * @param string|array    $i        String or array to protect
-     * @return string|array
+     * @param   string|array    $i        String or array to protect
+     * 
+     * @return  string|array
      */
-    public function escape($i)
+    public function escape(string|array $i): string|array
     {
         if (is_array($i)) {
             foreach ($i as $k => $s) {
@@ -492,10 +498,11 @@ abstract class AbstractConnection
      *
      * Returns SQL system protected string.
      *
-     * @param string        $str        String to protect
-     * @return string
+     * @param   string  $str    String to protect
+     * 
+     * @return  string
      */
-    public function escapeSystem($str)
+    public function escapeSystem(string $str): string
     {
         return '"' . $str . '"';
     }
@@ -506,10 +513,11 @@ abstract class AbstractConnection
      * Returns a new instance of {@link Cursor} class on <var>$table</var> for
      * the current connection.
      *
-     * @param string        $table    Target table
-     * @return Cursor
+     * @param   string  $table  Target table
+     * 
+     * @return  Cursor
      */
-    public function openCursor($table)
+    public function openCursor(string $table): Cursor
     {
         return new Cursor($this, $table);
     }

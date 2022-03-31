@@ -17,18 +17,18 @@ namespace Dotclear\Database\Driver\Sqlite;
 
 
 use Dotclear\Database\AbstractConnection;
-use Dotclear\Database\InterfaceConnection;
+use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\DatabaseException;
 
-class Connection extends AbstractConnection implements InterfaceConnection
+class Connection extends AbstractConnection
 {
     protected $__driver        = 'sqlite';
     protected $__syntax        = 'sqlite';
     protected $utf8_unicode_ci = null;
     protected $vacuum          = false;
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database): mixed
     {
         if (!class_exists('\PDO') || !in_array('sqlite', \PDO::getAvailableDrivers())) {
             throw new DatabaseException('PDO SQLite class is not available');
@@ -40,7 +40,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return $link;
     }
 
-    public function db_pconnect($host, $user, $password, $database)
+    public function db_pconnect(string $host, string $user, string $password, string $database): mixed
     {
         if (!class_exists('\PDO') || !in_array('sqlite', \PDO::getAvailableDrivers())) {
             throw new DatabaseException('PDO SQLite class is not available');
@@ -67,7 +67,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         }
     }
 
-    public function db_close($handle)
+    public function db_close(mixed $handle): void
     {
         if ($handle instanceof \PDO) {
             if ($this->vacuum) {
@@ -78,7 +78,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         }
     }
 
-    public function db_version($handle)
+    public function db_version(mixed $handle): string
     {
         if ($handle instanceof \PDO) {
             return $handle->getAttribute(\PDO::ATTR_SERVER_VERSION);
@@ -88,7 +88,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
     }
 
     # There is no other way than get all selected data in a staticRecord
-    public function select($sql)
+    public function select(string $sql): Record //StaticRecord
     {
         $result              = $this->db_query($this->__link, $sql);
         $this->__last_result = &$result;
@@ -120,7 +120,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return new StaticRecord($data, $info);
     }
 
-    public function db_query($handle, $query)
+    public function db_query(mixed $handle, string $query): mixed
     {
         if ($handle instanceof \PDO) {
             $res = $handle->query($query);
@@ -136,12 +136,12 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return null;
     }
 
-    public function db_exec($handle, $query)
+    public function db_exec(mixed $handle, string $query): mixed
     {
         return $this->db_query($handle, $query);
     }
 
-    public function db_num_fields($res)
+    public function db_num_fields(mixed $res): int
     {
         if ($res instanceof \PDOStatement) {
             return $res->columnCount();
@@ -150,12 +150,12 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_num_rows($res)
+    public function db_num_rows(mixed $res): int
     {
         return 0;
     }
 
-    public function db_field_name($res, $position)
+    public function db_field_name(mixed $res, int $position): string
     {
         if ($res instanceof \PDOStatement) {
             $m = $res->getColumnMeta($position);
@@ -166,36 +166,32 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_field_type($res, $position)
+    public function db_field_type(mixed $res, int $position): string
     {
         if ($res instanceof \PDOStatement) {
             $m = $res->getColumnMeta($position);
-            switch ($m['\PDO_type']) {
-                case \PDO::PARAM_BOOL:
-                    return 'boolean';
-                case \PDO::PARAM_NULL:
-                    return 'null';
-                case \PDO::PARAM_INT:
-                    return 'integer';
-                default:
-                    return 'varchar';
-            }
+            return match($m['\PDO_type']) {
+                \PDO::PARAM_BOOL => 'boolean',
+                \PDO::PARAM_NULL => 'null',
+                \PDO::PARAM_INT  => 'integer',
+                default          => 'varchar',
+            };
         }
 
         return '';
     }
 
-    public function db_fetch_assoc($res)
+    public function db_fetch_assoc(mixed $res): array|false
     {
         return false;
     }
 
-    public function db_result_seek($res, $row)
+    public function db_result_seek(mixed $res, int $row): bool
     {
         return false;
     }
 
-    public function db_changes($handle, $res)
+    public function db_changes(mixed $handle, mixed $res): int
     {
         if ($res instanceof \PDOStatement) {
             return $res->rowCount();
@@ -204,7 +200,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_last_error($handle)
+    public function db_last_error(mixed $handle): string|false
     {
         if ($handle instanceof \PDO) {
             $err = $handle->errorInfo();
@@ -215,7 +211,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_escape_string($str, $handle = null)
+    public function db_escape_string(string $str, mixed $handle = null): string
     {
         if ($handle instanceof \PDO) {
             return trim($handle->quote($str), "'");
@@ -224,53 +220,53 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return $str;
     }
 
-    public function escapeSystem($str)
+    public function escapeSystem(string $str): string
     {
         return "'" . $this->escape($str) . "'";
     }
 
-    public function begin()
+    public function begin(): void
     {
         if ($this->__link instanceof \PDO) {
             $this->__link->beginTransaction();
         }
     }
 
-    public function commit()
+    public function commit(): void
     {
         if ($this->__link instanceof \PDO) {
             $this->__link->commit();
         }
     }
 
-    public function rollback()
+    public function rollback(): void
     {
         if ($this->__link instanceof \PDO) {
             $this->__link->rollBack();
         }
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table): void
     {
         $this->execute('BEGIN EXCLUSIVE TRANSACTION');
     }
 
-    public function db_unlock()
+    public function db_unlock(): void
     {
         $this->execute('END');
     }
 
-    public function vacuum($table)
+    public function db_vacuum(string $table): void
     {
         $this->vacuum = true;
     }
 
-    public function dateFormat($field, $pattern)
+    public function dateFormat(string $field, string $pattern): string
     {
         return "strftime('" . $this->escape($pattern) . "'," . $field . ') ';
     }
 
-    public function orderBy()
+    public function orderBy(): string
     {
         $default = [
             'order'   => '',
@@ -283,7 +279,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
                 $v          = array_merge($default, $v);
                 $v['order'] = (strtoupper($v['order']) == 'DESC' ? 'DESC' : '');
                 if ($v['collate']) {
-                    if ($this->utf8_unicode_ci instanceof Collator) {
+                    if (class_exists('\Collator') && $this->utf8_unicode_ci instanceof \Collator) {
                         $res[] = $v['field'] . ' COLLATE utf8_unicode_ci ' . $v['order'];
                     } else {
                         $res[] = 'LOWER(' . $v['field'] . ') ' . $v['order'];
@@ -297,9 +293,9 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return empty($res) ? '' : ' ORDER BY ' . implode(',', $res) . ' ';
     }
 
-    public function lexFields()
+    public function lexFields(): string
     {
-        $fmt = $this->utf8_unicode_ci instanceof \Collator ? '%s COLLATE utf8_unicode_ci' : 'LOWER(%s)';
+        $fmt = class_exists('\Collator') && $this->utf8_unicode_ci instanceof \Collator ? '%s COLLATE utf8_unicode_ci' : 'LOWER(%s)';
         foreach (func_get_args() as $v) {
             if (is_string($v)) {
                 $res[] = sprintf($fmt, $v);
@@ -312,7 +308,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
     }
 
     # Internal SQLite function that adds NOW() SQL function.
-    public function now()
+    public function now(): string
     {
         return date('Y-m-d H:i:s');
     }

@@ -16,10 +16,9 @@ declare(strict_types=1);
 namespace Dotclear\Database\Driver\Pgsql;
 
 use Dotclear\Database\AbstractConnection;
-use Dotclear\Database\InterfaceConnection;
 use Dotclear\Exception\DatabaseException;
 
-class Connection extends AbstractConnection implements InterfaceConnection
+class Connection extends AbstractConnection
 {
     protected $__driver        = 'pgsql';
     protected $__syntax        = 'postgresql';
@@ -55,7 +54,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return $str;
     }
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database): mixed
     {
         if (!function_exists('pg_connect')) {
             throw new DatabaseException('PHP PostgreSQL functions are not available');
@@ -72,7 +71,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return $link;
     }
 
-    public function db_pconnect($host, $user, $password, $database)
+    public function db_pconnect(string $host, string $user, string $password, string $database): mixed
     {
         if (!function_exists('pg_pconnect')) {
             throw new DatabaseException('PHP PostgreSQL functions are not available');
@@ -102,14 +101,14 @@ class Connection extends AbstractConnection implements InterfaceConnection
         }
     }
 
-    public function db_close($handle)
+    public function db_close(mixed $handle): void
     {
         if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             pg_close($handle);
         }
     }
 
-    public function db_version($handle)
+    public function db_version(mixed $handle): string
     {
         if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             return pg_parameter_status($handle, 'server_version');
@@ -118,7 +117,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_query($handle, $query)
+    public function db_query(mixed $handle, string $query): mixed
     {
         if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             $res = @pg_query($handle, $query);
@@ -132,12 +131,12 @@ class Connection extends AbstractConnection implements InterfaceConnection
         }
     }
 
-    public function db_exec($handle, $query)
+    public function db_exec(mixed $handle, string $query): mixed
     {
         return $this->db_query($handle, $query);
     }
 
-    public function db_num_fields($res)
+    public function db_num_fields(mixed $res): int
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_num_fields($res);
@@ -146,7 +145,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_num_rows($res)
+    public function db_num_rows(mixed $res): int
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_num_rows($res);
@@ -155,7 +154,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_field_name($res, $position)
+    public function db_field_name(mixed $res, int $position): string
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_field_name($res, $position);
@@ -164,7 +163,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_field_type($res, $position)
+    public function db_field_type(mixed $res, int $position): string
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_field_type($res, $position);
@@ -173,7 +172,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return '';
     }
 
-    public function db_fetch_assoc($res)
+    public function db_fetch_assoc(mixed $res): array|false
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_fetch_assoc($res);
@@ -182,7 +181,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_result_seek($res, $row)
+    public function db_result_seek(mixed $res, int $row): bool
     {
         if (is_resource($res) || $res instanceof \PgSql\Result) {
             return pg_result_seek($res, (int) $row);
@@ -191,7 +190,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_changes($handle, $res)
+    public function db_changes(mixed $handle, mixed $res): int
     {
         if ((is_resource($handle) || $handle instanceof \PgSql\Connection) && (is_resource($res) || $res instanceof \PgSql\Result)) {
             return pg_affected_rows($res);
@@ -200,7 +199,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 0;
     }
 
-    public function db_last_error($handle)
+    public function db_last_error(mixed $handle): string|false
     {
         if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             return pg_last_error($handle);
@@ -209,7 +208,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return false;
     }
 
-    public function db_escape_string($str, $handle = null)
+    public function db_escape_string(string $str, mixed $handle = null): string
     {
         if ($handle instanceof \PgSql\Connection) {
             return pg_escape_string($handle, (string) $str);
@@ -218,23 +217,23 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return addslashes((string) $str);
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table): void
     {
         $this->execute('BEGIN');
         $this->execute('LOCK TABLE ' . $this->escapeSystem($table) . ' IN EXCLUSIVE MODE');
     }
 
-    public function db_unlock()
+    public function db_unlock(): void
     {
         $this->execute('END');
     }
 
-    public function vacuum($table)
+    public function db_vacuum(string $table): void
     {
         $this->execute('VACUUM FULL ' . $this->escapeSystem($table));
     }
 
-    public function dateFormat($field, $pattern)
+    public function dateFormat(string $field, string $pattern): string
     {
         $rep = [
             '%d' => 'DD',
@@ -250,7 +249,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return 'TO_CHAR(' . $field . ',' . "'" . $this->escape($pattern) . "') ";
     }
 
-    public function orderBy()
+    public function orderBy(): string
     {
         $default = [
             'order'   => '',
@@ -277,7 +276,7 @@ class Connection extends AbstractConnection implements InterfaceConnection
         return empty($res) ? '' : ' ORDER BY ' . implode(',', $res) . ' ';
     }
 
-    public function lexFields()
+    public function lexFields(): string
     {
         $fmt = $this->utf8_unicode_ci ? '%s COLLATE ' . $this->utf8_unicode_ci : 'LOWER(%s)';
         foreach (func_get_args() as $v) {
@@ -299,10 +298,10 @@ class Connection extends AbstractConnection implements InterfaceConnection
      * them to the PostgreSQL function. You don't need to escape string in
      * arguments.
      *
-     * @param string    $name    Function name
-     * @return    record
+     * @param   string    $name    Function name
+     * @return  Record
      */
-    public function callFunction($name)
+    public function callFunction($name): Record
     {
         $data = func_get_args();
         array_shift($data);
