@@ -50,7 +50,7 @@ class User
     protected $blogs = [];
 
     /** @var    array   Permission types */
-    protected $perm_types;
+    protected $perm_types = [];
 
     /** @var    int     Count of user blogs */
     public $blog_count = null;
@@ -113,23 +113,24 @@ class User
 
         $rs->extend(new RsExtUser());
 
-        if ($pwd != '') {
+        if ('' != $pwd) {
+            $user_pwd = $rs->f('user_pwd');
             $rehash = false;
-            if (password_verify($pwd, $rs->user_pwd)) {
+            if (password_verify($pwd, $rs->f('user_pwd'))) {
                 // User password ok
-                if (password_needs_rehash($rs->user_pwd, PASSWORD_DEFAULT)) {
-                    $rs->user_pwd = $this->crypt($pwd);
-                    $rehash       = true;
+                if (password_needs_rehash($rs->f('user_pwd'), PASSWORD_DEFAULT)) {
+                    $user_pwd = $this->crypt($pwd);
+                    $rehash   = true;
                 }
             } else {
                 // Check if pwd still stored in old fashion way
-                $ret = password_get_info($rs->user_pwd);
+                $ret = password_get_info($rs->f('user_pwd'));
                 if (is_array($ret) && isset($ret['algo']) && $ret['algo'] == 0) {
                     // hash not done with password_hash() function, check by old fashion way
-                    if (Crypt::hmac(dotclear()->config()->master_key, $pwd, dotclear()->config()->crypt_algo) == $rs->user_pwd) {
+                    if ($user_pwd == Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo'))) {
                         // Password Ok, need to store it in new fashion way
-                        $rs->user_pwd = $this->crypt($pwd);
-                        $rehash       = true;
+                        $user_pwd = $this->crypt($pwd);
+                        $rehash   = true;
                     } else {
                         // Password KO
                         sleep(rand(2, 5));
@@ -145,30 +146,26 @@ class User
             }
             if ($rehash) {
                 // Store new hash in DB
-                $cur           = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-                $cur->user_pwd = (string) $rs->user_pwd;
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
+                $cur->setField('user_pwd', (string) $user_pwd);
 
                 $sql = new UpdateStatement('coreAuthCheckUser');
-                $sql->where('user_id = ' . $sql->quote($rs->user_id));
+                $sql->where('user_id = ' . $sql->quote($rs->f('user_id')));
 
                 $sql->update($cur);
             }
-        } elseif ($user_key != '') {
+        } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(Http::browserUID(dotclear()->config()->master_key . $rs->user_id . $this->cryptLegacy($rs->user_id)), $user_key)) {
+            if (!hash_equals(Http::browserUID(dotclear()->config()->get('master_key') . $rs->f('user_id') . $this->cryptLegacy($rs->f('user_id'))), $user_key)) {
                 return false;
             }
         }
 
         $this->container->fromRecord($rs);
-        $this->preference = new Preference($this->container->user_id);
+        $this->preference = new Preference($this->container->get('user_id'));
 
         # Get permissions on blogs
-        if ($check_blog && ($this->findUserBlog() === false)) {
-            return false;
-        }
-
-        return true;
+        return !($check_blog && false === $this->findUserBlog());
     }
 
     /**
@@ -202,7 +199,7 @@ class User
      */
     public function cryptLegacy(string $pwd): string
     {
-        return Crypt::hmac(dotclear()->config()->master_key, $pwd, dotclear()->config()->crypt_algo);
+        return Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo'));
     }
 
     /**
@@ -214,7 +211,7 @@ class User
      */
     public function checkPassword(string $pwd): bool
     {
-        return empty($this->container->user_pwd) ? false : password_verify($pwd, $this->container->user_pwd);
+        return empty($this->container->get('user_pwd')) ? false : password_verify($pwd, $this->container->get('user_pwd'));
     }
 
     /**
@@ -224,7 +221,7 @@ class User
      */
     public function sessionExists(): bool
     {
-        return isset($_COOKIE[dotclear()->config()->session_name]);
+        return isset($_COOKIE[dotclear()->config()->get('session_name')]);
     }
 
     /**
@@ -245,9 +242,9 @@ class User
 
         # Check here for user and IP address
         $this->checkUser($_SESSION['sess_user_id']);
-        $uid = $uid ?: Http::browserUID(dotclear()->config()->master_key);
+        $uid = $uid ?: Http::browserUID(dotclear()->config()->get('master_key'));
 
-        $user_can_log = $this->userID() !== null && $uid == $_SESSION['sess_browser_uid'];
+        $user_can_log = null !== $this->userID() && $uid == $_SESSION['sess_browser_uid'];
 
         if (!$user_can_log) {
             dotclear()->session()->destroy();
@@ -265,7 +262,7 @@ class User
      */
     public function mustChangePassword(): bool
     {
-        return (bool) $this->container->user_change_pwd;
+        return (bool) $this->container->get('user_change_pwd');
     }
 
     /**
@@ -275,7 +272,7 @@ class User
      */
     public function isSuperAdmin(): bool
     {
-        return (bool) $this->container->user_super;
+        return (bool) $this->container->get('user_super');
     }
 
     /**
@@ -290,14 +287,14 @@ class User
      */
     public function check(string $permissions, string $blog_id): bool
     {
-        if ($this->container->user_super) {
+        if ($this->container->get('user_super')) {
             return true;
         }
 
         $p = array_map('trim', explode(',', $permissions));
         $b = $this->getPermissions($blog_id);
 
-        if ($b != false) {
+        if (false != $b) {
             if (isset($b['admin'])) {
                 return true;
             }
@@ -339,16 +336,16 @@ class User
             throw new CoreException($f . ' function does not exist');
         }
 
-        if ($this->container->user_super) {
+        if ($this->container->get('user_super')) {
             $res = call_user_func_array($f, $args);
         } else {
-            $this->container->user_super = true;
+            $this->container->set('user_super', true);
 
             try {
                 $res = call_user_func_array($f, $args);
-                $this->container->user_super = false;
+                $this->container->set('user_super', false);
             } catch (\Exception $e) {
-                $this->container->user_super = false;
+                $this->container->set('user_super', false);
 
                 throw $e;
             }
@@ -377,7 +374,7 @@ class User
             return $this->blogs[$blog_id];
         }
 
-        if ($this->container->user_super) {
+        if ($this->container->get('user_super')) {
             $sql = new SelectStatement('coreAuthGetPermissions');
             $sql
                 ->column('blog_id')
@@ -395,7 +392,7 @@ class User
         $sql
             ->column('permissions')
             ->from(dotclear()->prefix . $this->perm_table)
-            ->where('user_id = ' . $sql->quote($this->container->user_id))
+            ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
                 $sql->like('permissions', '%|usage|%'),
@@ -405,7 +402,7 @@ class User
 
         $rs = $sql->select();
 
-        $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->permissions);
+        $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->f('permissions'));
 
         return $this->blogs[$blog_id];
     }
@@ -417,7 +414,7 @@ class User
      */
     public function getBlogCount(): int
     {
-        if ($this->blog_count === null) {
+        if (null === $this->blog_count) {
             $this->blog_count = dotclear()->blogs()->getBlogs([], true)->fInt();
         }
 
@@ -433,28 +430,26 @@ class User
      */
     public function findUserBlog(?string $blog_id = null): string|false
     {
-        if ($blog_id && $this->getPermissions($blog_id) !== false) {
+        if ($blog_id && false !== $this->getPermissions($blog_id)) {
             return $blog_id;
         }
 
         $sql = new SelectStatement('coreAuthFindUserBlog');
 
-        if ($this->container->user_super) {
-            /* @phpstan-ignore-next-line */
+        if ($this->container->get('user_super')) {
             $sql
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
                 ->order('blog_id ASC')
                 ->limit(1);
         } else {
-            /* @phpstan-ignore-next-line */
             $sql
                 ->column('P.blog_id')
                 ->from([
                     dotclear()->prefix . $this->perm_table . ' P',
                     dotclear()->prefix . $this->blog_table . ' B',
                 ])
-                ->where('user_id = ' . $sql->quote($this->container->user_id))
+                ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
                 ->and('P.blog_id = B.blog_id')
                 ->and($sql->orGroup([
                     $sql->like('permissions', '%|usage|%'),
@@ -467,11 +462,8 @@ class User
         }
 
         $rs = $sql->select();
-        if (!$rs->isEmpty()) {
-            return $rs->blog_id;
-        }
 
-        return false;
+        return $rs->isEmpty() ? false : $rs->f('blog_id');
     }
 
     /**
@@ -481,16 +473,16 @@ class User
      */
     public function userID(): string
     {
-        return $this->container->user_id;
+        return $this->container->get('user_id');
     }
 
     public function userCN(): string
     {
         return $this->container->getUserCN(
-            $this->container->user_id,
-            $this->container->user_name,
-            $this->container->user_firstname,
-            $this->container->user_displayname
+            $this->container->get('user_id'),
+            $this->container->get('user_name'),
+            $this->container->get('user_firstname'),
+            $this->container->get('user_displayname')
         );
     }
 
@@ -602,8 +594,8 @@ class User
 
         $key = md5(uniqid('', true));
 
-        $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-        $cur->user_recover_key = $key;
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
+        $cur->setField('user_recover_key', $key);
 
         $sql = new UpdateStatement('coreAuthSetRecoverKey');
         $sql->where('user_id = ' . $sql->quote($user_id));
@@ -640,17 +632,17 @@ class User
 
         $new_pass = Crypt::createPassword();
 
-        $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-        $cur->user_pwd         = $this->crypt($new_pass);
-        $cur->user_recover_key = null;
-        $cur->user_change_pwd  = 1; // User will have to change this temporary password at next login
+        $cur  = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
+        $cur->setField('user_pwd', $this->crypt($new_pass));
+        $cur->setField('user_recover_key', null);
+        $cur->setField('user_change_pwd', 1); // User will have to change this temporary password at next login
 
         $sql = new UpdateStatement('coreAuthRecoverUserPassword');
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
 
         $sql->update($cur);
 
-        return ['user_email' => $rs->user_email, 'user_id' => $rs->user_id, 'new_pass' => $new_pass];
+        return ['user_email' => $rs->f('user_email'), 'user_id' => $rs->f('user_id'), 'new_pass' => $new_pass];
     }
     //@}
 

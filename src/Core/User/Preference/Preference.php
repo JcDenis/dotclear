@@ -18,11 +18,14 @@ use Dotclear\Exception\CoreException;
 
 class Preference
 {
-    protected $table;   ///< <b>string</b> Prefs table name
+    /** @var    string  $table  Prefs table name */
+    protected $table;
 
-    protected $workspaces = []; ///< <b>array</b> Associative workspaces array
+    /** @var    array   $workspaces    Associative workspaces array */ 
+    protected $workspaces = [];
 
-    protected $ws; ///< <b>string</b> Current workspace
+    /** @var    string  $ws     Current workspace */
+    protected $ws;
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
 
@@ -45,9 +48,11 @@ class Preference
     }
 
     /**
-    Retrieves all (or only one) workspaces (and their prefs) from database, with one query.
+     * Retrieves all (or only one) workspaces (and their prefs) from database, with one query.
+     * 
+     * @param   string  $workspace  Workspace to load
      */
-    private function loadPrefs($workspace = null)
+    private function loadPrefs($workspace = null): void
     {
         $strReq = 'SELECT user_id, pref_id, pref_value, ' .
         'pref_type, pref_label, pref_ws ' .
@@ -83,11 +88,11 @@ class Preference
     /**
      * Create a new workspace. If the workspace already exists, return it without modification.
      *
-     * @param      string  $ws     Workspace name
+     * @param   string  $ws     Workspace name
      *
-     * @return     Workspace
+     * @return  Workspace
      */
-    public function addWorkspace($ws)
+    public function addWorkspace(string $ws): Workspace
     {
         if (!$this->exists($ws)) {
             $this->workspaces[$ws] = new Workspace($this->user_id, $ws);
@@ -99,14 +104,14 @@ class Preference
     /**
      * Rename a workspace.
      *
-     * @param      string     $oldWs  The old workspace name
-     * @param      string     $newWs  The new workspace name
+     * @param   string  $oldWs  The old workspace name
+     * @param   string  $newWs  The new workspace name
      *
-     * @throws     CoreException  (description)
+     * @throws  CoreException
      *
-     * @return     bool
+     * @return  bool
      */
-    public function renWorkspace($oldWs, $newWs)
+    public function renWorkspace(string $oldWs, string $newWs): bool
     {
         if (!$this->exists($oldWs) || $this->exists($newWs)) {
             return false;
@@ -132,11 +137,11 @@ class Preference
     /**
      * Delete a whole workspace with all preferences pertaining to it.
      *
-     * @param      string  $ws     Workspace name
+     * @param   string  $ws     Workspace name
      *
-     * @return     bool
+     * @return  bool
      */
-    public function delWorkspace($ws)
+    public function delWorkspace(string $ws): bool
     {
         if (!$this->exists($ws)) {
             return false;
@@ -156,23 +161,17 @@ class Preference
     /**
      * Returns full workspace with all prefs pertaining to it.
      *
-     * @param      string  $ws     Workspace name
+     * @param   string  $ws     Workspace name
      *
-     * @return     mixed
+     * @return  mixed
      */
-    public function get($ws)
+    public function get(string $ws): mixed
     {
         return $this->exists($ws) ? $this->workspaces[$ws] : $this->addWorkspace($ws);
     }
 
     /**
-     * Magic __get method.
-     *
-     * @copydoc ::get
-     *
-     * @param      string  $n     Workspace name
-     *
-     * @return     mixed
+     * @see self::get()
      */
     public function __get($n)
     {
@@ -182,11 +181,11 @@ class Preference
     /**
      * Check if a workspace exists
      *
-     * @param      string  $ws     Workspace name
+     * @param   string  $ws     Workspace name
      *
-     * @return     boolean
+     * @return  bool
      */
-    public function exists($ws)
+    public function exists(string $ws): bool
     {
         return array_key_exists($ws, $this->workspaces);
     }
@@ -194,9 +193,9 @@ class Preference
     /**
      * Dumps workspaces.
      *
-     * @return     array
+     * @return  array
      */
-    public function dump()
+    public function dump(): array
     {
         return $this->workspaces;
     }

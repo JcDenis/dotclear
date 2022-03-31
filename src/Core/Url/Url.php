@@ -769,8 +769,8 @@ class Url
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
-                        $cur->setField('post_id', (string) dotclear()->context()->posts->f('post_id'));
-                        $cur->setField('comment_status', (string) (dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1));
+                        $cur->setField('post_id', dotclear()->context()->posts->fInt('post_id'));
+                        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 
                         $redir = dotclear()->context()->posts->getURL();

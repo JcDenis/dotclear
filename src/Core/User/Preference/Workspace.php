@@ -42,13 +42,13 @@ class Workspace
      * Retrieves user prefs and puts them in $prefs
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param   string          $user_id    The user identifier
+     * @param   string|null     $user_id    The user identifier
      * @param   string          $name       The name
      * @param   Record|null     $rs         The recordset
      *
      * @throws  CoreException
      */
-    public function __construct(protected string $user_id, string $name, ?Record $rs = null)
+    public function __construct(protected ?string $user_id, string $name, ?Record $rs = null)
     {
         if (preg_match(self::WS_NAME_SCHEMA, $name)) {
             $this->ws = $name;
@@ -65,6 +65,13 @@ class Workspace
         }
     }
 
+    /**
+     * Get preferences
+     * 
+     * @param   Record|null     $rs     Record instance
+     * 
+     * @return  bool
+     */
     private function getPrefs(?Record $rs = null): bool
     {
         if ($rs == null) {
@@ -90,26 +97,26 @@ class Workspace
             $value = $rs->f('pref_value');
             $type  = $rs->f('pref_type');
 
-            if ($type == 'array') {
+            if ('array' == $type) {
                 $value = @json_decode($value, true);
             } else {
-                if ($type == 'float' || $type == 'double') {
+                if ('float' == $type || 'double' == $type) {
                     $type = 'float';
-                } elseif ($type != 'boolean' && $type != 'integer') {
+                } elseif ('boolean' != $type && 'integer' != $type) {
                     $type = 'string';
                 }
             }
 
             settype($value, $type);
 
-            $array = $rs->user_id ? 'local' : 'global';
+            $array = $rs->f('user_id') ? 'local' : 'global';
 
             $this->{$array . '_prefs'}[$id] = [
                 'ws'     => $this->ws,
                 'value'  => $value,
                 'type'   => $type,
                 'label'  => (string) $rs->f('pref_label'),
-                'global' => $rs->user_id == '',
+                'global' => $rs->f('user_id') == '',
             ];
         }
 
@@ -253,26 +260,22 @@ class Workspace
         }
 
         # Pref type
-        if ($type == 'double') {
+        if ('double' == $type) {
             $type = 'float';
-        } elseif ($type === null) {
+        } elseif (null === $type) {
             if (!$global && $this->prefExists($id, false)) {
                 $type = $this->local_prefs[$id]['type'];
             } elseif ($this->prefExists($id, true)) {
                 $type = $this->global_prefs[$id]['type'];
             } else {
-                if (is_array($value)) {
-                    $type = 'array';
-                } else {
-                    $type = 'string';
-                }
+                $type = is_array($value) ? 'array' : 'string';
             }
-        } elseif ($type != 'boolean' && $type != 'integer' && $type != 'float' && $type != 'array') {
+        } elseif (!in_array($type, ['boolean', 'integer', 'float', 'array'])) {
             $type = 'string';
         }
 
         # We don't change label
-        if ($label == null) {
+        if (null == $label) {
             if (!$global && $this->prefExists($id, false)) {
                 $label = $this->local_prefs[$id]['label'];
             } elseif ($this->prefExists($id, true)) {
@@ -280,16 +283,16 @@ class Workspace
             }
         }
 
-        if ($type != 'array') {
+        if ('array' != $type) {
             settype($value, $type);
         } else {
             $value = json_encode($value);
         }
 
-        $cur             = dotclear()->con()->openCursor($this->table);
-        $cur->pref_value = ($type == 'boolean') ? (string) (int) $value : (string) $value;
-        $cur->pref_type  = $type;
-        $cur->pref_label = $label;
+        $cur = dotclear()->con()->openCursor($this->table);
+        $cur->setField('pref_value', ($type == 'boolean') ? (string) (int) $value : (string) $value);
+        $cur->setField('pref_type', $type);
+        $cur->setField('pref_label', $label);
 
         #If we are local, compare to global value
         if (!$global && $this->prefExists($id, true)) {
@@ -313,9 +316,9 @@ class Workspace
 
             $cur->update($where . "AND pref_id = '" . dotclear()->con()->escape($id) . "' AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ");
         } else {
-            $cur->pref_id = $id;
-            $cur->user_id = $global ? null : $this->user_id;
-            $cur->pref_ws = $this->ws;
+            $cur->setField('pref_id', $id);
+            $cur->setField('user_id', $global ? null : $this->user_id);
+            $cur->setField('pref_ws', $this->ws);
 
             $cur->insert();
         }
@@ -375,7 +378,7 @@ class Workspace
 
         $strReq = 'DELETE FROM ' . $this->table . ' ';
 
-        if (($force_global) || ($this->user_id === null)) {
+        if ($force_global || null === $this->user_id) {
             $strReq .= 'WHERE user_id IS NULL ';
             $global = true;
         } else {

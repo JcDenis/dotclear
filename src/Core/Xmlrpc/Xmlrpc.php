@@ -294,20 +294,20 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->blog_loaded = true;
 
         if (!dotclear()->blog()->id) {
-            dotclear()->blog(null);
+            dotclear()->unsetBlog();
 
             throw new CoreException('Blog does not exist.');
         }
 
-        if (!$bypass && (!dotclear()->blog()->settings()->system->enable_xmlrpc || !dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id))) {
-            dotclear()->blog(null);
+        if (!$bypass && (!dotclear()->blog()->settings()->get('system')->get('enable_xmlrpc') || !dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id))) {
+            dotclear()->unsetBlog();
 
             throw new CoreException('Not enough permissions on this blog.');
         }
 
         if (dotclear()->plugins()) {
             foreach (dotclear()->plugins()->getModules() as $module) {
-                $modules->loadModuleL10N($module->id(), dotclear()->lang(), 'xmlrpc');
+                dotclear()->plugins()->loadModuleL10N($module->id(), dotclear()->lang(), 'xmlrpc');
             }
         }
 
@@ -334,7 +334,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     {
         $rs = dotclear()->blog()->categories()->getCategories(['cat_url' => $cat_url]);
 
-        return $rs->isEmpty() ? null : $rs->cat_id;
+        return $rs->isEmpty() ? null : $rs->fInt('cat_id');
     }
 
     /* Generic methods
@@ -368,23 +368,23 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-        $cur->user_id            = dotclear()->user()->userID();
-        $cur->post_lang          = dotclear()->user()->getInfo('user_lang');
-        $cur->post_title         = trim($title);
-        $cur->post_content       = $content;
-        $cur->post_excerpt       = $excerpt;
-        $cur->post_content_xhtml = $content_xhtml;
-        $cur->post_excerpt_xhtml = $excerpt_xhtml;
-        $cur->post_open_comment  = (int) ($open_comment == 1);
-        $cur->post_open_tb       = (int) ($open_tb == 1);
-        $cur->post_status        = (int) $publish;
-        $cur->post_format        = 'xhtml';
+        $cur->setField('user_id', dotclear()->user()->userID());
+        $cur->setField('post_lang', dotclear()->user()->getInfo('user_lang'));
+        $cur->setField('post_title', trim($title));
+        $cur->setField('post_content', $content);
+        $cur->setField('post_excerpt', $excerpt);
+        $cur->setField('post_content_xhtml', $content_xhtml);
+        $cur->setField('post_excerpt_xhtml', $excerpt_xhtml);
+        $cur->setField('post_open_comment', (int) ($open_comment == 1));
+        $cur->setField('post_open_tb', (int) ($open_tb == 1));
+        $cur->setField('post_status', (int) $publish);
+        $cur->setField('post_format', 'xhtml');
 
         if ($dateCreated) {
             if ($dateCreated instanceof xmlrpcDate) {
-                $cur->post_dt = date('Y-m-d H:i:00', $dateCreated->getTimestamp());
+                $cur->setField('post_dt', date('Y-m-d H:i:00', $dateCreated->getTimestamp()));
             } elseif (is_string($dateCreated) && @strtotime($dateCreated)) {
-                $cur->post_dt = date('Y-m-d H:i:00', strtotime($dateCreated));
+                $cur->setField('post_dt', date('Y-m-d H:i:00', strtotime($dateCreated)));
             }
         }
 
@@ -393,23 +393,23 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $categories = $struct['categories'];
             $cat_id     = !empty($categories[0]) ? $categories[0] : null;
 
-            $cur->cat_id = $this->getCatID($cat_id);
+            $cur->setField('cat_id', $this->getCatID($cat_id));
         }
 
         if (isset($struct['wp_slug'])) {
-            $cur->post_url = $struct['wp_slug'];
+            $cur->setField('post_url', $struct['wp_slug']);
         }
 
         if (isset($struct['wp_password'])) {
-            $cur->post_password = $struct['wp_password'];
+            $cur->setField('post_password', $struct['wp_password']);
         }
 
-        $cur->post_type = 'post';
+        $cur->setField('post_type', 'post');
         if (!empty($struct['post_type'])) {
-            $cur->post_type = $struct['post_type'];
+            $cur->setField('post_type', $struct['post_type']);
         }
 
-        if ($cur->post_type == 'post') {
+        if ('post' == $cur->getField('post_type')) {
             # --BEHAVIOR-- xmlrpcBeforeNewPost
             dotclear()->behavior()->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
@@ -417,12 +417,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
             # --BEHAVIOR-- xmlrpcAfterNewPost
             dotclear()->behavior()->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
-        } elseif ($cur->post_type == 'page') {
+        } elseif ('page' == $cur->getField('post_type')) {
             if (isset($struct['wp_page_order'])) {
-                $cur->post_position = (int) $struct['wp_page_order'];
+                $cur->setField('post_position', (int) $struct['wp_page_order']);
             }
 
-            dotclear()->blog()->settings()->system->post_url_format = '{t}';
+            dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             $post_id = dotclear()->blog()->posts()->addPost($cur);
         } else {
@@ -467,26 +467,26 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-        $cur->post_type          = $post_type;
-        $cur->post_title         = trim($title);
-        $cur->post_content       = $content;
-        $cur->post_excerpt       = $excerpt;
-        $cur->post_content_xhtml = $content_xhtml;
-        $cur->post_excerpt_xhtml = $excerpt_xhtml;
-        $cur->post_open_comment  = (int) ($open_comment == 1);
-        $cur->post_open_tb       = (int) ($open_tb == 1);
-        $cur->post_status        = (int) $publish;
-        $cur->post_format        = 'xhtml';
-        $cur->post_url           = $post->post_url;
+        $cur->setField('post_type', $post_type);
+        $cur->setField('post_title', trim($title));
+        $cur->setField('post_content', $content);
+        $cur->setField('post_excerpt', $excerpt);
+        $cur->setField('post_content_xhtml', $content_xhtml);
+        $cur->setField('post_excerpt_xhtml', $excerpt_xhtml);
+        $cur->setField('post_open_comment', (int) ($open_comment == 1));
+        $cur->setField('post_open_tb', (int) ($open_tb == 1));
+        $cur->setField('post_status', (int) $publish);
+        $cur->setField('post_format', 'xhtml');
+        $cur->setField('post_url', $post->f('post_url'));
 
         if ($dateCreated) {
             if ($dateCreated instanceof xmlrpcDate) {
-                $cur->post_dt = date('Y-m-d H:i:00', $dateCreated->getTimestamp());
+                $cur->setField('post_dt', date('Y-m-d H:i:00', $dateCreated->getTimestamp()));
             } elseif (is_string($dateCreated) && @strtotime($dateCreated)) {
-                $cur->post_dt = date('Y-m-d H:i:00', strtotime($dateCreated));
+                $cur->setField('post_dt', date('Y-m-d H:i:00', strtotime($dateCreated)));
             }
         } else {
-            $cur->post_dt = $post->post_dt;
+            $cur->setField('post_dt', $post->post_dt);
         }
 
         # Categories in an array
@@ -494,31 +494,31 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $categories = $struct['categories'];
             $cat_id     = !empty($categories[0]) ? $categories[0] : null;
 
-            $cur->cat_id = $this->getCatID($cat_id);
+            $cur->setField('cat_id', $this->getCatID($cat_id));
         }
 
         if (isset($struct['wp_slug'])) {
-            $cur->post_url = $struct['wp_slug'];
+            $cur->setField('post_url', $struct['wp_slug']);
         }
 
         if (isset($struct['wp_password'])) {
-            $cur->post_password = $struct['wp_password'];
+            $cur->setField('post_password', $struct['wp_password']);
         }
 
-        if ($cur->post_type == 'post') {
+        if ('post' == $cur->getField('post_type')) {
             # --BEHAVIOR-- xmlrpcBeforeEditPost
             dotclear()->behavior()->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
 
-            dotclear()->blog()->posts()->posts()->updPost($post_id, $cur);
+            dotclear()->blog()->posts()->updPost($post_id, $cur);
 
             # --BEHAVIOR-- xmlrpcAfterEditPost
             dotclear()->behavior()->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
-        } elseif ($cur->post_type == 'page') {
+        } elseif ('page' == $cur->getField('post_type')) {
             if (isset($struct['wp_page_order'])) {
-                $cur->post_position = (int) $struct['wp_page_order'];
+                $cur->setField('post_position', (int) $struct['wp_page_order']);
             }
 
-            dotclear()->blog()->settings()->system->post_url_format = '{t}';
+            dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             dotclear()->blog()->posts()->updPost($post_id, $cur);
         } else {
@@ -537,28 +537,28 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = new ArrayObject();
 
         $res['dateCreated'] = new xmlrpcDate($post->getTS());
-        $res['userid']      = $post->user_id;
-        $res['postid']      = $post->post_id;
+        $res['userid']      = $post->f('user_id');
+        $res['postid']      = $post->f('post_id');
 
-        if ($post->cat_id) {
-            $res['categories'] = [$post->cat_url];
+        if ($post->f('cat_id')) {
+            $res['categories'] = [$post->f('cat_url')];
         }
 
-        if ($type == 'blogger') {
-            $res['content'] = $post->post_content_xhtml;
+        if ('blogger' == $type) {
+            $res['content'] = $post->f('post_content_xhtml');
         }
 
-        if ($type == 'mt' || $type == 'mw') {
-            $res['title'] = $post->post_title;
+        if ('mt' == $type || 'mw' == $type) {
+            $res['title'] = $post->f('post_title');
         }
 
-        if ($type == 'mw') {
-            $res['description']       = $post->post_content_xhtml;
+        if ('mw' == $type) {
+            $res['description']       = $post->f('post_content_xhtml');
             $res['link']              = $res['permaLink']              = $post->getURL();
-            $res['mt_excerpt']        = $post->post_excerpt_xhtml;
+            $res['mt_excerpt']        = $post->f('post_excerpt_xhtml');
             $res['mt_text_more']      = '';
-            $res['mt_allow_comments'] = (int) $post->post_open_comment;
-            $res['mt_allow_pings']    = (int) $post->post_open_tb;
+            $res['mt_allow_comments'] = (int) $post->f('post_open_comment');
+            $res['mt_allow_pings']    = (int) $post->f('post_open_tb');
             $res['mt_convert_breaks'] = '';
             $res['mt_keywords']       = '';
         }
@@ -574,7 +574,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $post_id = (int) $post_id;
 
         $this->getPostRS($post_id, $user, $pwd);
-        dotclear()->blog()->posts()->deldPost($post_id);
+        dotclear()->blog()->posts()->delPost($post_id);
 
         return true;
     }
@@ -600,28 +600,28 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $tres = [];
 
             $tres['dateCreated'] = new xmlrpcDate($posts->getTS());
-            $tres['userid']      = $posts->user_id;
-            $tres['postid']      = $posts->post_id;
+            $tres['userid']      = $posts->f('ser_id');
+            $tres['postid']      = $posts->fInt('post_id');
 
-            if ($posts->cat_id) {
-                $tres['categories'] = [$posts->cat_url];
+            if ($posts->f('cat_id')) {
+                $tres['categories'] = [$posts->f('cat_url')];
             }
 
-            if ($type == 'blogger') {
-                $tres['content'] = $posts->post_content_xhtml;
+            if ('blogger' == $type) {
+                $tres['content'] = $posts->f('post_content_xhtml');
             }
 
-            if ($type == 'mt' || $type == 'mw') {
-                $tres['title'] = $posts->post_title;
+            if ('mt' == $type || 'mw' == $type) {
+                $tres['title'] = $posts->f('post_title');
             }
 
-            if ($type == 'mw') {
-                $tres['description']       = $posts->post_content_xhtml;
+            if ('mw' == $type) {
+                $tres['description']       = $posts->f('post_content_xhtml');
                 $tres['link']              = $tres['permaLink']              = $posts->getURL();
-                $tres['mt_excerpt']        = $posts->post_excerpt_xhtml;
+                $tres['mt_excerpt']        = $posts->f('post_excerpt_xhtml');
                 $tres['mt_text_more']      = '';
-                $tres['mt_allow_comments'] = (int) $posts->post_open_comment;
-                $tres['mt_allow_pings']    = (int) $posts->post_open_tb;
+                $tres['mt_allow_comments'] = (int) $posts->f('post_open_comment');
+                $tres['mt_allow_pings']    = (int) $posts->f('post_open_tb');
                 $tres['mt_convert_breaks'] = '';
                 $tres['mt_keywords']       = '';
             }
@@ -669,12 +669,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $res = [];
 
-        $l      = $rs->level;
-        $stack  = ['', $rs->cat_url];
+        $l      = $rs->fInt('level');
+        $stack  = ['', $rs->f('cat_url')];
         $parent = '';
 
         while ($rs->fetch()) {
-            $d = $rs->level - $l;
+            $d = $rs->fInt('level') - $l;
             if ($d == 0) {
                 array_pop($stack);
                 $parent = end($stack);
@@ -689,16 +689,16 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
 
             $res[] = [
-                'categoryId'   => $rs->cat_url,
+                'categoryId'   => $rs->f('cat_url'),
                 'parentId'     => $parent,
-                'description'  => $rs->cat_title,
-                'categoryName' => $rs->cat_url,
-                'htmlUrl'      => dotclear()->blog()->getURLFor('category', $rs->cat_url),
-                'rssUrl'       => dotclear()->blog()->getURLFor('feed', 'category/' . $rs->cat_url . '/rss2')
+                'description'  => $rs->f('cat_title'),
+                'categoryName' => $rs->f('cat_url'),
+                'htmlUrl'      => dotclear()->blog()->getURLFor('category', $rs->f('cat_url')),
+                'rssUrl'       => dotclear()->blog()->getURLFor('feed', 'category/' . $rs->f('cat_url') . '/rss2')
             ];
 
-            $stack[] = $rs->cat_url;
-            $l       = $rs->level;
+            $stack[] = $rs->f('cat_url');
+            $l       = $rs->fInt('level');
         }
 
         return $res;
@@ -712,8 +712,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         return [
             [
-                'categoryName' => $post->cat_url,
-                'categoryId'   => (string) $post->cat_url,
+                'categoryName' => $post->f('cat_url'),
+                'categoryId'   => (string) $post->f('cat_url'),
                 'isPrimary'    => true
             ]
         ];
@@ -850,8 +850,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     private function translateWpOptions($options = [])
     {
         $timezone = 0;
-        if (dotclear()->blog()->settings()->system->blog_timezone) {
-            $timezone = Dt::getTimeOffset(dotclear()->blog()->settings()->system->blog_timezone) / 3600;
+        if (dotclear()->blog()->settings()->get('system')->get('blog_timezone')) {
+            $timezone = Dt::getTimeOffset(dotclear()->blog()->settings()->get('system')->get('blog_timezone')) / 3600;
         }
 
         $res = [
@@ -863,7 +863,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'software_version' => [
                 'desc'     => 'Software Version',
                 'readonly' => true,
-                'value'    => dotclear()->config()->core_version
+                'value'    => dotclear()->config()->get('core_version')
             ],
             'blog_url' => [
                 'desc'     => 'Blog URL',
@@ -888,12 +888,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'date_format' => [
                 'desc'     => 'Date Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings()->system->date_format
+                'value'    => dotclear()->blog()->settings()->get('system')->get('date_format')
             ],
             'time_format' => [
                 'desc'     => 'Time Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings()->system->time_format
+                'value'    => dotclear()->blog()->settings()->get('system')->get('time_format')
             ]
         ];
 
@@ -974,27 +974,27 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         while ($posts->fetch()) {
             $tres = [
                 'dateCreated'            => new xmlrpcDate($posts->getTS()),
-                'userid'                 => $posts->user_id,
-                'page_id'                => $posts->post_id,
-                'page_status'            => $this->translateWpStatus((int) $posts->post_status),
-                'description'            => $posts->post_content_xhtml,
-                'title'                  => $posts->post_title,
+                'userid'                 => $posts->f('user_id'),
+                'page_id'                => $posts->fInt('post_id'),
+                'page_status'            => $this->translateWpStatus($posts->fInt('post_status')),
+                'description'            => $posts->f('post_content_xhtml'),
+                'title'                  => $posts->f('post_title'),
                 'link'                   => $posts->getURL(),
                 'permaLink'              => $posts->getURL(),
                 'categories'             => [],
-                'excerpt'                => $posts->post_excerpt_xhtml,
+                'excerpt'                => $posts->f('post_excerpt_xhtml'),
                 'text_more'              => '',
-                'mt_allow_comments'      => (int) $posts->post_open_comment,
-                'mt_allow_pings'         => (int) $posts->post_open_tb,
-                'wp_slug'                => $posts->post_url,
-                'wp_password'            => $posts->post_password,
+                'mt_allow_comments'      => (int) $posts->f('post_open_comment'),
+                'mt_allow_pings'         => (int) $posts->f('post_open_tb'),
+                'wp_slug'                => $posts->f('post_url'),
+                'wp_password'            => $posts->f('post_password'),
                 'wp_author'              => $posts->getAuthorCN(),
                 'wp_page_parent_id'      => 0,
                 'wp_page_parent_title'   => '',
-                'wp_page_order'          => $posts->post_position,
-                'wp_author_id'           => $posts->user_id,
+                'wp_page_order'          => $posts->f('post_position'),
+                'wp_author_id'           => $posts->f('user_id'),
                 'wp_author_display_name' => $posts->getAuthorCN(),
-                'date_created_gmt'       => new xmlrpcDate(Dt::iso8601($posts->getTS(), $posts->post_tz)),
+                'date_created_gmt'       => new xmlrpcDate(Dt::iso8601($posts->getTS(), $posts->f('post_tz'))),
                 'custom_fields'          => [],
                 'wp_page_template'       => 'default'
             ];
@@ -1039,7 +1039,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $page_id = (int) $page_id;
 
         $this->getPostRS($page_id, $user, $pwd, 'page');
-        dotclear()->blog()->posts()->deldPost($page_id);
+        dotclear()->blog()->posts()->delPost($page_id);
 
         return true;
     }
@@ -1075,12 +1075,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($tags->fetch()) {
             $res[] = [
-                'tag_id'   => $tags->meta_id,
-                'name'     => $tags->meta_id,
-                'count'    => $tags->count,
-                'slug'     => $tags->meta_id,
-                'html_url' => sprintf(dotclear()->blog()->getURLFor('tag', '%s'), $tags->meta_id),
-                'rss_url'  => sprintf(dotclear()->blog()->getURLFor('tag_feed', '%s'), $tags->meta_id)
+                'tag_id'   => $tags->f('meta_id'),
+                'name'     => $tags->f('meta_id'),
+                'count'    => $tags->f('count'),
+                'slug'     => $tags->f('meta_id'),
+                'html_url' => sprintf(dotclear()->blog()->getURLFor('tag', '%s'), $tags->f('meta_id')),
+                'rss_url'  => sprintf(dotclear()->blog()->getURLFor('tag_feed', '%s'), $tags->f('meta_id'))
             ];
         }
 
@@ -1096,16 +1096,16 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('You mus give a category name.');
         }
 
-        $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-        $cur->cat_title = $struct['name'];
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+        $cur->setField('cat_title', $struct['name']);
 
         if (!empty($struct['slug'])) {
-            $cur->cat_url = $struct['slug'];
+            $cur->setField('cat_url', $struct['slug']);
         }
         if (!empty($struct['category_description'])) {
-            $cur->cat_desc = $struct['category_description'];
-            if (Html::clean($cur->cat_desc) == $cur->cat_desc) {
-                $cur->cat_desc = '<p>' . $cur->cat_desc . '</p>';
+            $cur->setField('cat_desc', $struct['category_description']);
+            if (Html::clean($cur->getField('cat_desc')) == $cur->getField('cat_desc')) {
+                $cur->setField('cat_desc', '<p>' . $cur->getField('cat_desc') . '</p>');
             }
         }
 
@@ -1114,7 +1114,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $id = dotclear()->blog()->categories()->addCategory($cur, $parent);
         $rs = dotclear()->blog()->categories()->getCategory($id);
 
-        return $rs->cat_url;
+        return $rs->f('cat_url');
     }
 
     private function deleteCategory($user, $pwd, $cat_id)
@@ -1122,14 +1122,14 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $c = dotclear()->blog()->categories()->getCategories(['cat_url' => $cat_id]);
-        if ($c->isEmpty()) {
+        $rs = dotclear()->blog()->categories()->getCategories(['cat_url' => $cat_id]);
+        if ($rs->isEmpty()) {
             throw new CoreException(__('This category does not exist.'));
         }
-        $cat_id = $c->cat_id;
-        unset($c);
+        $cat_id = $rs->fInt('cat_id');
+        unset($rs);
 
-        dotclear()->blog()->categories()->delCategory((int) $cat_id);
+        dotclear()->blog()->categories()->delCategory($cat_id);
 
         return true;
     }
@@ -1150,8 +1150,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
-                'category_id'   => $rs->cat_url,
-                'category_name' => $rs->cat_url
+                'category_id'   => $rs->f('cat_url'),
+                'category_name' => $rs->f('cat_url')
             ];
         }
 
@@ -1173,9 +1173,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         while ($rs->fetch()) {
             $res['total']++;
-            if ($rs->comment_status == 1) {
+            if ($rs->fInt('comment_status') == 1) {
                 $res['approved']++;
-            } elseif ($rs->comment_status == -2) {
+            } elseif ($rs->fInt('comment_status') == -2) {
                 $res['spam']++;
             } else {
                 $res['awaiting_moderation']++;
@@ -1213,18 +1213,18 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         while ($rs->fetch()) {
             $res[] = [
                 'date_created_gmt' => new xmlrpcDate($rs->getTS()),
-                'user_id'          => $rs->user_id,
-                'comment_id'       => $rs->comment_id,
+                'user_id'          => $rs->f('user_id'),
+                'comment_id'       => $rs->f('comment_id'),
                 'parent'           => 0,
-                'status'           => $this->translateWpCommentstatus((int) $rs->comment_status),
-                'content'          => $rs->comment_content,
-                'link'             => $rs->getPostURL() . '#c' . $rs->comment_id,
-                'post_id'          => $rs->post_id,
-                'post_title'       => $rs->post_title,
-                'author'           => $rs->comment_author,
-                'author_url'       => $rs->comment_site,
-                'author_email'     => $rs->comment_email,
-                'author_ip'        => $rs->comment_ip
+                'status'           => $this->translateWpCommentstatus($rs->fInt('comment_status')),
+                'content'          => $rs->f('comment_content'),
+                'link'             => $rs->getPostURL() . '#c' . $rs->f('comment_id'),
+                'post_id'          => $rs->fInt('post_id'),
+                'post_title'       => $rs->f('post_title'),
+                'author'           => $rs->f('comment_author'),
+                'author_url'       => $rs->f('comment_site'),
+                'author_email'     => $rs->f('comment_email'),
+                'author_ip'        => $rs->f('comment_ip')
             ];
         }
 
@@ -1252,12 +1252,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
-        $cur->comment_author = dotclear()->user()->userCN();
-        $cur->comment_email  = dotclear()->user()->getInfo('user_email');
-        $cur->comment_site   = dotclear()->user()->getInfo('user_url');
+        $cur->setField('comment_author', dotclear()->user()->userCN());
+        $cur->setField('comment_email', dotclear()->user()->getInfo('user_email'));
+        $cur->setField('comment_site', dotclear()->user()->getInfo('user_url'));
 
-        $cur->comment_content = $struct['content'];
-        $cur->post_id         = (int) $post_id;
+        $cur->setField('comment_content', $struct['content']);
+        $cur->setField('post_id', (int) $post_id);
 
         $id = dotclear()->blog()->comments()->addComment($cur);
 
@@ -1272,32 +1272,32 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
         if (isset($struct['status'])) {
-            $cur->comment_status = $this->translateWpCommentstatus($struct['status']);
+            $cur->setField('comment_status', $this->translateWpCommentstatus($struct['status']));
         }
 
         if (isset($struct['date_created_gmt'])) {
             if ($struct['date_created_gmt'] instanceof xmlrpcDate) {
-                $cur->comment_dt = date('Y-m-d H:i:00', $struct['date_created_gmt']->getTimestamp());
+                $cur->setField('comment_dt', date('Y-m-d H:i:00', $struct['date_created_gmt']->getTimestamp()));
             } elseif (is_string($struct['date_created_gmt']) && @strtotime($struct['date_created_gmt'])) {
-                $cur->comment_dt = date('Y-m-d H:i:00', strtotime($struct['date_created_gmt']));
+                $cur->setField('comment_dt', date('Y-m-d H:i:00', strtotime($struct['date_created_gmt'])));
             }
-            $cur->comment_dt = $struct['date_created_gmt'];
+            $cur->setField('comment_dt', $struct['date_created_gmt']);
         }
 
         if (isset($struct['content'])) {
-            $cur->comment_content = $struct['content'];
+            $cur->setField('comment_content', $struct['content']);
         }
 
         if (isset($struct['author'])) {
-            $cur->comment_author = $struct['author'];
+            $cur->setField('comment_author', $struct['author']);
         }
 
         if (isset($struct['author_url'])) {
-            $cur->comment_site = $struct['author_url'];
+            $cur->setField('comment_site', $struct['author_url']);
         }
 
         if (isset($struct['author_email'])) {
-            $cur->comment_email = $struct['author_email'];
+            $cur->setField('comment_email', $struct['author_email']);
         }
 
         dotclear()->blog()->comments()->updComment($comment_id, $cur);
@@ -1552,23 +1552,23 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             switch ($name) {
                 case 'blog_title':
                     $blog_changes   = true;
-                    $cur->blog_name = $value;
+                    $cur->setField('blog_name', $value);
                     $done[]         = $name;
 
                     break;
                 case 'blog_tagline':
                     $blog_changes   = true;
-                    $cur->blog_desc = $value;
+                    $cur->setField('blog_desc', $value);
                     $done[]         = $name;
 
                     break;
                 case 'date_format':
-                    dotclear()->blog()->settings()->system->put('date_format', $value);
+                    dotclear()->blog()->settings()->get('system')->put('date_format', $value);
                     $done[] = $name;
 
                     break;
                 case 'time_format':
-                    dotclear()->blog()->settings()->system->put('time_format', $value);
+                    dotclear()->blog()->settings()->get('system')->put('time_format', $value);
                     $done[] = $name;
 
                     break;

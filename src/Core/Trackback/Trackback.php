@@ -154,7 +154,7 @@ class Trackback
         }
         # Notify ping result in database
         $cur  = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->setField('post_id', (string) $post_id);
+        $cur->setField('post_id', $post_id);
         $cur->setField('ping_url', $url);
         $cur->SetField('ping_dt', date('Y-m-d H:i:s'));
 
@@ -476,9 +476,9 @@ class Trackback
         $cur->setField('comment_author', $blog_name);
         $cur->setField('comment_site', $url);
         $cur->setField('comment_content', $comment);
-        $cur->setField('post_id', (string) $post_id);
+        $cur->setField('post_id', $post_id);
         $cur->setField('comment_trackback', '1');
-        $cur->setField('comment_status', (string) dotclear()->blog()->settings()->get('system')->get('trackbacks_pub') ? 1 : -1);
+        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('trackbacks_pub') ? 1 : -1);
         $cur->setField('comment_ip', Http::realIP());
 
         # --BEHAVIOR-- publicBeforeTrackbackCreate

@@ -58,9 +58,9 @@ class Version
      */
     public function set(string $module, string $version): void
     {
-        $cur          = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->module  = $module;
-        $cur->version = $version;
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('module', $module);
+        $cur->setField('version', $version);
 
         if ($this->get($module) === null) {
             $cur->insert();

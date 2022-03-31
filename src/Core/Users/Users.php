@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Users;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Database\Cursor;
@@ -28,7 +27,7 @@ class Users
      *
      * @param   string  $user_id    The identifier
      *
-     * @return  Record  The user.
+     * @return  Record              The user.
      */
     public function getUser(string $user_id): Record
     {
@@ -49,7 +48,7 @@ class Users
      * @param   array|ArrayObject   $params         The parameters
      * @param   bool                $count_only     Count only results
      *
-     * @return  Record  The users
+     * @return  Record                              The users
      */
     public function getUsers(array|ArrayObject $params = [], bool $count_only = false): Record
     {
@@ -134,25 +133,25 @@ class Users
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if ($cur->user_id == '') {
+        if ('' == $cur->getField('user_id')) {
             throw new CoreException(__('No user ID given'));
         }
 
-        if ($cur->user_pwd == '') {
+        if ('' == $cur->getField('user_pwd')) {
             throw new CoreException(__('No password given'));
         }
 
         $this->getUserCursor($cur);
 
-        if ($cur->user_creadt === null) {
-            $cur->user_creadt = date('Y-m-d H:i:s');
+        if (null === $cur->getField('user_creadt')) {
+            $cur->setField('user_creadt', date('Y-m-d H:i:s'));
         }
 
         $cur->insert();
 
         dotclear()->user()->afterAddUser($cur);
 
-        return $cur->user_id;
+        return $cur->getField('user_id');
     }
 
     /**
@@ -169,7 +168,7 @@ class Users
     {
         $this->getUserCursor($cur);
 
-        if (($cur->user_id !== null || $user_id != dotclear()->user()->userID()) && !dotclear()->user()->isSuperAdmin()) {
+        if ((null !== $cur->getField('user_id') || $user_id != dotclear()->user()->userID()) && !dotclear()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -177,8 +176,8 @@ class Users
 
         dotclear()->user()->afterUpdUser($user_id, $cur);
 
-        if ($cur->user_id !== null) {
-            $user_id = $cur->user_id;
+        if (null !== $cur->getField('user_id')) {
+            $user_id = $cur->getField('user_id');
         }
 
         # Updating all user's blogs
@@ -188,7 +187,7 @@ class Users
         );
 
         while ($rs->fetch()) {
-            $b = new Blog($rs->blog_id);
+            $b = new Blog($rs->f('blog_id'));
             $b->triggerBlog();
             unset($b);
         }
@@ -215,7 +214,7 @@ class Users
 
         $rs = $this->getUser($user_id);
 
-        if ($rs->nb_post > 0) {
+        if (0 < $rs->f('nb_post')) {
             return;
         }
 
@@ -271,10 +270,10 @@ class Users
         $res = [];
 
         while ($rs->fetch()) {
-            $res[$rs->blog_id] = [
-                'name' => $rs->blog_name,
-                'url'  => $rs->blog_url,
-                'p'    => dotclear()->user()->parsePermissions($rs->permissions)
+            $res[$rs->f('blog_id')] = [
+                'name' => $rs->f('blog_name'),
+                'url'  => $rs->f('blog_url'),
+                'p'    => dotclear()->user()->parsePermissions($rs->f('permissions'))
             ];
         }
 
@@ -330,10 +329,9 @@ class Users
         $perms = '|' . implode('|', array_keys($perms)) . '|';
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'permissions');
-
-        $cur->user_id     = $user_id;
-        $cur->blog_id     = $blog_id;
-        $cur->permissions = $perms;
+        $cur->setField('user_id', $user_id);
+        $cur->setField('blog_id', $blog_id);
+        $cur->setField('permissions', $perms);
 
         if ($delete_first || $no_perm) {
             $strReq = 'DELETE FROM ' . dotclear()->prefix . 'permissions ' .
@@ -360,7 +358,7 @@ class Users
     {
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
-        $cur->user_default_blog = $blog_id;
+        $cur->setField('user_default_blog', $blog_id);
 
         $cur->update("WHERE user_id = '" . dotclear()->con()->escape($user_id) . "'");
     }
@@ -375,33 +373,33 @@ class Users
     private function getUserCursor(Cursor $cur): void
     {
         if ($cur->isField('user_id')
-            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cur->user_id)) {
+            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cur->getField('user_id'))) {
             throw new CoreException(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
-        if ($cur->user_url !== null && $cur->user_url != '') {
-            if (!preg_match('|^http(s?)://|', $cur->user_url)) {
-                $cur->user_url = 'http://' . $cur->user_url;
+        if (null !== $cur->getField('user_url') && '' != $cur->getField('user_url')) {
+            if (!preg_match('|^http(s?)://|', $cur->getField('user_url'))) {
+                $cur->setField('user_url', 'http://' . $cur->getField('user_url'));
             }
         }
 
         if ($cur->isField('user_pwd')) {
-            if (strlen($cur->user_pwd) < 6) {
+            if (6 > strlen($cur->getField('user_pwd'))) {
                 throw new CoreException(__('Password must contain at least 6 characters.'));
             }
-            $cur->user_pwd = dotclear()->user()->crypt($cur->user_pwd);
+            $cur->setField('user_pwd', dotclear()->user()->crypt($cur->getField('user_pwd')));
         }
 
-        if ($cur->user_lang !== null && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->user_lang)) {
+        if (null !== $cur->getField('user_lang') && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->getField('user_lang'))) {
             throw new CoreException(__('Invalid user language code'));
         }
 
-        if ($cur->user_upddt === null) {
-            $cur->user_upddt = date('Y-m-d H:i:s');
+        if (null === $cur->getField('user_upddt')) {
+            $cur->setField('user_upddt', date('Y-m-d H:i:s'));
         }
 
-        if ($cur->user_options !== null) {
-            $cur->user_options = serialize((array) $cur->user_options);
+        if (null !== $cur->getField('user_options')) {
+            $cur->setField('user_options', serialize((array) $cur->getField('user_options')));
         }
     }
 }

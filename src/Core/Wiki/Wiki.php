@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Wiki;
 
 use Dotclear\Core\Wiki\Wiki2xhtml;
+use Dotclear\Helper\Html\Html;
 
 class Wiki
 {
@@ -210,24 +211,23 @@ class Wiki
             return [];
         }
 
-        $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
-        if ($post->isEmpty()) {
+        $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
+        if ($rs->isEmpty()) {
             return [];
         }
 
-        $res        = ['url' => $post->getURL()];
-        $post_title = $post->post_title;
+        $res        = ['url' => $rs->getURL()];
 
-        if ($content != $url) {
-            $res['title'] = Html::escapeHTML($post->post_title);
+        if ($url != $content) {
+            $res['title'] = Html::escapeHTML($rs->f('post_title'));
         }
 
-        if ($content == '' || $content == $url) {
-            $res['content'] = Html::escapeHTML($post->post_title);
+        if ('' == $content || $url == $content) {
+            $res['content'] = Html::escapeHTML($rs->f('post_title'));
         }
 
-        if ($post->post_lang) {
-            $res['lang'] = $post->post_lang;
+        if ($rs->f('post_lang')) {
+            $res['lang'] = $rs->f('post_lang');
         }
 
         return $res;
