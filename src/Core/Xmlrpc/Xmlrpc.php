@@ -294,13 +294,13 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->blog_loaded = true;
 
         if (!dotclear()->blog()->id) {
-            dotclear()->blog() = null;
+            dotclear()->blog(null);
 
             throw new CoreException('Blog does not exist.');
         }
 
         if (!$bypass && (!dotclear()->blog()->settings()->system->enable_xmlrpc || !dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id))) {
-            dotclear()->blog() = null;
+            dotclear()->blog(null);
 
             throw new CoreException('Not enough permissions on this blog.');
         }
@@ -1635,7 +1635,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     --------------------------------------------------- */
     public function pingback_ping($from_url, $to_url)
     {
-        $trackback = new Trackback()
+        $trackback = new Trackback();
         $trackback->checkURLs($from_url, $to_url);
 
         $args = ['type' => 'pingback', 'from_url' => $from_url, 'to_url' => $to_url];
