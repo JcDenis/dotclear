@@ -6,7 +6,7 @@ dotclear.dbSpamsCount = () => {
     f: 'getSpamsCount',
     xd_check: dotclear.nonce,
   };
-  $.get('services.php', params, (data) => {
+  $.get('?handler=admin.services', params, (data) => {
     if ($('rsp[status=failed]', data).length > 0) {
       // For debugging purpose only:
       // console.log($('rsp',data).attr('message'));

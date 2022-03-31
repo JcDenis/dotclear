@@ -672,7 +672,7 @@ dotclear.services = (
   get = true, // Use GET method if true, POST if false
   params = {}, // Optional parameters
 ) => {
-  const service = new URL('services.php', window.location.origin + window.location.pathname);
+  const service = new URL('?handler=admin.services', window.location.origin + window.location.pathname);
   dotclear.mergeDeep(params, { f: fn, xd_check: dotclear.nonce });
   const init = { method: get ? 'GET' : 'POST' };
   if (get) {
