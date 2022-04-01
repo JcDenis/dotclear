@@ -117,9 +117,9 @@ class Path
      * - extension
      * - base (basename without extension)
      *
-     * @param   string|null     $f  The file path
+     * @param   string  $f  The file path
      *
-     * @return  array               The file stat
+     * @return  array       The file stat
      */
     public static function info(string $f): array
     {

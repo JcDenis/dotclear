@@ -15,25 +15,25 @@ namespace Dotclear\Helper;
 
 class Error
 {
-    /** @var array Errors stack */
+    /** @var    array   Errors stack */
     protected $errors = [];
 
-    /** @var bool True if stack is not empty */
+    /** @var    bool    True if stack is not empty */
     protected $flag = false;
 
-    /** @var string HTML errors list pattern */
+    /** @var    string  HTML errors list pattern */
     protected $html_list = "<ul>\n%s</ul>\n";
 
-    /** @var string HTML error item pattern */
+    /** @var    string  HTML error item pattern */
     protected $html_item = "<li>%s</li>\n";
 
-    /** @var string HTML error single pattern */
+    /** @var    string  HTML error single pattern */
     protected $html_single = "<p>%s</p>\n";
 
     /**
      * Object string representation. Returns errors stack.
      *
-     * @return string
+     * @return  string
      */
     public function __toString(): string
     {
@@ -49,7 +49,7 @@ class Error
     /**
      * Adds an error to stack.
      *
-     * @param string    ...$msg            Error message
+     * @param   string  ...$msgs    Error message
      */
     public function add(string ...$msgs): void
     {
@@ -62,7 +62,7 @@ class Error
     /**
      * Returns the value of <var>flag</var> property. True if errors stack is not empty
      *
-     * @return bool
+     * @return  bool
      */
     public function flag(): bool
     {
@@ -81,7 +81,7 @@ class Error
     /**
      * Returns <var>errors</var> property.
      *
-     * @return array
+     * @return  array
      */
     public function dump(): array
     {
@@ -91,11 +91,11 @@ class Error
     /**
      * Sets <var>list</var> and <var>item</var> properties.
      *
-     * @param string        $list        HTML errors list pattern
-     * @param string        $item        HTML error item pattern
-     * @param string|null   $item        HTML single item pattern
+     * @param   string          $list       HTML errors list pattern
+     * @param   string          $item       HTML error item pattern
+     * @param   string|null     $single     HTML single item pattern
      */
-    public function setHTMLFormat(string $list, string $item, ?string $single = null)
+    public function setHTMLFormat(string $list, string $item, ?string $single = null): void
     {
         $this->html_list = $list;
         $this->html_item = $item;
@@ -107,7 +107,7 @@ class Error
     /**
      * Returns errors stack as HTML.
      *
-     * @return string
+     * @return  string
      */
     public function toHTML(): string
     {

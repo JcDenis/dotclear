@@ -19,7 +19,7 @@ namespace Dotclear\Exception;
  */
 class DeprecatedException extends \Exception
 {
-    public function __construct($message = 'Exception for the use of deprecated function', $code = 0, Throwable $previous = null)
+    public function __construct($message = 'Exception for the use of deprecated function', $code = 0, \Throwable $previous = null)
     {
         $trace = $this->getTrace();
         $message .= ' ' . $trace[1]['class'] .'::' . $trace[1]['function'] . '" in ' . $trace[1]['file'] . " line " . $trace[1]['line'] . "\n";

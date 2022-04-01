@@ -22,7 +22,7 @@ use Dotclear\Helper\Network\Http;
 
 class Files
 {
-    /** @var string|null    Default directory mode */
+    /** @var int|null    Default directory mode */
     public static $dir_mode = null;
 
     /** @var array  Defined file mime types */
@@ -65,7 +65,6 @@ class Files
         'mp3'  => 'audio/mpeg3',
         'mid'  => 'audio/x-midi',
         'midi' => 'audio/x-midi',
-        'ogg'  => 'application/ogg',
         'ra'   => 'audio/x-pn-realaudio',
         'ram'  => 'audio/x-pn-realaudio',
         'wav'  => 'audio/x-wav',
@@ -113,7 +112,6 @@ class Files
         'flv'  => 'video/x-flv',
         'avi'  => 'video/x-msvideo',
         'wmv'  => 'video/x-ms-wmv',
-        'mp4'  => 'video/mp4',
         'm4p'  => 'video/mp4',
         'webm' => 'video/webm',
     ];
@@ -592,7 +590,7 @@ class Files
                     }
                 }
             }
-            unset($dirs);
+            unset($haystack);
 
             # Check file and extension
             if ($file === false || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $allowed_extensions)) {

@@ -55,6 +55,7 @@ class Autoload
             $this->root_base_dir = $this->normalizeBaseDir($root_base_dir);
         }
 
+        /** @phpstan-ignore-next-line */
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
     }
 
@@ -123,7 +124,7 @@ class Autoload
             $str
         );
 
-        return emtpy($str) ? null : $this->normalizePrefix($str);
+        return empty($str) ? null : $this->normalizePrefix($str);
     }
 
     /**

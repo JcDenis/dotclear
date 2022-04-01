@@ -21,7 +21,7 @@ class Configuration
     use ErrorTrait;
 
     /** @var    array   Read files */
-    private static $file = [];
+    protected static $file = [];
 
     /** @var    array   Stack */
     private $stack = [];

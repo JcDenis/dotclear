@@ -32,6 +32,7 @@ class PrependException extends \Exception
     {
         parent::__construct($message, $code, $e);
 
+        $traces = null;
         if ($trace) {
             $traces = $this->getTrace();
             if ($e) {
