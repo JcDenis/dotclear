@@ -104,7 +104,7 @@ class Connection extends AbstractConnection
         }
 
         $data = [];
-        while ($r = $result->fetch(\PDO::FETCH_ASSOC)) { // @phpstan-ignore-line
+        while ($r = $result->fetch(\PDO::FETCH_ASSOC)) {
             $R = [];
             foreach ($r as $k => $v) {
                 $k     = preg_replace('/^(.*)\./', '', $k);
@@ -115,7 +115,7 @@ class Connection extends AbstractConnection
         }
 
         $info['rows'] = count($data);
-        $result->closeCursor(); // @phpstan-ignore-line
+        $result->closeCursor();
 
         return new StaticRecord($data, $info);
     }
@@ -211,7 +211,7 @@ class Connection extends AbstractConnection
         return false;
     }
 
-    public function db_escape_string(string $str, mixed $handle = null): string
+    public function db_escape_string(?string $str, mixed $handle = null): string
     {
         if ($handle instanceof \PDO) {
             return trim($handle->quote($str), "'");

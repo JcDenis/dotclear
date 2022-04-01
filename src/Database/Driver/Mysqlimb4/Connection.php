@@ -144,7 +144,8 @@ class Connection extends BaseConnection
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            return $finfo->name;    // @phpstan-ignore-line
+            /** @phpstan-ignore-next-line */
+            return $finfo->name;
         }
 
         return '';
@@ -156,7 +157,8 @@ class Connection extends BaseConnection
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            return $this->_convert_types($finfo->type); // @phpstan-ignore-line
+            /** @phpstan-ignore-next-line */
+            return $this->_convert_types($finfo->type);
         }
 
         return '';
@@ -203,7 +205,7 @@ class Connection extends BaseConnection
         return false;
     }
 
-    public function db_escape_string(string $str, mixed $handle = null): string
+    public function db_escape_string(?string $str, mixed $handle = null): string
     {
         if ($handle instanceof \MySQLi) {
             return mysqli_real_escape_string($handle, (string) $str);

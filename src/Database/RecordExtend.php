@@ -17,9 +17,15 @@ use Dotclear\Database\Record;
 
 abstract class RecordExtend
 {
+    /** @var    Record  $rs     The record */
     protected $rs;
 
-    public function setRecord(Record $rs)
+    /**
+     * Set record
+     * 
+     * @param   Record  $rs     The record
+     */
+    public function setRecord(Record $rs): void
     {
         $this->rs = $rs;
     }

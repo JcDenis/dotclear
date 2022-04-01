@@ -22,34 +22,51 @@ use Dotclear\Exception\DatabaseException;
 
 class Structure
 {
+    /** @var    array   $tables     Tables */
     protected $tables     = [];
+
+    /** @var    array   $references     References */
     protected $references = [];
 
+    /**
+     * Constructor
+     * 
+     * @param   AbstractConnection  $con        Database connection
+     * @param   string              $prefix     Database table prefix
+     */
     public function __construct(protected AbstractConnection $con, protected string $prefix = '')
     {
     }
 
+    /**
+     * Get driver name
+     * 
+     * @return  string  The driver name
+     */
     public function driver(): string
     {
         return $this->con->driver();
     }
 
+    /**
+     * Get table
+     * 
+     * @param   string  $name   The table name
+     * 
+     * @return  Table           The table
+     */
     public function table(string $name): Table
     {
-        $this->tables[$name] = new Table($name);
-
-        return $this->tables[$name];
-    }
-
-    public function __get(string $name): Table
-    {
         if (!isset($this->tables[$name])) {
-            return $this->table($name);
+            $this->tables[$name] = new Table($name);
         }
 
         return $this->tables[$name];
     }
 
+    /**
+     * Get database structure
+     */
     public function reverse(): void
     {
         $schema = AbstractSchema::init($this->con);
@@ -160,10 +177,8 @@ class Structure
             } else { # Table exists
                 # Check new fields to create
                 $fields = $t->getFields();
-                /* @phpstan-ignore-next-line */
                 $db_fields = $this->tables[$tname]->getFields();
                 foreach ($fields as $fname => $f) {
-                    /* @phpstan-ignore-next-line */
                     if (!$this->tables[$tname]->fieldExists($fname)) {
                         # Field doest not exist, create it
                         $field_create[$tname][$fname] = $f;
@@ -177,7 +192,6 @@ class Structure
 
                 # Check keys to add or upgrade
                 $keys = $t->getKeys();
-                /* @phpstan-ignore-next-line */
                 $db_keys = $this->tables[$tname]->getKeys();
 
                 foreach ($keys as $kname => $k) {
@@ -187,7 +201,6 @@ class Structure
                         $kname = $this->prefix . $kname;
                     }
 
-                    /* @phpstan-ignore-next-line */
                     $db_kname = $this->tables[$tname]->keyExists($kname, $k['type'], $k['cols']);
                     if (!$db_kname) {
                         # Key does not exist, create it
@@ -202,12 +215,10 @@ class Structure
 
                 # Check index to add or upgrade
                 $idx = $t->getIndexes();
-                /* @phpstan-ignore-next-line */
                 $db_idx = $this->tables[$tname]->getIndexes();
 
                 foreach ($idx as $iname => $i) {
                     $iname = $this->prefix . $iname;
-                    /* @phpstan-ignore-next-line */
                     $db_iname = $this->tables[$tname]->indexExists($iname, $i['type'], $i['cols']);
 
                     if (!$db_iname) {
@@ -223,13 +234,11 @@ class Structure
 
                 # Check references to add or upgrade
                 $ref = $t->getReferences();
-                /* @phpstan-ignore-next-line */
                 $db_ref = $this->tables[$tname]->getReferences();
 
                 foreach ($ref as $rname => $r) {
                     $rname        = $this->prefix . $rname;
                     $r['p_table'] = $this->prefix . $r['p_table'];
-                    /* @phpstan-ignore-next-line */
                     $db_rname = $this->tables[$tname]->referenceExists($rname, $r['c_cols'], $r['p_table'], $r['p_cols']);
 
                     if (!$db_rname) {
@@ -324,6 +333,13 @@ class Structure
         count($table_create) + count($key_create) + count($index_create) + count($reference_create) + count($field_create) + count($field_update) + count($key_update) + count($index_update) + count($reference_update);
     }
 
+    /**
+     * Get tables
+     * 
+     * Tables are returned with prefixed name
+     * 
+     * @return  array   The tables
+     */
     public function getTables(): array
     {
         $res = [];
@@ -334,12 +350,17 @@ class Structure
         return $res;
     }
 
+    /**
+     * Check if a table exsits
+     * 
+     * @return  bool    True if table exists
+     */
     public function tableExists(string $name): bool
     {
         return isset($this->tables[$name]);
     }
 
-    private function fieldsDiffer($db_field, $schema_field): bool
+    private function fieldsDiffer(array $db_field, array $schema_field): bool
     {
         $d_type    = $db_field['type'];
         $d_len     = (int) $db_field['len'];
@@ -354,17 +375,17 @@ class Structure
         return $d_type != $s_type || $d_len != $s_len || $d_default != $s_default || $d_null != $s_null;
     }
 
-    private function keysDiffer($d_name, $d_cols, $s_name, $s_cols): bool
+    private function keysDiffer(string $d_name, array|string $d_cols, string $s_name, array|string $s_cols): bool
     {
         return $d_name != $s_name || $d_cols != $s_cols;
     }
 
-    private function indexesDiffer($d_name, $d_i, $s_name, $s_i): bool
+    private function indexesDiffer(string $d_name, array $d_i, string $s_name, array $s_i): bool
     {
         return $d_name != $s_name || $d_i['cols'] != $s_i['cols'] || $d_i['type'] != $s_i['type'];
     }
 
-    private function referencesDiffer($d_name, $d_r, $s_name, $s_r): bool
+    private function referencesDiffer(string $d_name, array $d_r, string $s_name, array $s_r): bool
     {
         return $d_name != $s_name || $d_r['c_cols'] != $s_r['c_cols'] || $d_r['p_table'] != $s_r['p_table'] || $d_r['p_cols'] != $s_r['p_cols'] || $d_r['update'] != $s_r['update'] || $d_r['delete'] != $s_r['delete'];
     }

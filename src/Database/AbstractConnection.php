@@ -74,14 +74,11 @@ abstract class AbstractConnection implements InterfaceConnection
     public function __construct(string $host, string $database, string $user = '', string $password = '', bool $persistent = false)
     {
         if ($persistent) {
-            /* @phpstan-ignore-next-line */
             $this->__link = $this->db_pconnect($host, $user, $password, $database);
         } else {
-            /* @phpstan-ignore-next-line */
             $this->__link = $this->db_connect($host, $user, $password, $database);
         }
 
-        /* @phpstan-ignore-next-line */
         $this->__version  = $this->db_version($this->__link);
         $this->__database = $database;
     }
@@ -91,7 +88,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function close(): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_close($this->__link);
     }
 
@@ -156,23 +152,18 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function select(string $sql): Record
     {
-        /* @phpstan-ignore-next-line */
         $result = $this->db_query($this->__link, $sql);
 
         $this->__last_result = &$result;
 
         $info        = [];
         $info['con'] = &$this;
-        /* @phpstan-ignore-next-line */
         $info['cols'] = $this->db_num_fields($result);
-        /* @phpstan-ignore-next-line */
         $info['rows'] = $this->db_num_rows($result);
         $info['info'] = [];
 
         for ($i = 0; $i < $info['cols']; $i++) {
-            /* @phpstan-ignore-next-line */
             $info['info']['name'][] = $this->db_field_name($result, $i);
-            /* @phpstan-ignore-next-line */
             $info['info']['type'][] = $this->db_field_type($result, $i);
         }
 
@@ -210,7 +201,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function execute(string $sql): bool
     {
-        /* @phpstan-ignore-next-line */
         $result = $this->db_exec($this->__link, $sql);
 
         $this->__last_result = &$result;
@@ -258,7 +248,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function writeLock(string $table): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_write_lock($table);
     }
 
@@ -269,7 +258,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function unlock(): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_unlock();
     }
 
@@ -280,7 +268,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function vacuum(string $table): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_vacuum($table);
     }
 
@@ -294,7 +281,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function changes(): int
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_changes($this->__link, $this->__last_result);
     }
 
@@ -307,7 +293,6 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public function error(): string|false
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_last_error($this->__link) ?: false;
     }
 
@@ -474,22 +459,20 @@ abstract class AbstractConnection implements InterfaceConnection
      *
      * Returns SQL protected string or array values.
      *
-     * @param   string|array    $i        String or array to protect
+     * @param   string|array|null    $i        String or array to protect
      * 
-     * @return  string|array
+     * @return  string|array|null
      */
-    public function escape(string|array $i): string|array
+    public function escape(string|array|null $i): string|array|null
     {
         if (is_array($i)) {
             foreach ($i as $k => $s) {
-                /* @phpstan-ignore-next-line */
                 $i[$k] = $this->db_escape_string($s, $this->__link);
             }
 
             return $i;
         }
 
-        /* @phpstan-ignore-next-line */
         return $this->db_escape_string($i, $this->__link);
     }
 

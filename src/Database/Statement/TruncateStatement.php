@@ -21,8 +21,6 @@ class TruncateStatement extends SqlStatement
         // Check if source given
         if (!count($this->from)) {
             trigger_error(__('SQL TRUNCATE TABLE requires a table source'), E_USER_ERROR);
-
-            return '';
         }
 
         // Query

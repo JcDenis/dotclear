@@ -110,11 +110,10 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @see     interfaceSchema::db_get_tables
      * 
-     * @return  array<string>
+     * @return  array
      */
     public function getTables(): array
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_get_tables();
     }
 
@@ -125,11 +124,10 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @param   string  $table  Table name
      * 
-     * @return  array<string>
+     * @return  array
      */
     public function getColumns(string $table): array
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_get_columns($table);
     }
 
@@ -139,11 +137,11 @@ abstract class AbstractSchema implements InterfaceSchema
      * @see     interfaceSchema::db_get_keys
      *
      * @param   string  $table  Table name
-     * @return  array<string>
+     * 
+     * @return  array
      */
     public function getKeys(string $table): array
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_get_keys($table);
     }
 
@@ -154,11 +152,10 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @param   string  $table  Table name
      * 
-     * @return  array<string>
+     * @return  array
      */
     public function getIndexes(string $table): array
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_get_indexes($table);
     }
 
@@ -169,83 +166,70 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @param   string  $table  Table name
      * 
-     * @return  array<string>
+     * @return  array
      */
     public function getReferences(string $table): array
     {
-        /* @phpstan-ignore-next-line */
         return $this->db_get_references($table);
     }
 
     public function createTable(string $name, array $fields): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_table($name, $fields);
     }
 
     public function createField(string $table, string $name, string $type, ?int $len, bool $null, mixed $default): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_field($table, $name, $type, $len, $null, $default);
     }
 
     public function createPrimary(string $table, string $name, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_primary($table, $name, $cols);
     }
 
     public function createUnique(string $table, string $name, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_unique($table, $name, $cols);
     }
 
     public function createIndex(string $table, string $name, string $type, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_index($table, $name, $type, $cols);
     }
 
     public function createReference(string $name, string $c_table, array $c_cols, string $p_table, array $p_cols, string $update, string $delete): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_create_reference($name, $c_table, $c_cols, $p_table, $p_cols, $update, $delete);
     }
 
     public function alterField(string $table, string $name, string $type, ?int $len, bool $null, $default): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_alter_field($table, $name, $type, $len, $null, $default);
     }
 
     public function alterPrimary(string $table, string $name, string $newname, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_alter_primary($table, $name, $newname, $cols);
     }
 
     public function alterUnique(string $table, string $name, string $newname, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_alter_unique($table, $name, $newname, $cols);
     }
 
     public function alterIndex(string $table, string $name, string $newname, string $type, array $cols): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_alter_index($table, $name, $newname, $type, $cols);
     }
 
     public function alterReference(string $name, string $newname, string $c_table, array $c_cols, string $p_table, array $p_cols, string $update, string $delete): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_alter_reference($name, $newname, $c_table, $c_cols, $p_table, $p_cols, $update, $delete);
     }
 
     public function dropUnique(string $table, string $name): void
     {
-        /* @phpstan-ignore-next-line */
         $this->db_drop_unique($table, $name);
     }
 

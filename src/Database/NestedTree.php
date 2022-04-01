@@ -139,13 +139,13 @@ abstract class NestedTree
      * @param   mixed   $data       The data
      * @param   int     $target     The target
      *
-     * @throws  Exception
+     * @throws  DatabaseException
      *
-     * @return  mixed
+     * @return  int|false
      */
-    public function addNode(mixed $data, int $target = 0): mixed
+    public function addNode(mixed $data, int $target = 0): int|false
     {
-        if (!is_array($data) && !($data instanceof cursor)) {
+        if (!is_array($data) && !($data instanceof Cursor)) {
             throw new DatabaseException('Invalid data block');
         }
 
@@ -153,7 +153,7 @@ abstract class NestedTree
             $D    = $data;
             $data = $this->con->openCursor($this->table);
             foreach ($D as $k => $v) {
-                $data->{$k} = $v;
+                $data->setField($k, $v);
             }
             unset($D);
         }
@@ -163,18 +163,18 @@ abstract class NestedTree
 
         try {
             $rs = $this->con->select('SELECT MAX(' . $this->f_id . ') as n_id FROM ' . $this->table);
-            $id = $rs->n_id;
+            $id = $rs->fInt('n_id');
 
             $rs = $this->con->select(
                 'SELECT MAX(' . $this->f_right . ') as n_r ' .
                 'FROM ' . $this->table .
                 $this->getCondition('WHERE')
             );
-            $last = $rs->n_r == 0 ? 1 : $rs->n_r;
+            $last = $rs->fInt('n_r') == 0 ? 1 : $rs->fInt('n_r');
 
-            $data->{$this->f_id}    = $id   + 1;
-            $data->{$this->f_left}  = $last + 1;
-            $data->{$this->f_right} = $last + 2;
+            $data->setField($this->f_id, $id + 1);
+            $data->setField($this->f_left, $last + 1);
+            $data->setField($this->f_right, $last + 2);
 
             $data->insert();
             $this->con->unlock();
@@ -182,7 +182,7 @@ abstract class NestedTree
             try {
                 $this->setNodeParent($id + 1, $target);
 
-                return $data->{$this->f_id};
+                return $data->getField($this->f_id);
             } catch (DatabaseException) {
             } # We don't mind error in this case
         } catch (\Exception $e) {
@@ -190,24 +190,23 @@ abstract class NestedTree
 
             throw $e;
         }
+
+        return false;
     }
 
     /**
      * Update position
      *
-     * @param   mixed   $id     The identifier
-     * @param   mixed   $left   The left
-     * @param   mixed   $right  The right
+     * @param   int     $id     The identifier
+     * @param   int     $left   The left
+     * @param   int     $right  The right
      */
-    public function updatePosition(mixed $id, mixed $left, mixed $right): void
+    public function updatePosition(int $id, int $left, int $right): void
     {
-        $node_left  = (int) $left;
-        $node_right = (int) $right;
-        $node_id    = (int) $id;
         $sql        = 'UPDATE ' . $this->table . ' SET '
-        . $this->f_left . ' = ' . $node_left . ', '
-        . $this->f_right . ' = ' . $node_right
-        . ' WHERE ' . $this->f_id . ' = ' . $node_id
+        . $this->f_left . ' = ' . $left . ', '
+        . $this->f_right . ' = ' . $right
+        . ' WHERE ' . $this->f_id . ' = ' . $id
         . $this->getCondition();
 
         $this->con->begin();
@@ -225,21 +224,19 @@ abstract class NestedTree
     /**
      * Delete a node
      *
-     * @param   mixed   $node           The node
+     * @param   int     $node           The node
      * @param   bool    $keep_children  keep children
      *
-     * @throws  Exception
+     * @throws  DatabaseException
      */
-    public function deleteNode(mixed $node, bool $keep_children = true): void
+    public function deleteNode(int $node, bool $keep_children = true): void
     {
-        $node = (int) $node;
-
         $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $node_left  = (int) $rs->{$this->f_left};
-        $node_right = (int) $rs->{$this->f_right};
+        $node_left  = $rs->fInt($this->f_left);
+        $node_right = $rs->fInt($this->f_right);
 
         try {
             $this->con->begin();
@@ -314,7 +311,7 @@ abstract class NestedTree
                     'UPDATE ' . $this->table . ' SET '
                     . $this->f_left . ' = ' . ($lft++) . ', '
                     . $this->f_right . ' = ' . ($lft++) . ' '
-                    . 'WHERE ' . $this->f_id . ' = ' . (int) $rs->{$this->f_id} . ' '
+                    . 'WHERE ' . $this->f_id . ' = ' . $rs->fInt($this->f_id) . ' '
                     . $this->getCondition()
                 );
             }
@@ -329,26 +326,24 @@ abstract class NestedTree
     /**
      * Sets the node parent.
      *
-     * @param   mixed   $node       The node
-     * @param   mixed   $target     The target
+     * @param   int     $node       The node
+     * @param   int     $target     The target
      *
-     * @throws  Exception
+     * @throws  DatabaseException
      */
-    public function setNodeParent(mixed $node, mixed $target = 0): void
+    public function setNodeParent(int $node, int $target = 0): void
     {
         if ($node == $target) {
             return;
         }
-        $node   = (int) $node;
-        $target = (int) $target;
 
         $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $node_left  = (int) $rs->{$this->f_left};
-        $node_right = (int) $rs->{$this->f_right};
-        $node_level = (int) $rs->level;
+        $node_left  = $rs->fInt($this->f_left);
+        $node_right = $rs->fInt($this->f_right);
+        $node_level = $rs->fInt('level');
 
         if ($target > 0) {
             $rs = $this->getChildren(0, $target);
@@ -359,9 +354,9 @@ abstract class NestedTree
                 $this->getCondition('WHERE')
             );
         }
-        $target_left  = (int) $rs->{$this->f_left};
-        $target_right = (int) $rs->{$this->f_right};
-        $target_level = (int) $rs->level;
+        $target_left  = $rs->fInt($this->f_left);
+        $target_right = $rs->fInt($this->f_right);
+        $target_level = $rs->fInt('level');
 
         if ($node_left == $target_left
             || ($target_left >= $node_left && $target_left <= $node_right)
@@ -434,41 +429,38 @@ abstract class NestedTree
     /**
      * Sets the node position.
      *
-     * @param   mixed   $nodeA      The node a
-     * @param   mixed   $nodeB      The node b
+     * @param   int     $nodeA      The node a
+     * @param   int     $nodeB      The node b
      * @param   string  $position   The position
      *
-     * @throws  Exception
+     * @throws  DatabaseException
      */
-    public function setNodePosition(mixed $nodeA, mixed $nodeB, string $position = 'after'): void
+    public function setNodePosition(int $nodeA, int $nodeB, string $position = 'after'): void
     {
-        $nodeA = (int) $nodeA;
-        $nodeB = (int) $nodeB;
-
         $rs = $this->getChildren(0, $nodeA);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $A_left  = $rs->{$this->f_left};
-        $A_right = $rs->{$this->f_right};
-        $A_level = $rs->level;
+        $A_left  = $rs->fInt($this->f_left);
+        $A_right = $rs->fInt($this->f_right);
+        $A_level = $rs->fInt('level');
 
         $rs = $this->getChildren(0, $nodeB);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $B_left  = $rs->{$this->f_left};
-        $B_right = $rs->{$this->f_right};
-        $B_level = $rs->level;
+        $B_left  = $rs->fInt($this->f_left);
+        $B_right = $rs->fInt($this->f_right);
+        $B_level = $rs->fInt('level');
 
         if ($A_level != $B_level) {
             throw new DatabaseException('Cannot change position');
         }
 
         $rs      = $this->getParents($nodeA);
-        $parentA = $rs->isEmpty() ? 0 : $rs->{$this->f_id};
+        $parentA = $rs->isEmpty() ? 0 : $rs->fInt($this->f_id);
         $rs      = $this->getParents($nodeB);
-        $parentB = $rs->isEmpty() ? 0 : $rs->{$this->f_id};
+        $parentB = $rs->isEmpty() ? 0 : $rs->fInt($this->f_id);
 
         if ($parentA != $parentB) {
             throw new DatabaseException('Cannot change position');

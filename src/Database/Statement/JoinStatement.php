@@ -48,8 +48,6 @@ class JoinStatement extends SqlStatement
         // Check if source given
         if (!count($this->from)) {
             trigger_error(__('SQL JOIN requires a source'), E_USER_ERROR);
-
-            return '';
         }
 
         // Query

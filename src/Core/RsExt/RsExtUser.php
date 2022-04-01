@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 use Dotclear\Core\RsExt\RsExtend;
-use Dotclear\Core\RsExt\RsExtStaticRecord;
+use Dotclear\Database\StaticRecord;
 
 class RsExtUser extends RsExtend
 {
@@ -45,14 +45,14 @@ class RsExtUser extends RsExtend
     }
 
     /**
-     * Converts this record to a {@link RsExtStaticRecord} instance.
+     * Converts this record to a {@link StaticRecord} instance.
      *
-     * @return  RsExtStaticRecord  The extent static record.
+     * @return  StaticRecord  The extent static record.
      */
-    public function toExtStatic(): RsExtStaticRecord
+    public function toExtStatic(): StaticRecord
     {
-        return ($this->rs instanceof RsExtStaticRecord) ? 
+        return ($this->rs instanceof StaticRecord) ? 
             $this->rs :
-            new RsExtStaticRecord($this->rs);
+            $this->rs->toStatic();
     }
 }

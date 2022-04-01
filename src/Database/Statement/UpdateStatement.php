@@ -138,8 +138,6 @@ class UpdateStatement extends SqlStatement
         // Check if source given
         if (!count($this->from)) {
             trigger_error(__('SQL UPDATE requires an INTO source'), E_USER_ERROR);
-
-            return '';
         }
 
         // Query

@@ -17,8 +17,5 @@ use Dotclear\Database\RecordExtend;
 
 abstract class RsExtend extends RecordExtend
 {
-    public function __construct()
-    {
-        // more to come
-    }
+    
 }

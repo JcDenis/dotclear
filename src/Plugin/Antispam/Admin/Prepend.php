@@ -46,25 +46,25 @@ class Prepend extends AbstractPrepend
     {
         $s = new Structure(dotclear()->con(), dotclear()->prefix);
 
-        $s->comment
-            ->comment_spam_status('varchar', 128, true, 0)
-            ->comment_spam_filter('varchar', 32, true, null)
+        $s->table('comment')
+            ->field('comment_spam_status', 'varchar', 128, true, 0)
+            ->field('comment_spam_filter', 'varchar', 32, true, null)
         ;
 
-        $s->spamrule
-            ->rule_id('bigint', 0, false)
-            ->blog_id('varchar', 32, true)
-            ->rule_type('varchar', 16, false, "'word'")
-            ->rule_content('varchar', 128, false)
+        $s->table('spamrule')
+            ->field('rule_id', 'bigint', 0, false)
+            ->field('blog_id', 'varchar', 32, true)
+            ->field('rule_type', 'varchar', 16, false, "'word'")
+            ->field('rule_content', 'varchar', 128, false)
 
             ->primary('pk_spamrule', 'rule_id')
         ;
 
-        $s->spamrule->index('idx_spamrule_blog_id', 'btree', 'blog_id');
-        $s->spamrule->reference('fk_spamrule_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
+        $s->table('spamrule')->index('idx_spamrule_blog_id', 'btree', 'blog_id');
+        $s->table('spamrule')->reference('fk_spamrule_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
-        if ($s->driver() == 'pgsql') {
-            $s->spamrule->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
+        if ('pgsql' == $s->driver()) {
+            $s->table('spamrule')->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
         }
 
         # Schema installation
@@ -72,13 +72,13 @@ class Prepend extends AbstractPrepend
         $changes = $si->synchronize($s);
 
         # Creating default wordslist
-        if (dotclear()->version()->get('Antispam') === null) {
+        if (null === dotclear()->version()->get('Antispam')) {
             $_o = new FilterWords();
             $_o->defaultWordsList();
             unset($_o);
         }
 
-        dotclear()->blog()->settings()->antispam->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
+        dotclear()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;
     }

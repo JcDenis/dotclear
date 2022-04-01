@@ -17,7 +17,7 @@ class SqlStatement
     /**
      * Class constructor
      *
-     * @param mixed     $ctx    optional context
+     * @param   string|null     $ctx    optional context
      */
     public function __construct(protected string|null $ctx = null)
     {
@@ -112,7 +112,7 @@ class SqlStatement
      *
      * @param mixed     $c      the context(s)
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function ctx($c): static
     {
@@ -127,7 +127,7 @@ class SqlStatement
      * @param mixed     $c      the column(s)
      * @param boolean   $reset  reset previous column(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function columns($c, bool $reset = false): static
     {
@@ -149,7 +149,7 @@ class SqlStatement
      * @param mixed     $c      the column(s)
      * @param boolean   $reset  reset previous column(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function fields($c, bool $reset = false): static
     {
@@ -162,7 +162,7 @@ class SqlStatement
      * @param      mixed    $c      the column(s)
      * @param      boolean  $reset  reset previous column(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function column($c, bool $reset = false): static
     {
@@ -175,7 +175,7 @@ class SqlStatement
      * @param      mixed    $c      the column(s)
      * @param      boolean  $reset  reset previous column(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function field($c, bool $reset = false): static
     {
@@ -189,7 +189,7 @@ class SqlStatement
      * @param boolean   $reset  reset previous from(s) first
      * @param boolean   $first  put the from clause(s) at top of list
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function from($c, bool $reset = false, bool $first = false): static
     {
@@ -223,7 +223,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous where(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function where($c, bool $reset = false): static
     {
@@ -248,7 +248,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous where(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function on($c, bool $reset = false): static
     {
@@ -261,7 +261,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function cond($c, bool $reset = false): static
     {
@@ -283,7 +283,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function and($c, bool $reset = false): static
     {
@@ -310,7 +310,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous condition(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function or($c, bool $reset = false): static
     {
@@ -337,7 +337,7 @@ class SqlStatement
      * @param mixed     $c      the clause(s)
      * @param boolean   $reset  reset previous generic clause(s) first
      *
-     * @return  SqlStatement    enabling to chain calls
+     * @return  static    enabling to chain calls
      */
     public function sql($c, bool $reset = false): static
     {
@@ -456,7 +456,7 @@ class SqlStatement
             $clause = "~ '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
         } else {
             $clause = "LIKE '" .
-            $this->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $value)) . "%' ESCAPE '!'"; // @phpstan-ignore-line
+            $this->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $value)) . "%' ESCAPE '!'";
         }
 
         return $clause;

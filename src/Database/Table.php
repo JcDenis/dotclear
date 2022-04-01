@@ -19,30 +19,38 @@ use Dotclear\Exception\DatabaseException;
 
 class Table
 {
+    /** @var    bool    $has_primary    Table has primary key */
     protected $has_primary = false;
 
+    /** @var    array   $fields     Table fields */
     protected $fields     = [];
+
+    /** @var    array   $keys   Table keys */
     protected $keys       = [];
+
+    /** @var    array   $indexes    Table indexex */
     protected $indexes    = [];
+
+    /** @var    array   $fields     Table references */
     protected $references = [];
 
     /**
-    Universal data types supported by dbSchema
-
-    SMALLINT    : signed 2 bytes integer
-    INTEGER    : signed 4 bytes integer
-    BIGINT    : signed 8 bytes integer
-    REAL        : signed 4 bytes floating point number
-    FLOAT    : signed 8 bytes floating point number
-    NUMERIC    : exact numeric type
-
-    DATE        : Calendar date (day, month and year)
-    TIME        : Time of day
-    TIMESTAMP    : Date and time
-
-    CHAR        : A fixed n-length character string
-    VARCHAR    : A variable length character string
-    TEXT        : A variable length of text
+     * @var     array   $allowed_types  Universal data types supported by dbSchema
+     * 
+     * SMALLINT    : signed 2 bytes integer
+     * INTEGER    : signed 4 bytes integer
+     * BIGINT    : signed 8 bytes integer
+     * REAL        : signed 4 bytes floating point number
+     * FLOAT    : signed 8 bytes floating point number
+     * NUMERIC    : exact numeric type
+     * 
+     * DATE        : Calendar date (day, month and year)
+     * TIME        : Time of day
+     * TIMESTAMP    : Date and time
+     * 
+     * CHAR        : A fixed n-length character string
+     * VARCHAR    : A variable length character string
+     * TEXT        : A variable length of text
      */
     protected $allowed_types = [
         'smallint', 'integer', 'bigint', 'real', 'float', 'numeric',
@@ -50,36 +58,77 @@ class Table
         'char', 'varchar', 'text'
     ];
 
+    /**
+     * Constructor
+     * 
+     * @param   string  $name   The table name
+     */
     public function __construct(protected string $name)
     {
     }
 
+    /**
+     * Get table fields
+     * 
+     * @return  array   The table fields
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * Get table keys
+     * 
+     * @return  array   The table keys
+     */
     public function getKeys(bool $primary = null): array
     {
         return $this->keys;
     }
 
+    /**
+     * Get table indexes
+     * 
+     * @return  array   The table indexes
+     */
     public function getIndexes(): array
     {
         return $this->indexes;
     }
 
+    /**
+     * Get table references keys
+     * 
+     * @return  array   The table references keys
+     */
     public function getReferences(): array
     {
         return $this->references;
     }
 
+    /**
+     * Check if field exists
+     * 
+     * @param   string  $name   The field name
+     * 
+     * @return  bool            True if field exists
+     */
     public function fieldExists(string $name): bool
     {
         return isset($this->fields[$name]);
     }
 
-    public function keyExists(string $name, string $type, $cols)
+    /**
+     * Check if key exists
+     * 
+     * @param   string          $name   The key name
+     * @param   string          $type   The key type
+     * @param   array|string    $cols   The key columns
+     * 
+     * @return  string|false            False if key not exists, else return its name
+     */
+    public function keyExists(string $name, string $type, array|string $cols): string|false
     {
         # Look for key with the same name
         if (isset($this->keys[$name])) {
@@ -97,7 +146,16 @@ class Table
         return false;
     }
 
-    public function indexExists(string $name, string $type, array $cols)
+    /**
+     * Check if index exists
+     * 
+     * @param   string  $name   The index name
+     * @param   string  $type   The index type
+     * @param   array   $cols   The index columns
+     * 
+     * @return  string|false            False if key not exists, else return its name
+     */
+    public function indexExists(string $name, string $type, array $cols): string|false
     {
         # Look for key with the same name
         if (isset($this->indexes[$name])) {
@@ -115,7 +173,17 @@ class Table
         return false;
     }
 
-    public function referenceExists(string $name, array $c_cols, string $p_table, array $p_cols)
+    /**
+     * Check if reference exists
+     * 
+     * @param   string  $name       The reference name
+     * @param   array   $c_cols     The reference children columns
+     * @param   string  $p_table    The reference parent table
+     * @param   array   $p_cols     The reference paranet columns
+     * 
+     * @return  string|false            False if key not exists, else return its name
+     */
+    public function referenceExists(string $name, array $c_cols, string $p_table, array $p_cols): string|false
     {
         if (isset($this->references[$name])) {
             return $name;
@@ -132,7 +200,19 @@ class Table
         return false;
     }
 
-    public function field(string $name, string $type, ?int $len, bool $null = true, $default = false, bool $to_null = false)
+    /**
+     * Set a field
+     * 
+     * @param   string      $name       The field name
+     * @param   string      $type       The field type
+     * @param   int|null    $len        The field len
+     * @param   bool        $null       The field can be null
+     * @param   mixed       $default    The field default value
+     * @param   bool        $to_null    Convert to null
+     * 
+     * @return  Table                   The table instance
+     */
+    public function field(string $name, string $type, ?int $len, bool $null = true, $default = false, bool $to_null = false): Table
     {
         $type = strtolower($type);
 
@@ -154,39 +234,41 @@ class Table
         return $this;
     }
 
-    public function __call(string $name, $args)
-    {
-        array_unshift($args, $name);
-
-        return call_user_func_array([$this, 'field'], $args);
-    }
-
-    public function primary(string $name, $col)
+    /**
+     * Set primary key
+     * 
+     * @see self::newKey()
+     */
+    public function primary(string $name, string ...$cols): Table
     {
         if ($this->has_primary) {
             throw new DatabaseException(sprintf('Table %s already has a primary key', $this->name));
         }
 
-        $cols = func_get_args();
-        array_shift($cols);
-
         return $this->newKey('primary', $name, $cols);
     }
 
-    public function unique(string $name, $col)
+    /**
+     * Set unique key
+     * 
+     * @see self::newKey()
+     */
+    public function unique(string $name, string ...$cols): Table
     {
-        $cols = func_get_args();
-        array_shift($cols);
-
         return $this->newKey('unique', $name, $cols);
     }
 
-    public function index(string $name, string $type, $col)
+    /**
+     * Set index key
+     * 
+     * @param   string  $name       The index name
+     * @param   string  $type       The index type
+     * @param   string  ...$cols    The columns
+     * 
+     * @return  Table               The table instance
+     */
+    public function index(string $name, string $type, string ...$cols): Table
     {
-        $cols = func_get_args();
-        array_shift($cols);
-        array_shift($cols);
-
         $this->checkCols($cols);
 
         $this->indexes[$name] = [
@@ -197,7 +279,19 @@ class Table
         return $this;
     }
 
-    public function reference(string $name, $c_cols, string $p_table, $p_cols, $update = false, $delete = false)
+    /**
+     * Set reference key
+     * 
+     * @param   string          $name       The reference name
+     * @param   array|string    $c_cols     The child columns
+     * @param   string          $p_table    The parent table
+     * @param   array|string    $p_cols     The parent columns
+     * @param   string|false    $update     The update method
+     * @param   string|false    $delete     The delete method
+     * 
+     * @return  Table                       The table instacne
+     */
+    public function reference(string $name, array|string $c_cols, string $p_table, array|string $p_cols, string|false $update = false, string|false $delete = false): Table
     {
         if (!is_array($p_cols)) {
             $p_cols = [$p_cols];
@@ -215,9 +309,20 @@ class Table
             'update'  => $update,
             'delete'  => $delete
         ];
+
+        return $this;
     }
 
-    protected function newKey(string $type, string $name, array $cols)
+    /**
+     * Set a new key
+     * 
+     * @param   string  $type   The key type
+     * @param   string  $name   The key name
+     * @param   array   $cols   The key columns
+     * 
+     * @return  Table           The table instance
+     */
+    protected function newKey(string $type, string $name, array $cols): Table
     {
         $this->checkCols($cols);
 
@@ -233,6 +338,13 @@ class Table
         return $this;
     }
 
+    /**
+     * Check columns
+     * 
+     * @param   array   $cols   The columns
+     * 
+     * @throws  DatabaseException
+     */
     protected function checkCols(array $cols)
     {
         foreach ($cols as $v) {

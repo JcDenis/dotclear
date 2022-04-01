@@ -194,12 +194,12 @@ interface InterfaceConnection
      *
      * This method should return an escaped string for the current connection.
      *
-     * @param   string  $str        String to escape
-     * @param   mixed   $handle     Resource link
+     * @param   string|null     $str        String to escape
+     * @param   mixed           $handle     Resource link
      * 
      * @return  string
      */
-    public function db_escape_string(string $str, mixed $handle = null): string;
+    public function db_escape_string(?string $str, mixed $handle = null): string;
 
     /**
      * Acquiere Write lock

@@ -46,21 +46,21 @@ class Prepend extends AbstractPrepend
     {
         $s = new Structure(dotclear()->con(), dotclear()->prefix);
 
-        $s->link
-            ->link_id('bigint', 0, false)
-            ->blog_id('varchar', 32, false)
-            ->link_href('varchar', 255, false)
-            ->link_title('varchar', 255, false)
-            ->link_desc('varchar', 255, true)
-            ->link_lang('varchar', 5, true)
-            ->link_xfn('varchar', 255, true)
-            ->link_position('integer', 0, false, 0)
+        $s->table('link')
+            ->field('link_id', 'bigint', 0, false)
+            ->field('blog_id', 'varchar', 32, false)
+            ->field('link_href', 'varchar', 255, false)
+            ->field('link_title', 'varchar', 255, false)
+            ->field('link_desc', 'varchar', 255, true)
+            ->field('link_lang', 'varchar', 5, true)
+            ->field('link_xfn', 'varchar', 255, true)
+            ->field('link_position', 'integer', 0, false, 0)
 
             ->primary('pk_link', 'link_id')
         ;
 
-        $s->link->index('idx_link_blog_id', 'btree', 'blog_id');
-        $s->link->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
+        $s->table('link')->index('idx_link_blog_id', 'btree', 'blog_id');
+        $s->table('link')->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
         # Schema installation
         $si      = new Structure(dotclear()->con(), dotclear()->prefix);
