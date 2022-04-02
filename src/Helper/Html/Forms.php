@@ -493,10 +493,10 @@ class Forms
     {
         // Cope with unimplemented input type for some browser (type="text" + pattern + placeholder)
         $extra = [];
-        if (!str_containsstrtolower(($params['extra']) ?? ''), 'pattern=')) {
+        if (!str_contains(strtolower($params['extra'] ?? ''), 'pattern=')) {
             $extra[] = 'pattern="[0-9]{2}:[0-9]{2}"';
         }
-        if (!str_contains(strtolower(($params['extra']) ?? ''), 'placeholder')) {
+        if (!str_contains(strtolower($params['extra'] ?? ''), 'placeholder')) {
             $extra[] = 'placeholder="14:45"';
         }
         if (count($extra)) {
