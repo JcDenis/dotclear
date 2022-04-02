@@ -23,11 +23,11 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        $paths = dotclear()->config()->theme_dirs;
+        $paths = dotclear()->config()->get('theme_dirs');
 
         # If a theme directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
-            $path = trim((string) dotclear()->blog()->settings()->system->module_theme_dir);
+            $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_theme_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;
             }
@@ -38,7 +38,7 @@ trait TraitModulesTheme
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->system->store_theme_url;
+        return (string) dotclear()->blog()->settings()->get('system')->get('store_theme_url');
     }
 
     public function useStoreCache(): bool
@@ -48,7 +48,7 @@ trait TraitModulesTheme
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->theme_official;
+        return dotclear()->config()->get('theme_official');
     }
 
     /**
@@ -64,8 +64,8 @@ trait TraitModulesTheme
         $suffix = $suffix ? '/' . $suffix : '';
         $path = [];
 
-        if(dotclear()->blog() !== null) {
-            $theme = $this->getModule((string) dotclear()->blog()->settings()->system->theme);
+        if(null !== dotclear()->blog()) {
+            $theme = $this->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
             if (!$theme) {
                 $theme = $this->getModule('Berlin');
             }

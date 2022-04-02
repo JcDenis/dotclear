@@ -24,8 +24,8 @@ class Text
      *
      * Returns true if $email is a valid email address.
      *
-     * @param string    $email    Email string
-     * @return boolean
+     * @param   string  $email  Email string
+     * @return  bool
      */
     public static function isEmail(string $email): bool
     {
@@ -38,8 +38,9 @@ class Text
      * Replaces some occidental accentuated characters by their ASCII
      * representation.
      *
-     * @param    string    $str        String to deaccent
-     * @return    string
+     * @param   string  $str    String to deaccent
+     * 
+     * @return  string
      */
     public static function deaccent(string $str): string
     {
@@ -85,9 +86,10 @@ class Text
      *
      * Transforms a string to a proper URL.
      *
-     * @param string    $str            String to transform
-     * @param boolean    $with_slashes    Keep slashes in URL
-     * @return string
+     * @param   string  $str            String to transform
+     * @param   bool    $with_slashes   Keep slashes in URL
+     * 
+     * @return  string
      */
     public static function str2URL(string $str, bool $with_slashes = true): string
     {
@@ -100,9 +102,10 @@ class Text
     /**
      * URL cleanup
      *
-     * @param string    $str            URL to tidy
-     * @param boolean    $keep_slashes    Keep slashes in URL
-     * @param boolean    $keep_spaces    Keep spaces in URL
+     * @param   string  $str            URL to tidy
+     * @param   bool    $keep_slashes   Keep slashes in URL
+     * @param   bool    $keep_spaces    Keep spaces in URL
+     * 
      * @return string
      */
     public static function tidyURL(string $str, bool $keep_slashes = true, bool $keep_spaces = false): string
@@ -134,9 +137,10 @@ class Text
      *
      * Returns a cuted string on spaced at given length $l.
      *
-     * @param    string    $str        String to cut
-     * @param    integer    $l        Length to keep
-     * @return    string
+     * @param   string  $str    String to cut
+     * @param   int     $l      Length to keep
+     * 
+     * @return  string
      */
     public static function cutString(string $str, int $l): string
     {
@@ -166,8 +170,9 @@ class Text
      *
      * Returns an array of words from a given string.
      *
-     * @param string    $str        Words to split
-     * @return array
+     * @param   string  $str    Words to split
+     * 
+     * @return  array
      */
     public static function splitWords(string $str): array
     {
@@ -188,8 +193,9 @@ class Text
      *
      * Returns the encoding (in lowercase) of given $str.
      *
-     * @param string    $str        String
-     * @return string
+     * @param   string  $str    String
+     * 
+     * @return  string
      */
     public static function detectEncoding(string $str): string
     {
@@ -207,9 +213,10 @@ class Text
      * Returns an UTF-8 converted string. If $encoding is not specified, the
      * function will try to detect encoding.
      *
-     * @param string    $str        String to convert
-     * @param string    $encoding    Optionnal "from" encoding
-     * @return string
+     * @param   string  $str        String to convert
+     * @param   string  $encoding   Optionnal "from" encoding
+     * 
+     * @return  string
      */
     public static function toUTF8(string $str, ?string $encoding = null): string
     {
@@ -235,10 +242,11 @@ class Text
      *
      * @copyright Harry Fuecks (http://phputf8.sourceforge.net <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU LGPL 2.1</a>)
      *
-     * @param string    $str        String to search
-     * @return integer|false
+     * @param   string  $str    String to search
+     * 
+     * @return  int|false
      */
-    public static function utf8badFind(string $str)
+    public static function utf8badFind(string $str): int|false
     {
         $UTF8_BAD = '([\x00-\x7F]' . # ASCII (including control chars)
         '|[\xC2-\xDF][\x80-\xBF]' . # non-overlong 2-byte
@@ -271,9 +279,10 @@ class Text
      *
      * @copyright Harry Fuecks (http://phputf8.sourceforge.net <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU LGPL 2.1</a>)
      *
-     * @param string    $str        String to clean
-     * @param string    $repl    Replacement string
-     * @return string
+     * @param   string  $str    String to clean
+     * @param   string  $repl   Replacement string
+     * 
+     * @return  string
      */
     public static function cleanUTF8(string $str, string $repl = '?'): string
     {
@@ -289,8 +298,9 @@ class Text
      *
      * Removes BOM from the begining of a string if present.
      *
-     * @param string    $str        String to clean
-     * @return string
+     * @param   string  $str    String to clean
+     * 
+     * @return  string
      */
     public static function removeBOM(string $str): string
     {
@@ -306,8 +316,9 @@ class Text
      *
      * Encodes given str to quoted printable
      *
-     * @param string    $str        String to encode
-     * @return string
+     * @param   string  $str    String to encode
+     * 
+     * @return  string
      */
     public static function QPEncode(string $str): string
     {

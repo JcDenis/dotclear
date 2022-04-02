@@ -271,7 +271,7 @@ abstract class AbstractModules
     public function checkModulesDependencies(): void
     {
         $modules          = array_merge($this->modules_enabled, $this->modules_disabled);
-        $dc_version       = preg_replace('/\-dev.*$/', '', dotclear()->config()->core_version);
+        $dc_version       = preg_replace('/\-dev.*$/', '', dotclear()->config()->get('core_version'));
         $this->to_disable = [];
 
         foreach ($modules as $id => $module) {

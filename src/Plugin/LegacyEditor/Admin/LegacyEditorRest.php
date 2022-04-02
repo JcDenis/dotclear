@@ -47,8 +47,8 @@ class LegacyEditorRest
             }
         }
 
-        $rsp->ret = $ret;
-        $rsp->msg = $html;
+        $rsp->insertAttr('ret', $ret);
+        $rsp->insertAttr('msg', $html);
 
         return $rsp;
     }

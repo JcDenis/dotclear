@@ -68,12 +68,12 @@ class BlogPref extends Page
                     throw new AdminException(__('No such blog.'));
                 }
 
-                $this->blog_id       = $rs->blog_id;
-                $this->blog_status   = $rs->blog_status;
-                $this->blog_name     = $rs->blog_name;
-                $this->blog_desc     = $rs->blog_desc;
+                $this->blog_id       = $rs->f('blog_id');
+                $this->blog_status   = $rs->fInt('blog_status');
+                $this->blog_name     = $rs->f('blog_name');
+                $this->blog_desc     = $rs->f('blog_desc');
                 $this->blog_settings = new Settings($this->blog_id);
-                $this->blog_url      = $rs->blog_url;
+                $this->blog_url      = $rs->f('blog_url');
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -93,14 +93,14 @@ class BlogPref extends Page
             # Status combo
             $status_combo = dotclear()->combo()->getBlogStatusescombo();
 
-            $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
-            $cur->blog_id   = $_POST['blog_id'];
-            $cur->blog_url  = preg_replace('/\?+$/', '?', $_POST['blog_url']);
-            $cur->blog_name = $_POST['blog_name'];
-            $cur->blog_desc = $_POST['blog_desc'];
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+            $cur->setField('blog_id', $_POST['blog_id']);
+            $cur->setField('blog_url', preg_replace('/\?+$/', '?', $_POST['blog_url']));
+            $cur->setField('blog_name', $_POST['blog_name']);
+            $cur->setField('blog_desc', $_POST['blog_desc']);
 
             if (dotclear()->user()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
-                $cur->blog_status = (int) $_POST['blog_status'];
+                $cur->setField('blog_status', (int) $_POST['blog_status']);
             }
 
             $media_img_t_size = (int) $_POST['media_img_t_size'];
@@ -149,8 +149,8 @@ class BlogPref extends Page
             }
 
             try {
-                if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
-                    $rs = dotclear()->blogs()->getBlog($cur->blog_id);
+                if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
+                    $rs = dotclear()->blogs()->getBlog($cur->getField('blog_id'));
 
                     if ($rs) {
                         throw new AdminException(__('This blog ID is already used.'));
@@ -169,70 +169,70 @@ class BlogPref extends Page
                 # --BEHAVIOR-- adminAfterBlogUpdate
                 dotclear()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
 
-                if ($cur->blog_id != null && $cur->blog_id != $this->blog_id) {
+                if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
                     if ($this->blog_id == dotclear()->blog()->id) {
-                        dotclear()->setBlog($cur->blog_id);
-                        $_SESSION['sess_blog_id'] = $cur->blog_id;
-                        $this->blog_settings            = dotclear()->blog()->settings;
+                        dotclear()->setBlog($cur->getField('blog_id'));
+                        $_SESSION['sess_blog_id'] = $cur->getField('blog_id');
+                        $this->blog_settings      = dotclear()->blog()->settings;
                     } else {
-                        $this->blog_settings = new Settings($cur->blog_id);
+                        $this->blog_settings = new Settings($cur->getField('blog_id'));
                     }
 
                     $this->blog_id = $cur->blog_id;
                 }
 
-                $this->blog_settings->system->put('editor', $_POST['editor']);
-                $this->blog_settings->system->put('copyright_notice', $_POST['copyright_notice']);
-                $this->blog_settings->system->put('post_url_format', $_POST['post_url_format']);
-                $this->blog_settings->system->put('lang', $_POST['lang']);
-                $this->blog_settings->system->put('blog_timezone', $_POST['blog_timezone']);
-                $this->blog_settings->system->put('date_format', $_POST['date_format']);
-                $this->blog_settings->system->put('time_format', $_POST['time_format']);
-                $this->blog_settings->system->put('comments_ttl', abs((int) $_POST['comments_ttl']));
-                $this->blog_settings->system->put('trackbacks_ttl', abs((int) $_POST['trackbacks_ttl']));
-                $this->blog_settings->system->put('allow_comments', !empty($_POST['allow_comments']));
-                $this->blog_settings->system->put('allow_trackbacks', !empty($_POST['allow_trackbacks']));
-                $this->blog_settings->system->put('comments_pub', empty($_POST['comments_pub']));
-                $this->blog_settings->system->put('trackbacks_pub', empty($_POST['trackbacks_pub']));
-                $this->blog_settings->system->put('comments_nofollow', !empty($_POST['comments_nofollow']));
-                $this->blog_settings->system->put('wiki_comments', !empty($_POST['wiki_comments']));
-                $this->blog_settings->system->put('comment_preview_optional', !empty($_POST['comment_preview_optional']));
-                $this->blog_settings->system->put('enable_xmlrpc', !empty($_POST['enable_xmlrpc']));
-                $this->blog_settings->system->put('note_title_tag', $_POST['note_title_tag']);
-                $this->blog_settings->system->put('nb_post_for_home', $nb_post_for_home);
-                $this->blog_settings->system->put('nb_post_per_page', $nb_post_per_page);
-                $this->blog_settings->system->put('use_smilies', !empty($_POST['use_smilies']));
-                $this->blog_settings->system->put('no_search', !empty($_POST['no_search']));
-                $this->blog_settings->system->put('inc_subcats', !empty($_POST['inc_subcats']));
-                $this->blog_settings->system->put('media_img_t_size', $media_img_t_size);
-                $this->blog_settings->system->put('media_img_s_size', $media_img_s_size);
-                $this->blog_settings->system->put('media_img_m_size', $media_img_m_size);
-                $this->blog_settings->system->put('media_video_width', $media_video_width);
-                $this->blog_settings->system->put('media_video_height', $media_video_height);
-                $this->blog_settings->system->put('media_img_title_pattern', $_POST['media_img_title_pattern']);
-                $this->blog_settings->system->put('media_img_use_dto_first', !empty($_POST['media_img_use_dto_first']));
-                $this->blog_settings->system->put('media_img_no_date_alone', !empty($_POST['media_img_no_date_alone']));
-                $this->blog_settings->system->put('media_img_default_size', $_POST['media_img_default_size']);
-                $this->blog_settings->system->put('media_img_default_alignment', $_POST['media_img_default_alignment']);
-                $this->blog_settings->system->put('media_img_default_link', !empty($_POST['media_img_default_link']));
-                $this->blog_settings->system->put('media_img_default_legend', $_POST['media_img_default_legend']);
-                $this->blog_settings->system->put('nb_post_per_feed', $nb_post_per_feed);
-                $this->blog_settings->system->put('nb_comment_per_feed', $nb_comment_per_feed);
-                $this->blog_settings->system->put('short_feed_items', !empty($_POST['short_feed_items']));
+                $this->blog_settings->get('system')->put('editor', $_POST['editor']);
+                $this->blog_settings->get('system')->put('copyright_notice', $_POST['copyright_notice']);
+                $this->blog_settings->get('system')->put('post_url_format', $_POST['post_url_format']);
+                $this->blog_settings->get('system')->put('lang', $_POST['lang']);
+                $this->blog_settings->get('system')->put('blog_timezone', $_POST['blog_timezone']);
+                $this->blog_settings->get('system')->put('date_format', $_POST['date_format']);
+                $this->blog_settings->get('system')->put('time_format', $_POST['time_format']);
+                $this->blog_settings->get('system')->put('comments_ttl', abs((int) $_POST['comments_ttl']));
+                $this->blog_settings->get('system')->put('trackbacks_ttl', abs((int) $_POST['trackbacks_ttl']));
+                $this->blog_settings->get('system')->put('allow_comments', !empty($_POST['allow_comments']));
+                $this->blog_settings->get('system')->put('allow_trackbacks', !empty($_POST['allow_trackbacks']));
+                $this->blog_settings->get('system')->put('comments_pub', empty($_POST['comments_pub']));
+                $this->blog_settings->get('system')->put('trackbacks_pub', empty($_POST['trackbacks_pub']));
+                $this->blog_settings->get('system')->put('comments_nofollow', !empty($_POST['comments_nofollow']));
+                $this->blog_settings->get('system')->put('wiki_comments', !empty($_POST['wiki_comments']));
+                $this->blog_settings->get('system')->put('comment_preview_optional', !empty($_POST['comment_preview_optional']));
+                $this->blog_settings->get('system')->put('enable_xmlrpc', !empty($_POST['enable_xmlrpc']));
+                $this->blog_settings->get('system')->put('note_title_tag', $_POST['note_title_tag']);
+                $this->blog_settings->get('system')->put('nb_post_for_home', $nb_post_for_home);
+                $this->blog_settings->get('system')->put('nb_post_per_page', $nb_post_per_page);
+                $this->blog_settings->get('system')->put('use_smilies', !empty($_POST['use_smilies']));
+                $this->blog_settings->get('system')->put('no_search', !empty($_POST['no_search']));
+                $this->blog_settings->get('system')->put('inc_subcats', !empty($_POST['inc_subcats']));
+                $this->blog_settings->get('system')->put('media_img_t_size', $media_img_t_size);
+                $this->blog_settings->get('system')->put('media_img_s_size', $media_img_s_size);
+                $this->blog_settings->get('system')->put('media_img_m_size', $media_img_m_size);
+                $this->blog_settings->get('system')->put('media_video_width', $media_video_width);
+                $this->blog_settings->get('system')->put('media_video_height', $media_video_height);
+                $this->blog_settings->get('system')->put('media_img_title_pattern', $_POST['media_img_title_pattern']);
+                $this->blog_settings->get('system')->put('media_img_use_dto_first', !empty($_POST['media_img_use_dto_first']));
+                $this->blog_settings->get('system')->put('media_img_no_date_alone', !empty($_POST['media_img_no_date_alone']));
+                $this->blog_settings->get('system')->put('media_img_default_size', $_POST['media_img_default_size']);
+                $this->blog_settings->get('system')->put('media_img_default_alignment', $_POST['media_img_default_alignment']);
+                $this->blog_settings->get('system')->put('media_img_default_link', !empty($_POST['media_img_default_link']));
+                $this->blog_settings->get('system')->put('media_img_default_legend', $_POST['media_img_default_legend']);
+                $this->blog_settings->get('system')->put('nb_post_per_feed', $nb_post_per_feed);
+                $this->blog_settings->get('system')->put('nb_comment_per_feed', $nb_comment_per_feed);
+                $this->blog_settings->get('system')->put('short_feed_items', !empty($_POST['short_feed_items']));
                 if (isset($_POST['robots_policy'])) {
-                    $this->blog_settings->system->put('robots_policy', $_POST['robots_policy']);
+                    $this->blog_settings->get('system')->put('robots_policy', $_POST['robots_policy']);
                 }
-                $this->blog_settings->system->put('jquery_needed', !empty($_POST['jquery_needed']));
-                $this->blog_settings->system->put('jquery_version', $_POST['jquery_version']);
-                $this->blog_settings->system->put('prevents_clickjacking', !empty($_POST['prevents_clickjacking']));
-                $this->blog_settings->system->put('static_home', !empty($_POST['static_home']));
-                $this->blog_settings->system->put('static_home_url', $_POST['static_home_url']);
+                $this->blog_settings->get('system')->put('jquery_needed', !empty($_POST['jquery_needed']));
+                $this->blog_settings->get('system')->put('jquery_version', $_POST['jquery_version']);
+                $this->blog_settings->get('system')->put('prevents_clickjacking', !empty($_POST['prevents_clickjacking']));
+                $this->blog_settings->get('system')->put('static_home', !empty($_POST['static_home']));
+                $this->blog_settings->get('system')->put('static_home_url', $_POST['static_home_url']);
 
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate
                 dotclear()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
                 if (dotclear()->user()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
-                    $this->blog_settings->system->put('url_scan', $_POST['url_scan']);
+                    $this->blog_settings->get('system')->put('url_scan', $_POST['url_scan']);
                 }
                 dotclear()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
 
@@ -245,7 +245,7 @@ class BlogPref extends Page
         # Page setup
         $desc_editor = dotclear()->user()->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @dotclear()->user()->preference()->interface->rte_flags;
+        $rte_flags   = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -294,8 +294,8 @@ class BlogPref extends Page
 
         # Date format combo
         $now                = time();
-        $date_formats       = $this->blog_settings->system->date_formats;
-        $time_formats       = $this->blog_settings->system->time_formats;
+        $date_formats       = $this->blog_settings->get('system')->get('date_formats');
+        $time_formats       = $this->blog_settings->get('system')->get('time_formats');
         $date_formats_combo = ['' => ''];
         foreach ($date_formats as $format) {
             $date_formats_combo[Dt::str($format, $now)] = $format;
@@ -320,8 +320,8 @@ class BlogPref extends Page
             __('post id/title')        => '{id}/{t}',
             __('post id')              => '{id}'
         ];
-        if (!in_array($this->blog_settings->system->post_url_format, $post_url_combo)) {
-            $post_url_combo[Html::escapeHTML($this->blog_settings->system->post_url_format)] = Html::escapeHTML($this->blog_settings->system->post_url_format);
+        if (!in_array($this->blog_settings->get('system')->get('post_url_format'), $post_url_combo)) {
+            $post_url_combo[Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format'))] = Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format'));
         }
 
         # Note title tag combo
@@ -339,8 +339,8 @@ class BlogPref extends Page
             __('Title, Country, Date')       => 'Title ;; Country ;; Date(%b %Y) ;; separator(, )',
             __('Title, City, Country, Date') => 'Title ;; City ;; Country ;; Date(%b %Y) ;; separator(, )'
         ];
-        if (!in_array($this->blog_settings->system->media_img_title_pattern, $img_title_combo)) {
-            $img_title_combo[Html::escapeHTML($this->blog_settings->system->media_img_title_pattern)] = Html::escapeHTML($this->blog_settings->system->media_img_title_pattern);
+        if (!in_array($this->blog_settings->get('system')->get('media_img_title_pattern'), $img_title_combo)) {
+            $img_title_combo[Html::escapeHTML($this->blog_settings->get('system')->get('media_img_title_pattern'))] = Html::escapeHTML($this->blog_settings->get('system')->get('media_img_title_pattern'));
         }
 
         # Image default size combo
@@ -381,12 +381,12 @@ class BlogPref extends Page
 
         # jQuery available versions
         $jquery_root           = Path::implodeRoot('Core', 'resources', 'js', 'jquery');
-        $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->jquery_default . ')' => ''];
+        $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->get('jquery_default') . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
-            if (($d = @dir($jquery_root)) !== false) {
-                while (($entry = $d->read()) !== false) {
+            if (false !== ($d = @dir($jquery_root))) {
+                while (false !== ($entry = $d->read())) {
                     if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_dir($jquery_root . '/' . $entry)) {
-                        if ($entry != dotclear()->config()->jquery_default) {
+                        if ($entry != dotclear()->config()->get('jquery_default')) {
                             $jquery_versions_combo[$entry] = $entry;
                         }
                     }
@@ -416,7 +416,7 @@ class BlogPref extends Page
         Form::field('blog_name', 30, 255,
             [
                 'default'    => Html::escapeHTML($this->blog_name),
-                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="'. $this->blog_settings->system->lang .'" spellcheck="true"'
+                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="'. $this->blog_settings->get('system')->get('lang') .'" spellcheck="true"'
             ]
         ) . '</p>';
 
@@ -425,7 +425,7 @@ class BlogPref extends Page
         Form::textarea('blog_desc', 60, 5,
             [
                 'default'    => Html::escapeHTML($this->blog_desc),
-                'extra_html' => 'lang="' . $this->blog_settings->system->lang . '" spellcheck="true"'
+                'extra_html' => 'lang="' . $this->blog_settings->get('system')->get('lang') . '" spellcheck="true"'
             ]) . '</p>';
 
         if (dotclear()->user()->isSuperAdmin()) {
@@ -450,22 +450,22 @@ class BlogPref extends Page
         '<div class="fieldset"><h4>' . __('Blog configuration') . '</h4>' .
 
         '<p><label for="editor">' . __('Blog editor name:') . '</label>' .
-        Form::field('editor', 30, 255, Html::escapeHTML($this->blog_settings->system->editor)) .
+        Form::field('editor', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('editor'))) .
         '</p>' .
 
         '<p><label for="lang">' . __('Default language:') . '</label>' .
-        Form::combo('lang', $lang_combo, $this->blog_settings->system->lang, 'l10n') .
+        Form::combo('lang', $lang_combo, $this->blog_settings->get('system')->get('lang'), 'l10n') .
         '</p>' .
 
         '<p><label for="blog_timezone">' . __('Blog timezone:') . '</label>' .
-        Form::combo('blog_timezone', Dt::getZones(true, true), Html::escapeHTML($this->blog_settings->system->blog_timezone)) .
+        Form::combo('blog_timezone', Dt::getZones(true, true), Html::escapeHTML($this->blog_settings->get('system')->get('blog_timezone'))) .
         '</p>' .
 
         '<p><label for="copyright_notice">' . __('Copyright notice:') . '</label>' .
         Form::field('copyright_notice', 30, 255,
             [
-                'default'    => Html::escapeHTML($this->blog_settings->system->copyright_notice),
-                'extra_html' => 'lang="'. $this->blog_settings->system->lang .'" spellcheck="true"'
+                'default'    => Html::escapeHTML($this->blog_settings->get('system')->get('copyright_notice')),
+                'extra_html' => 'lang="'. $this->blog_settings->get('system')->get('lang') .'" spellcheck="true"'
             ]) .
             '</p>' .
 
@@ -478,46 +478,46 @@ class BlogPref extends Page
 
         '<div class="col">' .
         '<p><label for="allow_comments" class="classic">' .
-        Form::checkbox('allow_comments', '1', $this->blog_settings->system->allow_comments) .
+        Form::checkbox('allow_comments', '1', $this->blog_settings->get('system')->get('allow_comments')) .
         __('Accept comments') . '</label></p>' .
         '<p><label for="comments_pub" class="classic">' .
-        Form::checkbox('comments_pub', '1', !$this->blog_settings->system->comments_pub) .
+        Form::checkbox('comments_pub', '1', !$this->blog_settings->get('system')->get('comments_pub')) .
         __('Moderate comments') . '</label></p>' .
         '<p><label for="comments_ttl" class="classic">' . sprintf(__('Leave comments open for %s days') . '.',
             Form::number('comments_ttl', [
                 'min'     => 0,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->comments_ttl,
+                'default' => $this->blog_settings->get('system')->get('comments_ttl'),
                 'extra_html' => 'aria-describedby="comments_ttl_help"']
             )) .
         '</label></p>' .
         '<p class="form-note" id="comments_ttl_help">' . __('No limit: leave blank.') . '</p>' .
         '<p><label for="wiki_comments" class="classic">' .
-        Form::checkbox('wiki_comments', '1', $this->blog_settings->system->wiki_comments) .
+        Form::checkbox('wiki_comments', '1', $this->blog_settings->get('system')->get('wiki_comments')) .
         __('Wiki syntax for comments') . '</label></p>' .
         '<p><label for="comment_preview_optional" class="classic">' .
-        Form::checkbox('comment_preview_optional', '1', $this->blog_settings->system->comment_preview_optional) .
+        Form::checkbox('comment_preview_optional', '1', $this->blog_settings->get('system')->get('comment_preview_optional')) .
         __('Preview of comment before submit is not mandatory') . '</label></p>' .
         '</div>' .
 
         '<div class="col">' .
         '<p><label for="allow_trackbacks" class="classic">' .
-        Form::checkbox('allow_trackbacks', '1', $this->blog_settings->system->allow_trackbacks) .
+        Form::checkbox('allow_trackbacks', '1', $this->blog_settings->get('system')->get('allow_trackbacks')) .
         __('Accept trackbacks') . '</label></p>' .
         '<p><label for="trackbacks_pub" class="classic">' .
-        Form::checkbox('trackbacks_pub', '1', !$this->blog_settings->system->trackbacks_pub) .
+        Form::checkbox('trackbacks_pub', '1', !$this->blog_settings->get('system')->get('trackbacks_pub')) .
         __('Moderate trackbacks') . '</label></p>' .
         '<p><label for="trackbacks_ttl" class="classic">' . sprintf(__('Leave trackbacks open for %s days') . '.',
             Form::number('trackbacks_ttl', [
                 'min'     => 0,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->trackbacks_ttl,
+                'default' => $this->blog_settings->get('system')->get('trackbacks_ttl'),
                 'extra_html' => 'aria-describedby="trackbacks_ttl_help"']
             )) .
         '</label></p>' .
         '<p class="form-note" id="trackbacks_ttl_help">' . __('No limit: leave blank.') . '</p>' .
         '<p><label for="comments_nofollow" class="classic">' .
-        Form::checkbox('comments_nofollow', '1', $this->blog_settings->system->comments_nofollow) .
+        Form::checkbox('comments_nofollow', '1', $this->blog_settings->get('system')->get('comments_nofollow')) .
         __('Add "nofollow" relation on comments and trackbacks links') . '</label></p>' .
         '</div>' .
         '<br class="clear" />' . //Opera sucks
@@ -531,23 +531,23 @@ class BlogPref extends Page
         '<div class="two-cols">' .
         '<div class="col">' .
         '<p><label for="date_format">' . __('Date format:') . '</label> ' .
-        Form::field('date_format', 30, 255, Html::escapeHTML($this->blog_settings->system->date_format), '', '', false, 'aria-describedby="date_format_help"') .
+        Form::field('date_format', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('date_format')), '', '', false, 'aria-describedby="date_format_help"') .
         Form::combo('date_format_select', $date_formats_combo, ['extra_html' => 'title="' . __('Pattern of date') . '"']) .
         '</p>' .
-        '<p class="chosen form-note" id="date_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->system->date_format)) . '</p>' .
+        '<p class="chosen form-note" id="date_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->get('system')->get('date_format'))) . '</p>' .
 
         '<p><label for="time_format">' . __('Time format:') . '</label>' .
-        Form::field('time_format', 30, 255, Html::escapeHTML($this->blog_settings->system->time_format), '', '', false, 'aria-describedby="time_format_help"') .
+        Form::field('time_format', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('time_format')), '', '', false, 'aria-describedby="time_format_help"') .
         Form::combo('time_format_select', $time_formats_combo, ['extra_html' => 'title="' . __('Pattern of time') . '"']) .
         '</p>' .
-        '<p class="chosen form-note" id="time_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->system->time_format)) . '</p>' .
+        '<p class="chosen form-note" id="time_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->get('system')->get('time_format'))) . '</p>' .
 
         '<p><label for="use_smilies" class="classic">' .
-        Form::checkbox('use_smilies', '1', $this->blog_settings->system->use_smilies) .
+        Form::checkbox('use_smilies', '1', $this->blog_settings->get('system')->get('use_smilies')) .
         __('Display smilies on entries and comments') . '</label></p>' .
 
         '<p><label for="no_search" class="classic">' .
-        Form::checkbox('no_search', '1', $this->blog_settings->system->no_search) .
+        Form::checkbox('no_search', '1', $this->blog_settings->get('system')->get('no_search')) .
         __('Disable internal search system') . '</label></p>' .
 
         '</div>' .
@@ -558,7 +558,7 @@ class BlogPref extends Page
             Form::number('nb_post_for_home', [
                 'min'     => 1,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->nb_post_for_home]
+                'default' => $this->blog_settings->get('system')->get('nb_post_for_home')]
             )) .
         '</label></p>' .
 
@@ -566,7 +566,7 @@ class BlogPref extends Page
             Form::number('nb_post_per_page', [
                 'min'     => 1,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->nb_post_per_page]
+                'default' => $this->blog_settings->get('system')->get('nb_post_per_page')]
             )) .
         '</label></p>' .
 
@@ -574,7 +574,7 @@ class BlogPref extends Page
             Form::number('nb_post_per_feed', [
                 'min'     => 1,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->nb_post_per_feed]
+                'default' => $this->blog_settings->get('system')->get('nb_post_per_feed')]
             )) .
         '</label></p>' .
 
@@ -582,16 +582,16 @@ class BlogPref extends Page
             Form::number('nb_comment_per_feed', [
                 'min'     => 1,
                 'max'     => 999,
-                'default' => $this->blog_settings->system->nb_comment_per_feed]
+                'default' => $this->blog_settings->get('system')->get('nb_comment_per_feed')]
             )) .
         '</label></p>' .
 
         '<p><label for="short_feed_items" class="classic">' .
-        Form::checkbox('short_feed_items', '1', $this->blog_settings->system->short_feed_items) .
+        Form::checkbox('short_feed_items', '1', $this->blog_settings->get('system')->get('short_feed_items')) .
         __('Truncate feeds') . '</label></p>' .
 
         '<p><label for="inc_subcats" class="classic">' .
-        Form::checkbox('inc_subcats', '1', $this->blog_settings->system->inc_subcats) .
+        Form::checkbox('inc_subcats', '1', $this->blog_settings->get('system')->get('inc_subcats')) .
         __('Include sub-categories in category page and category posts feed') . '</label></p>' .
         '</div>' .
         '</div>' .
@@ -600,11 +600,11 @@ class BlogPref extends Page
         '<hr />' .
 
         '<p><label for="static_home" class="classic">' .
-        Form::checkbox('static_home', '1', $this->blog_settings->system->static_home) .
+        Form::checkbox('static_home', '1', $this->blog_settings->get('system')->get('static_home')) .
         __('Display an entry as static home page') . '</label></p>' .
 
         '<p><label for="static_home_url" class="classic">' . __('Entry URL (its content will be used for the static home page):') . '</label> ' .
-        Form::field('static_home_url', 30, 255, Html::escapeHTML($this->blog_settings->system->static_home_url), '', '', false, 'aria-describedby="static_home_url_help"') .
+        Form::field('static_home_url', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('static_home_url')), '', '', false, 'aria-describedby="static_home_url_help"') .
         ' <button type="button" id="static_home_url_selector">' . __('Choose an entry') . '</button>' .
         '</p>' .
         '<p class="form-note" id="static_home_url_help">' . __('Leave empty to use the default presentation.') . '</p> ' .
@@ -625,7 +625,7 @@ class BlogPref extends Page
         Form::number('media_img_t_size', [
             'min'     => -1,
             'max'     => 999,
-            'default' => $this->blog_settings->system->media_img_t_size
+            'default' => $this->blog_settings->get('system')->get('media_img_t_size')
         ]) .
         '</p>' .
 
@@ -633,7 +633,7 @@ class BlogPref extends Page
         Form::number('media_img_s_size', [
             'min'     => -1,
             'max'     => 999,
-            'default' => $this->blog_settings->system->media_img_s_size
+            'default' => $this->blog_settings->get('system')->get('media_img_s_size')
         ]) .
         '</p>' .
 
@@ -641,7 +641,7 @@ class BlogPref extends Page
         Form::number('media_img_m_size', [
             'min'     => -1,
             'max'     => 999,
-            'default' => $this->blog_settings->system->media_img_m_size
+            'default' => $this->blog_settings->get('system')->get('media_img_m_size')
         ]) .
         '</p>' .
 
@@ -650,7 +650,7 @@ class BlogPref extends Page
         Form::number('media_video_width', [
             'min'     => -1,
             'max'     => 999,
-            'default' => $this->blog_settings->system->media_video_width
+            'default' => $this->blog_settings->get('system')->get('media_video_width')
         ]) .
         '</p>' .
 
@@ -658,7 +658,7 @@ class BlogPref extends Page
         Form::number('media_video_height', [
             'min'     => -1,
             'max'     => 999,
-            'default' => $this->blog_settings->system->media_video_height
+            'default' => $this->blog_settings->get('system')->get('media_video_height')
         ]) .
         '</p>' .
         '</div>' .
@@ -666,27 +666,27 @@ class BlogPref extends Page
         '<div class="col">' .
         '<h5>' . __('Default image insertion attributes') . '</h5>' .
         '<p class="vertical-separator"><label for="media_img_title_pattern">' . __('Inserted image title') . '</label>' .
-        Form::combo('media_img_title_pattern', $img_title_combo, Html::escapeHTML($this->blog_settings->system->media_img_title_pattern)) . '</p>' .
+        Form::combo('media_img_title_pattern', $img_title_combo, Html::escapeHTML($this->blog_settings->get('system')->get('media_img_title_pattern'))) . '</p>' .
         '<p><label for="media_img_use_dto_first" class="classic">' .
-        Form::checkbox('media_img_use_dto_first', '1', $this->blog_settings->system->media_img_use_dto_first) .
+        Form::checkbox('media_img_use_dto_first', '1', $this->blog_settings->get('system')->get('media_img_use_dto_first')) .
         __('Use original media date if possible') . '</label></p>' .
         '<p><label for="media_img_no_date_alone" class="classic">' .
-        Form::checkbox('media_img_no_date_alone', '1', $this->blog_settings->system->media_img_no_date_alone, '', '', false, 'aria-describedby="media_img_no_date_alone_help"') .
+        Form::checkbox('media_img_no_date_alone', '1', $this->blog_settings->get('system')->get('media_img_no_date_alone'), '', '', false, 'aria-describedby="media_img_no_date_alone_help"') .
         __('Do not display date if alone in title') . '</label></p>' .
         '<p class="form-note info" id="media_img_no_date_alone_help">' . __('It is retrieved from the picture\'s metadata.') . '</p>' .
 
         '<p class="field vertical-separator"><label for="media_img_default_size">' . __('Size of inserted image:') . '</label>' .
         Form::combo('media_img_default_size', $img_default_size_combo,
-            (Html::escapeHTML($this->blog_settings->system->media_img_default_size) != '' ? Html::escapeHTML($this->blog_settings->system->media_img_default_size) : 'm')) .
+            (Html::escapeHTML($this->blog_settings->get('system')->get('media_img_default_size')) != '' ? Html::escapeHTML($this->blog_settings->get('system')->get('media_img_default_size')) : 'm')) .
         '</p>' .
         '<p class="field"><label for="media_img_default_alignment">' . __('Image alignment:') . '</label>' .
-        Form::combo('media_img_default_alignment', $img_default_alignment_combo, Html::escapeHTML($this->blog_settings->system->media_img_default_alignment)) .
+        Form::combo('media_img_default_alignment', $img_default_alignment_combo, Html::escapeHTML($this->blog_settings->get('system')->get('media_img_default_alignment'))) .
         '</p>' .
         '<p><label for="media_img_default_link">' .
-        Form::checkbox('media_img_default_link', '1', $this->blog_settings->system->media_img_default_link) .
+        Form::checkbox('media_img_default_link', '1', $this->blog_settings->get('system')->get('media_img_default_link')) .
         __('Insert a link to the original image') . '</label></p>' .
         '<p class="field"><label for="media_img_default_legend">' . __('Image legend and title:') . '</label>' .
-        Form::combo('media_img_default_legend', $img_default_legend_combo, Html::escapeHTML($this->blog_settings->system->media_img_default_legend)) .
+        Form::combo('media_img_default_legend', $img_default_legend_combo, Html::escapeHTML($this->blog_settings->get('system')->get('media_img_default_legend'))) .
         '</p>' .
         '</div>' .
         '</div>' .
@@ -716,7 +716,7 @@ class BlogPref extends Page
             '</p>' .
 
             '<p><label for="url_scan">' . __('URL scan method:') . '</label>' .
-            Form::combo('url_scan', $url_scan_combo, $this->blog_settings->system->url_scan) . '</p>';
+            Form::combo('url_scan', $url_scan_combo, $this->blog_settings->get('system')->get('url_scan')) . '</p>';
 
             try {
                 # Test URL of blog by testing it's ATOM feed
@@ -727,7 +727,7 @@ class BlogPref extends Page
 
                 $client = NetHttp::initClient($file, $path);
                 if ($client !== false) {
-                    $client->setTimeout(dotclear()->config()->query_timeout);
+                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status  = $client->getStatus();
@@ -760,26 +760,26 @@ class BlogPref extends Page
         '<div class="fieldset"><h4>' . __('Blog configuration') . '</h4>' .
 
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
-        Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->system->post_url_format), '', '', false, 'aria-describedby="post_url_format_help"') .
+        Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format')), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
         '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog()->posts()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
-        Form::combo('note_title_tag', $note_title_tag_combo, $this->blog_settings->system->note_title_tag) .
+        Form::combo('note_title_tag', $note_title_tag_combo, $this->blog_settings->get('system')->get('note_title_tag')) .
         '</p>' .
 
         '<p><label for="enable_xmlrpc" class="classic">' .
-        Form::checkbox('enable_xmlrpc', '1', $this->blog_settings->system->enable_xmlrpc, '', '', false, 'aria-describedby="enable_xmlrpc_help"') .
+        Form::checkbox('enable_xmlrpc', '1', $this->blog_settings->get('system')->get('enable_xmlrpc'), '', '', false, 'aria-describedby="enable_xmlrpc_help"') .
         __('Enable XML/RPC interface') . '</label>' . '</p>' .
         '<p class="form-note info" id="enable_xmlrpc_help">' . __('XML/RPC interface allows you to edit your blog with an external client.') . '</p>';
 
-        if ($this->blog_settings->system->enable_xmlrpc) {
+        if ($this->blog_settings->get('system')->get('enable_xmlrpc')) {
             echo
             '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(dotclear()->config()->xmlrpc_url, dotclear()->blog()->url, dotclear()->blog()->id) . // @phpstan-ignore-line
+            sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id) . // @phpstan-ignore-line
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
             '<li>' . __('User name:') . ' <strong><code>' . dotclear()->user()->userID() . '</code></strong></li>' .
@@ -797,7 +797,7 @@ class BlogPref extends Page
         $i = 0;
         foreach ($robots_policy_options as $k => $v) {
             echo '<p><label for="robots_policy-' . $i . '" class="classic">' .
-            Form::radio(['robots_policy', 'robots_policy-' . $i], $k, $this->blog_settings->system->robots_policy == $k) . ' ' . $v . '</label></p>';
+            Form::radio(['robots_policy', 'robots_policy-' . $i], $k, $this->blog_settings->get('system')->get('robots_policy') == $k) . ' ' . $v . '</label></p>';
             $i++;
         }
 
@@ -806,11 +806,11 @@ class BlogPref extends Page
         echo '<div class="fieldset"><h4>' . __('jQuery javascript library') . '</h4>' .
 
         '<p><label for="jquery_needed" class="classic">' .
-        Form::checkbox('jquery_needed', '1', $this->blog_settings->system->jquery_needed) .
+        Form::checkbox('jquery_needed', '1', $this->blog_settings->get('system')->get('jquery_needed')) .
         __('Load the jQuery library') . '</label></p>' .
 
         '<p><label for="jquery_version" class="classic">' . __('jQuery version to be loaded for this blog:') . '</label>' . ' ' .
-        Form::combo('jquery_version', $jquery_versions_combo, $this->blog_settings->system->jquery_version) .
+        Form::combo('jquery_version', $jquery_versions_combo, $this->blog_settings->get('system')->get('jquery_version')) .
         '</p>' .
         '<br class="clear" />' . //Opera sucks
 
@@ -819,7 +819,7 @@ class BlogPref extends Page
         echo '<div class="fieldset"><h4>' . __('Blog security') . '</h4>' .
 
         '<p><label for="prevents_clickjacking" class="classic">' .
-        Form::checkbox('prevents_clickjacking', '1', $this->blog_settings->system->prevents_clickjacking) .
+        Form::checkbox('prevents_clickjacking', '1', $this->blog_settings->get('system')->get('prevents_clickjacking')) .
         __('Protect the blog from Clickjacking (see <a href="https://en.wikipedia.org/wiki/Clickjacking">Wikipedia</a>)') . '</label></p>' .
         '<br class="clear" />' . //Opera sucks
 

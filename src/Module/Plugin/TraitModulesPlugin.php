@@ -23,11 +23,11 @@ trait TraitModulesPlugin
 
     public function getModulesPath(): array
     {
-        $paths = dotclear()->config()->plugin_dirs;
+        $paths = dotclear()->config()->get('plugin_dirs');
 
         # If a plugin directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
-            $path = trim((string) dotclear()->blog()->settings()->system->module_plugin_dir);
+            $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_plugin_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;
             }
@@ -38,7 +38,7 @@ trait TraitModulesPlugin
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->system->store_plugin_url;
+        return (string) dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
     }
 
     public function useStoreCache(): bool
@@ -48,6 +48,6 @@ trait TraitModulesPlugin
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->plugin_official;
+        return dotclear()->config()->get('plugin_official');
     }
 }

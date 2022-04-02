@@ -112,7 +112,7 @@ class Updater
             $http_get = function ($http_url) use (&$status, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(dotclear()->config()->query_timeout);
+                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status = (int) $client->getStatus();
@@ -236,7 +236,7 @@ class Updater
             $http_get = function ($http_url) use (&$status, $dest, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if ($client !== false) {
-                    $client->setTimeout(dotclear()->config()->query_timeout);
+                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->useGzip(false);
                     $client->setPersistReferers(false);

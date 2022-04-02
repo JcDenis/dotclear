@@ -262,7 +262,7 @@ class Handler extends AbstractPage
         '</form>';
 
         # Syndication
-        if (dotclear()->config()->admin_url != '') {
+        if (dotclear()->config()->get('admin_url') != '') {
             $ham_feed = dotclear()->blog()->getURLFor(
                 'hamfeed',
                 $code = $this->a_antispam->getUserCode()

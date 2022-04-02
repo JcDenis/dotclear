@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+use Dotclear\Helper\File\Path;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskCSP extends MaintenanceTask
@@ -30,7 +31,7 @@ class MaintenanceTaskCSP extends MaintenanceTask
 
     public function execute()
     {
-        $csp_file = path::real(dotclear()->config()->var_dir) . '/csp/csp_report.json';
+        $csp_file = Path::real(dotclear()->config()->get('var_dir')) . '/csp/csp_report.json';
         if (file_exists($csp_file)) {
             unlink($csp_file);
         }

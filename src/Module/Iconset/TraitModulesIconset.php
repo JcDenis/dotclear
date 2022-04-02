@@ -21,12 +21,12 @@ trait TraitModulesIconset
 
     public function getModulesPath(): array
     {
-        return dotclear()->config()->iconset_dirs;
+        return dotclear()->config()->get('iconset_dirs');
     }
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->system->store_iconset_url;
+        return (string) dotclear()->blog()->settings()->get('system')->get('store_iconset_url');
     }
 
     public function useStoreCache(): bool
@@ -36,6 +36,6 @@ trait TraitModulesIconset
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->iconset_official;
+        return dotclear()->config()->get('iconset_official');
     }
 }

@@ -68,8 +68,8 @@ class RestMethods
         $count = dotclear()->blog()->posts()->getPosts([], true)->fInt();
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
-        $rsp      = new XmlTag('count');
-        $rsp->ret = $str;
+        $rsp = new XmlTag('count');
+        $rsp->insertAttr('ret', $str);
 
         return $rsp;
     }
@@ -86,8 +86,8 @@ class RestMethods
         $count = dotclear()->blog()->comments()->getComments([], true)->fInt();
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
-        $rsp      = new XmlTag('count');
-        $rsp->ret = $str;
+        $rsp = new XmlTag('count');
+        $rsp->insertAttr('ret', $str);
 
         return $rsp;
     }
@@ -103,17 +103,17 @@ class RestMethods
     {
         # Dotclear news
 
-        $rsp        = new XmlTag('news');
-        $rsp->check = false;
-        $ret        = __('Dotclear news not available');
+        $rsp = new XmlTag('news');
+        $rsp->insertAttr('check', false);
+        $ret = __('Dotclear news not available');
 
-        if (dotclear()->user()->preference()->dashboard->dcnews) {
+        if (dotclear()->user()->preference()->get('dashboard')->get('dcnews')) {
             try {
                 if (!dotclear()->help()->news()) {
                     throw new AdminException();
                 }
                 $feed_reader = new Reader();
-                $feed_reader->setCacheDir(dotclear()->config()->cache_dir);
+                $feed_reader->setCacheDir(dotclear()->config()->get('cache_dir'));
                 $feed_reader->setTimeout(2);
                 $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
                 $feed = $feed_reader->parse(dotclear()->help()->news());
@@ -134,12 +134,12 @@ class RestMethods
                         }
                     }
                     $ret .= '</dl></div>';
-                    $rsp->check = true;
+                    $rsp->insertAttr('check', true);
                 }
             } catch (\Exception) {
             }
         }
-        $rsp->ret = $ret;
+        $rsp->insertAttr('ret', $ret);
 
         return $rsp;
     }
@@ -155,17 +155,17 @@ class RestMethods
     {
         # Dotclear updates notifications
 
-        $rsp        = new XmlTag('update');
-        $rsp->check = false;
-        $ret        = __('Dotclear update not available');
+        $rsp = new XmlTag('update');
+        $rsp->insertAttr('check', false);
+        $ret = __('Dotclear update not available');
 
         if (dotclear()->user()->isSuperAdmin()
-            && !dotclear()->config()->core_update_noauto
-            && is_readable(dotclear()->config()->digests_dir)
-            && !dotclear()->user()->preference()->dashboard->nodcupdate
+            && !dotclear()->config()->get('core_update_noauto')
+            && is_readable(dotclear()->config()->get('digests_dir'))
+            && !dotclear()->user()->preference()->get('dashboard')->get('nodcupdate')
         ) {
-            $updater      = new Updater(dotclear()->config()->core_update_url, 'dotclear', dotclear()->config()->core_update_channel, dotclear()->config()->cache_dir . '/versions');
-            $new_v        = $updater->check(dotclear()->config()->core_version);
+            $updater      = new Updater(dotclear()->config()->get('core_update_url'), 'dotclear', dotclear()->config()->get('core_update_channel'), dotclear()->config()->get('cache_dir') . '/versions');
+            $new_v        = $updater->check(dotclear()->config()->get('core_version'));
             $version_info = $new_v ? $updater->getInfoURL() : '';
 
             if ($updater->getNotify() && $new_v) {
@@ -186,23 +186,23 @@ class RestMethods
                     ) .
                         '</p>';
                 }
-                $rsp->check = true;
+                $rsp->insertAttr('check', true);
             } else {
-                if (version_compare(phpversion(), dotclear()->config()->php_next_required, '<')) {
-                    if (!dotclear()->user()->preference()->interface->hidemoreinfo) {
+                if (version_compare(phpversion(), dotclear()->config()->get('php_next_required'), '<')) {
+                    if (!dotclear()->user()->preference()->get('interface')->get('hidemoreinfo')) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                            dotclear()->config()->php_next_required,
+                            dotclear()->config()->get('php_next_required'),
                             phpversion()
                         ) .
                         '</p>';
-                        $rsp->check = true;
+                        $rsp->insertAttr('check', true);
                     }
                 }
             }
         }
-        $rsp->ret = $ret;
+        $rsp->insertAttr('ret', $ret);
 
         return $rsp;
     }
@@ -219,12 +219,12 @@ class RestMethods
     {
         # Dotclear store updates notifications
 
-        $rsp        = new XmlTag('update');
-        $rsp->check = false;
-        $rsp->nb    = 0;
-        $ret        = __('No updates are available');
-        $mod        = '';
-        $url        = '';
+        $rsp = new XmlTag('update');
+        $rsp->insertAttr('check', false);
+        $rsp->insertAttr('nb', 0);
+        $ret = __('No updates are available');
+        $mod = '';
+        $url = '';
 
         if (empty($post['store'])) {
             throw new AdminException('No store type');
@@ -232,16 +232,16 @@ class RestMethods
 
         if ($post['store'] == 'themes') {
             $mod = dotclear()->themes();
-            $url = dotclear()->blog()->settings()->system->store_theme_url;
+            $url = dotclear()->blog()->settings()->get('system')->get('store_theme_url');
         } elseif ($post['store'] == 'plugins') {
             $mod = dotclear()->plugins();
-            $url = dotclear()->blog()->settings()->system->store_plugin_url;
+            $url = dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
             dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
 
-            if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
+            if (empty($mod) || empty($url)) {
                 throw new AdminException('Unknown store type');
             }
         }
@@ -249,12 +249,12 @@ class RestMethods
         $repo = new Repository($mod, $url);
         $upd  = $repo->get(true);
         if (!empty($upd)) {
-            $ret        = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
-            $rsp->check = true;
-            $rsp->nb    = count($upd);
+            $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
+            $rsp->insertAttr('check', true);
+            $rsp->insertAttr('nb', count($upd));
         }
 
-        $rsp->ret = $ret;
+        $rsp->insertAttr('ret', $ret);
 
         return $rsp;
     }
@@ -284,50 +284,52 @@ class RestMethods
             throw new AdminException('No post for this ID');
         }
 
-        $rsp     = new XmlTag('post');
-        $rsp->id = $rs->post_id;
+        $rsp = new XmlTag('post');
+        $rsp->insertAttr('id', $rs->f('post_id'));
 
-        $rsp->blog_id($rs->blog_id);
-        $rsp->user_id($rs->user_id);
-        $rsp->cat_id($rs->cat_id);
-        $rsp->post_dt($rs->post_dt);
-        $rsp->post_creadt($rs->post_creadt);
-        $rsp->post_upddt($rs->post_upddt);
-        $rsp->post_format($rs->post_format);
-        $rsp->post_url($rs->post_url);
-        $rsp->post_lang($rs->post_lang);
-        $rsp->post_title($rs->post_title);
-        $rsp->post_excerpt($rs->post_excerpt);
-        $rsp->post_excerpt_xhtml($rs->post_excerpt_xhtml);
-        $rsp->post_content($rs->post_content);
-        $rsp->post_content_xhtml($rs->post_content_xhtml);
-        $rsp->post_notes($rs->post_notes);
-        $rsp->post_status($rs->post_status);
-        $rsp->post_selected($rs->post_selected);
-        $rsp->post_open_comment($rs->post_open_comment);
-        $rsp->post_open_tb($rs->post_open_tb);
-        $rsp->nb_comment($rs->nb_comment);
-        $rsp->nb_trackback($rs->nb_trackback);
-        $rsp->user_name($rs->user_name);
-        $rsp->user_firstname($rs->user_firstname);
-        $rsp->user_displayname($rs->user_displayname);
-        $rsp->user_email($rs->user_email);
-        $rsp->user_url($rs->user_url);
-        $rsp->cat_title($rs->cat_title);
-        $rsp->cat_url($rs->cat_url);
+        $rsp->insertNode([
+            'blog_id'            => $rs->f('blog_id'),
+            'user_id'            => $rs->f('user_id'),
+            'cat_id'             => $rs->f('cat_id'),
+            'post_dt'            => $rs->f('post_dt'),
+            'post_creadt'        => $rs->f('post_creadt'),
+            'post_upddt'         => $rs->f('post_upddt'),
+            'post_format'        => $rs->f('post_format'),
+            'post_url'           => $rs->f('post_url'),
+            'post_lang'          => $rs->f('post_lang'),
+            'post_title'         => $rs->f('post_title'),
+            'post_excerpt'       => $rs->f('post_excerpt'),
+            'post_excerpt_xhtml' => $rs->f('post_excerpt_xhtml'),
+            'post_content'       => $rs->f('post_content'),
+            'post_content_xhtml' => $rs->f('post_content_xhtml'),
+            'post_notes'         => $rs->f('post_notes'),
+            'post_status'        => $rs->f('post_status'),
+            'post_selected'      => $rs->f('post_selected'),
+            'post_open_comment'  => $rs->f('post_open_comment'),
+            'post_open_tb'       => $rs->f('post_open_tb'),
+            'nb_comment'         => $rs->f('nb_comment'),
+            'nb_trackback'       => $rs->f('nb_trackback'),
+            'user_name'          =>  $rs->f('user_name'),
+            'user_firstname'     => $rs->f('user_firstname'),
+            'user_displayname'   => $rs->f('user_displayname'),
+            'user_email'         =>  $rs->f('user_email'),
+            'user_url'           =>  $rs->f('user_url'),
+            'cat_title'          =>  $rs->f('cat_title'),
+            'cat_url'            =>  $rs->f('cat_url'),
 
-        $rsp->post_display_content($rs->getContent(true));
-        $rsp->post_display_excerpt($rs->getExcerpt(true));
+            'post_display_content' => $rs->getContent(true),
+            'post_display_excerpt' => $rs->getExcerpt(true),
+        ]);
 
         $metaTag = new XmlTag('meta');
-        if (($meta = unserialize((string) $rs->post_meta)) !== false) {
+        if (($meta = unserialize((string) $rs->f('post_meta'))) !== false) {
             foreach ($meta as $K => $V) {
                 foreach ($V as $v) {
-                    $metaTag->$K($v);
+                    $metaTag->insertNode([$K => $v]);
                 }
             }
         }
-        $rsp->post_meta($metaTag);
+        $rsp->insertNode(['post_meta' => $metaTag]);
 
         return $rsp;
     }
@@ -351,27 +353,29 @@ class RestMethods
             throw new AdminException('No comment for this ID');
         }
 
-        $rsp     = new XmlTag('post');
-        $rsp->id = $rs->comment_id;
+        $rsp = new XmlTag('post');
+        $rsp->insertAttr('id', $rs->f('comment_id'));
 
-        $rsp->comment_dt($rs->comment_dt);
-        $rsp->comment_upddt($rs->comment_upddt);
-        $rsp->comment_author($rs->comment_author);
-        $rsp->comment_site($rs->comment_site);
-        $rsp->comment_content($rs->comment_content);
-        $rsp->comment_trackback($rs->comment_trackback);
-        $rsp->comment_status($rs->comment_status);
-        $rsp->post_title($rs->post_title);
-        $rsp->post_url($rs->post_url);
-        $rsp->post_id($rs->post_id);
-        $rsp->post_dt($rs->post_dt);
-        $rsp->user_id($rs->user_id);
+        $rsp->insertNode([
+            'comment_dt'        => $rs->f('comment_dt'),
+            'comment_upddt'     => $rs->f('comment_upddt'),
+            'comment_author'    => $rs->f('comment_author'),
+            'comment_site'      => $rs->f('comment_site'),
+            'comment_content'   => $rs->f('comment_content'),
+            'comment_trackback' => $rs->f('comment_trackback'),
+            'comment_status'    => $rs->f('comment_status'),
+            'post_title'        => $rs->f('post_title'),
+            'post_url'          => $rs->f('post_url'),
+            'post_id'           => $rs->f('post_id'),
+            'post_dt'           => $rs->f('post_dt'),
+            'user_id'           => $rs->f('user_id'),
 
-        $rsp->comment_display_content($rs->getContent(true));
+            'comment_display_content' => $rs->getContent(true),
+        ]);
 
         if (dotclear()->user()->userID()) {
-            $rsp->comment_ip($rs->comment_ip);
-            $rsp->comment_email($rs->comment_email);
+            $rsp->comment_ip($rs->f('comment_ip'));
+            $rsp->comment_email($rs->f('comment_email'));
 //!            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
         }
 
@@ -390,9 +394,9 @@ class RestMethods
     {
         # Create category
         if (!empty($post['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
-            $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-            $cur_cat->cat_title = $post['new_cat_title'];
-            $cur_cat->cat_url   = '';
+            $cur_cat = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+            $cur_cat->setField('cat_title', $post['new_cat_title']);
+            $cur_cat->setField('cat_url', '');
 
             $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
@@ -407,15 +411,15 @@ class RestMethods
 
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-        $cur->post_title        = !empty($post['post_title']) ? $post['post_title'] : '';
-        $cur->user_id           = dotclear()->user()->userID();
-        $cur->post_content      = !empty($post['post_content']) ? $post['post_content'] : '';
-        $cur->cat_id            = !empty($post['cat_id']) ? (int) $post['cat_id'] : null;
-        $cur->post_format       = !empty($post['post_format']) ? $post['post_format'] : 'xhtml';
-        $cur->post_lang         = !empty($post['post_lang']) ? $post['post_lang'] : '';
-        $cur->post_status       = !empty($post['post_status']) ? (int) $post['post_status'] : 0;
-        $cur->post_open_comment = (int) dotclear()->blog()->settings()->system->allow_comments;
-        $cur->post_open_tb      = (int) dotclear()->blog()->settings()->system->allow_trackbacks;
+        $cur->setField('post_title', !empty($post['post_title']) ? $post['post_title'] : '');
+        $cur->setField('user_id', dotclear()->user()->userID());
+        $cur->setField('post_content', !empty($post['post_content']) ? $post['post_content'] : '');
+        $cur->setField('cat_id', !empty($post['cat_id']) ? (int) $post['cat_id'] : null);
+        $cur->setField('post_format', !empty($post['post_format']) ? $post['post_format'] : 'xhtml');
+        $cur->setField('post_lang', !empty($post['post_lang']) ? $post['post_lang'] : '');
+        $cur->setField('post_status', !empty($post['post_status']) ? (int) $post['post_status'] : 0);
+        $cur->setField('post_open_comment', (int) dotclear()->blog()->settings()->get('system')->get('allow_comments'));
+        $cur->setField('post_open_tb', (int) dotclear()->blog()->settings()->get('system')->get('allow_trackbacks'));
 
         # --BEHAVIOR-- adminBeforePostCreate
         dotclear()->behavior()->call('adminBeforePostCreate', $cur);
@@ -425,13 +429,13 @@ class RestMethods
         # --BEHAVIOR-- adminAfterPostCreate
         dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
-        $rsp     = new XmlTag('post');
-        $rsp->id = $return_id;
+        $rsp = new XmlTag('post');
+        $rsp->insertAttr('id', $return_id);
 
         $post = dotclear()->blog()->posts()->getPosts(['post_id' => $return_id]);
 
-        $rsp->post_status = $post->post_status;
-        $rsp->post_url    = $post->getURL();
+        $rsp->insertAttr('post_status', $post->f('post_status'));
+        $rsp->insertAttr('post_url', $post->getURL());
 
         return $rsp;
     }
@@ -475,8 +479,10 @@ class RestMethods
 
         $v = Validator::validate($excerpt_xhtml . $content_xhtml);
 
-        $rsp->valid($v['valid']);
-        $rsp->errors($v['errors']);
+        $rsp->insertNode([
+            'valid'  => $v['valid'],
+            'errors' => $v['errors'],
+        ]);
 
         return $rsp;
     }
@@ -520,7 +526,7 @@ class RestMethods
         $content = dotclear()->media()->getZipContent($file);
 
         foreach ($content as $k => $v) {
-            $rsp->file($k);
+            $rsp->insertNode(['file' => $k]);
         }
 
         return $rsp;
@@ -575,13 +581,13 @@ class RestMethods
         $rsp = new XmlTag();
 
         while ($rs->fetch()) {
-            $metaTag               = new XmlTag('meta');
-            $metaTag->type         = $rs->meta_type;
-            $metaTag->uri          = rawurlencode($rs->meta_id);
-            $metaTag->count        = $rs->count;
-            $metaTag->percent      = $rs->percent;
-            $metaTag->roundpercent = $rs->roundpercent;
-            $metaTag->CDATA($rs->meta_id);
+            $metaTag = new XmlTag('meta');
+            $metaTag->insertAttr('type', $rs->f('meta_type'));
+            $metaTag->insertAttr('uri', rawurlencode($rs->f('meta_id')));
+            $metaTag->insertAttr('count', $rs->f('count'));
+            $metaTag->insertAttr('percent', $rs->f('percent'));
+            $metaTag->insertAttr('roundpercent', $rs->f('roundpercent'));
+            $metaTag->CDATA($rs->f('meta_id'));
 
             $rsp->insertNode($metaTag);
         }
@@ -617,7 +623,7 @@ class RestMethods
             'post_id'   => $post['postId'], ]);
         $pm = [];
         while ($post_meta->fetch()) {
-            $pm[] = $post_meta->meta_id;
+            $pm[] = $post_meta->f('meta_id');
         }
 
         foreach (dotclear()->meta()->splitMetaValues($post['meta']) as $m) {
@@ -699,14 +705,14 @@ class RestMethods
         $rsp = new XmlTag();
 
         while ($rs->fetch()) {
-            if (stripos($rs->meta_id, $q) === 0) {
-                $metaTag               = new XmlTag('meta');
-                $metaTag->type         = $rs->meta_type;
-                $metaTag->uri          = rawurlencode($rs->meta_id);
-                $metaTag->count        = $rs->count;
-                $metaTag->percent      = $rs->percent;
-                $metaTag->roundpercent = $rs->roundpercent;
-                $metaTag->CDATA($rs->meta_id);
+            if (stripos($rs->f('meta_id'), $q) === 0) {
+                $metaTag = new XmlTag('meta');
+                $metaTag->insertAttr('type', $rs->f('meta_type'));
+                $metaTag->insertAttr('uri', rawurlencode($rs->f('meta_id')));
+                $metaTag->insertAttr('count', $rs->f('count'));
+                $metaTag->insertAttr('percent', $rs->f('percent'));
+                $metaTag->insertAttr('roundpercent', $rs->f('roundpercent'));
+                $metaTag->CDATA($rs->f('meta_id'));
 
                 $rsp->insertNode($metaTag);
             }
@@ -731,8 +737,8 @@ class RestMethods
 
         $section = $post['section'];
         $status  = isset($post['value']) && ($post['value'] != 0);
-        if (dotclear()->user()->preference()->toggles->prefExists('unfolded_sections')) {
-            $toggles = explode(',', trim((string) dotclear()->user()->preference()->toggles->unfolded_sections));
+        if (dotclear()->user()->preference()->get('toggles')->prefExists('unfolded_sections')) {
+            $toggles = explode(',', trim((string) dotclear()->user()->preference()->get('toggles')->get('unfolded_sections')));
         } else {
             $toggles = [];
         }
@@ -748,7 +754,7 @@ class RestMethods
                 $toggles[] = $section;
             };
         }
-        dotclear()->user()->preference()->toggles->put('unfolded_sections', join(',', $toggles));
+        dotclear()->user()->preference()->get('toggles')->put('unfolded_sections', join(',', $toggles));
 
         return true;
     }
@@ -773,7 +779,7 @@ class RestMethods
         $zone  = $post['id'];
         $order = $post['list'];
 
-        dotclear()->user()->preference()->dashboard->put($zone, $order);
+        dotclear()->user()->preference()->get('dashboard')->put($zone, $order);
 
         return true;
     }
@@ -798,7 +804,7 @@ class RestMethods
             throw new AdminException('List name invalid');
         }
 
-        $res = new XmlTag('result');
+        $rsp = new XmlTag('result');
 
         $su = [];
         foreach ($sorts as $sort_type => $sort_data) {
@@ -816,11 +822,11 @@ class RestMethods
             }
         }
 
-        dotclear()->user()->preference()->interface->put('sorts', $su, 'array');
+        dotclear()->user()->preference()->get('interface')->put('sorts', $su, 'array');
 
-        $res->msg = __('List options saved');
+        $rsp->insertAttr('msg', __('List options saved'));
 
-        return $res;
+        return $rsp;
     }
 
     /**
@@ -853,7 +859,7 @@ class RestMethods
         } elseif ($list == 'plugin-new') {
             $store = new Repository(
                 dotclear()->plugins(),
-                dotclear()->blog()->settings()->system->store_plugin_url
+                dotclear()->blog()->settings()->get('system')->get('store_plugin_url')
             );
             $store->check();
 
@@ -869,11 +875,11 @@ class RestMethods
             throw new AdminException('Unknown module ID');
         }
 
-        $rsp     = new XmlTag('module');
-        $rsp->id = $id;
+        $rsp = new XmlTag('module');
+        $rsp->insertAttr('id', $id);
 
         foreach ($module->properties() as $k => $v) {
-            $rsp->{$k}((string) $v);
+            $rsp->insertNode([$k => (string) $v]);
         }
 
         return $rsp;

@@ -45,7 +45,7 @@ class Repository
      */
     public function __construct(public AbstractModules $modules, protected string $xml_url, bool $force = false)
     {
-        $this->user_agent = sprintf('Dotclear/%s)', dotclear()->config()->core_version);
+        $this->user_agent = sprintf('Dotclear/%s)', dotclear()->config()->get('core_version'));
 
         $this->check($force);
     }
@@ -64,7 +64,7 @@ class Repository
         }
 
         try {
-            $parser = dotclear()->config()->store_update_noauto ? false : RepositoryReader::quickParse($this->xml_url, dotclear()->config()->cache_dir, $force);
+            $parser = dotclear()->config()->get('store_update_noauto') ? false : RepositoryReader::quickParse($this->xml_url, dotclear()->config()->get('cache_dir'), $force);
         } catch (\Exception) {
             return false;
         }
@@ -94,10 +94,10 @@ class Repository
                 unset($raw_datas[$id]);
             }
             # per module third-party repository
-            if (!empty($module->repository()) && dotclear()->config()->store_allow_repo) {
+            if (!empty($module->repository()) && dotclear()->config()->get('store_allow_repo')) {
                 try {
                     ;
-                    if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->cache_dir, $force))) {
+                    if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->get('cache_dir'), $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
@@ -153,7 +153,6 @@ class Repository
      */
     public function get(bool $update = false): array
     {
-        /* @phpstan-ignore-next-line */
         return is_array($this->data) ? $this->data[$update ? 'update' : 'new'] : [];
     }
 

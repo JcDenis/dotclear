@@ -62,9 +62,9 @@ class MaintenanceRest
             $code = 0;
         }
 
-        $rsp        = new XmlTag('step');
-        $rsp->code  = $code;
-        $rsp->title = Html::escapeHTML($task->success());
+        $rsp = new XmlTag('step');
+        $rsp->insertAttr('code', $code);
+        $rsp->insertAttr('title', Html::escapeHTML($task->success()));
 
         return $rsp;
     }

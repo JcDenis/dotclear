@@ -1,5 +1,6 @@
 <?php
 /**
+ * @class Dotclear\Process\Install\Install
  * @brief Dotclear install install class
  *
  * @package Dotclear
@@ -13,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 use DateTimeZone;
-
 use Dotclear\Container\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
@@ -44,14 +44,14 @@ class Install
 
         /* Loading locales for detected language */
         $dlang = Http::getAcceptLanguage();
-        if ($dlang != 'en') {
+        if ('en' != $dlang) {
             L10n::init($dlang);
-            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'date'));
-            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'main'));
-            L10n::set(Path::implode(dotclear()->config()->l10n_dir, $dlang, 'plugins'));
+            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'date'));
+            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'main'));
+            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'plugins'));
         }
 
-        if (dotclear()->config()->master_key == '') {
+        if ('' == dotclear()->config()->get('master_key')) {
             $can_install = false;
             $err         = '<p>' . __('Please set a master key in configuration file.') . '</p>';
         }
@@ -101,7 +101,7 @@ class Install
                 if ($u_pwd != $u_pwd2) {
                     throw new InstallException(__("Passwords don't match"));
                 }
-                if (strlen($u_pwd) < 6) {
+                if (6 > strlen($u_pwd)) {
                     throw new InstallException(__('Password must contain at least 6 characters.'));
                 }
 
@@ -116,7 +116,7 @@ class Install
 
                             // check if timezone is valid
                             // date_default_timezone_set throw E_NOTICE and/or E_WARNING if timezone is not valid and return false
-                            if (@date_default_timezone_set($_tz) !== false && $_tz) {
+                            if (false !== @date_default_timezone_set($_tz) && $_tz) {
                                 $default_tz = $_tz;
                             }
                         }
@@ -132,35 +132,35 @@ class Install
                 $changes = $si->synchronize($_s);
 
                 # Create user
-                $cur                 = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
-                $cur->user_id        = $u_login;
-                $cur->user_super     = 1;
-                $cur->user_pwd       = dotclear()->user()->crypt($u_pwd);
-                $cur->user_name      = (string) $u_name;
-                $cur->user_firstname = (string) $u_firstname;
-                $cur->user_email     = (string) $u_email;
-                $cur->user_lang      = $dlang;
-                $cur->user_tz        = $default_tz;
-                $cur->user_creadt    = date('Y-m-d H:i:s');
-                $cur->user_upddt     = date('Y-m-d H:i:s');
-                $cur->user_options   = serialize(UserContainer::defaultOptions());
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                $cur->setField('user_id', $u_login);
+                $cur->setField('user_super', 1);
+                $cur->setField('user_pwd', dotclear()->user()->crypt($u_pwd));
+                $cur->setField('user_name', (string) $u_name);
+                $cur->setField('user_firstname', (string) $u_firstname);
+                $cur->setField('user_email', (string) $u_email);
+                $cur->setField('user_lang', $dlang);
+                $cur->setField('user_tz', $default_tz);
+                $cur->setField('user_creadt', date('Y-m-d H:i:s'));
+                $cur->setField('user_upddt', date('Y-m-d H:i:s'));
+                $cur->setField('user_options', serialize(UserContainer::defaultOptions()));
                 $cur->insert();
 
                 dotclear()->user()->checkUser($u_login);
 
                 /* Create blog */
-                $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
-                $cur->blog_id   = 'default';
-                $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
-                $cur->blog_name = __('My first blog');
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+                $cur->setField('blog_id', 'default');
+                $cur->setField('blog_url', Http::getHost() . $root_url . '/index.php?');
+                $cur->setField('blog_name', __('My first blog'));
                 dotclear()->blogs()->addBlog($cur);
 
                 /* Create global blog settings */
                 Distrib::setBlogDefaultSettings();
 
                 $blog_settings = new Settings('default');
-                $blog_settings->system->put('blog_timezone', $default_tz);
-                $blog_settings->system->put('lang', $dlang);
+                $blog_settings->get('system')->put('blog_timezone', $default_tz);
+                $blog_settings->get('system')->put('lang', $dlang);
 
                 /* date and time formats */
                 $formatDate   = __('%A, %B %e %Y');
@@ -176,14 +176,14 @@ class Install
                         },
                         $date_formats);
                 }
-                $blog_settings->system->put('date_format', $formatDate);
-                $blog_settings->system->put('date_formats', $date_formats, 'array', 'Date formats examples', true, true);
-                $blog_settings->system->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
+                $blog_settings->get('system')->put('date_format', $formatDate);
+                $blog_settings->get('system')->put('date_formats', $date_formats, 'array', 'Date formats examples', true, true);
+                $blog_settings->get('system')->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
                 /* Add repository URL for themes and plugins */
-                $blog_settings->system->put('store_plugin_url', dotclear()->config()->plugin_update_url, 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->system->put('store_theme_url', dotclear()->config()->theme_update_url, 'string', 'Themes XML feed location', true, true);
-                $blog_settings->system->put('store_iconset_url', dotclear()->config()->iconset_update_url, 'string', 'Iconsets XML feed location', true, true);
+                $blog_settings->get('system')->put('store_plugin_url', dotclear()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
+                $blog_settings->get('system')->put('store_theme_url', dotclear()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
+                $blog_settings->get('system')->put('store_iconset_url', dotclear()->config()->get('iconset_update_url'), 'string', 'Iconsets XML feed location', true, true);
 
                 /* CSP directive (admin part) */
 
@@ -193,65 +193,63 @@ class Install
                 $csp_prefix = dotclear()->con()->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
                 $csp_suffix = dotclear()->con()->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
-                $blog_settings->system->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
-                $blog_settings->system->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
-                $blog_settings->system->put('csp_admin_default',
+                $blog_settings->get('system')->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
+                $blog_settings->get('system')->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
+                $blog_settings->get('system')->put('csp_admin_default',
                     $csp_prefix . "'self'" . $csp_suffix, 'string', 'CSP default-src directive', true, true);
-                $blog_settings->system->put('csp_admin_script',
+                $blog_settings->get('system')->put('csp_admin_script',
                     $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix, 'string', 'CSP script-src directive', true, true);
-                $blog_settings->system->put('csp_admin_style',
+                $blog_settings->get('system')->put('csp_admin_style',
                     $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix, 'string', 'CSP style-src directive', true, true);
-                $blog_settings->system->put('csp_admin_img',
+                $blog_settings->get('system')->put('csp_admin_img',
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:", 'string', 'CSP img-src directive', true, true);
 
                 /* JQuery stuff */
-                $blog_settings->system->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
-                $blog_settings->system->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+                $blog_settings->get('system')->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+                $blog_settings->get('system')->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
 
                 /* Add Dotclear version */
-                $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
-                $cur->module  = 'core';
-                $cur->version = (string) dotclear()->config()->core_version;
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
+                $cur->setField('module', 'core');
+                $cur->setField('version', (string) dotclear()->config()->get('core_version'));
                 $cur->insert();
 
                 /* Create first post */
                 dotclear()->setBlog('default');
 
-                $cur               = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-                $cur->user_id      = $u_login;
-                $cur->post_format  = 'xhtml';
-                $cur->post_lang    = $dlang;
-                $cur->post_title   = __('Welcome to Dotclear!');
-                $cur->post_content = '<p>' . __('This is your first entry. When you\'re ready ' .
-                    'to blog, log in to edit or delete it.') . '</p>';
-                $cur->post_content_xhtml = $cur->post_content;
-                $cur->post_status        = 1;
-                $cur->post_open_comment  = 1;
-                $cur->post_open_tb       = 0;
-                $post_id                 = dotclear()->blog()->posts()->addPost($cur);
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+                $cur->setField('user_id', $u_login);
+                $cur->setField('post_format', 'xhtml');
+                $cur->setField('post_lang', $dlang);
+                $cur->setField('post_title', __('Welcome to Dotclear!'));
+                $cur->setField('post_content', '<p>' . __('This is your first entry. When you\'re ready to blog, log in to edit or delete it.') . '</p>');
+                $cur->setField('post_content_xhtml', $cur->getField('post_content'));
+                $cur->setField('post_status', 1);
+                $cur->setField('post_open_comment', 1);
+                $cur->setField('post_open_tb', 0);
+                $post_id = dotclear()->blog()->posts()->addPost($cur);
 
                 /* Add a comment to it */
-                $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
-                $cur->post_id         = $post_id;
-                $cur->comment_tz      = $default_tz;
-                $cur->comment_author  = __('Dotclear Team');
-                $cur->comment_email   = 'contact@dotclear.net';
-                $cur->comment_site    = 'https://dotclear.org/';
-                $cur->comment_content = __("<p>This is a comment.</p>\n<p>To delete it, log in and " .
-                    "view your blog's comments. Then you might remove or edit it.</p>");
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                $cur->setField('post_id', $post_id);
+                $cur->setField('comment_tz', $default_tz);
+                $cur->setField('comment_author', __('Dotclear Team'));
+                $cur->setField('comment_email', 'contact@dotclear.net');
+                $cur->setField('comment_site', 'https://dotclear.org/');
+                $cur->setField('comment_content', __("<p>This is a comment.</p>\n<p>To delete it, log in and view your blog's comments. Then you might remove or edit it.</p>"));
                 dotclear()->blog()->comments()->addComment($cur);
 
                 /* Add dashboard module options */
-                dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->dashboard->put('quickentry', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('dashboard')->put('quickentry', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
 
                 /* Add accessibility options */
-                dotclear()->user()->preference()->accessibility->put('nodragdrop', false, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('accessibility')->put('nodragdrop', false, 'boolean', '', null, true);
 
                 /* Add user interface options */
-                dotclear()->user()->preference()->interface->put('enhanceduploader', true, 'boolean', '', null, true);
+                dotclear()->user()->preference()->get('interface')->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 /* Add default favorites */
                 $init_favs  = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
@@ -305,8 +303,8 @@ class Install
         '<h1>' . __('Dotclear installation') . '</h1>' .
             '<div id="main">';
 
-        if (!is_writable(dotclear()->config()->cache_dir)) {
-            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), dotclear()->config()->cache_dir) . '</p></div>';
+        if (!is_writable(dotclear()->config()->get('cache_dir'))) {
+            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), dotclear()->config()->get('cache_dir')) . '</p></div>';
         }
 
         if ($can_install && !empty($err)) {

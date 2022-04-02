@@ -180,7 +180,7 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            if (in_array('repository', $cols) && dotclear()->config()->store_allow_repo) {
+            if (in_array('repository', $cols) && dotclear()->config()->get('store_allow_repo')) {
                 $line .= '<span class="module-repository">' . (!empty($module->repository()) ? __('Third-party repository') : __('Official repository')) . '</span> ';
             }
 

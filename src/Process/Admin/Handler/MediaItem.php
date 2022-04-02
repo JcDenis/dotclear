@@ -208,16 +208,16 @@ class MediaItem extends Page
                 if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
                     $s = 'o';
                 }
-                dotclear()->blog()->settings()->system->put('media_img_default_size', $s);
+                dotclear()->blog()->settings()->get('system')->put('media_img_default_size', $s);
             }
             if (!empty($_POST['pref_alignment'])) {
-                dotclear()->blog()->settings()->system->put('media_img_default_alignment', $_POST['pref_alignment']);
+                dotclear()->blog()->settings()->get('system')->put('media_img_default_alignment', $_POST['pref_alignment']);
             }
             if (!empty($_POST['pref_insertion'])) {
-                dotclear()->blog()->settings()->system->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
+                dotclear()->blog()->settings()->get('system')->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
             }
             if (!empty($_POST['pref_legend'])) {
-                dotclear()->blog()->settings()->system->put('media_img_default_legend', $_POST['pref_legend']);
+                dotclear()->blog()->settings()->get('system')->put('media_img_default_legend', $_POST['pref_legend']);
             }
 
             dotclear()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
@@ -339,9 +339,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    dotclear()->blog()->settings()->system->media_img_title_pattern,
-                    dotclear()->blog()->settings()->system->media_img_use_dto_first,
-                    dotclear()->blog()->settings()->system->media_img_no_date_alone
+                    dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
+                    dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
+                    dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -403,9 +403,9 @@ class MediaItem extends Page
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
-                    dotclear()->blog()->settings()->system->media_img_title_pattern,
-                    dotclear()->blog()->settings()->system->media_img_use_dto_first,
-                    dotclear()->blog()->settings()->system->media_img_no_date_alone
+                    dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
+                    dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
+                    dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
                 if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
                     $media_title = '';
@@ -519,9 +519,9 @@ class MediaItem extends Page
                 '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
-                Form::number('video_w', 0, 9999, dotclear()->blog()->settings()->system->media_video_width) . '  ' .
+                Form::number('video_w', 0, 9999, dotclear()->blog()->settings()->get('system')->get('media_video_width')) . '  ' .
                 '<label for="video_h" class="classic">' . __('Height:') . '</label> ' .
-                Form::number('video_h', 0, 9999, dotclear()->blog()->settings()->system->media_video_height) .
+                Form::number('video_h', 0, 9999, dotclear()->blog()->settings()->get('system')->get('media_video_height')) .
                     '</p>' .
                     '</div>';
 
@@ -727,17 +727,17 @@ class MediaItem extends Page
                 echo '<ul>';
                 while ($rs->fetch()) {
                     $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-                    $img_status = match ($rs->post_status) {
+                    $img_status = match ($rs->fInt('post_status')) {
                         1  => sprintf($img, __('published'), 'check-on.png'),
                         0  => sprintf($img, __('unpublished'), 'check-off.png'),
                         -1 => sprintf($img, __('scheduled'), 'scheduled.png'),
                         -2 => sprintf($img, __('pending'), 'check-wrn.png'),
                         default => '',
                     };
-                    echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
-                    $rs->post_title . '</a>' .
-                    ($rs->post_type != 'post' ? ' (' . Html::escapeHTML($rs->post_type) . ')' : '') .
-                    ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->post_dt) . '</li>';
+                    echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
+                    $rs->f('post_title') . '</a>' .
+                    ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
+                    ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('post_dt')) . '</li>';
                 }
                 echo '</ul>';
             }
@@ -844,9 +844,9 @@ class MediaItem extends Page
             echo
             '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">' .
             '<h4>' . __('Change file') . '</h4>' .
-            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) dotclear()->config()->media_upload_maxsize) . '</div>' .
+            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) dotclear()->config()->get('media_upload_maxsize')) . '</div>' .
             '<p><label for="upfile">' . __('Choose a file:') .
-            ' (' . sprintf(__('Maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ') ' .
+            ' (' . sprintf(__('Maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ') ' .
             '<input type="file" id="upfile" name="upfile" size="35" />' .
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .
@@ -939,10 +939,10 @@ class MediaItem extends Page
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => (string) dotclear()->blog()->settings()->system->media_img_default_size ?: 'm',
-            'alignment' => (string) dotclear()->blog()->settings()->system->media_img_default_alignment ?: 'none',
-            'link'      => (bool) dotclear()->blog()->settings()->system->media_img_default_link,
-            'legend'    => (string) dotclear()->blog()->settings()->system->media_img_default_legend ?: 'legend',
+            'size'      => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_size') ?: 'm',
+            'alignment' => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_alignment') ?: 'none',
+            'link'      => (bool) dotclear()->blog()->settings()->get('system')->get('media_img_default_link'),
+            'legend'    => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_legend') ?: 'legend',
             'mediadef'  => false,
         ];
 

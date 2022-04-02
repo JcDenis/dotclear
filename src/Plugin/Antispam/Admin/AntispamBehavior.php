@@ -116,8 +116,8 @@ class AntispamBehavior
             $str = '';
         }
 
-        $rsp      = new xmlTag('count');
-        $rsp->ret = $str;
+        $rsp = new xmlTag('count');
+        $rsp->insertAttr('ret', $str);
 
         return $rsp;
     }

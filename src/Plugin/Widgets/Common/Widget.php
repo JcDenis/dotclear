@@ -87,7 +87,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return;
         }
@@ -95,7 +95,7 @@ class Widget
         $wtscheme = $theme->options('widgettitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || $tplset == dotclear()->config()->template_default) {
+            if (empty($tplset) || $tplset == dotclear()->config()->get('template_default')) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h2>%s</h2>';
             } else {
@@ -114,7 +114,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return;
         }
@@ -122,7 +122,7 @@ class Widget
         $wtscheme = $theme->options('widgetsubtitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || $tplset == dotclear()->config()->template_default) {
+            if (empty($tplset) || $tplset == dotclear()->config()->get('template_default')) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h3>%s</h3>';
             } else {

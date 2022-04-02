@@ -80,16 +80,16 @@ class RestServer
         $post = $_POST ?: [];
 
         if (!isset($_REQUEST['f'])) {
-            $this->rsp->status = 'failed';
-            $this->rsp->message('No function given');
+            $this->rsp->insertAttr('status', 'failed');
+            $this->rsp->insertNode(new XmlTag('message', 'No function given'));
             $this->getXML($encoding);
 
             return false;
         }
 
         if (!isset($this->functions[$_REQUEST['f']])) {
-            $this->rsp->status = 'failed';
-            $this->rsp->message('Function does not exist' . $_REQUEST['f']);
+            $this->rsp->insertAttr('status', 'failed');
+            $this->rsp->insertNode(new XmlTag('message', 'Function does not exist' . $_REQUEST['f']));
             $this->getXML($encoding);
 
             return false;
@@ -98,14 +98,14 @@ class RestServer
         try {
             $res = $this->callFunction($_REQUEST['f'], $get, $post);
         } catch (\Exception $e) {
-            $this->rsp->status = 'failed';
-            $this->rsp->message($e->getMessage());
+            $this->rsp->insertAttr('status', 'failed');
+            $this->rsp->insertNode(new XmlTag('message', $e->getMessage()));
             $this->getXML($encoding);
 
             return false;
         }
 
-        $this->rsp->status = 'ok';
+        $this->rsp->insertAttr('status', 'ok');
 
         $this->rsp->insertNode($res);
 

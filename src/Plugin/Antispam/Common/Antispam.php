@@ -161,7 +161,7 @@ class Antispam
     public function getUserCode(): string
     {
         $code = pack('a32', dotclear()->user()->userID()) .
-        hash(dotclear()->config()->crypt_algo, dotclear()->user()->cryptLegacy(dotclear()->user()->getInfo('user_pwd')));
+        hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy(dotclear()->user()->getInfo('user_pwd')));
 
         return bin2hex($code);
     }
@@ -187,7 +187,7 @@ class Antispam
             return false;
         }
 
-        if (hash(dotclear()->config()->crypt_algo, dotclear()->user()->cryptLegacy($rs->user_pwd)) != $pwd) {
+        if (hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy($rs->user_pwd)) != $pwd) {
             return false;
         }
 

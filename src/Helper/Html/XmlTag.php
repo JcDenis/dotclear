@@ -99,9 +99,9 @@ class XmlTag
      * This method adds a new XML node. Node could be a instance of xmlTag, an
      * array of valid values, a boolean or a string.
      *
-     * @param   XmlTag|array|bool|string|null   $node   Node value
+     * @param   XmlTag|array|bool|string|int|null   $node   Node value
      */
-    public function insertNode(XmlTag|array|bool|string $node = null): void
+    public function insertNode(XmlTag|array|bool|int|string $node = null): void
     {
         if ($node instanceof self) {
             $this->_nodes[] = $node;

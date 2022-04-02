@@ -56,7 +56,7 @@ class ImportFlat extends Module
         if ($single_upl !== null) {
             if ($single_upl) {
                 Files::uploadStatus($_FILES['up_single_file']);
-                $file = dotclear()->config()->cache_dir . '/' . md5(uniqid());
+                $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_single_file']['tmp_name'], $file)) {
                     throw new Exception(__('Unable to move uploaded file.'));
                 }
@@ -111,7 +111,7 @@ class ImportFlat extends Module
 
             if ($full_upl) {
                 Files::uploadStatus($_FILES['up_full_file']);
-                $file = dotclear()->config()->cache_dir . '/' . md5(uniqid());
+                $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_full_file']['tmp_name'], $file)) {
                     throw new Exception(__('Unable to move uploaded file.'));
                 }
@@ -181,7 +181,7 @@ class ImportFlat extends Module
         '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
 
         '<p><label for="up_single_file">' . __('Upload a backup file') .
-        ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ')' . ' </label>' .
+        ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
             ' <input type="file" id="up_single_file" name="up_single_file" size="20" />' .
             '</p>';
 
@@ -197,7 +197,7 @@ class ImportFlat extends Module
         dotclear()->nonce()->form() .
         Form::hidden(['handler'], 'admin.plugin.ImportExport') .
         Form::hidden(['do'], 1) .
-        Form::hidden(['MAX_FILE_SIZE'], (int) dotclear()->config()->media_upload_maxsize) .
+        Form::hidden(['MAX_FILE_SIZE'], (int) dotclear()->config()->get('media_upload_maxsize')) .
         '<input type="submit" value="' . __('Import') . '" /></p>' .
 
             '</form>';
@@ -209,7 +209,7 @@ class ImportFlat extends Module
             '<p class="warning">' . __('This will reset all the content of your database, except users.') . '</p>' .
 
             '<p><label for="up_full_file">' . __('Upload a backup file') . ' ' .
-            ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ')' . ' </label>' .
+            ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
                 '<input type="file" id="up_full_file" name="up_full_file" size="20" />' .
                 '</p>';
 
@@ -236,7 +236,7 @@ class ImportFlat extends Module
             dotclear()->nonce()->form() .
             Form::hidden(['handler'], 'admin.plugin.ImportExport') .
             Form::hidden(['do'], 1) .
-            Form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
+            Form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->get('media_upload_maxsize')) .
             '<input type="submit" value="' . __('Import') . '" /></p>' .
 
                 '</form>';

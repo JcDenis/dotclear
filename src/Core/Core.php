@@ -756,11 +756,11 @@ class Core
             if (session_id()) {
                 session_write_close();
             }
-        } catch (\Exception) {
+        } catch (\Exception | \Error) {
         }
         try {
             $this->con->close();
-        } catch (\Exception) {
+        } catch (\Exception | \Error) {
         }
     }
 

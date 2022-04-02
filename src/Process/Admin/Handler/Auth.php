@@ -161,7 +161,7 @@ class Auth extends Page
             __('To reset your password visit the following address, otherwise just ignore this email and nothing will happen.') . "\n" .
                 $this->page_url . '?akey=' . $recover_key;
 
-            $headers[] = 'From: ' . (dotclear()->config()->admin_mailform != '' ? dotclear()->config()->admin_mailform : 'dotclear@local');
+            $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
             Mail::sendMail($this->user_email, $subject, $message, $headers);
@@ -181,7 +181,7 @@ class Auth extends Page
             __('Password:') . ' ' . $recover_res['new_pass'] . "\n\n" .
             preg_replace('/\?(.*)$/', '', $this->page_url);
 
-            $headers[] = 'From: ' . (dotclear()->config()->admin_mailform != '' ? dotclear()->config()->admin_mailform : 'dotclear@local');
+            $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
             Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
@@ -242,10 +242,10 @@ class Auth extends Page
 
             dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;
-            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->master_key);
+            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
 
             if ($data['user_remember']) {
-                setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', dotclear()->config()->admin_ssl);
+                setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', dotclear()->config()->get('admin_ssl'));
             }
 
             dotclear()->adminurl()->redirect('admin.home');
@@ -264,7 +264,7 @@ class Auth extends Page
             $check_perms = false;
         }
 
-        $cookie_admin = Http::browserUID(dotclear()->config()->master_key . $this->user_id .
+        $cookie_admin = Http::browserUID(dotclear()->config()->get('master_key') . $this->user_id .
             dotclear()->user()->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
 
         if ($check_perms && dotclear()->user()->mustChangePassword()) {
@@ -285,7 +285,7 @@ class Auth extends Page
         } elseif ($check_perms) {
             dotclear()->session()->start();
             $_SESSION['sess_user_id']     = $this->user_id;
-            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->master_key);
+            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
 
             if (!empty($_POST['blog'])) {
                 $_SESSION['sess_blog_id'] = $_POST['blog'];
@@ -296,7 +296,7 @@ class Auth extends Page
             }
 
             if (!empty($_POST['user_remember'])) {
-                setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', dotclear()->config()->admin_ssl);
+                setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', dotclear()->config()->get('admin_ssl'));
             }
 
             dotclear()->adminurl()->redirect('admin.home');
@@ -308,7 +308,7 @@ class Auth extends Page
             }
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
-                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->admin_ssl);
+                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->get('admin_ssl'));
             }
         }
     }
@@ -337,7 +337,7 @@ class Auth extends Page
   <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
   <meta name="GOOGLEBOT" content="NOSNIPPET" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?php echo Html::escapeHTML(dotclear()->config()->vendor_name); ?></title>
+  <title><?php echo Html::escapeHTML(dotclear()->config()->get('vendor_name')); ?></title>
   <link rel="icon" type="image/png" href="?df=images/favicon96-logout.png" />
   <link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />
 
@@ -372,7 +372,7 @@ class Auth extends Page
 <body id="dotclear-admin" class="auth">
 
 <form action="<?php echo dotclear()->adminurl()->get('admin.auth'); ?>" method="post" id="login-screen">
-<h1 role="banner"><?php echo Html::escapeHTML(dotclear()->config()->vendor_name); ?></h1>
+<h1 role="banner"><?php echo Html::escapeHTML(dotclear()->config()->get('vendor_name')); ?></h1>
 
 <?php
         if ($this->err) {

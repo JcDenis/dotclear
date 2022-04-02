@@ -536,7 +536,7 @@ class Media extends Page
             '<h4>' . __('Add files') . '</h4>' .
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
             '<form id="fileupload" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
-            '<p>' . form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->media_upload_maxsize) .
+            '<p>' . form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->get('media_upload_maxsize')) .
             dotclear()->nonce()->form() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>';
 
@@ -549,7 +549,7 @@ class Media extends Page
             '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL(dotclear()->adminurl()->get('admin.media', $this->filter->values(), '&')) . '" /></p>';
 
             echo
-            '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) dotclear()->config()->media_upload_maxsize) . '</p>';
+            '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) dotclear()->config()->get('media_upload_maxsize')) . '</p>';
 
             echo
             '<p class="one-file"><label for="upfiletitle">' . __('Title:') . '</label>' . form::field('upfiletitle', 35, 255) . '</p>' .
@@ -705,7 +705,7 @@ class Media extends Page
     {
         $dir = $this->media_dir;
         # Remove hidden directories (unless 'media_dir_showhidden' is set to true)
-        if (dotclear()->config()->media_dir_showhidden === false) {
+        if (false === dotclear()->config()->get('media_dir_showhidden')) {
             for ($i = count($dir['dirs']) - 1; $i >= 0; $i--) {
                 if ($dir['dirs'][$i]->d) {
                     if (str_starts_with($dir['dirs'][$i]->basename, '.')) {
@@ -748,7 +748,7 @@ class Media extends Page
      */
     public function showLast(): int
     {
-        return abs((int) dotclear()->user()->preference()->interface->media_nb_last_dirs);
+        return abs((int) dotclear()->user()->preference()->get('interface')->get('media_nb_last_dirs'));
     }
 
     /**
@@ -759,7 +759,7 @@ class Media extends Page
     public function getLast(): array
     {
         if ($this->media_last === null) {
-            $m = dotclear()->user()->preference()->interface->media_last_dirs;
+            $m = dotclear()->user()->preference()->get('interface')->get('media_last_dirs');
             if (!is_array($m)) {
                 $m = [];
             }
@@ -815,7 +815,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_last = $last_dirs;
-            dotclear()->user()->preference()->interface->put('media_last_dirs', $last_dirs, 'array');
+            dotclear()->user()->preference()->get('interface')->put('media_last_dirs', $last_dirs, 'array');
         }
 
         return $done;
@@ -829,7 +829,7 @@ class Media extends Page
     public function getFav(): array
     {
         if ($this->media_fav === null) {
-            $m = dotclear()->user()->preference()->interface->media_fav_dirs;
+            $m = dotclear()->user()->preference()->get('interface')->get('media_fav_dirs');
             if (!is_array($m)) {
                 $m = [];
             }
@@ -870,7 +870,7 @@ class Media extends Page
 
         if ($done) {
             $this->media_fav = $fav_dirs;
-            dotclear()->user()->preference()->interface->put('media_fav_dirs', $fav_dirs, 'array');
+            dotclear()->user()->preference()->get('interface')->put('media_fav_dirs', $fav_dirs, 'array');
         }
 
         return $done;

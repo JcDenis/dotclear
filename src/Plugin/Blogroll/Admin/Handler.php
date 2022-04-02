@@ -53,7 +53,7 @@ class Handler extends AbstractPage
 
             try {
                 Files::uploadStatus($_FILES['links_file']);
-                $ifile = dotclear()->config()->cache_dir . '/' . md5(uniqid());
+                $ifile = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['links_file']['tmp_name'], $ifile)) {
                     throw new ModuleException(__('Unable to move uploaded file.'));
                 }

@@ -118,7 +118,7 @@ class Handler extends AbstractPage
             dotclear()->error()->reset();
         }
 
-        $Blowup_style = (string) dotclear()->blog()->settings()->themes->Blowup_style;
+        $Blowup_style = (string) dotclear()->blog()->settings()->get('themes')->get('Blowup_style');
         $Blowup_user = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
@@ -334,7 +334,7 @@ class Handler extends AbstractPage
             '<p>' . __('Choose "Custom..." to upload your own image.') . '</p>' .
 
             '<p id="uploader"><label for="upfile">' . __('Add your image:') . '</label> ' .
-            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), Files::size((int) dotclear()->config()->media_upload_maxsize)) . ')' .
+            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' .
             '<input type="file" name="upfile" id="upfile" size="35" />' .
             '</p>' .
 

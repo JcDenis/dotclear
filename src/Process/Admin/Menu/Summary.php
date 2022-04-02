@@ -29,13 +29,13 @@ class Summary extends ArrayObject
     public function __construct()
     {
         if (!self::$iconset) {
-            self::$iconset   = (string) @dotclear()->user()->preference()->interface->iconset;
+            self::$iconset   = (string) @dotclear()->user()->preference()->get('interface')->get('iconset');
         }
 
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
-        if (!dotclear()->user()->preference()->interface->nofavmenu) {
+        if (!dotclear()->user()->preference()->get('interface')->get('nofavmenu')) {
             dotclear()->favorite()->appendMenuTitle($this);
         }
         $this->add('Blog', 'blog-menu', __('Blog'));
@@ -252,7 +252,7 @@ class Summary extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dotclear()->user()->isSuperAdmin() && is_readable(dotclear()->config()->digests_dir)
+            dotclear()->user()->isSuperAdmin() && is_readable(dotclear()->config()->get('digests_dir'))
         );
         $this->register(
             'System',

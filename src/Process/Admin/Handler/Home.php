@@ -42,7 +42,7 @@ class Home extends Page
             dotclear()->session()->destroy();
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
-                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->admin_ssl);
+                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->get('admin_ssl'));
             }
             dotclear()->adminurl()->redirect('admin.auth');
             exit;
@@ -68,39 +68,39 @@ class Home extends Page
         }
 
         # Check dashboard module prefs
-        if (!dotclear()->user()->preference()->dashboard->prefExists('doclinks')) {
-            if (!dotclear()->user()->preference()->dashboard->prefExists('doclinks', true)) {
-                dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
+            if (!dotclear()->user()->preference()->get('dashboard')->prefExists('doclinks', true)) {
+                dotclear()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
             }
-            dotclear()->user()->preference()->dashboard->put('doclinks', true, 'boolean');
+            dotclear()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean');
         }
-        if (!dotclear()->user()->preference()->dashboard->prefExists('dcnews')) {
-            if (!dotclear()->user()->preference()->dashboard->prefExists('dcnews', true)) {
-                dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->get('dashboard')->prefExists('dcnews')) {
+            if (!dotclear()->user()->preference()->get('dashboard')->prefExists('dcnews', true)) {
+                dotclear()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
             }
-            dotclear()->user()->preference()->dashboard->put('dcnews', true, 'boolean');
+            dotclear()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean');
         }
-        if (!dotclear()->user()->preference()->dashboard->prefExists('quickentry')) {
-            if (!dotclear()->user()->preference()->dashboard->prefExists('quickentry', true)) {
-                dotclear()->user()->preference()->dashboard->put('quickentry', false, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->get('dashboard')->prefExists('quickentry')) {
+            if (!dotclear()->user()->preference()->get('dashboard')->prefExists('quickentry', true)) {
+                dotclear()->user()->preference()->get('dashboard')->put('quickentry', false, 'boolean', '', null, true);
             }
-            dotclear()->user()->preference()->dashboard->put('quickentry', false, 'boolean');
+            dotclear()->user()->preference()->get('dashboard')->put('quickentry', false, 'boolean');
         }
-        if (!dotclear()->user()->preference()->dashboard->prefExists('nodcupdate')) {
-            if (!dotclear()->user()->preference()->dashboard->prefExists('nodcupdate', true)) {
-                dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean', '', null, true);
+        if (!dotclear()->user()->preference()->get('dashboard')->prefExists('nodcupdate')) {
+            if (!dotclear()->user()->preference()->get('dashboard')->prefExists('nodcupdate', true)) {
+                dotclear()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
             }
-            dotclear()->user()->preference()->dashboard->put('nodcupdate', false, 'boolean');
+            dotclear()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean');
         }
 
         // Handle folded/unfolded sections in admin from user preferences
-        if (!dotclear()->user()->preference()->toggles->prefExists('unfolded_sections')) {
-            dotclear()->user()->preference()->toggles->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
+        if (!dotclear()->user()->preference()->get('toggles')->prefExists('unfolded_sections')) {
+            dotclear()->user()->preference()->get('toggles')->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
         }
 
         # Editor stuff
         $admin_post_behavior = '';
-        if (dotclear()->user()->preference()->dashboard->quickentry) {
+        if (dotclear()->user()->preference()->get('dashboard')->get('quickentry')) {
             if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 $post_format = dotclear()->user()->getOption('post_format');
                 $post_editor = dotclear()->user()->getOption('editor');
@@ -113,7 +113,7 @@ class Home extends Page
 
         # Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
-        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $dragndrop_head = dotclear()->resource()->json('dotclear_dragndrop', $this->dragndrop_msg);
         }
 
@@ -150,7 +150,7 @@ class Home extends Page
         $dashboardItem = 0;
 
         # Documentation links
-        if (dotclear()->user()->preference()->dashboard->doclinks) {
+        if (dotclear()->user()->preference()->get('dashboard')->get('doclinks')) {
             if (!empty(dotclear()->help()->doc())) {
                 $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
 
@@ -172,7 +172,7 @@ class Home extends Page
         dotclear()->behavior()->call('adminDashboardContents', $__dashboard_contents);
 
         $dragndrop      = '';
-        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $dragndrop      = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
@@ -193,7 +193,7 @@ class Home extends Page
             echo '<p class="static-msg">' . __('This blog is removed') . '.</p>';
         }
 
-        if (!dotclear()->config()->admin_url) {
+        if (!dotclear()->config()->get('admin_url')) {
             echo
             '<p class="static-msg">' .
             sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_url') .
@@ -201,7 +201,7 @@ class Home extends Page
                 '</p>';
         }
 
-        if (!dotclear()->config()->admin_mailform) {
+        if (!dotclear()->config()->get('admin_mailform')) {
             echo
             '<p class="static-msg">' .
             sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_mailform') .
@@ -213,11 +213,11 @@ class Home extends Page
 
         # Check cache directory
         if (dotclear()->user()->isSuperAdmin()) {
-            if (!is_dir(dotclear()->config()->cache_dir) || !is_writable(dotclear()->config()->cache_dir)) {
+            if (!is_dir(dotclear()->config()->get('cache_dir')) || !is_writable(dotclear()->config()->get('cache_dir'))) {
                 $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in config.php file.') . '</p>';
             }
         } else {
-            if (!is_dir(dotclear()->config()->cache_dir) || !is_writable(dotclear()->config()->cache_dir)) {
+            if (!is_dir(dotclear()->config()->get('cache_dir')) || !is_writable(dotclear()->config()->get('cache_dir'))) {
                 $err[] = '<p>' . __('The cache directory does not exist or is not writable. You should contact your administrator.') . '</p>';
             }
         }
@@ -269,19 +269,19 @@ class Home extends Page
         }
 
         # Get current main orders
-        $main_order = dotclear()->user()->preference()->dashboard->main_order;
+        $main_order = dotclear()->user()->preference()->get('dashboard')->get('main_order');
         $main_order = ($main_order != '' ? explode(',', $main_order) : []);
 
         # Get current boxes orders
-        $boxes_order = dotclear()->user()->preference()->dashboard->boxes_order;
+        $boxes_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_order');
         $boxes_order = ($boxes_order != '' ? explode(',', $boxes_order) : []);
 
         # Get current boxes items orders
-        $boxes_items_order = dotclear()->user()->preference()->dashboard->boxes_items_order;
+        $boxes_items_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_items_order');
         $boxes_items_order = ($boxes_items_order != '' ? explode(',', $boxes_items_order) : []);
 
         # Get current boxes contents orders
-        $boxes_contents_order = dotclear()->user()->preference()->dashboard->boxes_contents_order;
+        $boxes_contents_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_contents_order');
         $boxes_contents_order = ($boxes_contents_order != '' ? explode(',', $boxes_contents_order) : []);
 
         # Compose dashboard items (doc, …)
@@ -300,7 +300,7 @@ class Home extends Page
 
         # Compose main area
         $__dashboard_main = [];
-        if (!dotclear()->user()->preference()->dashboard->nofavicons) {
+        if (!dotclear()->user()->preference()->get('dashboard')->get('nofavicons')) {
             # Dashboard icons
             $dashboardIcons = '<div id="icons">';
             foreach ($__dashboard_icons as $dib => $i) {
@@ -310,7 +310,7 @@ class Home extends Page
             $dashboardIcons .= '</div>';
             $__dashboard_main[] = $dashboardIcons;
         }
-        if (dotclear()->user()->preference()->dashboard->quickentry) {
+        if (dotclear()->user()->preference()->get('dashboard')->get('quickentry')) {
             if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
                 # Getting categories
                 $categories_combo = dotclear()->combo()->getCategoriesCombo(

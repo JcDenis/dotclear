@@ -34,7 +34,7 @@ class AdminUrl
      */
     public function __construct()
     {
-        $this->root_url = dotclear()->config()->admin_url;
+        $this->root_url = dotclear()->config()->get('admin_url');
         $this->urls = new ArrayObject();
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\XmlTag
+ * @class Dotclear\Helper\Html\Validator
  * @brief HTML Validator
  *
  * This class will perform an HTML validation upon WDG validator.

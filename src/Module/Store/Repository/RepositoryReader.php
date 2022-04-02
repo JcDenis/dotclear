@@ -50,8 +50,8 @@ class RepositoryReader extends NetHttp
     public function __construct()
     {
         parent::__construct('');
-        $this->setUserAgent(sprintf('Dotclear/%s', dotclear()->config()->core_version));
-        $this->setTimeout(dotclear()->config()->query_timeout);
+        $this->setUserAgent(sprintf('Dotclear/%s', dotclear()->config()->get('core_version')));
+        $this->setTimeout(dotclear()->config()->get('query_timeout'));
     }
 
     /**

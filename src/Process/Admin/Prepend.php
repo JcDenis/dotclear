@@ -222,7 +222,7 @@ class Prepend extends Core
         # Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             # We have session information in constants
-            $_COOKIE[$this->config()->session_name] = \DOTCLEAR_AUTH_SESS_ID;
+            $_COOKIE[$this->config()->get('session_name')] = \DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
                 $this->throwException(__('Invalid session data.'), '', 625);
@@ -323,13 +323,13 @@ class Prepend extends Core
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
 
             # Load resources
-            $this->adminLoadResources($this->config()->l10n_dir);
+            $this->adminLoadResources($this->config()->get('l10n_dir'));
 
             # Load modules
             $types = [
-                [&$this->iconsets, $this->config()->iconset_dirs, '\\Dotclear\\Module\\Iconset\\Admin\\ModulesIconset'],
-                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Admin\\ModulesPlugin'],
-                [&$this->themes, $this->config()->theme_dirs, '\\Dotclear\\Module\\Theme\\Admin\\ModulesTheme'],
+                [&$this->iconsets, $this->config()->get('iconset_dirs'), '\\Dotclear\\Module\\Iconset\\Admin\\ModulesIconset'],
+                [&$this->plugins, $this->config()->get('plugin_dirs'), '\\Dotclear\\Module\\Plugin\\Admin\\ModulesPlugin'],
+                [&$this->themes, $this->config()->get('theme_dirs'), '\\Dotclear\\Module\\Theme\\Admin\\ModulesTheme'],
             ];
             foreach($types as $t) {
                 # Modules directories
@@ -349,7 +349,7 @@ class Prepend extends Core
             }
 
             # Add default top menus
-            if (!$this->user()->preference()->interface->nofavmenu) {
+            if (!$this->user()->preference()->get('interface')->get('nofavmenu')) {
                 $this->favorite()->appendMenu($this->summary());
             }
 
@@ -367,12 +367,12 @@ class Prepend extends Core
     {
         $this->lang($this->user()->getInfo('user_lang'));
 
-        if (L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) === false && $this->lang != 'en') {
-            L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
+        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) === false && $this->lang != 'en') {
+            L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'main'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'public'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'main'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'public'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'plugins'));
 
         # Set lexical lang
         Lexical::setLexicalLang('admin', $this->lang);

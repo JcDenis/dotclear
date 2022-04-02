@@ -65,7 +65,7 @@ class Prepend extends Core
     {
         if (!($this->template instanceof Template)) {
             try {
-                $this->template = new Template($this->config()->cache_dir, 'dotclear()->template()');
+                $this->template = new Template($this->config()->get('cache_dir'), 'dotclear()->template()');
             } catch (\Exception $e) {
                 $this->throwException(__('Unable to create template'), $e->getMessage(), 640, $e);
             }
@@ -117,18 +117,18 @@ class Prepend extends Core
         # Cope with static home page option
         $this->url()->registerDefault([
             'Dotclear\\Core\\Url\\Url',
-            (bool) $this->blog()->settings()->system->static_home ? 'static_home' : 'home'
+            (bool) $this->blog()->settings()->get('system')->get('static_home') ? 'static_home' : 'home'
         ]);
 
         # Load locales
-        $this->lang($this->blog()->settings()->system->lang);
+        $this->lang($this->blog()->settings()->get('system')->get('lang'));
 
-        if (false === L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'date')) && 'en' != $this->lang) {
-            L10n::set(Path::implode($this->config()->l10n_dir, 'en', 'date'));
+        if (false === L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) && 'en' != $this->lang) {
+            L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'main'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'public'));
-        L10n::set(Path::implode($this->config()->l10n_dir, $this->lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'main'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'public'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'plugins'));
 
         # Set lexical lang
         Lexical::setLexicalLang('public', $this->lang);
@@ -136,8 +136,8 @@ class Prepend extends Core
         # Load modules
         try {
             $types = [
-                [&$this->plugins, $this->config()->plugin_dirs, '\\Dotclear\\Module\\Plugin\\Public\\ModulesPlugin', $this->lang],
-                [&$this->themes, $this->config()->theme_dirs, '\\Dotclear\\Module\\Theme\\Public\\ModulesTheme', null],
+                [&$this->plugins, $this->config()->get('plugin_dirs'), '\\Dotclear\\Module\\Plugin\\Public\\ModulesPlugin', $this->lang],
+                [&$this->themes, $this->config()->get('theme_dirs'), '\\Dotclear\\Module\\Theme\\Public\\ModulesTheme', null],
             ];
             foreach($types as $t) {
                 # Modules directories
@@ -190,7 +190,7 @@ class Prepend extends Core
         # Prepare the HTTP cache thing
         $this->url()->mod_files = $this->autoload()->getLoadedFiles();
         $this->url()->mod_ts    = [$this->blog()->upddt];
-        $this->url()->mode      = (string) $this->blog()->settings()->system->url_scan;
+        $this->url()->mode      = (string) $this->blog()->settings()->get('system')->get('url_scan');
 
         try {
             # --BEHAVIOR-- publicBeforeDocument

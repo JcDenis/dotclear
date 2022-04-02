@@ -35,7 +35,7 @@ class Upgrade
             return false;
         }
 
-        if (version_compare($version, dotclear()->config()->core_version, '<') == 1 || str_contains(dotclear()->config()->core_version, 'dev')) {
+        if (version_compare($version, dotclear()->config()->get('core_version'), '<') == 1 || str_contains(dotclear()->config()->get('core_version'), 'dev')) {
             try {
                 if (dotclear()->con()->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
@@ -85,7 +85,7 @@ class Upgrade
 
         // no growup for now :)
 
-        dotclear()->version()->set('core', dotclear()->config()->core_version);
+        dotclear()->version()->set('core', dotclear()->config()->get('core_version'));
         Distrib::setBlogDefaultSettings();
 
         return $cleanup_sessions;

@@ -72,7 +72,7 @@ class AntispamUrl extends Url
         '<channel>' . "\n" .
         '<title>' . html::escapeHTML($title) . '</title>' . "\n" .
         /* @phpstan-ignore-next-line */
-        '<link>' . (dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
+        '<link>' . (dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
         $rs       = dotclear()->blog()->comments()->getComments($params);
@@ -82,7 +82,7 @@ class AntispamUrl extends Url
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             $nbitems++;
             /* @phpstan-ignore-next-line */
-            $uri    = dotclear()->config()->admin_url != '' ? dotclear()->config()->admin_url . '?handler=admin.comment&id=' . $rs->comment_id : 'about:blank';
+            $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->comment_id : 'about:blank';
             $author = $rs->comment_author;
             $title  = $rs->post_title . ' - ' . $author;
             if ($type == 'spam') {

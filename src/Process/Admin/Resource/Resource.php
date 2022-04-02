@@ -42,7 +42,7 @@ class Resource
             $src = implode('/', [$type, $id, $src]);
         }
 
-        return dotclear()->config()->admin_url . (str_contains($src, '?') ? '' : '?') . $this->query .'=' . $src;
+        return dotclear()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query .'=' . $src;
     }
 
     public function css(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
@@ -84,7 +84,7 @@ class Resource
 
         $url = Html::escapeHTML($url);
 
-        $url .= '&amp;v=' . ($version ?? (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->core_version));
+        $url .= '&amp;v=' . ($version ?? (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->get('core_version')));
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
@@ -106,7 +106,7 @@ class Resource
 
         # Check if it in Var path
         $var_src  = explode('/', $src);
-        $var_path = dotclear()->config()->var_dir;
+        $var_path = dotclear()->config()->get('var_dir');
         if (empty($dirs) && 1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
             $dirs[] = $var_path;
             $src    = implode('/', $var_src);
@@ -143,7 +143,7 @@ class Resource
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         # Search dirs
-        Files::serveFile($src, $dirs, dotclear()->config()->file_sever_type);
+        Files::serveFile($src, $dirs, dotclear()->config()->get('file_sever_type'));
     }
 
     public function json(string $id, mixed $vars): string
@@ -163,7 +163,7 @@ class Resource
     {
         $nocheckadblocker = null;
         if (dotclear()->user()->preference()) {
-            $nocheckadblocker = dotclear()->user()->preference()->interface->nocheckadblocker;
+            $nocheckadblocker = dotclear()->user()->preference()->get('interface')->get('nocheckadblocker');
         }
 
         $js = [
@@ -177,7 +177,7 @@ class Resource
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
 
-            'adblocker_check' => dotclear()->config()->admin_adblocker_check && $nocheckadblocker !== true,
+            'adblocker_check' => dotclear()->config()->get('admin_adblocker_check') && $nocheckadblocker !== true,
         ];
 
         $js_msg = [
@@ -253,7 +253,7 @@ class Resource
         (
             !dotclear()->production() ?
             $this->json('dotclear_jquery', [
-                'mute' => false === dotclear()->blog()?->settings()->system->jquery_migrate_mute,
+                'mute' => false === dotclear()->blog()?->settings()->get('system')->get('jquery_migrate_mute'),
             ]) .
             $this->load('jquery-mute.js') .
             $this->load('jquery/jquery-migrate.js') :
@@ -277,8 +277,8 @@ class Resource
     public function toggles(): string
     {
         $js = [];
-        if (dotclear()->user()->preference()->toggles) {
-            $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->toggles->unfolded_sections);
+        if (dotclear()->user()->preference()) {
+            $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->get('toggles')->get('unfolded_sections'));
             foreach ($unfolded_sections as $k => &$v) {
                 if ($v !== '') {
                     $js[$unfolded_sections[$k]] = true;

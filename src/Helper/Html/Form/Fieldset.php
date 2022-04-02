@@ -41,7 +41,7 @@ class Fieldset extends Component
     /**
      * Attaches the legend to this fieldset.
      *
-     * @param      formLegend|null  $legend  The legend
+     * @param      Legend|null  $legend  The legend
      */
     public function attachLegend(?Legend $legend)
     {

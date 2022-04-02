@@ -17,14 +17,17 @@ use ArrayObject;
 
 class Lexical
 {
+    /** @var    string  $lexical_lang   Current lang */
     protected static $lexical_lang = '';
 
     /**
      * Locale specific array sorting function
      *
-     * @param array $arr single array of strings
-     * @param string $ns admin/public/lang
-     * @param string $lang language to be used if $ns = 'lang'
+     * @param   array   $arr    single array of strings
+     * @param   string  $ns     admin/public/lang
+     * @param   string  $lang   language to be used if $ns = 'lang'
+     * 
+     * @return  bool
      */
     public static function lexicalSort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
@@ -38,9 +41,11 @@ class Lexical
     /**
      * Locale specific array sorting function (preserving keys)
      *
-     * @param array $arr single array of strings
-     * @param string $ns admin/public/lang
-     * @param string $lang language to be used if $ns = 'lang'
+     * @param   array   $arr    single array of strings
+     * @param   string  $ns     admin/public/lang
+     * @param   string  $lang   language to be used if $ns = 'lang'
+     * 
+     * @return  bool
      */
     public static function lexicalArraySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
@@ -54,9 +59,11 @@ class Lexical
     /**
      * Locale specific array sorting function (sorting keys)
      *
-     * @param array $arr single array of strings
-     * @param string $ns admin/public/lang
-     * @param string $lang language to be used if $ns = 'lang'
+     * @param   array   $arr    single array of strings
+     * @param   string  $ns     admin/public/lang
+     * @param   string  $lang   language to be used if $ns = 'lang'
+     * 
+     * @return  bool
      */
     public static function lexicalKeySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
@@ -67,6 +74,12 @@ class Lexical
         return uksort($arr, [__CLASS__, 'lexicalSortHelper']);
     }
 
+    /**
+     * Set or change lang
+     * 
+     * @param   string  $ns     location in code
+     * @param   string  $lang   lang
+     */
     public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
     {
         if ($ns != 'lang' && self::$lexical_lang == '') {

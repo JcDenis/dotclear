@@ -292,7 +292,7 @@ class WidgetsStack
         $limit = abs((int) $w->limit);
 
         try {
-            $feed = Reader::quickParse($w->url, dotclear()->config()->cache_dir);
+            $feed = Reader::quickParse($w->url, dotclear()->config()->get('cache_dir'));
             if ($feed == false || count($feed->items) == 0) {
                 return;
             }

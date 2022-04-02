@@ -24,16 +24,16 @@ use Dotclear\Helper\Dt;
 
 class Notice
 {
-    /** @var string     notices table prefix */
+    /** @var    string  notices table prefix */
     protected $prefix;
 
-    /** @var string     notices table */
+    /** @var    string  notices table */
     protected $table_name = 'notice';
 
-    /** @var string     notices table prefixed*/
+    /** @var    string  notices table prefixed */
     protected $table;
 
-    /** @var    array       notices types */
+    /** @var    array   notices types */
     private $N_TYPES = [
         // id → CSS class
         'success' => 'success',
@@ -42,7 +42,7 @@ class Notice
         'message' => 'message',
         'static'  => 'static-msg'];
 
-    /** @var    bool        is displayed error */
+    /** @var    bool    is displayed error */
     private $error_displayed = false;
 
     /**
@@ -158,10 +158,10 @@ class Notice
 
             $rs = $sql->select();
 
-            $cur->notice_id = $rs->fInt() + 1;
-            $cur->ses_id    = (string) session_id();
+            $cur->setField('notice_id', $rs->fInt() + 1);
+            $cur->setField('ses_id', (string) session_id());
 
-            $this->cursor($cur, $cur->notice_id);
+            $this->cursor($cur, $cur->getField('notice_id'));
 
             # --BEHAVIOR-- coreBeforeNoticeCreate
             dotclear()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
@@ -177,7 +177,7 @@ class Notice
         # --BEHAVIOR-- coreAfterNoticeCreate
         dotclear()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
 
-        return $cur->notice_id;
+        return $cur->getField('notice_id');
     }
 
     /**
@@ -209,19 +209,19 @@ class Notice
      */
     private function cursor(Cursor $cur, int $notice_id = null): void
     {
-        if ($cur->notice_msg === '') {
+        if ('' === $cur->getField('notice_msg')) {
             throw new AdminException(__('No notice message'));
         }
 
-        if ($cur->notice_ts === '' || $cur->notice_ts === null) {
-            $cur->notice_ts = date('Y-m-d H:i:s');
+        if ('' === $cur->getField('notice_ts') || null === $cur->getField('notice_ts')) {
+            $cur->setField('notice_ts', date('Y-m-d H:i:s'));
         }
 
-        if ($cur->notice_format === '' || $cur->notice_format === null) {
-            $cur->notice_format = 'text';
+        if ('' === $cur->getField('notice_format') || null === $cur->getField('notice_format')) {
+            $cur->setField('notice_format', 'text');
         }
 
-        $notice_id = is_int($notice_id) ? $notice_id : $cur->notice_id;
+        $notice_id = is_int($notice_id) ? $notice_id : $cur->getField('notice_id');
     }
 
     /**
@@ -272,20 +272,20 @@ class Notice
             if ($counter) {
                 $lines = $this->get($params);
                 while ($lines->fetch()) {
-                    if (isset($this->N_TYPES[$lines->notice_type])) {
-                        $class = $this->N_TYPES[$lines->notice_type];
+                    if (isset($this->N_TYPES[$lines->f('notice_type')])) {
+                        $class = $this->N_TYPES[$lines->f('notice_type')];
                     } else {
-                        $class = $lines->notice_type;
+                        $class = $lines->f('notice_type');
                     }
                     $notification = [
-                        'type'   => $lines->notice_type,
+                        'type'   => $lines->f('notice_type'),
                         'class'  => $class,
-                        'ts'     => $lines->notice_ts,
-                        'text'   => $lines->notice_msg,
-                        'format' => $lines->notice_format
+                        'ts'     => $lines->f('notice_ts'),
+                        'text'   => $lines->f('notice_msg'),
+                        'format' => $lines->f('notice_format')
                     ];
-                    if ($lines->notice_options !== null) {
-                        $notifications = array_merge($notification, @json_decode($lines->notice_options, true));
+                    if (null !== $lines->f('notice_options')) {
+                        $notifications = array_merge($notification, @json_decode($lines->f('notice_options'), true));
                     }
                     # --BEHAVIOR-- adminPageNotification, array
                     $notice = dotclear()->behavior()->call('adminPageNotification', $notification);
@@ -312,16 +312,16 @@ class Notice
     {
         $cur = dotclear()->con()->openCursor($this->table());
 
-        $cur->notice_type    = $type;
-        $cur->notice_ts      = isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s');
-        $cur->notice_msg     = $message;
-        $cur->notice_options = json_encode($options);
+        $cur->setField('notice_type', $type);
+        $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s'));
+        $cur->setField('notice_msg', $message);
+        $cur->setField('notice_options', json_encode($options));
 
         if (isset($options['divtag']) && $options['divtag']) {
-            $cur->notice_format = 'html';
+            $cur->setField('notice_format', 'html');
         }
         if (isset($options['format']) && $options['format']) {
-            $cur->notice_format = $options['format'];
+            $cur->setField('notice_format', $options['format']);
         }
 
         $this->add($cur);

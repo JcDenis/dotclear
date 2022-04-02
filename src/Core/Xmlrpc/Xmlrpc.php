@@ -229,12 +229,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'Notify a link to a post.');
     }
 
-    public function serve($data = false)
+    public function serve(mixed $data = false): void
     {
         parent::serve(false);
     }
 
-    public function call($methodname, $args)
+    public function call(string $methodname, mixed $args): mixed
     {
         try {
             $rsp = @parent::call($methodname, $args);
@@ -246,9 +246,11 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
             throw $e;
         }
+
+        return false;
     }
 
-    private function debugTrace($methodname, $args, $rsp)
+    private function debugTrace(string $methodname, mixed $args, mixed $rsp): void
     {
         if (!$this->debug) {
             return;

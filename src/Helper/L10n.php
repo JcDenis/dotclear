@@ -49,9 +49,9 @@ class L10n
      * Create global arrays for L10N stuff. Should be called before any work
      * with other methods. For plural-forms, l10n_trans values can now be array.
      *
-     * @param string $code Language code to work with
+     * @param   string  $code   Language code to work with
      */
-    public static function init($code = 'en')
+    public static function init(string $code = 'en'): void
     {
         self::$l10n_trans = self::$l10n_files = [];
 
@@ -64,8 +64,9 @@ class L10n
      * This set up language properties to manage plurals form.
      * Change of language code not reset global array of L10N stuff.
      *
-     * @param string $code Language code
-     * @return string Current language code
+     * @param   string  $code   Language code
+     * 
+     * @return  string          Current language code
      */
     public static function lang(?string $code = null): string
     {
@@ -92,10 +93,11 @@ class L10n
      * or $plural according to a number if it is set.
      * If translation is not found, returns the string.
      *
-     * @param string $singular Singular form of the string
-     * @param string $plural Plural form of the string (optionnal)
-     * @param integer $count Context number for plural form (optionnal)
-     * @return string Translated string
+     * @param   string  $singular   Singular form of the string
+     * @param   string  $plural     Plural form of the string (optionnal)
+     * @param   int     $count      Context number for plural form (optionnal)
+     * 
+     * @return  string              Translated string
      */
     public static function trans(string $singular, ?string $plural = null, ?int $count = null): string
     {
@@ -139,8 +141,9 @@ class L10n
     /**
      * Retrieve plural index from input number
      *
-     * @param integer $count Number to take account
-     * @return integer Index of plural form
+     * @param   int     $count  Number to take account
+     * 
+     * @return  int             Index of plural form
      */
     public static function index(int $count): int
     {
@@ -155,8 +158,9 @@ class L10n
      * order) and retrieve the first one found.
      * We not care about language (and plurals forms) of the file.
      *
-     * @param string    $file        Filename (without extension)
-     * @return boolean True on success
+     * @param   string  $file   Filename (without extension)
+     * 
+     * @return  bool            True on success
      */
     public static function set(string $file): bool
     {
@@ -180,12 +184,13 @@ class L10n
      * If $dir/$lang/$file is not found, it will check if $dir/en/$file
      * exists and returns the result. Returns false if no file were found.
      *
-     * @param string    $dir        Directory
-     * @param string    $file    File
-     * @param string    $lang    Language
-     * @return string|false        File path or false
+     * @param   string  $dir    Directory
+     * @param   string  $file   File
+     * @param   string  $lang   Language
+     * 
+     * @return  string|false    File path or false
      */
-    public static function getFilePath(string $dir, string $file, string $lang)
+    public static function getFilePath(string $dir, string $file, string $lang): string|false
     {
         $f = $dir . '/' . $lang . '/' . $file;
         if (!file_exists($f)) {
@@ -202,10 +207,11 @@ class L10n
      *
      * Returns an array of strings found in a given gettext (.po) file
      *
-     * @param string    $file        Filename
-     * @return array|false
+     * @param   string  $file   Filename
+     * 
+     * @return  array|false
      */
-    public static function getPoFile(string $file)
+    public static function getPoFile(string $file): array|false
     {
         if (($m = self::parsePoFile($file)) === false) {
             return false;
@@ -231,10 +237,11 @@ class L10n
      *
      * Return an array of po headers and translations from a po file
      *
-     * @param string $file File path
-     * @return array|false Parsed file
+     * @param   string  $file   File path
+     * 
+     * @return  array|false     Parsed file
      */
-    public static function parsePoFile(string $file)
+    public static function parsePoFile(string $file): array|false
     {
         // stop if file not exists
         if (!file_exists($file)) {
@@ -501,8 +508,9 @@ class L10n
     /**
      * Extract nplurals and plural from po expression
      *
-     * @param string $expression Plural form as of gettext Plural-form param
-     * @return array Number of plurals and cleaned plural expression
+     * @param   string  $expression     Plural form as of gettext Plural-form param
+     * 
+     * @return  array                   Number of plurals and cleaned plural expression
      */
     public static function parsePluralExpression(string $expression): array
     {
@@ -514,11 +522,12 @@ class L10n
     /**
      * Create function to find plural msgstr index from gettext expression
      *
-     * @param integer $nplurals Plurals number
-     * @param string $expression Plural expression
-     * @return callable Function to extract right plural index
+     * @param   int     $nplurals       Plurals number
+     * @param   string  $expression     Plural expression
+     * 
+     * @return  \Closure                 Function to extract right plural index
      */
-    public static function createPluralFunction(int $nplurals, string $expression)
+    public static function createPluralFunction(int $nplurals, string $expression): \Closure
     {
         return function ($n) use ($nplurals, $expression) {
             $i = eval('return (int) (' . str_replace('n', (string) $n, $expression) . ');');
@@ -567,8 +576,9 @@ class L10n
     /**
      * Check if a language code exists
      *
-     * @param string $code Language code
-     * @return boolean True if code exists
+     * @param   string  $code   Language code
+     * 
+     * @return  bool            True if code exists
      */
     public static function isCode(string $code): bool
     {
@@ -578,8 +588,9 @@ class L10n
     /**
      * Get a language code according to a language name
      *
-     * @param string $code Language name
-     * @return string Language code
+     * @param   string  $code   Language name
+     * 
+     * @return  string          Language code
      */
     public static function getCode(string $code): string
     {
@@ -591,8 +602,9 @@ class L10n
     /**
      * ISO Codes
      *
-     * @param boolean    $flip            Flip resulting array
-     * @param boolean    $name_with_code    Prefix (code) to names
+     * @param   bool    $flip               Flip resulting array
+     * @param   bool    $name_with_code     Prefix (code) to names
+     * 
      * @return array
      */
     public static function getISOcodes(bool $flip = false, bool $name_with_code = false): array
@@ -614,8 +626,9 @@ class L10n
     /**
      * Get a language name according to a lang code
      *
-     * @param string $code Language code
-     * @return string Language name
+     * @param   string  $code   Language code
+     * 
+     * @return  string          Language name
      */
     public static function getLanguageName(string $code): string
     {
@@ -627,7 +640,7 @@ class L10n
     /**
      * Get languages names
      *
-     * @return array List of languages names by languages codes
+     * @return  array   List of languages names by languages codes
      */
     public static function getLanguagesName(): array
     {
@@ -644,8 +657,9 @@ class L10n
     /**
      * Get a text direction according to a language code
      *
-     * @param string $code Language code
-     * @return string Text direction (rtl or ltr)
+     * @param   string  $code   Language code
+     * 
+     * @return  string          Text direction (rtl or ltr)
      */
     public static function getLanguageTextDirection(string $code): string
     {
@@ -657,7 +671,7 @@ class L10n
     /**
      * Get languages text directions
      *
-     * @return array List of text directions by languages codes
+     * @return  array   List of text directions by languages codes
      */
     public static function getLanguagesTextDirection(): array
     {
@@ -671,8 +685,9 @@ class L10n
     /**
      * Get a number of plurals according to a language code
      *
-     * @param string $code Language code
-     * @return integer Number of plurals
+     * @param   string  $code   Language code
+     * 
+     * @return  int             Number of plurals
      */
     public static function getLanguagePluralsNumber(string $code): int
     {
@@ -684,7 +699,7 @@ class L10n
     /**
      * Get languages numbers of plurals
      *
-     * @return array List of numbers of plurals by languages codes
+     * @return  array   List of numbers of plurals by languages codes
      */
     public static function getLanguagesPluralsNumber(): array
     {
@@ -698,8 +713,9 @@ class L10n
     /**
      * Get a plural expression according to a language code
      *
-     * @param string $code Language code
-     * @return string Plural expression
+     * @param   string  $code   Language code
+     * 
+     * @return  string  Plural expression
      */
     public static function getLanguagePluralExpression(string $code): string
     {
@@ -711,7 +727,7 @@ class L10n
     /**
      * Get languages plural expressions
      *
-     * @return array List of plural expressions by languages codes
+     * @return  array   List of plural expressions by languages codes
      */
     public static function getLanguagesPluralExpression(): array
     {
@@ -750,9 +766,10 @@ class L10n
      *
      * null values represent missing values
      *
-     * @param integer $type Type of definition
-     * @param string $default Default value if definition is empty
-     * @return array List of requested definition by languages codes
+     * @param   int     $type       Type of definition
+     * @param   string  $default    Default value if definition is empty
+     * 
+     * @return  array               List of requested definition by languages codes
      */
     protected static function getLanguagesDefinitions(int $type, string $default = ''): array
     {
@@ -1006,10 +1023,11 @@ if (!function_exists('__')) {
      *
      * @see L10n::trans()
      *
-     * @param      string   $singular Singular form of the string
-     * @param      string   $plural Plural form of the string (optionnal)
-     * @param      integer  $count Context number for plural form (optionnal)
-     * @return     string   translated string
+     * @param   string  $singular   Singular form of the string
+     * @param   string  $plural     Plural form of the string (optionnal)
+     * @param   int     $count      Context number for plural form (optionnal)
+     * 
+     * @return  string              Translated string
      */
     function __(string $singular, ?string $plural = null, ?int $count = null): string
     {

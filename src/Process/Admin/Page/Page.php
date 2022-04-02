@@ -188,7 +188,7 @@ abstract class Page
             $rs_blogs = dotclear()->blogs()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
-                $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
+                $blogs[Html::escapeHTML($rs_blogs->f('blog_name') . ' - ' . $rs_blogs->f('blog_url'))] = $rs_blogs->f('blog_id');
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
             dotclear()->nonce()->form() . Form::combo('switchblog', $blogs, dotclear()->blog()->id) .
@@ -213,7 +213,7 @@ abstract class Page
         }
 
         # Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!dotclear()->rescue() && dotclear()->blog()->settings()->system->csp_admin_on) {
+        if (!dotclear()->rescue() && dotclear()->blog()->settings()->get('system')->get('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject();
 
@@ -222,13 +222,13 @@ abstract class Page
             $csp_prefix = dotclear()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
             $csp_suffix = dotclear()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = dotclear()->blog()->settings()->system->csp_admin_default ?:
+            $csp['default-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_default') ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = dotclear()->blog()->settings()->system->csp_admin_script ?:
+            $csp['script-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_script') ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = dotclear()->blog()->settings()->system->csp_admin_style ?:
+            $csp['style-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_style') ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = dotclear()->blog()->settings()->system->csp_admin_img ?:
+            $csp['img-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_img') ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             # Cope with blog post preview (via public URL in iframe)
@@ -258,8 +258,8 @@ abstract class Page
                 }
             }
             if (count($directives)) {
-                $directives[]   = 'report-uri ' . dotclear()->config()->admin_url . '?handler=admin.cspreport';
-                $report_only    = (dotclear()->blog()->settings()->system->csp_admin_report_only) ? '-Report-Only' : '';
+                $directives[]   = 'report-uri ' . dotclear()->config()->get('admin_url') . '?handler=admin.cspreport';
+                $report_only    = dotclear()->blog()->settings()->get('system')->get('csp_admin_report_only') ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
@@ -271,7 +271,7 @@ abstract class Page
             header($value);
         }
 
-        $data_theme = dotclear()->user()->preference()->interface->theme;
+        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
 
         echo
         '<!DOCTYPE html>' .
@@ -281,7 +281,12 @@ abstract class Page
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n";
+        '  <title>' . Html::escapeHTML(
+                $this->page_title . ' - ' . 
+                dotclear()->blog()->name . ' - ' . 
+                dotclear()->config()->get('vendor_name') . ' - ' . 
+                dotclear()->config()->get('core_version')
+            ) . '</title>' . "\n";
 
         echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
@@ -289,22 +294,19 @@ abstract class Page
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
-        if (!dotclear()->user()->preference()->interface->hide_std_favicon) {
+        if (!dotclear()->user()->preference()->get('interface')->get('hide_std_favicon')) {
             echo
                 '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if (dotclear()->user()->preference()->interface->htmlfontsize) {
-            $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
+        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
-
-        $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
-
-        $js['debug'] = !dotclear()->production();
-
-        $js['showIp'] = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
+        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->get('interface')->get('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->get('interface')->get('showajaxloader');
+        $js['noDragDrop']     = (bool) dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $js['debug']          = !dotclear()->production();
+        $js['showIp']         = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
         echo
@@ -329,7 +331,7 @@ abstract class Page
         '<li><a href="#help">' . __('Go to help') . '</a></li>' .
         '</ul>' . "\n" .
         '<header id="header" role="banner">' .
-        '<h1><a href="' . dotclear()->adminurl()->get('admin.home') . '"><span class="hidden">' . dotclear()->config()->vendor_name . '</span></a></h1>' . "\n";
+        '<h1><a href="' . dotclear()->adminurl()->get('admin.home') . '"><span class="hidden">' . dotclear()->config()->get('vendor_name') . '</span></a></h1>' . "\n";
 
         echo
         '<form action="' . dotclear()->adminurl()->get('admin.home') . '" method="post" id="top-info-blog">' .
@@ -388,7 +390,7 @@ abstract class Page
         # Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = dotclear()->user()->preference()->interface->theme;
+        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
 
         echo
         '<!DOCTYPE html>' .
@@ -396,7 +398,7 @@ abstract class Page
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->vendor_name) . ' - ' . dotclear()->config()->core_version . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->get('vendor_name')) . ' - ' . dotclear()->config()->get('core_version') . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
@@ -406,15 +408,13 @@ abstract class Page
             echo dotclear()->resource()->load('default-rtl.css');
         }
 
-        if (dotclear()->user()->preference()->interface->htmlfontsize) {
-            $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
+        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->interface->hidemoreinfo;
-        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->interface->showajaxloader;
-
-        $js['noDragDrop'] = (bool) dotclear()->user()->preference()->accessibility->nodragdrop;
-
-        $js['debug'] = !dotclear()->production();
+        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->get('interface')->get('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->get('interface')->get('showajaxloader');
+        $js['noDragDrop']     = (bool) dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $js['debug']          = !dotclear()->production();
 
         // Set JSON data
         echo
@@ -433,7 +433,7 @@ abstract class Page
             (dotclear()->production() ? '' : ' debug-mode') .
             '">' . "\n" .
 
-            '<h1>' . dotclear()->config()->vendor_name . '</h1>' . "\n";
+            '<h1>' . dotclear()->config()->get('vendor_name') . '</h1>' . "\n";
 
         echo
             '<div id="wrapper">' . "\n" .
@@ -486,7 +486,7 @@ abstract class Page
         if (!dotclear()->user()->preference()) {
             return;
         }
-        if (dotclear()->user()->preference()->interface->hidehelpbutton) {
+        if (dotclear()->user()->preference()->get('interface')->get('hidehelpbutton')) {
             return;
         }
 
@@ -542,7 +542,7 @@ abstract class Page
 
     private function pageClose(): void
     {
-        if (!dotclear()->help()->flag() && !dotclear()->user()->preference()->interface->hidehelpbutton) {
+        if (!dotclear()->help()->flag() && !dotclear()->user()->preference()->get('interface')->get('hidehelpbutton')) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 dotclear()->adminurl()->get('admin.help'),
@@ -565,7 +565,7 @@ abstract class Page
             echo dotclear()->summary()[$k]->draw();
         }
 
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->core_version);
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->get('core_version'));
 
         # --BEHAVIOR-- adminPageFooter, string
         $textAlt = dotclear()->behavior()->call('adminPageFooter', $text);

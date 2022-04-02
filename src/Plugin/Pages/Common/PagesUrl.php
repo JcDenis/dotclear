@@ -207,7 +207,7 @@ class PagesUrl extends Url
             } else {
                 dotclear()->user()->preview = true;
                 if (\DOTCLEAR_PROCESS == 'Admin') {
-                    dotclear()->user()->xframeoption = dotclear()->config()->admin_url;
+                    dotclear()->user()->xframeoption = dotclear()->config()->get('admin_url');
                 }
 
                 $this->pages($post_url);

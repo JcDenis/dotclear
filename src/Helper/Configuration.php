@@ -15,10 +15,11 @@ namespace Dotclear\Helper;
 
 use Dotclear\Exception\UtilsException;
 use Dotclear\Helper\ErrorTrait;
+use Dotclear\Helper\MagicTrait;
 
 class Configuration
 {
-    use ErrorTrait;
+    use ErrorTrait, MagicTrait;
 
     /** @var    array   Read files */
     protected static $file = [];
@@ -80,14 +81,6 @@ class Configuration
     }
 
     /**
-     * @see self::get()
-     */
-    public function __get($key)
-    {
-        return $this->get($key);
-    }
-
-    /**
      * Check if a key exists
      * 
      * @param   string  $key    The key
@@ -97,22 +90,6 @@ class Configuration
     public function exists(string $key): bool
     {
         return isset($this->stack[$key]);
-    }
-
-    /**
-     * @see self::exists()
-     */
-    public function __isset($key)
-    {
-        return $this->exists($key);
-    }
-
-    /**
-     * Avoid magic set
-     */
-    public function __set($k, $v)
-    {
-        throw new UtilsException('Configuration properties are read only.');
     }
 
     /**

@@ -380,7 +380,7 @@ class Context
             [dotclear()->blog()->public_path . '/smilies/smilies.txt'],
             array_values(dotclear()->themes()->getThemePath('Public' . $src)),
             array_values(dotclear()->themes()->getThemePath('Common' . $src)),
-            [dotclear()->config()->root_dir . '/Public' . $src]
+            [dotclear()->config()->get('root_dir') . '/Public' . $src]
         );
 
         foreach ($paths as $file) {

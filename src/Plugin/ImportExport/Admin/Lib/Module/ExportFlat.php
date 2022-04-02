@@ -40,7 +40,7 @@ class ExportFlat extends Module
 
             try {
                 $exp = new FlatExport($fullname);
-                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->version . "|single\n");
+                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->get('version') . "|single\n");
 
                 $exp->export(
                     'category',
@@ -116,7 +116,7 @@ class ExportFlat extends Module
 
             try {
                 $exp = new FlatExport($fullname);
-                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->core_version . "|full\n");
+                fwrite($exp->fp, '///DOTCLEAR|' . dotclear()->config()->get('core_version') . "|full\n");
                 $exp->exportTable('blog');
                 $exp->exportTable('category');
                 $exp->exportTable('link');

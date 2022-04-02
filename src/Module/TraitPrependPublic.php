@@ -42,10 +42,10 @@ trait TraitPrependPublic
     {
         if (is_dir($this->define()->root() . '/templates/')) {
             dotclear()->behavior()->add('publicBeforeDocument', function () {
-                $tplset = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme)->templateset();
+                $tplset = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'))->templateset();
                 dotclear()->template()->setPath(
                     dotclear()->template()->getPath(),
-                    $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : dotclear()->config()->template_default)
+                    $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : dotclear()->config()->get('template_default'))
                 );
             });
         }
@@ -58,6 +58,6 @@ trait TraitPrependPublic
      */
     protected function isTheme()
     {
-        return dotclear()->blog()->settings()->system->theme == $this->define()->id();
+        return dotclear()->blog()->settings()->get('system')->get('theme') == $this->define()->id();
     }
 }

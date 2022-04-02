@@ -39,8 +39,8 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->template_default);
-        $this->tplset_name  = dotclear()->config()->template_default;
+        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->get('template_default');
+        $this->tplset_name  = dotclear()->config()->get('template_default');
 
         # Current theme
         $module = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
