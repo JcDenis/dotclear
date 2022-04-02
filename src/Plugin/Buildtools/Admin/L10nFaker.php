@@ -50,7 +50,7 @@ class L10nFaker
         foreach ($post_types as $k => $v) {
             $main .= $this->fake_l10n($v['label']);
         }
-        $ws = dotclear()->user()->preference()->favorites; // Favs old school !
+        $ws = dotclear()->user()->preference()->get('favorites'); // Favs old school !
         if ($ws) {
             $main .= "\n# Favorites\n\n";
             foreach ($ws->dumpPrefs() as $k => $v) {

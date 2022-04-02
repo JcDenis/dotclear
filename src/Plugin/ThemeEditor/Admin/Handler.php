@@ -54,10 +54,10 @@ class Handler extends AbstractPage
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
         # Get interface setting
-        $user_ui_colorsyntax = dotclear()->user()->preference()->interface->colorsyntax;
+        $user_ui_colorsyntax = dotclear()->user()->preference()->get('interface')->get('colorsyntax');
 
         # Loading themes
-        $this->te_theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $this->te_theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -124,7 +124,7 @@ class Handler extends AbstractPage
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                dotclear()->resource()->loadCodeMirror(dotclear()->user()->preference()->interface->colorsyntax_theme)
+                dotclear()->resource()->loadCodeMirror(dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme'))
             );
         }
         $this->setPageHead(
@@ -182,7 +182,7 @@ class Handler extends AbstractPage
             echo
                 '</div></form>';
 
-            if (dotclear()->user()->preference()->interface->colorsyntax) {
+            if (dotclear()->user()->preference()->get('interface')->get('colorsyntax')) {
                 $editorMode = (!empty($_REQUEST['css']) ? 'css' :
                     (!empty($_REQUEST['js']) ? 'javascript' :
                     (!empty($_REQUEST['po']) ? 'text/plain' :
@@ -190,7 +190,7 @@ class Handler extends AbstractPage
                     'text/html'))));
                 dotclear()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
                 echo dotclear()->resource()->load('mode.js', 'Plugin', 'themeEditor');
-                echo dotclear()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->interface->colorsyntax_theme);
+                echo dotclear()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme'));
             }
         }
 

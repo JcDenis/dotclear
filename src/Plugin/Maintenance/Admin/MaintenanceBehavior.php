@@ -97,7 +97,7 @@ class MaintenanceBehavior
     public function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
     {
         # Check user option
-        if (!dotclear()->user()->preference()->maintenance->dashboard_icon) {
+        if (!dotclear()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
             return;
         }
 
@@ -125,7 +125,7 @@ class MaintenanceBehavior
      */
     public function behaviorAdminDashboardItems(ArrayObject $items): void
     {
-        if (!dotclear()->user()->preference()->maintenance->dashboard_item) {
+        if (!dotclear()->user()->preference()->get('maintenance')->get('dashboard_item')) {
             return;
         }
 
@@ -175,11 +175,11 @@ class MaintenanceBehavior
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->user()->preference()->maintenance->dashboard_icon) .
+        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->user()->preference()->get('maintenance')->get('dashboard_icon')) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->user()->preference()->maintenance->dashboard_item) .
+        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->user()->preference()->get('maintenance')->get('dashboard_item')) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -196,8 +196,8 @@ class MaintenanceBehavior
             return;
         }
 
-        dotclear()->user()->preference()->maintenance->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
-        dotclear()->user()->preference()->maintenance->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
+        dotclear()->user()->preference()->get('maintenance')->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
+        dotclear()->user()->preference()->get('maintenance')->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
     }
 
     /**

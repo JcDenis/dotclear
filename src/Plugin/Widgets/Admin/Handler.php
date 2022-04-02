@@ -287,11 +287,11 @@ class Handler extends AbstractPage
 
         $widget_editor = dotclear()->user()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @dotclear()->user()->preference()->interface->rte_flags;
+        $rte_flags     = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = dotclear()->user()->preference()->accessibility->nodragdrop;
+        $user_dm_nodragdrop = dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
 
         return
         dotclear()->resource()->load('style.css', 'Plugin', 'Widgets') .

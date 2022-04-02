@@ -116,7 +116,7 @@ class Media extends Page
 
         $this->filter->add('handler', 'admin.media');
 
-        $this->media_uploader = (bool) dotclear()->user()->preference()->interface->enhanceduploader;
+        $this->media_uploader = (bool) dotclear()->user()->preference()->get('interface')->get('enhanceduploader');
 
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {

@@ -45,7 +45,7 @@ class Handler extends AbstractPage
                         if ($_POST['s_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->user()->preference()->$ws->put($k, $v);
+                        dotclear()->user()->preference()->get($ws)->put($k, $v);
                     }
                 }
 
@@ -64,7 +64,7 @@ class Handler extends AbstractPage
                         if ($_POST['gs_type'][$ws][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->user()->preference()->$ws->put($k, $v, null, null, true, true);
+                        dotclear()->user()->preference()->get($ws)->put($k, $v, null, null, true, true);
                     }
                 }
 

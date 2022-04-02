@@ -182,7 +182,7 @@ class Category extends Page
 
         $category_editor = dotclear()->user()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = @dotclear()->user()->preference()->interface->rte_flags;
+        $rte_flags       = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }

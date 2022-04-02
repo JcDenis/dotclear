@@ -60,7 +60,7 @@ class Favorite
     public function __construct()
     {
         $this->fav_defs   = new ArrayObject();
-        $this->ws         = dotclear()->user()->preference()->dashboard;
+        $this->ws         = dotclear()->user()->preference()->get('dashboard');
         $this->user_prefs = [];
 
         if ($this->ws->prefExists('favorites')) {

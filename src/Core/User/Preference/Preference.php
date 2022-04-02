@@ -15,9 +15,12 @@ namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\MagicTrait;
 
 class Preference
 {
+    use MagicTrait;
+
     /** @var    string  $table  Prefs table name */
     protected $table;
 
@@ -168,14 +171,6 @@ class Preference
     public function get(string $ws): mixed
     {
         return $this->exists($ws) ? $this->workspaces[$ws] : $this->addWorkspace($ws);
-    }
-
-    /**
-     * @see self::get()
-     */
-    public function __get($n)
-    {
-        return $this->get($n);
     }
 
     /**

@@ -356,7 +356,7 @@ class Handler extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        if (dotclear()->user()->preference()->accessibility->nodragdrop) {
+                        if (dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                             # Order menu items
                             $order = [];
                             if (empty($_POST['im_order']) && !empty($_POST['order'])) {
@@ -402,7 +402,7 @@ class Handler extends AbstractPage
             ->setPageHelp('simpleMenu')
             ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
-        if (!dotclear()->user()->preference()->accessibility->nodragdrop) {
+        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $this->setPageHead(
                 dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
                 dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .

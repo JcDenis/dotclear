@@ -15,9 +15,12 @@ namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\MagicTrait;
 
 class Workspace
 {
+    use MagicTrait;
+
     /** @var    string      Preferences table name */
     protected $table;
 
@@ -184,20 +187,6 @@ class Workspace
     }
 
     /**
-     * Magic __get method.
-     *
-     * @see self::get()
-     *
-     * @param   string  $n  Pref name
-     *
-     * @return  mixed
-     */
-    public function __get(string $n): mixed
-    {
-        return $this->get($n);
-    }
-
-    /**
      * Sets a pref in $prefs property.
      *
      * This sets the pref for script
@@ -211,19 +200,6 @@ class Workspace
         if (isset($this->prefs[$n])) {
             $this->prefs[$n]['value'] = $v;
         }
-    }
-
-    /**
-     * Magic __set method.
-     *
-     * @see self::set()
-     *
-     * @param   string  $n  The pref name
-     * @param   mixed   $v  The pref value
-     */
-    public function __set(string $n, mixed $v): void
-    {
-        $this->set($n, $v);
     }
 
     /**

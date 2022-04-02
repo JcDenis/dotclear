@@ -27,7 +27,7 @@ class Charte extends Page
     protected function getPageContent(): void
     {
         $js         = [];
-        $data_theme = dotclear()->user()->preference()->interface->theme;
+        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
 ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
@@ -42,8 +42,8 @@ class Charte extends Page
 
 echo dotclear()->resource()->load('default.css');
 
-if (dotclear()->user()->preference()->interface->htmlfontsize) {
-    $js['htmlFontSize'] = dotclear()->user()->preference()->interface->htmlfontsize;
+if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
+    $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
 }
 // Set some JSON data
 echo dotclear()->resource()->json('dotclear_init', $js);

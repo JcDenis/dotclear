@@ -52,8 +52,8 @@ class Prepend extends AbstractPrepend
     {
         // Get and store user's prefs for plugin options
         try {
-            dotclear()->user()->preference()->interface->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
-            dotclear()->user()->preference()->interface->put('colorsyntax_theme',
+            dotclear()->user()->preference()->get('interface')->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
+            dotclear()->user()->preference()->get('interface')->put('colorsyntax_theme',
                 (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : ''));
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
@@ -63,7 +63,7 @@ class Prepend extends AbstractPrepend
     public function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        $current_theme = (string) dotclear()->user()->preference()->interface->colorsyntax_theme ?? 'default';
+        $current_theme = (string) dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme') ?? 'default';
         $themes_list   = dotclear()->resource()->getCodeMirrorThemes();
         $themes_combo  = [__('Default') => ''];
         foreach ($themes_list as $theme) {
@@ -76,7 +76,7 @@ class Prepend extends AbstractPrepend
         echo
         '<div class="col">' .
         '<p><label for="colorsyntax" class="classic">' .
-        Form::checkbox('colorsyntax', 1, (int) dotclear()->user()->preference()->interface->colorsyntax) . '</label>' .
+        Form::checkbox('colorsyntax', 1, (int) dotclear()->user()->preference()->get('interface')->get('colorsyntax')) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
         if (count($themes_combo) > 1) {
