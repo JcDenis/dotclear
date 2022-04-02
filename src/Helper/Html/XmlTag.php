@@ -17,7 +17,10 @@ namespace Dotclear\Helper\Html;
 
 class XmlTag
 {
+    /** @var    array   $_attr  Attributes */
     private $_attr  = [];
+
+    /** @var    array   $_nodes     Nodes */
     private $_nodes = [];
 
     /**
@@ -37,12 +40,6 @@ class XmlTag
     }
 
     /**
-     * Add Attribute
-     *
-     * Magic __set method to add an attribute.
-     *
-     * @param string    $name        Attribute name
-     * @param string    $value        Attribute value
      * @see insertAttr()
      */
     public function __set($name, $value)
@@ -55,8 +52,8 @@ class XmlTag
      *
      * This magic __call method appends a tag to XML tree.
      *
-     * @param string    $name        Tag name
-     * @param array        $args        Function arguments, the first one would be tag content
+     * @param   string  $name   Tag name
+     * @param   array   $args   Function arguments, the first one would be tag content
      */
     public function __call($name, $args)
     {
@@ -76,9 +73,9 @@ class XmlTag
      *
      * Appends CDATA to current tag.
      *
-     * @param string    $value        Tag CDATA content
+     * @param   string  $value  Tag CDATA content
      */
-    public function CDATA($value)
+    public function CDATA(string $value): void
     {
         $this->insertNode($value);
     }
@@ -88,11 +85,10 @@ class XmlTag
      *
      * This method adds an attribute to current tag.
      *
-     * @param string    $name        Attribute name
-     * @param string    $value        Attribute value
-     * @see insertAttr()
+     * @param   string  $name   Attribute name
+     * @param   mixed   $value  Attribute value
      */
-    public function insertAttr($name, $value)
+    public function insertAttr(string $name, mixed $value): void
     {
         $this->_attr[$name] = $value;
     }
@@ -103,9 +99,9 @@ class XmlTag
      * This method adds a new XML node. Node could be a instance of xmlTag, an
      * array of valid values, a boolean or a string.
      *
-     * @param XmlTag|array|boolean|string    $node    Node value
+     * @param   XmlTag|array|bool|string|null   $node   Node value
      */
-    public function insertNode($node = null)
+    public function insertNode(XmlTag|array|bool|string $node = null): void
     {
         if ($node instanceof self) {
             $this->_nodes[] = $node;
@@ -127,11 +123,12 @@ class XmlTag
      *
      * Returns a string with XML content.
      *
-     * @param boolean    $prolog        Append prolog to result
-     * @param string    $encoding        Result charset
-     * @return string
+     * @param   bool    $prolog     Append prolog to result
+     * @param   string  $encoding   Result charset
+     * 
+     * @return  string
      */
-    public function toXML($prolog = false, $encoding = 'UTF-8')
+    public function toXML(bool $prolog = false, string $encoding = 'UTF-8'): string
     {
         if ($this->_name && count($this->_nodes) > 0) {
             $p = '<%1$s%2$s>%3$s</%1$s>';

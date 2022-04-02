@@ -18,10 +18,10 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 class XmlrpcException extends \Exception
 {
     /**
-     * @param string    $message        Exception message
-     * @param integer    $code        Exception code
+     * @param   string  $message    Exception message
+     * @param   int     $code       Exception code
      */
-    public function __construct($message, $code = 0)
+    public function __construct(string $message, int $code = 0)
     {
         parent::__construct($message, $code);
     }

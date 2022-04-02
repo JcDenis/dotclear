@@ -22,13 +22,23 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class Validator extends NetHttp
 {
+    /** @var    string  $host   host */
     protected $host       = 'validator.w3.org';
+
+    /** @var    string  $path   path */
     protected $path       = '/nu/';
+
+    /** @var    bool  $use_ssl  use ssl */
     protected $use_ssl    = true;
+
+    /** @var    string  $user_agent   user agent */
     protected $user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3a) Gecko/20021207';
+
+    /** @var    int     $timeout    timeout */
     protected $timeout    = 2;
 
-    protected $html_errors = ''; ///<    <b>string</b>        Validation errors list
+    /** @var    string  $html_error  html reprenstation of errors */
+    protected $html_errors = '';
 
     /**
      * Constructor, no parameters.
@@ -43,8 +53,8 @@ class Validator extends NetHttp
      *
      * Returns an HTML document from a <var>$fragment</var>.
      *
-     * @param string    $fragment            HTML content
-     * @return string
+     * @param   string  $fragment   HTML content
+     * @return  string
      */
     public function getDocument(string $fragment): string
     {
@@ -65,9 +75,10 @@ class Validator extends NetHttp
      *
      * Performs HTML validation of <var>$html</var>.
      *
-     * @param string    $html            HTML document
-     * @param string    $charset            Document charset
-     * @return boolean
+     * @param   string  $html       HTML document
+     * @param   string  $charset    Document charset
+     * 
+     * @return  bool
      */
     public function perform(string $html, string $charset = 'UTF-8'): bool
     {
@@ -93,7 +104,7 @@ class Validator extends NetHttp
     /**
      * Validation Errors
      *
-     * @return string    HTML validation errors list
+     * @return  string  HTML validation errors list
      */
     public function getErrors(): string
     {
@@ -109,9 +120,10 @@ class Validator extends NetHttp
      * - valid (bool)
      * - errors (string)
      *
-     * @param string    $fragment            HTML content
-     * @param string    $charset            Document charset
-     * @return array
+     * @param   string  $fragment   HTML content
+     * @param   string  $charset    Document charset
+     * 
+     * @return  array
      */
     public static function validate($fragment, $charset = 'UTF-8')
     {

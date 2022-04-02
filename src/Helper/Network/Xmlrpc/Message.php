@@ -15,13 +15,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+use \XMLParser;
 use Dotclear\Exception\NetworkException;
 use Dotclear\Helper\Network\Xmlrpc\Date;
 
 class Message
 {
     protected $brutxml; ///< string Brut XML message
-    protected $message; ///< string XML message
 
     public $messageType;      ///< string Type of message - methodCall / methodResponse / fault
     public $faultCode;        ///< string Fault code
@@ -42,7 +42,7 @@ class Message
     /**
      * Constructor
      *
-     * @param string        $message        XML Message
+     * @param   string  $message    XML Message
      */
     public function __construct(protected string $message)
     {
@@ -51,8 +51,10 @@ class Message
 
     /**
      * Message parser
+     * 
+     * @return  bool
      */
-    public function parse()
+    public function parse(): bool
     {
         // first remove the XML declaration
         $this->message = preg_replace('/<\?xml(.*)?\?' . '>/', '', (string) $this->message);
@@ -114,7 +116,7 @@ class Message
         return true;
     }
 
-    protected function tag_open($parser, $tag, $attr)
+    protected function tag_open(XMLParser $parser, string $tag, mixed $attr): void
     {
         $this->_currentTag = $tag;
 
@@ -139,12 +141,12 @@ class Message
         }
     }
 
-    protected function cdata($parser, $cdata)
+    protected function cdata(XMLParser $parser, string $cdata): void
     {
         $this->_currentTagContents .= $cdata;
     }
 
-    protected function tag_close($parser, $tag)
+    protected function tag_close(XMLParser $parser, string $tag): void
     {
         $valueFlag = false;
         $value     = null;

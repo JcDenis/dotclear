@@ -37,9 +37,9 @@ class Client extends NetHttp
      *
      * Creates a new instance. <var>$url</var> is the XML-RPC Server end point.
      *
-     * @param string        $url            Service URL
+     * @param   string  $url    Service URL
      */
-    public function __construct($url)
+    public function __construct(string $url)
     {
         if (!$this->readUrl($url, $ssl, $host, $port, $path, $user, $pass)) {
             return;
@@ -69,12 +69,12 @@ class Client extends NetHttp
      * ?>
      * </code>
      *
-     * @param string    $method
-     * @param mixed     $args
+     * @param   string  $method
+     * @param   mixed   $args
      *
      * @return mixed
      */
-    public function query($method, ...$args)
+    public function query(string $method, mixed ...$args): mixed
     {
         $this->request = new Request($method, $args);
 
@@ -96,9 +96,13 @@ class Client extends NetHttp
         return $this->message->params[0];
     }
 
-    # Overloading Http::buildRequest method, we don't need all the stuff of
-    # HTTP client.
-    protected function buildRequest()
+    /**
+     * Overloading Http::buildRequest method
+     * We don't need all the stuff of HTTP client.
+     * 
+     * @return  array
+     */
+    protected function buildRequest(): array
     {
         if ($this->proxy_host) {
             $path = $this->getRequestURL();

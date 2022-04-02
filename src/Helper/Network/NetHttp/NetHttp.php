@@ -342,9 +342,9 @@ class NetHttp extends Socket
      *
      * Prepares HTTP request and returns an array of HTTP headers.
      *
-     * @return array
+     * @return  array
      */
-    protected function buildRequest()
+    protected function buildRequest(): array
     {
         $headers = [];
 
@@ -820,9 +820,9 @@ class NetHttp extends Socket
      *
      * Returns a new instance of the class. <var>$path</var> is an output variable.
      *
-     * @param string    $url                Request URL
-     * @param string    $path               Resulting path
-     * @return netHttp|false
+     * @param   string    $url                Request URL
+     * @param   string    $path               Resulting path
+     * @return  NetHttp|false
      */
     public static function initClient($url, &$path)
     {

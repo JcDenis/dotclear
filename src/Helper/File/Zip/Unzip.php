@@ -41,7 +41,7 @@ class Unzip
         $this->close();
     }
 
-    public function close()
+    public function close(): void
     {
         if ($this->fp) {
             fclose($this->fp);
@@ -53,7 +53,7 @@ class Unzip
         }
     }
 
-    public function getList($stop_on_file = false, $exclude = false)
+    public function getList(string|false $stop_on_file = false, string|false $exclude = false): array|false
     {
         if (!empty($this->compressed_list)) {
             return $this->compressed_list;
@@ -68,7 +68,7 @@ class Unzip
         return $this->compressed_list;
     }
 
-    public function unzipAll($target)
+    public function unzipAll(string $target): void
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -83,7 +83,7 @@ class Unzip
         }
     }
 
-    public function unzip($file_name, $target = false)
+    public function unzip(string $file_name, string|false $target = false): string|false
     {
         if (empty($this->compressed_list)) {
             $this->getList($file_name);
@@ -93,7 +93,7 @@ class Unzip
             throw new FileException(sprintf(__('File %s is not compressed in the zip.'), $file_name));
         }
         if ($this->isFileExcluded($file_name)) {
-            return;
+            return false;
         }
         $details = &$this->compressed_list[$file_name];
 
@@ -121,7 +121,7 @@ class Unzip
         );
     }
 
-    public function getFilesList()
+    public function getFilesList(): array
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -137,7 +137,7 @@ class Unzip
         return $res;
     }
 
-    public function getDirsList()
+    public function getDirsList(): array
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -153,7 +153,7 @@ class Unzip
         return $res;
     }
 
-    public function getRootDir()
+    public function getRootDir(): string|false
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -182,7 +182,7 @@ class Unzip
         return false;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -191,7 +191,7 @@ class Unzip
         return count($this->compressed_list) == 0;
     }
 
-    public function hasFile($f)
+    public function hasFile(string $f): bool
     {
         if (empty($this->compressed_list)) {
             $this->getList();
@@ -200,12 +200,12 @@ class Unzip
         return isset($this->compressed_list[$f]);
     }
 
-    public function setExcludePattern($pattern)
+    public function setExcludePattern(string $pattern): void
     {
         $this->exclude_pattern = $pattern;
     }
 
-    protected function fp()
+    protected function fp() //: \resource
     {
         if ($this->fp === null) {
             $this->fp = @fopen($this->file_name, 'rb');
@@ -218,16 +218,16 @@ class Unzip
         return $this->fp;
     }
 
-    protected function isFileExcluded($f)
+    protected function isFileExcluded(string $f): bool
     {
         if (!$this->exclude_pattern) {
             return false;
         }
 
-        return preg_match($this->exclude_pattern, (string) $f);
+        return (bool) preg_match($this->exclude_pattern, (string) $f);
     }
 
-    protected function putContent($content, $target = false)
+    protected function putContent(string $content, string|false $target = false): string|bool
     {
         if ($target) {
             $r = @file_put_contents($target, $content);
@@ -242,7 +242,7 @@ class Unzip
         return $content;
     }
 
-    protected function testTargetDir($dir)
+    protected function testTargetDir(string $dir): void
     {
         if (is_dir($dir) && !is_writable($dir)) {
             throw new FileException(__('Unable to write in target directory, permission denied.'));
@@ -253,7 +253,7 @@ class Unzip
         }
     }
 
-    protected function uncompress($content, $mode, $size, $target = false)
+    protected function uncompress(string $content, int $mode, int $size, string|false $target = false): string|false
     {
         switch ($mode) {
             case 0:
@@ -299,7 +299,7 @@ class Unzip
         }
     }
 
-    protected function loadFileListByEOF($stop_on_file = false, $exclude = false)
+    protected function loadFileListByEOF(string|false $stop_on_file = false, string|false $exclude = false): bool
     {
         $fp = $this->fp();
 
@@ -385,7 +385,7 @@ class Unzip
                 }
 
                 foreach ($dir_list as $k => $v) {
-                    if ($exclude && preg_match($exclude, (string) $k)) {
+                    if (!$exclude && preg_match($exclude, (string) $k)) {
                         continue;
                     }
 
@@ -415,7 +415,7 @@ class Unzip
         return false;
     }
 
-    protected function loadFileListBySignatures($stop_on_file = false, $exclude = false)
+    protected function loadFileListBySignatures(string|false $stop_on_file = false, string|false $exclude = false): bool
     {
         $fp = $this->fp();
         fseek($fp, 0);
@@ -432,7 +432,7 @@ class Unzip
             }
             $filename = $details['file_name'];
 
-            if ($exclude && preg_match($exclude, (string) $filename)) {
+            if (!$exclude && preg_match($exclude, (string) $filename)) {
                 continue;
             }
 
@@ -447,7 +447,7 @@ class Unzip
         return $return;
     }
 
-    protected function getFileHeaderInformation($start_offset = false)
+    protected function getFileHeaderInformation(int|false $start_offset = false): array|false
     {
         $fp = $this->fp();
 
@@ -502,7 +502,7 @@ class Unzip
         return false;
     }
 
-    protected function getTimeStamp($date, $time)
+    protected function getTimeStamp(int $date, int $time): int|false
     {
         $BINlastmod_date = str_pad(decbin($date), 16, '0', STR_PAD_LEFT);
         $BINlastmod_time = str_pad(decbin($time), 16, '0', STR_PAD_LEFT);
@@ -516,7 +516,7 @@ class Unzip
         return mktime($lastmod_timeH, $lastmod_timeM, $lastmod_timeS, $lastmod_dateM, $lastmod_dateD, $lastmod_dateY);
     }
 
-    protected function cleanFileName($n)
+    protected function cleanFileName(string $n): string
     {
         $n = str_replace('../', '', (string) $n);
         $n = preg_replace('#^/+#', '', (string) $n);
@@ -524,7 +524,7 @@ class Unzip
         return $n;
     }
 
-    protected function memoryAllocate($size)
+    protected function memoryAllocate(int $size): void
     {
         $mem_used  = function_exists('memory_get_usage') ? @memory_get_usage() : 4000000;
         $mem_limit = @ini_get('memory_limit');

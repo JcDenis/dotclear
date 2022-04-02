@@ -50,19 +50,19 @@ class Zip
         $this->close();
     }
 
-    public function close()
+    public function close(): void
     {
         if ($this->memory_limit) {
             ini_set('memory_limit', $this->memory_limit);
         }
     }
 
-    public function addExclusion($reg)
+    public function addExclusion(string $reg): void
     {
         $this->exclusions[] = $reg;
     }
 
-    public function addFile($file, $name = null)
+    public function addFile(?string $file, ?string $name = null): void
     {
         $file = preg_replace('#[\\\/]+#', '/', (string) $file);
 
@@ -92,7 +92,7 @@ class Zip
         ];
     }
 
-    public function addDirectory($dir, $name = null, $recursive = false)
+    public function addDirectory(?string $dir, ?string $name = null, bool $recursive = false): void
     {
         $dir = preg_replace('#[\\\/]+#', '/', (string) $dir);
         if (substr($dir, -1 - 1) != '/') {
@@ -147,7 +147,7 @@ class Zip
         }
     }
 
-    public function write()
+    public function write(): void
     {
         foreach ($this->entries as $name => $v) {
             if ($v['is_dir']) {
@@ -171,7 +171,7 @@ class Zip
         );
     }
 
-    protected function writeDirectory($name)
+    protected function writeDirectory(string $name): void
     {
         if (!isset($this->entries[$name])) {
             return;
@@ -224,7 +224,7 @@ class Zip
         $this->ctrl_dir[] = $cdrec;
     }
 
-    protected function writeFile($name, $file, $size, $mtime)
+    protected function writeFile(string $name, string $file, int $size, int $mtime): void
     {
         if (!isset($this->entries[$name])) {
             return;
@@ -292,7 +292,7 @@ class Zip
         $this->ctrl_dir[] = $cdrec;
     }
 
-    protected function formatName($name)
+    protected function formatName(string $name): string
     {
         if (substr($name, 0, 1) == '/') {
             $name = substr($name, 1);
@@ -301,7 +301,7 @@ class Zip
         return $name;
     }
 
-    protected function isExcluded($name)
+    protected function isExcluded(string $name): bool
     {
         foreach ($this->exclusions as $reg) {
             if (preg_match((string) $reg, (string) $name)) {
@@ -312,7 +312,7 @@ class Zip
         return false;
     }
 
-    protected function makeDate($ts)
+    protected function makeDate(int $ts): int
     {
         $year = date('Y', $ts) - 1980;
         if ($year < 0) {
@@ -323,19 +323,19 @@ class Zip
         $month = sprintf('%04b', date('n', $ts));
         $day   = sprintf('%05b', date('j', $ts));
 
-        return bindec($year . $month . $day);
+        return (int) bindec($year . $month . $day);
     }
 
-    protected function makeTime($ts)
+    protected function makeTime(int $ts): int
     {
         $hour   = sprintf('%05b', date('G', $ts));
         $minute = sprintf('%06b', date('i', $ts));
         $second = sprintf('%05b', ceil(date('s', $ts) / 2));
 
-        return bindec($hour . $minute . $second);
+        return (int) bindec($hour . $minute . $second);
     }
 
-    protected function memoryAllocate($size)
+    protected function memoryAllocate(int $size): void
     {
         $mem_used  = function_exists('memory_get_usage') ? @memory_get_usage() : 4000000;
         $mem_limit = @ini_get('memory_limit');

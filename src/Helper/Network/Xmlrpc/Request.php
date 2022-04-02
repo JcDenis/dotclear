@@ -49,9 +49,9 @@ class Request
      *
      * Returns {@link $xml} content length.
      *
-     * @return integer
+     * @return  int
      */
-    public function getLength()
+    public function getLength(): int
     {
         return strlen($this->xml);
     }
@@ -61,9 +61,9 @@ class Request
      *
      * Returns request XML version.
      *
-     * @return string
+     * @return  string
      */
-    public function getXml()
+    public function getXml(): string
     {
         return $this->xml;
     }

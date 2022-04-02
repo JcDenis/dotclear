@@ -18,17 +18,34 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
+use \stdClass;
+use \SimpleXMLElement;
+
 class Parser
 {
-    public $feed_type;   ///< string Feed type
-    public $title;       ///< string Feed title
-    public $link;        ///< string Feed link
-    public $description; ///< string Feed description
-    public $pubdate;     ///< string Feed publication date
-    public $generator;   ///< string Feed generator
-    public $items = [];  ///< array Feed items
+    /** @var    string  $feed_type   Feed type */
+    public $feed_type;
 
-    protected $xml; ///< \SimpleXMLElement Feed XML content
+    /** @var    string  $title  Feed title */
+    public $title;
+
+    /** @var    string  $link   Feed link */
+    public $link;
+
+    /** @var    string  $description    Feed description */
+    public $description;
+
+    /** @var    string  $pubdate    Feed publication date */
+    public $pubdate;
+
+    /** @var    string  $generator   Feed generator */
+    public $generator;
+
+    /** @var    array   $items  Feed items */
+    public $items = [];
+
+    /** @var    SimpleXMLElement   $xml   Feed XML content */
+    protected $xml;
 
     /**
      * Constructor.
@@ -37,9 +54,9 @@ class Parser
      * not a valid XML stream. If everything's fine, feed is parsed and items
      * are in {@link $items} property.
      *
-     * @param string    $data            XML stream
+     * @param   string  $data   XML stream
      */
-    public function __construct($data)
+    public function __construct(string $data)
     {
         $this->xml = @simplexml_load_string($data);
 
@@ -63,7 +80,7 @@ class Parser
     /**
      * RSS 1.0 parser.
      */
-    protected function parseRSSRDF()
+    protected function parseRSSRDF(): void
     {
         $this->feed_type = 'rss 1.0 (rdf)';
 
@@ -106,7 +123,7 @@ class Parser
     /**
      * RSS 2.0 parser
      */
-    protected function parseRSS()
+    protected function parseRSS(): void
     {
         $this->feed_type = 'rss ' . $this->xml['version'];
 
@@ -153,7 +170,7 @@ class Parser
     /**
      * Atom 0.3 parser
      */
-    protected function parseAtom03()
+    protected function parseAtom03(): void
     {
         $this->feed_type = 'atom 0.3';
 
@@ -203,7 +220,7 @@ class Parser
     /**
      * Atom 1.0 parser
      */
-    protected function parseAtom10()
+    protected function parseAtom10(): void
     {
         $this->feed_type = 'atom 1.0';
 
@@ -255,10 +272,11 @@ class Parser
      *
      * Converts a SimpleXMLElement to an array.
      *
-     * @param \SimpleXMLElement    $node    SimpleXML Node
-     * @return array
+     * @param   SimpleXMLElement    $node    SimpleXML Node
+     * 
+     * @return  array
      */
-    protected function nodes2array(&$node)
+    protected function nodes2array(SimpleXMLElement &$node): array
     {
         if (empty($node)) {
             return [];

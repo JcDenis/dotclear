@@ -17,6 +17,12 @@ use Dotclear\Helper\Html\XmlTag;
 
 class RestServer
 {
+    /** @var    XmlTag  $rsp    XML response */
+    protected $rsp;
+
+    /** @var    array   $functions  Registered fucntions */
+    protected $functions = [];
+
     /**
      * Constructs a new instance.
      */
@@ -118,6 +124,6 @@ class RestServer
     private function getXML(string $encoding = 'UTF-8'): void
     {
         header('Content-Type: text/xml; charset=' . $encoding);
-        echo $this->rsp->toXML(1, $encoding);
+        echo $this->rsp->toXML(true, $encoding);
     }
 }

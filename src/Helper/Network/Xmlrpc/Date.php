@@ -31,9 +31,9 @@ class Date
      * Creates a new instance of xmlrpcDate. <var>$time</var> could be a
      * timestamp or a litteral date.
      *
-     * @param integer|string    $time        Timestamp or litteral date.
+     * @param   int|string  $time   Timestamp or litteral date.
      */
-    public function __construct($time)
+    public function __construct(int|string $time)
     {
         # $time can be a PHP timestamp or an ISO one
         if (is_numeric($time)) {
@@ -46,9 +46,9 @@ class Date
     /**
      * Timestamp parser
      *
-     * @param integer        $timestamp    Timestamp
+     * @param   int     $timestamp  Timestamp
      */
-    protected function parseTimestamp($timestamp)
+    protected function parseTimestamp(int $timestamp): void
     {
         $this->year   = date('Y', $timestamp);
         $this->month  = date('m', $timestamp);
@@ -64,9 +64,9 @@ class Date
      *
      * Returns the date in ISO-8601 format.
      *
-     * @return string
+     * @return  string
      */
-    public function getIso()
+    public function getIso(): string
     {
         return $this->year . $this->month . $this->day . 'T' . $this->hour . ':' . $this->minute . ':' . $this->second;
     }
@@ -76,9 +76,9 @@ class Date
      *
      * Returns the XML fragment for XML-RPC message inclusion.
      *
-     * @return string
+     * @return  string
      */
-    public function getXml()
+    public function getXml(): string
     {
         return '<dateTime.iso8601>' . $this->getIso() . '</dateTime.iso8601>';
     }
@@ -88,9 +88,9 @@ class Date
      *
      * Returns the date timestamp.
      *
-     * @return integer
+     * @return  int
      */
-    public function getTimestamp()
+    public function getTimestamp(): int
     {
         return mktime($this->hour, $this->minute, $this->second, $this->month, $this->day, $this->year);
     }

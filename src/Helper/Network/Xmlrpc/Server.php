@@ -32,21 +32,29 @@ use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 
 class Server
 {
-    protected $callbacks = []; ///< array Server methods
-    protected $data;                ///< string Received data
-    protected $message;             ///< xmlrpcMessage Returned message
-    protected $capabilities;        ///< array Server capabilities
+    /** @var    array   $callbacks  Server methods */
+    protected $callbacks = [];
 
-    public $strict_check = false; ///< boolean Strict XML-RPC checks
+    /** @var    string  $data   Received data */
+    protected $data;
+
+    /** @var    Message     $message    Xmlrpc returned message */
+    protected $message;
+
+    /** @var    array   $capabilities   Server capabilities */
+    protected $capabilities;
+
+    /** @var    bool    $strict_check   Strict XML-RPC checks */
+    public $strict_check = false;
 
     /**
      * Constructor
      *
-     * @param mixed     $callbacks       Server callbacks
-     * @param mixed     $data            Server data
-     * @param string    $encoding        Server encoding
+     * @param   array|false     $callbacks  Server callbacks
+     * @param   mixed           $data       Server data
+     * @param   string          $encoding   Server encoding
      */
-    public function __construct($callbacks = false, $data = false, protected string $encoding = 'UTF-8')
+    public function __construct(array|false $callbacks = false, mixed $data = false, protected string $encoding = 'UTF-8')
     {
         $this->setCapabilities();
         if ($callbacks) {
@@ -63,9 +71,9 @@ class Server
      * which should be a valid XML-RPC raw stream. If data is not specified, it
      * take values from raw POST data.
      *
-     * @param mixed    $data            XML-RPC raw stream
+     * @param   mixed   $data   XML-RPC raw stream
      */
-    public function serve($data = false)
+    public function serve(mixed $data = false): void
     {
         $result = null;
         if (!$data) {
@@ -158,10 +166,10 @@ class Server
      *
      * This method sends a HTTP Header
      *
-     * @param integer   $code           HTTP Status Code
-     * @param string    $msg            Header message
+     * @param   int     $code   HTTP Status Code
+     * @param   string  $msg    Header message
      */
-    protected function head($code, $msg)
+    protected function head(int $code, string $msg): void
     {
         $status_mode = preg_match('/cgi/', PHP_SAPI);
 
@@ -177,11 +185,12 @@ class Server
      *
      * This method calls the given XML-RPC method with arguments.
      *
-     * @param string       $methodname      Method name
-     * @param array        $args            Method arguments
-     * @return mixed
+     * @param   string  $methodname     Method name
+     * @param   array   $args           Method arguments
+     * 
+     * @return  mixed
      */
-    protected function call($methodname, $args)
+    protected function call(string $methodname, array $args): mixed
     {
         if (!$this->hasMethod($methodname)) {
             throw new XmlrpcException('server error. requested method "' . $methodname . '" does not exist.', -32601);
@@ -204,9 +213,9 @@ class Server
      * You should avoid using this in your own method and throw exceptions
      * instead.
      *
-     * @param Exception    $e            Exception object
+     * @param   \Exception  $e  Exception object
      */
-    protected function error($e)
+    protected function error(\Exception $e): void
     {
         $msg = $e->getMessage();
 
@@ -235,9 +244,9 @@ class Server
      *
      * This method sends the whole XML-RPC response through HTTP.
      *
-     * @param string    $xml            XML Content
+     * @param   string  $xml    XML Content
      */
-    protected function output($xml)
+    protected function output(string $xml): void
     {
         $xml    = '<?xml version="1.0" encoding="' . $this->encoding . '"?>' . "\n" . $xml;
         $length = strlen($xml);
@@ -254,10 +263,11 @@ class Server
      *
      * Returns true if the server has the given method <var>$method</var>
      *
-     * @param string    $method        Method name
-     * @return boolean
+     * @param   string  $method     Method name
+     * 
+     * @return  bool
      */
-    protected function hasMethod($method)
+    protected function hasMethod(string $method): bool
     {
         return in_array($method, array_keys($this->callbacks));
     }
@@ -270,7 +280,7 @@ class Server
      * - faults_interop
      * - system.multicall
      */
-    protected function setCapabilities()
+    protected function setCapabilities(): void
     {
         # Initialises capabilities array
         $this->capabilities = [
@@ -301,7 +311,7 @@ class Server
      * @see listMethods()
      * @see multiCall()
      */
-    protected function setCallbacks()
+    protected function setCallbacks(): void
     {
         $this->callbacks['system.getCapabilities'] = [$this, 'getCapabilities'];
         $this->callbacks['system.listMethods']     = [$this, 'listMethods'];
@@ -313,9 +323,9 @@ class Server
      *
      * Returns server capabilities
      *
-     * @return array
+     * @return  array
      */
-    protected function getCapabilities()
+    protected function getCapabilities(): array
     {
         return $this->capabilities;
     }
@@ -325,9 +335,9 @@ class Server
      *
      * Returns all server methods
      *
-     * @return array
+     * @return  array
      */
-    protected function listMethods()
+    protected function listMethods(): array
     {
         # Returns a list of methods - uses array_reverse to ensure user defined
         # methods are listed before server defined methods
@@ -341,10 +351,11 @@ class Server
      *
      *  @see http://www.xmlrpc.com/discuss/msgReader$1208
      *
-     * @param array        $methodcalls        Array of methods
-     * @return array
+     * @param   array   $methodcalls    Array of methods
+     * 
+     * @return  array
      */
-    protected function multiCall($methodcalls)
+    protected function multiCall(array $methodcalls): array
     {
         $return = [];
         foreach ($methodcalls as $call) {

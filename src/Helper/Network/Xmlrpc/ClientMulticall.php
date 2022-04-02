@@ -27,11 +27,6 @@ class ClientMulticall extends Client
 {
     protected $calls = []; ///< array
 
-    public function __construct($url)
-    {
-        parent::__construct($url);
-    }
-
     /**
      * Add call to stack
      *
@@ -49,12 +44,10 @@ class ClientMulticall extends Client
      * ?>
      * </code>
      *
-     * @param string    $method
-     * @param mixed     $args
-     *
-     * @return mixed
+     * @param   string  $method
+     * @param   mixed   $args
      */
-    public function addCall($method, ...$args)
+    public function addCall(string $method, mixed ...$args): void
     {
         $struct = [
             'methodName' => $method,
@@ -70,12 +63,12 @@ class ClientMulticall extends Client
      * This method sends calls stack to XML-RPC system.multicall method.
      * See {@link Server::multiCall()} for details and links about it.
      *
-     * @param string    $method (not used, use ::addCall() before invoking ::query())
-     * @param mixed     $args (see above)
+     * @param   string  $method     (not used, use ::addCall() before invoking ::query())
+     * @param   mixed   $args       (see above)
      *
-     * @return array
+     * @return  mixed               (array)
      */
-    public function query($method = null, ...$args)
+    public function query(string $method = null, mixed ...$args): mixed
     {
         # Prepare multicall, then call the parent::query() method
         return parent::query('system.multicall', $this->calls);

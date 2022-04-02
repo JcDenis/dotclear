@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
+use Dotclear\Helper\Network\Socket\Iterator;
 
 class Socket
 {
@@ -27,9 +28,9 @@ class Socket
     /**
      * Class constructor
      *
-     * @param   string  $host       Server host
-     * @param   string  $port       Server port
-     * @param   int     $timeout    Connection timeout
+     * @param   string  $_host      Server host
+     * @param   int     $_port      Server port
+     * @param   int     $_timeout   Connection timeout
      */
     public function __construct(protected string $_host, protected int $_port, protected int $_timeout = 10)
     {
@@ -53,10 +54,11 @@ class Socket
      * If <var>$host</var> is set, set {@link $_host} and returns true.
      * Otherwise, returns {@link $_host} value.
      *
-     * @param string    $host            Server host
-     * @return string|true
+     * @param   string|null     $host   Server host
+     * 
+     * @return  string|bool
      */
-    public function host($host = null)
+    public function host(?string $host = null): string|bool
     {
         if ($host) {
             $this->_host = $host;
@@ -73,10 +75,11 @@ class Socket
      * If <var>$port</var> is set, set {@link $_port} and returns true.
      * Otherwise, returns {@link $_port} value.
      *
-     * @param integer    $port            Server port
-     * @return integer|true
+     * @param   int|null    $port   Server port
+     * 
+     * @return  int|true
      */
-    public function port($port = null)
+    public function port(?int $port = null): int|bool
     {
         if ($port) {
             $this->_port = abs((int) $port);
@@ -93,10 +96,11 @@ class Socket
      * If <var>$timeout</var> is set, set {@link $_timeout} and returns true.
      * Otherwise, returns {@link $_timeout} value.
      *
-     * @param integer    $timeout            Connection timeout
-     * @return string|true
+     * @param   int|null    $timeout    Connection timeout
+     * 
+     * @return  int|bool
      */
-    public function timeout($timeout = null)
+    public function timeout(?int $timeout = null): int|bool
     {
         if ($timeout) {
             $this->_timeout = abs((int) $timeout);
@@ -112,10 +116,10 @@ class Socket
      *
      * Sets blocking or non-blocking mode on the socket.
      *
-     * @param integer    $i        1 for yes, 0 for no
-     * @return    boolean
+     * @param   int     $i  1 for yes, 0 for no
+     * @return  bool
      */
-    public function setBlocking($i)
+    public function setBlocking(int $i): bool
     {
         if (!$this->isOpen()) {
             return false;
@@ -127,12 +131,12 @@ class Socket
     /**
      * Open connection.
      *
-     * Opens socket connection and Returns an object of type {@link netSocketIterator}
+     * Opens socket connection and Returns an object of type {@link Iterator}
      * which can be iterate with a simple foreach loop.
      *
-     * @return    netSocketIterator|bool
+     * @return  Iterator|bool
      */
-    public function open()
+    public function open(): Iterator|bool
     {
         $handle = @fsockopen($this->_transport . $this->_host, $this->_port, $errno, $errstr, $this->_timeout);
         if (!$handle) {
@@ -146,7 +150,7 @@ class Socket
     /**
      * Closes socket connection
      */
-    public function close()
+    public function close(): void
     {
         if ($this->isOpen()) {
             fclose($this->_handle);
@@ -178,10 +182,10 @@ class Socket
      * ?>
      * </code>
      *
-     * @param string|array    $data        Data to send
-     * @return    netSocketIterator|false
+     * @param   string|array    $data   Data to send
+     * @return  Iterator|false
      */
-    public function write($data)
+    public function write(array|string $data): Iterator|false
     {
         if (!$this->isOpen()) {
             return false;
@@ -200,22 +204,26 @@ class Socket
      * Flush buffer
      *
      * Flushes socket write buffer.
+     * 
+     * @return  bool
      */
-    public function flush()
+    public function flush(): bool
     {
         if (!$this->isOpen()) {
             return false;
         }
 
         fflush($this->_handle);
+
+        return true;
     }
 
     /**
      * Iterator
      *
-     * @return    netSocketIterator|false
+     * @return  Iterator|false
      */
-    protected function iterator()
+    protected function iterator(): Iterator|false
     {
         if (!$this->isOpen()) {
             return false;
@@ -229,9 +237,9 @@ class Socket
      *
      * Returns true if socket connection is open.
      *
-     * @return    boolean
+     * @return  bool
      */
-    public function isOpen()
+    public function isOpen(): bool
     {
         return is_resource($this->_handle);
     }

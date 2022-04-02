@@ -33,7 +33,10 @@ use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
 
 class IntrospectionServer extends Server
 {
+    /** @var    array   $signatures     ... */
     protected $signatures;
+
+    /** @var    array   $help   ... */
     protected $help;
 
     /**
@@ -42,7 +45,7 @@ class IntrospectionServer extends Server
      * This method should be inherited to add new callbacks with
      * {@link addCallback()}.
      *
-     * @param string    $encoding            Server encoding
+     * @param   string  $encoding   Server encoding
      */
     public function __construct(protected string $encoding = 'UTF-8')
     {
@@ -96,12 +99,12 @@ class IntrospectionServer extends Server
      * This method creates a new XML-RPC method which references a class
      * callback. <var>$callback</var> should be a valid PHP callback.
      *
-     * @param string    $method            Method name
-     * @param callable    $callback            Method callback
-     * @param array        $args            Array of arguments type. The first is the returned one.
-     * @param string    $help            Method help string
+     * @param   string      $method     Method name
+     * @param   callable    $callback   Method callback
+     * @param   array       $args       Array of arguments type. The first is the returned one.
+     * @param   string      $help       Method help string
      */
-    protected function addCallback($method, $callback, $args, $help)
+    protected function addCallback(string $method, $callback, array $args, string $help): void
     {
         $this->callbacks[$method]  = $callback;
         $this->signatures[$method] = $args;
@@ -114,11 +117,12 @@ class IntrospectionServer extends Server
      * This method calls the callbacks function or method for the given XML-RPC
      * method <var>$methodname</var> with arguments in <var>$args</var> array.
      *
-     * @param string    $methodname        Method name
-     * @param mixed        $args            Arguments
-     * @return mixed
+     * @param   string  $methodname     Method name
+     * @param   mixed   $args           Arguments
+     * 
+     * @return  mixed
      */
-    protected function call($methodname, $args)
+    protected function call(string $methodname, mixed $args): mixed
     {
         # Make sure it's in an array
         if ($args && !is_array($args)) {
@@ -158,11 +162,12 @@ class IntrospectionServer extends Server
      *
      * This method checks the validity of method arguments.
      *
-     * @param array        $args            Method given arguments
-     * @param array        $signature        Method defined arguments
-     * @return boolean
+     * @param   array   $args       Method given arguments
+     * @param   array   $signature  Method defined arguments
+     * 
+     * @return  bool
      */
-    protected function checkArgs($args, $signature)
+    protected function checkArgs(array $args, array $signature): bool
     {
         for ($i = 0, $j = count($args); $i < $j; $i++) {
             $arg  = array_shift($args);
@@ -198,7 +203,7 @@ class IntrospectionServer extends Server
                     break;
                 case 'date':
                 case 'dateTime.iso8601':
-                    if (!($arg instanceof \Date)) {
+                    if (!($arg instanceof Date)) {
                         return false;
                     }
 
@@ -214,10 +219,11 @@ class IntrospectionServer extends Server
      *
      * This method return given XML-RPC method signature.
      *
-     * @param string    $method        Method name
-     * @return array
+     * @param   string  $method     Method name
+     * 
+     * @return  array
      */
-    protected function methodSignature($method)
+    protected function methodSignature(string $method): array
     {
         if (!$this->hasMethod($method)) {
             throw new XmlrpcException('Server error. Requested method "' . $method . '" not specified.', -32601);
@@ -273,10 +279,11 @@ class IntrospectionServer extends Server
      *
      * This method return given XML-RPC method help string.
      *
-     * @param string    $method        Method name
-     * @return string
+     * @param   string  $method     Method name
+     * 
+     * @return  string
      */
-    protected function methodHelp($method)
+    protected function methodHelp(string $method): string
     {
         return $this->help[$method];
     }

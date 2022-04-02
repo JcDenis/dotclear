@@ -19,15 +19,16 @@ use Dotclear\Helper\Network\Xmlrpc\Base64;
 
 class Value
 {
-    protected $type; ///< string Data type
+    /** @var    string  $type   Data type */
+    protected $type;
 
     /**
      * Constructor
      *
-     * @param mixed    $data        Data value
-     * @param mixed    $type        Data type
+     * @param   mixed           $data   Data value
+     * @param   string|null     $type   Data type
      */
-    public function __construct(protected mixed $data, string $type = '')
+    public function __construct(protected mixed $data, ?string $type = null)
     {
         if (!$type) {
             $type = $this->calculateType();
@@ -51,9 +52,9 @@ class Value
      *
      * Returns an XML subset of the Value.
      *
-     * @return string
+     * @return  string
      */
-    public function getXml()
+    public function getXml(): string
     {
         # Return XML for this value
         switch ($this->type) {
@@ -97,7 +98,7 @@ class Value
      *
      * @return string
      */
-    protected function calculateType()
+    protected function calculateType(): string
     {
         if ($this->data === true || $this->data === false) {
             return 'boolean';
@@ -137,10 +138,11 @@ class Value
      *
      * Returns true if <var>$array</var> is a Struct and not only an Array.
      *
-     * @param array        $array        Array
-     * @return boolean
+     * @param   array   $array  Array
+     * 
+     * @return  bool
      */
-    protected function isStruct($array)
+    protected function isStruct(array $array): bool
     {
         # Nasty function to check if an array is a struct or not
         $expected = 0;

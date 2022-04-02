@@ -22,9 +22,9 @@ class Base64
      *
      * Create a new instance of xmlrpcBase64.
      *
-     * @param string        $data        Data
+     * @param   string  $data   Data
      */
-    public function __construct(protected strnig $data)
+    public function __construct(protected string $data)
     {
     }
 
@@ -33,9 +33,9 @@ class Base64
      *
      * Returns the XML fragment for XML-RPC message inclusion.
      *
-     * @return string
+     * @return  string
      */
-    public function getXml()
+    public function getXml(): string
     {
         return '<base64>' . base64_encode($this->data) . '</base64>';
     }

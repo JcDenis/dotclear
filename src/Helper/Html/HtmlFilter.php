@@ -13,19 +13,28 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Helper;
+namespace Dotclear\Helper\Html;
+
+use \tidy;
+use \XMLParser;
 
 class HtmlFilter
 {
+    /** @var    XMLParser   $parser     XML parser */
     private $parser;
+
+    /** @var    string  $content    Parsed content */
     public $content;
 
+    /** @var    string  $tag    A tag */
     private $tag;
 
     /**
      * Constructor
      *
-     * Creates a new instance of the class.
+     * @param   bool    $keep_aria  Keep aria
+     * @param   bool    $keep_data  Keep data
+     * @param   bool    $keep_js    Keep js
      */
     public function __construct(bool $keep_aria = false, bool $keep_data = false, bool $keep_js = false)
     {
@@ -87,9 +96,9 @@ class HtmlFilter
      * ?>
      * </code>
      */
-    public function removeHosts(): void
+    public function removeHosts(array|string ...$args): void
     {
-        foreach ($this->argsArray(func_get_args()) as $host) {
+        foreach ($this->argsArray($args) as $host) {
             $this->removed_hosts[] = $host;
         }
     }
@@ -106,9 +115,9 @@ class HtmlFilter
      * ?>
      * </code>
      */
-    public function removeTags(): void
+    public function removeTags(array|string ...$args): void
     {
-        foreach ($this->argsArray(func_get_args()) as $tag) {
+        foreach ($this->argsArray($args) as $tag) {
             $this->removed_tags[] = $tag;
         }
     }
@@ -125,9 +134,9 @@ class HtmlFilter
      * ?>
      * </code>
      */
-    public function removeAttributes(): void
+    public function removeAttributes(array|string ...$args): void
     {
-        foreach ($this->argsArray(func_get_args()) as $a) {
+        foreach ($this->argsArray($args) as $a) {
             $this->removed_attrs[] = $a;
         }
     }
@@ -163,9 +172,9 @@ class HtmlFilter
      * ?>
      * </code>
      */
-    public function removePatternAttributes(): void
+    public function removePatternAttributes(array|string ...$args): void
     {
-        foreach ($this->argsArray(func_get_args()) as $a) {
+        foreach ($this->argsArray($args) as $a) {
             $this->removed_pattern_attrs[] = $a;
         }
     }
@@ -183,10 +192,9 @@ class HtmlFilter
      * ?>
      * </code>
      */
-    public function removeTagAttributes($tag): void
+    public function removeTagAttributes(string $tag, array|string ...$args): void
     {
-        $args = $this->argsArray(func_get_args());
-        array_shift($args);
+        $args = $this->argsArray($args);
 
         foreach ($args as $a) {
             $this->removed_tag_attrs[$tag][] = $a;
@@ -757,6 +765,3 @@ class HtmlFilter
         // Z
     ];
 }
-
-/** Backwards compatibility */
-class_alias('Clearbricks\Html\Filter', 'htmlFilter');

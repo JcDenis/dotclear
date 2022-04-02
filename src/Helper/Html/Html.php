@@ -15,19 +15,24 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+use \ArrayObject;
 use Dotclear\Helper\Html\HtmlFilter;
 
 class Html
 {
-    public static $url_root;
-    public static $absolute_regs = []; ///< Array of regular expression for {@link absoluteURLs()}
+    /** @var    string|null  $url_root   Base URL */
+    public static $url_root = null;
+
+    /** @var    array   $absolute_regs  Array of regular expression for {@link absoluteURLs()} */
+    public static $absolute_regs = [];
 
     /**
      * HTML escape
      *
      * Replaces HTML special characters by entities.
      *
-     * @param     string $str    String to escape
+     * @param     string|null   $str    String to escape
+     * 
      * @return    string
      */
     public static function escapeHTML(?string $str): string
@@ -40,12 +45,16 @@ class Html
      *
      * Returns a string with all entities decoded.
      *
-     * @param string        $str            String to protect
-     * @param bool   $keep_special   Keep special characters: &gt; &lt; &amp;
-     * @return    string
+     * @param   string|null     $str            String to protect
+     * @param   bool            $keep_special   Keep special characters: &gt; &lt; &amp;
+     * 
+     * @return  string
      */
     public static function decodeEntities(?string $str, bool $keep_special = false): string
     {
+        if (!$str) {
+            return '';
+        }
         if ($keep_special) {
             $str = str_replace(
                 ['&amp;', '&gt;', '&lt;'],
@@ -59,9 +68,7 @@ class Html
             '&apos;' => "'",
         ];
 
-        $str = str_replace(array_keys($extra), array_values($extra), $str);
-
-        return html_entity_decode($str, ENT_QUOTES, 'UTF-8');
+        return html_entity_decode(str_replace(array_keys($extra), array_values($extra), $str), ENT_QUOTES, 'UTF-8');
     }
 
     /**
@@ -69,14 +76,13 @@ class Html
      *
      * Removes every tags, comments, cdata from string
      *
-     * @param string    $str        String to clean
-     * @return    string
+     * @param   string|null     $str        String to clean
+     * 
+     * @return  string
      */
     public static function clean(?string $str): string
     {
-        $str = strip_tags($str);
-
-        return $str;
+        return strip_tags($str ?? '');
     }
 
     /**
@@ -84,12 +90,13 @@ class Html
      *
      * Returns a protected JavaScript string
      *
-     * @param string    $str        String to protect
-     * @return    string
+     * @param   string|null     $str    String to protect
+     * 
+     * @return  string
      */
     public static function escapeJS(?string $str): string
     {
-        $str = htmlspecialchars($str, ENT_NOQUOTES, 'UTF-8');
+        $str = htmlspecialchars($str ?? '', ENT_NOQUOTES, 'UTF-8');
         $str = str_replace("'", "\'", $str);
         $str = str_replace('"', '\"', $str);
 
@@ -101,12 +108,13 @@ class Html
      *
      * Returns an escaped URL string for HTML content
      *
-     * @param string    $str        String to escape
-     * @return    string
+     * @param   string|null     $str    String to escape
+     * 
+     * @return  string
      */
     public static function escapeURL(?string $str): string
     {
-        return str_replace('&', '&amp;', $str);
+        return str_replace('&', '&amp;', $str ?? '');
     }
 
     /**
@@ -114,12 +122,13 @@ class Html
      *
      * Encode every parts between / in url
      *
-     * @param string    $str        String to satinyze
-     * @return    string
+     * @param   string|null     $str        String to satinyze
+     * 
+     * @return  string
      */
     public static function sanitizeURL(?string $str): string
     {
-        return str_replace('%2F', '/', rawurlencode($str));
+        return str_replace('%2F', '/', rawurlencode($str ?? ''));
     }
 
     /**
@@ -127,12 +136,13 @@ class Html
      *
      * Removes host part in URL
      *
-     * @param string    $url        URL to transform
-     * @return    string
+     * @param   string|null     $str    URL to transform
+     * 
+     * @return  string
      */
-    public static function stripHostURL(?string $url): string
+    public static function stripHostURL(?string $str): string
     {
-        return preg_replace('|^[a-z]{3,}://.*?(/.*$)|', '$1', $url);
+        return preg_replace('|^[a-z]{3,}://.*?(/.*$)|', '$1', $str ?? '');
     }
 
     /**
@@ -140,16 +150,17 @@ class Html
      *
      * Appends $root URL to URIs attributes in $str.
      *
-     * @param string    $str        HTML to transform
-     * @param string    $root    Base URL
-     * @return    string
+     * @param   string|null     $str    HTML to transform
+     * @param   string|null     $root   Base URL
+     * 
+     * @return  string
      */
     public static function absoluteURLs(?string $str, ?string $root): string
     {
-        self::$url_root = $root;
+        self::$url_root = $root ?? '';
         $attr           = 'action|background|cite|classid|code|codebase|data|download|formaction|href|longdesc|profile|src|usemap';
 
-        $str = preg_replace_callback('/((?:' . $attr . ')=")(.*?)(")/msu', ['self', 'absoluteURLHandler'], $str);
+        $str = preg_replace_callback('/((?:' . $attr . ')=")(.*?)(")/msu', ['self', 'absoluteURLHandler'], $str ?? '');
 
         foreach (self::$absolute_regs as $r) {
             $str = preg_replace_callback($r, ['self', 'absoluteURLHandler'], $str);
@@ -201,7 +212,7 @@ class Html
      */
     public static function filter(string $str): string
     {
-        if (!empty(dotclear()->blog()) && !dotclear()->blog()->settings()->system->enable_html_filter) {
+        if (!dotclear()->blog()?->settings()->get('system')->get('enable_html_filter')) {
             return $str;
         }
 
@@ -225,16 +236,16 @@ class Html
      *
      * Usefull to bypass cache
      *
-     * @param   string  $src    THe path
-     * @param   string  $v      The version (suffix)
+     * @param   string          $src    The path
+     * @param   string|null     $v      The version (suffix)
      *
-     * @return  string          The versioned path
+     * @return  string                  The versioned path
      */
     private static function appendVersion(string $src, ?string $v = ''): string
     {
         return $src .
             (str_contains($src, '?') ? '&amp;' : '?') .
-            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->core_version));
+            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->get('core_version')));
     }
 
     /**
@@ -246,10 +257,10 @@ class Html
      *
      * @return  string                  The HTML code
      */
-    public static function cssLoad(string $src, string $media = 'screen', string $v = null): string
+    public static function cssLoad(string $src, string $media = 'screen', ?string $v = null): string
     {
         $escaped_src = Html::escapeHTML($src);
-        if ($v !== null) {
+        if (null !== $v) {
             $escaped_src = self::appendVersion($escaped_src, $v);
         }
 
@@ -260,15 +271,14 @@ class Html
      * Get HTML code to load a js file
      *
      * @param   string          $src    The path
-     * @param   string          $media  The media type
      * @param   string|null     $v      The version
      *
      * @return  string                  The HTML code
      */
-    public static function jsLoad(string $src, string $v = null): string
+    public static function jsLoad(string $src, ?string $v = null): string
     {
         $escaped_src = Html::escapeHTML($src);
-        if ($v !== null) {
+        if (null !== $v) {
             $escaped_src = self::appendVersion($escaped_src, $v);
         }
 

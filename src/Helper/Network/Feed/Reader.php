@@ -27,13 +27,23 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class Reader extends NetHttp
 {
+    /** @var    string  $user_agent     User agent */
     protected $user_agent = 'Clearbricks Feed Reader/0.2';
-    protected $timeout    = 5;
-    protected $validators = null; ///< array HTTP Cache validators
 
-    protected $cache_dir         = null;          ///< string Cache directory path
-    protected $cache_file_prefix = 'cbfeed';      ///< string Cache file prefix
-    protected $cache_ttl         = '-30 minutes'; ///< string Cache TTL
+    /** @var    int     $timeout    Query timeout */
+    protected $timeout = 5;
+
+    /** @var    array|null  $validators     HTTP Cache validators */
+    protected $validators = null;
+
+    /** @var    string|null     $cache_dir  Cache directory path */
+    protected $cache_dir = null;
+
+    /** @var    string  $cache_file_prefix  Cache file prefix */
+    protected $cache_file_prefix = 'cbfeed';
+
+    /** @var    string  $cache_ttl  Cache time to live */
+    protected $cache_ttl = '-30 minutes';
 
     /**
      * Constructor.
@@ -51,12 +61,11 @@ class Reader extends NetHttp
      * Returns a new Parser instance for given URL or false if source URL is
      * not a valid feed.
      *
-     * @uses Parser
-     *
-     * @param string    $url            Feed URL
-     * @return Parser|false
+     * @param   string  $url    Feed URL
+     * 
+     * @return  Parser|false
      */
-    public function parse($url)
+    public function parse(string $url): Parser|false
     {
         $this->validators = [];
         if ($this->cache_dir) {
@@ -79,11 +88,12 @@ class Reader extends NetHttp
      * This static method returns a new {@link Parser} instance for given URL. If a
      * <var>$cache_dir</var> is specified, cache will be activated.
      *
-     * @param string    $url            Feed URL
-     * @param string    $cache_dir    Cache directory
-     * @return Parser|false
+     * @param   string          $url        Feed URL
+     * @param   string|null     $cache_dir  Cache directory
+     * 
+     * @return  Parser|false
      */
-    public static function quickParse($url, $cache_dir = null)
+    public static function quickParse(string $url, ?string $cache_dir = null): Parser|false
     {
         $parser = new self();
         if ($cache_dir) {
@@ -99,10 +109,11 @@ class Reader extends NetHttp
      * Returns true and sets {@link $cache_dir} property if <var>$dir</var> is
      * a writable directory. Otherwise, returns false.
      *
-     * @param string    $dir            Cache directory
-     * @return boolean
+     * @param   string  $dir    Cache directory
+     * 
+     * @return  bool
      */
-    public function setCacheDir($dir)
+    public function setCacheDir(string $dir): bool
     {
         $this->cache_dir = null;
 
@@ -121,9 +132,9 @@ class Reader extends NetHttp
      * Sets cache TTL. <var>$str</var> is a interval readable by strtotime
      * (-3 minutes, -2 hours, etc.)
      *
-     * @param string    $str            TTL
+     * @param   string  $str    TTL
      */
-    public function setCacheTTL($str)
+    public function setCacheTTL(string $str)
     {
         $str = trim((string) $str);
         if (!empty($str)) {
@@ -139,10 +150,11 @@ class Reader extends NetHttp
      *
      * Returns feed content for given URL.
      *
-     * @param string    $url            Feed URL
-     * @return string|boolean
+     * @param   string  $url    Feed URL
+     * 
+     * @return  string|bool
      */
-    protected function getFeed($url)
+    protected function getFeed(string $url): string|bool
     {
         if (!self::readURL($url, $ssl, $host, $port, $path, $user, $pass)) {
             return false;
@@ -160,10 +172,11 @@ class Reader extends NetHttp
      * Returns Parser object from cache if present or write it to cache and
      * returns result.
      *
-     * @param string    $url            Feed URL
-     * @return Parser|false
+     * @param   string  $url    Feed URL
+     * 
+     * @return  Parser|false
      */
-    protected function withCache($url)
+    protected function withCache(string $url): Parser|false
     {
         $url_md5     = md5($url);
         $cached_file = sprintf(
@@ -225,7 +238,7 @@ class Reader extends NetHttp
      *
      * {@inheritdoc}
      */
-    protected function buildRequest()
+    protected function buildRequest(): array
     {
         $headers = parent::buildRequest();
 
@@ -247,7 +260,7 @@ class Reader extends NetHttp
         return $headers;
     }
 
-    private function setValidator($key, $value)
+    private function setValidator(string $key, int $value): void
     {
         if ($key == 'IfModifiedSince') {
             $value = gmdate('D, d M Y H:i:s', $value) . ' GMT';
