@@ -53,9 +53,9 @@ class Users extends Page
         # --BEHAVIOR-- adminUsersSortbyLexCombo
         dotclear()->behavior()->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->sortby]) :
-            $this->filter->sortby) . ' ' . $this->filter->order;
+        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         $params = new ArrayObject($params);
 
@@ -65,11 +65,11 @@ class Users extends Page
         $rs       = dotclear()->users()->getUsers($params);
         $count    = dotclear()->users()->getUsers($params, true)->fInt();
         $rsStatic = $rs->toStatic();
-        if ($this->filter->sortby != 'nb_post') {
+        if ('nb_post' != $this->filter->get('sortby')) {
             // Sort user list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort($this->filter->sortby, $this->filter->order);
+            //$rsStatic = $rsStatic->toExtStatic();
+            $rsStatic->lexicalSort($this->filter->get('sortby'), $this->filter->get('order'));
         }
 
         return new UserInventory($rsStatic, $count);
@@ -117,8 +117,8 @@ class Users extends Page
 
         # Show users
         $this->inventory->display(
-            $this->filter->page,
-            $this->filter->nb,
+            $this->filter->get('page'),
+            $this->filter->get('nb'),
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-users">' .
 
             '%s' .

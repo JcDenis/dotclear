@@ -66,6 +66,7 @@ class CommentInventory extends Inventory
                 $nb_spam        = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
                 $nb_pending     = dotclear()->blog()->comments()->getComments(['comment_status' => -1], true)->fInt();
                 $nb_unpublished = dotclear()->blog()->comments()->getComments(['comment_status' => 0], true)->fInt();
+
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?
@@ -115,31 +116,26 @@ class CommentInventory extends Inventory
                 $html_block = sprintf($enclose_block, $html_block);
             }
 
-            echo $pager->getLinks();
-
             $blocks = explode('%s', $html_block);
 
-            echo $blocks[0];
+            echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
-                echo $this->commentLine(isset($comments[$this->rs->comment_id]), $spam);
+                echo $this->commentLine(isset($comments[$this->rs->fInt('comment_id')]), $spam);
             }
-
-            echo $blocks[1];
 
             $fmt = function ($title, $image) {
                 return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
-            echo '<p class="info">' . __('Legend: ') .
+
+            echo $blocks[1] .
+                '<p class="info">' . __('Legend: ') .
                 $fmt(__('Published'), 'check-on.png') . ' - ' .
                 $fmt(__('Unpublished'), 'check-off.png') . ' - ' .
                 $fmt(__('Pending'), 'check-wrn.png') . ' - ' .
                 $fmt(__('Junk'), 'junk.png') .
-                '</p>';
-
-            echo $blocks[2];
-
-            echo $pager->getLinks();
+                '</p>' .
+                $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -153,27 +149,17 @@ class CommentInventory extends Inventory
      */
     private function commentLine(bool $checked = false, bool $spam = false): string
     {
-        global $author, $status, $sortby, $order, $nb;
-
-        $author_url = dotclear()->adminurl()->get('admin.comments', [
-            'nb'     => $nb,
-            'status' => $status,
-            'sortby' => $sortby,
-            'order'  => $order,
-            'author' => $this->rs->comment_author,
-        ]);
-
-        $post_url = dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
-
-        $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $this->rs->comment_id]);
-
-        $comment_dt = Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('date_format') . ' - ' .
-            dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->comment_dt);
-
+        $author_url  = dotclear()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
+        $post_url    = dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
+        $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
+        $comment_dt  = Dt::dt2str(
+            dotclear()->blog()->settings()->get('system')->get('date_format') . ' - ' .
+            dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('comment_dt')
+        );
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
         $sts_class  = '';
-        switch ($this->rs->comment_status) {
+        switch ($this->rs->fInt('comment_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png');
                 $sts_class  = 'sts-online';
@@ -196,40 +182,40 @@ class CommentInventory extends Inventory
                 break;
         }
 
-        $post_title = Html::escapeHTML(trim(Html::clean($this->rs->post_title)));
+        $post_title = Html::escapeHTML(trim(Html::clean($this->rs->f('post_title'))));
         if (mb_strlen($post_title) > 70) {
             $post_title = mb_strcut($post_title, 0, 67) . '...';
         }
         $comment_title = sprintf(
             __('Edit the %1$s from %2$s'),
-            $this->rs->comment_trackback ? __('trackback') : __('comment'),
-            Html::escapeHTML($this->rs->comment_author)
+            $this->rs->fInt('comment_trackback') ? __('trackback') : __('comment'),
+            Html::escapeHTML($this->rs->f('comment_author'))
         );
 
-        $res = '<tr class="line ' . ($this->rs->comment_status != 1 ? 'offline ' : '') . $sts_class . '"' .
-        ' id="c' . $this->rs->comment_id . '">';
+        $res = '<tr class="line ' . (1 != $this->rs->fInt('comment_status') ? 'offline ' : '') . $sts_class . '"' .
+        ' id="c' . $this->rs->f('comment_id') . '">';
 
         $cols = [
             'check' => '<td class="nowrap">' .
-            Form::checkbox(['comments[]'], $this->rs->comment_id, $checked) .
+            Form::checkbox(['comments[]'], $this->rs->f('comment_id'), $checked) .
             '</td>',
             'type' => '<td class="nowrap" abbr="' . __('Type and author') . '" scope="row">' .
             '<a href="' . $comment_url . '" title="' . $comment_title . '">' .
             '<img src="?df=images/edit-mini.png" alt="' . __('Edit') . '"/> ' .
-            ($this->rs->comment_trackback ? __('trackback') : __('comment')) . ' ' . '</a></td>',
+            ($this->rs->fInt('comment_trackback') ? __('trackback') : __('comment')) . ' ' . '</a></td>',
             'author' => '<td class="nowrap maximal"><a href="' . $author_url . '">' .
-            Html::escapeHTML($this->rs->comment_author) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->comment_dt) . '</td>',
+            Html::escapeHTML($this->rs->f('comment_author')) . '</a></td>',
+            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('comment_dt')) . '</td>',
             'status' => '<td class="nowrap status txt-center">' . $img_status . '</td>',
         ];
 
         if ($spam) {
             $cols['ip'] = '<td class="nowrap"><a href="' .
-            dotclear()->adminurl()->get('admin.comments', ['ip' => $this->rs->comment_ip]) . '">' .
-            $this->rs->comment_ip . '</a></td>';
+            dotclear()->adminurl()->get('admin.comments', ['ip' => $this->rs->f('comment_ip')]) . '">' .
+            $this->rs->f('comment_ip') . '</a></td>';
         }
         $cols['entry'] = '<td class="nowrap discrete"><a href="' . $post_url . '">' . $post_title . '</a>' .
-            ($this->rs->post_type != 'post' ? ' (' . Html::escapeHTML($this->rs->post_type) . ')' : '') . '</td>';
+            ('post' != $this->rs->f('post_type') ? ' (' . Html::escapeHTML($this->rs->f('post_type')) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
         dotclear()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);

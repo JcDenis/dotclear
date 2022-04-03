@@ -141,11 +141,12 @@ class MediaItem extends Page
             $desc = isset($_POST['media_desc']) ? Html::escapeHTML($_POST['media_desc']) : '';
 
             if ($this->file->media_meta instanceof \SimpleXMLElement) {
-                if (count($this->file->media_meta) > 0) {
+                if (0 < count($this->file->media_meta)) {
                     foreach ($this->file->media_meta as $k => $v) {
-                        if ($k == 'Description') {
+                        if ('Description' == $k) {
                             // Update value
-                            $v[0] = $desc;
+                            //$v[0] = $desc;
+                            $this->file->media_meta->Description = $desc;
 
                             break;
                         }
@@ -952,7 +953,7 @@ class MediaItem extends Page
                 $local .= '.json';
             }
             if (file_exists($local)) {
-                if ($specifics = json_decode(file_get_contents($local) ?? '', true)) {
+                if ($specifics = json_decode(file_get_contents($local) ?: '', true)) {
                     foreach ($defaults as $key => $value) {
                         $defaults[$key]       = $specifics[$key] ?? $defaults[$key];
                         $defaults['mediadef'] = true;

@@ -88,81 +88,77 @@ class Post extends Page
         $this->can_edit_post = dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id);
         $this->can_publish   = dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id);
 
-        $this->post_headlink = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
-        $this->post_link     = '<a href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
-        $next_headlink     = $prev_headlink     = null;
+        $post_headlink      = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
+        $post_link          = '<a href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $next_headlink      = $prev_headlink = null;
+        $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
         # If user can't publish
         if (!$this->can_publish) {
             $this->post_status = -2;
         }
 
-        $this->img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-
         # Get entry informations
-
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
-            $params['post_id'] = (int) $_REQUEST['id'];
+            $this->post = $rs = dotclear()->blog()->posts()->getPosts(['post_id' => (int) $_REQUEST['id']]);
 
-            $this->post = dotclear()->blog()->posts()->getPosts($params);
-
-            if ($this->post->isEmpty()) {
+            if ($rs->isEmpty()) {
                 dotclear()->error()->add(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
-                $this->post_id            = (int) $this->post->post_id;
-                $this->cat_id             = $this->post->cat_id;
-                $this->post_dt            = date('Y-m-d H:i', strtotime($this->post->post_dt));
-                $this->post_format        = $this->post->post_format;
-                $this->post_password      = $this->post->post_password;
-                $this->post_url           = $this->post->post_url;
-                $this->post_lang          = $this->post->post_lang;
-                $this->post_title         = $this->post->post_title;
-                $this->post_excerpt       = $this->post->post_excerpt;
-                $this->post_excerpt_xhtml = $this->post->post_excerpt_xhtml;
-                $this->post_content       = $this->post->post_content;
-                $this->post_content_xhtml = $this->post->post_content_xhtml;
-                $this->post_notes         = $this->post->post_notes;
-                $this->post_status        = $this->post->post_status;
-                $this->post_selected      = (bool) $this->post->post_selected;
-                $this->post_open_comment  = (bool) $this->post->post_open_comment;
-                $this->post_open_tb       = (bool) $this->post->post_open_tb;
+                $this->post_id            = $rs->fInt('post_id');
+                $this->cat_id             = $rs->fInt('cat_id');
+                $this->post_dt            = date('Y-m-d H:i', strtotime($rs->f('post_dt')));
+                $this->post_format        = $rs->f('post_format');
+                $this->post_password      = $rs->f('post_password');
+                $this->post_url           = $rs->f('post_url');
+                $this->post_lang          = $rs->f('post_lang');
+                $this->post_title         = $rs->f('post_title');
+                $this->post_excerpt       = $rs->f('post_excerpt');
+                $this->post_excerpt_xhtml = $rs->f('post_excerpt_xhtml');
+                $this->post_content       = $rs->f('post_content');
+                $this->post_content_xhtml = $rs->f('post_content_xhtml');
+                $this->post_notes         = $rs->f('post_notes');
+                $this->post_status        = $rs->f('post_status');
+                $this->post_selected      = (bool) $rs->fInt('post_selected');
+                $this->post_open_comment  = (bool) $rs->fInt('post_open_comment');
+                $this->post_open_tb       = (bool) $rs->fInt('post_open_tb');
 
-                $this->can_edit_post = $this->post->isEditable();
-                $this->can_delete    = $this->post->isDeletable();
+                $this->can_edit_post = $rs->isEditable();
+                $this->can_delete    = $rs->isDeletable();
 
-                $next_rs = dotclear()->blog()->posts()->getNextPost($this->post, 1);
-                $prev_rs = dotclear()->blog()->posts()->getNextPost($this->post, -1);
+                $next_rs = dotclear()->blog()->posts()->getNextPost($rs, 1);
+                $prev_rs = dotclear()->blog()->posts()->getNextPost($rs, -1);
 
-                if ($next_rs !== null) {
+                if (null !== $next_rs) {
                     $this->next_link = sprintf(
-                        $this->post_link,
-                        $next_rs->post_id,
-                        Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
+                        $post_link,
+                        $next_rs->f('post_id'),
+                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
                         __('Next entry') . '&nbsp;&#187;'
                     );
                     $next_headlink = sprintf(
-                        $this->post_headlink,
+                        $post_headlink,
                         'next',
-                        Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
-                        $next_rs->post_id
+                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
+                        $next_rs->f('post_id')
                     );
                 }
 
-                if ($prev_rs !== null) {
+                if (null !== $prev_rs) {
                     $this->prev_link = sprintf(
-                        $this->post_link,
-                        $prev_rs->post_id,
-                        Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
+                        $post_link,
+                        $prev_rs->f('post_id'),
+                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
                         '&#171;&nbsp;' . __('Previous entry')
                     );
                     $prev_headlink = sprintf(
-                        $this->post_headlink,
+                        $post_headlink,
                         'previous',
-                        Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
-                        $prev_rs->post_id
+                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
+                        $prev_rs->f('post_id')
                     );
                 }
 
@@ -176,29 +172,23 @@ class Post extends Page
 
                 # Sanitize trackbacks excerpt
                 $this->tb_excerpt = empty($_POST['tb_excerpt']) ?
-                $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml :
-                $_POST['tb_excerpt'];
+                    $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml : $_POST['tb_excerpt'];
                 $this->tb_excerpt = Html::decodeEntities(Html::clean($this->tb_excerpt));
                 $this->tb_excerpt = Text::cutString(Html::escapeHTML($this->tb_excerpt), 255);
                 $this->tb_excerpt = preg_replace('/\s+/ms', ' ', $this->tb_excerpt);
             }
         }
-        if (isset($_REQUEST['section']) && $_REQUEST['section'] == 'trackbacks') {
-            $anchor = 'trackbacks';
-        } else {
-            $anchor = 'comments';
-        }
+
+        $anchor = isset($_REQUEST['section']) && 'trackbacks' == $_REQUEST['section'] ? 'trackbacks' : 'comments';
 
         $this->comments_actions = new CommentAction(dotclear()->adminurl()->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
-        if ($this->comments_actions->pageProcess()) {
-            return null;
-        }
+        $this->comments_actions->pageProcess(); // Redirect on action made
 
         # Ping blogs
         if (!empty($_POST['ping'])) {
-            if (!empty($_POST['tb_urls']) && $this->post_id && $this->post_status == 1 && $this->can_edit_post) {
-                $this->tb_urls       = $_POST['tb_urls'];
-                $this->tb_urls       = str_replace("\r", '', $this->tb_urls);
+            if (!empty($_POST['tb_urls']) && $this->post_id && 1 == $this->post_status && $this->can_edit_post) {
+                $this->tb_urls = $_POST['tb_urls'];
+                $this->tb_urls = str_replace("\r", '', $this->tb_urls);
                 $tb_post_title = Html::escapeHTML(trim(Html::clean($this->post_title)));
                 $tb_post_url   = $this->post->getURL();
 
@@ -228,10 +218,8 @@ class Post extends Page
             $this->post_format  = $_POST['post_format'];
             $this->post_excerpt = $_POST['post_excerpt'];
             $this->post_content = $_POST['post_content'];
-
-            $this->post_title = $_POST['post_title'];
-
-            $this->cat_id = (int) $_POST['cat_id'];
+            $this->post_title   = $_POST['post_title'];
+            $this->cat_id       = (int) $_POST['cat_id'];
 
             if (isset($_POST['post_status'])) {
                 $this->post_status = (int) $_POST['post_status'];
@@ -242,7 +230,7 @@ class Post extends Page
             } else {
                 try {
                     $this->post_dt = strtotime($_POST['post_dt']);
-                    if ($this->post_dt == false || $this->post_dt == -1) {
+                    if (false == $this->post_dt || -1 == $this->post_dt) {
                         $this->bad_dt = true;
 
                         throw new AdminException(__('Invalid publication date'));
@@ -258,8 +246,7 @@ class Post extends Page
             $this->post_selected     = !empty($_POST['post_selected']);
             $this->post_lang         = $_POST['post_lang'];
             $this->post_password     = !empty($_POST['post_password']) ? $_POST['post_password'] : null;
-
-            $this->post_notes = $_POST['post_notes'];
+            $this->post_notes        = $_POST['post_notes'];
 
             if (isset($_POST['post_url'])) {
                 $this->post_url = $_POST['post_url'];
@@ -292,9 +279,9 @@ class Post extends Page
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             # Create category
             if (!empty($_POST['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
-                $cur_cat            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-                $cur_cat->cat_title = $_POST['new_cat_title'];
-                $cur_cat->cat_url   = '';
+                $cur_cat = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+                $cur_cat->setField('cat_title', $_POST['new_cat_title']);
+                $cur_cat->setField('cat_url', '');
 
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
@@ -309,24 +296,24 @@ class Post extends Page
 
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-            $cur->cat_id             = ($this->cat_id ?: null);
-            $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
-            $cur->post_format        = $this->post_format;
-            $cur->post_password      = $this->post_password;
-            $cur->post_lang          = $this->post_lang;
-            $cur->post_title         = $this->post_title;
-            $cur->post_excerpt       = $this->post_excerpt;
-            $cur->post_excerpt_xhtml = $this->post_excerpt_xhtml;
-            $cur->post_content       = $this->post_content;
-            $cur->post_content_xhtml = $this->post_content_xhtml;
-            $cur->post_notes         = $this->post_notes;
-            $cur->post_status        = $this->post_status;
-            $cur->post_selected      = (int) $this->post_selected;
-            $cur->post_open_comment  = (int) $this->post_open_comment;
-            $cur->post_open_tb       = (int) $this->post_open_tb;
+            $cur->setField('cat_id', $this->cat_id ?: null);
+            $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
+            $cur->setField('post_format', $this->post_format);
+            $cur->setField('post_password', $this->post_password);
+            $cur->setField('post_lang', $this->post_lang);
+            $cur->setField('post_title', $this->post_title);
+            $cur->setField('post_excerpt', $this->post_excerpt);
+            $cur->setField('post_excerpt_xhtml', $this->post_excerpt_xhtml);
+            $cur->setField('post_content', $this->post_content);
+            $cur->setField('post_content_xhtml', $this->post_content_xhtml);
+            $cur->setField('post_notes', $this->post_notes);
+            $cur->setField('post_status', $this->post_status);
+            $cur->setField('post_selected', (int) $this->post_selected);
+            $cur->setField('post_open_comment', (int) $this->post_open_comment);
+            $cur->setField('post_open_tb', (int) $this->post_open_tb);
 
             if (isset($_POST['post_url'])) {
-                $cur->post_url = $this->post_url;
+                $cur->setField('post_url', $this->post_url);
             }
 
             # Back to UTC in order to keep UTC datetime for creadt/upddt
@@ -342,7 +329,10 @@ class Post extends Page
 
                     # --BEHAVIOR-- adminAfterPostUpdate
                     dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
-                    dotclear()->notice()->addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
+                    dotclear()->notice()->addSuccessNotice(sprintf(
+                        __('The post "%s" has been successfully updated'), 
+                        Html::escapeHTML(trim(Html::clean($cur->getField('post_title'))))
+                    ));
                     dotclear()->adminurl()->redirect(
                         'admin.post',
                         ['id' => $this->post_id]
@@ -351,7 +341,7 @@ class Post extends Page
                     dotclear()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->user_id = dotclear()->user()->userID();
+                $cur->setField('user_id', dotclear()->user()->userID());
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate
@@ -386,10 +376,10 @@ class Post extends Page
 
         if ($this->post_id) {
             $this->img_status = match ($this->post_status) {
-                1  => sprintf($this->img_status_pattern, __('Published'), 'check-on.png'),
-                0  => sprintf($this->img_status_pattern, __('Unpublished'), 'check-off.png'),
-                -1 => sprintf($this->img_status_pattern, __('Scheduled'), 'scheduled.png'),
-                -2 => sprintf($this->img_status_pattern, __('Pending'), 'check-wrn.png'),
+                1  => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
+                0  => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
+                -1 => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
+                -2 => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
                 default => '',
             };
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
@@ -453,8 +443,8 @@ class Post extends Page
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)         => '',
-                __('Posts')                                        => dotclear()->adminurl()->get('admin.posts'),
+                Html::escapeHTML(dotclear()->blog()->name)        => '',
+                __('Posts')                                       => dotclear()->adminurl()->get('admin.posts'),
                 ($this->post_id ? $page_title_edit : $page_title) => '',
             ], [
                 'x-frame-allow' => dotclear()->blog()->url,
@@ -472,8 +462,9 @@ class Post extends Page
 
         $status_combo = dotclear()->combo()->getPostStatusesCombo();
 
-        $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
-        $lang_combo = dotclear()->combo()->getLangsCombo($rs, true);
+        $lang_combo = dotclear()->combo()->getLangsCombo(
+            dotclear()->blog()->posts()->getLangs(['order' => 'asc']), true
+        );
 
         $core_formaters    = dotclear()->formater()->getFormaters();
         $available_formats = ['' => ''];
@@ -509,7 +500,7 @@ class Post extends Page
             dotclear()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
-        if ($this->post_id && $this->post->post_status == 1) {
+        if ($this->post_id && 1 == $this->post_status) {
             echo '<p><a class="onblog_link outgoing" href="' . $this->post->getURL() . '" title="' . Html::escapeHTML(trim(Html::clean($this->post_title))) . '">' . __('Go to this entry on the site') . ' <img src="?df=images/outgoing-link.svg" alt="" /></a></p>';
         }
         if ($this->post_id) {
@@ -703,7 +694,7 @@ class Post extends Page
             if ($this->post_id) {
                 $preview_url = dotclear()->blog()->getURLFor('preview', dotclear()->user()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->get('master_key') . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
-                    '/' . $this->post->post_url);
+                    '/' . $this->post->f('post_url'));
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
                 $blank_preview = dotclear()->user()->preference()->get('interface')->get('blank_preview');
@@ -837,7 +828,7 @@ class Post extends Page
             '</div>'; #comments
         }
 
-        if ($this->post_id && $this->post_status == 1) {
+        if ($this->post_id && 1 == $this->post_status) {
             /* Trackbacks
             -------------------------------------------------------- */
 
@@ -885,7 +876,7 @@ class Post extends Page
 
             /* Add trackbacks
             -------------------------------------------------------- */
-            if ($this->can_edit_post && $this->post->post_status) {
+            if ($this->can_edit_post && $this->post->f('post_status')) {
                 echo
                     '<div class="fieldset clear">';
 
@@ -938,11 +929,11 @@ class Post extends Page
             return true;
         }
         if ($com) {
-            if ((dotclear()->blog()->settings()->get('system')->get('comments_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400 < $dt)) {
+            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400 )) {
                 return true;
             }
         } else {
-            if ((dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400 < $dt)) {
+            if (0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -970,12 +961,12 @@ class Post extends Page
         }
 
         while ($rs->fetch()) {
-            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->comment_id]);
+            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
             $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
             $sts_class  = '';
-            switch ($rs->comment_status) {
+            switch ($rs->fInt('comment_status')) {
                 case 1:
                     $this->img_status = sprintf($img, __('Published'), 'check-on.png');
                     $sts_class  = 'sts-online';
@@ -999,22 +990,22 @@ class Post extends Page
             }
 
             echo
-            '<tr class="line ' . ($rs->comment_status != 1 ? ' offline ' : '') . $sts_class . '"' .
-            ' id="c' . $rs->comment_id . '">' .
+            '<tr class="line ' . (1 != $rs->f('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            ' id="c' . $rs->f('comment_id') . '">' .
 
             '<td class="nowrap">' .
             ($has_action ? Form::checkbox(
                 ['comments[]'],
-                $rs->comment_id,
+                $rs->f('comment_id'),
                 [
-                    'checked'    => isset($comments[$rs->comment_id]),
+                    'checked'    => isset($comments[$rs->fInt('comment_id')]),
                     'extra_html' => 'title="' . ($tb ? __('select this trackback') : __('select this comment') . '"'),
                 ]
             ) : '') . '</td>' .
-            '<td class="maximal">' . Html::escapeHTML($rs->comment_author) . '</td>' .
-            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->comment_dt) . '</td>' .
+            '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
+            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->comment_ip]) . '">' . $rs->comment_ip . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

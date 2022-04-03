@@ -36,8 +36,9 @@ class Blog extends Page
         # If there's a blog id, process blog pref
         if (!empty($_REQUEST['id'])) {
             $blog_pref = new BlogPref($this->handler, false);
+            $blog_pref->pageProcess();
 
-            return $blog_pref->pageProcess();
+            return null;
         }
 
         # Page setup
@@ -55,12 +56,12 @@ class Blog extends Page
         ;
 
         # Create a blog
-        if (!isset($_POST['id']) && (isset($_POST['create']))) {
-            $cur       = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
-            $this->blog_id   = $cur->blog_id   = $_POST['blog_id'];
-            $this->blog_url  = $cur->blog_url  = $_POST['blog_url'];
-            $this->blog_name = $cur->blog_name = $_POST['blog_name'];
-            $this->blog_desc = $cur->blog_desc = $_POST['blog_desc'];
+        if (!isset($_POST['id']) && isset($_POST['create'])) {
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+            $cur->setField('blog_id', $this->blog_id = $_POST['blog_id']);
+            $cur->setField('blog_url', $this->blog_url = $_POST['blog_url']);
+            $cur->setField('blog_name', $this->blog_name = $_POST['blog_name']);
+            $cur->setField('blog_desc', $this->blog_desc = $_POST['blog_desc']);
 
             try {
                 # --BEHAVIOR-- adminBeforeBlogCreate
@@ -69,21 +70,21 @@ class Blog extends Page
                 dotclear()->blogs()->addBlog($cur);
 
                 # Default settings and override some
-                $blog_settings = new Settings($cur->blog_id);
-                $blog_settings->system->put('lang', dotclear()->user()->getInfo('user_lang'));
-                $blog_settings->system->put('blog_timezone', dotclear()->user()->getInfo('user_tz'));
+                $blog_settings = new Settings($cur->getField('blog_id'));
+                $blog_settings->get('system')->put('lang', dotclear()->user()->getInfo('user_lang'));
+                $blog_settings->get('system')->put('blog_timezone', dotclear()->user()->getInfo('user_tz'));
 
-                if (substr($this->blog_url, -1) == '?') {
-                    $blog_settings->system->put('url_scan', 'query_string');
+                if ('?' == substr($this->blog_url, -1)) {
+                    $blog_settings->get('system')->put('url_scan', 'query_string');
                 } else {
-                    $blog_settings->system->put('url_scan', 'path_info');
+                    $blog_settings->get('system')->put('url_scan', 'path_info');
                 }
 
                 # --BEHAVIOR-- adminAfterBlogCreate
                 dotclear()->behavior()->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
-                static::addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->blog_name)));
-                dotclear()->adminurl()->redirect('admin.blog', ['id' => $cur->blog_id, 'edit_blog_mode' => 1]);
+                dotclear()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->getField('blog_name'))));
+                dotclear()->adminurl()->redirect('admin.blog', ['id' => $cur->getField('blog_id'), 'edit_blog_mode' => 1]);
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }

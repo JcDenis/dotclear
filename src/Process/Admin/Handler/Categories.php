@@ -42,7 +42,7 @@ class Categories extends Page
                 dotclear()->notice()->addErrorNotice(__('This category does not exist.'));
                 dotclear()->adminurl()->redirect('admin.categories');
             }
-            $name = $category->cat_title;
+            $name = $category->f('cat_title');
             unset($category);
 
             try {
@@ -70,7 +70,7 @@ class Categories extends Page
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
-                    $name = $category->cat_title;
+                    $name = $category->f('cat_title');
                     unset($category);
                 }
                 # Move posts
@@ -112,12 +112,12 @@ class Categories extends Page
             }
         }
 
-        $this->caregories = dotclear()->blog()->categories()->getCategories();
+        $this->categories = dotclear()->blog()->categories()->getCategories();
 
         # Page setup
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')
             && dotclear()->user()->check('categories', dotclear()->blog()->id)
-            && $this->caregories->count() > 1) {
+            && 1 < $this->categories->count()) {
             $this->setPageHead(
                 dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
                 dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
@@ -153,53 +153,54 @@ class Categories extends Page
             dotclear()->notice()->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
-        $categories_combo = dotclear()->combo()->getCategoriesCombo($this->caregories);
+        $categories_combo = dotclear()->combo()->getCategoriesCombo($this->categories);
 
         echo
         '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.category') . '">' . __('New category') . '</a></p>';
 
         echo
             '<div class="col">';
-        if ($this->caregories->isEmpty()) {
+        if ($this->categories->isEmpty()) {
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
-            $ref_level = $level = $this->caregories->level - 1;
-            while ($this->caregories->fetch()) {
-                $attr = 'id="cat_' . $this->caregories->cat_id . '" class="cat-line clearfix"';
+            $ref_level = $level = $this->categories->fInt('level') - 1;
+            while ($this->categories->fetch()) {
+                $attr = 'id="cat_' . $this->categories->f('cat_id') . '" class="cat-line clearfix"';
 
-                if ($this->caregories->level > $level) {
-                    echo str_repeat('<ul><li ' . $attr . '>', $this->caregories->level - $level);
-                } elseif ($this->caregories->level < $level) {
-                    echo str_repeat('</li></ul>', -($this->caregories->level - $level));
+                if ($this->categories->fInt('level') > $level) {
+                    echo str_repeat('<ul><li ' . $attr . '>', $this->categories->fInt('level') - $level);
+                } elseif ($this->categories->fInt('level') < $level) {
+                    echo str_repeat('</li></ul>', -($this->categories->fInt('level') - $level));
                 }
 
-                if ($this->caregories->level <= $level) {
+                if ($this->categories->fInt('level') <= $level) {
                     echo '</li><li ' . $attr . '>';
                 }
 
                 echo
-                '<p class="cat-title"><label class="classic" for="cat_' . $this->caregories->cat_id . '"><a href="' .
-                dotclear()->adminurl()->get('admin.category', ['id' => $this->caregories->cat_id]) . '">' . Html::escapeHTML($this->caregories->cat_title) .
+                '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->f('cat_id') . '"><a href="' .
+                dotclear()->adminurl()->get('admin.category', ['id' => $this->categories->f('cat_id')]) . '">' . Html::escapeHTML($this->categories->f('cat_title')) .
                 '</a></label> </p>' .
-                '<p class="cat-nb-posts">(<a href="' . dotclear()->adminurl()->get('admin.posts', ['cat_id' => $this->caregories->cat_id]) . '">' .
-                sprintf(($this->caregories->nb_post > 1 ? __('%d entries') : __('%d entry')), $this->caregories->nb_post) . '</a>' .
-                ', ' . __('total:') . ' ' . $this->caregories->nb_total . ')</p>' .
-                '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->caregories->cat_url) . '</code></p>';
+                '<p class="cat-nb-posts">(<a href="' . dotclear()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->f('cat_id')]) . '">' .
+                sprintf((1 < $this->categories->fInt('nb_post') ? __('%d entries') : __('%d entry')), $this->categories->fInt('nb_post')) . '</a>' .
+                ', ' . __('total:') . ' ' . $this->categories->f('nb_total') . ')</p>' .
+                '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->categories->f('cat_url')) . '</code></p>';
 
                 echo
                     '<p class="cat-buttons">';
-                if ($this->caregories->nb_total > 0) {
+                if (0 < $this->categories->fInt('nb_total')) {
+                    $fn_cat_id = $this->categories->f('cat_id');
                     // remove current category
                     echo
-                    '<label for="mov_cat_' . $this->caregories->cat_id . '">' . __('Move entries to') . '</label> ' .
-                    Form::combo(['mov_cat[' . $this->caregories->cat_id . ']', 'mov_cat_' . $this->caregories->cat_id], array_filter($categories_combo,
-                        function ($cat) {return $cat->value != ($GLOBALS['rs']->cat_id ?? '0');}
+                    '<label for="mov_cat_' . $this->categories->f('cat_id') . '">' . __('Move entries to') . '</label> ' .
+                    Form::combo(['mov_cat[' . $this->categories->f('cat_id') . ']', 'mov_cat_' . $this->categories->f('cat_id')], array_filter($categories_combo,
+                        function ($cat) use ($fn_cat_id) {return $cat->value != ($fn_cat_id ?? '0');}
                     ), '', '') .
-                    ' <input type="submit" class="reset" name="mov[' . $this->caregories->cat_id . ']" value="' . __('OK') . '"/>';
+                    ' <input type="submit" class="reset" name="mov[' . $this->categories->f('cat_id') . ']" value="' . __('OK') . '"/>';
 
                     $attr_disabled = ' disabled="disabled"';
                     $input_class   = 'disabled ';
@@ -208,13 +209,13 @@ class Categories extends Page
                     $input_class   = '';
                 }
                 echo
-                ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->caregories->cat_id . ']" value="' . __('Delete category') . '"/>' .
+                ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->categories->f('cat_id') . ']" value="' . __('Delete category') . '"/>' .
                     '</p>';
 
-                $level = $this->caregories->level;
+                $level = $this->categories->fInt('level');
             }
 
-            if ($ref_level - $level < 0) {
+            if (0 > $ref_level - $level) {
                 echo str_repeat('</li></ul>', -($ref_level - $level));
             }
             echo
@@ -222,7 +223,7 @@ class Categories extends Page
 
             echo '<div class="clear">';
 
-            if (dotclear()->user()->check('categories', dotclear()->blog()->id) && $this->caregories->count() > 1) {
+            if (dotclear()->user()->check('categories', dotclear()->blog()->id) && 1 < $this->categories->count()) {
                 if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }

@@ -69,26 +69,26 @@ class Media extends Page
 
         # try to load core media and themes
         try {
-            dotclear()->media()->setFileSort($this->filter->sortby . '-' . $this->filter->order);
+            dotclear()->media()->setFileSort($this->filter->get('sortby') . '-' . $this->filter->get('order'));
 
-            if ($this->filter->q != '') {
-                $this->media_has_query = dotclear()->media()->searchMedia($this->filter->q);
+            if ('' != $this->filter->get('q')) {
+                $this->media_has_query = dotclear()->media()->searchMedia($this->filter->get('q'));
             }
             if (!$this->media_has_query) {
-                $try_d = $this->filter->d;
+                $try_d = $this->filter->get('d');
                 # Reset current dir
-                $this->filter->d = null;
+                $this->filter->set('d', null);
                 # Change directory (may cause an exception if directory doesn't exist)
                 dotclear()->media()->chdir($try_d);
                 # Restore current dir variable
-                $this->filter->d = $try_d;
+                $this->filter->set('d', $try_d);
                 dotclear()->media()->getDir();
             } else {
-                $this->filter->d = null;
+                $this->filter->set('d', null);
                 dotclear()->media()->chdir('');
             }
             $this->media_writable = dotclear()->media()->writable();
-            $this->media_dir      = &dotclear()->media()->dir;
+            $this->media_dir      = dotclear()->media()->dir;
 
             $rs = $this->getDirsRecord();
 
@@ -104,7 +104,7 @@ class Media extends Page
     {
         try {
 
-        if ($this->filter->popup) {
+        if ($this->filter->get('popup')) {
             $this->setPageType('popup');
         }
             dotclear()->media(true, true);
@@ -121,22 +121,22 @@ class Media extends Page
         # Zip download
         if (!empty($_GET['zipdl']) && dotclear()->user()->check('media_admin', dotclear()->blog()->id)) {
             try {
-                if (str_starts_with(realpath(dotclear()->media()->root . '/' . $this->filter->d), realpath(dotclear()->media()->root))) {
+                if (str_starts_with(realpath(dotclear()->media()->root . '/' . $this->filter->get('d')), realpath(dotclear()->media()->root))) {
                     # Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-                    $zip->addDirectory(dotclear()->media()->root . '/' . $this->filter->d, '', true);
+                    $zip->addDirectory(dotclear()->media()->root . '/' . $this->filter->get('d'), '', true);
 
-                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog()->id . '-' . ($this->filter->d ?: 'media') . '.zip');
+                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog()->id . '-' . ($this->filter->get('d') ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
                     unset($zip);
                     exit;
                 }
-                $this->filter->d = null;
-                dotclear()->media()->chdir($this->filter->d);
+                $this->filter->set('d', null);
+                dotclear()->media()->chdir($this->filter->get('d'));
 
                 throw new AdminException(__('Not a valid directory'));
             } catch (\Exception $e) {
@@ -147,11 +147,11 @@ class Media extends Page
         # User last and fav dirs
         if ($this->showLast()) {
             if (!empty($_GET['fav'])) {
-                if ($this->updateFav(rtrim((string) $this->filter->d, '/'), $_GET['fav'] == 'n')) {
+                if ($this->updateFav(rtrim((string) $this->filter->get('d'), '/'), $_GET['fav'] == 'n')) {
                     dotclear()->adminurl()->redirect('admin.media', $this->filter->values());
                 }
             }
-            $this->updateLast(rtrim((string) $this->filter->d, '/'));
+            $this->updateLast(rtrim((string) $this->filter->get('d'), '/'));
         }
 
         # New directory
@@ -264,8 +264,8 @@ class Media extends Page
                 }
                 dotclear()->media()->removeItem($_POST['remove']);
                 if ($forget) {
-                    $this->updateLast($this->filter->d . '/' . Path::clean($_POST['remove']), true);
-                    $this->updateFav($this->filter->d . '/' . Path::clean($_POST['remove']), true);
+                    $this->updateLast($this->filter->get('d') . '/' . Path::clean($_POST['remove']), true);
+                    $this->updateFav($this->filter->get('d') . '/' . Path::clean($_POST['remove']), true);
                 }
                 dotclear()->notice()->addSuccessNotice($msg);
                 dotclear()->adminurl()->redirect('admin.media', $this->filter->values());
@@ -277,11 +277,11 @@ class Media extends Page
         # Rebuild directory
         if ($this->getDirs() && dotclear()->user()->isSuperAdmin() && !empty($_POST['rebuild'])) {
             try {
-                dotclear()->media()->rebuild($this->filter->d);
+                dotclear()->media()->rebuild($this->filter->get('d'));
 
                 dotclear()->notice()->success(sprintf(
                     __('Directory "%s" has been successfully rebuilt.'),
-                    Html::escapeHTML($this->filter->d))
+                    Html::escapeHTML($this->filter->get('d')))
                 );
                 dotclear()->adminurl()->redirect('admin.media', $this->filter->values());
             } catch (\Exception $e) {
@@ -298,11 +298,11 @@ class Media extends Page
                 dotclear()->resource()->modal() .
                 $this->filter->js(dotclear()->adminurl()->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(false, true)), '&')) .
                 dotclear()->resource()->load('_media.js') .
-                ($this->mediaWritable() ? dotclear()->resource()->upload(['d=' . $this->filter->d]) : '')
+                ($this->mediaWritable() ? dotclear()->resource()->upload(['d=' . $this->filter->get('d')]) : '')
             );
         }
 
-        if ($this->filter->popup) {
+        if ($this->filter->get('popup')) {
             $this->setPageType('popup');
         }
 
@@ -353,9 +353,9 @@ class Media extends Page
                 $ld_params['d'] = $ld;
                 $ld_params['q'] = ''; # Reset search
                 $last_folders_item .= '<option value="' . urldecode(dotclear()->adminurl()->get('admin.media', $ld_params)) . '"' .
-                    ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
+                    ($ld == rtrim((string) $this->filter->get('d'), '/') ? ' selected="selected"' : '') . '>' .
                     '/' . $ld . '</option>' . "\n";
-                if ($ld == rtrim((string) $this->filter->d, '/')) {
+                if ($ld == rtrim((string) $this->filter->get('d'), '/')) {
                     # Current directory is a favorite → button will un-fav
                     $ld_params['fav'] = 'n';
                     $fav_url          = urldecode(dotclear()->adminurl()->get('admin.media', $ld_params));
@@ -376,9 +376,9 @@ class Media extends Page
                     $ld_params['d'] = $ld;
                     $ld_params['q'] = ''; # Reset search
                     $last_folders_item .= '<option value="' . urldecode(dotclear()->adminurl()->get('admin.media', $ld_params)) . '"' .
-                        ($ld == rtrim((string) $this->filter->d, '/') ? ' selected="selected"' : '') . '>' .
+                        ($ld == rtrim((string) $this->filter->get('d'), '/') ? ' selected="selected"' : '') . '>' .
                         '/' . $ld . '</option>' . "\n";
-                    if ($ld == rtrim((string) $this->filter->d, '/')) {
+                    if ($ld == rtrim((string) $this->filter->get('d'), '/')) {
                         # Current directory is not a favorite → button will fav
                         $ld_params['fav'] = 'y';
                         $fav_url          = urldecode(dotclear()->adminurl()->get('admin.media', $ld_params));
@@ -399,10 +399,10 @@ class Media extends Page
             }
         }
 
-        if ($this->filter->select) {
+        if ($this->filter->get('select')) {
             # Select mode (popup or not)
-            echo '<div class="' . ($this->filter->popup ? 'form-note ' : '') . 'info"><p>';
-            if ($this->filter->select == 1) {
+            echo '<div class="' . ($this->filter->get('popup') ? 'form-note ' : '') . 'info"><p>';
+            if (1 == $this->filter->get('select')) {
                 echo sprintf(__('Select a file by clicking on %s'), '<img src="?df=images/plus.png" alt="' . __('Select this file') . '" />');
             } else {
                 echo sprintf(__('Select files and click on <strong>%s</strong> button'), __('Choose selected medias'));
@@ -412,16 +412,16 @@ class Media extends Page
             }
             echo '</p></div>';
         } else {
-            if ($this->filter->post_id) {
+            if ($this->filter->get('post_id')) {
                 echo '<div class="form-note info"><p>' . sprintf(__('Choose a file to attach to entry %s by clicking on %s'),
-                    '<a href="' . dotclear()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->post_id) . '">' . Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
+                    '<a href="' . dotclear()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->get('post_id')) . '">' . Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />');
                 if ($this->mediaWritable()) {
                     echo ' ' . __('or') . ' ' . sprintf('<a href="#fileupload">%s</a>', __('upload a new file'));
                 }
                 echo '</p></div>';
             }
-            if ($this->filter->popup) {
+            if ($this->filter->get('popup')) {
                 echo '<div class="info"><p>' . sprintf(__('Choose a file to insert into entry by clicking on %s'),
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />');
                 if ($this->mediaWritable()) {
@@ -433,13 +433,13 @@ class Media extends Page
 
 
         # add file mode into the filter box
-        $this->filter->add((new DefaultFilter('file_mode'))->value($this->filter->file_mode)->html(
+        $this->filter->add((new DefaultFilter('file_mode'))->value($this->filter->get('file_mode'))->html(
             '<p><span class="media-file-mode">' .
             '<a href="' . dotclear()->adminurl()->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
-            '<img src="?df=images/grid-' . ($this->filter->file_mode == 'grid' ? 'on' : 'off') . '.png" alt="' . __('Grid display mode') . '" />' .
+            '<img src="?df=images/grid-' . ('grid' == $this->filter->get('file_mode') ? 'on' : 'off') . '.png" alt="' . __('Grid display mode') . '" />' .
             '</a>' .
             '<a href="' . dotclear()->adminurl()->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'list'])) . '" title="' . __('List display mode') . '">' .
-            '<img src="?df=images/list-' . ($this->filter->file_mode == 'list' ? 'on' : 'off') . '.png" alt="' . __('List display mode') . '" />' .
+            '<img src="?df=images/list-' . ('list' == $this->filter->get('file_mode') ? 'on' : 'off') . '.png" alt="' . __('List display mode') . '" />' .
             '</a>' .
             '</span></p>', false
         ));
@@ -450,15 +450,15 @@ class Media extends Page
         dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
         '</p>';
 
-        if (!$this->filter->popup || $this->filter->select > 1) {
+        if (!$this->filter->get('popup') || 1 < $this->filter->get('select')) {
             # Checkboxes and action
-            $fmt_form_media .= '<div class="' . (!$this->filter->popup ? 'medias-delete' : '') . ' ' . ($this->filter->select > 1 ? 'medias-select' : '') . '">' .
+            $fmt_form_media .= '<div class="' . (!$this->filter->get('popup') ? 'medias-delete' : '') . ' ' . (1 < $this->filter->get('select') ? 'medias-select' : '') . '">' .
                 '<p class="checkboxes-helpers"></p>' .
                 '<p>';
-            if ($this->filter->select > 1) {
+            if (1 < $this->filter->get('select')) {
                 $fmt_form_media .= '<input type="submit" class="select" id="select_medias" name="select_medias" value="' . __('Choose selected medias') . '"/> ';
             }
-            if (!$this->filter->popup) {
+            if (!$this->filter->get('popup')) {
                 $fmt_form_media .= '<input type="submit" class="delete" id="delete_medias" name="delete_medias" value="' . __('Remove selected medias') . '"/>';
             }
             $fmt_form_media .= '</p>' .
@@ -485,7 +485,7 @@ class Media extends Page
         if ((!$this->hasQuery()) && ($this->mediaWritable() || $this->mediaArchivable())) {
             echo
             '<div class="vertical-separator">' .
-            '<h3 class="out-of-screen-if-js">' . sprintf(__('In %s:'), ($this->filter->d == '' ? '“' . __('Media manager') . '”' : '“' . $this->filter->d . '”')) . '</h3>';
+            '<h3 class="out-of-screen-if-js">' . sprintf(__('In %s:'), ('' == $this->filter->get('d') ? '“' . __('Media manager') . '”' : '“' . $this->filter->get('d') . '”')) . '</h3>';
         }
 
         if ((!$this->hasQuery()) && ($this->mediaWritable() || $this->mediaArchivable())) {
@@ -508,10 +508,10 @@ class Media extends Page
             }
 
             # Get zip directory
-            if ($this->mediaArchivable() && !$this->filter->popup) {
+            if ($this->mediaArchivable() && !$this->filter->get('popup')) {
                 echo
                 '<div class="fieldset">' .
-                '<h4 class="pretty-title">' . sprintf(__('Backup content of %s'), ($this->filter->d == '' ? '“' . __('Media manager') . '”' : '“' . $this->filter->d . '”')) . '</h4>' .
+                '<h4 class="pretty-title">' . sprintf(__('Backup content of %s'), ('' == $this->filter->get('d') ? '“' . __('Media manager') . '”' : '“' . $this->filter->get('d') . '”')) . '</h4>' .
                 '<p><a class="button submit" href="' . dotclear()->adminurl()->get('admin.media',
                     array_merge($this->filter->values(), ['zipdl' => 1])) . '">' . __('Download zip file') . '</a></p>' .
                     '</div>';
@@ -593,7 +593,7 @@ class Media extends Page
                 '</div>';
         }
 
-        if (!$this->filter->popup) {
+        if (!$this->filter->get('popup')) {
             echo '<div class="info"><p>' . sprintf(__('Current settings for medias and images are defined in %s'),
                 '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') . '#medias-settings">' . __('Blog parameters') . '</a>') . '</p></div>';
 
@@ -617,10 +617,10 @@ class Media extends Page
                 'q' => ''
             ];
 
-            if ($this->media_has_query || $this->filter->q) {
+            if ($this->media_has_query || $this->filter->get('q')) {
                 $count = $this->media_has_query ? count($this->getDirs('files')) : 0;
 
-                $element[__('Search:') . ' ' . $this->filter->q . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
+                $element[__('Search:') . ' ' . $this->filter->get('q') . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
                 $bc_url   = dotclear()->adminurl()->get('admin.media', array_merge($this->filter->values(true), ['d' => '%s']), '&');
                 $bc_media = dotclear()->media()->breadCrumb($bc_url, '<span class="page-title">%s</span>');
@@ -637,7 +637,7 @@ class Media extends Page
                 dotclear()->adminurl()->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param)))
         ];
         $options = [
-            'home_link' => !$this->filter->popup
+            'home_link' => !$this->filter->get('popup')
         ];
 
         $this->setPageBreadcrumb(array_merge($elements, $element), array_merge($options, $option));
@@ -685,9 +685,9 @@ class Media extends Page
      *
      * @param   string  $type   dir, file, all type
      *
-     * @return  array           Dirs and/or files fileItem objects
+     * @return  array|null      Dirs and/or files fileItem objects
      */
-    public function getDirs(string $type = ''): array
+    public function getDirs(string $type = ''): ?array
     {
         if (!empty($type)) {
             return $this->media_dir[$type] ?? null;
@@ -779,7 +779,7 @@ class Media extends Page
      */
     public function updateLast(string $dir, bool $remove = false): bool
     {
-        if ($this->filter->q) {
+        if ($this->filter->get('q')) {
             return false;
         }
 
@@ -849,7 +849,7 @@ class Media extends Page
      */
     public function updateFav(string $dir, bool $remove = false): bool
     {
-        if ($this->filter->q) {
+        if ($this->filter->get('q')) {
             return false;
         }
 

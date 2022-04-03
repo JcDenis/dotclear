@@ -342,13 +342,13 @@ class Comments
             $cur->unsetField('comment_status');
         }
 
-        # --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Core\Blog, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreBeforeCommentUpdate', $this, $cur, $rs);
+        # --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        dotclear()->behavior()->call('coreBeforeCommentUpdate', $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
-        # --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Core\Blog, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreAfterCommentUpdate', $this, $cur, $rs);
+        # --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        dotclear()->behavior()->call('coreAfterCommentUpdate', $cur, $rs);
 
         dotclear()->blog()->triggerComment($id);
         dotclear()->blog()->triggerBlog();

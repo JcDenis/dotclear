@@ -80,28 +80,23 @@ class BlogInventory extends Inventory
 
             $blocks = explode('%s', $html_block);
 
-            echo $pager->getLinks();
-
-            echo $blocks[0];
+            echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
-                echo $this->blogLine(isset($blogs[$this->rs->blog_id]));
+                echo $this->blogLine(isset($blogs[$this->rs->f('blog_id')]));
             }
-
-            echo $blocks[1];
 
             $fmt = function ($title, $image) {
                 return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
-            echo '<p class="info">' . __('Legend: ') .
+
+            echo $blocks[1] . 
+                '<p class="info">' . __('Legend: ') .
                 $fmt(__('online'), 'check-on.png') . ' - ' .
                 $fmt(__('offline'), 'check-off.png') . ' - ' .
                 $fmt(__('removed'), 'check-wrn.png') .
-                '</p>';
-
-            echo $blocks[2];
-
-            echo $pager->getLinks();
+                '</p>' .
+                $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -114,12 +109,12 @@ class BlogInventory extends Inventory
      */
     private function blogLine(bool $checked = false): string
     {
-        $blog_id = Html::escapeHTML($this->rs->blog_id);
+        $blog_id = Html::escapeHTML($this->rs->f('blog_id'));
 
         $cols = [
             'check' => (dotclear()->user()->isSuperAdmin() ?
                 '<td class="nowrap">' .
-                Form::checkbox(['blogs[]'], $this->rs->blog_id, $checked) .
+                Form::checkbox(['blogs[]'], $this->rs->f('blog_id'), $checked) .
                 '</td>' : ''),
             'blog' => '<td class="nowrap">' .
             (dotclear()->user()->isSuperAdmin() ?
@@ -129,25 +124,25 @@ class BlogInventory extends Inventory
                 $blog_id . ' ') .
             '</td>',
             'name' => '<td class="maximal">' .
-            '<a href="' . dotclear()->adminurl()->get('admin.home', ['switchblog' => $this->rs->blog_id]) . '" ' .
-            'title="' . sprintf(__('Switch to blog %s'), $this->rs->blog_id) . '">' .
-            Html::escapeHTML($this->rs->blog_name) . '</a>' .
+            '<a href="' . dotclear()->adminurl()->get('admin.home', ['switchblog' => $this->rs->f('blog_id')]) . '" ' .
+            'title="' . sprintf(__('Switch to blog %s'), $this->rs->f('blog_id')) . '">' .
+            Html::escapeHTML($this->rs->f('blog_name')) . '</a>' .
             '</td>',
             'url' => '<td class="nowrap">' .
             '<a class="outgoing" href="' .
-            Html::escapeHTML($this->rs->blog_url) . '">' . Html::escapeHTML($this->rs->blog_url) .
+            Html::escapeHTML($this->rs->f('blog_url')) . '">' . Html::escapeHTML($this->rs->f('blog_url')) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            dotclear()->blogs()->countBlogPosts($this->rs->blog_id) .
+            dotclear()->blogs()->countBlogPosts($this->rs->f('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->blog_upddt) + Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'))) .
+            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->f('blog_upddt')) + Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'))) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
                 '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
-                ($this->rs->blog_status == 1 ? 'check-on' : ($this->rs->blog_status == 0 ? 'check-off' : 'check-wrn')),
-                dotclear()->blogs()->getBlogStatus((int) $this->rs->blog_status)
+                (1 == $this->rs->f('blog_status') ? 'check-on' : (0 == $this->rs->f('blog_status') ? 'check-off' : 'check-wrn')),
+                dotclear()->blogs()->getBlogStatus($this->rs->fInt('blog_status'))
             ) .
             '</td>',
         ];

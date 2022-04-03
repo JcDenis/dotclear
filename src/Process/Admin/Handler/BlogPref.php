@@ -33,6 +33,7 @@ class BlogPref extends Page
     private $blog_desc     = '';
     private $blog_settings = null;
     private $blog_url      = '';
+    private $blog_action   = '';
 
     public function __construct(string $handler = 'admin.home', private bool $standalone = true)
     {
@@ -55,8 +56,8 @@ class BlogPref extends Page
             $this->blog_settings = dotclear()->blog()->settings();
             $this->blog_url      = dotclear()->blog()->url;
 
-            $this->action = dotclear()->adminurl()->get('admin.blog.pref');
-            $this->redir  = dotclear()->adminurl()->get('admin.blog.pref');
+            $this->blog_action = dotclear()->adminurl()->get('admin.blog.pref');
+            $redir             = dotclear()->adminurl()->get('admin.blog.pref');
         } else {
             try {
                 if (empty($_REQUEST['id'])) {
@@ -78,8 +79,8 @@ class BlogPref extends Page
                 dotclear()->error()->add($e->getMessage());
             }
 
-            $this->action = dotclear()->adminurl()->get('admin.blog');
-            $this->redir  = dotclear()->adminurl()->get('admin.blog', ['id' => '%s'], '&', true);
+            $this->blog_action = dotclear()->adminurl()->get('admin.blog');
+            $redir             = dotclear()->adminurl()->get('admin.blog', ['id' => '%s'], '&', true);
         }
 
         # Update a blog
@@ -173,12 +174,12 @@ class BlogPref extends Page
                     if ($this->blog_id == dotclear()->blog()->id) {
                         dotclear()->setBlog($cur->getField('blog_id'));
                         $_SESSION['sess_blog_id'] = $cur->getField('blog_id');
-                        $this->blog_settings      = dotclear()->blog()->settings;
+                        $this->blog_settings      = dotclear()->blog()->settings();
                     } else {
                         $this->blog_settings = new Settings($cur->getField('blog_id'));
                     }
 
-                    $this->blog_id = $cur->blog_id;
+                    $this->blog_id = $cur->getField('blog_id');
                 }
 
                 $this->blog_settings->get('system')->put('editor', $_POST['editor']);
@@ -236,7 +237,7 @@ class BlogPref extends Page
                 }
                 dotclear()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
 
-                Http::redirect(sprintf($this->redir, $this->blog_id));
+                Http::redirect(sprintf($redir, $this->blog_id));
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
@@ -405,7 +406,7 @@ class BlogPref extends Page
         echo
         '<div class="multi-part" id="params" title="' . __('Parameters') . '">' .
         '<div id="standard-pref"><h3>' . __('Blog parameters') . '</h3>' .
-            '<form action="' . $this->action . '" method="post" id="blog-form">';
+            '<form action="' . $this->blog_action . '" method="post" id="blog-form">';
 
         echo
         '<div class="fieldset"><h4>' . __('Blog details') . '</h4>' .

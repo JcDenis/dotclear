@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory;
 
 use ArrayObject;
-
 use Dotclear\Database\Record;
 
 class Inventory

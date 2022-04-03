@@ -36,17 +36,17 @@ class MediaInventory extends Inventory
      */
     public function display(MediaFilter $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
     {
-        $nb_items   = $this->rs_count - ($filters->d ? 1 : 0);
-        $nb_folders = $filters->d ? -1 : 0;
+        $nb_items   = $this->rs_count - ($filters->get('d') ? 1 : 0);
+        $nb_folders = $filters->get('d') ? -1 : 0;
 
-        if ($filters->q && !$query) {
+        if ($filters->get('q') && !$query) {
             echo '<p><strong>' . __('No file matches the filter') . '</strong></p>';
         } elseif ($nb_items < 1) {
             echo '<p><strong>' . __('No file.') . '</strong></p>';
         }
 
-        if ($this->rs_count && !($filters->q && !$query)) {
-            $pager = new Pager($filters->page, $this->rs_count, $filters->nb, 10);
+        if ($this->rs_count && !($filters->get('q') && !$query)) {
+            $pager = new Pager($filters->get('page'), $this->rs_count, $filters->get('nb'), 10);
 
             $items = $this->rs->rows();
             foreach ($items as $item) {
@@ -69,7 +69,7 @@ class MediaInventory extends Inventory
                 $group[$items[$i]->d ? 'dirs' : 'files'][] = $this->mediaLine($filters, $items[$i], $j, $query, $page_adminurl);
             }
 
-            if ($filters->file_mode == 'list') {
+            if ('list' == $filters->get('file_mode')) {
                 $table = sprintf(
                     '<div class="table-outer">' .
                     '<table class="media-items-bloc">' .
@@ -91,11 +91,7 @@ class MediaInventory extends Inventory
                 );
             }
 
-            echo $pager->getLinks();
-
-            echo $html_block;
-
-            echo $pager->getLinks();
+            echo $pager->getLinks() . $html_block . $pager->getLinks();
         }
     }
 
@@ -116,7 +112,7 @@ class MediaInventory extends Inventory
         $file  = $query ? $f->relname : $f->basename;
 
         $class = 'media-item-bloc'; // cope with js message for grid AND list
-        $class .= $filters->file_mode == 'list' ? '' : ' media-item media-col-' . ($i % 2);
+        $class .= 'list' == $filters->get('file_mode') ? '' : ' media-item media-col-' . ($i % 2);
 
         if ($f->d) {
             // Folder
@@ -146,8 +142,8 @@ class MediaInventory extends Inventory
 
         $act = '';
         if (!$f->d) {
-            if ($filters->select > 0) {
-                if ($filters->select == 1) {
+            if (0 < $filters->get('select')) {
+                if (1 == $filters->get('select')) {
                     // Single media selection button
                     $act .= '<a href="' . $link . '"><img src="?df=images/plus.png" alt="' . __('Select this file') . '" ' .
                     'title="' . __('Select this file') . '" /></a> ';
@@ -157,18 +153,18 @@ class MediaInventory extends Inventory
                 }
             } else {
                 // Item
-                if ($filters->post_id) {
+                if ($filters->get('post_id')) {
                     // Media attachment button
                     $act .= '<a class="attach-media" title="' . __('Attach this file to entry') . '" href="' .
                     dotclear()->adminurl()->get(
                         'admin.post.media',
-                        ['media_id' => $f->media_id, 'post_id' => $filters->post_id, 'attach' => 1, 'link_type' => $filters->link_type]
+                        ['media_id' => $f->media_id, 'post_id' => $filters->get('post_id'), 'attach' => 1, 'link_type' => $filters->get('link_type')]
                     ) .
                     '">' .
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '"/>' .
                         '</a>';
                 }
-                if ($filters->popup) {
+                if ($filters->get('popup')) {
                     // Media insertion button
                     $act .= '<a href="' . $link . '"><img src="?df=images/plus.png" alt="' . __('Insert this file into entry') . '" ' .
                     'title="' . __('Insert this file into entry') . '" /></a> ';
@@ -177,8 +173,8 @@ class MediaInventory extends Inventory
         }
         if ($f->del) {
             // Deletion button or checkbox
-            if (!$filters->popup && !$f->d) {
-                if ($filters->select < 2) {
+            if (!$filters->get('popup') && !$f->d) {
+                if (2 > $filters->get('select')) {
                     // Already set for multiple media selection
                     $act .= Form::checkbox(['medias[]', 'media_' . rawurlencode($file)], $file);
                 }
@@ -193,7 +189,7 @@ class MediaInventory extends Inventory
         $class_open = 'class="modal-' . $file_type[0] . '" ';
 
         // Render markup
-        if ($filters->file_mode != 'list') {
+        if ('list' != $filters->get('file_mode')) {
             $res = '<div class="' . $class . '"><p><a class="media-icon media-link" href="' . rawurldecode($link) . '">' .
             '<img class="media-icon-square" src="' . $f->media_icon . '" alt="" />' . ($query ? $file : $fname) . '</a></p>';
 
@@ -206,10 +202,10 @@ class MediaInventory extends Inventory
                 '<a ' . $class_open . 'href="' . $f->file_url . '">' . __('open') . '</a>' .
                     '</li>';
             }
-            $lst .= ($act != '' ? '<li class="media-action">&nbsp;' . $act . '</li>' : '');
+            $lst .= ('' != $act ? '<li class="media-action">&nbsp;' . $act . '</li>' : '');
 
             // Show player if relevant
-            if ($file_type[0] == 'audio') {
+            if ('audio' == $file_type[0]) {
                 $lst .= '<li>' . Media::audioPlayer($f->type, $f->file_url, null, null, false, false) . '</li>';
             }
 

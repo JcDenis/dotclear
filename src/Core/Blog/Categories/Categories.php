@@ -299,7 +299,7 @@ class Categories
         dotclear()->behavior()->call('coreBeforeCategoryCreate', $this, $cur);
 
         $id = $this->categoriestree()->addNode($cur, $parent);
-        if (null !== $id) {
+        if (false !== $id) {
             # Update category's cursor
             $rs = $this->getCategory($id);
             if (!$rs->isEmpty()) {

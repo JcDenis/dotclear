@@ -138,8 +138,7 @@ class Item
         $this->basename    = $path['basename'];
         $this->dir         = $path['dirname'];
         $this->relname     = $rel;
-        $this->file_url    = str_replace('%2F', '/', rawurlencode($rel));
-        $this->file_url    = $root_url . $this->file_url;
+        $this->file_url    = $root_url . str_replace('%2F', '/', rawurlencode($rel));
         $this->dir_url     = dirname($this->file_url);
         $this->extension   = $path['extension'];
         $this->mtime       = $stat[9];

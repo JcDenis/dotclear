@@ -218,23 +218,23 @@ class UserAction extends Page
                     '</tr>';
 
                 while ($rs->fetch()) {
-                    $img_status = $rs->blog_status == 1 ? 'check-on' : ($rs->blog_status == 0 ? 'check-off' : 'check-wrn');
-                    $txt_status = dotclear()->blogs()->getBlogStatus((int) $rs->blog_status);
+                    $img_status = 1 == $rs->fInt('blog_status') ? 'check-on' : (0 == $rs->fInt('blog_status') ? 'check-off' : 'check-wrn');
+                    $txt_status = dotclear()->blogs()->getBlogStatus($rs->fInt('blog_status'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo
                     '<tr class="line">' .
                     '<td class="nowrap">' .
-                    Form::checkbox(['blogs[]'], $rs->blog_id,
+                    Form::checkbox(['blogs[]'], $rs->f('blog_id'),
                         [
-                            'extra_html' => 'title="' . __('select') . ' ' . $rs->blog_id . '"'
+                            'extra_html' => 'title="' . __('select') . ' ' . $rs->f('blog_id') . '"'
                         ]) .
                     '</td>' .
-                    '<td class="nowrap">' . $rs->blog_id . '</td>' .
-                    '<td class="maximal">' . Html::escapeHTML($rs->blog_name) . '</td>' .
-                    '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->blog_url) . '">' . Html::escapeHTML($rs->blog_url) .
+                    '<td class="nowrap">' . $rs->f('blog_id') . '</td>' .
+                    '<td class="maximal">' . Html::escapeHTML($rs->f('blog_name')) . '</td>' .
+                    '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->f('blog_url')) . '">' . Html::escapeHTML($rs->f('blog_url')) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . dotclear()->blogs()->countBlogPosts($rs->blog_id) . '</td>' .
+                    '<td class="nowrap">' . dotclear()->blogs()->countBlogPosts($rs->f('blog_id')) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }

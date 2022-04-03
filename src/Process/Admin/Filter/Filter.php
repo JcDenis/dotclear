@@ -142,6 +142,22 @@ class Filter extends Filters
     }
 
     /**
+     * @see self::value()
+     */
+    public function get(string $id): mixed
+    {
+        return $this->value($id);
+    }
+
+    /**
+     * Update a filter value
+     */
+    public function set(string $id, mixed $value, mixed $undefined = null): mixed
+    {
+        return isset($this->filters[$id]) ? $this->filters[$id]->value($value) : $undefined;
+    }
+
+    /**
      * Magic get filter value
      *
      * @param   string  $id     The filter id

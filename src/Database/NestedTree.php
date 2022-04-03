@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Dotclear\Database;
 
 use Dotclear\Database\AbstractConnection;
+use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
 use Dotclear\Exception\DatabaseException;
 
 abstract class NestedTree

@@ -81,7 +81,7 @@ class Antispam
         $this->filters->isSpam($cur);
     }
 
-    public function trainFilters(Blog $blog, Cursor $cur, Record $rs): void
+    public function trainFilters(Cursor $cur, Record $rs): void
     {
         $status = null;
         # From ham to spam

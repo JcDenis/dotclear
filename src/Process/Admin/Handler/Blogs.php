@@ -39,7 +39,7 @@ class Blogs extends Page
 
     protected function getFilterInstance(): ?Filter
     {
-        return new BlogFilter(dotclear());
+        return new BlogFilter();
     }
 
     protected function getInventoryInstance(): ?Inventory
@@ -54,11 +54,11 @@ class Blogs extends Page
         $rs       = dotclear()->blogs()->getBlogs($params);
         $nb_blog  = $counter->fInt();
         $rsStatic = $rs->toStatic();
-        if (($this->filter->sortby != 'blog_upddt') && ($this->filter->sortby != 'blog_status')) {
+        if (($this->filter->get('sortby') != 'blog_upddt') && ($this->filter->get('sortby') != 'blog_status')) {
             # Sort blog list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort(($this->filter->sortby == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->order);
+            //$rsStatic = $rsStatic->toExtStatic();
+            $rsStatic->lexicalSort(($this->filter->get('sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get('order'));
         }
 
         return new BlogInventory($rs, $counter->fInt());
@@ -95,7 +95,7 @@ class Blogs extends Page
         $this->filter->display('admin.blogs');
 
         # Show blogs
-        $this->inventory->display($this->filter->page, $this->filter->nb,
+        $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
             (dotclear()->user()->isSuperAdmin() ?
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 

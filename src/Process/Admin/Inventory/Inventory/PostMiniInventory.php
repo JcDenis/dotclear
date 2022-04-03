@@ -57,19 +57,15 @@ class PostMiniInventory extends Inventory
                 $html_block = sprintf($enclose_block, $html_block);
             }
 
-            echo $pager->getLinks();
-
             $blocks = explode('%s', $html_block);
 
-            echo $blocks[0];
+            echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
                 echo $this->postLine();
             }
 
-            echo $blocks[1];
-
-            echo $pager->getLinks();
+            echo $blocks[1] . $pager->getLinks();
         }
     }
 
@@ -83,7 +79,7 @@ class PostMiniInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
         $sts_class  = '';
-        switch ($this->rs->post_status) {
+        switch ($this->rs->fInt('post_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png');
                 $sts_class  = 'sts-online';
@@ -107,32 +103,32 @@ class PostMiniInventory extends Inventory
         }
 
         $protected = '';
-        if ($this->rs->post_password) {
+        if ($this->rs->f('post_password')) {
             $protected = sprintf($img, __('Protected'), 'locker.png');
         }
 
         $selected = '';
-        if ($this->rs->post_selected) {
+        if ($this->rs->f('post_selected')) {
             $selected = sprintf($img, __('Selected'), 'selected.png');
         }
 
         $attach   = '';
         $nb_media = $this->rs->countMedia();
-        if ($nb_media > 0) {
-            $attach_str = $nb_media == 1 ? __('%d attachment') : __('%d attachments');
+        if (0 < $nb_media) {
+            $attach_str = 1 == $nb_media ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png');
         }
 
-        $res = '<tr class="line ' . ($this->rs->post_status != 1 ? 'offline ' : '') . $sts_class . '"' .
-        ' id="p' . $this->rs->post_id . '">';
+        $res = '<tr class="line ' . (1 != $this->rs->fInt('post_status') ? 'offline ' : '') . $sts_class . '"' .
+        ' id="p' . $this->rs->f('post_id') . '">';
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
+            dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '" ' .
             'title="' . Html::escapeHTML($this->rs->getURL()) . '">' .
-            Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
-            'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_id) . '</td>',
+            Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
+            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
+            'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_id')) . '</td>',
             'status' => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
 

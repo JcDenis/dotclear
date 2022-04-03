@@ -34,15 +34,15 @@ class BlogDel extends Page
         if (!empty($_POST['blog_id'])) {
             try {
                 $rs = dotclear()->blogs()->getBlog($_POST['blog_id']);
+
+                if ($rs->isEmpty()) {
+                    dotclear()->error()->add(__('No such blog ID'));
+                } else {
+                    $this->blog_id   = $rs->f('blog_id');
+                    $this->blog_name = $rs->f('blog_name');
+                }
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
-            }
-
-            if ($rs->isEmpty()) {
-                dotclear()->error()->add(__('No such blog ID'));
-            } else {
-                $this->blog_id   = $rs->blog_id;
-                $this->blog_name = $rs->blog_name;
             }
         }
 

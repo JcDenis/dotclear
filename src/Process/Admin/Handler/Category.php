@@ -20,7 +20,7 @@ use Dotclear\Helper\Html\Html;
 
 class Category extends Page
 {
-    private $cat_id          = '';
+    private $cat_id          = null;
     private $cat_title       = '';
     private $cat_url         = '';
     private $cat_desc        = '';
@@ -47,17 +47,17 @@ class Category extends Page
             }
 
             if (!dotclear()->error()->flag() && !$rs->isEmpty()) {
-                $this->cat_id    = (int) $rs->cat_id;
-                $this->cat_title = $rs->cat_title;
-                $this->cat_url   = $rs->cat_url;
-                $this->cat_desc  = $rs->cat_desc;
+                $this->cat_id    = $rs->fInt('cat_id');
+                $this->cat_title = $rs->f('cat_title');
+                $this->cat_url   = $rs->f('cat_url');
+                $this->cat_desc  = $rs->f('cat_desc');
             }
             unset($rs);
 
             # Getting hierarchy information
-            $parents    = dotclear()->blog()->categories()->getCategoryParents($this->cat_id);
-            $rs         = dotclear()->blog()->categories()->getCategoryParent($this->cat_id);
-            $this->cat_parent = $rs->isEmpty() ? 0 : (int) $rs->cat_id;
+            $parents = dotclear()->blog()->categories()->getCategoryParents($this->cat_id);
+            $rs      = dotclear()->blog()->categories()->getCategoryParent($this->cat_id);
+            $this->cat_parent = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
             unset($rs);
 
             # Allowed parents list
@@ -66,15 +66,15 @@ class Category extends Page
 
             $p = [];
             while ($children->fetch()) {
-                $p[$children->cat_id] = 1;
+                $p[$children->f('cat_id')] = 1;
             }
 
             $rs = dotclear()->blog()->categories()->getCategories();
             while ($rs->fetch()) {
-                if (!isset($p[$rs->cat_id])) {
+                if (!isset($p[$rs->fInt('cat_id')])) {
                     $this->allowed_parents[] = new FormSelectOption(
-                        str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title),
-                        $rs->cat_id
+                        str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . ($rs->fInt('level') - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')),
+                        $rs->fInt('cat_id')
                     );
                 }
             }
@@ -83,15 +83,15 @@ class Category extends Page
             # Allowed siblings list
             $rs = dotclear()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
             while ($rs->fetch()) {
-                if ($rs->cat_id != $this->cat_id) {
-                    $this->siblings[Html::escapeHTML($rs->cat_title)] = $rs->cat_id;
+                if ($rs->fint('cat_id') != $this->cat_id) {
+                    $this->siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
                 }
             }
             unset($rs);
         }
 
         # Changing parent
-        if ($this->cat_id && isset($_POST['cat_parent'])) {
+        if (null !== $this->cat_id && isset($_POST['cat_parent'])) {
             $new_parent = (int) $_POST['cat_parent'];
             if ($this->cat_parent != $new_parent) {
                 try {
@@ -105,7 +105,7 @@ class Category extends Page
         }
 
         # Changing sibling
-        if ($this->cat_id && isset($_POST['cat_sibling'])) {
+        if (null !== $this->cat_id && isset($_POST['cat_sibling'])) {
             try {
                 dotclear()->blog()->categories()->setCategoryPosition($this->cat_id, (int) $_POST['cat_sibling'], $_POST['cat_move']);
                 dotclear()->notice()->addSuccessNotice(__('The category has been successfully moved'));
@@ -119,21 +119,21 @@ class Category extends Page
         if (isset($_POST['cat_title'])) {
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
 
-            $cur->cat_title = $this->cat_title = $_POST['cat_title'];
+            $cur->setField('cat_title', $this->cat_title = $_POST['cat_title']);
 
             if (isset($_POST['cat_desc'])) {
-                $cur->cat_desc = $this->cat_desc = $_POST['cat_desc'];
+                $cur->setField('cat_desc', $this->cat_desc = $_POST['cat_desc']);
             }
 
             if (isset($_POST['cat_url'])) {
-                $cur->cat_url = $this->cat_url = $_POST['cat_url'];
+                $cur->setField('cat_url', $this->cat_url = $_POST['cat_url']);
             } else {
-                $cur->cat_url = $this->cat_url;
+                $cur->setField('cat_url', $this->cat_url);
             }
 
             try {
                 # Update category
-                if ($this->cat_id) {
+                if (null !== $this->cat_id) {
                     # --BEHAVIOR-- adminBeforeCategoryUpdate
                     dotclear()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
@@ -157,7 +157,7 @@ class Category extends Page
                     dotclear()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
 
                     dotclear()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully created.'),
-                        Html::escapeHTML($cur->cat_title)));
+                        Html::escapeHTML($cur->getField('cat_title'))));
                     dotclear()->adminurl()->redirect('admin.categories');
                 }
             } catch (\Exception $e) {
@@ -167,22 +167,22 @@ class Category extends Page
 
 
         # Page setup
-        $title = $this->cat_id ? Html::escapeHTML($this->cat_title) : __('New category');
+        $title = null !== $this->cat_id ? Html::escapeHTML($this->cat_title) : __('New category');
 
         $elements = [
             Html::escapeHTML(dotclear()->blog()->name) => '',
-            __('Categories')                       => dotclear()->adminurl()->get('admin.categories')
+            __('Categories')                           => dotclear()->adminurl()->get('admin.categories')
         ];
-        if ($this->cat_id) {
+        if (null !== $this->cat_id) {
             while ($parents->fetch()) {
-                $elements[Html::escapeHTML($parents->cat_title)] = dotclear()->adminurl()->get('admin.category', ['id' => $parents->cat_id]);
+                $elements[Html::escapeHTML($parents->f('cat_title'))] = dotclear()->adminurl()->get('admin.category', ['id' => $parents->f('cat_id')]);
             }
         }
         $elements[$title] = '';
 
         $category_editor = dotclear()->user()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags       = dotclear()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }
@@ -216,15 +216,15 @@ class Category extends Page
             'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"'
         ]) .
             '</p>';
-        if (!$this->cat_id) {
+        if (null === $this->cat_id) {
             $rs = dotclear()->blog()->categories()->getCategories();
             echo
             '<p><label for="new_cat_parent">' . __('Parent:') . ' ' .
             '<select id="new_cat_parent" name="new_cat_parent" >' .
             '<option value="0">' . __('(none)') . '</option>';
             while ($rs->fetch()) {
-                echo '<option value="' . $rs->cat_id . '" ' . (!empty($_POST['new_cat_parent']) && $_POST['new_cat_parent'] == $rs->cat_id ? 'selected="selected"' : '') . '>' .
-                str_repeat('&nbsp;&nbsp;', $rs->level - 1) . ($rs->level - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->cat_title) . '</option>';
+                echo '<option value="' . $rs->f('cat_id') . '" ' . (!empty($_POST['new_cat_parent']) && $_POST['new_cat_parent'] == $rs->f('cat_id') ? 'selected="selected"' : '') . '>' .
+                str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0 == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')) . '</option>';
             }
             echo
                 '</select></label></p>';
@@ -249,12 +249,12 @@ class Category extends Page
 
         '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        ($this->cat_id ? Form::hidden('id', $this->cat_id) : '') .
+        (null !== $this->cat_id ? Form::hidden('id', $this->cat_id) : '') .
         dotclear()->adminurl()->getHiddenFormFields('admin.category', [], true) .
             '</p>' .
             '</form>';
 
-        if ($this->cat_id) {
+        if (null !== $this->cat_id) {
             echo
             '<h3 class="border-top">' . __('Move this category') . '</h3>' .
             '<div class="two-cols">' .
@@ -269,7 +269,7 @@ class Category extends Page
                 '</form>' .
                 '</div>';
 
-            if (count($this->siblings) > 0) {
+            if (0 < count($this->siblings)) {
                 echo
                 '<div class="col">' .
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .

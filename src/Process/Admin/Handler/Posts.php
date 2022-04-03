@@ -55,9 +55,9 @@ class Posts extends Page
         # --BEHAVIOR-- adminPostsSortbyLexCombo
         dotclear()->behavior()->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->sortby]) :
-            $this->filter->sortby) . ' ' . $this->filter->order;
+        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         $params['no_content'] = true;
 
@@ -86,9 +86,9 @@ class Posts extends Page
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            static::success(__('Selected entries have been successfully updated.'));
+            dotclear()->notice()->success(__('Selected entries have been successfully updated.'));
         } elseif (!empty($_GET['del'])) {
-            static::success(__('Selected entries have been successfully deleted.'));
+            dotclear()->notice()->success(__('Selected entries have been successfully deleted.'));
         }
         if (!dotclear()->error()->flag()) {
             echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
@@ -97,7 +97,7 @@ class Posts extends Page
             $this->filter->display('admin.posts');
 
             # Show posts
-            $this->inventory->display($this->filter->page, $this->filter->nb,
+            $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .

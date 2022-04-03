@@ -54,12 +54,12 @@ class Comments extends Page
         # --BEHAVIOR-- adminCommentsSortbyLexCombo
         dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->sortby, $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->sortby]) :
-            $this->filter->sortby) . ' ' . $this->filter->order;
+        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         # default filter ? do not display spam
-        if (!$this->filter->show() && $this->filter->status == '') {
+        if (!$this->filter->show() && '' == $this->filter->get('status')) {
             $params['comment_status_not'] = -2;
         }
         $params['no_content'] = true;
@@ -110,7 +110,7 @@ class Comments extends Page
 
         $combo_action = [];
         $default      = '';
-        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id) && $this->filter->status == -2) {
+        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id) && -2 == $this->filter->get('status')) {
             $default = 'delete';
         }
 
@@ -120,15 +120,15 @@ class Comments extends Page
         }
 
         $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
-        if ($spam_count > 0) {
+        if (0 < $spam_count) {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';
 
-            if (!$this->filter->show() || ($this->filter->status != -2)) {
-                if ($spam_count == 1) {
+            if (!$this->filter->show() || -2 != $this->filter->get('status')) {
+                if (1 == $spam_count) {
                     echo '<p>' . sprintf(__('You have one spam comment.'), '<strong>' . $spam_count . '</strong>') . ' ' .
                     '<a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show it.') . '</a></p>';
-                } elseif ($spam_count > 1) {
+                } else {
                     echo '<p>' . sprintf(__('You have %s spam comments.'), '<strong>' . $spam_count . '</strong>') . ' ' .
                     '<a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show them.') . '</a></p>';
                 }
@@ -148,7 +148,7 @@ class Comments extends Page
         $this->filter->display('admin.comments');
 
         # Show comments
-        $this->inventory->display($this->filter->page, $this->filter->nb,
+        $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
@@ -165,7 +165,7 @@ class Comments extends Page
 
             '</form>',
             $this->filter->show(),
-            ($this->filter->show() || ($this->filter->status == -2)),
+            ($this->filter->show() || -2 == $this->filter->get('status')),
             dotclear()->user()->check('contentadmin', dotclear()->blog()->id)
         );
     }

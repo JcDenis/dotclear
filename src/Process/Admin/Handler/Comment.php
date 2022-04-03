@@ -30,7 +30,6 @@ class Comment extends Page
     private $comment_content     = '';
     private $comment_ip          = '';
     private $comment_status      = '';
-    private $comment_trackback   = 0;
     private $post_url            = '';
     private $can_edit            = false;
     private $can_delete          = false;
@@ -54,11 +53,11 @@ class Comment extends Page
 
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
-                $cur->comment_author  = $_POST['comment_author'];
-                $cur->comment_email   = Html::clean($_POST['comment_email']);
-                $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = Html::filter($_POST['comment_content']);
-                $cur->post_id         = (int) $_POST['post_id'];
+                $cur->setField('comment_author', $_POST['comment_author']);
+                $cur->setField('comment_email', Html::clean($_POST['comment_email']));
+                $cur->setField('comment_site', Html::clean($_POST['comment_site']));
+                $cur->setField('comment_content', Html::filter($_POST['comment_content']));
+                $cur->setField('post_id', (int) $_POST['post_id']);
 
                 # --BEHAVIOR-- adminBeforeCommentCreate
                 dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
@@ -72,7 +71,7 @@ class Comment extends Page
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
-            Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id, false) . '&co=1');
+            Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'), false) . '&co=1');
         }
 
         $rs         = null;
@@ -81,23 +80,21 @@ class Comment extends Page
         $post_title = '';
 
         if (!empty($_REQUEST['id'])) {
-            $params['comment_id'] = $_REQUEST['id'];
 
             try {
-                $rs = dotclear()->blog()->comments()->getComments($params);
+                $rs = dotclear()->blog()->comments()->getComments(['comment_id' => $_REQUEST['id']]);
                 if (!$rs->isEmpty()) {
-                    $this->comment_id          = $rs->comment_id;
-                    $post_id             = $rs->post_id;
-                    $post_type           = $rs->post_type;
-                    $post_title          = $rs->post_title;
-                    $this->comment_dt          = $rs->comment_dt;
-                    $this->comment_author      = $rs->comment_author;
-                    $this->comment_email       = $rs->comment_email;
-                    $this->comment_site        = $rs->comment_site;
-                    $this->comment_content     = $rs->comment_content;
-                    $this->comment_ip          = $rs->comment_ip;
-                    $this->comment_status      = $rs->comment_status;
-                    $this->comment_trackback   = (bool) $rs->comment_trackback;
+                    $this->comment_id        = $rs->fInt('comment_id');
+                    $post_id                 = $rs->fInt('post_id');
+                    $post_type               = $rs->f('post_type');
+                    $post_title              = $rs->f('post_title');
+                    $this->comment_dt        = $rs->f('comment_dt');
+                    $this->comment_author    = $rs->f('comment_author');
+                    $this->comment_email     = $rs->f('comment_email');
+                    $this->comment_site      = $rs->f('comment_site');
+                    $this->comment_content   = $rs->f('comment_content');
+                    $this->comment_ip        = $rs->f('comment_ip');
+                    $this->comment_status    = $rs->fInt('comment_status');
                 }
             } catch (\Exception $e) {
                 dotclear()->error()->add($e->getMessage());
@@ -112,7 +109,7 @@ class Comment extends Page
         if (!dotclear()->error()->flag() && isset($rs)) {
             $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
 
-            if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id) && dotclear()->user()->userID() == $rs->user_id) {
+            if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id) && dotclear()->user()->userID() == $rs->f('user_id')) {
                 $this->can_edit = true;
                 if (dotclear()->user()->check('delete', dotclear()->blog()->id)) {
                     $this->can_delete = true;
@@ -126,13 +123,13 @@ class Comment extends Page
             if (!empty($_POST['update']) && $this->can_edit) {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
-                $cur->comment_author  = $_POST['comment_author'];
-                $cur->comment_email   = Html::clean($_POST['comment_email']);
-                $cur->comment_site    = Html::clean($_POST['comment_site']);
-                $cur->comment_content = Html::filter($_POST['comment_content']);
+                $cur->setField('comment_author', $_POST['comment_author']);
+                $cur->setField('comment_email', Html::clean($_POST['comment_email']));
+                $cur->setField('comment_site', Html::clean($_POST['comment_site']));
+                $cur->setField('comment_content', Html::filter($_POST['comment_content']));
 
                 if (isset($_POST['comment_status'])) {
-                    $cur->comment_status = (int) $_POST['comment_status'];
+                    $cur->setField('comment_status', (int) $_POST['comment_status']);
                 }
 
                 try {
@@ -159,7 +156,7 @@ class Comment extends Page
                     dotclear()->blog()->comments()->delComment($this->comment_id);
 
                     dotclear()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->post_type, $rs->post_id) . '&co=1');
+                    Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
@@ -205,7 +202,7 @@ class Comment extends Page
         }
 
         if (!empty($_GET['upd'])) {
-            static::success(__('Comment has been successfully updated.'));
+            dotclear()->notice()->success(__('Comment has been successfully updated.'));
         }
 
         # Status combo

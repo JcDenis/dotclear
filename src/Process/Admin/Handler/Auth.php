@@ -213,8 +213,8 @@ class Auth extends Page
                 $user_id = substr($data['cookie_admin'], 40);
                 $user_id = @unpack('a32', @pack('H*', $user_id));
                 if (is_array($user_id)) {
-                    $this->user_id    = trim((string) $data['user_id']);
-                    $this->user_key   = substr($data['cookie_admin'], 0, 40);
+                    $this->user_id  = trim((string) $data['user_id']);
+                    $this->user_key = substr($data['cookie_admin'], 0, 40);
                     $check_user = dotclear()->user()->checkUser($this->user_id, null, $this->user_key) === true;
                 } else {
                     $this->user_id = trim((string) $user_id);  // @phpstan-ignore-line
@@ -235,9 +235,9 @@ class Auth extends Page
                 throw new AdminException(__("You didn't change your password."));
             }
 
-            $cur                  = dotclear()->con->openCursor(dotclear()->prefix . 'user');
-            $cur->user_change_pwd = 0;
-            $cur->user_pwd        = $_POST['new_pwd'];
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+            $cur->setField('user_change_pwd', 0);
+            $cur->setField('user_pwd', $_POST['new_pwd']);
             dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
             dotclear()->session()->start();

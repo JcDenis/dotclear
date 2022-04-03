@@ -66,29 +66,24 @@ class UserInventory extends Inventory
                 $html_block = sprintf($enclose_block, $html_block);
             }
 
-            echo $pager->getLinks();
-
             $blocks = explode('%s', $html_block);
 
-            echo $blocks[0];
+            echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
                 echo $this->userLine();
             }
 
-            echo $blocks[1];
-
             $fmt = function ($title, $image) {
                 return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
             };
-            echo '<p class="info">' . __('Legend: ') .
+
+            echo $blocks[1] .
+                '<p class="info">' . __('Legend: ') .
                 $fmt(__('admin'), 'admin.png') . ' - ' .
                 $fmt(__('superadmin'), 'superadmin.png') .
-                '</p>';
-
-            echo $blocks[2];
-
-            echo $pager->getLinks();
+                '</p>' .
+                $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -102,29 +97,29 @@ class UserInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $p = dotclear()->users()->getUserPermissions($this->rs->user_id);
+        $p = dotclear()->users()->getUserPermissions($this->rs->f('user_id'));
 
         if (isset($p[dotclear()->blog()->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
-        if ($this->rs->user_super) {
+        if ($this->rs->fInt('user_super')) {
             $img_status = sprintf($img, __('superadmin'), 'superadmin.png');
         }
 
         $res = '<tr class="line">';
 
         $cols = [
-            'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], (int) $this->rs->nb_post) .
-            Form::checkbox(['users[]'], $this->rs->user_id) . '</td>',
+            'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], $this->rs->fint('nb_post')) .
+            Form::checkbox(['users[]'], $this->rs->f('user_id')) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
-            dotclear()->adminurl()->get('admin.user', ['id' => $this->rs->user_id]) . '">' .
-            $this->rs->user_id . '</a>&nbsp;' . $img_status . '</td>',
-            'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_firstname) . '</td>',
-            'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_name) . '</td>',
-            'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->user_displayname) . '</td>',
+            dotclear()->adminurl()->get('admin.user', ['id' => $this->rs->f('user_id')]) . '">' .
+            $this->rs->f('user_id') . '</a>&nbsp;' . $img_status . '</td>',
+            'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_firstname')) . '</td>',
+            'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_name')) . '</td>',
+            'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_displayname')) . '</td>',
             'entries'      => '<td class="nowrap count"><a href="' .
-            dotclear()->adminurl()->get('admin.posts', ['user_id' => $this->rs->user_id]) . '">' .
-            $this->rs->nb_post . '</a></td>',
+            dotclear()->adminurl()->get('admin.posts', ['user_id' => $this->rs->f('user_id')]) . '">' .
+            $this->rs->f('nb_post') . '</a></td>',
         ];
 
         $cols = new \ArrayObject($cols);
