@@ -90,8 +90,8 @@ abstract class DefaultPostAction extends Action
             $excluded_ids = [];
             if ($rs->rows()) {
                 while ($rs->fetch()) {
-                    if ((int) $rs->post_status === 1) {
-                        $excluded_ids[] = (int) $rs->post_id;
+                    if (1 === $rs->fInt('post_status')) {
+                        $excluded_ids[] = $rs->fInt('post_id');
                     }
                 }
             }

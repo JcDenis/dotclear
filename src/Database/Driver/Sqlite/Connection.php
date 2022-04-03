@@ -74,7 +74,7 @@ class Connection extends AbstractConnection
                 $this->db_exec($handle, 'VACUUM');
             }
             $handle       = null;
-            $this->__link = null;
+            $this->__link = false;
         }
     }
 

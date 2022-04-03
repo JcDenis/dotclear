@@ -14,11 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
-use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -30,17 +27,17 @@ class Comments extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getActionInstance(): ?Action
+    protected function getActionInstance(): ?CommentAction
     {
         return new CommentAction(dotclear()->adminurl()->get('admin.comments'));;
     }
 
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?CommentFilter
     {
         return new CommentFilter();
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?CommentInventory
     {
         $params = $this->filter->params();
 

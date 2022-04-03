@@ -39,7 +39,7 @@ class ThemeEditor
     public function __construct()
     {
         # Default template set
-        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->get('template_default');
+        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->get('template_default'));
         $this->tplset_name  = dotclear()->config()->get('template_default');
 
         # Current theme
@@ -274,14 +274,14 @@ class ThemeEditor
     protected function updateFileInList($type, $f, $file)
     {
         $file = match ($type) {
-            'tpl'   => &$this->tpl,
-            'css'   => &$this->css,
-            'js'    => &$this->js,
-            'po'    => &$this->po,
-            'php'   => &$this->php,
-            default = [];
-        }
-        if ($list) {
+            'tpl'   => $this->tpl,
+            'css'   => $this->css,
+            'js'    => $this->js,
+            'po'    => $this->po,
+            'php'   => $this->php,
+            default => [],
+        };
+        if ($list) { //!
             $list[$f] = $file;
         }
     }

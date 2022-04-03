@@ -62,14 +62,24 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Magic call
+     * @see self::call()
+     */
+    public function __call(string $function, array $args): mixed
+    {
+        array_unshift($args, $function);
+
+        return call_user_func_array([$this, 'call'], $args);
+    }
+
+    /**
+     * Call a registered method
      *
      * Magic call function. Calls function added by {@link extend()} if exists, passing it
      * self object and arguments.
      *
      * @return  mixed
      */
-    public function __call(string $function, array $args): mixed
+    public function call(string $function, mixed ...$args): mixed
     {
         if (isset($this->__extend[$function])) {
 

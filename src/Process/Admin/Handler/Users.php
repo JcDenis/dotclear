@@ -17,11 +17,7 @@ use ArrayObject;
 
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\Action\UserAction;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
-use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -33,12 +29,12 @@ class Users extends Page
         return null;
     }
 
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?UserFilter
     {
         return new UserFilter();
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?UserInventory
     {
         $params = $this->filter->params();
 

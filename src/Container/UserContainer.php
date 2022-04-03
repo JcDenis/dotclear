@@ -45,7 +45,7 @@ class UserContainer extends AbstractContainer
         parent::fromRecord($rs);
 
         if ($rs && $rs->exists('user_options')) {
-            $this->setOptions($rs->options());
+            $this->setOptions($rs->call('options'));
         }
     }
 

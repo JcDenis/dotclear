@@ -239,8 +239,9 @@ class RestMethods
         } else {
 
             # --BEHAVIOR-- restCheckStoreUpdate
-            dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [& $mod], [& $url]);
+            dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [&$mod], [&$url]);
 
+            /** @phpstan-ignore-next-line */
             if (empty($mod) || empty($url)) {
                 throw new AdminException('Unknown store type');
             }
@@ -374,9 +375,11 @@ class RestMethods
         ]);
 
         if (dotclear()->user()->userID()) {
-            $rsp->comment_ip($rs->f('comment_ip'));
-            $rsp->comment_email($rs->f('comment_email'));
-//!            $rsp->comment_spam_disp(dcAntispam::statusMessage($rs));
+            $rsp->insertNode([
+                'comment_ip' => $rs->f('comment_ip'),
+                'comment_email' => $rs->f('comment_email'),
+            ]);
+//!            $rsp->insertNode(['comment_spam_disp' => dcAntispam::statusMessage($rs)]);
         }
 
         return $rsp;

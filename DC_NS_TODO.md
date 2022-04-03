@@ -12,13 +12,11 @@
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
 - [ ] use array instead of constant for all DOTLCEAR_xxx stuff
-- [ ] fix admin popup
-- [ ] auto create settings namespace and prefs workspace
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
-- [ ] fix install in user's lang
+- [ ] use class for html form elements and static method for simple cases
+- [ ] remove maximum php magic methods or add equivalent methods
 
 ### Idea
 
 - Merge Distrib into Install
-- Abstract class for admin page
 - use Trait for instead of Utils::

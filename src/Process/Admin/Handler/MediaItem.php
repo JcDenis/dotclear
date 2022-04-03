@@ -13,13 +13,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Core\Media\Media;
+use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
+use Dotclear\Process\Admin\Page\Page;
 
 class MediaItem extends Page
 {
@@ -28,7 +30,10 @@ class MediaItem extends Page
     private $page_url_params;
     private $media_page_url_params;
     private $id;
+    
+    /** @var    Item|null   File info */
     private $file;
+
     private $dirs_combo;
     private $media_writable;
 

@@ -245,38 +245,38 @@ class DefaultFilter
     public function parse(): void
     {
         # form select
-        if ($this->form == 'select') {
+        if ('select' == $this->get('form')) {
             # _GET value
-            if ($this->value === null) {
-                $get = $_GET[$this->id] ?? '';
-                if ($get === '' || !in_array($get, $this->options, true)) {
+            if (null === $this->get('value')) {
+                $get = $_GET[$this->get('id')] ?? '';
+                if ('' === $get || !in_array($get, $this->get('options'), true)) {
                     $get = '';
                 }
                 $this->value($get);
             }
             # HTML field
-            $select = (new FormSelect($this->id))
-                ->default($this->value)
-                ->items($this->options);
+            $select = (new FormSelect($this->get('id')))
+                ->default($this->get('value'))
+                ->items($this->get('options'));
 
-            $label = (new FormLabel($this->title, 2, $this->id))
+            $label = (new FormLabel($this->get('title'), 2, $this->get('id')))
                 ->class('ib');
 
             $this->html($label->render($select->render()), false);
 
         # form input
-        } elseif ($this->form == 'input') {
+        } elseif ('input' == $this->get('form')) {
             # _GET value
-            if ($this->value === null) {
-                $this->value(!empty($_GET[$this->id]) ? $_GET[$this->id] : '');
+            if (null === $this->get('value')) {
+                $this->value(!empty($_GET[$this->get('id')]) ? $_GET[$this->get('id')] : '');
             }
             # HTML field
-            $input = (new FormInput($this->id))
+            $input = (new FormInput($this->get('id')))
                 ->size(20)
                 ->maxlength(255)
-                ->value($this->value);
+                ->value($this->get('value'));
 
-            $label = (new FormLabel($this->title, 2, $this->id))
+            $label = (new FormLabel($this->get('title'), 2, $this->get('id')))
                 ->class('ib');
 
             $this->html($label->render($input->render()), false);

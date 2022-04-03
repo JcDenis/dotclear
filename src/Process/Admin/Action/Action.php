@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action;
 
 use ArrayObject;
-
+use Closure;
 use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
@@ -42,7 +42,7 @@ abstract class Action extends Page
     protected $redir_anchor = '';
 
     /** @var string current action, if any */
-    protected $action = '';
+    protected $caction = '';
 
     /** @var ArrayObject list of url parameters (usually $_POST) */
     protected $from;
@@ -75,7 +75,7 @@ abstract class Action extends Page
         $this->actions         = new ArrayObject();
         $this->combo           = [];
         $this->redirect_fields = [];
-        $this->action          = '';
+        $this->caction          = '';
         $this->cb_title        = __('Title');
         $this->entries         = [];
         $this->from            = new ArrayObject($_POST);
@@ -291,7 +291,7 @@ abstract class Action extends Page
      */
     public function getAction(): string
     {
-        return $this->action;
+        return $this->caction;
     }
 
     /**
@@ -319,7 +319,7 @@ abstract class Action extends Page
         $this->setupRedir($this->from);
         $this->fetchEntries($this->from);
         if (isset($this->from['action'])) {
-            $this->action = $this->from['action'];
+            $this->caction = $this->from['action'];
 
             try {
                 $performed = false;
@@ -333,7 +333,7 @@ abstract class Action extends Page
                     return true;
                 }
             } catch (\Exception $e) {
-                $this->error()->add($e->getMessage());
+                dotclear()->error()->add($e->getMessage());
                 return false;
             }
         }

@@ -52,7 +52,7 @@ class PostMedia extends Page
         try {
             $postmedia = new CoreMedia();
 
-            if ($post_id && $media_id && !empty($_REQUEST['attach'])) {
+            if (null !== $post_id && null !== $media_id && !empty($_REQUEST['attach'])) {
                 $postmedia->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');

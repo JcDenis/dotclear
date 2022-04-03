@@ -309,22 +309,18 @@ class Posts
             return $sql->statement();
         }
 
-        $rs            = $sql->select();
-        $rs->_nb_media = [];
+        $rs = $sql->select();
         $rs->extend(new RsExtPost());
 
         # --BEHAVIOR-- coreBlogGetPosts
         dotclear()->behavior()->call('coreBlogGetPosts', $rs);
 
-        $alt = new ArrayObject(['rs' => null, 'params' => $params, 'count_only' => $count_only]);
+        $alt = new ArrayObject(['rs' => $rs, 'params' => $params, 'count_only' => $count_only]);
 
         # --BEHAVIOR-- coreBlogAfterGetPosts
         dotclear()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
-        if ($alt['rs'] instanceof Record) {
-            $rs = $alt['rs'];
-        }
-
-        return $rs;
+        
+        return isset($alt['rs']) && $alt['rs'] instanceof Record ? $alt['rs'] : $rs;
     }
 
     /**

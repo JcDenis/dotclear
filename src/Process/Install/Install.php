@@ -370,7 +370,7 @@ class Install
 
             '<p><input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>';
-        } elseif ($can_install && $step == 1) {
+        } elseif ($can_install) {
             echo
             '<h2>' . __('All done!') . '</h2>' .
 
@@ -394,7 +394,7 @@ class Install
             Form::hidden(['user_pwd'], Html::escapeHTML($u_pwd)) .
                 '</p>' .
                 '</form>';
-        } elseif (!$can_install) {
+        } else {
             echo '<h2>' . __('Installation can not be completed') . '</h2>' .
             '<div class="error" role="alert"><p><strong>' . __('Errors:') . '</strong></p>' . $err . '</div>' .
             '<p>' . __('For the said reasons, Dotclear can not be installed. ' .

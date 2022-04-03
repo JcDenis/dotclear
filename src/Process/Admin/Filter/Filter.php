@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
+use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
@@ -96,7 +97,7 @@ class Filter extends Filters
 
             if (!empty($_GET['nb'])
                 && (int) $_GET['nb'] > 0
-                && (int) $_GET['nb'] != $this->userOptions('nb')
+                && (int) $_GET['nb'] != (int) $this->userOptions('nb')
             ) {
                 $this->show(true);
                 $this->filters['nb']->value((int) $_GET['nb']);
@@ -199,7 +200,7 @@ class Filter extends Filters
         }
 
         # not well formed filter or reserved id
-        if (!($filter instanceof DefaultFilter) || $filter->id == '') {
+        if (!($filter instanceof DefaultFilter) || '' == $filter->get('id')) {
             return null;
         }
 
@@ -207,15 +208,15 @@ class Filter extends Filters
         $filter->parse();
 
         # set key/value pair
-        $this->filters[$filter->id] = $filter;
+        $this->filters[$filter->get('id')] = $filter;
 
         # has contents
-        if ($filter->html != '' && $filter->form != 'none') {
+        if ('' != $filter->get('html') && 'none' != $filter->get('form')) {
             # not default value = show filters form
-            $this->show($filter->value !== '');
+            $this->show('' !== $filter->get('value'));
         }
 
-        return $filter->value;
+        return $filter->get('value');
     }
 
     /**
@@ -257,9 +258,9 @@ class Filter extends Filters
         }
 
         foreach ($this->filters as $filter) {
-            if ($filter->value !== '') {
-                $filters[0] = $filter->value;
-                foreach ($filter->params as $p) {
+            if ('' !== $filter->get('value')) {
+                $filters[0] = $filter->get('value');
+                foreach ($filter->get('params') as $p) {
                     if (is_callable($p[1])) {
                         $p[1] = call_user_func($p[1], $filters);
                     }
@@ -340,11 +341,11 @@ class Filter extends Filters
         $prime = true;
         $cols  = [];
         foreach ($this->filters as $filter) {
-            if (in_array($filter->id, ['sortby', 'order', 'nb'])) {
+            if (in_array($filter->get('id'), ['sortby', 'order', 'nb'])) {
                 continue;
             }
-            if ($filter->html != '') {
-                $cols[$filter->prime ? 1 : 0][$filter->id] = sprintf('<p>%s</p>', $filter->html);
+            if ('' != $filter->get('html')) {
+                $cols[$filter->get('prime') ? 1 : 0][$filter->get('id')] = sprintf('<p>%s</p>', $filter->get('html'));
             }
         }
         sort($cols);
@@ -368,8 +369,8 @@ class Filter extends Filters
                     ->class('ib');
 
                 $select = (new Form\Select('sortby'))
-                    ->default($this->filters['sortby']->value)
-                    ->items($this->filters['sortby']->options);
+                    ->default($this->filters['sortby']->get('value'))
+                    ->items($this->filters['sortby']->get('options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -381,8 +382,8 @@ class Filter extends Filters
                     ->class('ib');
 
                 $select = (new Form\Select('order'))
-                    ->default($this->filters['order']->value)
-                    ->items($this->filters['order']->options);
+                    ->default($this->filters['order']->get('value'))
+                    ->items($this->filters['order']->get('options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -390,13 +391,13 @@ class Filter extends Filters
                 );
             }
             if (isset($this->filters['nb'])) {
-                $label = (new Form\Label($this->filters['nb']->title, Form\Label::INSIDE_TEXT_AFTER, 'nb'))
+                $label = (new Form\Label($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb'))
                     ->class('classic');
 
                 $number = (new Form\Number('nb'))
                     ->min(0)
                     ->max(999)
-                    ->value($this->filters['nb']->value);
+                    ->value($this->filters['nb']->get('value'));
 
                 echo sprintf(
                     '<p><span class="label ib">' . __('Show') . '</span> %s</p>',

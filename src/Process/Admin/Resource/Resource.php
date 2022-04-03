@@ -107,7 +107,7 @@ class Resource
         # Check if it in Var path
         $var_src  = explode('/', $src);
         $var_path = dotclear()->config()->get('var_dir');
-        if (empty($dirs) && 1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
+        if (1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
             $dirs[] = $var_path;
             $src    = implode('/', $var_src);
         }

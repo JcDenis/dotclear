@@ -85,9 +85,9 @@ class RsExtDate extends RsExtend
             return true;
         }
 
-        $y = $this->rs->year();
+        $y = $this->year();
         $this->rs->movePrev();
-        $py = $this->rs->year();
+        $py = $this->year();
         $this->rs->moveNext();
 
         return $y != $py;
@@ -104,9 +104,9 @@ class RsExtDate extends RsExtend
             return true;
         }
 
-        $y = $this->rs->year();
+        $y = $this->year();
         if ($this->rs->moveNext()) {
-            $ny = $this->rs->year();
+            $ny = $this->year();
             $this->rs->movePrev();
 
             return $y != $ny;

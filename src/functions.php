@@ -43,13 +43,13 @@ if (!function_exists('dotclear_run')) {
         }
 
         # Execute Process
-//        try {
+        try {
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
 
         # Try to display unexpected Exceptions as much cleaned as we can
-/*        } catch (\Exception | \Error $e) {
+        } catch (\Exception | \Error $e) {
             ob_end_clean();
 
             try {
@@ -66,7 +66,7 @@ if (!function_exists('dotclear_run')) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
-*/    }
+    }
 }
 
 if (!function_exists('dotclear')) {
@@ -74,9 +74,9 @@ if (!function_exists('dotclear')) {
     /**
      * Singleton Dotclear Core
      *
-     * @return  Dotclear\Core\Core|null   Singleton core instance
+     * @return  mixed   Singleton core instance
      */
-    function dotclear(): ?Dotclear\Core\Core
+    function dotclear(): mixed
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return Dotclear\Core\Core::singleton();

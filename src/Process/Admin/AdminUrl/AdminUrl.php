@@ -55,7 +55,7 @@ class AdminUrl
      */
     public function called(): string
     {
-        return $_REQUEST['handler'] ?? (empty($this->urls) ? '' : key($this->urls->getArrayCopy()));
+        return $_REQUEST['handler'] ?? ($this->urls->count() ? key($this->urls->getArrayCopy()) : '');
     }
 
     /**
@@ -167,7 +167,7 @@ class AdminUrl
      */
     public function exists(string $name): bool
     {
-        return !empty($this->urls) && isset($this->urls[$name]);
+        return $this->urls->count() && isset($this->urls[$name]);
     }
 
     /**

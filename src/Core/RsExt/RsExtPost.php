@@ -20,6 +20,9 @@ use Dotclear\Helper\Dt;
 
 class RsExtPost extends RsExtend
 {
+    /** @var    array<int, int>     Nb of attach media */
+    public $_nb_media = [];
+
     /**
      * Determines whether the specified post is editable.
      *
@@ -422,8 +425,8 @@ class RsExtPost extends RsExtend
      */
     public function countMedia(mixed $link_type = null): int
     {
-        if (isset($this->rs->_nb_media[$this->rs->index()])) {
-            return $this->rs->_nb_media[$this->rs->index()];
+        if (isset($this->_nb_media[$this->rs->index()])) {
+            return $this->_nb_media[$this->rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
             'FROM ' . dotclear()->prefix . 'post_media ' .
@@ -433,7 +436,7 @@ class RsExtPost extends RsExtend
         }
 
         $res = dotclear()->con()->select($strReq)->fInt();
-        $this->rs->_nb_media[$this->rs->index()] = $res;
+        $this->_nb_media[$this->rs->index()] = $res;
 
         return $res;
     }

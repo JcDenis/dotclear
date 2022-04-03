@@ -108,8 +108,8 @@ class Core
     /** @var    Wiki    Wiki instance */
     private $wiki;
 
-    /** @var    Core    Core singleton instance */
-    private static $instance;
+    /** @var    static|null  Core singleton instance */
+    private static $instance = null;
 
     /** @var    string  Current Process */
     protected $process;
@@ -180,11 +180,11 @@ class Core
      *
      * @param   string|null     $blog_id    Blog ID on first public process call
      *
-     * @return  Core|null                   Core (Process) instance
+     * @return  static|null                 Core (Process) instance
      */
-    final public static function singleton(?string $blog_id = null): ?Core
+    final public static function singleton(?string $blog_id = null): ?static
     {
-        if (!self::$instance && static::class != self::class) {
+        if (null == self::$instance && static::class != self::class) {
             self::$instance = new static();
             self::$instance->process($blog_id);
         }

@@ -52,7 +52,7 @@ class FilterAkismet extends Spamfilter
             return false;
         }
 
-        return new Akismet($blog->url, dotclear()->blog()->settings()->get('akismet')->get('ak_key'));
+        return new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings()->get('akismet')->get('ak_key'));
     }
 
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
@@ -101,7 +101,7 @@ class FilterAkismet extends Spamfilter
 
         try {
             if ($ak->verify()) {
-                $ak->{$f}($rs->getPostURL(), $type, $author, $email, $site, $content);
+                $ak->{$f}($rs->call('getPostURL'), $type, $author, $email, $site, $content);
             }
         } catch (\Exception) {
         } # If http or akismet is dead, we don't need to know it

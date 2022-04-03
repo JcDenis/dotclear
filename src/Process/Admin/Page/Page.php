@@ -49,13 +49,13 @@ abstract class Page
     /** @var bool           Load once xframe */
     private $page_xframe_loaded = false;
 
-    /** @var Action         Action instance */
+    /** @var    object  Action instance */
     protected $action;
 
-    /** @var Filter         Filter instance */
+    /** @var    object  Filter instance */
     protected $filter;
 
-    /** @var Inventory      Inventory instance */
+    /** @var    object  Inventory instance */
     protected $inventory;
 
     /** @var array          Misc options for page content */

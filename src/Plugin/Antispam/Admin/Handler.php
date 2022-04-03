@@ -59,7 +59,7 @@ class Handler extends AbstractPage
             if (!empty($_POST['delete_all'])) {
                 $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
 
-                $this->a_antispam->delAllSpam(dotclear(), $ts);
+                $this->a_antispam->delAllSpam($ts);
 
                 dotclear()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Antispam');

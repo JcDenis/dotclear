@@ -14,10 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\AdminException;
@@ -55,13 +53,13 @@ class Media extends Page
         return 'media,media_admin';
     }
 
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?MediaFilter
     {
         # AdminMedia extends MediaFilter
         return new MediaFilter();
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?MediaInventory
     {
         if (!dotclear()->media()) {
             return null;
@@ -476,7 +474,7 @@ class Media extends Page
         $this->filter->display('admin.media', dotclear()->adminurl()->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
 
         # display list
-        if ($this->inventory) {
+        if (null !== $this->inventory) {
             $this->inventory->display($this->filter, $fmt_form_media, $this->hasQuery());
         }
 
@@ -728,7 +726,7 @@ class Media extends Page
      */
     public function mediaLine(int $file_id): string
     {
-        return $this->inventory ? $this->inventory->mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query) : '';
+        return null !== $this->inventory ? $this->inventory->mediaLine($this->filter, dotclear()->media()->getFile($file_id), 1, $this->media_has_query) : '';
     }
 
     /**

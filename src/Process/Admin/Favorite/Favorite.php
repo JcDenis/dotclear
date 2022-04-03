@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Favorite;
 
 use ArrayObject;
-
+use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Process\Admin\Menu\Summary;
 
 class Favorite
@@ -304,7 +304,7 @@ class Favorite
      * @param   string  $id     Favorite id
      * @param   array   $data   Favorite information. @see self::$default_favorites
      *
-     * @return Favorites instance
+     * @return  Favorite        Favorite instance
      */
     public function register(string $id, array $data): Favorite
     {
@@ -320,9 +320,9 @@ class Favorite
      *
      * @see self::register()
      *
-     * @param   array   $data an array defining all favorites key is the id, value is the data.
+     * @param   array   $data   An array defining all favorites key is the id, value is the data.
      *
-     * @return Favorites instance
+     * @return  Favorite        Favorite instance
      */
     public function registerMultiple(array $data): Favorite
     {

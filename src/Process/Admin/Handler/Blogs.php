@@ -14,14 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
-use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Helper\Html\Form;
 
@@ -32,17 +28,17 @@ class Blogs extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getActionInstance(): ?Action
+    protected function getActionInstance(): ?BlogAction
     {
         return dotclear()->user()->isSuperAdmin() ? new BlogAction(dotclear()->adminurl()->get('admin.blogs')) : null;
     }
 
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?BlogFilter
     {
         return new BlogFilter();
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?BlogInventory
     {
         $params = $this->filter->params();
         $params = new ArrayObject($params);

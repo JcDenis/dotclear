@@ -113,7 +113,7 @@ class PostMiniInventory extends Inventory
         }
 
         $attach   = '';
-        $nb_media = $this->rs->countMedia();
+        $nb_media = $this->rs->call('countMedia');
         if (0 < $nb_media) {
             $attach_str = 1 == $nb_media ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png');
@@ -125,7 +125,7 @@ class PostMiniInventory extends Inventory
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
             dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '" ' .
-            'title="' . Html::escapeHTML($this->rs->getURL()) . '">' .
+            'title="' . Html::escapeHTML($this->rs->call('getURL')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
             'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_id')) . '</td>',

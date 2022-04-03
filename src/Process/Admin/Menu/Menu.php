@@ -37,7 +37,7 @@ class Menu
      * Adds an item.
      *
      * @param      string           $title      The title
-     * @param      string           $url        The url
+     * @param      string|array     $url        The url
      * @param      string|array     $img        The image
      * @param      bool             $active     The active flag
      * @param      bool             $show       The show flag
@@ -45,7 +45,7 @@ class Menu
      * @param      string|null      $class      The class
      * @param      bool             $pinned     The pinned flag
      */
-    public function addItem(string $title, string $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
+    public function addItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
         if ($show) {
             $item = $this->itemDef($title, $url, $img, $active, $id, $class);
@@ -61,7 +61,7 @@ class Menu
      * Prepends an item.
      *
      * @param      string           $title      The title
-     * @param      string           $url        The url
+     * @param      string|array     $url        The url
      * @param      string|array     $img        The image
      * @param      bool             $active     The active flag
      * @param      bool             $show       The show flag
@@ -69,7 +69,7 @@ class Menu
      * @param      string|null      $class      The class
      * @param      bool             $pinned     The pinned flag
      */
-    public function prependItem(string $title, string $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
+    public function prependItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
         if ($show) {
             $item = $this->itemDef($title, $url, $img, $active, $id, $class);
@@ -128,7 +128,7 @@ class Menu
      * Get a menu item HTML code
      *
      * @param   string          $title      The title
-     * @param   string          $url        The url
+     * @param   string|array    $url        The url
      * @param   string|array    $img        The image
      * @param   bool            $active     The active flag
      * @param   string|null     $id         The identifier
@@ -136,7 +136,7 @@ class Menu
      *
      * @return  string                      The forged menu item
      */
-    protected function itemDef(string $title, string $url, string|array $img, bool $active = false, ?string $id = null, ?string $class = null): string
+    protected function itemDef(string $title, string|array $url, string|array $img, bool $active = false, ?string $id = null, ?string $class = null): string
     {
         if (is_array($url)) {
             $link  = $url[0];

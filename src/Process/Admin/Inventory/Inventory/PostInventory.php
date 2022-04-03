@@ -197,7 +197,7 @@ class PostInventory extends Inventory
         }
 
         $attach   = '';
-        $nb_media = $this->rs->countMedia();
+        $nb_media = $this->rs->call('countMedia');
         if (0 < $nb_media) {
             $attach_str = 1 == $nb_media ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png', 'attach');
@@ -213,7 +213,7 @@ class PostInventory extends Inventory
                 $this->rs->f('post_id'),
                 [
                     'checked'  => $checked,
-                    'disabled' => !$this->rs->isEditable(),
+                    'disabled' => !$this->rs->call('isEditable'),
                 ]
             ) .
             '</td>',

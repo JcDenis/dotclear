@@ -19,12 +19,27 @@ use Dotclear\Database\InterfaceConnection;
 
 abstract class AbstractConnection implements InterfaceConnection
 {
-    protected $__driver  = null; ///< string: Driver name
-    protected $__syntax  = null; ///< string: SQL syntax name
-    protected $__version = null; ///< string: Database version
-    protected $__link;           ///< resource: Database resource link
-    protected $__last_result;    ///< resource: Last result resource link
-    protected $__database;
+    /** @var    string  Drvier name */
+    protected $__driver  = null;
+
+    /** @var    string  SQL syntax name */
+    protected $__syntax  = null;
+
+    /** @var    string  SQL syntax name */
+    protected $__version = null;
+
+    /** @var    object|false    Database resource link */
+    protected $__link = false;
+
+    /** @var    object|bool     Last result resource link */
+    protected $__last_result = false;
+
+    /** @var    string  Database name */
+    protected $__database = null;
+
+    /** @var    bool    Enables weak locks for some drivers if true */
+    public static $weak_locks = true;
+
 
     /**
      * Start connection

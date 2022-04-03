@@ -20,8 +20,6 @@ use Dotclear\Exception\DatabaseException;
 
 class Connection extends AbstractConnection
 {
-    public static $weak_locks = true; ///< boolean: Enables weak locks if true
-
     protected $__driver = 'mysqli';
     protected $__syntax = 'mysql';
 

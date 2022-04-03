@@ -17,6 +17,7 @@ use ArrayObject;
 
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 
 class AntispamBehavior
@@ -104,9 +105,9 @@ class AntispamBehavior
      *
      * @param      array   $get    The cleaned $_GET
      *
-     * @return     xmlTag  The spams count.
+     * @return     XmlTag  The spams count.
      */
-    public function restGetSpamsCount($get)
+    public function restGetSpamsCount($get): XmlTag
     {
         $count = (new Antispam())->countSpam();
         if ($count > 0) {

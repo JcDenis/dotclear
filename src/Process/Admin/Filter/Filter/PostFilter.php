@@ -29,9 +29,9 @@ class PostFilter extends Filter
 
         if (empty($this->post_type) || !array_key_exists($this->post_type, dotclear()->posttype()->getPostTypes())) {
             $this->post_type = 'post';
-            if ($this->post_type != 'post') {
-                $this->add((new DefaultFilter('post_type', $this->post_type))->param('post_type'));
-            }
+        }
+        if ('post' != $this->post_type) {
+            $this->add((new DefaultFilter('post_type', $this->post_type))->param('post_type'));
         }
 
         $filters = new ArrayObject([
@@ -112,9 +112,9 @@ class PostFilter extends Filter
         ];
         while ($categories->fetch()) {
             $combo[
-                str_repeat('&nbsp;', ($categories->level - 1) * 4) .
-                Html::escapeHTML($categories->cat_title) . ' (' . $categories->nb_post . ')'
-            ] = (string) $categories->cat_id;
+                str_repeat('&nbsp;', ($categories->fInt('level') - 1) * 4) .
+                Html::escapeHTML($categories->f('cat_title')) . ' (' . $categories->f('nb_post') . ')'
+            ] = (string) $categories->f('cat_id');
         }
 
         return (new DefaultFilter('cat_id'))

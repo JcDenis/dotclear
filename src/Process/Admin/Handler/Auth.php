@@ -101,7 +101,7 @@ class Auth extends Page
             # If we have a remember cookie, go through auth process with user_key
             $user_id = substr($_COOKIE['dc_admin'], 40);
             $user_id = @unpack('a32', @pack('H*', $user_id));
-            if (is_array($this->user_id)) {
+            if (is_array($user_id)) {
                 $this->user_id  = trim((string) $user_id[1]);
                 $this->user_key = substr($_COOKIE['dc_admin'], 0, 40);
                 $this->user_pwd = null;

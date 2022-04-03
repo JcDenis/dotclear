@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -32,7 +31,7 @@ class PostsPopup extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?PostMiniInventory
     {
         $this->plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
         $this->q         = !empty($_GET['q']) ? $_GET['q'] : null;

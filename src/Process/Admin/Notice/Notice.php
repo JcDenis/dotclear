@@ -268,8 +268,8 @@ class Notice
                     'sql' => "AND notice_type != 'static'"
                 ];
             }
-            $counter = $this->get($params, true);
-            if ($counter) {
+            $counter = $this->get($params, true)->fInt();
+            if (0 < $counter) {
                 $lines = $this->get($params);
                 while ($lines->fetch()) {
                     if (isset($this->N_TYPES[$lines->f('notice_type')])) {

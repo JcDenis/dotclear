@@ -27,6 +27,11 @@ class Context
 
     public function __set($name, $var)
     {
+        $this->set($name, $var);
+    }
+
+    public function set($name, $var)
+    {
         if ($var === null) {
             $this->pop($name);
         } else {
@@ -34,19 +39,26 @@ class Context
             if ($var instanceof record) {
                 $this->stack['cur_loop'][] = &$var;
             }
-        }
+        } 
     }
 
     public function __get($name)
     {
+        return $this->get($name);
+    }
+
+    public function get($name)
+    {
         if (!isset($this->stack[$name])) {
-            return;
+            return null;
         }
 
         $n = count($this->stack[$name]);
         if ($n > 0) {
             return $this->stack[$name][($n - 1)];
         }
+
+        return null;
     }
 
     public function exists($name)
@@ -264,9 +276,9 @@ class Context
                 $v .= ' ?not';
             }
             if ($this->exists('categories') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $this->categories->cat_url, $v);
+                $v = preg_replace('/#self/', $this->get('categories')->f('cat_url'), $v);
             } elseif ($this->exists('posts') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $this->posts->cat_url, $v);
+                $v = preg_replace('/#self/', $this->get('posts')->f('cat_url'), $v);
             }
         }
     }
@@ -274,11 +286,11 @@ class Context
     # Static methods for pagination
     public function PaginationNbPages(): int|false
     {
-        if ($this->pagination === null) {
+        if ($this->get('pagination') === null) {
             return false;
         }
 
-        $nb_posts = $this->pagination->fInt();
+        $nb_posts = $this->get('pagination')->fInt();
         if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {
             $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
         } else {
@@ -359,6 +371,7 @@ class Context
             }
         }
 
+        /** @phpstan-ignore-next-line */
         if ($pol['ARCHIVE'] == 'ARCHIVE') {
             unset($pol['ARCHIVE']);
         }
@@ -504,8 +517,8 @@ class Context
             $alt = '';
 
             # We first look in post content
-            if (!$cat_only && $this->posts) {
-                $subject = ($content_only ? '' : $this->posts->post_excerpt_xhtml) . $this->posts->post_content_xhtml;
+            if (!$cat_only && $this->get('posts')) {
+                $subject = ($content_only ? '' : $this->get('posts')->f('post_excerpt_xhtml')) . $this->get('posts')->f('post_content_xhtml');
                 if (preg_match_all($pattern, $subject, $m) > 0) {
                     foreach ($m[1] as $i => $img) {
                         if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
@@ -522,8 +535,8 @@ class Context
             }
 
             # No src, look in category description if available
-            if (!$src && $with_category && $this->posts->cat_desc) {
-                if (preg_match_all($pattern, $this->posts->cat_desc, $m) > 0) {
+            if (!$src && $with_category && $this->get('posts')->f('cat_desc')) {
+                if (preg_match_all($pattern, $this->get('posts')->f('cat_desc'), $m) > 0) {
                     foreach ($m[1] as $i => $img) {
                         if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
                             $dirname = str_replace('\\', '/', dirname($img));

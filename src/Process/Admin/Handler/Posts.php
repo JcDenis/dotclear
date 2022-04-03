@@ -14,11 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
-use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -30,17 +27,17 @@ class Posts extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getActionInstance(): ?Action
+    protected function getActionInstance(): ?PostAction
     {
         return new PostAction(dotclear()->adminurl()->get('admin.posts'));
     }
 
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?PostFilter
     {
         return new PostFilter();
     }
 
-    protected function getInventoryInstance(): ?Inventory
+    protected function getInventoryInstance(): ?PostInventory
     {
         # get list params
         $params = $this->filter->params();

@@ -23,121 +23,18 @@ parameters:
 
   paths:
     - admin
-    - inc
-    - plugins
-    - themes/berlin
-    - themes/blueSilence
-    - themes/customCSS
-    - themes/default
-    - themes/ductile
+    - src
 
   excludePaths:
-    - inc/libs/clearbricks/debian/*
-    - inc/libs/clearbricks/tests/unit/*/*
+    - inc/*
 
   reportUnmatchedIgnoredErrors: false
 
   ignoreErrors:
 
-    # $core variable may not be defined (globally)
-    - message: '#Variable \$core might not be defined#'
-      path: %currentWorkingDirectory%
-
-    # $_lang variable may not be defined (globally)
-    - message: '#Variable \$_lang might not be defined#'
-      path: %currentWorkingDirectory%
-
-    # $p_url variable may not be defined (plugins)
-    - message: '#Variable \$p_url might not be defined#'
-      path: plugins/*/*.php
-
-    # $__widgets variable not may be defined (plugins)
-    - message: '#Variable \$__widgets might not be defined#'
-      path: plugins/*/*.php
-
-    # $__default_widgets variable may not be defined (plugins)
-    - message: '#Variable \$__default_widgets might not be defined#'
-      path: plugins/*/*.php
-
-    # Property flatImport:: (plugins)
-    - message: '#Property flatImport::#'
-      path: plugins/importExport/*/*.php
-
-    # $this variable may not be defined (plugins/themes)
-    - message: '#Variable \$this might not be defined#'
-      path: */*/_define.php
-
-    # $_menu variable may not be defined (plugins/themes)
-    - message: '#Variable \$_menu might not be defined#'
-      path: */*/_admin.php
-
-    # record object and auto properties
-    - message: '#Access to an undefined property record::#'
-      path: %currentWorkingDirectory%
-
-    # dcWidgets object and auto properties
-    - message: '#Access to an undefined property dcWidgets::#'
-      path: %currentWorkingDirectory%
-
-    # xmlTag object and auto properties
-    - message : '#Access to an undefined property xmlTag::#'
-      path: %currentWorkingDirectory%
-
-    # xmlTag object methods
-    - message : '#Call to an undefined method xmlTag::#'
-      path: %currentWorkingDirectory%
-
-    # dcSettings object and auto properties
-    - message : '#Access to an undefined property dcSettings::#'
-      path: %currentWorkingDirectory%
-
-    # dcPrefs object and auto properties
-    - message : '#Access to an undefined property dcPrefs::#'
-      path: %currentWorkingDirectory%
-
-    # dbStruct object and auto properties
-    - message : '#Access to an undefined property dbStruct::#'
-      path: %currentWorkingDirectory%
-
-    # fileItem object and auto properties
-    - message : '#Access to an undefined property fileItem::#'
-      path: %currentWorkingDirectory%
-
-    # cursor object and auto properties
-    - message : '#Access to an undefined property cursor::#'
-      path: %currentWorkingDirectory%
-
-    # static record extensions
-    - message: '#Call to an undefined method record::#'
-      path: %currentWorkingDirectory%
-
-    # static property rsExtUser
-    - message: '#Static property rsExtUser::#'
-      path: %currentWorkingDirectory%
-
-    # static property rsExtBlog
-    - message: '#Static property rsExtBlog::#'
-      path: %currentWorkingDirectory%
-
     # Intensive use of magic __set/__get/__call/__invoke causes theses wrong warnings
-    - message: '#Call to an undefined method form[a-zA-Z0-9\\_]+::#'
-      path: %currentWorkingDirectory%
-
-    # Intensive use of magic __set/__get/__call/__invoke causes theses wrong warnings
-    - message: '#Access to an undefined property form[a-zA-Z0-9\\_]+::#'
-      path: %currentWorkingDirectory%
-
-    # form<*>filters
-    - message: '#Access to an undefined property admin[a-zA-Z0-9\\_]+Filter::\$[a-zA-Z0-9\\_]+.#'
-      path: %currentWorkingDirectory%
-
-    # dcAdminfilters
-    - message: '#Access to an undefined property dcAdminFilter::\$[a-zA-Z0-9\\_]+.#'
-      path: %currentWorkingDirectory%
-
-    # adminMediaPage
-    - message: '#Access to an undefined property adminMediaPage::\$[a-zA-Z0-9\\_]+.#'
-      path: %currentWorkingDirectory%
+    #- message: '#Access to an undefined property form[a-zA-Z0-9\\_]+::#'
+    #  path: %currentWorkingDirectory%
 
 # Notes:
 #
