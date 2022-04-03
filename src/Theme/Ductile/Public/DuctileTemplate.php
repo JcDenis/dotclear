@@ -37,7 +37,7 @@ class DuctileTemplate
     {
         $nb_other = $nb_first = 0;
 
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_counts');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -141,7 +141,7 @@ class DuctileTemplate
 
     public static function ductileEntriesListHelper($default)
     {
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_lists');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -165,7 +165,7 @@ class DuctileTemplate
     {
         $img_url = dotclear()->blog()->getURLFor('resources', 'img/logo.png');
 
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
         if ($s === null) {
             // no settings yet, return default logo
             return $img_url;
@@ -195,7 +195,7 @@ class DuctileTemplate
 
     public function IfPreviewIsNotMandatory($attr, $content)
     {
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
         if ($s !== null) {
             $s = @unserialize($s);
             if (is_array($s)) {

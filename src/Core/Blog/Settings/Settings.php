@@ -16,9 +16,12 @@ namespace Dotclear\Core\Blog\Settings;
 use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\MagicTrait;
 
 class Settings
 {
+    use MagicTrait;
+
     /** @var    string  Setting table name */
     protected $table;
 
@@ -167,20 +170,6 @@ class Settings
     public function get(string $ns): Settingspace
     {
         return $this->addNamespace($ns);
-    }
-
-    /**
-     * Magic __get method.
-     *
-     * @see self::get()
-     *
-     * @param   string  $n  Namespace name
-     *
-     * @return  Settingspace|null
-     */
-    public function __get(string $n): ?Settingspace
-    {
-        return $this->get($n);
     }
 
     /**

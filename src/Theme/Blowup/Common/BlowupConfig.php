@@ -297,10 +297,10 @@ class BlowupConfig
         }
 
         # erase old css file
-        $this->dropCss(dotclear()->blog()->settings()->system->theme);
+        $this->dropCss(dotclear()->blog()->settings()->get('system')->get('theme'));
 
         # create new css file into public Blowup-css subdirectory
-        $this->writeCss(dotclear()->blog()->settings()->system->theme, $res);
+        $this->writeCss(dotclear()->blog()->settings()->get('system')->get('theme'), $res);
 
         return $res;
     }

@@ -50,11 +50,11 @@ class PingsBehavior
 
     public function pingsFormItems($main, $sidebar, $post)
     {
-        if (!dotclear()->blog()->settings()->pings->pings_active) {
+        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->pings->pings_uris;
+        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
@@ -82,11 +82,11 @@ class PingsBehavior
             return;
         }
 
-        if (!dotclear()->blog()->settings()->pings->pings_active) {
+        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->pings->pings_uris;
+        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }

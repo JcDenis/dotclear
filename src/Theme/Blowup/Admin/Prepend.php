@@ -24,7 +24,7 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         dotclear()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
-            return $module->id() == 'Blowup' && dotclear()->user()->check('admin', dotclear()->blog()->id) ?
+            return 'Blowup' == $module->id() && dotclear()->user()->check('admin', dotclear()->blog()->id) ?
                 '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });
@@ -32,7 +32,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->themes->put('Blowup_style', '', 'string', 'Blow Up  custom style', false);
+        dotclear()->blog()->settings()->get('themes')->put('Blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;
     }

@@ -24,7 +24,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        if (!dotclear()->blog()->settings()->LegacyEditor->active) {
+        if (!dotclear()->blog()->settings()->get('LegacyEditor')->get('active')) {
 
             return;
         }
@@ -39,7 +39,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->LegacyEditor->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
+        dotclear()->blog()->settings()->get('LegacyEditor')->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 
         return true;
     }

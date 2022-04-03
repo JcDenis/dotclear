@@ -372,8 +372,8 @@ class ImportWp extends Module
                     $cur->user_email       = $rs->user_email;
                     $cur->user_url         = $rs->user_url;
                     $cur->user_creadt      = $rs->user_registered;
-                    $cur->user_lang        = dotclear()->blog()->settings()->system->lang;
-                    $cur->user_tz          = dotclear()->blog()->settings()->system->blog_timezone;
+                    $cur->user_lang        = dotclear()->blog()->settings()->get('system')->get('lang');
+                    $cur->user_tz          = dotclear()->blog()->settings()->get('system')->get('blog_timezone');
                     $permissions           = [];
 
                     $rs_meta = $db->select('SELECT * FROM ' . $prefix . 'usermeta WHERE user_id = ' . $rs->ID);

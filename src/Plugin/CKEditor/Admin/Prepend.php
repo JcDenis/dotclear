@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
         //$this->addStandardFavorites('admin');
 
         # Settings
-        if (!dotclear()->blog()->settings()->dcckeditor->active) {
+        if (!dotclear()->blog()->settings()->get('dcckeditor')->get('active')) {
             //return;
         }
 
@@ -47,7 +47,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        $s = dotclear()->blog()->settings()->dcckeditor;
+        $s = dotclear()->blog()->settings()->get('dcckeditor');
 
         $s->put('active', true, 'boolean', 'dcCKEditor plugin activated?', false, true);
         $s->put('alignment_buttons', true, 'boolean', 'Add alignment buttons?', false, true);

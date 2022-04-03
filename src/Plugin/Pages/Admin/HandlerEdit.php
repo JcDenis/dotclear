@@ -244,7 +244,7 @@ class HandlerEdit extends AbstractPage
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
             # Magic tweak :)
-            dotclear()->blog()->settings()->system->post_url_format = '{t}';
+            dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             $cur->post_type          = 'page';
             $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
@@ -497,7 +497,7 @@ class HandlerEdit extends AbstractPage
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (dotclear()->blog()->settings()->system->allow_comments ?
+                        (dotclear()->blog()->settings()->get('system')->get('allow_comments') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -507,7 +507,7 @@ class HandlerEdit extends AbstractPage
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (dotclear()->blog()->settings()->system->allow_trackbacks ?
+                        (dotclear()->blog()->settings()->get('system')->get('allow_trackbacks') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -557,7 +557,7 @@ class HandlerEdit extends AbstractPage
                     Form::textarea(
                         'post_content',
                         50,
-                        dotclear()->user()->getOption('edit_size'),
+                        (int) dotclear()->user()->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
@@ -786,11 +786,11 @@ class HandlerEdit extends AbstractPage
             return true;
         }
         if ($com) {
-            if ((dotclear()->blog()->settings()->system->comments_ttl == 0) || (time() - dotclear()->blog()->settings()->system->comments_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings()->get('system')->get('comments_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400 < $dt)) {
                 return true;
             }
         } else {
-            if ((dotclear()->blog()->settings()->system->trackbacks_ttl == 0) || (time() - dotclear()->blog()->settings()->system->trackbacks_ttl * 86400 < $dt)) {
+            if ((dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400 < $dt)) {
                 return true;
             }
         }

@@ -119,7 +119,7 @@ class PagesUrl extends Url
                         if ($buffer != '') {
                             $content = $buffer;
                         } else {
-                            if (dotclear()->blog()->settings()->system->wiki_comments) {
+                            if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {
                                 dotclear()->wiki()->initWikiComment();
                             } else {
                                 dotclear()->wiki()->initWikiSimpleComment();
@@ -148,11 +148,11 @@ class PagesUrl extends Url
                         $cur->comment_email   = Html::clean($mail);
                         $cur->comment_content = $content;
                         $cur->post_id         = dotclear()->context()->posts->post_id;
-                        $cur->comment_status  = dotclear()->blog()->settings()->system->comments_pub ? 1 : -1;
+                        $cur->comment_status  = dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1;
                         $cur->comment_ip      = Http::realIP();
 
                         $redir = dotclear()->context()->posts->getURL();
-                        $redir .= dotclear()->blog()->settings()->system->url_scan == 'query_string' ? '&' : '?';
+                        $redir .= dotclear()->blog()->settings()->get('system')->get('url_scan') == 'query_string' ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->comment_email)) {

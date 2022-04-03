@@ -145,7 +145,7 @@ class Handler extends AbstractPage
         echo
         '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
-        if (dotclear()->blog()->settings()->system->theme == 'default') {
+        if ('default' == dotclear()->blog()->settings()->get('system')->get('theme')) {
             echo '<div class="error"><p>' .  __("You can't edit default theme.") . '</p></div>';
 
             return;
@@ -218,7 +218,7 @@ class Handler extends AbstractPage
 
     private function isEditableTheme()
     {
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if ($theme && $theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
             $path = dotclear()->themes()->getModulesPath();
 

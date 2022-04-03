@@ -213,7 +213,7 @@ class Category extends Page
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog()->settings()->system->lang . '" spellcheck="true"'
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"'
         ]) .
             '</p>';
         if (!$this->cat_id) {
@@ -243,7 +243,7 @@ class Category extends Page
         Form::textarea('cat_desc', 50, 8,
             [
                 'default'    => Html::escapeHTML($this->cat_desc),
-                'extra_html' => 'lang="' . dotclear()->blog()->settings()->system->lang  . '" spellcheck="true"'
+                'extra_html' => 'lang="' . dotclear()->blog()->settings()->get('system')->get('lang')  . '" spellcheck="true"'
             ]) .
         '</p>' .
 

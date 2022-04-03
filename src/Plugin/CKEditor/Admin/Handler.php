@@ -30,29 +30,29 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s = dotclear()->blog()->settings()->dcckeditor;
+        $s = dotclear()->blog()->settings()->get('dcckeditor');
         $this->ckes = new ArrayObject([]);
         $this->ckes->is_admin                    = dotclear()->user()->check('admin,contentadmin', dotclear()->blog()->id) || dotclear()->user()->isSuperAdmin();
-        $this->ckes->active                      = $s->active;
-        $this->ckes->alignment_buttons           = $s->alignment_buttons;
-        $this->ckes->list_buttons                = $s->list_buttons;
-        $this->ckes->textcolor_button            = $s->textcolor_button;
-        $this->ckes->background_textcolor_button = $s->background_textcolor_button;
-        $this->ckes->custom_color_list           = $s->custom_color_list;
-        $this->ckes->colors_per_row              = $s->colors_per_row;
-        $this->ckes->cancollapse_button          = $s->cancollapse_button;
-        $this->ckes->format_select               = $s->format_select;
-        $this->ckes->format_tags                 = $s->format_tags;
-        $this->ckes->table_button                = $s->table_button;
-        $this->ckes->clipboard_buttons           = $s->clipboard_buttons;
-        $this->ckes->action_buttons              = $s->action_buttons;
-        $this->ckes->disable_native_spellchecker = $s->disable_native_spellchecker;
-        $this->ckes->was_actived                 = $s->active;
+        $this->ckes->active                      = $s->get('active');
+        $this->ckes->alignment_buttons           = $s->get('alignment_buttons');
+        $this->ckes->list_buttons                = $s->get('list_buttons');
+        $this->ckes->textcolor_button            = $s->get('textcolor_button');
+        $this->ckes->background_textcolor_button = $s->get('background_textcolor_button');
+        $this->ckes->custom_color_list           = $s->get('custom_color_list');
+        $this->ckes->colors_per_row              = $s->get('colors_per_row');
+        $this->ckes->cancollapse_button          = $s->get('cancollapse_button');
+        $this->ckes->format_select               = $s->get('format_select');
+        $this->ckes->format_tags                 = $s->get('format_tags');
+        $this->ckes->table_button                = $s->get('table_button');
+        $this->ckes->clipboard_buttons           = $s->get('clipboard_buttons');
+        $this->ckes->action_buttons              = $s->get('action_buttons');
+        $this->ckes->disable_native_spellchecker = $s->get('disable_native_spellchecker');
+        $this->ckes->was_actived                 = $s->get('active');
 
         if (!empty($_POST['saveconfig'])) {
             try {
                 $this->ckes->active = (empty($_POST['dcckeditor_active'])) ? false : true;
-                dotclear()->blog()->settings()->dcckeditor->put('active', $this->ckes->active, 'boolean');
+                dotclear()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes->active, 'boolean');
 
                 # change other settings only if they were in html page
                 if ($this->ckes->was_actived) {

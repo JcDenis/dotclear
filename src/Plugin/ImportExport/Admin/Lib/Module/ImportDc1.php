@@ -324,7 +324,7 @@ class ImportDc1 extends Module
                     $cur->user_pwd         = Crypt::createPassword();
                     $cur->user_email       = $rs->user_email;
                     $cur->user_lang        = $rs->user_lang;
-                    $cur->user_tz          = dotclear()->blog()->settings()->system->blog_timezone;
+                    $cur->user_tz          = dotclear()->blog()->settings()->get('system')->get('blog_timezone');
                     $cur->user_post_status = $rs->user_post_pub ? 1 : -2;
                     $cur->user_options     = new ArrayObject([
                         'edit_size'   => (int) $rs->user_edit_size,

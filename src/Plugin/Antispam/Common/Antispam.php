@@ -206,15 +206,15 @@ class Antispam
         $defaultModerationTTL = '7';
         $init                 = false;
 
-        $dateLastPurge = dotclear()->blog()->settings()->antispam->antispam_date_last_purge;
+        $dateLastPurge = dotclear()->blog()->settings()->get('antispam')->get('antispam_date_last_purge');
         if ($dateLastPurge === null) {
             $init = true;
-            dotclear()->blog()->settings()->antispam->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
+            dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
             $dateLastPurge = $defaultDateLastPurge;
         }
-        $moderationTTL = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
+        $moderationTTL = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
         if ($moderationTTL === null) {
-            dotclear()->blog()->settings()->antispam->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
+            dotclear()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
             $moderationTTL = $defaultModerationTTL;
         }
 
@@ -227,7 +227,7 @@ class Antispam
         if ((time() - $dateLastPurge) > (86400)) {
             // update dateLastPurge
             if (!$init) {
-                dotclear()->blog()->settings()->antispam->put('antispam_date_last_purge', time(), null, null, true, false);
+                dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', time(), null, null, true, false);
             }
             $date = date('Y-m-d H:i:s', time() - $moderationTTL * 86400);
             self::delAllSpam($date);
@@ -264,8 +264,8 @@ class Antispam
     public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
-        if (dotclear()->blog()->settings()->antispam->antispam_filters !== null) {
-            $filters_opt = dotclear()->blog()->settings()->antispam->antispam_filters;
+        if (dotclear()->blog()->settings()->get('antispam')->get('antispam_filters') !== null) {
+            $filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
             if (is_array($filters_opt)) {
                 $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && $filters_opt['FilterIp'][0] == 1;
             }

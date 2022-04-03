@@ -106,10 +106,10 @@ class TagsUrl extends Url
                 $tpl = $type;
                 if ($comments) {
                     $tpl .= '-comments';
-                    dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->system->nb_comment_per_feed;
+                    dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed');
                 } else {
-                    dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->system->nb_post_per_feed;
-                    dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->system->short_feed_items;
+                    dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed');
+                    dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->get('system')->get('short_feed_items');
                 }
                 $tpl .= '.xml';
 

@@ -71,7 +71,7 @@ class DuctileBehavior
 
     public function ductileWebfontHelper()
     {
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
 
         if ($s === null) {
             return;
@@ -142,7 +142,7 @@ class DuctileBehavior
 
     public function ductileStyleHelper()
     {
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
 
         if ($s === null) {
             return;
@@ -322,7 +322,7 @@ class DuctileBehavior
         $default = false;
         $img_url = dotclear()->blog()->url . 'resources/img/';
 
-        $s = dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_stickers');
+        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers');
 
         if ($s === null) {
             $default = true;

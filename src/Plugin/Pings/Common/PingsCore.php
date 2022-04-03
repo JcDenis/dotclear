@@ -24,14 +24,14 @@ class PingsCore
 
     public function doPings($blog, $ids)
     {
-        if (!dotclear()->blog()->settings()->pings->pings_active) {
+        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
-        if (!dotclear()->blog()->settings()->pings->pings_auto) {
+        if (!dotclear()->blog()->settings()->get('pings')->get('pings_auto')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->pings->pings_uris;
+        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }

@@ -354,7 +354,7 @@ class ConfigTheme
      */
     public function publicCssUrlHelper($folder)
     {
-        $theme = dotclear()->blog()->settings()->system->theme;
+        $theme = dotclear()->blog()->settings()->get('system')->get('theme');
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 

@@ -634,7 +634,7 @@ class FlatImport extends FlatBackup
         $old_id   = $media->media_id;
 
         $media->media_id   = $media_id;
-        $media->media_path = dotclear()->blog()->settings()->system->public_path;
+        $media->media_path = dotclear()->blog()->settings()->get('system')->get('public_path');
         $media->user_id    = $this->getUserId($media->user_id);
 
         $this->insertMedia($media);

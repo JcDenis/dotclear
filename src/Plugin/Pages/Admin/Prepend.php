@@ -111,15 +111,15 @@ class Prepend extends AbstractPrepend
 
         // Create a first pending page, only on a new installation of this plugin
         if (0 == dotclear()->blog()->posts()->getPosts(['post_type' => 'page', 'no_content' => true], true)->fInt()
-            && dotclear()->blog()->settings()->pages->firstpage == null
+            && null == dotclear()->blog()->settings()->get('pages')->get('firstpage')
         ) {
-            dotclear()->blog()->settings()->pages->put('firstpage', true, 'boolean');
+            dotclear()->blog()->settings()->get('pages')->put('firstpage', true, 'boolean');
 
             $cur                     = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
             $cur->user_id            = dotclear()->user()->userID();
             $cur->post_type          = 'page';
             $cur->post_format        = 'xhtml';
-            $cur->post_lang          = dotclear()->blog()->settings()->system->lang;
+            $cur->post_lang          = dotclear()->blog()->settings()->get('system')->get('lang');
             $cur->post_title         = __('My first page');
             $cur->post_content       = '<p>' . __('This is your first page. When you\'re ready to blog, log in to edit or delete it.') . '</p>';
             $cur->post_content_xhtml = $cur->post_content;
@@ -130,12 +130,12 @@ class Prepend extends AbstractPrepend
             $cur->post_open_tb       = 0;
 
             # Magic tweak :)
-            $old_url_format = dotclear()->blog()->settings()->system->post_url_format;
-            dotclear()->blog()->settings()->system->post_url_format = '{t}';
+            $old_url_format = dotclear()->blog()->settings()->get('system')->get('post_url_format');
+            dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             dotclear()->blog()->posts()->addPost($cur);
 
-            $old_url_format = dotclear()->blog()->settings()->system->post_url_format = $old_url_format;
+            dotclear()->blog()->settings()->get('system')->set('post_url_format', $old_url_format);
         }
 
         return true;

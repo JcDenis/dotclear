@@ -104,19 +104,19 @@ class Handler extends AbstractPage
             }
         }
 
-        $ductile_user = (string) dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_style');
+        $ductile_user = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
         $ductile_user = @unserialize($ductile_user);
         if (is_array($ductile_user)) {
             $this->Ductile_user = array_merge($this->Ductile_user, $ductile_user);
         }
 
-        $ductile_lists = (string) dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_lists');
+        $ductile_lists = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
         $ductile_lists = @unserialize($ductile_lists);
         if (is_array($ductile_lists)) {
             $this->Ductile_lists = array_merge($this->Ductile_lists, $ductile_lists);
         }
 
-        $ductile_counts = (string) dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_entries_counts');
+        $ductile_counts = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
         $ductile_counts = @unserialize($ductile_counts);
         if (is_array($ductile_counts)) {
             $this->Ductile_counts = array_merge($this->Ductile_counts, $ductile_counts);
@@ -128,7 +128,7 @@ class Handler extends AbstractPage
             'image' => 'sticker-feed.png'
         ]];
 
-        $ductile_stickers = (string) dotclear()->blog()->settings()->themes->get(dotclear()->blog()->settings()->system->theme . '_stickers');
+        $ductile_stickers = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers');
         $ductile_stickers = @unserialize($ductile_stickers);
         if (is_array($ductile_stickers)) {
             $this->Ductile_stickers = $ductile_stickers;
@@ -235,10 +235,10 @@ class Handler extends AbstractPage
                     $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
                 }
 
-                dotclear()->blog()->settings()->themes->put(dotclear()->blog()->settings()->system->theme . '_style', serialize($this->Ductile_user));
-                dotclear()->blog()->settings()->themes->put(dotclear()->blog()->settings()->system->theme . '_stickers', serialize($this->Ductile_stickers));
-                dotclear()->blog()->settings()->themes->put(dotclear()->blog()->settings()->system->theme . '_entries_lists', serialize($this->Ductile_lists));
-                dotclear()->blog()->settings()->themes->put(dotclear()->blog()->settings()->system->theme . '_entries_counts', serialize($this->Ductile_counts));
+                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_style', serialize($this->Ductile_user));
+                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers', serialize($this->Ductile_stickers));
+                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists', serialize($this->Ductile_lists));
+                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts', serialize($this->Ductile_counts));
 
                 dotclear()->blog()->triggerBlog();
                 dotclear()->emptyTemplatesCache();

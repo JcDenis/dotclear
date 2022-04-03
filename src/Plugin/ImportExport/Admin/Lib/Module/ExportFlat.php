@@ -72,7 +72,7 @@ class ExportFlat extends Module
                 $exp->export(
                     'media',
                     'SELECT * FROM ' . dotclear()->prefix . "media WHERE media_path = '" .
-                    dotclear()->con()->escape(dotclear()->blog()->settings()->system->public_path) . "'"
+                    dotclear()->con()->escape(dotclear()->blog()->settings()->get('system')->get('public_path')) . "'"
                 );
                 $exp->export(
                     'post_media',

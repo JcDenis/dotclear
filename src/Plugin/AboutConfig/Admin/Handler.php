@@ -45,7 +45,7 @@ class Handler extends AbstractPage
                         if ($_POST['s_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings()->$ns->put($k, $v);
+                        dotclear()->blog()->settings()->get($ns)->put($k, $v);
                     }
                     dotclear()->blog()->triggerBlog();
                 }
@@ -65,7 +65,7 @@ class Handler extends AbstractPage
                         if ($_POST['gs_type'][$ns][$k] == 'array') {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings()->$ns->put($k, $v, null, null, true, true);
+                        dotclear()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
                     }
                     dotclear()->blog()->triggerBlog();
                 }

@@ -31,7 +31,7 @@ class Handler extends AbstractPage
     {
         try {
             # Pings URIs are managed globally (for all blogs)
-            $this->pings_uris = dotclear()->blog()->settings()->pings->getGlobal('pings_uris');
+            $this->pings_uris = dotclear()->blog()->settings()->get('pings')->getGlobal('pings_uris');
             if (!$this->pings_uris) {
                 $this->pings_uris = [];
             }
@@ -47,10 +47,10 @@ class Handler extends AbstractPage
                     }
                 }
                 # Settings for all blogs
-                dotclear()->blog()->settings()->pings->put('pings_active', !empty($_POST['pings_active']), null, null, true, true);
-                dotclear()->blog()->settings()->pings->put('pings_uris', $this->pings_uris, null, null, true, true);
+                dotclear()->blog()->settings()->get('pings')->put('pings_active', !empty($_POST['pings_active']), null, null, true, true);
+                dotclear()->blog()->settings()->get('pings')->put('pings_uris', $this->pings_uris, null, null, true, true);
                 # Settings for current blog only
-                dotclear()->blog()->settings()->pings->put('pings_auto', !empty($_POST['pings_auto']), null, null, true, false);
+                dotclear()->blog()->settings()->get('pings')->put('pings_auto', !empty($_POST['pings_auto']), null, null, true, false);
 
                 dotclear()->notice()->addSuccessNotice(__('Settings have been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Pings');
@@ -76,7 +76,7 @@ class Handler extends AbstractPage
     {
         echo
         '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
-        '<p><label for="pings_active" class="classic">' . Form::checkbox('pings_active', 1, dotclear()->blog()->settings()->pings->pings_active) .
+        '<p><label for="pings_active" class="classic">' . Form::checkbox('pings_active', 1, dotclear()->blog()->settings()->get('pings')->get('pings_active')) .
         __('Activate pings extension') . '</label></p>';
 
         $i = 0;
@@ -110,7 +110,7 @@ class Handler extends AbstractPage
         Form::url(['pings_srv_uri[]', 'pings_srv_uri2'], 40) .
         '</p>' .
 
-        '<p><label for="pings_auto" class="classic">' . Form::checkbox('pings_auto', 1, dotclear()->blog()->settings()->pings->pings_auto) .
+        '<p><label for="pings_auto" class="classic">' . Form::checkbox('pings_auto', 1, dotclear()->blog()->settings()->get('pings')->get('pings_auto')) .
         __('Auto pings all services on first publication of entry (current blog only)') . '</label></p>' .
 
         '<p><input type="submit" value="' . __('Save') . '" />' .

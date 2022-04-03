@@ -15,9 +15,12 @@ namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\MagicTrait;
 
 class Settingspace
 {
+    use MagicTrait;
+
     /** @var    string     Settings table name */
     protected $table;
 
@@ -180,20 +183,6 @@ class Settingspace
     }
 
     /**
-     * Magic __get method.
-     *
-     * @see self::get()
-     *
-     * @param   string  $n  Setting name
-     *
-     * @return  mixed
-     */
-    public function __get(string $n): mixed
-    {
-        return $this->get($n);
-    }
-
-    /**
      * Sets a setting in $settings property.
      *
      * This sets the setting for script
@@ -207,32 +196,6 @@ class Settingspace
         if (isset($this->settings[$n])) {
             $this->settings[$n]['value'] = $v;
         }
-    }
-
-    /**
-     * Magic __set method.
-     *
-     * @see self::set()
-     *
-     * @param   string  $n  The setting name
-     * @param   mixed   $v  The setting value
-     */
-    public function __set(string $n, mixed $v): void
-    {
-        $this->set($n, $v);
-    }
-
-    /**
-     * Magic __isset method
-     *
-     * Required to test empty(ns->setting)
-     *
-     * @param   string  $n  The setting name
-     * @return  bool        Setting is set
-     */
-    public function __isset(string $n)
-    {
-        return isset($this->settings[$n]) && isset($this->settings[$n]['value']);
     }
 
     /**

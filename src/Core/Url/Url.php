@@ -116,7 +116,7 @@ class Url
             }
         }
 
-        return $url;
+        return $url ?? '';
     }
 
     /**

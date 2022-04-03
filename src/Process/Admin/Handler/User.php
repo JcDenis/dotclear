@@ -56,8 +56,8 @@ class User extends Page
                 $this->container->fromRecord($rs);
 
                 $user_prefs = new Preference($this->container->user_id, 'profile');
-                $this->user_profile_mails = $user_prefs->profile->mails;
-                $this->user_profile_urls  = $user_prefs->profile->urls;
+                $this->user_profile_mails = $user_prefs->get('profile')->get('mails');
+                $this->user_profile_urls  = $user_prefs->get('profile')->get('urls');
 
                 $page_title = $this->container->user_id;
             } catch (\Exception $e) {
@@ -125,8 +125,8 @@ class User extends Page
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($this->container->user_id, 'profile');
-                    $user_prefs->profile->put('mails', $mails, 'string');
-                    $user_prefs->profile->put('urls', $urls, 'string');
+                    $user_prefs->get('profile')->put('mails', $mails, 'string');
+                    $user_prefs->get('profile')->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserUpdate
                     dotclear()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
@@ -159,8 +159,8 @@ class User extends Page
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($new_id, 'profile');
-                    $user_prefs->profile->put('mails', $mails, 'string');
-                    $user_prefs->profile->put('urls', $urls, 'string');
+                    $user_prefs->get('profile')->put('mails', $mails, 'string');
+                    $user_prefs->get('profile')->put('urls', $urls, 'string');
 
                     # --BEHAVIOR-- adminAfterUserCreate
                     dotclear()->behavior()->call('adminAfterUserCreate', $cur, $new_id);

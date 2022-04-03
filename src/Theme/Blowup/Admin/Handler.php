@@ -208,7 +208,7 @@ class Handler extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dotclear()->blog()->settings()->themes->put('Blowup_style', serialize($this->Blowup_user));
+                dotclear()->blog()->settings()->get('themes')->put('Blowup_style', serialize($this->Blowup_user));
                 dotclear()->blog()->triggerBlog();
 
                 dotclear()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));

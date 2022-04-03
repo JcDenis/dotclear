@@ -167,8 +167,8 @@ class CommentInventory extends Inventory
 
         $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $this->rs->comment_id]);
 
-        $comment_dt = Dt::dt2str(dotclear()->blog()->settings()->system->date_format . ' - ' .
-            dotclear()->blog()->settings()->system->time_format, $this->rs->comment_dt);
+        $comment_dt = Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('date_format') . ' - ' .
+            dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->comment_dt);
 
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';

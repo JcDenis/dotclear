@@ -30,8 +30,8 @@ class Template extends BaseTemplate
     {
         parent::__construct($cache_dir, $self_name);
 
-        $this->remove_php = !dotclear()->blog()->settings()->system->tpl_allow_php;
-        $this->use_cache  = dotclear()->blog()->settings()->system->tpl_use_cache;
+        $this->remove_php = !dotclear()->blog()->settings()->get('system')->get('tpl_allow_php');
+        $this->use_cache  = dotclear()->blog()->settings()->get('system')->get('tpl_use_cache');
 
         # Transitional tags
         $this->addValue('EntryTrackbackCount', [$this, 'EntryPingCount']);
@@ -729,7 +729,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->copyright_notice') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("copyright_notice")') . '; ?>';
     }
 
     /*dtd
@@ -749,7 +749,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->editor') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("editor")') . '; ?>';
     }
 
     /*dtd
@@ -798,7 +798,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->lang') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; ?>';
     }
 
     /*dtd
@@ -934,7 +934,7 @@ class Template extends BaseTemplate
     {
         $robots = isset($attr['robots']) ? addslashes($attr['robots']) : '';
 
-        return "<?php echo dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->system->robots_policy,'" . $robots . "'); ?>";
+        return "<?php echo dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->get('system')->get('robots_policy'),'" . $robots . "'); ?>";
     }
 
     /*dtd
@@ -954,7 +954,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings()->system->static_home ? dotclear()->blog()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
+        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings()->get("system")->get("static_home") ? dotclear()->blog()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
     }
 
     /*dtd
@@ -963,7 +963,7 @@ class Template extends BaseTemplate
     public function IfBlogStaticEntryURL($attr, $content)
     {
         return
-            "<?php if (dotclear()->blog()->settings()->system->static_home_url != '') : ?>" .
+            "<?php if (dotclear()->blog()->settings()->get('system')->get('static_home_url') != '') : ?>" .
             $content .
             '<?php endif; ?>';
     }
@@ -976,7 +976,7 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         $p = "\$params['post_type'] = array_keys(dotclear()->posttype()->getPostTypes());\n";
-        $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog()->settings()->system->static_home_url)') . ";\n";
+        $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog()->settings()->get("system")->get("static_home_url"))') . ";\n";
 
         return "<?php\n" . $p . ' ?>';
     }
@@ -988,7 +988,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->nb_post_for_home') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("nb_post_for_home")') . '; ?>';
     }
 
     /*dtd
@@ -998,7 +998,7 @@ class Template extends BaseTemplate
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->nb_post_per_page') . '; ?>';
+        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("nb_post_per_page")') . '; ?>';
     }
 
     /* Categories ----------------------------------------- */
@@ -1347,7 +1347,7 @@ class Template extends BaseTemplate
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (dotclear()->context()->exists("categories")) { ' .
-                    "\$params['cat_id'] = dotclear()->context()->categories->cat_id.(dotclear()->blog()->settings()->system->inc_subcats?' ?sub':'');" .
+                    "\$params['cat_id'] = dotclear()->context()->categories->cat_id.(dotclear()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':'');" .
                     "}\n";
             }
 
@@ -1959,7 +1959,7 @@ class Template extends BaseTemplate
         '<?php if (dotclear()->context()->posts->post_lang) { ' .
         'echo ' . sprintf($f, 'dotclear()->context()->posts->post_lang') . '; ' .
         '} else {' .
-        'echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->lang') . '; ' .
+        'echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; ' .
             '} ?>';
     }
 
@@ -2282,7 +2282,7 @@ class Template extends BaseTemplate
         'elseif (dotclear()->context()->exists("posts") && dotclear()->context()->posts->exists("post_lang")) ' . "\n" .
         '   { echo ' . sprintf($f, 'dotclear()->context()->posts->post_lang') . '; }' . "\n" .
         'else ' . "\n" .
-        '   { echo ' . sprintf($f, 'dotclear()->blog()->settings()->system->lang') . '; } ?>';
+        '   { echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; } ?>';
     }
 
     /* Pagination ------------------------------------- */
@@ -2773,7 +2773,7 @@ class Template extends BaseTemplate
     public function CommentHelp($attr, $content)
     {
         return
-            "<?php if (dotclear()->blog()->settings()->system->wiki_comments) {\n" .
+            "<?php if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {\n" .
             "  echo __('Comments can be formatted using a simple wiki syntax.');\n" .
             "} else {\n" .
             "  echo __('HTML code is displayed as text and web addresses are automatically converted.');\n" .
@@ -2787,7 +2787,7 @@ class Template extends BaseTemplate
     public function IfCommentPreviewOptional($attr, $content)
     {
         return
-            '<?php if (dotclear()->blog()->settings()->system->comment_preview_optional || (dotclear()->context()->comment_preview !== null && dotclear()->context()->comment_preview["preview"])) : ?>' .
+            '<?php if (dotclear()->blog()->settings()->get("system")->get("comment_preview_optional") || (dotclear()->context()->comment_preview !== null && dotclear()->context()->comment_preview["preview"])) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -3011,7 +3011,7 @@ class Template extends BaseTemplate
     public function PingNoFollow($attr)
     {
         return
-            '<?php if(dotclear()->blog()->settings()->system->comments_nofollow) { ' .
+            '<?php if(dotclear()->blog()->settings()->get("system")->get("comments_nofollow")) { ' .
             'echo \' rel="nofollow"\';' .
             '} ?>';
     }
@@ -3204,7 +3204,7 @@ class Template extends BaseTemplate
                 $sign              = '!';
                 $attr['blog_lang'] = substr($attr['blog_lang'], 1);
             }
-            $if[] = 'dotclear()->blog()->settings()->system->lang ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
+            $if[] = 'dotclear()->blog()->settings()->get("system")->get("lang") ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
         }
 
         if (isset($attr['current_tpl'])) {
@@ -3254,17 +3254,17 @@ class Template extends BaseTemplate
 
         if (isset($attr['comments_active'])) {
             $sign = (bool) $attr['comments_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog()->settings()->system->allow_comments';
+            $if[] = $sign . 'dotclear()->blog()->settings()->get("system")->get("allow_comments")';
         }
 
         if (isset($attr['pings_active'])) {
             $sign = (bool) $attr['pings_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog()->settings()->system->allow_trackbacks';
+            $if[] = $sign . 'dotclear()->blog()->settings()->get("system")->get("allow_trackbacks")';
         }
 
         if (isset($attr['wiki_comments'])) {
             $sign = (bool) $attr['wiki_comments'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog()->settings()->system->wiki_comments';
+            $if[] = $sign . 'dotclear()->blog()->settings()->get("system")->get("wiki_comments")';
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
@@ -3273,7 +3273,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['jquery_needed'])) {
             $sign = (bool) $attr['jquery_needed'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->blog()->settings()->system->jquery_needed';
+            $if[] = $sign . 'dotclear()->blog()->settings()->get("system")->get("jquery_needed")';
         }
 
         dotclear()->behavior()->call('tplIfConditions', 'SysIf', $attr, $content, $if);

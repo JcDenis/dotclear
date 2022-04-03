@@ -142,8 +142,8 @@ class MaintenanceBehavior
                 __('This task has never been executed.')
                 :
                 sprintf(__('Last execution of this task was on %s.'),
-                    Dt::dt2str(dotclear()->blog()->settings()->system->date_format, (string) $ts) . ' ' .
-                    Dt::dt2str(dotclear()->blog()->settings()->system->time_format, (string) $ts)
+                    Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('date_format'), (string) $ts) . ' ' .
+                    Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('time_format'), (string) $ts)
                 )
             ) . '">' . $t->task() . '</li>';
         }

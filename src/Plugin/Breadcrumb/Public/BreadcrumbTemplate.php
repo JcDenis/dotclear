@@ -38,7 +38,7 @@ class BreadcrumbTemplate
         $ret = '';
 
         # Check if breadcrumb enabled for the current blog
-        if (!dotclear()->blog()->settings()->breadcrumb->breadcrumb_enabled) {
+        if (!dotclear()->blog()->settings()->get('breadcrumb')->get('breadcrumb_enabled')) {
             return $ret;
         }
 
@@ -58,7 +58,7 @@ class BreadcrumbTemplate
                 break;
 
             case 'default':
-                if (dotclear()->blog()->settings()->system->static_home) {
+                if (dotclear()->blog()->settings()->get('system')->get('static_home')) {
                     // Static home and on (1st) blog page
                     $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                     $ret .= $separator . __('Blog');
@@ -76,7 +76,7 @@ class BreadcrumbTemplate
             case 'default-page':
                 // Home or blog page`(page 2 to n)
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                if (dotclear()->blog()->settings()->system->static_home) {
+                if (dotclear()->blog()->settings()->get('system')->get('static_home')) {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
                     if (dotclear()->context()->cur_lang) {
@@ -202,7 +202,7 @@ class BreadcrumbTemplate
         }
 
         # Encapsulate breadcrumb in <p>…</p>
-        if (!dotclear()->blog()->settings()->breadcrumb->breadcrumb_alone) {
+        if (!dotclear()->blog()->settings()->get('breadcrumb')->get('breadcrumb_alone')) {
             $ret = '<p id="breadcrumb">' . $ret . '</p>';
         }
 

@@ -72,7 +72,7 @@ class AntispamBehavior
 
     public function behaviorAdminCommentsSpamForm(): void
     {
-        $ttl = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
+        $ttl = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
         if ($ttl != null && $ttl >= 0) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $ttl) . ' ' .
             sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
@@ -83,11 +83,10 @@ class AntispamBehavior
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings)
     {
-        $ttl = $settings->antispam->antispam_moderation_ttl;
         echo
         '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
         '<p><label for="antispam_moderation_ttl" class="classic">' . __('Delete junk comments older than') . ' ' .
-        Form::number('antispam_moderation_ttl', -1, 999, (string) $ttl) .
+        Form::number('antispam_moderation_ttl', -1, 999, (string) $settings->get('antispam')->get('antispam_moderation_ttl')) .
         ' ' . __('days') .
         '</label></p>' .
         '<p class="form-note">' . __('Set -1 to disabled this feature ; Leave empty to use default 7 days delay.') . '</p>' .
@@ -97,7 +96,7 @@ class AntispamBehavior
 
     public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
     {
-        $settings->antispam->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
+        $settings->get('antispam')->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
     }
 
     /**

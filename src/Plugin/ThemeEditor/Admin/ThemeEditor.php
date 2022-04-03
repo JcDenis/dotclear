@@ -43,7 +43,7 @@ class ThemeEditor
         $this->tplset_name  = dotclear()->config()->get('template_default');
 
         # Current theme
-        $module = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $module = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }

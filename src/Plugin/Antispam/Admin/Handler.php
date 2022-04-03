@@ -57,7 +57,7 @@ class Handler extends AbstractPage
 
             # Remove all spam
             if (!empty($_POST['delete_all'])) {
-                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->system->blog_timezone);
+                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
 
                 $this->a_antispam->delAllSpam(dotclear(), $ts);
 
@@ -163,7 +163,7 @@ class Handler extends AbstractPage
         # Information
         $spam_count      = $this->a_antispam->countSpam();
         $published_count = $this->a_antispam->countPublishedComments();
-        $moderationTTL   = dotclear()->blog()->settings()->antispam->antispam_moderation_ttl;
+        $moderationTTL   = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
 
         echo
         '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .

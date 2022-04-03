@@ -35,9 +35,9 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->pings->put('pings_active', 1, 'boolean', 'Activate pings plugin', false, true);
-        dotclear()->blog()->settings()->pings->put('pings_auto', 0, 'boolean', 'Auto pings on 1st publication', false, true);
-        dotclear()->blog()->settings()->pings->put('pings_uris', ['Ping-o-Matic!' => 'http://rpc.pingomatic.com/'], 'array', 'Pings services URIs', false, true);
+        dotclear()->blog()->settings()->get('pings')->put('pings_active', 1, 'boolean', 'Activate pings plugin', false, true);
+        dotclear()->blog()->settings()->get('pings')->put('pings_auto', 0, 'boolean', 'Auto pings on 1st publication', false, true);
+        dotclear()->blog()->settings()->get('pings')->put('pings_uris', ['Ping-o-Matic!' => 'http://rpc.pingomatic.com/'], 'array', 'Pings services URIs', false, true);
 
         return true;
     }

@@ -38,14 +38,14 @@ class Handler extends AbstractPage
     {
         $widgets = new Widgets();
         # Loading navigation, extra widgets and custom widgets
-        if (dotclear()->blog()->settings()->widgets->widgets_nav) {
-            $this->widgets_nav = $widgets->load(dotclear()->blog()->settings()->widgets->widgets_nav);
+        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_nav')) {
+            $this->widgets_nav = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_nav'));
         }
-        if (dotclear()->blog()->settings()->widgets->widgets_extra) {
-            $this->widgets_extra = $widgets->load(dotclear()->blog()->settings()->widgets->widgets_extra);
+        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_extra')) {
+            $this->widgets_extra = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_extra'));
         }
-        if (dotclear()->blog()->settings()->widgets->widgets_custom) {
-            $this->widgets_custom = $widgets->load(dotclear()->blog()->settings()->widgets->widgets_custom);
+        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_custom')) {
+            $this->widgets_custom = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_custom'));
         }
 
         # Adding widgets to sidebars
@@ -97,9 +97,9 @@ class Handler extends AbstractPage
                 }
 
                 try {
-                    dotclear()->blog()->settings()->widgets->put('widgets_nav', $this->widgets_nav->store());
-                    dotclear()->blog()->settings()->widgets->put('widgets_extra', $this->widgets_extra->store());
-                    dotclear()->blog()->settings()->widgets->put('widgets_custom', $this->widgets_custom->store());
+                    dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
+                    dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
+                    dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
                     dotclear()->blog()->triggerBlog();
                     dotclear()->adminurl()->redirect('admin.plugin.Widgets');
                 } catch (\Exception $e) {
@@ -181,9 +181,9 @@ class Handler extends AbstractPage
                 $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
                 $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
 
-                dotclear()->blog()->settings()->widgets->put('widgets_nav', $this->widgets_nav->store());
-                dotclear()->blog()->settings()->widgets->put('widgets_extra', $this->widgets_extra->store());
-                dotclear()->blog()->settings()->widgets->put('widgets_custom', $this->widgets_custom->store());
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
                 dotclear()->blog()->triggerBlog();
 
                 dotclear()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
@@ -193,9 +193,9 @@ class Handler extends AbstractPage
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
-                dotclear()->blog()->settings()->widgets->put('widgets_nav', '');
-                dotclear()->blog()->settings()->widgets->put('widgets_extra', '');
-                dotclear()->blog()->settings()->widgets->put('widgets_custom', '');
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', '');
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', '');
+                dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', '');
                 dotclear()->blog()->triggerBlog();
 
                 dotclear()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));

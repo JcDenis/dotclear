@@ -34,7 +34,7 @@ class MaintenanceTaskZiptheme extends MaintenanceTask
     public function execute()
     {
         // Get theme path
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->system->theme);
+        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return false;
         }
