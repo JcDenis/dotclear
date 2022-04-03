@@ -24,19 +24,19 @@ use Dotclear\Database\Record;
 
 class RsExtComment extends RsExtend
 {
-    public static function spamFilter(Record $rs): ?string
+    public function spamFilter(): ?string
     {
-        return self::spamField($rs, 'comment_spam_filter');
+        return self::spamField('comment_spam_filter');
     }
 
-    public static function spamStatus(Record $rs): ?string
+    public function spamStatus(): ?string
     {
-        return self::spamField($rs, 'comment_spam_status');
+        return self::spamField('comment_spam_status');
     }
 
-    private static function spamField(Record $rs, string $field): ? string
+    private function spamField(string $field): ? string
     {
-        $rspam = dotclear()->con()->select('SELECT ' . $field . ' FROM ' . dotclear()->prefix . "comment WHERE comment_id = " . $rs->comment_id . " LIMIT 1 ");
+        $rspam = dotclear()->con()->select('SELECT ' . $field . ' FROM ' . dotclear()->prefix . "comment WHERE comment_id = " . $this->rs->fInt('comment_id') . " LIMIT 1 ");
 
         return $rspam->isEmpty() ? null : $rspam->{$field};
     }
