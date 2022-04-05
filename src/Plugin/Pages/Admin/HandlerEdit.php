@@ -659,7 +659,7 @@ class HandlerEdit extends AbstractPage
 
             if ($this->post_id && !empty($this->post_media)) {
                 echo
-                '<form action="' . $core->adminurl->root() . '" id="attachment-remove-hide" method="post">' .
+                '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
                 '<div>' .
                 dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [
                     'post_id'  => $this->post_id,

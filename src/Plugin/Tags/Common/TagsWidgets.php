@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 use ArrayObject;
-
+use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;

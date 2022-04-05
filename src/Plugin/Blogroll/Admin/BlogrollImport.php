@@ -15,7 +15,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 
 use StdClass;
 
-use Dotclear\Exception\ModuleException
+use Dotclear\Exception\ModuleException;
 
 class BlogrollImport
 {

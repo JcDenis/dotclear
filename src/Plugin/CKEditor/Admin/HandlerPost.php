@@ -225,7 +225,7 @@ if (!empty($extraPlugins)) {
             },
 <?php endif;?>
 
-<?php if (!empty($s-get('table_button'))): ?>
+<?php if (!empty($s->get('table_button'))): ?>
             {
                 name: 'table',
                 items: ['Table']

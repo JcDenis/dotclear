@@ -23,9 +23,6 @@ class FlatImport extends FlatBackup
     private $dc_major_version;
     private $mode;
 
-    private $blog_url;
-    private $blog_name;
-    private $blog_desc;
     private $blog_id;
 
     private $users = [];

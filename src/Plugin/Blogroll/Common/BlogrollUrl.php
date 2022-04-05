@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Common;
 
 use ArrayObject;
-
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -33,7 +32,7 @@ class BlogrollUrl extends Url
 
         try {
             $links = $blogroll->getLinks();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dotclear()->url()->p404();
 
             return;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
-use Dotclear\Helper\l10n;
+use Dotclear\Helper\L10n;
 
 class LegacyEditorBehavior
 {
@@ -28,7 +28,6 @@ class LegacyEditorBehavior
     /**
      * adminPostEditor add javascript to the DOM to load legacy editor depending on context
      *
-     * @param      Core    dotclear()     Core instance
      * @param      string  $editor   The wanted editor
      * @param      string  $context  The page context (post,page,comment,event,...)
      * @param      array   $tags     The array of ids to inject editor

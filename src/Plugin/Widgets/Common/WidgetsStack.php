@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+use Dotclear\Database\Record;
+use Dotclear\Helper\L10n;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\Widget;
-
-use Dotclear\Helper\Html\Html;
 
 class WidgetsStack
 {
@@ -125,8 +127,8 @@ class WidgetsStack
         $ref_level = $level = $rs->level - 1;
         while ($rs->fetch()) {
             $class = '';
-            if ((dotclear()->url()->type == 'category' && $context->categories instanceof record && $context->categories->cat_id == $rs->cat_id)
-                || (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->cat_id == $rs->cat_id)) {
+            if ((dotclear()->url()->type == 'category' && $context->categories instanceof Record && $context->categories->cat_id == $rs->cat_id)
+                || (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->cat_id == $rs->cat_id)) {
                 $class = ' class="category-current"';
             }
 
@@ -183,7 +185,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->post_title) . '</a></li> ';
@@ -386,7 +388,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'post' && $context->posts instanceof record && $context->posts->post_id == $rs->post_id) {
+            if (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->post_id == $rs->post_id) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
@@ -691,7 +693,7 @@ class WidgetsStack
 
         $xml = '<?xml version="1.0" encoding="utf-8" ?><widget>' . $xml . '</widget>';
         $xml = @simplexml_load_string($xml);
-        if (!($xml instanceof SimpleXMLElement)) {
+        if (!($xml instanceof \SimpleXMLElement)) {
             echo 'Invalid widget XML fragment';
 
             return;

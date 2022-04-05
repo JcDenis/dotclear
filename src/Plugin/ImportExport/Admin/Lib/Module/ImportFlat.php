@@ -58,7 +58,7 @@ class ImportFlat extends Module
                 Files::uploadStatus($_FILES['up_single_file']);
                 $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_single_file']['tmp_name'], $file)) {
-                    throw new Exception(__('Unable to move uploaded file.'));
+                    throw new ModuleException(__('Unable to move uploaded file.'));
                 }
                 $to_unlink = true;
             } else {
@@ -106,14 +106,14 @@ class ImportFlat extends Module
 
         if ($full_upl !== null && dotclear()->user()->isSuperAdmin()) {
             if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
-                throw new Exception(__('Password verification failed'));
+                throw new ModuleException(__('Password verification failed'));
             }
 
             if ($full_upl) {
                 Files::uploadStatus($_FILES['up_full_file']);
                 $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_full_file']['tmp_name'], $file)) {
-                    throw new Exception(__('Unable to move uploaded file.'));
+                    throw new ModuleException(__('Unable to move uploaded file.'));
                 }
                 $to_unlink = true;
             } else {

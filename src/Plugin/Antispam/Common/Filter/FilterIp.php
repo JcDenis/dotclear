@@ -26,7 +26,6 @@ class FilterIp extends Spamfilter
     public $has_gui = true;
     public $help    = 'ip-filter';
 
-    private $con;
     private $table;
     private $tab;
 

@@ -142,7 +142,7 @@ class PagesUrl extends Url
                         dotclear()->context()->comment_preview['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = dotclear()->con()->openCursor($core->prefix . 'comment');
+                        $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
                         $cur->comment_author  = $name;
                         $cur->comment_site    = Html::clean($site);
                         $cur->comment_email   = Html::clean($mail);
@@ -165,7 +165,7 @@ class PagesUrl extends Url
                                 $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
-                                $core->callBehavior('publicAfterCommentCreate', $cur, $comment_id);
+                                dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if ($cur->comment_status == 1) {
@@ -206,7 +206,7 @@ class PagesUrl extends Url
                 dotclear()->url()->p404();
             } else {
                 dotclear()->user()->preview = true;
-                if (\DOTCLEAR_PROCESS == 'Admin') {
+                if (dotclear()->processed('Admin')) {
                     dotclear()->user()->xframeoption = dotclear()->config()->get('admin_url');
                 }
 

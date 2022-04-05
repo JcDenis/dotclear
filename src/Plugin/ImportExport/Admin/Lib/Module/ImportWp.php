@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+use ArrayObject;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;

@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 use ArrayObject;
-
 use Dotclear\Database\Record;
+use Dotclear\Exception\ModuleException;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -268,7 +268,7 @@ class TagsBehavior
                 }
             }
             if (empty($tags)) {
-                throw new Exception(__('No tags for selected entries'));
+                throw new ModuleException(__('No tags for selected entries'));
             }
             $ap->setPageBreadcrumb(
                 [
