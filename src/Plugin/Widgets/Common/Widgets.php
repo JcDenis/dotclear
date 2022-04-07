@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Common;
 
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
-use Dotclear\Plugin\Widgets\Common\WidgetsExt;
 use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\WidgetExt;
 use Dotclear\Helper\Lexical;
 
 class Widgets
 {
+    /** @var    array<string, Widget>   Widgets */
     private $__widgets = [];
 
     public function load($s)
@@ -75,13 +76,18 @@ class Widgets
         return $this->__widgets;
     }
 
-    public function __get($id)
+    public function get($id)
     {
         if (!isset($this->__widgets[$id])) {
             return;
         }
 
         return $this->__widgets[$id];
+    }
+
+    public function __get($id)
+    {
+        return $this->get($id);
     }
 
     public function __wakeup()

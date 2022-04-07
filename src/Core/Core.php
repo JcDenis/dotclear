@@ -15,7 +15,6 @@ namespace Dotclear\Core;
 
 use Closure;
 use Throwable;
-
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Core\Blogs\Blogs;
 use Dotclear\Core\Formater\Formater;
@@ -42,12 +41,16 @@ use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Error;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\MagicTrait;
 use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
 use Dotclear\Helper\File\Path;
 
 class Core
 {
+    # Prevent use of undefined properties
+    use MagicTrait;
+
     /** @var    Autoload   Autoload instance */
     private $autoload;
 

@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+use ArrayObject;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
-
 
 class DuctileBehavior
 {
@@ -83,7 +83,7 @@ class DuctileBehavior
         }
 
         $ret = '';
-        $css = [];
+        $css = new ArrayObject();
         $uri = [];
         if (!isset($s['body_font']) || ($s['body_font'] == '')) {
             // See if webfont defined for main font
@@ -153,7 +153,7 @@ class DuctileBehavior
             return;
         }
 
-        $css = [];
+        $css = new ArrayObject();
 
         # Properties
 
@@ -204,7 +204,7 @@ class DuctileBehavior
         }
 
         # Large screens
-        $css_large = [];
+        $css_large = new ArrayObject();
 
         # Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
@@ -262,7 +262,7 @@ class DuctileBehavior
         }
 
         # Small screens
-        $css_small = [];
+        $css_small = new ArrayObject();
 
         # Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
@@ -331,7 +331,7 @@ class DuctileBehavior
             if (!is_array($s)) {
                 $default = true;
             } else {
-                $s = array_filter($s, $this->cleanStickers);
+                $s = array_filter($s, [$this, 'cleanStickers']);
                 if (count($s) == 0) {
                     $default = true;
                 } else {

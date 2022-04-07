@@ -7,8 +7,8 @@
  * @copyright GPL-2.0-only
  */
 
-$this->news('https://fr.dotclear.org/blog/feed/category/News/atom');
-$this->doc([
+dotclear()->help()->news('https://fr.dotclear.org/blog/feed/category/News/atom');
+dotclear()->help()->doc([
     "Accueil de l'aide Dotclear"               => 'https://fr.dotclear.org/documentation/2.0',
     'Présentation de Dotclear'                 => 'https://fr.dotclear.org/documentation/2.0/overview/tour',
     "Manuel de l'utilisateur"                  => 'https://fr.dotclear.org/documentation/2.0/usage',

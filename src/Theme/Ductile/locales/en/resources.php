@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('ductile', __DIR__ . '/help/help.html');
+dotclear()->help()->context('ductile', __DIR__ . '/help/help.html');

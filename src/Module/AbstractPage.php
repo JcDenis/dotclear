@@ -3,8 +3,11 @@
  * @class Dotclear\Module\AbstractPage
  * @brief Dotclear Module abstract admin page
  *
- * If exists, Default plugin Page must extends this class.
+ * If exists, Default plugin page must extends this class.
  * It provides automatic url registration and configuration links.
+ * 
+ * note: plugins default admin page namespace should be:
+ * Dotclear\Plugins\Xxx\Admin\Handler
  *
  * @package Dotclear
  * @subpackage Module

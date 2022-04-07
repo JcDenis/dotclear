@@ -6,4 +6,4 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-$this->context('import', __DIR__ . '/help/import.html');
+dotclear()->help()->context('import', __DIR__ . '/help/import.html');

@@ -60,7 +60,7 @@ class ModulesTheme extends AbstractModules
         return dotclear()->adminurl()->get('admin.blog.theme', array_merge(['id' => $id], $param));
     }
 
-    public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): AbstractModules
+    public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): static
     {
         echo
         '<form action="' . $this->getURL() . '" method="post" class="modules-form-actions">' .
@@ -109,7 +109,7 @@ class ModulesTheme extends AbstractModules
 
             # Display score only for debug purpose
             if (in_array('score', $cols) && $this->getSearch() !== null && !dotclear()->production()) {
-                $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->sdotclear()) . '</p>';
+                $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->score()) . '</p>';
             }
 
             if (in_array('screenshot', $cols)) {
@@ -701,7 +701,7 @@ class ModulesTheme extends AbstractModules
     {
         # Check destination path
         $root = $this->path;
-        if (!is_dir($root) || !is_writable($root)) {
+        if (!is_string($root) || !is_dir($root) || !is_writable($root)) {
             throw new ModuleException(__('Themes folder unreachable'));
         }
         if (substr($root, -1) != '/') {

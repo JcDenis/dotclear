@@ -42,8 +42,8 @@ abstract class AbstractModules
     /** @var    bool            Loading process, in disabled mode */
     private $disabled_mode = false;
 
-    /** @var    AbstractDefine  Loading process, disabled module */
-    private $disabled_meta;
+    /** @var    AbstractDefine|null     Loading process, disabled module */
+    private $disabled_meta = null;
 
     /** @var    array           Loading process, modules to disable */
     private $to_disable = [];
@@ -62,7 +62,7 @@ abstract class AbstractModules
      *
      * If more than one path exists, new module goes in this last path.
      *
-     * @return  string  The modules path
+     * @return  array   The modules path
      */
     abstract public function getModulesPath(): array;
 
@@ -138,9 +138,10 @@ abstract class AbstractModules
                     if ($entry_enabled) {
                         dotclear()->autoload()->addNamespace('Dotclear\\' . $this->getModulesType() . '\\' . $this->id, $entry_path);
                     # Save module in disabled list
-                    } elseif ($this->disabled_meta) {
+                    } elseif (null !== $this->disabled_meta) {
                         $this->disabled_mode       = false;
                         $this->modules_disabled[$this->id] = $this->disabled_meta;
+                        $this->disabled_meta = null;
                     }
                 }
                 $this->id = null;
@@ -165,8 +166,8 @@ abstract class AbstractModules
 
             # Check module and stop if method not returns True statement
             if ($has_prepend) {
-                $this->modules_prepend[$id] = $prepend = new $class($define);
-                if (true !== $prepend->checkModule()) {
+                $this->modules_prepend[$id] = new $class($define);
+                if (true !== $this->modules_prepend[$id]->checkModule()) {
                     continue;
                 }
             }
@@ -182,7 +183,7 @@ abstract class AbstractModules
 
             # Load all others stuff from module (menu,favs,behaviors,...)
             if ($has_prepend) {
-                $prepend->loadModule();
+                $this->modules_prepend[$id]->loadModule();
             }
         }
     }
@@ -228,7 +229,7 @@ abstract class AbstractModules
                 $this->modules_version[$define->id()] = $define->version();
                 $this->modules_enabled[$this->id]     = $define;
             } else {
-                $this->error(sprintf(
+                $this->error()->add(sprintf(
                     __('Module "%s" is installed twice in "%s" and "%s".'),
                     '<strong>' . $define->name() . '</strong>',
                     '<em>' . Path::real($this->modules_enabled[$define->id()]->root(), false) . '</em>',
@@ -330,7 +331,7 @@ abstract class AbstractModules
      * @param   string              $zip_file   The zip file
      * @param   AbstractModules     $modules    The modules
      *
-     * @throws  Exception
+     * @throws  ModuleException
      *
      * @return  int
      */
@@ -626,9 +627,9 @@ abstract class AbstractModules
      *
      * @param   string  $id     The module identifier
      *
-     * @return  AbstractDefine|null     The module.
+     * @return  object|null     The module.
      */
-    public function getModule(string $id): ?AbstractDefine
+    public function getModule(string $id): ?object
     {
         return $this->modules_enabled[$id] ?? null;
     }

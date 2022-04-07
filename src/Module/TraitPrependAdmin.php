@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\TraitPrependPublic
+ * @class Dotclear\Module\TraitPrependAdmin
  * @brief Dotclear Module public trait Prepend
  *
  * @package Dotclear
@@ -48,7 +48,7 @@ trait TraitPrependAdmin
      *  * empty string = follow module define permissions
      *
      * @param   string|null     $menu           The menu name
-     * @param   string|null     $permissons     The permissions
+     * @param   string|null     $permissions    The permissions
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
@@ -59,7 +59,7 @@ trait TraitPrependAdmin
             $menu = 'Plugins';
         }
         if ($permissions === '') {
-            $permissons = $this->define()->permissions();
+            $permissions = $this->define()->permissions();
         }
 
         dotclear()->summary()[$menu]->addItem(
@@ -88,12 +88,12 @@ trait TraitPrependAdmin
         }
 
         dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
-            $favs->register($this->define()->id(), $this->favorties);
+            $favs->register($this->define()->id(), $this->favorites);
         });
 
         $url = '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
 
-        $this->favorties = [
+        $this->favorites = [
             'title'       => $this->define()->name(),
             'url'         => dotclear()->adminurl()->get('admin.plugin.' . $this->define()->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],

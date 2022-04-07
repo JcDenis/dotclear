@@ -6,4 +6,4 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-$this->context('dcCKEditor', __DIR__ . '/help/config_help.html');
+dotclear()->help()->context('dcCKEditor', __DIR__ . '/help/config_help.html');

@@ -13,17 +13,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractModules;
 use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\AbstractConfig;
+use Dotclear\Module\AbstractModules;
 use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Helper\Network\Http;
 
 trait TraitModulesAdmin
 {
-    /** @var    Store   Store instance */
+    /** @var    Repository   Store instance */
     public $store;
 
     /** @var    bool    Use store result in cache */
@@ -35,23 +37,23 @@ trait TraitModulesAdmin
     /** @var    array   Current modules */
     protected $data    = [];
 
-    /** @var    string  Module ID to configure */
-    protected $config_module  = '';
+    /** @var    AbstractDefine|false    Module ID to configure */
+    protected $config_module  = false;
 
-    /** @var    string  Module class to configure */
-    protected $config_class    = '';
+    /** @var    AbstractConfig|false  Module class to configure */
+    protected $config_class = false;
 
     /** @var    string  Module configuration page content */
     protected $config_content = '';
 
-    /** @var    bool    Modules root directory */
-    protected $path          = false;
+    /** @var    string|false    Modules root directory */
+    protected $path = false;
 
     /** @var    bool    Indicate if modules root directory is writable */
     protected $path_writable = false;
 
-    /** @var    bool    Directory pattern to work on */
-    protected $path_pattern  = false;
+    /** @var    string|false    Directory pattern to work on */
+    protected $path_pattern = false;
 
     /** @var    string  Page URL */
     protected $page_url   = '';
@@ -145,9 +147,9 @@ trait TraitModulesAdmin
      *
      * @param   string              $id     New list ID
      *
-     * @return  AbstractModules     self instance
+     * @return  static     self instance
      */
-    public function setList(string $id): AbstractModules
+    public function setList(string $id): static
     {
         $this->data     = [];
         $this->page_tab = '';
@@ -188,9 +190,9 @@ trait TraitModulesAdmin
     /**
      * Get modules root directory.
      *
-     * @return  string  Directory to work on
+     * @return  string|false  Directory to work on
      */
-    public function getPath(): string
+    public function getPath(): string|false
     {
         return $this->path;
     }
@@ -227,9 +229,9 @@ trait TraitModulesAdmin
      *
      * @param   string              $url    Page base URL
      *
-     * @return  AbstractModules             self instance
+     * @return  static             self instance
      */
-    public function setURL(string $url): AbstractModules
+    public function setURL(string $url): static
     {
         $this->page_qs  = str_contains($url, '?') ? '&' : '?';
         $this->page_url = $url;
@@ -258,9 +260,9 @@ trait TraitModulesAdmin
      *
      * @param   string              $tab    Page tab
      *
-     * @return  AbstractModules             self instance
+     * @return  static             self instance
      */
-    public function setTab(string $tab): AbstractModules
+    public function setTab(string $tab): static
     {
         $this->page_tab = $tab;
 
@@ -282,9 +284,9 @@ trait TraitModulesAdmin
      *
      * @param   string              $default    Default redirection
      *
-     * @return  AbstractModules                 self instance
+     * @return  static                 self instance
      */
-    public function setRedir(string $default = '')
+    public function setRedir(string $default = ''): static
     {
         $this->page_redir = empty($_REQUEST['redir']) ? $default : $_REQUEST['redir'];
 
@@ -319,9 +321,9 @@ trait TraitModulesAdmin
     /**
      * Display searh form.
      *
-     * @return  AbstractModules     self instance
+     * @return  static     self instance
      */
-    public function displaySearch()
+    public function displaySearch(): static
     {
         $query = $this->getSearch();
 
@@ -371,9 +373,9 @@ trait TraitModulesAdmin
      *
      * @param   string              $str    Nav index
      *
-     * @return  AbstractModules             self instance
+     * @return  static             self instance
      */
-    public function setIndex(string $str): AbstractModules
+    public function setIndex(string $str): static
     {
         $this->nav_special = (string) $str;
         $this->nav_list    = array_merge(str_split(self::$nav_indexes), [$this->nav_special]);
@@ -394,9 +396,9 @@ trait TraitModulesAdmin
     /**
      * Display navigation by index menu.
      *
-     * @return  AbstractModules     self instance
+     * @return  static     self instance
      */
-    public function displayIndex(): AbstractModules
+    public function displayIndex(): static
     {
         if (empty($this->data) || $this->getSearch() !== null) {
             return $this;
@@ -450,9 +452,9 @@ trait TraitModulesAdmin
      * @param   string              $field  Sort field
      * @param   bool                $asc    Sort asc
      *
-     * @return  AbstractModules             self instance
+     * @return  static             self instance
      */
-    public function setSort(string $field, bool $asc = true): AbstractModules
+    public function setSort(string $field, bool $asc = true): static
     {
         $this->sort_field = $field;
         $this->sort_asc   = (bool) $asc;
@@ -475,9 +477,9 @@ trait TraitModulesAdmin
      *
      * @note    This method is not implemented yet
      *
-     * @return  AbstractModules     self instance
+     * @return  static     self instance
      */
-    public function displaySort(): AbstractModules
+    public function displaySort(): static
     {
         //
 
@@ -492,9 +494,9 @@ trait TraitModulesAdmin
      *
      * @param   array               $modules    The modules
      *
-     * @return  AbstractModules                 self instance
+     * @return  static                 self instance
      */
-    public function setData(array $modules)
+    public function setData(array $modules): static
     {
         $this->data = [];
         if (!empty($modules) && is_array($modules)) {
@@ -527,9 +529,9 @@ trait TraitModulesAdmin
      * @param   array               $actions    List of predefined actions to show on form
      * @param   bool                $nav_limit  Limit list to previously selected index
      *
-     * @return  AbstractModules                 self instance
+     * @return  static                 self instance
      */
-    public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): AbstractModules
+    public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): static
     {
         echo
         '<form action="' . $this->getURL() . '" method="post" class="modules-form-actions">' .
@@ -676,7 +678,7 @@ trait TraitModulesAdmin
             if (in_array('score', $cols) && $this->getSearch() !== null && !dotclear()->production()) {
                 $tds++;
                 echo
-                    '<td class="module-version nowrap count"><span class="debug">' . $module->sdotclear() . '</span></td>';
+                    '<td class="module-version nowrap count"><span class="debug">' . $module->score() . '</span></td>';
             }
 
             if (in_array('author', $cols) && !in_array('expander', $cols)) {
@@ -1123,7 +1125,7 @@ trait TraitModulesAdmin
      *
      * @uses    Notices::addSuccessNotice    Set a notice on success through Notices::addSuccessNotice
      *
-     * @throws  AdminException              Module not find or command failed
+     * throws  AdminException              Module not find or command failed
      */
     public function doActions(): void
     {
@@ -1165,7 +1167,7 @@ trait TraitModulesAdmin
                     # --BEHAVIOR-- moduleAfterDelete
                     dotclear()->behavior()->call('pluginAfterDelete', $module);
                 } else {
-                    $this->modules->deleteModule($id, true);
+                    $this->deleteModule($id, true);
                 }
 
                 $count++;
@@ -1386,9 +1388,9 @@ trait TraitModulesAdmin
     /**
      * Display tab for manual installation.
      *
-     * @return  AbstractModules     self instance or null
+     * @return  static     self instance or null
      */
-    public function displayManualForm(): AbstractModules
+    public function displayManualForm(): static
     {
         if (!dotclear()->user()->isSuperAdmin() || !$this->isWritablePath()) {
             return $this;
@@ -1476,9 +1478,11 @@ trait TraitModulesAdmin
             return false;
         }
 
+        $class = new $class($this->getURL(['module' => $module->id(), 'conf' => 1]));
+
         # Check permissions
         if (!dotclear()->user()->isSuperAdmin()
-            && !dotclear()->user()->check((string) $class::getPermissions(), dotclear()->blog()->id)
+            && !dotclear()->user()->check((string) $class->getPermissions(), dotclear()->blog()->id)
         ) {
             dotclear()->error()->add(__('Insufficient permissions'));
 
@@ -1490,7 +1494,7 @@ trait TraitModulesAdmin
         }
 
         $this->config_module  = $module;
-        $this->config_class   = new $class($this->getURL(['module' => $module->id(), 'conf' => 1]));
+        $this->config_class   = $class;
         $this->config_content = '';
         $this->setRedir($this->getURL() . '#modules');
 

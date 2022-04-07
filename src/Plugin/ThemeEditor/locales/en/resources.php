@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('themeEditor', dirname(__FILE__) . '/help/help.html');
+dotclear()->help()->context('themeEditor', dirname(__FILE__) . '/help/help.html');

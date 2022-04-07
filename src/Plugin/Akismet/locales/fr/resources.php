@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('akismet-filter', __DIR__ . '/help/help.html');
+dotclear()->help()->context('akismet-filter', __DIR__ . '/help/help.html');

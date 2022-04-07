@@ -22,6 +22,8 @@ use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Module\AbstractModules;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Module\Theme\Admin\ModulesTheme;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 
@@ -33,10 +35,10 @@ class Prepend extends Core
     /** @var    Template    Template instance */
     private $template;
 
-    /** @var    AbstractModules|null    ModulesPlugin instance */
+    /** @var    ModulesPlugin|null    ModulesPlugin instance */
     private $plugins = null;
 
-    /** @var    AbstractModules|null    ModulesTheme instance */
+    /** @var    ModulesTheme|null    ModulesTheme instance */
     private $themes = null;
 
     /** @var    string      Current Process */

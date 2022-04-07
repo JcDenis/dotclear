@@ -22,6 +22,9 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Module\AbstractModules;
+use Dotclear\Module\Iconset\Admin\ModulesIconset;
+use Dotclear\Module\Plugin\Admin\ModulesPlugin;
+use Dotclear\Module\Theme\Admin\ModulesTheme;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -43,7 +46,7 @@ class Prepend extends Core
     private $favorite;
 
     /** @var    Help    Help instance */
-    private $help;
+    public $help;
 
     /** @var    ListOption  ListOption instance */
     private $listoption;
@@ -57,13 +60,13 @@ class Prepend extends Core
     /** @var    Resource    Resource instance */
     private $resource;
 
-    /** @var    AbstractModules|null    ModulesPlugin instance */
+    /** @var    ModulesPlugin|null    ModulesPlugin instance */
     private $plugins = null;
 
-    /** @var    AbstractModules|null    ModulesIconset instance */
+    /** @var    ModulesIconset|null    ModulesIconset instance */
     private $iconsets = null;
 
-    /** @var    AbstractModules|null    ModulesTheme instance */
+    /** @var    ModulesTheme|null    ModulesTheme instance */
     private $themes = null;
 
     /** @var    string  Current Process */
@@ -185,17 +188,17 @@ class Prepend extends Core
         return $this->listoption;
     }
 
-    public function iconsets(): ?AbstractModules
+    public function iconsets(): ?ModulesIconset
     {
         return $this->iconsets;
     }
 
-    public function plugins(): ?AbstractModules
+    public function plugins(): ?ModulesPlugin
     {
         return $this->plugins;
     }
 
-    public function themes(): ?AbstractModules
+    public function themes(): ?ModulesTheme
     {
         return $this->themes;
     }

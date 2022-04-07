@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Tags\Common;
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\WidgetExt;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class TagsWidgets
@@ -64,12 +64,12 @@ class TagsWidgets
 
     public function initDefaultWidgets(Widgets $w, array $d): void
     {
-        $d['nav']->append($w->tags);
+        $d['nav']->append($w->get('tags'));
     }
 
-    public function tagsWidget(Widget $w): string
+    public function tagsWidget(WidgetExt $w): string
     {
-        if ($w->offline) {
+        if ($w->get('offline')) {
             return '';
         }
 
@@ -79,25 +79,25 @@ class TagsWidgets
 
         $combo = ['meta_id_lower', 'count', 'latest', 'oldest'];
 
-        $sort = $w->sortby;
+        $sort = $w->get('sortby');
         if (!in_array($sort, $combo)) {
             $sort = 'meta_id_lower';
         }
 
-        $order = $w->orderby;
-        if ($order != 'asc') {
+        $order = $w->get('orderby');
+        if ('asc' != $order) {
             $order = 'desc';
         }
 
         $params = ['meta_type' => 'tag'];
 
-        if ($sort != 'meta_id_lower') {
+        if ('meta_id_lower' != $sort) {
             // As optional limit may restrict result, we should set order (if not computed after)
-            $params['order'] = $sort . ' ' . ($order == 'asc' ? 'ASC' : 'DESC');
+            $params['order'] = $sort . ' ' . ('asc' == $order ? 'ASC' : 'DESC');
         }
 
-        if (abs((int) $w->limit)) {
-            $params['limit'] = abs((int) $w->limit);
+        if (abs((int) $w->get('limit'))) {
+            $params['limit'] = abs((int) $w->get('limit'));
         }
 
         $rs = dotclear()->meta()->computeMetaStats(
@@ -108,40 +108,40 @@ class TagsWidgets
             return '';
         }
 
-        if ($sort == 'meta_id_lower') {
+        if ('meta_id_lower' == $sort) {
             // Sort resulting recordset on cleaned id
             $rs->sort($sort, $order);
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = ($w->get('title') ? $w->renderTitle(Html::escapeHTML($w->get('title'))) : '') .
             '<ul>';
 
-        if (dotclear()->url()->type == 'post' && dotclear()->context()->posts instanceof Record) {
-            dotclear()->context()->meta = dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->posts->post_meta, 'tag');
+        if ('post' == dotclear()->url()->type && dotclear()->context()->posts instanceof Record) {
+            dotclear()->context()->meta = dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->posts->f('post_meta'), 'tag');
         }
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'post' && dotclear()->context()->posts instanceof Record) {
+            if ('post' == dotclear()->url()->type && dotclear()->context()->posts instanceof Record) {
                 while (dotclear()->context()->meta->fetch()) {
-                    if (dotclear()->context()->meta->meta_id == $rs->meta_id) {
+                    if (dotclear()->context()->meta->f('meta_id') == $rs->f('meta_id')) {
                         $class = ' class="tag-current"';
 
                         break;
                     }
                 }
             }
-            $res .= '<li' . $class . '><a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode($rs->meta_id)) . '" ' .
-            'class="tag' . $rs->roundpercent . '">' .
-            $rs->meta_id . '</a> </li>';
+            $res .= '<li' . $class . '><a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode($rs->f('meta_id'))) . '" ' .
+            'class="tag' . $rs->f('roundpercent') . '">' .
+            $rs->f('meta_id') . '</a> </li>';
         }
 
         $res .= '</ul>';
 
-        if (dotclear()->url()->getURLFor('tags') && !is_null($w->alltagslinktitle) && $w->alltagslinktitle !== '') {
+        if (dotclear()->url()->getURLFor('tags') && !is_null($w->get('alltagslinktitle')) && '' !== $w->get('alltagslinktitle')) {
             $res .= '<p><strong><a href="' . dotclear()->blog()->getURLFor('tags') . '">' .
-            Html::escapeHTML($w->alltagslinktitle) . '</a></strong></p>';
+            Html::escapeHTML($w->get('alltagslinktitle')) . '</a></strong></p>';
         }
 
-        return $w->renderDiv($w->content_only, 'tags ' . $w->class, '', $res);
+        return $w->renderDiv($w->get('content_only'), 'tags ' . $w->get('class'), '', $res);
     }
 }

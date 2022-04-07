@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('maintenance', __DIR__ . '/help/maintenance.html');
+dotclear()->help()->context('maintenance', __DIR__ . '/help/maintenance.html');

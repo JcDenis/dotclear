@@ -21,11 +21,11 @@ use Dotclear\Exception\CoreException;
 
 class RepositoryParser
 {
-    /** @var    SimpleXMLElement    XML object of feed contents */
-    protected $xml;
+    /** @var    SimpleXMLElement|false  XML object of feed contents */
+    protected $xml = false;
 
     /** @var    array    Array of feed contents */
-    protected $items;
+    protected $items = [];
 
     /** @var    string    XML bloc tag */
     protected static $bloc = 'http://dotaddict.org/da/';
@@ -42,13 +42,12 @@ class RepositoryParser
         }
 
         try {
-            $this->xml   = simplexml_load_string($data);
+            $this->xml = simplexml_load_string($data);
         } catch(\Exception) {
             $this->xml = false;
         }
-        $this->items = [];
 
-        if ($this->xml === false) {
+        if (false === $this->xml) {
             throw new CoreException(__('Wrong data feed'));
         }
 

@@ -19,21 +19,21 @@ trait MagicTrait
 {
     public function __get($_)
     {
-        throw new MagicException('Call to magic __get method');
+        throw new MagicException('Call to magic __get method: ' . $_);
     }
 
     public function __set($_, $__)
     {
-        throw new MagicException('Call to magic __set method');
+        throw new MagicException('Call to magic __set method: ' . $_);
     }
 
     public function __isset($_)
     {
-        throw new MagicException('Call to magic __isset method');
+        throw new MagicException('Call to magic __isset method: ' . $_);
     }
 
     public function __call($_, $__)
     {
-        throw new MagicException('Call to magic __isset method');
+        throw new MagicException('Call to magic __isset method: ' . $_);
     }
 }

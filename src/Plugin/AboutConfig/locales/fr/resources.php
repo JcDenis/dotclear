@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('aboutConfig', __DIR__ . '/help/help.html');
+dotclear()->help()->context('aboutConfig', __DIR__ . '/help/help.html');

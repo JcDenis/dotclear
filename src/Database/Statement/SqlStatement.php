@@ -456,7 +456,7 @@ class SqlStatement
             $clause = "~ '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
         } else {
             $clause = "LIKE '" .
-            $this->escape(preg_replace(['%', '_', '!'], ['!%', '!_', '!!'], $value)) . "%' ESCAPE '!'";
+            $this->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $value)) . "%' ESCAPE '!'";
         }
 
         return $clause;

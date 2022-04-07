@@ -74,9 +74,9 @@ if (!function_exists('dotclear')) {
     /**
      * Singleton Dotclear Core
      *
-     * @return  mixed   Singleton core instance
+     * @return  object|null     Singleton core instance
      */
-    function dotclear(): mixed
+    function dotclear(): object|null
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return Dotclear\Core\Core::singleton();

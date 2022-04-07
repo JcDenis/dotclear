@@ -6,4 +6,4 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-$this->context('blogroll', __DIR__ . '/help/blogroll.html');
+dotclear()->help()->context('blogroll', __DIR__ . '/help/blogroll.html');

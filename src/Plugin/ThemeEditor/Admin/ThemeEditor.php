@@ -273,7 +273,7 @@ class ThemeEditor
 
     protected function updateFileInList($type, $f, $file)
     {
-        $file = match ($type) {
+        $list = match ($type) {
             'tpl'   => $this->tpl,
             'css'   => $this->css,
             'js'    => $this->js,
@@ -281,7 +281,8 @@ class ThemeEditor
             'php'   => $this->php,
             default => [],
         };
-        if ($list) { //!
+
+        if (!empty($list)) {
             $list[$f] = $file;
         }
     }

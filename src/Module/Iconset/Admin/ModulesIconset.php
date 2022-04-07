@@ -53,7 +53,7 @@ class ModulesIconset extends AbstractModules
         return dotclear()->adminurl()->get('admin.iconset.' . $id, $param);
     }
 /*
-    public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): AbstractModules
+    public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): static
     {
 
         return $this;

@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('BlowupConfig', __DIR__ . '/help/help.html');
+dotclear()->help()->context('BlowupConfig', __DIR__ . '/help/help.html');

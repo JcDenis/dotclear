@@ -34,7 +34,7 @@ class Repository
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
     /** @var    array    Array of new/update modules from repository */
-    protected $data;
+    protected $data = ['new' => [], 'update' => []];
 
     /**
      * Constructor.
@@ -117,7 +117,7 @@ class Repository
                 $updates[$id]['current_version'] = $module->version();
 
                 $class = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
-                $updates[$id] = new $class($id, $properties);
+                $updates[$id] = new $class($id, []);
 
                 if (!empty($updates[$id]->error()->flag())) {
                     unset($updates[$id]);
@@ -153,7 +153,7 @@ class Repository
      */
     public function get(bool $update = false): array
     {
-        return is_array($this->data) ? $this->data[$update ? 'update' : 'new'] : [];
+        return $this->data[$update ? 'update' : 'new'];
     }
 
     /**
@@ -230,7 +230,7 @@ class Repository
      *
      * @return  int             1 = installed, 2 = update
      */
-    protected function process(string $url, string $dest): int
+    public function process(string $url, string $dest): int
     {
         $this->download($url, $dest);
 

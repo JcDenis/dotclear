@@ -47,7 +47,7 @@ class TagsBehavior
 
         $tag_url = dotclear()->blog()->getURLFor('tag');
 
-        if ($editor == 'dcLegacyEditor') {
+        if ('dcLegacyEditor' == $editor) {
             return
             dotclear()->resource()->json('legacy_editor_tags', [
                 'tag' => [
@@ -56,7 +56,7 @@ class TagsBehavior
                 ],
             ]) .
             dotclear()->resource()->load('legacy-post.js', 'Plugin', 'tags');
-        } elseif ($editor == 'dcCKEditor') {
+        } else {
             return
             dotclear()->resource()->json('ck_editor_tags', [
                 'tag_title' => __('Tag'),
@@ -161,14 +161,14 @@ class TagsBehavior
                 # Get tags for post
                 $post_meta = dotclear()->meta()->getMetadata([
                     'meta_type' => 'tag',
-                    'post_id'   => $posts->post_id, ]);
+                    'post_id'   => $posts->fInt('post_id'), ]);
                 $pm = [];
                 while ($post_meta->fetch()) {
-                    $pm[] = $post_meta->meta_id;
+                    $pm[] = $post_meta->f('meta_id');
                 }
                 foreach ($tags as $t) {
                     if (!in_array($t, $pm)) {
-                        dotclear()->meta()->setPostMeta($posts->post_id, 'tag', $t);
+                        dotclear()->meta()->setPostMeta($posts->fInt('post_id'), 'tag', $t);
                     }
                 }
             }
@@ -239,7 +239,7 @@ class TagsBehavior
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 foreach ($_POST['meta_id'] as $v) {
-                    dotclear()->meta()->delPostMeta($posts->post_id, 'tag', $v);
+                    dotclear()->meta()->delPostMeta($posts->fInt('post_id'), 'tag', $v);
                 }
             }
             dotclear()->notice()->addSuccessNotice(
@@ -346,7 +346,7 @@ class TagsBehavior
         if ($args === null) {
             $opts = dotclear()->user()->getOptions();
         } elseif ($args instanceof Record) {
-            $opts = $args->options();
+            $opts = $args->call('options');
         } else {
             $opts = [];
         }

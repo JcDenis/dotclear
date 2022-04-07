@@ -141,18 +141,26 @@ class Widget
 
     /* Widget settings
     --------------------------------------------------- */
-    public function __get($n)
+    public function get(string $n): mixed
+    {
+        return isset($this->settings[$n]) ? $this->settings[$n]['value'] : null;
+    }
+
+    public function __get(string $n): mixed
+    {
+        return $this->get($n);
+    }
+
+    public function set($n, $v)
     {
         if (isset($this->settings[$n])) {
-            return $this->settings[$n]['value'];
+            $this->settings[$n]['value'] = $v;
         }
     }
 
     public function __set($n, $v)
     {
-        if (isset($this->settings[$n])) {
-            $this->settings[$n]['value'] = $v;
-        }
+        $this->set($n, $v);
     }
 
     public function setting($name, $title, $value, $type = 'text')

@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('userPref', __DIR__ . '/help/help.html');
+dotclear()->help()->context('userPref', __DIR__ . '/help/help.html');

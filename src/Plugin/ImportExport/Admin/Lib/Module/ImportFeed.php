@@ -16,8 +16,8 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Html\Http;
 use Dotclear\Helper\Html\Text;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 

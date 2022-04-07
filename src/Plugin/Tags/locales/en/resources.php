@@ -6,6 +6,6 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-$this->context('tags', __DIR__ . '/help/tags.html');
-$this->context('tag_posts', __DIR__ . '/help/tag_posts.html');
-$this->context('tag_post', __DIR__ . '/help/tag_post.html');
+dotclear()->help()->context('tags', __DIR__ . '/help/tags.html');
+dotclear()->help()->context('tag_posts', __DIR__ . '/help/tag_posts.html');
+dotclear()->help()->context('tag_post', __DIR__ . '/help/tag_post.html');

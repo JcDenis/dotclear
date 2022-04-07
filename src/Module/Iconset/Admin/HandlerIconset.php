@@ -43,7 +43,6 @@ class HandlerIconset extends AbstractPage
         }
 
         # -- Plugin install --
-        $this->modules_install = null;
         if (!dotclear()->error()->flag()) {
             $this->modules_install = dotclear()->iconsets()->installModules();
         }

@@ -13,26 +13,20 @@ declare(strict_types=1);
 namespace Dotclear\Module\Iconset;
 
 use Dotclear\Module\AbstractDefine;
-use Dotclear\Module\TraitDefine;
 
 class DefineIconset extends AbstractDefine
 {
-    use TraitDefine;
-
     protected $type = 'Iconset';
 
+    # Disable permissions on Iconset
     public function permissions(): ?string
     {
         return null;
     }
 
+    # Disable priority on Iconset
     public function priority(): int
     {
         return 1000;
-    }
-
-    protected function checkProperties(): void
-    {
-        $this->checkDefine();
     }
 }

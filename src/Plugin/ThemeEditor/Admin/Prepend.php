@@ -63,7 +63,7 @@ class Prepend extends AbstractPrepend
     public function behaviorAdminPreferencesForm(): void
     {
         // Add fieldset for plugin options
-        $current_theme = (string) dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme') ?? 'default';
+        $current_theme = (string) dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme') ?: 'default';
         $themes_list   = dotclear()->resource()->getCodeMirrorThemes();
         $themes_combo  = [__('Default') => ''];
         foreach ($themes_list as $theme) {
@@ -93,7 +93,7 @@ class Prepend extends AbstractPrepend
         echo '</div>';
         echo '<div class="col">';
         echo dotclear()->resource()->loadCodeMirror('', false, ['javascript']);
-        if (!empty($current_theme) && 'default' !== $current_theme) {
+        if ('default' !== $current_theme) {
             echo dotclear()->resource()->js('codemirror/theme/' . $current_theme . '.css');
         }
         echo '

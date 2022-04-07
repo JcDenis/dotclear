@@ -7,4 +7,4 @@
  * @copyright GPL-2.0-only
  */
 
-$this->context('LegacyEditor', __DIR__ . '/help/legacy_editor.html');
+dotclear()->help()->context('LegacyEditor', __DIR__ . '/help/legacy_editor.html');

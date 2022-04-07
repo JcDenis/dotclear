@@ -13,18 +13,8 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store;
 
 use Dotclear\Module\AbstractDefine;
-use Dotclear\Module\TraitDefine;
-use Dotclear\Module\Store\TraitDefineStore;
 
 class DefineStore extends AbstractDefine
 {
-    use TraitDefineStore, TraitDefine;
-
     protected $type = 'Store';
-
-    protected function checkProperties(): void
-    {
-        $this->checkDefineStore();
-        $this->checkDefine();
-    }
 }

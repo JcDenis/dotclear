@@ -13,20 +13,8 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin;
 
 use Dotclear\Module\AbstractDefine;
-use Dotclear\Module\TraitDefine;
-use Dotclear\Module\Plugin\TraitDefinePlugin;
-use Dotclear\Module\Store\TraitDefineStore;
 
 class DefinePlugin extends AbstractDefine
 {
-    use TraitDefinePlugin, TraitDefineStore, TraitDefine;
-
     protected $type = 'Plugin';
-
-    protected function checkProperties(): void
-    {
-        $this->checkDefinePlugin();
-        $this->checkDefineStore();
-        $this->checkDefine();
-    }
 }

@@ -92,7 +92,7 @@ class ConfigTheme
             default => false,
         };
         if (false === $s) {
-            return;
+            return '';
         }
 
         $large = ((($s > 1.5) && ($bold == false)) || (($s > 1.2) && ($bold == true)));
@@ -287,12 +287,12 @@ class ConfigTheme
     /**
      * Store CSS property value in associated array
      *
-     * @param  array $css       CSS associated array
+     * @param  \ArrayObject $css       CSS associated array
      * @param  string $selector selector
      * @param  string $prop     property
      * @param  string $value    value
      */
-    public function prop(&$css, $selector, $prop, $value)
+    public function prop($css, $selector, $prop, $value)
     {
         if ($value) {
             $css[$selector][$prop] = $value;
