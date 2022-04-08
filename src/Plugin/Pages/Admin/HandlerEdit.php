@@ -45,7 +45,7 @@ class HandlerEdit extends AbstractPage
     private $post_open_comment  = false;
     private $post_open_tb       = false;
     private $post_selected      = false;
-    private $post_media = [];
+    //private $post_media = [];
 
     private $can_view_page = true;
     private $can_view_ip   = false;
@@ -54,10 +54,10 @@ class HandlerEdit extends AbstractPage
     private $can_delete    = false;
 
     private $post = null;
-    private $trackback = null;
-    private $tb_urls    ='';
-    private $tb_excerpt = '';
-    private $comments_actions = null;
+    //private $trackback = null;
+    //private $tb_urls    ='';
+    //private $tb_excerpt = '';
+    //private $comments_actions = null;
 
     private $next_link     = null;
     private $prev_link     = null;
@@ -657,7 +657,7 @@ class HandlerEdit extends AbstractPage
 
             echo '</div>'; // End
 
-            if ($this->post_id && !empty($this->post_media)) {
+            if ($this->post_id) { // && !empty($this->post_media)) {
                 echo
                 '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
                 '<div>' .

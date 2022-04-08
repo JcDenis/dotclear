@@ -755,12 +755,10 @@ class Core
      */
     public function shutdown(): void
     {
-        try {
-            if (session_id()) {
-                session_write_close();
-            }
-        } catch (\Exception | \Error) {
+        if (session_id()) {
+            session_write_close();
         }
+
         try {
             $this->con->close();
         } catch (\Exception | \Error) {

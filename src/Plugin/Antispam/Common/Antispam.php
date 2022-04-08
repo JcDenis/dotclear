@@ -19,6 +19,7 @@ use Dotclear\Core\Blog;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Exception\ModuleException;
 use Dotclear\Plugin\Antispam\Common\Spamfilters;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
@@ -26,8 +27,8 @@ use Dotclear\Process\Admin\Action\Action;
 
 class Antispam
 {
-    /** @var Spamfilters Spamfitlers instance */
-    public $filters;
+    /** @var Spamfilters|null Spamfitlers instance */
+    public $filters = null;
 
     public function __construct()
     {
@@ -85,18 +86,18 @@ class Antispam
     {
         $status = null;
         # From ham to spam
-        if ($rs->comment_status != -2 && $cur->comment_status == -2) {
+        if ($rs->fInt('comment_status') != -2 && $cur->getField('comment_status') == -2) {
             $status = 'spam';
         }
 
         # From spam to ham
-        if ($rs->comment_status == -2 && $cur->comment_status == 1) {
+        if ($rs->f('comment_status') == -2 && $cur->getField('comment_status') == 1) {
             $status = 'ham';
         }
 
         # the status of this comment has changed
         if ($status) {
-            $filter_name = $rs->spamFilter() ?: null;
+            $filter_name = $rs->call('spamFilter') ?: null;
 
             $this->initFilters();
             $this->filters->trainFilters($rs, $status, $filter_name);
@@ -105,8 +106,8 @@ class Antispam
 
     public function statusMessage(Record $rs): string
     {
-        if ($rs->exists('comment_status') && $rs->comment_status == -2) {
-            $filter_name = $rs->spamFilter() ?: null;
+        if ($rs->exists('comment_status') && $rs->fInt('comment_status') == -2) {
+            $filter_name = $rs->call('spamFilter') ?: null;
 
             $this->initFilters();
 
@@ -114,6 +115,8 @@ class Antispam
             '<p><strong>' . __('This comment is a spam:') . '</strong> ' .
             $this->filters->statusMessage($rs, $filter_name) . '</p>';
         }
+
+        return '';
     }
 
     public function dashboardHeaders(): string
@@ -145,7 +148,7 @@ class Antispam
         $rs = dotclear()->con()->select($strReq);
         $r  = [];
         while ($rs->fetch()) {
-            $r[] = (int) $rs->comment_id;
+            $r[] = $rs->fInt('comment_id');
         }
 
         if (empty($r)) {
@@ -187,17 +190,17 @@ class Antispam
             return false;
         }
 
-        if (hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy($rs->user_pwd)) != $pwd) {
+        if (hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy($rs->f('user_pwd'))) != $pwd) {
             return false;
         }
 
         $permissions = dotclear()->blogs()->getBlogPermissions(dotclear()->blog()->id);
 
-        if (empty($permissions[$rs->user_id])) {
+        if (empty($permissions[$rs->f('user_id')])) {
             return false;
         }
 
-        return $rs->user_id;
+        return $rs->f('user_id');
     }
 
     public function purgeOldSpam(): void
@@ -250,11 +253,11 @@ class Antispam
     {
         if ($spam) {
             $filter_name = '';
-            if ($rs->spamFilter()) {
-                if (!$this->ilters) {
+            if ($rs->call('spamFilter')) {
+                if (!$this->filters) {
                     $this->initFilters();
                 }
-                $filter_name = (null !== ($f = $this->filters->getFilter($rs->spamFilter()))) ? $f->name : $rs->spamFilter();
+                $filter_name = (null !== ($f = $this->filters->getFilter($rs->call('spamFilter')))) ? $f->name : $rs->call('spamFilter');
             }
             $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
         }
@@ -289,7 +292,7 @@ class Antispam
         $action = $ap->getAction();
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {
-            throw new AdminException(__('No comment selected'));
+            throw new ModuleException(__('No comment selected'));
         }
 
         $global = !empty($action) && $action == 'blocklist_global' && dotclear()->user()->isSuperAdmin();
@@ -300,12 +303,12 @@ class Antispam
         $ip_filter_v6 = new FilterIpv6();
 
         while ($rs->fetch()) {
-            if (filter_var($rs->comment_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+            if (filter_var($rs->f('comment_ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
                 // IP is an IPv6
-                $ip_filter_v6->addIP('blackv6', $rs->comment_ip, $global);
+                $ip_filter_v6->addIP('blackv6', $rs->f('comment_ip'), $global);
             } else {
                 // Assume that IP is IPv4
-                $ip_filter_v4->addIP('black', $rs->comment_ip, $global);
+                $ip_filter_v4->addIP('black', $rs->f('comment_ip'), $global);
             }
         }
 

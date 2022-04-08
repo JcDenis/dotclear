@@ -30,7 +30,7 @@ class AntispamBehavior
         # Admin behaviors
         dotclear()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
 
-        if (!DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
+        if (false == DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
             dotclear()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
             dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
             dotclear()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);

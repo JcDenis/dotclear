@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
-use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\WidgetExt;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class BlogrollWidgets
@@ -29,7 +29,7 @@ class BlogrollWidgets
         dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
-    public function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $widgets): void
     {
         $br         = new Blogroll();
         $h          = $br->getLinksHierarchy($br->getLinks());
@@ -42,7 +42,7 @@ class BlogrollWidgets
         }
         unset($br, $h);
 
-        $w
+        $widgets
             ->create('links', __('Blogroll'), [$this, 'linksWidget'], null, 'Blogroll list')
             ->addTitle(__('Links'))
             ->setting('category', __('Category'), '', 'combo', $categories)
@@ -52,32 +52,32 @@ class BlogrollWidgets
             ->addOffline();
     }
 
-    public function initDefaultWidgets(Widgets $w, array $d): void
+    public function initDefaultWidgets(Widgets $widgets, array $default): void
     {
-        $d['extra']->append($w->links);
+        $default['extra']->append($widgets->get('links'));
     }
 
-    public function linksWidget(Widget $w): string
+    public function linksWidget(WidgetExt $widget): string
     {
-        if ($w->offline) {
+        if ($widget->get('offline')) {
             return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+        if (!$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
-        $links = BlogrollTemplate::getList($w->renderSubtitle('', false), '<ul>%s</ul>', '<li%2$s>%1$s</li>', $w->category);
+        $links = BlogrollTemplate::getList($widget->renderSubtitle('', false), '<ul>%s</ul>', '<li%2$s>%1$s</li>', $widget->get('category'));
 
         if (empty($links)) {
             return '';
         }
 
-        return $w->renderDiv(
-            $w->content_only,
-            'links ' . $w->class,
+        return $widget->renderDiv(
+            $widget->get('content_only'),
+            'links ' . $widget->get('class'),
             '',
-            ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+            ($widget->get('title') ? $widget->renderTitle(Html::escapeHTML($widget->get('title'))) : '') .
             $links
         );
     }

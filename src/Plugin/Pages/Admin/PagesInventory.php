@@ -70,7 +70,7 @@ class PagesInventory extends Inventory
 
             $count = 0;
             while ($this->rs->fetch()) {
-                echo $this->postLine($count, isset($entries[$this->rs->post_id]));
+                echo $this->postLine($count, isset($entries[$this->rs->fInt('post_id')]));
                 $count++;
             }
 
@@ -98,7 +98,7 @@ class PagesInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
         $sts_class  = '';
         $img_status = '';
-        switch ($this->rs->post_status) {
+        switch ($this->rs->fInt('post_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png', 'published');
                 $sts_class  = 'sts-online';
@@ -122,51 +122,51 @@ class PagesInventory extends Inventory
         }
 
         $protected = '';
-        if ($this->rs->post_password) {
+        if ($this->rs->f('post_password')) {
             $protected = sprintf($img, __('Protected'), 'locker.png', 'locked');
         }
 
         $selected = '';
-        if ($this->rs->post_selected) {
+        if ($this->rs->f('post_selected')) {
             $selected = sprintf($img, __('Hidden'), 'hidden.png', 'hidden');
         }
 
         $attach   = '';
-        $nb_media = $this->rs->countMedia();
+        $nb_media = $this->rs->call('countMedia');
         if ($nb_media > 0) {
             $attach_str = $nb_media == 1 ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png', 'attach');
         }
 
-        $res = '<tr class="line ' . ($this->rs->post_status != 1 ? 'offline ' : '') . $sts_class . '"' .
-        ' id="p' . $this->rs->post_id . '">';
+        $res = '<tr class="line ' . ($this->rs->fInt('post_status') != 1 ? 'offline ' : '') . $sts_class . '"' .
+        ' id="p' . $this->rs->f('post_id') . '">';
 
         $cols = [
             'position' => '<td class="nowrap handle minimal">' .
-            Form::number(['order[' . $this->rs->post_id . ']'], [
+            Form::number(['order[' . $this->rs->f('post_id') . ']'], [
                 'min'        => 1,
                 'default'    => $count + 1,
                 'class'      => 'position',
-                'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($this->rs->post_title)) . '"',
+                'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($this->rs->f('post_title'))) . '"',
             ]) .
             '</td>',
             'check' => '<td class="nowrap">' .
             Form::checkbox(
                 ['entries[]'],
-                $this->rs->post_id,
+                $this->rs->fInt('post_id'),
                 [
                     'checked'    => $checked,
-                    'disabled'   => !$this->rs->isEditable(),
+                    'disabled'   => !$this->rs->call('isEditable'),
                     'extra_html' => 'title="' . __('Select this page') . '"',
                 ]
             ) . '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            dotclear()->posttype()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
-            Html::escapeHTML($this->rs->post_title) . '</a></td>',
-            'date'       => '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->post_dt) . '</td>',
-            'author'     => '<td class="nowrap">' . $this->rs->user_id . '</td>',
-            'comments'   => '<td class="nowrap count">' . $this->rs->nb_comment . '</td>',
-            'trackbacks' => '<td class="nowrap count">' . $this->rs->nb_trackback . '</td>',
+            dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
+            Html::escapeHTML($this->rs->f('post_title')) . '</a></td>',
+            'date'       => '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
+            'author'     => '<td class="nowrap">' . $this->rs->f('user_id') . '</td>',
+            'comments'   => '<td class="nowrap count">' . $this->rs->f('nb_comment') . '</td>',
+            'trackbacks' => '<td class="nowrap count">' . $this->rs->f('nb_trackback') . '</td>',
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
 

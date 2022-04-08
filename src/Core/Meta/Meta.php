@@ -385,6 +385,7 @@ class Meta
         }
 
         $rs_static->moveStart();
+        /** @phpstan-ignore-next-line (Failed to understand moveStart to index 0) */
         while ($rs_static->fetch()) {
             $rs_static->set('meta_id_lower', Lexical::removeDiacritics(mb_strtolower($rs_static->f('meta_id'))));
 

@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Common;
 
 use ArrayObject;
-
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\WidgetExt;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class PagesWidgets
@@ -28,9 +27,9 @@ class PagesWidgets
         dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
-    public function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $widgets): void
     {
-        $w
+        $widgets
             ->create('pages', __('Pages'), [$this, 'pagesWidget'], null, 'List of published pages')
             ->addTitle(__('Pages'))
             ->setting('limit', __('Limit (empty means no limit):'), '10', 'number')
@@ -61,18 +60,18 @@ class PagesWidgets
             ->addOffline();
     }
 
-    public function initDefaultWidgets(Widgets $w, array $d): void
+    public function initDefaultWidgets(Widgets $widgets, array $default): void
     {
-        $d['nav']->append($w->pages);
+        $default['nav']->append($widgets->get('pages'));
     }
 
-    public function pagesWidget(Widget $w): string
+    public function pagesWidget(WidgetExt $widget): string
     {
-        if ($w->offline) {
+        if ($widget->get('offline')) {
             return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+        if (!$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -80,19 +79,19 @@ class PagesWidgets
         $params['no_content']    = true;
         $params['post_selected'] = false;
 
-        $sort = $w->sortby;
+        $sort = $widget->get('sortby');
         if (!in_array($sort, ['post_title', 'post_position', 'post_dt'])) {
             $sort = 'post_title';
         }
 
-        $order = $w->orderby;
+        $order = $widget->get('orderby');
         if ($order != 'asc') {
             $order = 'desc';
         }
         $params['order'] = $sort . ' ' . $order;
 
-        if (abs((int) $w->limit)) {
-            $params['limit']         = abs((int) $w->limit);
+        if (abs((int) $widget->get('limit'))) {
+            $params['limit']         = abs((int) $widget->get('limit'));
         }
 
         $rs = dotclear()->blog()->posts()->getPosts($params);
@@ -101,22 +100,22 @@ class PagesWidgets
             return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(html::escapeHTML($w->title)) : '') . '<ul>';
+        $res = ($widget->get('title') ? $widget->renderTitle(html::escapeHTML($widget->get('title'))) : '') . '<ul>';
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'pages'
+            if ('pages' == dotclear()->url()->type
                 && dotclear()->context()->posts instanceof Record
-                && dotclear()->context()->posts->post_id == $rs->post_id
+                && dotclear()->context()->posts->fInt('post_id') === $rs->fInt('post_id')
             ) {
                 $class = ' class="page-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
-            Html::escapeHTML($rs->post_title) . '</a></li>';
+            Html::escapeHTML($rs->f('post_title')) . '</a></li>';
         }
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'pages ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'pages ' . $widget->get('class'), '', $res);
     }
 }

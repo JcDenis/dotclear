@@ -25,6 +25,7 @@ use Dotclear\Plugin\Blogroll\Common\Blogroll;
 class Handler extends AbstractPage
 {
     private $br_blogroll;
+    private $br_imported   = [];
     private $br_link_title = '';
     private $br_link_href  = '';
     private $br_link_desc  = '';
@@ -39,12 +40,10 @@ class Handler extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         if (!empty($_REQUEST['edit']) && !empty($_REQUEST['id'])) {
-            $page_edit = new HandlerEdit($this->handler);
-
-            return $page_edit->pageProcess();
+            (new HandlerEdit($this->handler))->pageProcess();
         }
 
-        $this->br_blogrolll = new Blogroll();
+        $this->br_blogroll = new Blogroll();
         $default_tab = '';
 
         # Import links
@@ -59,7 +58,7 @@ class Handler extends AbstractPage
                 }
 
                 try {
-                    $imported = ImportBlogroll::loadFile($ifile);
+                    $this->br_imported = BlogrollImport::loadFile($ifile);
                     @unlink($ifile);
                 } catch (\Exception $e) {
                     @unlink($ifile);
@@ -67,8 +66,8 @@ class Handler extends AbstractPage
                     throw $e;
                 }
 
-                if (empty($imported)) {
-                    unset($imported);
+                if (empty($this->br_imported)) {
+                    $this->br_imported = null;
 
                     throw new ModuleException(__('Nothing to import'));
                 }
@@ -84,7 +83,7 @@ class Handler extends AbstractPage
                 $this->br_link_desc  = Html::escapeHTML($_POST['desc'][$idx]);
 
                 try {
-                    $this->br_blogrolll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, '');
+                    $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, '');
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                     $default_tab = 'import-links';
@@ -108,7 +107,7 @@ class Handler extends AbstractPage
             $this->br_link_lang  = Html::escapeHTML($_POST['link_lang']);
 
             try {
-                $this->br_blogrolll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang);
+                $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang);
 
                 dotclear()->notice()->addSuccessNotice(__('Link has been successfully created.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
@@ -123,7 +122,7 @@ class Handler extends AbstractPage
             $this->br_cat_title = Html::escapeHTML($_POST['cat_title']);
 
             try {
-                $this->br_blogrolll->addCategory($this->br_cat_title);
+                $this->br_blogroll->addCategory($this->br_cat_title);
                 dotclear()->notice()->addSuccessNotice(__('category has been successfully created.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
             } catch (\Exception $e) {
@@ -136,7 +135,7 @@ class Handler extends AbstractPage
         if (!empty($_POST['removeaction']) && !empty($_POST['remove'])) {
             foreach ($_POST['remove'] as $k => $v) {
                 try {
-                    $this->br_blogrolll->delItem((int) $v);
+                    $this->br_blogroll->delItem((int) $v);
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
 
@@ -165,7 +164,7 @@ class Handler extends AbstractPage
                 $pos = ((int) $pos) + 1;
 
                 try {
-                    $this->br_blogrolll->updateOrder((int) $l, (int) $pos);
+                    $this->br_blogroll->updateOrder((int) $l, (int) $pos);
                 } catch (\Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
@@ -205,8 +204,9 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         # Get links
+        $rs = null;
         try {
-            $rs = $this->br_blogrolll->getLinks();
+            $rs = $this->br_blogroll->getLinks();
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
@@ -214,7 +214,7 @@ class Handler extends AbstractPage
         echo
         '<div class="multi-part" id="main-list" title="' . __('Blogroll') . '">';
 
-        if ($rs->isEmpty()) {
+        if (!$rs || $rs->isEmpty()) {
             echo '<div><p>' . __('The link list is empty.') . '</p></div>';
         } else {
             echo '
@@ -337,7 +337,7 @@ class Handler extends AbstractPage
 
         echo
         '<div class="multi-part" id="import-links" title="' . __('Import links') . '">';
-        if (!isset($imported)) {
+        if (null === $this->br_imported) {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form" enctype="multipart/form-data">' .
             '<h3>' . __('Import links') . '</h3>' .
@@ -352,7 +352,7 @@ class Handler extends AbstractPage
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form">' .
             '<h3>' . __('Import links') . '</h3>';
-            if (empty($imported)) {
+            if (empty($this->br_imported)) {
                 echo '<p>' . __('Nothing to import') . '</p>';
             } else {
                 echo
@@ -362,7 +362,7 @@ class Handler extends AbstractPage
                     '</tr>';
 
                 $i = 0;
-                foreach ($imported as $entry) {
+                foreach ($this->br_imported as $entry) {
                     $url   = Html::escapeHTML($entry->link);
                     $title = Html::escapeHTML($entry->title);
                     $desc  = Html::escapeHTML($entry->desc);

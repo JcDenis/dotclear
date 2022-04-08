@@ -57,13 +57,13 @@ class Spamfilters
                 continue;
             }
 
-            $type    = $cur->comment_trackback ? 'trackback' : 'comment';
-            $author  = $cur->comment_author;
-            $email   = $cur->comment_email;
-            $site    = $cur->comment_site;
-            $ip      = $cur->comment_ip;
-            $content = $cur->comment_content;
-            $post_id = (int) $cur->post_id;
+            $type    = $cur->getField('comment_trackback') ? 'trackback' : 'comment';
+            $author  = $cur->getField('comment_author');
+            $email   = $cur->getField('comment_email');
+            $site    = $cur->getField('comment_site');
+            $ip      = $cur->getField('comment_ip');
+            $content = $cur->getField('comment_content');
+            $post_id = (int) $cur->getField('post_id');
             $status  = null;
 
             $is_spam = $f->isSpam($type, $author, $email, $site, $ip, $content, $post_id, $status);
@@ -72,9 +72,9 @@ class Spamfilters
                 if ($f->auto_delete) {
                     $cur->clean();
                 } else {
-                    $cur->comment_status      = -2;
-                    $cur->comment_spam_status = $status;
-                    $cur->comment_spam_filter = $fid;
+                    $cur->setField('comment_status',      -2);
+                    $cur->setField('comment_spam_status', $status);
+                    $cur->setField('comment_spam_filter', $fid);
                 }
 
                 return true;
@@ -93,12 +93,12 @@ class Spamfilters
                 continue;
             }
 
-            $type    = $rs->comment_trackback ? 'trackback' : 'comment';
-            $author  = $rs->comment_author;
-            $email   = $rs->comment_email;
-            $site    = $rs->comment_site;
-            $ip      = $rs->comment_ip;
-            $content = $rs->comment_content;
+            $type    = $rs->f('comment_trackback') ? 'trackback' : 'comment';
+            $author  = $rs->f('comment_author');
+            $email   = $rs->f('comment_email');
+            $site    = $rs->f('comment_site');
+            $ip      = $rs->f('comment_ip');
+            $content = $rs->f('comment_content');
 
             $f->trainFilter($status, $filter_name, $type, $author, $email, $site, $ip, $content, $rs);
         }
@@ -111,9 +111,9 @@ class Spamfilters
         if ($f === null) {
             return __('Unknown filter.');
         }
-        $status = $rs->spamStatus() ?: null;
+        $status = $rs->call('spamStatus') ?: null;
 
-        return $f->getStatusMessage($status, (int) $rs->comment_id);
+        return $f->getStatusMessage($status, $rs->fInt('comment_id'));
     }
 
     public function saveFilterOpts(array $opts, bool $global = false): void

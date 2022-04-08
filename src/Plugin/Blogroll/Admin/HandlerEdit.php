@@ -21,6 +21,7 @@ use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
 class HandlerEdit extends AbstractPage
 {
+    /** @var    Blogroll    Blogroll instance */
     private $br_blogroll;
     private $br_id         = 0;
     private $br_has_rs     = false;
@@ -46,17 +47,17 @@ class HandlerEdit extends AbstractPage
         try {
             $rs = $this->br_blogroll->getLink($this->br_id);
             $this->br_has_rs = !$rs->isEmpty();
-            $this->br_is_cat = (bool) $rs->is_cat;
+            $this->br_is_cat = (bool) $rs->fInt('is_cat');
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
         if (!dotclear()->error()->flag() && $this->br_has_rs) {
-            $this->br_link_title = $rs->link_title;
-            $this->br_link_href  = $rs->link_href;
-            $this->br_link_desc  = $rs->link_desc;
-            $this->br_link_lang  = $rs->link_lang;
-            $this->br_link_xfn   = $rs->link_xfn;
+            $this->br_link_title = $rs->f('link_title');
+            $this->br_link_href  = $rs->f('link_href');
+            $this->br_link_desc  = $rs->f('link_desc');
+            $this->br_link_lang  = $rs->f('link_lang');
+            $this->br_link_xfn   = $rs->f('link_xfn');
         } else {
             dotclear()->error()->add(__('No such link or title'));
         }

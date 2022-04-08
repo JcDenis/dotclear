@@ -16,6 +16,7 @@ namespace Dotclear\Plugin\Blogroll\Common;
 use ArrayObject;
 
 use Dotclear\Database\Record;
+use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\ModuleException;
 
 class Blogroll
@@ -178,14 +179,14 @@ class Blogroll
         dotclear()->blog()->triggerBlog();
     }
 
-    private function setLinksData(Record $rs): void
+    private function setLinksData(StaticRecord $rs): void
     {
         $cat_title = null;
         while ($rs->fetch()) {
-            $rs->set('is_cat', !$rs->link_title && !$rs->link_href);
+            $rs->set('is_cat', !$rs->f('link_title') && !$rs->f('link_href'));
 
-            if ($rs->is_cat) {
-                $cat_title = $rs->link_desc;
+            if ($rs->f('is_cat')) {
+                $cat_title = $rs->f('link_desc');
                 $rs->set('cat_title', null);
             } else {
                 $rs->set('cat_title', $cat_title);

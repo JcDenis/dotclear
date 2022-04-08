@@ -25,7 +25,7 @@ class FlatImport extends FlatBackup
 
     private $blog_id;
 
-    private $users = [];
+    //private $users = [];
 
     private $cur_blog;
     private $cur_category;
@@ -42,7 +42,7 @@ class FlatImport extends FlatBackup
     private $cur_ping;
     private $cur_comment;
     private $cur_spamrule;
-    private $cur_version;
+    //private $cur_version;
 
     public $old_ids = [
         'category' => [],
@@ -106,7 +106,7 @@ class FlatImport extends FlatBackup
         $this->cur_ping        = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
         $this->cur_comment     = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
         $this->cur_spamrule    = dotclear()->con()->openCursor(dotclear()->prefix . 'spamrule');
-        $this->cur_version     = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
+        //$this->cur_version     = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
 
         # --BEHAVIOR-- importInit
         dotclear()->behavior()->call('importInit', $this);
@@ -215,7 +215,7 @@ class FlatImport extends FlatBackup
             if (dotclear()->con()->syntax() == 'postgresql') {
                 dotclear()->con()->execute('SET CONSTRAINTS ALL DEFERRED');
             }
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 
@@ -267,7 +267,7 @@ class FlatImport extends FlatBackup
                 # --BEHAVIOR-- importFull
                 dotclear()->behavior()->call('importFull', $line, $this);
             }
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 

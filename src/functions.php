@@ -76,7 +76,7 @@ if (!function_exists('dotclear')) {
      *
      * @return  object|null     Singleton core instance
      */
-    function dotclear(): object|null
+    function dotclear(): ?object
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return Dotclear\Core\Core::singleton();

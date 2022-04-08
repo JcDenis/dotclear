@@ -246,17 +246,15 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
             throw $e;
         }
-
-        return false;
     }
 
     private function debugTrace(string $methodname, mixed $args, mixed $rsp): void
     {
-        if (!$this->debug) {
+        if (false == $this->debug) {
             return;
         }
 
-        if (($fp = @fopen($this->debug_file, 'a')) !== false) {
+        if (false !== ($fp = @fopen($this->debug_file, 'a'))) {
             fwrite($fp, '[' . date('r') . ']' . ' ' . $methodname);
 
             if ($this->trace_args) {

@@ -15,6 +15,7 @@
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
 - [ ] remove maximum php magic methods or add equivalent methods
+- [ ] rework Dt class to use php DateTime class
 
 ### Idea
 
