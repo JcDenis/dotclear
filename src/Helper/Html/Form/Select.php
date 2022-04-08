@@ -34,8 +34,8 @@ class Select extends Component
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
     }
 
@@ -54,17 +54,17 @@ class Select extends Component
 
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . $this->renderCommonAttributes() . '>' . "\n";
 
-        if (isset($this->items) && is_array($this->items)) {
-            foreach ($this->items as $item => $value) {
+        if ($this->exists('items') && is_array($this->get('items'))) {
+            foreach ($this->get('items') as $item => $value) {
                 if ($value instanceof Option || $value instanceof Optgroup) {
-                    /* @phpstan-ignore-next-line */
-                    $buffer .= $value->render($this->default ?? $default ?? null);
+
+                    $buffer .= $value->render($this->get('default') ?? $default ?? null);
                 } elseif (is_array($value)) {
-                    /* @phpstan-ignore-next-line */
-                    $buffer .= (new Optgroup($item))->items($value)->render($this->default ?? $default ?? null);
+
+                    $buffer .= (new Optgroup($item))->call('items', $value)->render($this->get('default') ?? $default ?? null);
                 } else {
-                    /* @phpstan-ignore-next-line */
-                    $buffer .= (new Option($item, $value))->render($this->default ?? $default ?? null);
+
+                    $buffer .= (new Option($item, $value))->render($this->get('default') ?? $default ?? null);
                 }
             }
         }

@@ -56,9 +56,9 @@ class Label extends Component
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
         $this->_position = $position;
         $this
-            ->text($text);
+            ->set('text', $text);
         if ($id !== null) {
-            $this->for($id);
+            $this->set('for', $id);
         }
     }
 
@@ -93,15 +93,15 @@ class Label extends Component
         }
 
         $start = ($this->getElement() ?? self::DEFAULT_ELEMENT);
-        /* @phpstan-ignore-next-line */
-        if (($this->_position !== self::INSIDE_TEXT_BEFORE || $this->_position !== self::INSIDE_TEXT_AFTER) && isset($this->for)) {
-            $start .= ' for="' . $this->for . '"';
+
+        if (!in_array($this->_position, [self::INSIDE_TEXT_BEFORE, self::INSIDE_TEXT_AFTER]) && $this->exists('for')) {
+            $start .= ' for="' . $this->get('for') . '"';
         }
         $start .= $this->renderCommonAttributes();
 
         $end = ($this->getElement() ?? self::DEFAULT_ELEMENT);
 
-        return sprintf($formats[$this->_position], $start, $this->text, $buffer ?: '', $end);
+        return sprintf($formats[$this->_position], $start, $this->get('text'), $buffer ?: '', $end);
     }
 
     /**

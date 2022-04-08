@@ -32,7 +32,7 @@ class Optgroup extends Component
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this
-            ->text($name);
+            ->set('text', $name);
     }
 
     /**
@@ -45,19 +45,19 @@ class Optgroup extends Component
     public function render(?string $default = null): string
     {
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) .
-            (isset($this->text) ? ' label="' . $this->text . '"' : '') .
+            ($this->exists('text') ? ' label="' . $this->get('text') . '"' : '') .
             $this->renderCommonAttributes() . '>' . "\n";
 
-        if (isset($this->items) && is_array($this->items)) {
-            foreach ($this->items as $item => $value) {
+        if ($this->exists('items') && is_array($this->get('items'))) {
+            foreach ($this->get('items') as $item => $value) {
                 if ($value instanceof Option || $value instanceof Optgroup) {
                     $buffer .= $value->render($default);
                 } elseif (is_array($value)) {
-                    /* @phpstan-ignore-next-line */
-                    $buffer .= (new Optgroup($item))->items($value)->render($this->default ?? $default ?? null);
+
+                    $buffer .= (new Optgroup($item))->call('items', $value)->render($this->get('default') ?? $default ?? null);
                 } else {
-                    /* @phpstan-ignore-next-line */
-                    $buffer .= (new Option($item, $value))->render($this->default ?? $default ?? null);
+
+                    $buffer .= (new Option($item, $value))->render($this->get('default') ?? $default ?? null);
                 }
             }
         }

@@ -32,8 +32,8 @@ class Form extends Component
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
     }
 
@@ -49,13 +49,13 @@ class Form extends Component
         }
 
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) .
-            (isset($this->action) ? ' action="' . $this->action . '"' : '') .
-            (isset($this->method) ? ' method="' . $this->method . '"' : '') .
+            ($this->exists('action') ? ' action="' . $this->get('action') . '"' : '') .
+            ($this->exists('method') ? ' method="' . $this->get('method') . '"' : '') .
             $this->renderCommonAttributes() . '>' . "\n";
 
-        if (isset($this->fields)) {
-            if (is_array($this->fields)) {
-                foreach ($this->fields as $field) {
+        if ($this->exists('fields')) {
+            if (is_array($this->get('fields'))) {
+                foreach ($this->get('fields') as $field) {
                     $buffer .= sprintf(($fieldFormat ?: '%s'), $field->render());
                 }
             }

@@ -28,7 +28,7 @@ class Password extends Input
     {
         parent::__construct($id, 'password');
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

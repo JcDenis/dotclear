@@ -28,13 +28,13 @@ class Time extends Input
     {
         parent::__construct($id, 'time');
         $this
-            ->size(5)
-            ->maxlength(5)
-            ->pattern('[0-9]{2}:[0-9]{2}')
-            ->placeholder('14:45');
+            ->set('size', 5)
+            ->set('maxlength', 5)
+            ->set('pattern', '[0-9]{2}:[0-9]{2}')
+            ->set('placeholder', '14:45');
 
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

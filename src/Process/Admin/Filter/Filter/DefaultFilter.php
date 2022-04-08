@@ -255,12 +255,12 @@ class DefaultFilter
                 $this->value($get);
             }
             # HTML field
-            $select = (new FormSelect($this->get('id')))
-                ->default($this->get('value'))
-                ->items($this->get('options'));
+            $select = FormSelect::init($this->get('id'))
+                ->set('default', $this->get('value'))
+                ->set('items', $this->get('options'));
 
-            $label = (new FormLabel($this->get('title'), 2, $this->get('id')))
-                ->class('ib');
+            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
+                ->set('class', 'ib');
 
             $this->html($label->render($select->render()), false);
 
@@ -271,13 +271,13 @@ class DefaultFilter
                 $this->value(!empty($_GET[$this->get('id')]) ? $_GET[$this->get('id')] : '');
             }
             # HTML field
-            $input = (new FormInput($this->get('id')))
-                ->size(20)
-                ->maxlength(255)
-                ->value($this->get('value'));
+            $input = FormInput::init($this->get('id'))
+                ->set('size', 20)
+                ->set('maxlength', 255)
+                ->set('value', $this->get('value'));
 
-            $label = (new FormLabel($this->get('title'), 2, $this->get('id')))
-                ->class('ib');
+            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
+                ->set('class', 'ib');
 
             $this->html($label->render($input->render()), false);
         }

@@ -31,11 +31,11 @@ class Textarea extends Component
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
         if ($value !== null) {
-            $this->value = $value;
+            $this->set('value', $value);
         }
     }
 
@@ -53,15 +53,15 @@ class Textarea extends Component
         }
 
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . ($extra ?? '') . $this->renderCommonAttributes(false) .
-            (isset($this->cols) ? ' cols="' . strval((int) $this->cols) . '"' : '') .
-            (isset($this->rows) ? ' rows="' . strval((int) $this->rows) . '"' : '') .
+            ($this->exists('cols') ? ' cols="' . strval((int) $this->get('cols')) . '"' : '') .
+            ($this->exists('rows') ? ' rows="' . strval((int) $this->get('rows')) . '"' : '') .
             '>' .
-            ($this->value ?? '') .
+            ($this->get('value') ?? '') .
             '</' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . '>' . "\n";
 
-        if (isset($this->label) && isset($this->id)) {
-            $this->label->for = $this->id;
-            $buffer           = $this->label->render($buffer);
+        if ($this->exists('label') && $this->exists('id')) {
+            $this->get('label')->set('for', $this->get('id'));
+            $buffer = $this->get('label')->render($buffer);
         }
 
         return $buffer;

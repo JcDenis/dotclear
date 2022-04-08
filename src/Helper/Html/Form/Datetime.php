@@ -28,12 +28,12 @@ class Datetime extends Input
     {
         parent::__construct($id, 'datetime-local');
         $this
-            ->size(16)
-            ->maxlength(16)
-            ->pattern('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}')
-            ->placeholder('1962-05-13T14:45');
+            ->set('size', 16)
+            ->set('maxlength', 16)
+            ->set('pattern', '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}')
+            ->set('placeholder', '1962-05-13T14:45');
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

@@ -38,12 +38,12 @@ class Input extends Component
     public function __construct(string $id = null, string $type = 'text', bool $renderLabel = true)
     {
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
-        $this->type($type);
+        $this->call('type', $type);
         $this->renderLabel = $renderLabel;
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
     }
 
@@ -60,9 +60,9 @@ class Input extends Component
 
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . $this->renderCommonAttributes() . '/>' . "\n";
 
-        if ($this->renderLabel && isset($this->label) && isset($this->id)) {
-            $this->label->for = $this->id;
-            $buffer           = $this->label->render($buffer);
+        if ($this->renderLabel && $this->exists('label') && $this->exists('id')) {
+            $this->get('label')->set('for', $this->get('id'));
+            $buffer = $this->get('label')->render($buffer);
         }
 
         return $buffer;

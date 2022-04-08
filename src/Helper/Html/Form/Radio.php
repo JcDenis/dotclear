@@ -28,7 +28,7 @@ class Radio extends Input
     {
         parent::__construct($id, 'radio');
         if ($checked !== null) {
-            $this->checked($checked);
+            $this->set('checked', $checked);
         }
     }
 }

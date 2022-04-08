@@ -29,10 +29,7 @@ class Hidden extends Input
         // Label should not be rendered for an input type="hidden"
         parent::__construct($id, 'hidden', false);
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }
-
-/** Backwards compatibility */
-class_alias('Clearbricks\Html\Form\Hidden', 'formHidden');

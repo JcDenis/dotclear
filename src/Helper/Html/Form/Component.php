@@ -36,9 +36,8 @@ abstract class Component
      */
     public static function init()
     {
-        $c = get_called_class();
+        $c = static::class;
 
-        /* @phpstan-ignore-next-line */
         return new $c(...func_get_args());
     }
 
@@ -49,7 +48,7 @@ abstract class Component
      *
      * @return     mixed   property value if property exists or null
      */
-    public function __get(string $property)
+    public function get(string $property)
     {
         if (array_key_exists($property, $this->_data)) {
             return $this->_data[$property];
@@ -57,7 +56,12 @@ abstract class Component
 
         return null;
     }
-
+/*
+    public function __get(string $property)
+    {
+        return $this->get($property);
+    }
+*/
     /**
      * Magic setter method
      *
@@ -66,13 +70,18 @@ abstract class Component
      *
      * @return     self
      */
-    public function __set(string $property, $value)
+    public function set(string $property, $value)
     {
         $this->_data[$property] = $value;
 
         return $this;
     }
-
+/*
+    public function __set(string $property, $value)
+    {
+        return $this->set($property, $value);
+    }
+*/
     /**
      * Magic isset method
      *
@@ -80,21 +89,31 @@ abstract class Component
      *
      * @return     bool
      */
-    public function __isset(string $property): bool
+    public function exists(string $property): bool
     {
         return isset($this->_data[$property]);
     }
-
+/*
+    public function __isset(string $property): bool
+    {
+        return $this->exists($property);
+    }
+*/
     /**
      * Magic unset method
      *
      * @param      string  $property  The property
      */
-    public function __unset(string $property)
+    public function remove(string $property)
     {
         unset($this->_data[$property]);
     }
-
+/*
+    public function __unset(string $property)
+    {
+        $this->remove($property);
+    }
+*/
     /**
      * Magic call method
      *
@@ -103,11 +122,11 @@ abstract class Component
      * If not, assume that's is a set (value = $argument[0])
      *
      * @param      string  $method     The property
-     * @param      array   $arguments  The arguments
+     * @param      mixed   ...$arguments  The arguments
      *
      * @return     mixed   method called, property value (or null), self
      */
-    public function __call(string $method, $arguments)
+    public function call(string $method, mixed ...$arguments)
     {
         // Cope with known methods
         if (method_exists($this, $method)) {
@@ -121,14 +140,19 @@ abstract class Component
                 return $this->_data[$method];
             }
 
-            return null;    // @phpstan-ignore-line
+            return null;
         }
         // Argument here, assume its a set
         $this->_data[$method] = $arguments[0];
 
-        return $this;   // @phpstan-ignore-line
+        return $this;
     }
-
+/*
+    public function __call(string $method, $arguments)
+    {
+        return call_user_func_array([$this, 'call'], $arguments);
+    }
+*/
     /**
      * Magic invoke method
      *
@@ -200,13 +224,13 @@ abstract class Component
     public function attachLabel(?Label $label = null, ?int $position = null)
     {
         if ($label) {
-            $this->label($label);
-            $label->for($this->id);
+            $this->call('label', $label);
+            $label->call('for', $this->get('id'));
             if ($position !== null) {
                 $label->setPosition($position);
             }
-        } elseif (isset($this->label)) {
-            unset($this->label);
+        } elseif ($this->exists('label')) {
+            $this->remove('label');
         }
 
         return $this;
@@ -219,8 +243,8 @@ abstract class Component
      */
     public function detachLabel()
     {
-        if (isset($this->label)) {
-            unset($this->label);
+        if ($this->exists('label')) {
+            $this->remove('label');
         }
 
         return $this;
@@ -234,7 +258,7 @@ abstract class Component
     public function checkMandatoryAttributes(): bool
     {
         // Check for mandatory info
-        return (isset($this->name) || isset($this->id));
+        return $this->exists('name') || $this->exists('id');
     }
 
     /**
@@ -291,69 +315,69 @@ abstract class Component
         $render = '' .
 
             // Type (used for input component)
-            (isset($this->type) ?
-                ' type="' . $this->type . '"' : '') .
+            ($this->exists('type') ?
+                ' type="' . $this->get('type') . '"' : '') .
 
             // Identifier
             // - use $this->name for name attribute else $this->id if exists
             // - use $this->id for id attribute else $this->name if exists
-            (isset($this->name) ?
-                ' name="' . $this->name . '"' :
-                (isset($this->id) ? ' name="' . $this->id . '"' : '')) .
-            (isset($this->id) ?
-                ' id="' . $this->id . '"' :
-                (isset($this->name) ? ' id="' . $this->name . '"' : '')) .
+            ($this->exists('name') ?
+                ' name="' . $this->get('name') . '"' :
+                (null !== $this->get('id') ? ' name="' . $this->get('id') . '"' : '')) .
+            ($this->exists('id') ?
+                ' id="' . $this->get('id') . '"' :
+                ($this->exists('name') ? ' id="' . $this->get('name') . '"' : '')) .
 
             // Value
             // - $this->default will be used as value if exists and $this->value does not
             ($includeValue && array_key_exists('value', $this->_data) ?
-                ' value="' . $this->value . '"' : '') .
+                ' value="' . $this->get('value') . '"' : '') .
             ($includeValue && !array_key_exists('value', $this->_data) && array_key_exists('default', $this->_data) ?
-                ' value="' . $this->default . '"' : '') .
-            (isset($this->checked) && $this->checked ?
+                ' value="' . $this->get('default') . '"' : '') .
+            ($this->exists('checked') && $this->get('checked') ?
                 ' checked' : '') .
 
             // Common attributes
-            (isset($this->accesskey) ?
-                ' accesskey="' . $this->accesskey . '"' : '') .
-            (isset($this->autocomplete) ?
-                ' autocomplete="' . $this->autocomplete . '"' : '') .
-            (isset($this->autofocus) && $this->autofocus ?
+            ($this->exists('accesskey') ?
+                ' accesskey="' . $this->get('accesskey') . '"' : '') .
+            ($this->exists('autocomplete') ?
+                ' autocomplete="' . $this->get('autocomplete') . '"' : '') .
+            ($this->exists('autofocus') && $this->get('autofocus') ?
                 ' autofocus' : '') .
-            (isset($this->class) ?
-                ' class="' . (is_array($this->class) ? implode(' ', $this->class) : $this->class) . '"' : '') .
-            (isset($this->contenteditable) && $this->contenteditable ?
+            ($this->exists('class') ?
+                ' class="' . (is_array($this->get('class')) ? implode(' ', $this->get('class')) : $this->get('class')) . '"' : '') .
+            ($this->exists('contenteditable') && $this->get('contenteditable') ?
                 ' contenteditable' : '') .
-            (isset($this->dir) ?
-                ' dir="' . $this->dir . '"' : '') .
-            (isset($this->disabled) && $this->disabled ?
+            ($this->exists('dir') ?
+                ' dir="' . $this->get('dir') . '"' : '') .
+            ($this->exists('disabled') && $this->get('disabled') ?
                 ' disabled' : '') .
-            (isset($this->form) ?
-                ' form="' . $this->form . '"' : '') .
-            (isset($this->lang) ?
-                ' lang="' . $this->lang . '"' : '') .
-            (isset($this->list) ?
-                ' list="' . $this->list . '"' : '') .
-            (isset($this->max) ?
-                ' max="' . strval((int) $this->max) . '"' : '') .
-            (isset($this->maxlength) ?
-                ' maxlength="' . strval((int) $this->maxlength) . '"' : '') .
-            (isset($this->min) ?
-                ' min="' . strval((int) $this->min) . '"' : '') .
-            (isset($this->pattern) ?
-                ' pattern="' . $this->pattern . '"' : '') .
-            (isset($this->placeholder) ?
-                ' placeholder="' . $this->placeholder . '"' : '') .
-            (isset($this->readonly) && $this->readonly ?
+            ($this->exists('form') ?
+                ' form="' . $this->get('form') . '"' : '') .
+            ($this->exists('lang') ?
+                ' lang="' . $this->get('lang') . '"' : '') .
+            ($this->exists('list') ?
+                ' list="' . $this->get('list') . '"' : '') .
+            ($this->exists('max') ?
+                ' max="' . strval((int) $this->get('max')) . '"' : '') .
+            ($this->exists('maxlength') ?
+                ' maxlength="' . strval((int) $this->get('maxlength')) . '"' : '') .
+            ($this->exists('min') ?
+                ' min="' . strval((int) $this->get('min')) . '"' : '') .
+            ($this->exists('pattern') ?
+                ' pattern="' . $this->get('pattern') . '"' : '') .
+            ($this->exists('placeholder') ?
+                ' placeholder="' . $this->get('placeholder') . '"' : '') .
+            ($this->exists('readonly') && $this->get('readonly') ?
                 ' readonly' : '') .
-            (isset($this->required) && $this->required ?
+            ($this->exists('required') && $this->get('required') ?
                 ' required' : '') .
-            (isset($this->size) ?
-                ' size="' . strval((int) $this->size) . '"' : '') .
-            (isset($this->spellcheck) ?
-                ' spellcheck="' . ($this->spellcheck ? 'true' : 'false') . '"' : '') .
-            (isset($this->tabindex) ?
-                ' tabindex="' . strval((int) $this->tabindex) . '"' : '') .
+            ($this->exists('size') ?
+                ' size="' . strval((int) $this->get('size')) . '"' : '') .
+            ($this->exists('spellcheck') ?
+                ' spellcheck="' . ($this->get('spellcheck') ? 'true' : 'false') . '"' : '') .
+            ($this->exists('tabindex') ?
+                ' tabindex="' . strval((int) $this->get('tabindex')) . '"' : '') .
             (isset($this->title) ?
                 ' title="' . $this->title . '"' : '') .
 
@@ -366,9 +390,9 @@ abstract class Component
             }
         }
 
-        if (isset($this->extra)) {
+        if ($this->exists('extra')) {
             // Extra HTML
-            $render .= ' ' . (is_array($this->extra) ? implode(' ', $this->extra) : $this->extra);
+            $render .= ' ' . (is_array($this->get('extra')) ? implode(' ', $this->get('extra')) : $this->get('extra'));
         }
 
         return $render;

@@ -32,8 +32,8 @@ class Option extends Component
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this
-            ->text($name)
-            ->value($value);
+            ->set('text', $name)
+            ->set('value', $value);
     }
 
     /**
@@ -46,11 +46,11 @@ class Option extends Component
     public function render(?string $default = null): string
     {
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) .
-            ($this->value === $default ? ' selected' : '') .
+            ($this->get('value') === $default ? ' selected' : '') .
             $this->renderCommonAttributes() . '>';
 
-        if ($this->text) {
-            $buffer .= $this->text;
+        if ($this->get('text')) {
+            $buffer .= $this->get('text');
         }
 
         $buffer .= '</' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . '>' . "\n";

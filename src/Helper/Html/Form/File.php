@@ -28,7 +28,7 @@ class File extends Input
     {
         parent::__construct($id, 'file');
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

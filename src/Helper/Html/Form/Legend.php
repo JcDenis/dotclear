@@ -31,11 +31,11 @@ class Legend extends Component
     public function __construct(string $text = '', ?string $id = null, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
-        $this->text($text);
+        $this->set('text', $text);
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
     }
 
@@ -47,8 +47,8 @@ class Legend extends Component
     public function render(): string
     {
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . $this->renderCommonAttributes() . '>';
-        if ($this->text) {
-            $buffer .= $this->text;
+        if ($this->get('text')) {
+            $buffer .= $this->get('text');
         }
         $buffer .= '</' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . '>' . "\n";
 

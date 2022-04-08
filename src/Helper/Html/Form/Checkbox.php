@@ -28,7 +28,7 @@ class Checkbox extends Input
     {
         parent::__construct($id, 'checkbox');
         if ($checked !== null) {
-            $this->checked($checked);
+            $this->set('checked', $checked);
         }
     }
 }

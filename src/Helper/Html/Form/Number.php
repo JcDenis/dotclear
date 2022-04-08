@@ -28,10 +28,10 @@ class Number extends Input
     {
         parent::__construct($id, 'number');
         $this
-            ->min($min)
-            ->max($max);
+            ->set('min', $min)
+            ->set('max', $max);
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

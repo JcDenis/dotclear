@@ -28,10 +28,10 @@ class Color extends Input
     {
         parent::__construct($id, 'color');
         $this
-            ->size(7)
-            ->maxlength(7);
+            ->set('size', 7)
+            ->set('maxlength', 7);
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

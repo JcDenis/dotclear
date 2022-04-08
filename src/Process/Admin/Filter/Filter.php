@@ -365,12 +365,12 @@ class Filter extends Filters
             '<h4>' . __('Display options') . '</h4>';
 
             if (isset($this->filters['sortby'])) {
-                $label = (new Form\Label(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby'))
-                    ->class('ib');
+                $label = Form\Label::init(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby')
+                    ->set('class', 'ib');
 
-                $select = (new Form\Select('sortby'))
-                    ->default($this->filters['sortby']->get('value'))
-                    ->items($this->filters['sortby']->get('options'));
+                $select = Form\Select::init('sortby')
+                    ->set('default', $this->filters['sortby']->get('value'))
+                    ->set('items', $this->filters['sortby']->get('options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -378,12 +378,12 @@ class Filter extends Filters
                 );
             }
             if (isset($this->filters['order'])) {
-                $label = (new Form\Label(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order'))
-                    ->class('ib');
+                $label = Form\Label::init(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order')
+                    ->set('class', 'ib');
 
-                $select = (new Form\Select('order'))
-                    ->default($this->filters['order']->get('value'))
-                    ->items($this->filters['order']->get('options'));
+                $select = Form\Select::init('order')
+                    ->set('default', $this->filters['order']->get('value'))
+                    ->set('items' ,$this->filters['order']->get('options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -391,13 +391,13 @@ class Filter extends Filters
                 );
             }
             if (isset($this->filters['nb'])) {
-                $label = (new Form\Label($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb'))
-                    ->class('classic');
+                $label = Form\Label::init($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb')
+                    ->set('class', 'classic');
 
-                $number = (new Form\Number('nb'))
-                    ->min(0)
-                    ->max(999)
-                    ->value($this->filters['nb']->get('value'));
+                $number = Form\Number::init('nb')
+                    ->set('min', 0)
+                    ->set('max', 999)
+                    ->set('value', $this->filters['nb']->get('value'));
 
                 echo sprintf(
                     '<p><span class="label ib">' . __('Show') . '</span> %s</p>',

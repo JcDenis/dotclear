@@ -28,12 +28,12 @@ class Date extends Input
     {
         parent::__construct($id, 'date');
         $this
-            ->size(10)
-            ->maxlength(10)
-            ->pattern('[0-9]{4}-[0-9]{2}-[0-9]{2}')
-            ->placeholder('1962-05-13');
+            ->set('size', 10)
+            ->set('maxlength', 10)
+            ->set('pattern', '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+            ->set('placeholder', '1962-05-13');
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

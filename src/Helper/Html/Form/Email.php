@@ -28,7 +28,7 @@ class Email extends Input
     {
         parent::__construct($id, 'email');
         if ($value !== null) {
-            $this->value($value);
+            $this->set('value', $value);
         }
     }
 }

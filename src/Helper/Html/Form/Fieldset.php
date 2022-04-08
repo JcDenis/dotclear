@@ -33,8 +33,8 @@ class Fieldset extends Component
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         if ($id !== null) {
             $this
-                ->id($id)
-                ->name($id);
+                ->set('id', $id)
+                ->set('name', $id);
         }
     }
 
@@ -46,9 +46,9 @@ class Fieldset extends Component
     public function attachLegend(?Legend $legend)
     {
         if ($legend) {
-            $this->legend($legend);
-        } elseif (isset($this->legend)) {
-            unset($this->legend);
+            $this->call('legend', $legend);
+        } elseif ($this->exists('legend')) {
+            $this->remove('legend');
         }
     }
 
@@ -57,8 +57,8 @@ class Fieldset extends Component
      */
     public function detachLegend()
     {
-        if (isset($this->legend)) {
-            unset($this->legend);
+        if ($this->exists('legend')) {
+            $this->remove('legend');
         }
     }
 
@@ -71,14 +71,14 @@ class Fieldset extends Component
     {
         $buffer = '<' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . $this->renderCommonAttributes() . '>' . "\n";
 
-        if (isset($this->legend)) {
-            $buffer .= $this->legend->render();
+        if ($this->exists('legend')) {
+            $buffer .= $this->get('legend')->render();
         }
 
-        if (isset($this->fields)) {
-            if (is_array($this->fields)) {
-                foreach ($this->fields as $field) {
-                    if (isset($this->legend) && $field->getDefaultElement() === 'legend') {
+        if ($this->exists('fields')) {
+            if (is_array($this->get('fields'))) {
+                foreach ($this->get('fields') as $field) {
+                    if ($this->exists('legend') && $field->getDefaultElement() === 'legend') {
                         // Do not put more than one legend in fieldset
                         continue;
                     }
