@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Admin;
 
 use stdClass;
-
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -24,8 +23,13 @@ use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class Handler extends AbstractPage
 {
+    /** @var    Widgets     $widgets_nav    Navigation widgets */
     private $widgets_nav = null;
+
+    /** @var    Widgets     $widgets_extra  Extra widgets */
     private $widgets_extra = null;
+
+    /** @var    Widgets     $widgets_custom     Custom widgets */
     private $widgets_custom = null;
 
     protected function getPermissions(): string|null|false
@@ -53,14 +57,14 @@ class Handler extends AbstractPage
             # Filter selection
             $addw = [];
             foreach ($_POST['addw'] as $k => $v) {
-                if (($v == 'extra' || $v == 'nav' || $v == 'custom') && WidgetsStack::$__widgets->{$k} !== null) {
+                if (in_array($v, ['extra', 'nav', 'custom']) && null !== WidgetsStack::$__widgets->get($k)) {
                     $addw[$k] = $v;
                 }
             }
 
             # Append 1 widget
             $wid = false;
-            if (gettype($_POST['append']) == 'array' && count($_POST['append']) == 1) {
+            if ('array' == gettype($_POST['append']) && 1 == count($_POST['append'])) {
                 $wid = array_keys($_POST['append']);
                 $wid = $wid[0];
             }
@@ -81,15 +85,15 @@ class Handler extends AbstractPage
                     if (!$wid || $wid == $k) {
                         switch ($v) {
                             case 'nav':
-                                $this->widgets_nav->append(WidgetsStack::$__widgets->{$k});
+                                $this->widgets_nav->append(WidgetsStack::$__widgets->get($k));
 
                                 break;
                             case 'extra':
-                                $this->widgets_extra->append(WidgetsStack::$__widgets->{$k});
+                                $this->widgets_extra->append(WidgetsStack::$__widgets->get($k));
 
                                 break;
                             case 'custom':
-                                $this->widgets_custom->append(WidgetsStack::$__widgets->{$k});
+                                $this->widgets_custom->append(WidgetsStack::$__widgets->get($k));
 
                                 break;
                         }
@@ -355,7 +359,7 @@ class Handler extends AbstractPage
         return $widget_elements;
     }
 
-    private function sidebarWidgets($id, $title, $widgets, $pr, $default_widgets, &$j)
+    private function sidebarWidgets(string $id, string $title, ?Widgets $widgets, string $pr, Widgets $default_widgets, int &$j): string
     {
         $res = '<h3>' . $title . '</h3>';
 
@@ -406,7 +410,7 @@ class Handler extends AbstractPage
         return $res;
     }
 
-    private function widgetsAppendCombo()
+    private function widgetsAppendCombo(): array
     {
         return [
             '-'              => 0,
@@ -416,9 +420,9 @@ class Handler extends AbstractPage
         ];
     }
 
-    private function literalNullString($v)
+    private function literalNullString(mixed $v): mixed
     {
-        if ($v == '') {
+        if ('' == $v) {
             return '&lt;' . __('empty string') . '&gt;';
         }
 

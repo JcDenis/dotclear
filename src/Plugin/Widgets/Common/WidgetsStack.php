@@ -13,19 +13,28 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
-use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\Widget;
+use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class WidgetsStack
 {
+    /** @var    WidgetsStack     @stack  Self instance */
     public static $stack;
+
+    /** @var    Widgets     $__widgets  Widgets */
     public static $__widgets;
+
+    /** @var    array<string, Widgets>  $__default_widgets  Default widgets */
     public static $__default_widgets;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->initWidgets();
@@ -40,43 +49,48 @@ class WidgetsStack
 
     /// @name Widgets page methods
     //@{
-    public function search($w)
+    /**
+     * Render widget 'search'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function search(Widget $widget): string
     {
-        if (dotclear()->blog()->settings()->get('system')->get('no_search')) {
-            return;
-        }
-
-        if ($w->offline) {
-            return;
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
+        if (dotclear()->blog()->settings()->get('system')->get('no_search')
+            || $widget->get('offline')
+            || !$widget->checkHomeOnly(dotclear()->url()->type)
+        ) {
+            return '';
         }
 
         $value = isset($GLOBALS['_search']) ? Html::escapeHTML($GLOBALS['_search']) : '';
 
-        return $w->renderDiv($w->content_only, $w->class, 'id="search"',
-            ($w->title ? $w->renderTitle('<label for="q">' . Html::escapeHTML($w->title) . '</label>') : '') .
+        return $widget->renderDiv($widget->get('content_only'), $widget->get('class'), 'id="search"',
+            ($widget->get('title') ? $widget->renderTitle('<label for="q">' . Html::escapeHTML($widget->get('title')) . '</label>', false) : '') .
             '<form action="' . dotclear()->blog()->url . '" method="get" role="search">' .
             '<p><input type="text" size="10" maxlength="255" id="q" name="q" value="' . $value . '" ' .
-            ($w->placeholder ? 'placeholder="' . Html::escapeHTML($w->placeholder) . '"' : '') .
+            ($widget->get('placeholder') ? 'placeholder="' . Html::escapeHTML($widget->get('placeholder')) . '"' : '') .
             ' aria-label="' . __('Search') . '"/> ' .
             '<input type="submit" class="submit" value="ok" title="' . __('Search') . '" /></p>' .
             '</form>');
     }
 
-    public function navigation($w)
+    /**
+     * Render widget 'navigation'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function navigation(Widget $widget): string
     {
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = $widget->renderTitle() .
             '<nav role="navigation"><ul>';
 
         if (!dotclear()->url()->isHome(dotclear()->url()->type)) {
@@ -102,33 +116,36 @@ class WidgetsStack
         __('Archives') . '</a></li>' .
             '</ul></nav>';
 
-        return $w->renderDiv($w->content_only, $w->class, 'id="topnav"', $res);
+        return $widget->renderDiv($widget->get('content_only'), $widget->get('class'), 'id="topnav"', $res);
     }
 
-    public function categories($w)
+    /**
+     * Render widget 'catgories'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function categories(Widget $widget): string
     {
         $context = dotclear()->context();
 
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $rs = dotclear()->blog()->categories()->getCategories(['post_type' => 'post', 'without_empty' => !$w->with_empty]);
+        $rs = dotclear()->blog()->categories()->getCategories(['post_type' => 'post', 'without_empty' => !$widget->get('with_empty')]);
         if ($rs->isEmpty()) {
-            return;
+            return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '');
+        $res = $widget->renderTitle();
 
         $ref_level = $level = $rs->fInt('level') - 1;
         while ($rs->fetch()) {
             $class = '';
-            if ((dotclear()->url()->type == 'category' && $context->categories instanceof Record && $context->categories->fInt('cat_id') === $rs->fInt('cat_id'))
-                || (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->fInt('cat_id') === $rs->fInt('cat_id'))) {
+            if (('category' == dotclear()->url()->type && $context->categories instanceof Record && $context->categories->fInt('cat_id') === $rs->fInt('cat_id'))
+                || ('post' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('cat_id') === $rs->fInt('cat_id'))) {
                 $class = ' class="category-current"';
             }
 
@@ -144,7 +161,7 @@ class WidgetsStack
 
             $res .= '<a href="' . dotclear()->blog()->getURLFor('category', $rs->f('cat_url')) . '">' .
             Html::escapeHTML($rs->f('cat_title')) . '</a>' .
-                ($w->postcount ? ' <span>(' . ($w->subcatscount ? $rs->f('nb_total') : $rs->f('nb_post')) . ')</span>' : '');
+                ($widget->get('postcount') ? ' <span>(' . ($widget->get('subcatscount') ? $rs->f('nb_total') : $rs->f('nb_post')) . ')</span>' : '');
 
             $level = $rs->fInt('level');
         }
@@ -153,39 +170,42 @@ class WidgetsStack
             $res .= str_repeat('</li></ul>', -($ref_level - $level));
         }
 
-        return $w->renderDiv($w->content_only, 'categories ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'categories ' . $widget->get('class'), '', $res);
     }
 
-    public function bestof($w)
+    /**
+     * Render widget 'bestof'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function bestof(Widget $widget): string
     {
         $context = dotclear()->context();
 
-        if ($w->offline) {
-            return;
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
         $params = [
             'post_selected' => true,
             'no_content'    => true,
-            'order'         => 'post_dt ' . strtoupper($w->orderby)
+            'order'         => 'post_dt ' . strtoupper($widget->get('orderby'))
         ];
 
         $rs = dotclear()->blog()->posts()->getPosts($params);
 
         if ($rs->isEmpty()) {
-            return;
+            return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = $widget->renderTitle() .
             '<ul>';
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->f('post_title')) . '</a></li> ';
@@ -193,29 +213,32 @@ class WidgetsStack
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'selected ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'selected ' . $widget->get('class'), '', $res);
     }
 
-    public function langs($w)
+    /**
+     * Render widget 'langs'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function langs(Widget $widget): string
     {
         $context = dotclear()->context();
 
-        if ($w->offline) {
-            return;
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
         $rs = dotclear()->blog()->posts()->getLangs();
 
         if ($rs->count() <= 1) {
-            return;
+            return '';
         }
 
         $langs = L10n::getISOcodes();
-        $res   = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res   = $widget->renderTitle() .
             '<ul>';
 
         while ($rs->fetch()) {
@@ -233,23 +256,26 @@ class WidgetsStack
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'langs ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'langs ' . $widget->get('class'), '', $res);
     }
 
-    public function subscribe($w)
+    /**
+     * Render widget 'subscribe'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function subscribe(Widget $widget): string
     {
         $context = dotclear()->context();
 
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $type = ($w->type == 'atom' || $w->type == 'rss2') ? $w->type : 'rss2';
-        $mime = $type == 'rss2' ? 'application/rss+xml' : 'application/atom+xml';
+        $type = ('atom' == $widget->get('type') || 'rss2' == $widget->get('type')) ? $widget->get('type') : 'rss2';
+        $mime = 'rss2' == $type ? 'application/rss+xml' : 'application/atom+xml';
         if ($context->exists('cur_lang')) {
             $type = $context->cur_lang . '/' . $type;
         }
@@ -257,52 +283,51 @@ class WidgetsStack
         $p_title = __('This blog\'s entries %s feed');
         $c_title = __('This blog\'s comments %s feed');
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = $widget->renderTitle() .
             '<ul>';
 
         $res .= '<li><a type="' . $mime . '" ' .
         'href="' . dotclear()->blog()->getURLFor('feed', $type) . '" ' .
-        'title="' . sprintf($p_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
+        'title="' . sprintf($p_title, ('atom' == $type ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
         if (dotclear()->blog()->settings()->get('system')->get('allow_comments') || dotclear()->blog()->settings()->get('system')->get('allow_trackbacks')) {
             $res .= '<li><a type="' . $mime . '" ' .
             'href="' . dotclear()->blog()->getURLFor('feed', $type . '/comments') . '" ' .
-            'title="' . sprintf($c_title, ($type == 'atom' ? 'Atom' : 'RSS')) . '" class="feed">' .
+            'title="' . sprintf($c_title, ('atom' == $type ? 'Atom' : 'RSS')) . '" class="feed">' .
             __('Comments feed') . '</a></li>';
         }
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'syndicate ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'syndicate ' . $widget->get('class'), '', $res);
     }
 
-    public function feed($w)
+    /**
+     * Render widget 'feed'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function feed(Widget $widget): string
     {
-        if (!$w->url) {
-            return;
+        if (!$widget->get('url') || $widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '' ;
         }
 
-        if ($w->offline) {
-            return;
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $limit = abs((int) $w->limit);
+        $limit = abs((int) $widget->get('limit'));
 
         try {
-            $feed = Reader::quickParse($w->url, dotclear()->config()->get('cache_dir'));
+            $feed = Reader::quickParse($widget->get('url'), dotclear()->config()->get('cache_dir'));
             if ($feed == false || count($feed->items) == 0) {
-                return;
+                return '';
             }
         } catch (\Exception) {
-            return;
+            return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = $widget->renderTitle() .
             '<ul>';
 
         $i = 0;
@@ -328,67 +353,76 @@ class WidgetsStack
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'feed ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'feed ' . $widget->get('class'), '', $res);
     }
 
-    public function text($w)
+    /**
+     * Render widget 'text'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function text(Widget $widget): string
     {
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') . $w->text;
-
-        return $w->renderDiv($w->content_only, 'text ' . $w->class, '', $res);
+        return $widget->renderDiv(
+            $widget->get('content_only'), 
+            'text ' . $widget->get('class'), 
+            '', 
+            $widget->renderTitle() . $widget->get('text')
+        );
     }
 
-    public function lastposts($w)
+    /**
+     * Render widget 'lastposts'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function lastposts(Widget $widget): string
     {
         $context = dotclear()->context();
 
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $params['limit']      = abs((int) $w->limit);
+        $params['limit']      = abs((int) $widget->get('limit'));
         $params['order']      = 'post_dt desc';
         $params['no_content'] = true;
 
-        if ($w->category) {
-            if ($w->category == 'null') {
+        if ($widget->get('category')) {
+            if ('null' == $widget->get('category')) {
                 $params['sql'] = ' AND P.cat_id IS NULL ';
-            } elseif (is_numeric($w->category)) {
-                $params['cat_id'] = (int) $w->category;
+            } elseif (is_numeric($widget->get('category'))) {
+                $params['cat_id'] = (int) $widget->get('category');
             } else {
-                $params['cat_url'] = $w->category;
+                $params['cat_url'] = $widget->get('category');
             }
         }
 
-        if ($w->tag) {
-            $params['meta_id'] = $w->tag;
+        if ($widget->get('tag')) {
+            $params['meta_id'] = $widget->get('tag');
             $rs                = dotclear()->meta()->getPostsByMeta($params);
         } else {
             $rs = dotclear()->blog()->posts()->getPosts($params);
         }
 
         if ($rs->isEmpty()) {
-            return;
+            return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') .
+        $res = $widget->renderTitle() .
             '<ul>';
 
         while ($rs->fetch()) {
             $class = '';
-            if (dotclear()->url()->type == 'post' && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('psot' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
@@ -397,28 +431,31 @@ class WidgetsStack
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'lastposts ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'lastposts ' . $widget->get('class'), '', $res);
     }
 
-    public function lastcomments($w)
+    /**
+     * Render widget 'lastcomments'
+     * 
+     * @param   Widget  $widget     The widget
+     * 
+     * @return string
+     */
+    public function lastcomments(Widget $widget): string
     {
-        if ($w->offline) {
-            return;
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+            return '';
         }
 
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
-            return;
-        }
-
-        $params['limit'] = abs((int) $w->limit);
+        $params['limit'] = abs((int) $widget->get('limit'));
         $params['order'] = 'comment_dt desc';
         $rs              = dotclear()->blog()->comments()->getComments($params);
 
         if ($rs->isEmpty()) {
-            return;
+            return '';
         }
 
-        $res = ($w->title ? $w->renderTitle(Html::escapeHTML($w->title)) : '') . '<ul>';
+        $res = $widget->renderTitle() . '<ul>';
 
         while ($rs->fetch()) {
             $res .= '<li class="' .
@@ -431,13 +468,16 @@ class WidgetsStack
 
         $res .= '</ul>';
 
-        return $w->renderDiv($w->content_only, 'lastcomments ' . $w->class, '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'lastcomments ' . $widget->get('class'), '', $res);
     }
     //@}
 
     /// @name Widgets init methods
     //@{
-    public function initWidgets()
+    /**
+     * Intialize widgets
+     */
+    public function initWidgets(): void
     {
         $__widgets = new Widgets();
 
@@ -517,22 +557,22 @@ class WidgetsStack
         $rs         = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
-            $categories[str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . ($rs->fInt('level') - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title'))] = $rs->f('cat_id');
+            $categories[str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0 == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title'))] = $rs->f('cat_id');
         }
-        $w = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, 'List of last entries published');
-        $w
+        $widget = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, 'List of last entries published');
+        $widget
             ->addTitle(__('Last entries'))
             ->setting('category', __('Category:'), '', 'combo', $categories);
         if (dotclear()->plugins()->hasModule('Tags')) {
-            $w->setting('tag', __('Tag:'), '');
+            $widget->setting('tag', __('Tag:'), '');
         }
-        $w
+        $widget
             ->setting('limit', __('Entries limit:'), 10)
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
             ->addOffline();
-        unset($rs, $categories, $w);
+        unset($rs, $categories, $widget);
 
         $__widgets
             ->create('lastcomments', __('Last comments'), [$this, 'lastcomments'], null, 'List of last comments published')
@@ -563,7 +603,7 @@ class WidgetsStack
 
     /// @name Widgets tempalte methods
     //@{
-    public function tplWidgets($attr)
+    public function tplWidgets(ArrayObject $attr): string
     {
         $type = $attr['type'] ?? '';
 
@@ -584,7 +624,7 @@ class WidgetsStack
         return '<?php ' . $res . ' ?>';
     }
 
-    public function widgetsHandler($type, $disable = '')
+    public function widgetsHandler(string $type, string $disable = ''): void
     {
         $wtype = 'widgets_' . $type;
         $widgets = dotclear()->blog()->settings()->get('widgets')->get($wtype);
@@ -594,8 +634,8 @@ class WidgetsStack
             $widgets = $this->defaultWidgets($type);
         } else {
             // Otherwise, load widgets
-            $w = new Widgets();
-            $widgets = $w->load($widgets);
+            $widget = new Widgets();
+            $widgets = $widget->load($widgets);
         }
 
         if ($widgets->isEmpty()) {
@@ -606,15 +646,15 @@ class WidgetsStack
         $disable = preg_split('/\s*,\s*/', $disable, -1, PREG_SPLIT_NO_EMPTY);
         $disable = array_flip($disable);
 
-        foreach ($widgets->elements() as $k => $w) {
-            if (isset($disable[$w->id()])) {
+        foreach ($widgets->elements() as $k => $widget) {
+            if (isset($disable[$widget->id()])) {
                 continue;
             }
-            echo $w->call($k);
+            echo $widget->call($k);
         }
     }
 
-    public function tplIfWidgets($attr, $content)
+    public function tplIfWidgets(ArrayObject $attr, string $content): string
     {
         $type = $attr['type'] ?? '';
 
@@ -635,7 +675,7 @@ class WidgetsStack
         return '<?php if(' . $res . ') : ?>' . $content . '<?php endif; ?>';
     }
 
-    public function ifWidgetsHandler($type, $disable = '')
+    public function ifWidgetsHandler(string $type, string $disable = ''): bool
     {
         $wtype = 'widgets_' . $type;
         $widgets = dotclear()->blog()->settings()->get('widgets')->get($wtype);
@@ -645,28 +685,27 @@ class WidgetsStack
             $widgets = $this->defaultWidgets($type);
         } else {
             // Otherwise, load widgets
-            $w = new Widgets();
-            $widgets = $w->load($widgets);
+            $widgets = (new Widgets())->load($widgets);
         }
 
         return (!$widgets->isEmpty());
     }
 
-    private function defaultWidgets($type)
+    private function defaultWidgets(string $type): Widgets
     {
-        $w = new Widgets();
+        $widgets = new Widgets();
 
         if (isset(self::$__default_widgets[$type])) {
-            $w = self::$__default_widgets[$type];
+            $widgets = self::$__default_widgets[$type];
         }
 
-        return $w;
+        return $widgets;
     }
 
-    public function tplWidget($attr, $content)
+    public function tplWidget(ArrayObject $attr, string $content): string
     {
-        if (!isset($attr['id']) || !(self::$__widgets->{$attr['id']} instanceof Widget)) {
-            return;
+        if (!isset($attr['id']) || !(self::$__widgets->get($attr['id']) instanceof Widget)) {
+            return '';
         }
 
         # We change tpl:lang syntax, we need it
@@ -679,7 +718,7 @@ class WidgetsStack
         "<?php " . __CLASS__ . "::\$stack->widgetHandler('" . addslashes($attr['id']) . "','" . str_replace("'", "\\'", $content) . "'); ?>";
     }
 
-    public function widgetHandler($id, $xml)
+    public function widgetHandler(string $id, string $xml): void
     {
         if (!trim($xml)) {
             return;
@@ -687,7 +726,7 @@ class WidgetsStack
 
         $widgets = self::$__widgets;
 
-        if (!($widgets->{$id} instanceof Widget)) {
+        if (!($widgets->get($id) instanceof Widget)) {
             return;
         }
 
@@ -699,7 +738,7 @@ class WidgetsStack
             return;
         }
 
-        $w = clone $widgets->{$id};
+        $widget = clone $widgets->get($id);
 
         foreach ($xml->setting as $e) {
             if (empty($e['name'])) {
@@ -712,13 +751,13 @@ class WidgetsStack
             } else {
                 $text = $e;
             }
-            $w->{$setting} = preg_replace_callback('/\{tpl:lang (.*?)\}/msu', ['self', 'widgetL10nHandler'], $text);
+            $widget->set($setting, preg_replace_callback('/\{tpl:lang (.*?)\}/msu', ['self', 'widgetL10nHandler'], $text));
         }
 
-        echo $w->call(0);
+        echo $widget->call(0);
     }
 
-    private function widgetL10nHandler($m)
+    private function widgetL10nHandler(array $m): string
     {
         return __($m[1]);
     }

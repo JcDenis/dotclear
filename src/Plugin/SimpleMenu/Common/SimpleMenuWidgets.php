@@ -17,7 +17,7 @@ use ArrayObject;
 
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Plugin\Widgets\Common\WidgetExt;
+use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class SimpleMenuWidgets
@@ -74,33 +74,31 @@ class SimpleMenuWidgets
     }
 
     # Widget function
-    public function simpleMenuWidget(WidgetExt $w): string
+    public function simpleMenuWidget(Widget $widget): string
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')) {
-            return '';
-        }
-
-        if ($w->get('offline')) {
-            return '';
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+        if (!dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')
+            || $widget->get('offline') 
+            || !$widget->checkHomeOnly(dotclear()->url()->type)
+        ) {
             return '';
         }
 
         $description = 'title';
-        if (isset($descr_type[$w->get('description')])) {
-            $description = $descr_type[$w->get('description')];
+        if (isset($descr_type[$widget->get('description')])) {
+            $description = $descr_type[$widget->get('description')];
         }
-        $menu = $this->displayMenu('', '', $description);
-        if ($menu == '') {
+        if ('' == ($menu = $this->displayMenu('', '', $description))) {
             return '';
         }
 
-        return $w->renderDiv($w->get('content_only'), 'simple-menu ' . $w->get('class'), '',
-            ($w->get('title') ? $w->renderTitle(html::escapeHTML($w->get('title'))) : '') . $menu);
+        return $widget->renderDiv(
+            $widget->get('content_only'), 
+            'simple-menu ' . $widget->get('class'), 
+            '', 
+            $widget->renderTitle() . $menu
+        );
     }
 
     public function displayMenu($class = '', $id = '', $description = '')

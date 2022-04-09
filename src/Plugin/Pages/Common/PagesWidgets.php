@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Pages\Common;
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Widgets\Common\WidgetExt;
+use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class PagesWidgets
@@ -65,7 +65,7 @@ class PagesWidgets
         $default['nav']->append($widgets->get('pages'));
     }
 
-    public function pagesWidget(WidgetExt $widget): string
+    public function pagesWidget(Widget $widget): string
     {
         if ($widget->get('offline')) {
             return '';
@@ -100,7 +100,7 @@ class PagesWidgets
             return '';
         }
 
-        $res = ($widget->get('title') ? $widget->renderTitle(html::escapeHTML($widget->get('title'))) : '') . '<ul>';
+        $res = '<ul>';
 
         while ($rs->fetch()) {
             $class = '';
@@ -116,6 +116,6 @@ class PagesWidgets
 
         $res .= '</ul>';
 
-        return $widget->renderDiv($widget->get('content_only'), 'pages ' . $widget->get('class'), '', $res);
+        return $widget->renderDiv($widget->get('content_only'), 'pages ' . $widget->get('class'), '', $widget->renderTitle() . $res);
     }
 }

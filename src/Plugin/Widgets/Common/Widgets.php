@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\Widgets\Common;
 
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\Widget;
-use Dotclear\Plugin\Widgets\Common\WidgetExt;
 use Dotclear\Helper\Lexical;
 
 class Widgets
@@ -23,18 +22,26 @@ class Widgets
     /** @var    array<string, Widget>   Widgets */
     private $__widgets = [];
 
-    public function load($s)
+    /**
+     * Load Widgets from serialized content
+     * 
+     * @param   string|null     $s  serialized widgets
+     * 
+     * @return  Widgets|null
+     */
+    public function load(?string $s): ?Widgets
     {
         $o = @unserialize(base64_decode($s));
 
-        if ($o instanceof self) {
-            return $o;
-        }
-
-        return $this->loadArray($o, WidgetsStack::$__widgets);
+        return ($o instanceof self) ? $o : $this->loadArray($o, WidgetsStack::$__widgets);
     }
 
-    public function store()
+    /**
+     * Store widgets in serialized content
+     * 
+     * @return  string
+     */
+    public function store(): string
     {
         $serialized = [];
         foreach ($this->__widgets as $pos => $w) {
@@ -44,30 +51,56 @@ class Widgets
         return base64_encode(serialize($serialized));
     }
 
-    public function create($id, $name, $callback, $append_callback = null, $desc = '')
+    /**
+     * Create a Widget
+     * 
+     * @param   string  $id                 Widget id
+     * @param   string  $name               Widget name
+     * @param   mixed   $callback           Widget callback function
+     * @param   mixed   $append_callback    Additonnal a callback
+     * @param   string  $desc               Widget description
+     * 
+     * @return  Widget
+     */
+    public function create(string $id, string $name, mixed $callback, mixed $append_callback = null, string $desc = ''): Widget
     {
-        $this->__widgets[$id]                  = new WidgetExt($id, $name, $callback, $desc);
+        $this->__widgets[$id]                  = new Widget($id, $name, $callback, $desc);
         $this->__widgets[$id]->append_callback = $append_callback;
 
         return $this->__widgets[$id];
     }
 
-    public function append($widget)
+    /**
+     * Call additionnal callback function
+     * 
+     * @param   Widget  $widget     The widget
+     */
+    public function append(Widget $widget): void
     {
-        if ($widget instanceof Widget) {
-            if (is_callable($widget->append_callback)) {
-                call_user_func($widget->append_callback, $widget);
-            }
-            $this->__widgets[] = $widget;
+        if (is_callable($widget->append_callback)) {
+            call_user_func($widget->append_callback, $widget);
         }
+            $this->__widgets[] = $widget;
     }
 
-    public function isEmpty()
+    /**
+     * Check if there are widgets
+     * 
+     * @return  bool
+     */
+    public function isEmpty(): bool
     {
         return count($this->__widgets) == 0;
     }
 
-    public function elements($sorted = false)
+    /**
+     * Get widgets
+     * 
+     * @param   bool    $sorted     Sort widgets
+     * 
+     * @return  array   The widgets
+     */
+    public function elements(bool $sorted = false): array
     {
         if ($sorted) {
             uasort($this->__widgets, [$this, 'sort']);
@@ -76,21 +109,22 @@ class Widgets
         return $this->__widgets;
     }
 
-    public function get($id)
+    /**
+     * Get a widget
+     * 
+     * @param   string  $id     Widget id
+     * 
+     * @return Widget|null
+     */
+    public function get(string $id): ?Widget
     {
-        if (!isset($this->__widgets[$id])) {
-            return;
-        }
-
-        return $this->__widgets[$id];
+        return isset($this->__widgets[$id]) ? $this->__widgets[$id] : null;
     }
 
-    public function __get($id)
-    {
-        return $this->get($id);
-    }
-
-    public function __wakeup()
+    /**
+     * Magic wakeup method
+     */
+    public function __wakeup(): void
     {
         foreach ($this->__widgets as $i => $w) {
             if (!($w instanceof Widget)) {
@@ -99,24 +133,28 @@ class Widgets
         }
     }
 
-    public function loadArray($A, $widgets)
+    /**
+     * Load widgets (settings) form an array
+     * 
+     * @param   array       $A          widgets array with settings
+     * @param   Widgets     $widgets    instanciated widgets
+     * 
+     * @return  Widgets
+     */
+    public function loadArray(array $A, Widgets $widgets): Widgets
     {
-        if (!($widgets instanceof self)) {
-            return false;
-        }
-
         uasort($A, [$this, 'arraySort']);
 
         $result = new Widgets();
         foreach ($A as $v) {
-            if ($widgets->{$v['id']} != null) {
-                $w = clone $widgets->{$v['id']};
+            if ($widgets->get($v['id']) != null) {
+                $w = clone $widgets->get($v['id']);
 
                 # Settings
                 unset($v['id'], $v['order']);
 
                 foreach ($v as $sid => $s) {
-                    $w->{$sid} = $s;
+                    $w->set($sid, $s);
                 }
 
                 $result->append($w);
@@ -126,7 +164,15 @@ class Widgets
         return $result;
     }
 
-    private function arraySort($a, $b)
+    /**
+     * Comparison of widgets
+     * 
+     * @param   array   $a
+     * @param   array   $b
+     * 
+     * @return  int
+     */
+    private function arraySort(array $a, array $b): int
     {
         if ($a['order'] == $b['order']) {
             return 0;
@@ -135,7 +181,16 @@ class Widgets
         return $a['order'] > $b['order'] ? 1 : -1;
     }
 
-    private function sort($a, $b)
+
+    /**
+     * Lexical comparison of widgets
+     * 
+     * @param   Widget  $a
+     * @param   Widget  $b
+     * 
+     * @return  int
+     */
+    private function sort(Widget $a, Widget $b): int
     {
         $c = Lexical::removeDiacritics(mb_strtolower($a->name()));
         $d = Lexical::removeDiacritics(mb_strtolower($b->name()));

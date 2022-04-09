@@ -16,7 +16,7 @@ namespace Dotclear\Plugin\Tags\Common;
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Widgets\Common\WidgetExt;
+use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class TagsWidgets
@@ -67,24 +67,20 @@ class TagsWidgets
         $d['nav']->append($w->get('tags'));
     }
 
-    public function tagsWidget(WidgetExt $w): string
+    public function tagsWidget(Widget $widget): string
     {
-        if ($w->get('offline')) {
-            return '';
-        }
-
-        if (!$w->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
         $combo = ['meta_id_lower', 'count', 'latest', 'oldest'];
 
-        $sort = $w->get('sortby');
+        $sort = $widget->get('sortby');
         if (!in_array($sort, $combo)) {
             $sort = 'meta_id_lower';
         }
 
-        $order = $w->get('orderby');
+        $order = $widget->get('orderby');
         if ('asc' != $order) {
             $order = 'desc';
         }
@@ -96,8 +92,8 @@ class TagsWidgets
             $params['order'] = $sort . ' ' . ('asc' == $order ? 'ASC' : 'DESC');
         }
 
-        if (abs((int) $w->get('limit'))) {
-            $params['limit'] = abs((int) $w->get('limit'));
+        if (abs((int) $widget->get('limit'))) {
+            $params['limit'] = abs((int) $widget->get('limit'));
         }
 
         $rs = dotclear()->meta()->computeMetaStats(
@@ -113,8 +109,7 @@ class TagsWidgets
             $rs->sort($sort, $order);
         }
 
-        $res = ($w->get('title') ? $w->renderTitle(Html::escapeHTML($w->get('title'))) : '') .
-            '<ul>';
+        $res = '<ul>';
 
         if ('post' == dotclear()->url()->type && dotclear()->context()->posts instanceof Record) {
             dotclear()->context()->meta = dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->posts->f('post_meta'), 'tag');
@@ -137,11 +132,16 @@ class TagsWidgets
 
         $res .= '</ul>';
 
-        if (dotclear()->url()->getURLFor('tags') && !is_null($w->get('alltagslinktitle')) && '' !== $w->get('alltagslinktitle')) {
+        if (dotclear()->url()->getURLFor('tags') && !is_null($widget->get('alltagslinktitle')) && '' !== $widget->get('alltagslinktitle')) {
             $res .= '<p><strong><a href="' . dotclear()->blog()->getURLFor('tags') . '">' .
-            Html::escapeHTML($w->get('alltagslinktitle')) . '</a></strong></p>';
+            Html::escapeHTML($widget->get('alltagslinktitle')) . '</a></strong></p>';
         }
 
-        return $w->renderDiv($w->get('content_only'), 'tags ' . $w->get('class'), '', $res);
+        return $widget->renderDiv(
+            $widget->get('content_only'), 
+            'tags ' . $widget->get('class'), 
+            '', 
+            $widget->renderTitle() . $res
+        );
     }
 }

@@ -18,7 +18,7 @@ use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
-use Dotclear\Plugin\Widgets\Common\WidgetExt;
+use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 class BlogrollWidgets
@@ -57,7 +57,7 @@ class BlogrollWidgets
         $default['extra']->append($widgets->get('links'));
     }
 
-    public function linksWidget(WidgetExt $widget): string
+    public function linksWidget(Widget $widget): string
     {
         if ($widget->get('offline')) {
             return '';
@@ -77,7 +77,7 @@ class BlogrollWidgets
             $widget->get('content_only'),
             'links ' . $widget->get('class'),
             '',
-            ($widget->get('title') ? $widget->renderTitle(Html::escapeHTML($widget->get('title'))) : '') .
+            $widget->renderTitle() .
             $links
         );
     }
