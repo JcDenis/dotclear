@@ -14,29 +14,27 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template;
 
 use ArrayObject;
-
 use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
 class Template extends BaseTemplate
 {
+    /** @var    string  $current_tag    Current tag */
     private $current_tag;
 
-    protected $unknown_value_handler = null;
-    protected $unknown_block_handler = null;
-
+    /**
+     * Constructor
+     * 
+     * @param   string  $cache_dir  Cache directory path
+     * @param   string  $self_name  Tempalte engine method name
+     */
     public function __construct(string $cache_dir, string $self_name)
     {
         parent::__construct($cache_dir, $self_name);
 
         $this->remove_php = !dotclear()->blog()->settings()->get('system')->get('tpl_allow_php');
         $this->use_cache  = dotclear()->blog()->settings()->get('system')->get('tpl_use_cache');
-
-        # Transitional tags
-        $this->addValue('EntryTrackbackCount', [$this, 'EntryPingCount']);
-        $this->addValue('EntryTrackbackData', [$this, 'EntryPingData']);
-        $this->addValue('EntryTrackbackLink', [$this, 'EntryPingLink']);
 
         # l10n
         $this->addValue('lang', [$this, 'l10n']);
@@ -247,18 +245,11 @@ class Template extends BaseTemplate
 
         return self::$_r;
     }
-/*
-    protected function compileFile(string $file)
-    {
-        $res = parent::compileFile($file);
 
-        return empty($res) ? '' : '<?php use function \Dotclear\core; ?>' . $res;
-    }
-*/
-    public function compileBlockNode($tag, $attr, $content)
+    public function compileBlockNode(string $tag, ArrayObject $attr, string $content): string
     {
         $this->current_tag = $tag;
-        $attr              = new ArrayObject($attr);
+
         # --BEHAVIOR-- templateBeforeBlock
         $res = dotclear()->behavior()->call('templateBeforeBlock', $this->current_tag, $attr);
 
@@ -273,7 +264,7 @@ class Template extends BaseTemplate
         return $res;
     }
 
-    public function compileValueNode($tag, $attr, $str_attr)
+    public function compileValueNode(string $tag, ArrayObject $attr, string $str_attr): string
     {
         $this->current_tag = $tag;
 
@@ -289,12 +280,8 @@ class Template extends BaseTemplate
         return $res;
     }
 
-    public function getFilters($attr, $default = [])
+    public function getFilters(ArrayObject $attr, array $default = []): string
     {
-        if (!is_array($attr) && !($attr instanceof arrayObject)) {
-            $attr = [];
-        }
-
         $p = array_merge(
             [
                 0             => null,
@@ -323,7 +310,7 @@ class Template extends BaseTemplate
         return 'dotclear()->context()->global_filters(%s,' . var_export($p, true) . ",'" . addslashes($this->current_tag) . "')";
     }
 
-    public function getOperator($op)
+    public function getOperator(string $op): string
     {
         return match (strtolower($op)) {
             'or', '||' => '||',
@@ -331,7 +318,7 @@ class Template extends BaseTemplate
         };
     }
 
-    public function getSortByStr($attr, $table = null)
+    public function getSortByStr(ArrayObject $attr, string $table = null): string
     {
         $res = [];
 
@@ -394,17 +381,17 @@ class Template extends BaseTemplate
             }
         }
 
-        if (count($res) === 0) {
+        if (0 === count($res)) {
             array_push($res, $default_alias[$table]['date'] . ' ' . $default_order);
         }
 
         return implode(', ', $res);
     }
 
-    public function getAge($attr)
+    public function getAge(ArrayObject $attr): string
     {
         if (isset($attr['age']) && preg_match('/^(\-[0-9]+|last).*$/i', $attr['age'])) {
-            if (($ts = strtotime($attr['age'])) !== false) {
+            if (false !== ($ts = strtotime($attr['age']))) {
                 return dt::str('%Y-%m-%d %H:%m:%S', $ts);
             }
         }
@@ -412,16 +399,13 @@ class Template extends BaseTemplate
         return '';
     }
 
-    public function displayCounter($variable, $values, $attr, $count_only_by_default = false)
+    public function displayCounter(string $variable, array $values, ArrayObject $attr, bool $count_only_by_default = false): string
     {
-        if (isset($attr['count_only'])) {
-            $count_only = ($attr['count_only'] == 1);
-        } else {
-            $count_only = $count_only_by_default;
-        }
+        $count_only = isset($attr['count_only']) ? (1 == $attr['count_only']) : $count_only_by_default;
         if ($count_only) {
             return '<?php echo ' . $variable . '; ?>';
         }
+
         $v = $values;
         if (isset($attr['none'])) {
             $v['none'] = addslashes($attr['none']);
@@ -445,7 +429,7 @@ class Template extends BaseTemplate
     /* TEMPLATE FUNCTIONS
     ------------------------------------------------------- */
 
-    public function l10n($attr, $str_attr)
+    public function l10n(ArrayObject $attr, string $str_attr): string
     {
         # Normalize content
         $str_attr = preg_replace('/\s+/x', ' ', $str_attr);
@@ -453,14 +437,14 @@ class Template extends BaseTemplate
         return "<?php echo __('" . str_replace("'", "\\'", $str_attr) . "'); ?>";
     }
 
-    public function LoopPosition($attr, $content)
+    public function LoopPosition(ArrayObject $attr, string $content): string
     {
         $start  = isset($attr['start']) ? (int) $attr['start'] : '0';
         $length = isset($attr['length']) ? (int) $attr['length'] : 'null';
         $even   = isset($attr['even']) ? (int) (bool) $attr['even'] : 'null';
         $modulo = isset($attr['modulo']) ? (int) $attr['modulo'] : 'null';
 
-        if ($start > 0) {
+        if (0 < $start) {
             $start--;
         }
 
@@ -470,11 +454,11 @@ class Template extends BaseTemplate
             '<?php endif; ?>';
     }
 
-    public function LoopIndex($attr)
+    public function LoopIndex(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, '(!dotclear()->context()->cur_loop ? 0 : dotclear()->context()->cur_loop->index() + 1)') . '; ?>';
+        return '<?php echo ' . sprintf($f, '(!dotclear()->context()->get("cur_loop") ? 0 : dotclear()->context()->get("cur_loop")->index() + 1)') . '; ?>';
     }
 
     /* Archives ------------------------------------------- */
@@ -489,7 +473,7 @@ class Template extends BaseTemplate
     post_lang    CDATA        #IMPLIED  -- Filter on the given language
     >
      */
-    public function Archives($attr, $content)
+    public function Archives(ArrayObject $attr, string $content): string
     {
         $p = "if (!isset(\$params)) \$params = [];\n";
         $p .= "\$params['type'] = 'month';\n";
@@ -511,7 +495,7 @@ class Template extends BaseTemplate
 
         if (empty($attr['no_context']) && !isset($attr['category'])) {
             $p .= 'if (dotclear()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = dotclear()->context()->categories->cat_id; " .
+                "\$params['cat_id'] = dotclear()->context()->get('categories')->fInt('cat_id'); " .
                 "}\n";
         }
 
@@ -528,10 +512,10 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context()->set("archives", dotclear()->blog()->posts()->getDates($params)); unset($params);' . "\n";
         $res .= "?>\n";
 
-        $res .= '<?php while (dotclear()->context()->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->archives = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("archives")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("archives", null); ?>';
 
         return $res;
     }
@@ -539,10 +523,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:ArchivesHeader - - -- First archives result container -->
      */
-    public function ArchivesHeader($attr, $content)
+    public function ArchivesHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->archives->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("archives")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -550,10 +534,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:ArchivesFooter - - -- Last archives result container -->
      */
-    public function ArchivesFooter($attr, $content)
+    public function ArchivesFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->archives->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("archives")->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -561,10 +545,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:ArchivesYearHeader - - -- First result of year in archives container -->
      */
-    public function ArchivesYearHeader($attr, $content)
+    public function ArchivesYearHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->archives->yearHeader()) : ?>' .
+            '<?php if (dotclear()->context()->get("archives")->yearHeader()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -572,10 +556,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:ArchivesYearFooter - - -- Last result of year in archives container -->
      */
-    public function ArchivesYearFooter($attr, $content)
+    public function ArchivesYearFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->archives->yearFooter()) : ?>' .
+            '<?php if (dotclear()->context()->get("archives")->yearFooter()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -586,7 +570,7 @@ class Template extends BaseTemplate
     format    CDATA    #IMPLIED  -- Date format (Default %B %Y) --
     >
      */
-    public function ArchiveDate($attr)
+    public function ArchiveDate(ArrayObject $attr): string
     {
         $format = '%B %Y';
         if (!empty($attr['format'])) {
@@ -595,18 +579,18 @@ class Template extends BaseTemplate
 
         $f = $this->getFilters($attr);
 
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->archives->getDate('" . $format . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->context()->get('archives')->getDate('" . $format . "')") . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:ArchiveEntriesCount - O -- Current archive result number of entries -->
      */
-    public function ArchiveEntriesCount($attr)
+    public function ArchiveEntriesCount(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
         return $this->displayCounter(
-            sprintf($f, 'dotclear()->context()->archives->nb_post'),
+            sprintf($f, 'dotclear()->context()->get("archives")->fInt("nb_post")'),
             [
                 'none' => 'no archive',
                 'one'  => 'one archive',
@@ -625,7 +609,7 @@ class Template extends BaseTemplate
     post_lang    CDATA        #IMPLIED  -- Filter on the given language
     >
      */
-    public function ArchiveNext($attr, $content)
+    public function ArchiveNext(ArrayObject $attr, string $content): string
     {
         $p = "if (!isset(\$params)) \$params = [];\n";
         $p .= "\$params['type'] = 'month';\n";
@@ -641,7 +625,7 @@ class Template extends BaseTemplate
             $p .= "\$params['post_lang'] = '" . addslashes($attr['post_lang']) . "';\n";
         }
 
-        $p .= "\$params['next'] = dotclear()->context()->archives->dt;";
+        $p .= "\$params['next'] = dotclear()->context()->get('archives')->f('dt');";
 
         $res = "<?php\n";
         $res .= $p;
@@ -651,10 +635,10 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context()->set("archives", dotclear()->blog()->posts()->getDates($params)); unset($params);' . "\n";
         $res .= "?>\n";
 
-        $res .= '<?php while (dotclear()->context()->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->archives = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("archives")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("archives", null); ?>';
 
         return $res;
     }
@@ -667,7 +651,7 @@ class Template extends BaseTemplate
     post_lang    CDATA        #IMPLIED  -- Filter on the given language
     >
      */
-    public function ArchivePrevious($attr, $content)
+    public function ArchivePrevious(ArrayObject $attr, string $content): string
     {
         $p = 'if (!isset($params)) $params = [];';
         $p .= "\$params['type'] = 'month';\n";
@@ -683,7 +667,7 @@ class Template extends BaseTemplate
             $p .= "\$params['post_lang'] = '" . addslashes($attr['post_lang']) . "';\n";
         }
 
-        $p .= "\$params['previous'] = dotclear()->context()->archives->dt;";
+        $p .= "\$params['previous'] = dotclear()->context()->get('archives')->f('dt');";
 
         $res = "<?php\n";
         $res .= dotclear()->behavior()->call(
@@ -693,10 +677,10 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context()->archives = dotclear()->blog()->posts()->getDates($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context()->set("archives", dotclear()->blog()->posts()->getDates($params)); unset($params);' . "\n";
         $res .= "?>\n";
 
-        $res .= '<?php while (dotclear()->context()->archives->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->archives = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("archives")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("archives", null); ?>';
 
         return $res;
     }
@@ -704,62 +688,50 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:ArchiveURL - O -- Current archive result URL -->
      */
-    public function ArchiveURL($attr)
+    public function ArchiveURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->archives->url()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("archives")->call("url")') . '; ?>';
     }
 
     /* Blog ----------------------------------------------- */
     /*dtd
     <!ELEMENT tpl:BlogArchiveURL - O -- Blog Archives URL -->
      */
-    public function BlogArchiveURL($attr)
+    public function BlogArchiveURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("archive")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("archive")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogCopyrightNotice - O -- Blog copyrght notices -->
      */
-    public function BlogCopyrightNotice($attr)
+    public function BlogCopyrightNotice(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("copyright_notice")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("copyright_notice")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogDescription - O -- Blog Description -->
      */
-    public function BlogDescription($attr)
+    public function BlogDescription(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->desc') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->desc') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogEditor - O -- Blog Editor -->
      */
-    public function BlogEditor($attr)
+    public function BlogEditor(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("editor")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("editor")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogFeedID - O -- Blog Feed ID -->
      */
-    public function BlogFeedID($attr)
+    public function BlogFeedID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '"urn:md5:".dotclear()->blog()->uid') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), '"urn:md5:".dotclear()->blog()->uid') . '; ?>';
     }
 
     /*dtd
@@ -768,7 +740,7 @@ class Template extends BaseTemplate
     type    (rss2|atom)    #IMPLIED    -- feed type (default : rss2)
     >
      */
-    public function BlogFeedURL($attr)
+    public function BlogFeedURL(ArrayObject $attr): string
     {
         $type = !empty($attr['type']) ? $attr['type'] : 'atom';
 
@@ -776,35 +748,29 @@ class Template extends BaseTemplate
             $type = 'atom';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("feed","' . $type . '")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("feed","' . $type . '")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogName - O -- Blog Name -->
      */
-    public function BlogName($attr)
+    public function BlogName(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->name') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->name') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogLanguage - O -- Blog Language -->
      */
-    public function BlogLanguage($attr)
+    public function BlogLanguage(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogLanguageURL - O -- Blog Localized URL -->
      */
-    public function BlogLanguageURL($attr)
+    public function BlogLanguageURL(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
@@ -816,31 +782,25 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:BlogThemeURL - O -- Blog's current Theme URL -->
      */
-    public function BlogThemeURL($attr)
+    public function BlogThemeURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogParentThemeURL - O -- Blog's current Theme's parent URL -->
      */
-    public function BlogParentThemeURL($attr)
+    public function BlogParentThemeURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("resources") . "/"') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogPublicURL - O -- Blog Public directory URL -->
      */
-    public function BlogPublicURL($attr)
+    public function BlogPublicURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->public_url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->public_url') . '; ?>';
     }
 
     /*dtd
@@ -851,7 +811,7 @@ class Template extends BaseTemplate
     rfc822    CDATA    #IMPLIED    -- if set, tells that date format is RFC 822
     >
      */
-    public function BlogUpdateDate($attr)
+    public function BlogUpdateDate(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -877,27 +837,23 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:BlogID - 0 -- Blog ID -->
      */
-    public function BlogID($attr)
+    public function BlogID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->id') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->id') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogRSDURL - O -- Blog RSD URL -->
      */
-    public function BlogRSDURL($attr)
+    public function BlogRSDURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor(\'rsd\')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor(\'rsd\')') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogXMLRPCURL - O -- Blog XML-RPC URL -->
      */
-    public function BlogXMLRPCURL($attr)
+    public function BlogXMLRPCURL(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
@@ -907,21 +863,17 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:BlogURL - O -- Blog URL -->
      */
-    public function BlogURL($attr)
+    public function BlogURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->url') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogQmarkURL - O -- Blog URL, ending with a question mark -->
      */
-    public function BlogQmarkURL($attr)
+    public function BlogQmarkURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getQmarkURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getQmarkURL()') . '; ?>';
     }
 
     /*dtd
@@ -930,7 +882,7 @@ class Template extends BaseTemplate
     robots    CDATA    #IMPLIED    -- can be INDEX,FOLLOW,NOINDEX,NOFOLLOW,ARCHIVE,NOARCHIVE
     >
      */
-    public function BlogMetaRobots($attr)
+    public function BlogMetaRobots(ArrayObject $attr): string
     {
         $robots = isset($attr['robots']) ? addslashes($attr['robots']) : '';
 
@@ -940,27 +892,23 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT gpl:BlogJsJQuery - 0 -- Blog Js jQuery version selected -->
      */
-    public function BlogJsJQuery($attr)
+    public function BlogJsJQuery(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getJsJQuery()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getJsJQuery()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogPostsURL - O -- Blog Posts URL -->
      */
-    public function BlogPostsURL($attr)
+    public function BlogPostsURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, ('dotclear()->blog()->settings()->get("system")->get("static_home") ? dotclear()->blog()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), ('dotclear()->blog()->settings()->get("system")->get("static_home") ? dotclear()->blog()->getURLFor("posts") : dotclear()->blog()->url')) . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:IfBlogStaticEntryURL - O -- Test if Blog has a static home entry URL -->
      */
-    public function IfBlogStaticEntryURL($attr, $content)
+    public function IfBlogStaticEntryURL(ArrayObject $attr, string $content): string
     {
         return
             "<?php if (dotclear()->blog()->settings()->get('system')->get('static_home_url') != '') : ?>" .
@@ -971,12 +919,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:BlogStaticEntryURL - O -- Set Blog static home entry URL -->
      */
-    public function BlogStaticEntryURL($attr)
+    public function BlogStaticEntryURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
         $p = "\$params['post_type'] = array_keys(dotclear()->posttype()->getPostTypes());\n";
-        $p .= "\$params['post_url'] = " . sprintf($f, 'urldecode(dotclear()->blog()->settings()->get("system")->get("static_home_url"))') . ";\n";
+        $p .= "\$params['post_url'] = " . sprintf($this->getFilters($attr), 'urldecode(dotclear()->blog()->settings()->get("system")->get("static_home_url"))') . ";\n";
 
         return "<?php\n" . $p . ' ?>';
     }
@@ -984,21 +930,17 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:BlogNbEntriesFirstPage - O -- Number of entries for 1st page -->
      */
-    public function BlogNbEntriesFirstPage($attr)
+    public function BlogNbEntriesFirstPage(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("nb_post_for_home")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("nb_post_for_home")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:BlogNbEntriesPerPage - O -- Number of entries per page -->
      */
-    public function BlogNbEntriesPerPage($attr)
+    public function BlogNbEntriesPerPage(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("nb_post_per_page")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("nb_post_per_page")') . '; ?>';
     }
 
     /* Categories ----------------------------------------- */
@@ -1006,7 +948,7 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:Categories - - -- Categories loop -->
      */
-    public function Categories($attr, $content)
+    public function Categories(ArrayObject $attr, string $content): string
     {
         $p = "if (!isset(\$params)) \$params = [];\n";
 
@@ -1034,9 +976,9 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->categories = dotclear()->blog()->categories()->getCategories($params);' . "\n";
+        $res .= 'dotclear()->context()->set("categories", dotclear()->blog()->categories()->getCategories($params));' . "\n";
         $res .= "?>\n";
-        $res .= '<?php while (dotclear()->context()->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->categories = null; unset($params); ?>';
+        $res .= '<?php while (dotclear()->context()->get("categories")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("categories", null); unset($params); ?>';
 
         return $res;
     }
@@ -1044,10 +986,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CategoriesHeader - - -- First Categories result container -->
      */
-    public function CategoriesHeader($attr, $content)
+    public function CategoriesHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->categories->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("categories")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -1055,10 +997,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CategoriesFooter - - -- Last Categories result container -->
      */
-    public function CategoriesFooter($attr, $content)
+    public function CategoriesFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->categories->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("categories")->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -1072,7 +1014,7 @@ class Template extends BaseTemplate
     has_description     (0|1)     #IMPLIED  -- category has description (value : 1) or not (value : 0)
     >
      */
-    public function CategoryIf($attr, $content)
+    public function CategoryIf(ArrayObject $attr, string $content): string
     {
         $if       = new ArrayObject();
         $operator = isset($attr['operator']) ? $this->getOperator($attr['operator']) : '&&';
@@ -1085,15 +1027,15 @@ class Template extends BaseTemplate
             if (substr($url, 0, 1) == '!') {
                 $url = substr($url, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
                 } else {
-                    $if[] = '(dotclear()->context()->categories->cat_url != "' . $url . '")';
+                    $if[] = '(dotclear()->context()->get("categories")->f("cat_url") != "' . $url . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->categories->cat_url, "' . $url . '"))';
+                    $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
                 } else {
-                    $if[] = '(dotclear()->context()->categories->cat_url == "' . $url . '")';
+                    $if[] = '(dotclear()->context()->get("categories")->f("cat_url") == "' . $url . '")';
                 }
             }
         }
@@ -1108,15 +1050,15 @@ class Template extends BaseTemplate
                     if (substr($url, 0, 1) == '!') {
                         $url = substr($url, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(!dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
                         } else {
-                            $if[] = '(dotclear()->context()->categories->cat_url != "' . $url . '")';
+                            $if[] = '(dotclear()->context()->get("categories")->f("cat_url") != "' . $url . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->categories->cat_url, "' . $url . '"))';
+                            $if[] = '(dotclear()->blog()->categories()->IsInCatSubtree(dotclear()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
                         } else {
-                            $if[] = '(dotclear()->context()->categories->cat_url == "' . $url . '")';
+                            $if[] = '(dotclear()->context()->get("categories")->f("cat_url") == "' . $url . '")';
                         }
                     }
                 }
@@ -1125,12 +1067,12 @@ class Template extends BaseTemplate
 
         if (isset($attr['has_entries'])) {
             $sign = (bool) $attr['has_entries'] ? '>' : '==';
-            $if[] = 'dotclear()->context()->categories->nb_post ' . $sign . ' 0';
+            $if[] = 'dotclear()->context()->get("categories")->fInt("nb_post") ' . $sign . ' 0';
         }
 
         if (isset($attr['has_description'])) {
             $sign = (bool) $attr['has_description'] ? '!=' : '==';
-            $if[] = 'dotclear()->context()->categories->cat_desc ' . $sign . ' ""';
+            $if[] = 'dotclear()->context()->get("categories")->f("cat_desc") ' . $sign . ' ""';
         }
 
         dotclear()->behavior()->call('tplIfConditions', 'CategoryIf', $attr, $content, $if);
@@ -1145,23 +1087,23 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CategoryFirstChildren - - -- Current category first children loop -->
      */
-    public function CategoryFirstChildren($attr, $content)
+    public function CategoryFirstChildren(ArrayObject $attr, string $content): string
     {
         return
             "<?php\n" .
-            'dotclear()->context()->categories = dotclear()->blog()->categories()->getCategoryFirstChildren(dotclear()->context()->categories->cat_id);' . "\n" .
-            'while (dotclear()->context()->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->categories = null; ?>';
+            'dotclear()->context()->set("categories", dotclear()->blog()->categories()->getCategoryFirstChildren(dotclear()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'while (dotclear()->context()->get("categories")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("categories", null); ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryParents - - -- Current category parents loop -->
      */
-    public function CategoryParents($attr, $content)
+    public function CategoryParents(ArrayObject $attr, string $content): string
     {
         return
             "<?php\n" .
-            'dotclear()->context()->categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->categories->cat_id);' . "\n" .
-            'while (dotclear()->context()->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->categories = null; ?>';
+            'dotclear()->context()->set("categories", dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'while (dotclear()->context()->get("categories")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("categories", null); ?>';
     }
 
     /*dtd
@@ -1170,7 +1112,7 @@ class Template extends BaseTemplate
     type    (rss2|atom)    #IMPLIED    -- feed type (default : rss2)
     >
      */
-    public function CategoryFeedURL($attr)
+    public function CategoryFeedURL(ArrayObject $attr): string
     {
         $type = !empty($attr['type']) ? $attr['type'] : 'atom';
 
@@ -1178,51 +1120,41 @@ class Template extends BaseTemplate
             $type = 'atom';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("feed","category/".' .
-            'dotclear()->context()->categories->cat_url."/' . $type . '")') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("feed","category/".' .
+            'dotclear()->context()->get("categories")->f("cat_url")."/' . $type . '")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryID - O -- Category ID -->
      */
-    public function CategoryID($attr)
+    public function CategoryID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->categories->cat_id') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("categories")->fInt("cat_id")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryURL - O -- Category URL (complete iabsolute URL, including blog URL) -->
      */
-    public function CategoryURL($attr)
+    public function CategoryURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("category",' .
-            'dotclear()->context()->categories->cat_url)') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("category",' .
+            'dotclear()->context()->get("categories")->f("cat_url"))') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryShortURL - O -- Category short URL (relative URL, from /category/) -->
      */
-    public function CategoryShortURL($attr)
+    public function CategoryShortURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->categories->cat_url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("categories")->f("cat_url")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryDescription - O -- Category description -->
      */
-    public function CategoryDescription($attr)
+    public function CategoryDescription(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->categories->cat_desc') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("categories")->f("cat_desc")') . '; ?>';
     }
 
     /*dtd
@@ -1230,20 +1162,16 @@ class Template extends BaseTemplate
      */
     public function CategoryTitle($attr)
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->categories->cat_title') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("categories")->f("cat_title")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CategoryEntriesCount - O -- Category number of entries -->
      */
-    public function CategoryEntriesCount($attr)
+    public function CategoryEntriesCount(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
         return $this->displayCounter(
-            sprintf($f, 'dotclear()->context()->categories->nb_post'),
+            sprintf($this->getFilters($attr), 'dotclear()->context()->get("categories")->fInt("nb_post")'),
             [
                 'none' => 'No post',
                 'one'  => 'One post',
@@ -1274,7 +1202,7 @@ class Template extends BaseTemplate
     ignore_pagination    (0|1)    #IMPLIED    -- ignore page number provided in URL (useful when using multiple tpl:Entries on the same page)
     >
      */
-    public function Entries($attr, $content)
+    public function Entries(ArrayObject $attr, string $content): string
     {
         $lastn = -1;
         if (isset($attr['lastn'])) {
@@ -1291,7 +1219,7 @@ class Template extends BaseTemplate
                 $p .= '$nb_entry_first_page = $nb_entry_per_page = ' . $lastn . ";\n";
             } else {
                 // nb of entries per page not specified -> use ctx settings
-                $p .= "\$nb_entry_first_page=dotclear()->context()->nb_entry_first_page; \$nb_entry_per_page = dotclear()->context()->nb_entry_per_page;\n";
+                $p .= "\$nb_entry_first_page=dotclear()->context()->get('nb_entry_first_page'); \$nb_entry_per_page = dotclear()->context()->get('nb_entry_per_page');\n";
                 $p .= "if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {\n";
                 $p .= "    \$params['limit'] = (\$_page_number == 1 ? \$nb_entry_first_page : \$nb_entry_per_page);\n";
                 $p .= "} else {\n";
@@ -1341,26 +1269,26 @@ class Template extends BaseTemplate
         if (empty($attr['no_context'])) {
             if (!isset($attr['author'])) {
                 $p .= 'if (dotclear()->context()->exists("users")) { ' .
-                    "\$params['user_id'] = dotclear()->context()->users->user_id; " .
+                    "\$params['user_id'] = dotclear()->context()->get('users')->f('user_id'); " .
                     "}\n";
             }
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (dotclear()->context()->exists("categories")) { ' .
-                    "\$params['cat_id'] = dotclear()->context()->categories->cat_id.(dotclear()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':'');" .
+                    "\$params['cat_id'] = dotclear()->context()->get('categories')->fInt('cat_id').(dotclear()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':'');" .
                     "}\n";
             }
 
             $p .= 'if (dotclear()->context()->exists("archives")) { ' .
-                "\$params['post_year'] = dotclear()->context()->archives->year(); " .
-                "\$params['post_month'] = dotclear()->context()->archives->month(); ";
+                "\$params['post_year'] = dotclear()->context()->get('archives')->year(); " .
+                "\$params['post_month'] = dotclear()->context()->get('archives')->month(); ";
             if (!isset($attr['lastn'])) {
                 $p .= "unset(\$params['limit']); ";
             }
             $p .= "}\n";
 
             $p .= 'if (dotclear()->context()->exists("langs")) { ' .
-                "\$params['post_lang'] = dotclear()->context()->langs->post_lang; " .
+                "\$params['post_lang'] = dotclear()->context()->get('langs')->f('post_lang'); " .
                 "}\n";
 
             $p .= 'if (isset($_search)) { ' .
@@ -1391,11 +1319,11 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->post_params = $params;' . "\n";
-        $res .= 'dotclear()->context()->posts = dotclear()->blog()->posts()->getPosts($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context()->set("post_params", $params);' . "\n";
+        $res .= 'dotclear()->context()->set("posts", dotclear()->blog()->posts()->getPosts($params)); unset($params);' . "\n";
         $res .= "?>\n";
-        $res .= '<?php while (dotclear()->context()->posts->fetch()) : ?>' . $content . '<?php endwhile; ' .
-            'dotclear()->context()->posts = null; dotclear()->context()->post_params = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("posts")->fetch()) : ?>' . $content . '<?php endwhile; ' .
+            'dotclear()->context()->set("posts", null); dotclear()->context()->set("post_params", null); ?>';
 
         return $res;
     }
@@ -1403,10 +1331,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:DateHeader - O -- Displays date, if post is the first post of the given day -->
      */
-    public function DateHeader($attr, $content)
+    public function DateHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->posts->firstPostOfDay()) : ?>' .
+            '<?php if (dotclear()->context()->get("posts")->firstPostOfDay()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -1414,10 +1342,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:DateFooter - O -- Displays date,  if post is the last post of the given day -->
      */
-    public function DateFooter($attr, $content)
+    public function DateFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->posts->lastPostOfDay()) : ?>' .
+            '<?php if (dotclear()->context()->get("posts")->lastPostOfDay()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -1445,7 +1373,7 @@ class Template extends BaseTemplate
     author        CDATA    #IMPLIED    -- post has given user_id
     >
      */
-    public function EntryIf($attr, $content)
+    public function EntryIf(ArrayObject $attr, string $content): string
     {
         $if          = new ArrayObject();
         $extended    = null;
@@ -1456,16 +1384,16 @@ class Template extends BaseTemplate
         if (isset($attr['type'])) {
             $type = trim($attr['type']);
             $type = !empty($type) ? $type : 'post';
-            $if[] = 'dotclear()->context()->posts->post_type == "' . addslashes($type) . '"';
+            $if[] = 'dotclear()->context()->get("posts")->f("post_type") == "' . addslashes($type) . '"';
         }
 
         if (isset($attr['url'])) {
             $url = trim($attr['url']);
             if (substr($url, 0, 1) == '!') {
                 $url  = substr($url, 1);
-                $if[] = 'dotclear()->context()->posts->post_url != "' . addslashes($url) . '"';
+                $if[] = 'dotclear()->context()->get("posts")->f("post_url") != "' . addslashes($url) . '"';
             } else {
-                $if[] = 'dotclear()->context()->posts->post_url == "' . addslashes($url) . '"';
+                $if[] = 'dotclear()->context()->get("posts")->f("post_url") == "' . addslashes($url) . '"';
             }
         }
 
@@ -1477,15 +1405,15 @@ class Template extends BaseTemplate
             if (substr($category, 0, 1) == '!') {
                 $category = substr($category, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!dotclear()->context()->posts->underCat("' . $category . '"))';
+                    $if[] = '(!dotclear()->context()->get("posts")->underCat("' . $category . '"))';
                 } else {
-                    $if[] = '(dotclear()->context()->posts->cat_url != "' . $category . '")';
+                    $if[] = '(dotclear()->context()->get("posts")->f("cat_url") != "' . $category . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(dotclear()->context()->posts->underCat("' . $category . '"))';
+                    $if[] = '(dotclear()->context()->get("posts")->underCat("' . $category . '"))';
                 } else {
-                    $if[] = '(dotclear()->context()->posts->cat_url == "' . $category . '")';
+                    $if[] = '(dotclear()->context()->get("posts")->f("cat_url") == "' . $category . '")';
                 }
             }
         }
@@ -1500,15 +1428,15 @@ class Template extends BaseTemplate
                     if (substr($category, 0, 1) == '!') {
                         $category = substr($category, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!dotclear()->context()->posts->underCat("' . $category . '"))';
+                            $if[] = '(!dotclear()->context()->get("posts")->underCat("' . $category . '"))';
                         } else {
-                            $if[] = '(dotclear()->context()->posts->cat_url != "' . $category . '")';
+                            $if[] = '(dotclear()->context()->get("posts")->f("cat_url") != "' . $category . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(dotclear()->context()->posts->underCat("' . $category . '"))';
+                            $if[] = '(dotclear()->context()->get("posts")->underCat("' . $category . '"))';
                         } else {
-                            $if[] = '(dotclear()->context()->posts->cat_url == "' . $category . '")';
+                            $if[] = '(dotclear()->context()->get("posts")->f("cat_url") == "' . $category . '")';
                         }
                     }
                 }
@@ -1517,77 +1445,77 @@ class Template extends BaseTemplate
 
         if (isset($attr['first'])) {
             $sign = (bool) $attr['first'] ? '=' : '!';
-            $if[] = 'dotclear()->context()->posts->index() ' . $sign . '= 0';
+            $if[] = 'dotclear()->context()->get("posts")->index() ' . $sign . '= 0';
         }
 
         if (isset($attr['odd'])) {
             $sign = (bool) $attr['odd'] ? '=' : '!';
-            $if[] = '(dotclear()->context()->posts->index()+1)%2 ' . $sign . '= 1';
+            $if[] = '(dotclear()->context()->get("posts")->index()+1)%2 ' . $sign . '= 1';
         }
 
         if (isset($attr['extended'])) {
             $sign = (bool) $attr['extended'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->isExtended()';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->isExtended()';
         }
 
         if (isset($attr['selected'])) {
             $sign = (bool) $attr['selected'] ? '' : '!';
-            $if[] = $sign . '(bool)dotclear()->context()->posts->post_selected';
+            $if[] = $sign . '(bool)dotclear()->context()->get("posts")->fInt("post_selected")';
         }
 
         if (isset($attr['has_category'])) {
             $sign = (bool) $attr['has_category'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->cat_id';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->fInt("cat_id")';
         }
 
         if (isset($attr['comments_active'])) {
             $sign = (bool) $attr['comments_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->commentsActive()';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->commentsActive()';
         }
 
         if (isset($attr['pings_active'])) {
             $sign = (bool) $attr['pings_active'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->trackbacksActive()';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->trackbacksActive()';
         }
 
         if (isset($attr['has_comment'])) {
             $sign = (bool) $attr['has_comment'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->hasComments()';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->hasComments()';
         }
 
         if (isset($attr['has_ping'])) {
             $sign = (bool) $attr['has_ping'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->posts->hasTrackbacks()';
+            $if[] = $sign . 'dotclear()->context()->get("posts")->hasTrackbacks()';
         }
 
         if (isset($attr['show_comments'])) {
             if ((bool) $attr['show_comments']) {
-                $if[] = '(dotclear()->context()->posts->hasComments() || dotclear()->context()->posts->commentsActive())';
+                $if[] = '(dotclear()->context()->get("posts")->hasComments() || dotclear()->context()->get("posts")->commentsActive())';
             } else {
-                $if[] = '(!dotclear()->context()->posts->hasComments() && !dotclear()->context()->posts->commentsActive())';
+                $if[] = '(!dotclear()->context()->get("posts")->hasComments() && !dotclear()->context()->get("posts")->commentsActive())';
             }
         }
 
         if (isset($attr['show_pings'])) {
             if ((bool) $attr['show_pings']) {
-                $if[] = '(dotclear()->context()->posts->hasTrackbacks() || dotclear()->context()->posts->trackbacksActive())';
+                $if[] = '(dotclear()->context()->get("posts")->hasTrackbacks() || dotclear()->context()->get("posts")->trackbacksActive())';
             } else {
-                $if[] = '(!dotclear()->context()->posts->hasTrackbacks() && !dotclear()->context()->posts->trackbacksActive())';
+                $if[] = '(!dotclear()->context()->get("posts")->hasTrackbacks() && !dotclear()->context()->get("posts")->trackbacksActive())';
             }
         }
 
         if (isset($attr['republished'])) {
             $sign = (bool) $attr['republished'] ? '' : '!';
-            $if[] = $sign . '(bool)dotclear()->context()->posts->isRepublished()';
+            $if[] = $sign . '(bool)dotclear()->context()->get("posts")->isRepublished()';
         }
 
         if (isset($attr['author'])) {
             $author = trim($attr['author']);
             if (substr($author, 0, 1) == '!') {
                 $author = substr($author, 1);
-                $if[]   = 'dotclear()->context()->posts->user_id != "' . $author . '"';
+                $if[]   = 'dotclear()->context()->get("posts")->f("user_id") != "' . $author . '"';
             } else {
-                $if[] = 'dotclear()->context()->posts->user_id == "' . $author . '"';
+                $if[] = 'dotclear()->context()->get("posts")->f("user_id") == "' . $author . '"';
             }
         }
 
@@ -1606,13 +1534,13 @@ class Template extends BaseTemplate
     return    CDATA    #IMPLIED    -- value to display in case of success (default: first)
     >
      */
-    public function EntryIfFirst($attr)
+    public function EntryIfFirst(ArrayObject $attr): string
     {
         $ret = $attr['return'] ?? 'first';
         $ret = Html::escapeHTML($ret);
 
         return
-        '<?php if (dotclear()->context()->posts->index() == 0) { ' .
+        '<?php if (dotclear()->context()->get("posts")->index() == 0) { ' .
         "echo '" . addslashes($ret) . "'; } ?>";
     }
 
@@ -1631,7 +1559,7 @@ class Template extends BaseTemplate
         $even = $attr['even'] ?? '';
         $even = Html::escapeHTML($even);
 
-        return '<?php echo ((dotclear()->context()->posts->index()+1)%2 ? ' .
+        return '<?php echo ((dotclear()->context()->get("posts")->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
         '"' . addslashes($even) . '"); ?>';
     }
@@ -1642,13 +1570,13 @@ class Template extends BaseTemplate
     return    CDATA    #IMPLIED    -- value to display in case of success (default: selected)
     >
      */
-    public function EntryIfSelected($attr)
+    public function EntryIfSelected(ArrayObject $attr): string
     {
         $ret = $attr['return'] ?? 'selected';
         $ret = Html::escapeHTML($ret);
 
         return
-        '<?php if (dotclear()->context()->posts->post_selected) { ' .
+        '<?php if (dotclear()->context()->get("posts")->fInt("post_selected")) { ' .
         "echo '" . addslashes($ret) . "'; } ?>";
     }
 
@@ -1659,7 +1587,7 @@ class Template extends BaseTemplate
     full            (1|0)    #IMPLIED -- returns full content with excerpt
     >
      */
-    public function EntryContent($attr)
+    public function EntryContent(ArrayObject $attr): string
     {
         $urls = '0';
         if (!empty($attr['absolute_urls'])) {
@@ -1671,15 +1599,15 @@ class Template extends BaseTemplate
         if (!empty($attr['full'])) {
             return '<?php echo ' . sprintf(
                 $f,
-                'dotclear()->context()->posts->getExcerpt(' . $urls . ').' .
-                '(strlen(dotclear()->context()->posts->getExcerpt(' . $urls . ')) ? " " : "").' .
-                'dotclear()->context()->posts->getContent(' . $urls . ')'
+                'dotclear()->context()->get("posts")->getExcerpt(' . $urls . ').' .
+                '(strlen(dotclear()->context()->get("posts")->getExcerpt(' . $urls . ')) ? " " : "").' .
+                'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
             ) . '; ?>';
         }
 
         return '<?php echo ' . sprintf(
             $f,
-            'dotclear()->context()->posts->getContent(' . $urls . ')'
+            'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
         ) . '; ?>';
     }
 
@@ -1690,7 +1618,7 @@ class Template extends BaseTemplate
     full            (1|0)    #IMPLIED -- test with full content and excerpt
     >
      */
-    public function EntryIfContentCut($attr, $content)
+    public function EntryIfContentCut(ArrayObject $attr, string $content): string
     {
         if (empty($attr['cut_string'])) {
             return '';
@@ -1710,15 +1638,15 @@ class Template extends BaseTemplate
         if (!empty($attr['full'])) {
             return '<?php if (strlen(' . sprintf(
                 $full,
-                'dotclear()->context()->posts->getExcerpt(' . $urls . ').' .
-                '(strlen(dotclear()->context()->posts->getExcerpt(' . $urls . ')) ? " " : "").' .
-                'dotclear()->context()->posts->getContent(' . $urls . ')'
+                'dotclear()->context()->get("posts")->getExcerpt(' . $urls . ').' .
+                '(strlen(dotclear()->context()->get("posts")->getExcerpt(' . $urls . ')) ? " " : "").' .
+                'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
             ) . ') > ' .
             'strlen(' . sprintf(
                 $short,
-                'dotclear()->context()->posts->getExcerpt(' . $urls . ').' .
-                '(strlen(dotclear()->context()->posts->getExcerpt(' . $urls . ')) ? " " : "").' .
-                'dotclear()->context()->posts->getContent(' . $urls . ')'
+                'dotclear()->context()->get("posts")->getExcerpt(' . $urls . ').' .
+                '(strlen(dotclear()->context()->get("posts")->getExcerpt(' . $urls . ')) ? " " : "").' .
+                'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
             ) . ')) : ?>' .
                 $content .
                 '<?php endif; ?>';
@@ -1726,11 +1654,11 @@ class Template extends BaseTemplate
 
         return '<?php if (strlen(' . sprintf(
             $full,
-            'dotclear()->context()->posts->getContent(' . $urls . ')'
+            'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
         ) . ') > ' .
             'strlen(' . sprintf(
                 $short,
-                'dotclear()->context()->posts->getContent(' . $urls . ')'
+                'dotclear()->context()->get("posts")->getContent(' . $urls . ')'
             ) . ')) : ?>' .
                 $content .
                 '<?php endif; ?>';
@@ -1742,46 +1670,38 @@ class Template extends BaseTemplate
     absolute_urls    CDATA    #IMPLIED -- transforms local URLs to absolute one
     >
      */
-    public function EntryExcerpt($attr)
+    public function EntryExcerpt(ArrayObject $attr): string
     {
         $urls = '0';
         if (!empty($attr['absolute_urls'])) {
             $urls = '1';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getExcerpt(' . $urls . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getExcerpt(' . $urls . ')') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorCommonName - O -- Entry author common name -->
      */
-    public function EntryAuthorCommonName($attr)
+    public function EntryAuthorCommonName(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getAuthorCN()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getAuthorCN()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorDisplayName - O -- Entry author display name -->
      */
-    public function EntryAuthorDisplayName($attr)
+    public function EntryAuthorDisplayName(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->user_displayname') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("user_displayname")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorID - O -- Entry author ID -->
      */
-    public function EntryAuthorID($attr)
+    public function EntryAuthorID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->user_id') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("user_id")') . '; ?>';
     }
 
     /*dtd
@@ -1790,128 +1710,106 @@ class Template extends BaseTemplate
     spam_protected    (0|1)    #IMPLIED    -- protect email from spam (default: 1)
     >
      */
-    public function EntryAuthorEmail($attr)
+    public function EntryAuthorEmail(ArrayObject $attr): string
     {
         $p = 'true';
         if (isset($attr['spam_protected']) && !$attr['spam_protected']) {
             $p = 'false';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getAuthorEmail(' . $p . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getAuthorEmail(' . $p . ')') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorEmailMD5 - O -- Entry author email MD5 sum -->
     >
      */
-    public function EntryAuthorEmailMD5($attr)
+    public function EntryAuthorEmailMD5(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'md5(dotclear()->context()->posts->getAuthorEmail(false))') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'md5(dotclear()->context()->get("posts")->getAuthorEmail(false))') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorLink - O -- Entry author link -->
      */
-    public function EntryAuthorLink($attr)
+    public function EntryAuthorLink(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getAuthorLink()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getAuthorLink()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryAuthorURL - O -- Entry author URL -->
      */
-    public function EntryAuthorURL($attr)
+    public function EntryAuthorURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->user_url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("user_url")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryBasename - O -- Entry short URL (relative to /post) -->
      */
-    public function EntryBasename($attr)
+    public function EntryBasename(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->post_url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("post_url")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategory - O -- Entry category (full name) -->
      */
-    public function EntryCategory($attr)
+    public function EntryCategory(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->cat_title') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("cat_title")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategoryDescription - O -- Entry category description -->
      */
-    public function EntryCategoryDescription($attr)
+    public function EntryCategoryDescription(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->cat_desc') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("cat_desc")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategoriesBreadcrumb - - -- Current entry parents loop (without last one) -->
      */
-    public function EntryCategoriesBreadcrumb($attr, $content)
+    public function EntryCategoriesBreadcrumb(ArrayObject $attr, string $content): string
     {
         return
             "<?php\n" .
-            'dotclear()->context()->categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->posts->cat_id);' . "\n" .
-            'while (dotclear()->context()->categories->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->categories = null; ?>';
+            'dotclear()->context()->set("categories", dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->get("posts")->fInt("cat_id")));' . "\n" .
+            'while (dotclear()->context()->get("categories")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("categories", null); ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategoryID - O -- Entry category ID -->
      */
-    public function EntryCategoryID($attr)
+    public function EntryCategoryID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->cat_id') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->fint("cat_id")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategoryURL - O -- Entry category URL -->
      */
-    public function EntryCategoryURL($attr)
+    public function EntryCategoryURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getCategoryURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getCategoryURL()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryCategoryShortURL - O -- Entry category short URL (relative URL, from /category/) -->
      */
-    public function EntryCategoryShortURL($attr)
+    public function EntryCategoryShortURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->cat_url') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("cat_url")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryFeedID - O -- Entry feed ID -->
      */
-    public function EntryFeedID($attr)
+    public function EntryFeedID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getFeedID()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getFeedID()') . '; ?>';
     }
 
     /*dtd
@@ -1925,7 +1823,7 @@ class Template extends BaseTemplate
     cat_only    (1|0)        #IMPLIED    -- Search in category description only (default 0)
     >
      */
-    public function EntryFirstImage($attr)
+    public function EntryFirstImage(ArrayObject $attr): string
     {
         $size          = !empty($attr['size']) ? $attr['size'] : '';
         $class         = !empty($attr['class']) ? $attr['class'] : '';
@@ -1941,23 +1839,21 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:EntryID - O -- Entry ID -->
      */
-    public function EntryID($attr)
+    public function EntryID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->post_id') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->fInt("post_id")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryLang - O --  Entry language or blog lang if not defined -->
      */
-    public function EntryLang($attr)
+    public function EntryLang(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
         return
-        '<?php if (dotclear()->context()->posts->post_lang) { ' .
-        'echo ' . sprintf($f, 'dotclear()->context()->posts->post_lang') . '; ' .
+        '<?php if (dotclear()->context()->get("posts")->f("post_lang")) { ' .
+        'echo ' . sprintf($f, 'dotclear()->context()->get("posts")->f("post_lang")') . '; ' .
         '} else {' .
         'echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; ' .
             '} ?>';
@@ -1970,19 +1866,19 @@ class Template extends BaseTemplate
     restrict_to_lang        (0|1)    #IMPLIED    -- find next post in the same language (default: 0)
     >
      */
-    public function EntryNext($attr, $content)
+    public function EntryNext(ArrayObject $attr, string $content): string
     {
         $restrict_to_category = !empty($attr['restrict_to_category']) ? '1' : '0';
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $next_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context()->posts,1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $next_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context()->get("posts"),1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($next_post !== null) : ?>' .
 
-            '<?php dotclear()->context()->posts = $next_post; unset($next_post);' . "\n" .
-            'while (dotclear()->context()->posts->fetch()) : ?>' .
+            '<?php dotclear()->context()->set("posts", $next_post); unset($next_post);' . "\n" .
+            'while (dotclear()->context()->get("posts")->fetch()) : ?>' .
             $content .
-            '<?php endwhile; dotclear()->context()->posts = null; ?>' .
+            '<?php endwhile; dotclear()->context()->set("posts", null); ?>' .
             "<?php endif; ?>\n";
     }
 
@@ -1993,40 +1889,36 @@ class Template extends BaseTemplate
     restrict_to_lang        (0|1)    #IMPLIED    -- find next post in the same language (default: 0)
     >
      */
-    public function EntryPrevious($attr, $content)
+    public function EntryPrevious(ArrayObject $attr, string $content): string
     {
         $restrict_to_category = !empty($attr['restrict_to_category']) ? '1' : '0';
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            '<?php $prev_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context()->posts,-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
+            '<?php $prev_post = dotclear()->blog()->posts()->getNextPost(dotclear()->context()->get("posts"),-1,' . $restrict_to_category . ',' . $restrict_to_lang . '); ?>' . "\n" .
             '<?php if ($prev_post !== null) : ?>' .
 
-            '<?php dotclear()->context()->posts = $prev_post; unset($prev_post);' . "\n" .
-            'while (dotclear()->context()->posts->fetch()) : ?>' .
+            '<?php dotclear()->context()->set("posts", $prev_post); unset($prev_post);' . "\n" .
+            'while (dotclear()->context()->get("posts")->fetch()) : ?>' .
             $content .
-            '<?php endwhile; dotclear()->context()->posts = null; ?>' .
+            '<?php endwhile; dotclear()->context()->set("posts", null); ?>' .
             "<?php endif; ?>\n";
     }
 
     /*dtd
     <!ELEMENT tpl:EntryTitle - O -- Entry title -->
      */
-    public function EntryTitle($attr)
+    public function EntryTitle(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->post_title') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->f("post_title")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntryURL - O -- Entry URL -->
      */
-    public function EntryURL($attr)
+    public function EntryURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->posts->getURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("posts")->getURL()') . '; ?>';
     }
 
     /*dtd
@@ -2039,7 +1931,7 @@ class Template extends BaseTemplate
     creadt    CDATA    #IMPLIED    -- if set, uses the post creation time
     >
      */
-    public function EntryDate($attr)
+    public function EntryDate(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2054,12 +1946,12 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         if ($rfc822) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->posts->getRFC822Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('posts')->getRFC822Date('" . $type . "')") . '; ?>';
         } elseif ($iso8601) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->posts->getISO8601Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('posts')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->posts->getDate('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->context()->get('posts')->getDate('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
@@ -2070,7 +1962,7 @@ class Template extends BaseTemplate
     creadt    CDATA    #IMPLIED    -- if set, uses the post creation time
     >
      */
-    public function EntryTime($attr)
+    public function EntryTime(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2080,18 +1972,16 @@ class Template extends BaseTemplate
         $type = (!empty($attr['creadt']) ? 'creadt' : '');
         $type = (!empty($attr['upddt']) ? 'upddt' : $type);
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->posts->getTime('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), "dotclear()->context()->get('posts')->getTime('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:EntriesHeader - - -- First entries result container -->
      */
-    public function EntriesHeader($attr, $content)
+    public function EntriesHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->posts->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("posts")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2099,10 +1989,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:EntriesFooter - - -- Last entries result container -->
      */
-    public function EntriesFooter($attr, $content)
+    public function EntriesFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->posts->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("posts")->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2116,12 +2006,12 @@ class Template extends BaseTemplate
     count_all    CDATA    #IMPLIED    -- count comments and trackbacks
     >
      */
-    public function EntryCommentCount($attr)
+    public function EntryCommentCount(ArrayObject $attr): string
     {
         if (empty($attr['count_all'])) {
-            $operation = 'dotclear()->context()->posts->nb_comment';
+            $operation = 'dotclear()->context()->get("posts")->fInt("nb_comment")';
         } else {
-            $operation = '(dotclear()->context()->posts->nb_comment + dotclear()->context()->posts->nb_trackback)';
+            $operation = '(dotclear()->context()->get("posts")->fInt("nb_comment") + dotclear()->context()->get("posts")->fInt("nb_trackback"))';
         }
 
         return $this->displayCounter(
@@ -2144,10 +2034,10 @@ class Template extends BaseTemplate
     more    CDATA    #IMPLIED    -- text to display for "more pings" (default: %s trackbacks, %s is replaced by the number of pings)
     >
      */
-    public function EntryPingCount($attr)
+    public function EntryPingCount(ArrayObject $attr): string
     {
         return $this->displayCounter(
-            'dotclear()->context()->posts->nb_trackback',
+            'dotclear()->context()->get("posts")->fInt("nb_trackback")',
             [
                 'none' => 'no trackbacks',
                 'one'  => 'one trackback',
@@ -2161,19 +2051,19 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:EntryPingData - O -- Display trackback RDF information -->
      */
-    public function EntryPingData($attr)
+    public function EntryPingData(ArrayObject $attr): string
     {
         $format = !empty($attr['format']) && $attr['format'] == 'xml' ? 'xml' : 'html';
 
-        return "<?php if (dotclear()->context()->posts->trackbacksActive()) { echo dotclear()->context()->posts->getTrackbackData('" . $format . "'); } ?>\n";
+        return "<?php if (dotclear()->context()->get('posts')->trackbacksActive()) { echo dotclear()->context()->get('posts')->getTrackbackData('" . $format . "'); } ?>\n";
     }
 
     /*dtd
     <!ELEMENT tpl:EntryPingLink - O -- Entry trackback link -->
      */
-    public function EntryPingLink($attr)
+    public function EntryPingLink(ArrayObject $attr): string
     {
-        return "<?php if (dotclear()->context()->posts->trackbacksActive()) { echo dotclear()->context()->posts->getTrackbackLink(); } ?>\n";
+        return "<?php if (dotclear()->context()->get('posts')->trackbacksActive()) { echo dotclear()->context()->get('posts')->getTrackbackLink(); } ?>\n";
     }
 
     /* Languages -------------------------------------- */
@@ -2184,7 +2074,7 @@ class Template extends BaseTemplate
     order    (desc|asc)    #IMPLIED    -- languages ordering (default: desc)
     >
      */
-    public function Languages($attr, $content)
+    public function Languages(ArrayObject $attr, string $content): string
     {
         $p = "if (!isset(\$params)) \$params = [];\n";
 
@@ -2205,12 +2095,12 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->langs = dotclear()->blog()->posts()->getLangs($params); unset($params);' . "\n";
+        $res .= 'dotclear()->context()->set("langs", dotclear()->blog()->posts()->getLangs($params)); unset($params);' . "\n";
         $res .= "?>\n";
 
-        $res .= '<?php if (dotclear()->context()->langs->count() > 1) : ' .
-            'while (dotclear()->context()->langs->fetch()) : ?>' . $content .
-            '<?php endwhile; dotclear()->context()->langs = null; endif; ?>';
+        $res .= '<?php if (dotclear()->context()->get("langs")->count() > 1) : ' .
+            'while (dotclear()->context()->get("langs")->fetch()) : ?>' . $content .
+            '<?php endwhile; dotclear()->context()->set("langs", null); endif; ?>';
 
         return $res;
     }
@@ -2218,10 +2108,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:LanguagesHeader - - -- First languages result container -->
      */
-    public function LanguagesHeader($attr, $content)
+    public function LanguagesHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->langs->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("langs")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2229,10 +2119,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:LanguagesFooter - - -- Last languages result container -->
      */
-    public function LanguagesFooter($attr, $content)
+    public function LanguagesFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->langs->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("lang")"->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2240,20 +2130,18 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:LanguageCode - O -- Language code -->
      */
-    public function LanguageCode($attr)
+    public function LanguageCode(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->langs->post_lang') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("langs")->f("post_lang")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:LanguageIfCurrent - - -- tests if post language is current language -->
      */
-    public function LanguageIfCurrent($attr, $content)
+    public function LanguageIfCurrent(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->cur_lang == dotclear()->context()->langs->post_lang) : ?>' .
+            '<?php if (dotclear()->context()->cur_lang == dotclear()->context()->get("langs")->f("post_lang")) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2261,26 +2149,24 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:LanguageURL - O -- Language URL -->
      */
-    public function LanguageURL($attr)
+    public function LanguageURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("lang",' .
-            'dotclear()->context()->langs->post_lang)') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->getURLFor("lang",' .
+            'dotclear()->context()->get("angs")->f("post_lang"))') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:FeedLanguage - O -- Feed Language -->
      */
-    public function FeedLanguage($attr)
+    public function FeedLanguage(ArrayObject $attr): string
     {
         $f = $this->getFilters($attr);
 
         return
         '<?php if (dotclear()->context()->exists("cur_lang")) ' . "\n" .
-        '   { echo ' . sprintf($f, 'dotclear()->context()->cur_lang') . '; }' . "\n" .
-        'elseif (dotclear()->context()->exists("posts") && dotclear()->context()->posts->exists("post_lang")) ' . "\n" .
-        '   { echo ' . sprintf($f, 'dotclear()->context()->posts->post_lang') . '; }' . "\n" .
+        '   { echo ' . sprintf($f, 'dotclear()->context()->get("cur_lang")') . '; }' . "\n" .
+        'elseif (dotclear()->context()->exists("posts") && dotclear()->context()->get("posts")->exists("post_lang")) ' . "\n" .
+        '   { echo ' . sprintf($f, 'dotclear()->context()->get("posts")->get("post_lang")') . '; }' . "\n" .
         'else ' . "\n" .
         '   { echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; } ?>';
     }
@@ -2292,17 +2178,17 @@ class Template extends BaseTemplate
     no_context    (0|1)    #IMPLIED    -- override test on posts count vs number of posts per page
     >
      */
-    public function Pagination($attr, $content)
+    public function Pagination(ArrayObject $attr, string $content): string
     {
         $p = "<?php\n";
-        $p .= '$params = dotclear()->context()->post_params;' . "\n";
+        $p .= '$params = dotclear()->context()->get("post_params");' . "\n";
         $p .= dotclear()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Pagination', 'method' => 'blog()->posts()->getPosts'],
             $attr,
             $content
         );
-        $p .= 'dotclear()->context()->pagination = dotclear()->blog()->posts()->getPosts($params,true); unset($params);' . "\n";
+        $p .= 'dotclear()->context()->set("pagination", dotclear()->blog()->posts()->getPosts($params,true)); unset($params);' . "\n";
         $p .= "?>\n";
 
         if (isset($attr['no_context']) && $attr['no_context']) {
@@ -2311,7 +2197,7 @@ class Template extends BaseTemplate
 
         return
             $p .
-            '<?php if (dotclear()->context()->pagination->f(0) > dotclear()->context()->posts->count()) : ?>' .
+            '<?php if (dotclear()->context()->get("pagination")->fInt() > dotclear()->context()->get("posts")->count()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2319,26 +2205,22 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PaginationCounter - O -- Number of pages -->
      */
-    public function PaginationCounter($attr)
+    public function PaginationCounter(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->PaginationNbPages()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->PaginationNbPages()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PaginationCurrent - O -- current page -->
      */
-    public function PaginationCurrent($attr)
+    public function PaginationCurrent(ArrayObject $attr): string
     {
         $offset = 0;
         if (isset($attr['offset'])) {
             $offset = (int) $attr['offset'];
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->PaginationPosition(' . $offset . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->PaginationPosition(' . $offset . ')') . '; ?>';
     }
 
     /*dtd
@@ -2348,9 +2230,9 @@ class Template extends BaseTemplate
     end    (0|1)    #IMPLIED    -- test if we are at last page (value : 1) or not (value : 0)
     >
      */
-    public function PaginationIf($attr, $content)
+    public function PaginationIf(ArrayObject $attr, string $content): string
     {
-        $if = [];
+        $if = new ArrayObject();
 
         if (isset($attr['start'])) {
             $sign = (bool) $attr['start'] ? '' : '!';
@@ -2377,16 +2259,14 @@ class Template extends BaseTemplate
     offset    CDATA    #IMPLIED    -- page offset (negative for previous pages), default: 0
     >
      */
-    public function PaginationURL($attr)
+    public function PaginationURL(ArrayObject $attr): string
     {
         $offset = 0;
         if (isset($attr['offset'])) {
             $offset = (int) $attr['offset'];
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->PaginationURL(' . $offset . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->PaginationURL(' . $offset . ')') . '; ?>';
     }
 
     /* Comments --------------------------------------- */
@@ -2401,7 +2281,7 @@ class Template extends BaseTemplate
     age        CDATA    #IMPLIED    -- retrieve comments by maximum age (ex: -2 days, last month, last week)
     >
      */
-    public function Comments($attr, $content)
+    public function Comments(ArrayObject $attr, string $content): string
     {
         $p = '';
         if (empty($attr['with_pings'])) {
@@ -2416,20 +2296,20 @@ class Template extends BaseTemplate
         if ($lastn > 0) {
             $p .= "\$params['limit'] = " . $lastn . ";\n";
         } else {
-            $p .= "if (dotclear()->context()->nb_comment_per_page !== null) { \$params['limit'] = dotclear()->context()->nb_comment_per_page; }\n";
+            $p .= "if (dotclear()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = (int) dotclear()->context()->get('nb_comment_per_page'); }\n";
         }
 
         if (empty($attr['no_context'])) {
-            $p .= 'if (dotclear()->context()->posts !== null) { ' .
-                "\$params['post_id'] = dotclear()->context()->posts->post_id; " .
+            $p .= 'if (dotclear()->context()->get("posts") !== null) { ' .
+                "\$params['post_id'] = dotclear()->context()->get('posts')->fInt('post_id'); " .
                 "dotclear()->blog()->withoutPassword(false);\n" .
                 "}\n";
             $p .= 'if (dotclear()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = dotclear()->context()->categories->cat_id; " .
+                "\$params['cat_id'] = dotclear()->context()->get('categories')->fInt('cat_id'); " .
                 "}\n";
 
             $p .= 'if (dotclear()->context()->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context()->langs->post_lang).\"' \"; " .
+                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context()->get('langs')->f('post_lang')).\"' \"; " .
                 "}\n";
         }
 
@@ -2456,16 +2336,16 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'dotclear()->context()->comments = dotclear()->blog()->comments()->getComments($params); unset($params);' . "\n";
-        $res .= "if (dotclear()->context()->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
+        $res .= 'dotclear()->context()->set("comments", dotclear()->blog()->comments()->getComments($params)); unset($params);' . "\n";
+        $res .= "if (dotclear()->context()->get('posts') !== null) { dotclear()->blog()->withoutPassword(true);}\n";
 
         if (!empty($attr['with_pings'])) {
-            $res .= 'dotclear()->context()->pings = dotclear()->context()->comments;' . "\n";
+            $res .= 'dotclear()->context()->set("pings", dotclear()->context()->get("comments"));' . "\n";
         }
 
         $res .= "?>\n";
 
-        $res .= '<?php while (dotclear()->context()->comments->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->comments = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("comments")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("comments", null); ?>';
 
         return $res;
     }
@@ -2473,47 +2353,41 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentAuthor - O -- Comment author -->
      */
-    public function CommentAuthor($attr)
+    public function CommentAuthor(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->comment_author') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->f("comment_author")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentAuthorDomain - O -- Comment author website domain -->
      */
-    public function CommentAuthorDomain($attr)
+    public function CommentAuthorDomain(ArrayObject $attr): string
     {
-        return '<?php echo preg_replace("#^http(?:s?)://(.+?)/.*$#msu",\'$1\',dotclear()->context()->comments->comment_site); ?>';
+        return '<?php echo preg_replace("#^http(?:s?)://(.+?)/.*$#msu",\'$1\',dotclear()->context()->get("comments")->f("comment_site")); ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentAuthorLink - O -- Comment author link -->
      */
-    public function CommentAuthorLink($attr)
+    public function CommentAuthorLink(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getAuthorLink()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getAuthorLink()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentAuthorMailMD5 - O -- Comment author email MD5 sum -->
      */
-    public function CommentAuthorMailMD5($attr)
+    public function CommentAuthorMailMD5(ArrayObject $attr): string
     {
-        return '<?php echo md5(dotclear()->context()->comments->comment_email) ; ?>';
+        return '<?php echo md5(dotclear()->context()->get("comments")->f("comment_email")) ; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentAuthorURL - O -- Comment author URL -->
      */
-    public function CommentAuthorURL($attr)
+    public function CommentAuthorURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getAuthorURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getAuthorURL()') . '; ?>';
     }
 
     /*dtd
@@ -2522,16 +2396,14 @@ class Template extends BaseTemplate
     absolute_urls    (0|1)    #IMPLIED    -- convert URLS to absolute urls
     >
      */
-    public function CommentContent($attr)
+    public function CommentContent(ArrayObject $attr): string
     {
         $urls = '0';
         if (!empty($attr['absolute_urls'])) {
             $urls = '1';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getContent(' . $urls . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getContent(' . $urls . ')') . '; ?>';
     }
 
     /*dtd
@@ -2543,7 +2415,7 @@ class Template extends BaseTemplate
     upddt    CDATA    #IMPLIED    -- if set, uses the comment update time
     >
      */
-    public function CommentDate($attr)
+    public function CommentDate(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2557,12 +2429,12 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         if ($rfc822) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->comments->getRFC822Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('comments')->getRFC822Date('" . $type . "')") . '; ?>';
         } elseif ($iso8601) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->comments->getISO8601Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('comments')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->comments->getDate('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->context()->get('comments')->getDate('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
@@ -2572,7 +2444,7 @@ class Template extends BaseTemplate
     upddt    CDATA    #IMPLIED    -- if set, uses the comment update time
     >
      */
-    public function CommentTime($attr)
+    public function CommentTime(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2580,9 +2452,7 @@ class Template extends BaseTemplate
         }
         $type = (!empty($attr['upddt']) ? 'upddt' : '');
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->comments->getTime('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), "dotclear()->context()->get('comments')->getTime('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
@@ -2591,44 +2461,38 @@ class Template extends BaseTemplate
     spam_protected    (0|1)    #IMPLIED    -- protect email from spam (default: 1)
     >
      */
-    public function CommentEmail($attr)
+    public function CommentEmail(ArrayObject $attr): string
     {
         $p = 'true';
         if (isset($attr['spam_protected']) && !$attr['spam_protected']) {
             $p = 'false';
         }
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getEmail(' . $p . ')') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getEmail(' . $p . ')') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentEntryTitle - O -- Title of the comment entry -->
      */
-    public function CommentEntryTitle($attr)
+    public function CommentEntryTitle(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->post_title') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->get("post_title")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentFeedID - O -- Comment feed ID -->
      */
-    public function CommentFeedID($attr)
+    public function CommentFeedID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getFeedID()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getFeedID()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentID - O -- Comment ID -->
      */
-    public function CommentID($attr)
+    public function CommentID(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->comments->comment_id; ?>';
+        return '<?php echo dotclear()->context()->get("comments")->fInt("comment_id"); ?>';
     }
 
     /*dtd
@@ -2637,14 +2501,14 @@ class Template extends BaseTemplate
     is_ping    (0|1)    #IMPLIED    -- test if comment is a trackback (value : 1) or not (value : 0)
     >
      */
-    public function CommentIf($attr, $content)
+    public function CommentIf(ArrayObject $attr, string $content): string
     {
-        $if      = [];
+        $if      = new ArrayObject();
         $is_ping = null;
 
         if (isset($attr['is_ping'])) {
             $sign = (bool) $attr['is_ping'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->comments->comment_trackback';
+            $if[] = $sign . 'dotclear()->context()->get("comments")->fInt("comment_trackback")';
         }
 
         dotclear()->behavior()->call('tplIfConditions', 'CommentIf', $attr, $content, $if);
@@ -2662,13 +2526,13 @@ class Template extends BaseTemplate
     return    CDATA    #IMPLIED    -- value to display in case of success (default: first)
     >
      */
-    public function CommentIfFirst($attr)
+    public function CommentIfFirst(ArrayObject $attr): string
     {
         $ret = $attr['return'] ?? 'first';
         $ret = Html::escapeHTML($ret);
 
         return
-        '<?php if (dotclear()->context()->comments->index() == 0) { ' .
+        '<?php if (dotclear()->context()->get("comments")->index() == 0) { ' .
         "echo '" . addslashes($ret) . "'; } ?>";
     }
 
@@ -2678,13 +2542,13 @@ class Template extends BaseTemplate
     return    CDATA    #IMPLIED    -- value to display in case of success (default: me)
     >
      */
-    public function CommentIfMe($attr)
+    public function CommentIfMe(ArrayObject $attr): string
     {
         $ret = $attr['return'] ?? 'me';
         $ret = Html::escapeHTML($ret);
 
         return
-        '<?php if (dotclear()->context()->comments->isMe()) { ' .
+        '<?php if (dotclear()->context()->get("comments")->isMe()) { ' .
         "echo '" . addslashes($ret) . "'; } ?>";
     }
 
@@ -2695,7 +2559,7 @@ class Template extends BaseTemplate
     even      CDATA    #IMPLIED    -- value to display in case of failure (default: <empty>)
     >
      */
-    public function CommentIfOdd($attr)
+    public function CommentIfOdd(ArrayObject $attr): string
     {
         $odd = $attr['return'] ?? 'odd';
         $odd = Html::escapeHTML($odd);
@@ -2703,7 +2567,7 @@ class Template extends BaseTemplate
         $even = $attr['even'] ?? '';
         $even = Html::escapeHTML($even);
 
-        return '<?php echo ((dotclear()->context()->comments->index()+1)%2 ? ' .
+        return '<?php echo ((dotclear()->context()->get("comments")->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
         '"' . addslashes($even) . '"); ?>';
     }
@@ -2711,26 +2575,26 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentIP - O -- Comment author IP -->
      */
-    public function CommentIP($attr)
+    public function CommentIP(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->comments->comment_ip; ?>';
+        return '<?php echo dotclear()->context()->get("comments")->f("comment_ip"); ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentOrderNumber - O -- Comment order in page -->
      */
-    public function CommentOrderNumber($attr)
+    public function CommentOrderNumber(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->comments->index()+1; ?>';
+        return '<?php echo dotclear()->context()->get("comments")->index()+1; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentsFooter - - -- Last comments result container -->
      */
-    public function CommentsFooter($attr, $content)
+    public function CommentsFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->comments->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("comments")->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2738,10 +2602,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentsHeader - - -- First comments result container -->
      */
-    public function CommentsHeader($attr, $content)
+    public function CommentsHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->comments->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("comments")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2749,20 +2613,18 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentPostURL - O -- Comment Entry URL -->
      */
-    public function CommentPostURL($attr)
+    public function CommentPostURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comments->getPostURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comments")->getPostURL()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:IfCommentAuthorEmail - - -- Container displayed if comment author email is set -->
      */
-    public function IfCommentAuthorEmail($attr, $content)
+    public function IfCommentAuthorEmail(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->comments->comment_email) : ?>' .
+            '<?php if (dotclear()->context()->get("comments")->f("comment_email")) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2770,7 +2632,7 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentHelp - 0 -- Comment syntax mini help -->
      */
-    public function CommentHelp($attr, $content)
+    public function CommentHelp(ArrayObject $attr, string $content): string
     {
         return
             "<?php if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {\n" .
@@ -2784,10 +2646,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:IfCommentPreviewOptional - - -- Container displayed if comment preview is optional or currently previewed -->
      */
-    public function IfCommentPreviewOptional($attr, $content)
+    public function IfCommentPreviewOptional(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->blog()->settings()->get("system")->get("comment_preview_optional") || (dotclear()->context()->comment_preview !== null && dotclear()->context()->comment_preview["preview"])) : ?>' .
+            '<?php if (dotclear()->blog()->settings()->get("system")->get("comment_preview_optional") || (dotclear()->context()->get("comment_preview") !== null && dotclear()->context()->get("comment_preview")["preview"])) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2795,10 +2657,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:IfCommentPreview - - -- Container displayed if comment is being previewed -->
      */
-    public function IfCommentPreview($attr, $content)
+    public function IfCommentPreview(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->comment_preview !== null && dotclear()->context()->comment_preview["preview"]) : ?>' .
+            '<?php if (dotclear()->context()->get("comment_preview") !== null && dotclear()->context()->get("comment_preview")["preview"]) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -2806,31 +2668,25 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:CommentPreviewName - O -- Author name for the previewed comment -->
      */
-    public function CommentPreviewName($attr)
+    public function CommentPreviewName(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comment_preview["name"]') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comment_preview")["name"]') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentPreviewEmail - O -- Author email for the previewed comment -->
      */
-    public function CommentPreviewEmail($attr)
+    public function CommentPreviewEmail(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comment_preview["mail"]') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comment_preview")["mail"]') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentPreviewSite - O -- Author site for the previewed comment -->
      */
-    public function CommentPreviewSite($attr)
+    public function CommentPreviewSite(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->comment_preview["site"]') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("comment_preview")["site"]') . '; ?>';
     }
 
     /*dtd
@@ -2839,47 +2695,41 @@ class Template extends BaseTemplate
     raw    (0|1)    #IMPLIED    -- display comment in raw content
     >
      */
-    public function CommentPreviewContent($attr)
+    public function CommentPreviewContent(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
         if (!empty($attr['raw'])) {
-            $co = 'dotclear()->context()->comment_preview["rawcontent"]';
+            $co = 'dotclear()->context()->get("comment_preview")["rawcontent"]';
         } else {
-            $co = 'dotclear()->context()->comment_preview["content"]';
+            $co = 'dotclear()->context()->get("comment_preview")["content"]';
         }
 
-        return '<?php echo ' . sprintf($f, $co) . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), $co) . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:CommentPreviewCheckRemember - O -- checkbox attribute for "remember me" (same value as before preview) -->
      */
-    public function CommentPreviewCheckRemember($attr)
+    public function CommentPreviewCheckRemember(ArrayObject $attr): string
     {
         return
-            "<?php if (dotclear()->context()->comment_preview['remember']) { echo ' checked=\"checked\"'; } ?>";
+            "<?php if (dotclear()->context()->get('comment_preview')['remember']) { echo ' checked=\"checked\"'; } ?>";
     }
 
     /* Trackbacks ------------------------------------- */
     /*dtd
     <!ELEMENT tpl:PingBlogName - O -- Trackback blog name -->
      */
-    public function PingBlogName($attr)
+    public function PingBlogName(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->comment_author') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->f("comment_author")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingContent - O -- Trackback content -->
      */
-    public function PingContent($attr)
+    public function PingContent(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->getTrackbackContent()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getTrackbackContent()') . '; ?>';
     }
 
     /*dtd
@@ -2891,7 +2741,7 @@ class Template extends BaseTemplate
     upddt    CDATA    #IMPLIED    -- if set, uses the comment update time
     >
      */
-    public function PingDate($attr, $type = '')
+    public function PingDate(ArrayObject $attr, string $type = ''): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2900,17 +2750,17 @@ class Template extends BaseTemplate
 
         $iso8601 = !empty($attr['iso8601']);
         $rfc822  = !empty($attr['rfc822']);
-        $type    = (!empty($attr['upddt']) ? 'upddt' : '');
+        $type    = !empty($attr['upddt']) ? 'upddt' : '';
 
         $f = $this->getFilters($attr);
 
         if ($rfc822) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->pings->getRFC822Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('pings')->getRFC822Date('" . $type . "')") . '; ?>';
         } elseif ($iso8601) {
-            return '<?php echo ' . sprintf($f, "dotclear()->context()->pings->getISO8601Date('" . $type . "')") . '; ?>';
+            return '<?php echo ' . sprintf($f, "dotclear()->context()->get('pings')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->pings->getDate('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->context()->get('pings')->getDate('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
@@ -2920,7 +2770,7 @@ class Template extends BaseTemplate
     upddt    CDATA    #IMPLIED    -- if set, uses the comment update time
     >
      */
-    public function PingTime($attr)
+    public function PingTime(ArrayObject $attr): string
     {
         $format = '';
         if (!empty($attr['format'])) {
@@ -2928,37 +2778,31 @@ class Template extends BaseTemplate
         }
         $type = (!empty($attr['upddt']) ? 'upddt' : '');
 
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, "dotclear()->context()->pings->getTime('" . $format . "','" . $type . "')") . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), "dotclear()->context()->get('pings')->getTime('" . $format . "','" . $type . "')") . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingEntryTitle - O -- Trackback entry title -->
      */
-    public function PingEntryTitle($attr)
+    public function PingEntryTitle(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->post_title') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->f("post_title")') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingFeedID - O -- Trackback feed ID -->
      */
-    public function PingFeedID($attr)
+    public function PingFeedID(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->getFeedID()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getFeedID()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingID - O -- Trackback ID -->
      */
-    public function PingID($attr)
+    public function PingID(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->pings->comment_id; ?>';
+        return '<?php echo dotclear()->context()->get("pings")->fInt("comment_id"); ?>';
     }
 
     /*dtd
@@ -2967,13 +2811,13 @@ class Template extends BaseTemplate
     return    CDATA    #IMPLIED    -- value to display in case of success (default: first)
     >
      */
-    public function PingIfFirst($attr)
+    public function PingIfFirst(ArrayObject $attr): string
     {
         $ret = $attr['return'] ?? 'first';
         $ret = Html::escapeHTML($ret);
 
         return
-        '<?php if (dotclear()->context()->pings->index() == 0) { ' .
+        '<?php if (dotclear()->context()->get("pings")->index() == 0) { ' .
         "echo '" . addslashes($ret) . "'; } ?>";
     }
 
@@ -2984,7 +2828,7 @@ class Template extends BaseTemplate
     even      CDATA    #IMPLIED    -- value to display in case of failure (default: <empty>)
     >
      */
-    public function PingIfOdd($attr)
+    public function PingIfOdd(ArrayObject $attr): string
     {
         $odd = $attr['return'] ?? 'odd';
         $odd = Html::escapeHTML($odd);
@@ -2992,7 +2836,7 @@ class Template extends BaseTemplate
         $even = $attr['even'] ?? '';
         $even = Html::escapeHTML($even);
 
-        return '<?php echo ((dotclear()->context()->pings->index()+1)%2 ? ' .
+        return '<?php echo ((dotclear()->context()->get("pings")->index()+1)%2 ? ' .
         '"' . addslashes($odd) . '" : ' .
         '"' . addslashes($even) . '"); ?>';
     }
@@ -3000,15 +2844,15 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PingIP - O -- Trackback author IP -->
      */
-    public function PingIP($attr)
+    public function PingIP(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->pings->comment_ip; ?>';
+        return '<?php echo dotclear()->context()->get("pings")->f("comment_ip"); ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingNoFollow - O -- displays 'rel="nofollow"' if set in blog -->
      */
-    public function PingNoFollow($attr)
+    public function PingNoFollow(ArrayObject $attr): string
     {
         return
             '<?php if(dotclear()->blog()->settings()->get("system")->get("comments_nofollow")) { ' .
@@ -3019,19 +2863,17 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PingOrderNumber - O -- Trackback order in page -->
      */
-    public function PingOrderNumber($attr)
+    public function PingOrderNumber(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->pings->index()+1; ?>';
+        return '<?php echo dotclear()->context()->get("pings")->index()+1; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingPostURL - O -- Trackback Entry URL -->
      */
-    public function PingPostURL($attr)
+    public function PingPostURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->getPostURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getPostURL()') . '; ?>';
     }
 
     /*dtd
@@ -3043,10 +2885,10 @@ class Template extends BaseTemplate
     order    (desc|asc)    #IMPLIED    -- result ordering (default: asc)
     >
      */
-    public function Pings($attr, $content)
+    public function Pings(ArrayObject $attr, string $content): string
     {
-        $p = 'if (dotclear()->context()->posts !== null) { ' .
-            "\$params['post_id'] = dotclear()->context()->posts->post_id; " .
+        $p = 'if (dotclear()->context()->get("posts") !== null) { ' .
+            "\$params['post_id'] = dotclear()->context()->get('posts')->fInt('post_id'); " .
             "dotclear()->blog()->withoutPassword(false);\n" .
             "}\n";
 
@@ -3060,16 +2902,16 @@ class Template extends BaseTemplate
         if ($lastn > 0) {
             $p .= "\$params['limit'] = " . $lastn . ";\n";
         } else {
-            $p .= "if (dotclear()->context()->nb_comment_per_page !== null) { \$params['limit'] = dotclear()->context()->nb_comment_per_page; }\n";
+            $p .= "if (dotclear()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = dotclear()->context()->get('nb_comment_per_page'); }\n";
         }
 
         if (empty($attr['no_context'])) {
             $p .= 'if (dotclear()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = dotclear()->context()->categories->cat_id; " .
+                "\$params['cat_id'] = dotclear()->context()->get('categories')->fInt('cat_id'); " .
                 "}\n";
 
             $p .= 'if (dotclear()->context()->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context()->langs->post_lang).\"' \"; " .
+                "\$params['sql'] = \"AND P.post_lang = '\".dotclear()->con()->escape(dotclear()->context()->get('langs')->f('post_lang')).\"' \"; " .
                 "}\n";
         }
 
@@ -3092,11 +2934,11 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'dotclear()->context()->pings = dotclear()->blog()->comments()->getComments($params); unset($params);' . "\n";
-        $res .= "if (dotclear()->context()->posts !== null) { dotclear()->blog()->withoutPassword(true);}\n";
+        $res .= 'dotclear()->context()->set("pings", dotclear()->blog()->comments()->getComments($params)); unset($params);' . "\n";
+        $res .= "if (dotclear()->context()->get('posts') !== null) { dotclear()->blog()->withoutPassword(true);}\n";
         $res .= "?>\n";
 
-        $res .= '<?php while (dotclear()->context()->pings->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->pings = null; ?>';
+        $res .= '<?php while (dotclear()->context()->get("pings")->fetch()) : ?>' . $content . '<?php endwhile; dotclear()->context()->set("pings", null); ?>';
 
         return $res;
     }
@@ -3104,10 +2946,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PingsFooter - - -- Last trackbacks result container -->
      */
-    public function PingsFooter($attr, $content)
+    public function PingsFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->pings->isEnd()) : ?>' .
+            '<?php if (dotclear()->context()->get("pings")->isEnd()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -3115,10 +2957,10 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PingsHeader - - -- First trackbacks result container -->
      */
-    public function PingsHeader($attr, $content)
+    public function PingsHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->pings->isStart()) : ?>' .
+            '<?php if (dotclear()->context()->get("pings")->isStart()) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -3126,21 +2968,17 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:PingTitle - O -- Trackback title -->
      */
-    public function PingTitle($attr)
+    public function PingTitle(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->getTrackbackTitle()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getTrackbackTitle()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:PingAuthorURL - O -- Trackback author URL -->
      */
-    public function PingAuthorURL($attr)
+    public function PingAuthorURL(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->pings->getAuthorURL()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getAuthorURL()') . '; ?>';
     }
 
     # System
@@ -3150,10 +2988,10 @@ class Template extends BaseTemplate
     behavior    CDATA    #IMPLIED    -- behavior to call
     >
      */
-    public function SysBehavior($attr, $raw)
+    public function SysBehavior(ArrayObject $attr, string $raw): string
     {
         if (!isset($attr['behavior'])) {
-            return;
+            return '';
         }
 
         $b = addslashes($attr['behavior']);
@@ -3181,7 +3019,7 @@ class Template extends BaseTemplate
     operator            (and|or)    #IMPLIED    -- combination of conditions, if more than 1 specifiec (default: and)
     >
      */
-    public function SysIf($attr, $content)
+    public function SysIf(ArrayObject $attr, string $content): string
     {
         $if      = new ArrayObject();
         $is_ping = null;
@@ -3190,12 +3028,12 @@ class Template extends BaseTemplate
 
         if (isset($attr['categories'])) {
             $sign = (bool) $attr['categories'] ? '!' : '=';
-            $if[] = 'dotclear()->context()->categories ' . $sign . '== null';
+            $if[] = 'dotclear()->context()->get("categories") ' . $sign . '== null';
         }
 
         if (isset($attr['posts'])) {
             $sign = (bool) $attr['posts'] ? '!' : '=';
-            $if[] = 'dotclear()->context()->posts ' . $sign . '== null';
+            $if[] = 'dotclear()->context()->get("posts") ' . $sign . '== null';
         }
 
         if (isset($attr['blog_lang'])) {
@@ -3213,7 +3051,7 @@ class Template extends BaseTemplate
                 $sign                = '!';
                 $attr['current_tpl'] = substr($attr['current_tpl'], 1);
             }
-            $if[] = 'dotclear()->context()->current_tpl ' . $sign . "= '" . addslashes($attr['current_tpl']) . "'";
+            $if[] = 'dotclear()->context()->get("current_tpl") ' . $sign . "= '" . addslashes($attr['current_tpl']) . "'";
         }
 
         if (isset($attr['current_mode'])) {
@@ -3288,7 +3126,7 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:SysIfCommentPublished - - -- Container displayed if comment has been published -->
      */
-    public function SysIfCommentPublished($attr, $content)
+    public function SysIfCommentPublished(ArrayObject $attr, string $content): string
     {
         return
             '<?php if (!empty($_GET[\'pub\'])) : ?>' .
@@ -3299,7 +3137,7 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:SysIfCommentPending - - -- Container displayed if comment is pending after submission -->
      */
-    public function SysIfCommentPending($attr, $content)
+    public function SysIfCommentPending(ArrayObject $attr, string $content): string
     {
         return
             '<?php if (isset($_GET[\'pub\']) && $_GET[\'pub\'] == 0) : ?>' .
@@ -3310,20 +3148,18 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:SysFeedSubtitle - O -- Feed subtitle -->
      */
-    public function SysFeedSubtitle($attr)
+    public function SysFeedSubtitle(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php if (dotclear()->context()->feed_subtitle !== null) { echo ' . sprintf($f, 'dotclear()->context()->feed_subtitle') . ';} ?>';
+        return '<?php if (dotclear()->context()->get("feed_subtitle") !== null) { echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("feed_subtitle")') . ';} ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:SysIfFormError - O -- Container displayed if an error has been detected after form submission -->
      */
-    public function SysIfFormError($attr, $content)
+    public function SysIfFormError(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->form_error !== null) : ?>' .
+            '<?php if (dotclear()->context()->get("form_error") !== null) : ?>' .
             $content .
             '<?php endif; ?>';
     }
@@ -3331,38 +3167,34 @@ class Template extends BaseTemplate
     /*dtd
     <!ELEMENT tpl:SysFormError - O -- Form error -->
      */
-    public function SysFormError($attr)
+    public function SysFormError(ArrayObject $attr): string
     {
         return
-            '<?php if (dotclear()->context()->form_error !== null) { echo dotclear()->context()->form_error; } ?>';
+            '<?php if (dotclear()->context()->get("form_error") !== null) { echo dotclear()->context()->get("form_error"); } ?>';
     }
 
-    public function SysPoweredBy($attr)
+    public function SysPoweredBy(ArrayObject $attr): string
     {
         return
             '<?php printf(__("Powered by %s"),"<a href=\"https://dotclear.org/\">Dotclear</a>"); ?>';
     }
 
-    public function SysSearchString($attr)
+    public function SysSearchString(ArrayObject $attr): string
     {
         $s = $attr['string'] ?? '%1$s';
 
-        $f = $this->getFilters($attr);
-
-        return '<?php if (isset($_search)) { echo sprintf(__(\'' . $s . '\'),' . sprintf($f, '$_search') . ',$_search_count);} ?>';
+        return '<?php if (isset($_search)) { echo sprintf(__(\'' . $s . '\'),' . sprintf($this->getFilters($attr), '$_search') . ',$_search_count);} ?>';
     }
 
-    public function SysSelfURI($attr)
+    public function SysSelfURI(ArrayObject $attr): string
     {
-        $f = $this->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '\Dotclear\Helper\Network\Http::getSelfURI()') . '; ?>';
+        return '<?php echo ' . sprintf($this->getFilters($attr), '\Dotclear\Helper\Network\Http::getSelfURI()') . '; ?>';
     }
 
     /*dtd
     <!ELEMENT tpl:else - O -- else: statement -->
      */
-    public function GenericElse($attr)
+    public function GenericElse(ArrayObject $attr): string
     {
         return '<?php else: ?>';
     }

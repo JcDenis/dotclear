@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+use ArrayObject;
 use Dotclear\Helper\File\Files;
 
 class DuctileTemplate
@@ -26,14 +27,14 @@ class DuctileTemplate
         dotclear()->template()->addBlock('IfPreviewIsNotMandatory', [$this, 'IfPreviewIsNotMandatory']);
     }
 
-    public function ductileNbEntryPerPage($attr)
+    public function ductileNbEntryPerPage(ArrayObject $attr): string
     {
         $nb = $attr['nb'] ?? null;
 
         return '<?php ' . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) $nb) . '); ?>';
     }
 
-    public static function ductileNbEntryPerPageHelper(int $nb)
+    public static function ductileNbEntryPerPageHelper(int $nb): void
     {
         $nb_other = $nb_first = 0;
 
@@ -71,14 +72,14 @@ class DuctileTemplate
         }
 
         if ($nb_other > 0) {
-            dotclear()->context()->nb_entry_per_page = $nb_other;
+            dotclear()->context()->set('nb_entry_per_page', $nb_other);
         }
         if ($nb_first > 0) {
-            dotclear()->context()->nb_entry_first_page = $nb_first;
+            dotclear()->context()->set('nb_entry_first_page', $nb_first);
         }
     }
 
-    public function EntryIfContentIsCut($attr, $content)
+    public function EntryIfContentIsCut(ArrayObject $attr, string $content): string
     {
         if (empty($attr['cut_string']) || !empty($attr['full'])) {
             return '';
@@ -95,13 +96,13 @@ class DuctileTemplate
         $full               = dotclear()->template()->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return '<?php if (strlen(' . sprintf($full, 'dotclear()->context()->posts->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, 'dotclear()->context()->posts->getContent(' . $urls . ')') . ')) : ?>' .
+        return '<?php if (strlen(' . sprintf($full, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ')) : ?>' .
             $content .
             '<?php endif; ?>';
     }
 
-    public function ductileEntriesList($attr)
+    public function ductileEntriesList(ArrayObject $attr): string
     {
         $tpl_path   = __DIR__ . '/../templates/tpl/';
         $list_types = ['title', 'short', 'full'];
@@ -139,7 +140,7 @@ class DuctileTemplate
         return $ret;
     }
 
-    public static function ductileEntriesListHelper($default)
+    public static function ductileEntriesListHelper(string $default): string
     {
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
         if ($s !== null) {
@@ -156,7 +157,7 @@ class DuctileTemplate
         return $default;
     }
 
-    public function ductileLogoSrc($attr)
+    public function ductileLogoSrc(ArrayObject $attr): string
     {
         return '<?php echo ' . __CLASS__ . '::ductileLogoSrcHelper(); ?>';
     }
@@ -193,7 +194,7 @@ class DuctileTemplate
         return $img_url;
     }
 
-    public function IfPreviewIsNotMandatory($attr, $content)
+    public function IfPreviewIsNotMandatory(ArrayObject $attr, string $content): string
     {
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
         if ($s !== null) {

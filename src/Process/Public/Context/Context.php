@@ -19,79 +19,102 @@ use Dotclear\Helper\Text;
 
 class Context
 {
-    public $stack               = [];
-    public $nb_entry_per_page   = 10;
-    public $nb_entry_first_page = 10;
-    protected $page_number      = 0;
-    protected $smilies          = [];
+    /** @var    array   $stack  Context stack */
+    public $stack               = [
+        'nb_entry_per_page'   => [10],
+        'nb_entry_first_page' => [10],
+        'page_number'         => [0],
+        'smilies'             => [[]],
+    ];
 
-    public function __set($name, $var)
+    /**
+     * Set a context value
+     * 
+     * @param   string  $name   The porperty name
+     * @param   mixed   $value  The property value
+     */
+    public function set(string $name, mixed $value): void
     {
-        $this->set($name, $var);
-    }
-
-    public function set($name, $var)
-    {
-        if ($var === null) {
+        if (null === $value) {
             $this->pop($name);
         } else {
-            $this->stack[$name][] = &$var;
-            if ($var instanceof record) {
-                $this->stack['cur_loop'][] = &$var;
+            $this->stack[$name][] = &$value;
+            if ($value instanceof Record) {
+                $this->stack['cur_loop'][] = &$value;
             }
         } 
     }
 
-    public function __get($name)
-    {
-        return $this->get($name);
-    }
-
-    public function get($name)
+    /**
+     * Get a context value
+     * 
+     * @param   string  $name   The property name
+     * 
+     * @return  mixed           The property value
+     */
+    public function get(string $name): mixed
     {
         if (!isset($this->stack[$name])) {
             return null;
         }
 
         $n = count($this->stack[$name]);
-        if ($n > 0) {
-            return $this->stack[$name][($n - 1)];
-        }
 
-        return null;
+        return 0 < $n ? $this->stack[$name][($n - 1)] : null;
     }
 
-    public function exists($name)
+    /**
+     * Check if a context property exists
+     * 
+     * @param   string  $name   The property name
+     * 
+     * @return  bool
+     */
+    public function exists(string $name): bool
     {
         return isset($this->stack[$name][0]);
     }
 
-    public function pop($name)
+    /**
+     * Pop a context property
+     * 
+     * @param   string  $name   The property name
+     */
+    public function pop(string $name): void
     {
         if (isset($this->stack[$name])) {
             $v = array_pop($this->stack[$name]);
-            if ($v instanceof record) {
+            if ($v instanceof Record) {
                 array_pop($this->stack['cur_loop']);
             }
             unset($v);
         }
     }
 
-    # Loop position tests
-    public function loopPosition($start, $length = null, $even = null, $modulo = null)
+    /**
+     * Check a loop position
+     * 
+     * @param   int         $start      Start position
+     * @param   int|null    $length     Loop length
+     * @param   int|null    $even       Even/odd test
+     * @param   int|null    $modulo     Modulo
+     * 
+     * @return  bool
+     */
+    public function loopPosition(int $start, ?int $length = null, ?int $even = null, ?int $modulo = null): bool
     {
-        if (!$this->cur_loop) { // @phpstan-ignore-line
+        if (!$this->get('cur_loop')) {
             return false;
         }
 
-        $index = $this->cur_loop->index();
-        $size  = $this->cur_loop->count();
+        $index = $this->get('cur_loop')->index();
+        $size  = $this->get('cur_loop')->count();
 
         $test = false;
-        if ($start >= 0) {
+        if (0 <= $start) {
             $test = $index >= $start;
-            if ($length !== null) {
-                if ($length >= 0) {
+            if (null !== $length) {
+                if (0 <= $length) {
                     $test = $test && $index < $start + $length;
                 } else {
                     $test = $test && $index < $size + $length;
@@ -99,8 +122,8 @@ class Context
             }
         } else {
             $test = $index >= $size + $start;
-            if ($length !== null) {
-                if ($length >= 0) {
+            if (null !== $length) {
+                if (0 <= $length) {
                     $test = $test && $index < $size + $start + $length;
                 } else {
                     $test = $test && $index < $size + $length;
@@ -108,50 +131,51 @@ class Context
             }
         }
 
-        if ($even !== null) {
+        if (null !== $even) {
             $test = $test && $index % 2 == $even;
         }
 
-        if ($modulo !== null) {
+        if (null !== $modulo) {
             $test = $test && ($index % $modulo == 0);
         }
 
         return $test;
     }
 
-    private function default_filters($filter, $str, $arg)
+    /**
+     * Apply default filters
+     * 
+     * @param   string  $filter     The filter (name)
+     * @param   string  $str        The content to apply filters
+     * @param   mixed   $arg        The additionnal argument
+     * 
+     * @return  string              The filtered content
+     */
+    private function default_filters(string $filter, string $str, mixed $arg): string
     {
-        switch ($filter) {
-            case 'strip_tags':
-                return $this->strip_tags($str);
-
-            case 'remove_html':
-                return preg_replace('/\s+/', ' ', $this->remove_html($str));
-
-            case 'encode_xml':
-            case 'encode_html':
-                return $this->encode_xml($str);
-
-            case 'cut_string':
-                return $this->cut_string($str, (int) $arg);
-
-            case 'lower_case':
-                return $this->lower_case($str);
-
-            case 'capitalize':
-                return $this->capitalize($str);
-
-            case 'upper_case':
-                return $this->upper_case($str);
-
-            case 'encode_url':
-                return $this->encode_url($str);
-        }
-
-        return $str;
+        return match ($filter) {
+            'strip_tags'                => $this->strip_tags($str),
+            'remove_html'               => preg_replace('/\s+/', ' ', $this->remove_html($str)),
+            'encode_xml', 'encode_html' => $this->encode_xml($str),
+            'cut_string'                => $this->cut_string($str, (int) $arg),
+            'lower_case'                => $this->lower_case($str),
+            'capitalize'                => $this->capitalize($str),
+            'upper_case'                => $this->upper_case($str),
+            'encode_url'                => $this->encode_url($str),
+            default                     => $str,
+        };
     }
 
-    public function global_filters($str, $args, $tag = '')
+    /**
+     * Apply global filters
+     * 
+     * @param   string  $str    The content
+     * @param   array   $args   The aguments
+     * @param   string  $tag    The tag
+     * 
+     * @return  string          The filtered content
+     */
+    public function global_filters(string $str, array $args, string $tag = ''): string
     {
         $filters = [
             'strip_tags',                             // Removes HTML tags (mono line)
@@ -165,7 +189,7 @@ class Context
         $args[0] = &$str;
 
         # --BEHAVIOR-- publicBeforeContentFilter
-        $res = dotclear()->behavior()->call('publicBeforeContentFilter', $tag, $args);
+        dotclear()->behavior()->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
@@ -185,28 +209,57 @@ class Context
         }
 
         # --BEHAVIOR-- publicAfterContentFilter
-        $res = dotclear()->behavior()->call('publicAfterContentFilter', $tag, $args);
+        dotclear()->behavior()->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;
     }
 
-    public function encode_url($str)
+    /**
+     * Filter, encode URL
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function encode_url(string $str): string
     {
         return urlencode($str);
     }
 
-    public function cut_string($str, $l)
+    /**
+     * Filter, cut string
+     * 
+     * @param   string  $str    The content
+     * @param   int     $l      The cut length
+     * 
+     * @return  string
+     */
+    public function cut_string(string $str, int $l): string
     {
         return Text::cutString($str, $l);
     }
 
-    public function encode_xml($str)
+    /**
+     * Filter, encode XML
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function encode_xml(string $str): string
     {
         return Html::escapeHTML($str);
     }
 
-    public function remove_isolated_figcaption($str)
+    /**
+     * Filter, remove isolated figcaptiong
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function remove_isolated_figcaption(string $str): string
     {
         // When using remove_html() or stript_tags(), we may have remaining figcaption's text without any image/audio media
         // This function will remove those cases from string
@@ -220,49 +273,92 @@ class Context
         return $str;
     }
 
-    public function remove_html($str)
+    /**
+     * Filter, remove HTML
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function remove_html(string $str): string
     {
-        $str = $this->remove_isolated_figcaption($str);
-
-        return Html::decodeEntities(Html::clean($str));
+        return Html::decodeEntities(Html::clean($this->remove_isolated_figcaption($str)));
     }
 
-    public function strip_tags($str)
+    /**
+     * Filter, strip tags
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function strip_tags(string $str): string
     {
-        $str = $this->remove_isolated_figcaption($str);
-
-        return trim(preg_replace('/ {2,}/', ' ', str_replace(["\r", "\n", "\t"], ' ', Html::clean($str))));
+        return trim(preg_replace('/ {2,}/', ' ', str_replace(["\r", "\n", "\t"], ' ', Html::clean($this->remove_isolated_figcaption($str)))));
     }
 
-    public function lower_case($str)
+    /**
+     * Filter, convert to lower case
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function lower_case(string $str): string
     {
         return mb_strtolower($str);
     }
 
-    public function upper_case($str)
+    /**
+     * Filter, convert to upper case
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function upper_case(string $str): string
     {
         return mb_strtoupper($str);
     }
 
-    public function capitalize($str)
+    /**
+     * Filter, capitalize content
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return  string
+     */
+    public function capitalize(string $str): string
     {
-        if ($str != '') {
+        if ('' != $str) {
             $str[0] = mb_strtoupper($str[0]);
         }
 
         return $str;
     }
 
-    public function page_number($p = null)
+    /**
+     * Get/set page number
+     * 
+     * @param   string|int  $p  To set a page number
+     * 
+     * @return  int
+     */
+    public function page_number(string|int $p = null): int
     {
-        if ($p !== null) {
-            $this->page_number = (int) abs((int) $p) + 0;
+        if (null !== $p) {
+            $this->set('page_number', (int) abs((int) $p) + 0);
         }
 
-        return $this->page_number;
+        return $this->get('page_number');
     }
 
-    public function categoryPostParam(&$p)
+    /**
+     * Build category post param
+     * 
+     * @param   array   $p  The param
+     */
+    public function categoryPostParam(array &$p): void
     {
         $not = substr($p['cat_url'], 0, 1) == '!';
         if ($not) {
@@ -283,80 +379,101 @@ class Context
         }
     }
 
-    # Static methods for pagination
+    /**
+     * Get pagination number of pages
+     * 
+     * @return  int|false
+     */
     public function PaginationNbPages(): int|false
     {
-        if ($this->get('pagination') === null) {
+        if (null === $this->get('pagination')) {
             return false;
         }
 
         $nb_posts = $this->get('pagination')->fInt();
-        if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {
-            $nb_pages = ceil(($nb_posts - (int) $this->nb_entry_first_page) / (int) $this->nb_entry_per_page + 1);
-        } else {
-            $nb_pages = ceil($nb_posts / (int) $this->nb_entry_per_page);
-        }
+        $nb_pages = in_array(dotclear()->url()->type, ['default', 'default-page']) ?
+            ceil(($nb_posts - (int) $this->get('nb_entry_first_page')) / (int) $this->get('nb_entry_per_page') + 1) :
+            ceil($nb_posts / (int) $this->get('nb_entry_per_page'));
 
         return (int) $nb_pages;
     }
 
+    /**
+     * Get pagination position
+     * 
+     * @param   int     $offset     The offset
+     * 
+     * @return  int
+     */
     public function PaginationPosition(int $offset = 0): int
     {
-        $p = $this->page_number();
-        if (!$p) {
+        if (!($p = $this->page_number())) {
             $p = 1;
         }
 
         $p = $p + $offset;
 
-        $n = $this->PaginationNbPages();
-        if (!$n) {
+        if (!($n = $this->PaginationNbPages())) {
             return $p;
         }
 
-        if ($p > $n || $p <= 0) {
-            return 1;
-        }
-
-        return $p;
+        return $p > $n || $p <= 0 ? 1 : $p;
     }
 
-    public function PaginationStart()
+    /**
+     * Check if it's pagination start
+     * 
+     * @return bool
+     */
+    public function PaginationStart(): bool
     {
         return $this->PaginationPosition() == 1;
     }
 
-    public function PaginationEnd()
+    /**
+     * Check if it's pagination end
+     * 
+     * @return bool
+     */
+    public function PaginationEnd(): bool
     {
         return $this->PaginationPosition() == $this->PaginationNbPages();
     }
 
-    public function PaginationURL($offset = 0)
+    /**
+     * Get pagination URL
+     * 
+     * @param   int     $offset     The offset
+     * 
+     * @return string
+     */
+    public function PaginationURL(int $offset = 0): string
     {
-        $args = $_SERVER['URL_REQUEST_PART'];
+        $url = dotclear()->blog()->url . preg_replace('#(^|/)page/([0-9]+)$#', '', $_SERVER['URL_REQUEST_PART']);
 
         $n = $this->PaginationPosition($offset);
-
-        $args = preg_replace('#(^|/)page/([0-9]+)$#', '', $args);
-
-        $url = dotclear()->blog()->url . $args;
-
-        if ($n > 1) {
+        if (1 < $n) {
             $url = preg_replace('#/$#', '', $url);
             $url .= '/page/' . $n;
         }
 
         # If search param
         if (!empty($_GET['q'])) {
-            $s = str_contains($url, '?') ? '&amp;' : '?';
-            $url .= $s . 'q=' . rawurlencode($_GET['q']);
+            $url .= (str_contains($url, '?') ? '&amp;' : '?') . 'q=' . rawurlencode($_GET['q']);
         }
 
         return $url;
     }
 
-    # Robots policy
-    public function robotsPolicy($base, $over)
+    /**
+     * Get Robots policy
+     * 
+     * @param   string  $base
+     * @param   string  $over
+     * 
+     * @return string
+     */
+    public function robotsPolicy(string $base, string $over): string
     {
         $pol  = ['INDEX' => 'INDEX', 'FOLLOW' => 'FOLLOW', 'ARCHIVE' => 'ARCHIVE'];
         $base = array_flip(preg_split('/\s*,\s*/', $base));
@@ -379,14 +496,18 @@ class Context
         return implode(', ', $pol);
     }
 
-    # Smilies static methods
-    public function getSmilies()
+    /**
+     * Load smilies
+     *
+     * @return  bool
+     */
+    public function getSmilies(): bool
     {
-        if (!empty($this->smilies)) {
+        if (!empty($this->get('smilies'))) {
             return true;
         }
 
-        # Search smilies on public path then Theme apth and then parent theme paath and then core path
+        # Search smilies on public path then Theme path and then parent theme path and then core path
         $base_url = dotclear()->blog()->public_url . '/smilies/';
         $src      = '/resources/smilies/smilies.txt';
         $paths    = array_merge(
@@ -398,7 +519,7 @@ class Context
 
         foreach ($paths as $file) {
             if ($file && file_exists($file)) {
-                $this->smilies = $this->smiliesDefinition($file, $base_url);
+                $this->set('smilies', $this->smiliesDefinition($file, $base_url));
 
                 return true;
             }
@@ -407,9 +528,17 @@ class Context
         return false;
     }
 
-    public function smiliesDefinition($f, $url)
+    /**
+     * Parse smilies definition
+     * 
+     * @param   string  $file   Definiton file
+     * @param   string  $url    smilies URL
+     * 
+     * @return array
+     */
+    public function smiliesDefinition(string $file, string $url): array
     {
-        $def = file($f);
+        $def = file($file);
 
         $res = [];
         foreach ($def as $v) {
@@ -425,9 +554,16 @@ class Context
         return $res;
     }
 
-    public function addSmilies($str)
+    /**
+     * Add smilies to content
+     * 
+     * @param   string  $str    The content
+     * 
+     * @return string
+     */
+    public function addSmilies(string $str): string
     {
-        if (empty($this->smilies)) {
+        if (empty($this->get('smilies'))) {
             return $str;
         }
 
@@ -438,7 +574,7 @@ class Context
         $in_pre = 0; # Keep track of when we're inside <pre> or <code> tags.
 
         foreach ($tokens as $cur_token) {
-            if ($cur_token[0] == 'tag') {
+            if ('tag' == $cur_token[0]) {
                 # Don't mess with quotes inside tags.
                 $result .= $cur_token[1];
                 if (preg_match('@<(/?)(?:pre|code|kbd|script|math)[\s>]@', $cur_token[1], $matches)) {
@@ -447,7 +583,7 @@ class Context
             } else {
                 $t = $cur_token[1];
                 if (!$in_pre) {
-                    $t = preg_replace(array_keys($this->smilies), array_values($this->smilies), $t);
+                    $t = preg_replace(array_keys($this->get('smilies')), array_values($this->get('smilies')), $t);
                 }
                 $result .= $t;
             }
@@ -456,7 +592,7 @@ class Context
         return $result;
     }
 
-    private function tokenizeHTML($str)
+    private function tokenizeHTML(string $str): array
     {
         # Function from SmartyPants engine (J. Gruber et al.)
         #
@@ -494,8 +630,19 @@ class Context
         return $tokens;
     }
 
-    # First post image helpers
-    public function EntryFirstImageHelper($size, $with_category, $class = '', $no_tag = false, $content_only = false, $cat_only = false)
+    /**
+     * First post image helpers
+     * 
+     * @param   string  $size           Size
+     * @param   bool    $with_category  Use category
+     * @param   string  $class          Class
+     * @param   bool    $no_tag         Return URL only
+     * @param   bool    $content_only   Search only in content
+     * @param   bool    $cat_only       Search on category only
+     * 
+     * @return  string
+     */
+    public function EntryFirstImageHelper(string $size, bool $with_category, string $class = '', bool $no_tag = false, bool $content_only = false, bool $cat_only = false): string
     {
         if (!dotclear()->media()) {
             return '';
@@ -519,7 +666,7 @@ class Context
             # We first look in post content
             if (!$cat_only && $this->get('posts')) {
                 $subject = ($content_only ? '' : $this->get('posts')->f('post_excerpt_xhtml')) . $this->get('posts')->f('post_content_xhtml');
-                if (preg_match_all($pattern, $subject, $m) > 0) {
+                if (0 < preg_match_all($pattern, $subject, $m)) {
                     foreach ($m[1] as $i => $img) {
                         if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
                             $dirname = str_replace('\\', '/', dirname($img));
@@ -536,9 +683,9 @@ class Context
 
             # No src, look in category description if available
             if (!$src && $with_category && $this->get('posts')->f('cat_desc')) {
-                if (preg_match_all($pattern, $this->get('posts')->f('cat_desc'), $m) > 0) {
+                if (0 < preg_match_all($pattern, $this->get('posts')->f('cat_desc'), $m)) {
                     foreach ($m[1] as $i => $img) {
-                        if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
+                        if (false !== ($src = $this->ContentFirstImageLookup($p_root, $img, $size))) {
                             $dirname = str_replace('\\', '/', dirname($img));
                             $src     = $p_url . ($dirname != '/' ? $dirname : '') . '/' . $src;
                             if (preg_match('/alt="([^"]+)"/', $m[0][$i], $malt)) {
@@ -561,9 +708,20 @@ class Context
         } catch (\Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
+
+        return '';
     }
 
-    private function ContentFirstImageLookup($root, $img, $size)
+    /**
+     * Search first image of content
+     * 
+     * @param   string  $root   Image root path
+     * @param   string  $img    Image path
+     * @param   string  $size   Image size
+     * 
+     * @return  string|false    Image path or false
+     */
+    private function ContentFirstImageLookup(string $root, string $img, string $size): string|false
     {
         if (!dotclear()->media()) {
             return false;
@@ -585,11 +743,11 @@ class Context
             }
 
             $res = false;
-            if ($size != 'o' && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.jpg')) {
+            if ('o' != $size && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.jpg')) {
                 $res = '.' . $base . '_' . $size . '.jpg';
-            } elseif ($size != 'o' && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.png')) {
+            } elseif ('o' != $size && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.png')) {
                 $res = '.' . $base . '_' . $size . '.png';
-            } elseif ($size != 'o' && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.webp')) {
+            } elseif ('o' != $size && file_exists($root . '/' . $info['dirname'] . '/.' . $base . '_' . $size . '.webp')) {
                 $res = '.' . $base . '_' . $size . '.webp';
             } else {
                 $f = $root . '/' . $info['dirname'] . '/' . $base;

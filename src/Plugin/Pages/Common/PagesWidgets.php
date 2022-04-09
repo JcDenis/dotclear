@@ -105,8 +105,8 @@ class PagesWidgets
         while ($rs->fetch()) {
             $class = '';
             if ('pages' == dotclear()->url()->type
-                && dotclear()->context()->posts instanceof Record
-                && dotclear()->context()->posts->fInt('post_id') === $rs->fInt('post_id')
+                && dotclear()->context()->get('posts') instanceof Record
+                && dotclear()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')
             ) {
                 $class = ' class="page-current"';
             }

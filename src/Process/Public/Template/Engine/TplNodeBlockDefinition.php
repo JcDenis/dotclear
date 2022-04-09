@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
-
 use Dotclear\Process\Public\Template\Engine\Template;
 use Dotclear\Process\Public\Template\Engine\TplNodeBlock;
 
@@ -121,7 +120,7 @@ class TplNodeBlockDefinition extends TplNodeBlock
     {
         return $tpl->compileBlockNode(
             $this->tag,
-            $this->attr,
+            new ArrayObject($this->attr),
             self::getStackBlock($this->name, $tpl)
         );
     }

@@ -111,14 +111,14 @@ class TagsWidgets
 
         $res = '<ul>';
 
-        if ('post' == dotclear()->url()->type && dotclear()->context()->posts instanceof Record) {
-            dotclear()->context()->meta = dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->posts->f('post_meta'), 'tag');
+        if ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record) {
+            dotclear()->context()->set('meta', dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->get('posts')->f('post_meta'), 'tag'));
         }
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == dotclear()->url()->type && dotclear()->context()->posts instanceof Record) {
-                while (dotclear()->context()->meta->fetch()) {
-                    if (dotclear()->context()->meta->f('meta_id') == $rs->f('meta_id')) {
+            if ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record) {
+                while (dotclear()->context()->get('meta')->fetch()) {
+                    if (dotclear()->context()->get('meta')->f('meta_id') == $rs->f('meta_id')) {
                         $class = ' class="tag-current"';
 
                         break;

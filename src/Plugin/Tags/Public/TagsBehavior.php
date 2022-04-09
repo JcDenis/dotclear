@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Public;
 
+use ArrayObject;
+
 class TagsBehavior
 {
     public function __construct()
@@ -20,9 +22,9 @@ class TagsBehavior
         dotclear()->behavior()->add('templateBeforeBlock', [$this, 'templateBeforeBlock']);
     }
 
-    public function templateBeforeBlock($b, $attr)
+    public function templateBeforeBlock(string $tag, ArrayObject $attr): string
     {
-        if (($b == 'Entries' || $b == 'Comments') && isset($attr['tag'])) {
+        if (in_array($tag, ['Entries', 'Comments']) && isset($attr['tag'])) {
             return
             "<?php\n" .
             "if (!isset(\$params)) { \$params = []; }\n" .
@@ -33,17 +35,19 @@ class TagsBehavior
             "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
             "\$params['sql'] .= \"AND META.meta_id = '" . dotclear()->con()->escape($attr['tag']) . "' \";\n" .
                 "?>\n";
-        } elseif (empty($attr['no_context']) && ($b == 'Entries' || $b == 'Comments')) {
+        } elseif (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
             return
-                '<?php if (dotclear()->context()->exists("meta") && dotclear()->context()->meta->rows() && dotclear()->context()->meta->meta_type == "tag") { ' .
+                '<?php if (dotclear()->context()->exists("meta") && dotclear()->context()->get("meta")->rows() && dotclear()->context()->get("meta")->f("meta_type") == "tag") { ' .
                 "if (!isset(\$params)) { \$params = []; }\n" .
                 "if (!isset(\$params['from'])) { \$params['from'] = ''; }\n" .
                 "if (!isset(\$params['sql'])) { \$params['sql'] = ''; }\n" .
                 "\$params['from'] .= ', '.dotclear()->prefix.'meta META ';\n" .
                 "\$params['sql'] .= 'AND META.post_id = P.post_id ';\n" .
                 "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
-                "\$params['sql'] .= \"AND META.meta_id = '\".dotclear()->con()->escape(dotclear()->context()->meta->meta_id).\"' \";\n" .
+                "\$params['sql'] .= \"AND META.meta_id = '\".dotclear()->con()->escape(dotclear()->context()->get('meta')->f('meta_id')).\"' \";\n" .
                 "} ?>\n";
         }
+
+        return '';
     }
 }

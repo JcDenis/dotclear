@@ -128,8 +128,6 @@ class WidgetsStack
      */
     public function categories(Widget $widget): string
     {
-        $context = dotclear()->context();
-
         if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
@@ -144,8 +142,8 @@ class WidgetsStack
         $ref_level = $level = $rs->fInt('level') - 1;
         while ($rs->fetch()) {
             $class = '';
-            if (('category' == dotclear()->url()->type && $context->categories instanceof Record && $context->categories->fInt('cat_id') === $rs->fInt('cat_id'))
-                || ('post' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('cat_id') === $rs->fInt('cat_id'))) {
+            if (('category' == dotclear()->url()->type && dotclear()->context()->get('categories') instanceof Record && dotclear()->context()->get('categories')->fInt('cat_id') === $rs->fInt('cat_id'))
+                || ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record && dotclear()->context()->get('posts')->fInt('cat_id') === $rs->fInt('cat_id'))) {
                 $class = ' class="category-current"';
             }
 
@@ -182,8 +180,6 @@ class WidgetsStack
      */
     public function bestof(Widget $widget): string
     {
-        $context = dotclear()->context();
-
         if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
@@ -205,7 +201,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record && dotclear()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->f('post_title')) . '</a></li> ';
@@ -225,8 +221,6 @@ class WidgetsStack
      */
     public function langs(Widget $widget): string
     {
-        $context = dotclear()->context();
-
         if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
@@ -242,7 +236,7 @@ class WidgetsStack
             '<ul>';
 
         while ($rs->fetch()) {
-            $l = ($context->cur_lang == $rs->f('post_lang')) ? '<strong>%s</strong>' : '%s';
+            $l = (dotclear()->context()->get('cur_lang') == $rs->f('post_lang')) ? '<strong>%s</strong>' : '%s';
 
             $lang_name = $langs[$rs->f('post_lang')] ?? $rs->f('post_lang');
 
@@ -268,16 +262,14 @@ class WidgetsStack
      */
     public function subscribe(Widget $widget): string
     {
-        $context = dotclear()->context();
-
         if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
         $type = ('atom' == $widget->get('type') || 'rss2' == $widget->get('type')) ? $widget->get('type') : 'rss2';
         $mime = 'rss2' == $type ? 'application/rss+xml' : 'application/atom+xml';
-        if ($context->exists('cur_lang')) {
-            $type = $context->cur_lang . '/' . $type;
+        if (dotclear()->context()->exists('cur_lang')) {
+            $type = dotclear()->context()->get('cur_lang') . '/' . $type;
         }
 
         $p_title = __('This blog\'s entries %s feed');
@@ -386,8 +378,6 @@ class WidgetsStack
      */
     public function lastposts(Widget $widget): string
     {
-        $context = dotclear()->context();
-
         if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
@@ -422,7 +412,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('psot' == dotclear()->url()->type && $context->posts instanceof Record && $context->posts->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('psot' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record && dotclear()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .

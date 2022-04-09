@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+use ArrayObject;
 use Dotclear\Exception\TemplateException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -426,7 +427,7 @@ class Template
         }
     }
 
-    public function compileBlockNode(string $tag, $attr, string $content)
+    public function compileBlockNode(string $tag, ArrayObject $attr, string $content): string
     {
         $res = '';
         if (isset($this->blocks[$tag])) {
@@ -438,7 +439,7 @@ class Template
         return $res;
     }
 
-    public function compileValueNode(string $tag, $attr, string $str_attr)
+    public function compileValueNode(string $tag, ArrayObject $attr, string $str_attr): string
     {
         $res = '';
         if (isset($this->values[$tag])) {
@@ -450,7 +451,7 @@ class Template
         return $res;
     }
 
-    protected function compileValue(array $match)
+    protected function compileValue(ArrayObject $match)
     {
         $v        = $match[1];
         $attr     = isset($match[2]) ? $this->getAttrs($match[2]) : [];

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+use ArrayObject;
 use Dotclear\Process\Public\Template\Engine\Template;
 use Dotclear\Process\Public\Template\Engine\TplNode;
 
@@ -27,7 +28,7 @@ class TplNodeValue extends TplNode
 
     public function compile(Template $tpl): string
     {
-        return $tpl->compileValueNode($this->tag, $this->attr, $this->str_attr);
+        return $tpl->compileValueNode($this->tag, new ArrayObject($this->attr), $this->str_attr);
     }
 
     public function getTag(): string

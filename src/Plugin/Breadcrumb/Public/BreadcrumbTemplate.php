@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
+use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
 
@@ -24,7 +25,7 @@ class BreadcrumbTemplate
     }
 
     # Template function
-    public function tplValueBreadcrumb($attr)
+    public function tplValueBreadcrumb(ArrayObject $attr): string
     {
         $separator = $attr['separator'] ?? '';
 
@@ -33,7 +34,7 @@ class BreadcrumbTemplate
             '); ?>';
     }
 
-    public static function tplDisplayBreadcrumb($separator)
+    public static function tplDisplayBreadcrumb(string $separator): string
     {
         $ret = '';
 
@@ -65,9 +66,9 @@ class BreadcrumbTemplate
                 } else {
                     // Home (first page only)
                     $ret = '<span id="bc-home">' . __('Home') . '</span>';
-                    if (dotclear()->context()->cur_lang) {
+                    if (dotclear()->context()->get('cur_lang')) {
                         $langs = L10n::getISOCodes();
-                        $ret .= $separator . ($langs[dotclear()->context()->cur_lang] ?? dotclear()->context()->cur_lang);
+                        $ret .= $separator . ($langs[dotclear()->context()->get('cur_lang')] ?? dotclear()->context()->get('cur_lang'));
                     }
                 }
 
@@ -79,9 +80,9 @@ class BreadcrumbTemplate
                 if (dotclear()->blog()->settings()->get('system')->get('static_home')) {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
-                    if (dotclear()->context()->cur_lang) {
+                    if (dotclear()->context()->get('cur_lang')) {
                         $langs = L10n::getISOCodes();
-                        $ret .= $separator . ($langs[dotclear()->context()->cur_lang] ?? dotclear()->context()->cur_lang);
+                        $ret .= $separator . ($langs[dotclear()->context()->get('cur_lang')] ?? dotclear()->context()->get('cur_lang'));
                     }
                 }
                 $ret .= $separator . sprintf(__('page %d'), $page);
@@ -91,14 +92,14 @@ class BreadcrumbTemplate
             case 'category':
                 // Category
                 $ret        = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                $categories = dotclear()->blog()->categories()->getCategoryParents((int) dotclear()->context()->categories->cat_id);
+                $categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->get('categories')->fInt('cat_id'));
                 while ($categories->fetch()) {
-                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
                 if ($page == 0) {
-                    $ret .= $separator . dotclear()->context()->categories->cat_title;
+                    $ret .= $separator . dotclear()->context()->get('categories')->f('cat_title');
                 } else {
-                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', dotclear()->context()->categories->cat_url) . '">' . dotclear()->context()->categories->cat_title . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', dotclear()->context()->get('categories')->f('cat_url')) . '">' . dotclear()->context()->get('categories')->f('cat_title') . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -107,17 +108,17 @@ class BreadcrumbTemplate
             case 'post':
                 // Post
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                if (dotclear()->context()->posts->cat_id) {
+                if (dotclear()->context()->get('posts')->fInt('cat_id')) {
                     // Parents cats of post's cat
-                    $categories = dotclear()->blog()->categories()->getCategoryParents((int) dotclear()->context()->posts->cat_id);
+                    $categories = dotclear()->blog()->categories()->getCategoryParents(dotclear()->context()->get('posts')->fInt('cat_id'));
                     while ($categories->fetch()) {
-                        $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                        $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                     }
                     // Post's cat
-                    $categories = dotclear()->blog()->categories()->getCategory((int) dotclear()->context()->posts->cat_id);
-                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->cat_url) . '">' . $categories->cat_title . '</a>';
+                    $categories = dotclear()->blog()->categories()->getCategory(dotclear()->context()->get('posts')->fInt('cat_id'));
+                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
-                $ret .= $separator . dotclear()->context()->posts->post_title;
+                $ret .= $separator . dotclear()->context()->get('posts')->f('post_title');
 
                 break;
 
@@ -125,20 +126,20 @@ class BreadcrumbTemplate
                 // Lang
                 $ret   = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                 $langs = L10n::getISOCodes();
-                $ret .= $separator . ($langs[dotclear()->context()->cur_lang] ?? dotclear()->context()->cur_lang);
+                $ret .= $separator . ($langs[dotclear()->context()->get('cur_lang')] ?? dotclear()->context()->get('cur_lang'));
 
                 break;
 
             case 'archive':
                 // Archives
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                if (!dotclear()->context()->archives) {
+                if (!dotclear()->context()->get('archives')) {
                     // Global archives
                     $ret .= $separator . __('Archives');
                 } else {
                     // Month archive
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . dt::dt2str('%B %Y', dotclear()->context()->archives->dt);
+                    $ret .= $separator . dt::dt2str('%B %Y', dotclear()->context()->get('archives')->f('dt'));
                 }
 
                 break;
@@ -146,7 +147,7 @@ class BreadcrumbTemplate
             case 'pages':
                 // Page
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                $ret .= $separator . dotclear()->context()->posts->post_title;
+                $ret .= $separator . dotclear()->context()->get('posts')->f('post_title');
 
                 break;
 
@@ -162,9 +163,9 @@ class BreadcrumbTemplate
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                 $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('tags') . '">' . __('All tags') . '</a>';
                 if ($page == 0) {
-                    $ret .= $separator . dotclear()->context()->meta->meta_id;
+                    $ret .= $separator . dotclear()->context()->get('meta')->f('meta_id');
                 } else {
-                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode(dotclear()->context()->meta->meta_id)) . '">' . dotclear()->context()->meta->meta_id . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode(dotclear()->context()->get('meta')->f('meta_id'))) . '">' . dotclear()->context()->get('meta')->f('meta_id') . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 

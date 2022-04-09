@@ -21,7 +21,7 @@ class RsExtPostPublic extends RsExtPost
     public function getContent(bool $absolute_urls = false): string
     {
         # Not very nice hack but it does the job :)
-        if (dotclear()->context() && true === dotclear()->context()->short_feed_items) {
+        if (true === dotclear()->context()?->get('short_feed_items')) {
             $c    = parent::getContent($absolute_urls);
             $c    = dotclear()->context()->remove_html($c);
             $c    = dotclear()->context()->cut_string($c, 350);
@@ -33,11 +33,9 @@ class RsExtPostPublic extends RsExtPost
             return $c;
         }
 
-        if (dotclear()->blog()->settings()->get('system')->get('use_smilies')) {
-            return $this->smilies(parent::getContent($absolute_urls));
-        }
-
-        return parent::getContent($absolute_urls);
+        return dotclear()->blog()->settings()->get('system')->get('use_smilies') ?
+            $this->smilies(parent::getContent($absolute_urls)) :
+            parent::getContent($absolute_urls);
     }
 
     public function getExcerpt(bool $absolute_urls = false): string

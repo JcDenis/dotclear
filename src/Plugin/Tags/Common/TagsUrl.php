@@ -24,7 +24,7 @@ class TagsUrl extends Url
         dotclear()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [$this, 'tagFeed']);
     }
 
-    public function tag($args)
+    public function tag(?string $args): void
     {
         $n = dotclear()->url()->getPageNumber($args);
 
@@ -35,13 +35,13 @@ class TagsUrl extends Url
             $mime     = 'application/xml';
             $comments = !empty($m[3]);
 
-            dotclear()->context()->meta = dotclear()->meta()->computeMetaStats(
+            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
                 dotclear()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $m[1], ])
-            );
+            ));
 
-            if (dotclear()->context()->meta->isEmpty()) {
+            if (dotclear()->context()->get('meta')->isEmpty()) {
                 dotclear()->url()->p404();
             } else {
                 $tpl = $type;
@@ -57,13 +57,13 @@ class TagsUrl extends Url
                 dotclear()->context()->page_number($n);
             }
 
-            dotclear()->context()->meta = dotclear()->meta()->computeMetaStats(
+            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
                 dotclear()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $args, ])
-            );
+            ));
 
-            if (dotclear()->context()->meta->isEmpty()) {
+            if (dotclear()->context()->get('meta')->isEmpty()) {
                 dotclear()->url()->p404();
             } else {
                 dotclear()->url()->serveDocument('tag.html');
@@ -71,12 +71,12 @@ class TagsUrl extends Url
         }
     }
 
-    public function tags($args)
+    public function tags(?string $args): void
     {
         dotclear()->url()->serveDocument('tags.html');
     }
 
-    public function tagFeed($args)
+    public function tagFeed(?string $args): void
     {
         if (!preg_match('#^(.+)/(atom|rss2)(/comments)?$#', $args, $m)) {
             dotclear()->url()->p404();
@@ -85,17 +85,17 @@ class TagsUrl extends Url
             $type     = $m[2];
             $comments = !empty($m[3]);
 
-            dotclear()->context()->meta = dotclear()->meta()->computeMetaStats(
+            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
                 dotclear()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $tag, ])
-            );
+            ));
 
-            if (dotclear()->context()->meta->isEmpty()) {
+            if (dotclear()->context()->get('meta')->isEmpty()) {
                 # The specified tag does not exist.
                 dotclear()->url()->p404();
             } else {
-                dotclear()->context()->feed_subtitle = ' - ' . __('Tag') . ' - ' . dotclear()->context()->meta->meta_id;
+                dotclear()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . dotclear()->context()->get('meta')->f('meta_id'));
 
                 if ($type == 'atom') {
                     $mime = 'application/atom+xml';
@@ -106,10 +106,10 @@ class TagsUrl extends Url
                 $tpl = $type;
                 if ($comments) {
                     $tpl .= '-comments';
-                    dotclear()->context()->nb_comment_per_page = dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed');
+                    dotclear()->context()->set('nb_comment_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
                 } else {
-                    dotclear()->context()->nb_entry_per_page = dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed');
-                    dotclear()->context()->short_feed_items  = dotclear()->blog()->settings()->get('system')->get('short_feed_items');
+                    dotclear()->context()->set('nb_entry_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed'));
+                    dotclear()->context()->set('short_feed_items', (bool) dotclear()->blog()->settings()->get('system')->get('short_feed_items'));
                 }
                 $tpl .= '.xml';
 

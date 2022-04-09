@@ -32,7 +32,7 @@ class PagesUrl extends Url
         dotclear()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', dotclear()->url()->getURLFor('pages', '%s'), 'Pages');
     }
 
-    public function pages($args)
+    public function pages(string $args): void
     {
         if ($args == '') {
             # No page was specified.
@@ -46,28 +46,29 @@ class PagesUrl extends Url
 
             dotclear()->behavior()->call('publicPagesBeforeGetPosts', $params, $args);
 
-            dotclear()->context()->posts = dotclear()->blog()->posts()->getPosts($params);
+            dotclear()->context()->set('posts', dotclear()->blog()->posts()->getPosts($params));
 
-            dotclear()->context()->comment_preview               = new ArrayObject();
-            dotclear()->context()->comment_preview['content']    = '';
-            dotclear()->context()->comment_preview['rawcontent'] = '';
-            dotclear()->context()->comment_preview['name']       = '';
-            dotclear()->context()->comment_preview['mail']       = '';
-            dotclear()->context()->comment_preview['site']       = '';
-            dotclear()->context()->comment_preview['preview']    = false;
-            dotclear()->context()->comment_preview['remember']   = false;
+            $cp               = new ArrayObject();
+            $cp['content']    = '';
+            $cp['rawcontent'] = '';
+            $cp['name']       = '';
+            $cp['mail']       = '';
+            $cp['site']       = '';
+            $cp['preview']    = false;
+            $cp['remember']   = false;
+            dotclear()->context()->set('comment_preview', $cp);
 
             dotclear()->blog()->withoutPassword(true);
 
-            if (dotclear()->context()->posts->isEmpty()) {
+            if (dotclear()->context()->get('posts')->isEmpty()) {
                 # The specified page does not exist.
                 dotclear()->url()->p404();
             } else {
-                $post_id       = dotclear()->context()->posts->post_id;
-                $post_password = dotclear()->context()->posts->post_password;
+                $post_id       = dotclear()->context()->get('posts')->fInt('post_id');
+                $post_password = dotclear()->context()->get('posts')->f('post_password');
 
                 # Password protected entry
-                if ($post_password != '' && !dotclear()->context()->preview) {
+                if ($post_password != '' && !dotclear()->context()->get('preview')) {
                     # Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -94,7 +95,7 @@ class PagesUrl extends Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && dotclear()->context()->posts->commentsActive();
+                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
 
                 # Posting a comment
                 if ($post_comment) {
@@ -129,46 +130,47 @@ class PagesUrl extends Url
                         $content = new HtmlFilter($content);
                     }
 
-                    dotclear()->context()->comment_preview['content']    = $content;
-                    dotclear()->context()->comment_preview['rawcontent'] = $_POST['c_content'];
-                    dotclear()->context()->comment_preview['name']       = $name;
-                    dotclear()->context()->comment_preview['mail']       = $mail;
-                    dotclear()->context()->comment_preview['site']       = $site;
+                    $cp = dotclear()->context()->get('comment_preview');
+                    $cp['content']    = $content;
+                    $cp['rawcontent'] = $_POST['c_content'];
+                    $cp['name']       = $name;
+                    $cp['mail']       = $mail;
+                    $cp['site']       = $site;
 
                     if ($preview) {
                         # --BEHAVIOR-- publicBeforeCommentPreview
-                        dotclear()->behavior()->call('publicBeforeCommentPreview', dotclear()->context()->comment_preview);
+                        dotclear()->behavior()->call('publicBeforeCommentPreview', $cp);
 
-                        dotclear()->context()->comment_preview['preview'] = true;
+                        $cp['preview'] = true;
                     } else {
                         # Post the comment
-                        $cur                  = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
-                        $cur->comment_author  = $name;
-                        $cur->comment_site    = Html::clean($site);
-                        $cur->comment_email   = Html::clean($mail);
-                        $cur->comment_content = $content;
-                        $cur->post_id         = dotclear()->context()->posts->post_id;
-                        $cur->comment_status  = dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1;
-                        $cur->comment_ip      = Http::realIP();
+                        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                        $cur->setField('comment_author', $name);
+                        $cur->setField('comment_site', Html::clean($site));
+                        $cur->setField('comment_email', Html::clean($mail));
+                        $cur->setField('comment_content', $content);
+                        $cur->setField('post_id', dotclear()->context()->get('posts')->fInt('post_id'));
+                        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
+                        $cur->setField('comment_ip', Http::realIP());
 
-                        $redir = dotclear()->context()->posts->getURL();
+                        $redir = dotclear()->context()->get('posts')->getURL();
                         $redir .= dotclear()->blog()->settings()->get('system')->get('url_scan') == 'query_string' ? '&' : '?';
 
                         try {
-                            if (!Text::isEmail($cur->comment_email)) {
+                            if (!Text::isEmail($cur->getField('comment_email'))) {
                                 throw new AdminException(__('You must provide a valid email address.'));
                             }
 
                             # --BEHAVIOR-- publicBeforeCommentCreate
                             dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
-                            if ($cur->post_id) {
+                            if ($cur->getField('post_id')) {
                                 $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
                                 # --BEHAVIOR-- publicAfterCommentCreate
                                 dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
-                            if ($cur->comment_status == 1) {
+                            if (1 == $cur->getField('comment_status')) {
                                 $redir_arg = 'pub=1';
                             } else {
                                 $redir_arg = 'pub=0';
@@ -176,13 +178,14 @@ class PagesUrl extends Url
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (\Exception $e) {
-                            dotclear()->context()->form_error = $e->getMessage();
+                            dotclear()->context()->set('form_error', $e->getMessage());
                         }
                     }
+                    dotclear()->context()->set('comment_preview', $cp);
                 }
 
                 # The entry
-                if (dotclear()->context()->posts->trackbacksActive()) {
+                if (dotclear()->context()->get('posts')->trackbacksActive()) {
                     header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
                 }
 
@@ -192,7 +195,7 @@ class PagesUrl extends Url
         }
     }
 
-    public function pagespreview($args)
+    public function pagespreview(string $args): void
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             # The specified Preview URL is malformed.
