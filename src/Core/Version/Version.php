@@ -21,37 +21,35 @@ class Version
     /** @var    string  The version table name */
     protected $table = 'version';
 
-    /** @var    array  The versions stack */
-    protected $versions = null;
+    /** @var    array<string, string>   The versions stack */
+    protected $stack = null;
 
     /**
-     * Gets the version of a module.
+     * Get the version of a module.
      *
      * @param   string  $module     The module
      *
-     * @return  string|null  The version.
+     * @return  string|null         The version.
      */
     public function get(string $module = 'core'): ?string
     {
         # Fetch versions if needed
-        if (!is_array($this->versions)) {
-            $sql = new SelectStatement('CoreGetVersion');
-            $sql
+        if (!is_array($this->stack)) {
+            $rs = SelectStatement::init('CoreGetVersion')
                 ->columns(['module', 'version'])
-                ->from(dotclear()->prefix . $this->table);
-
-            $rs = $sql->select();
+                ->from(dotclear()->prefix . $this->table)
+                ->select();
 
             while ($rs->fetch()) {
-                $this->versions[$rs->module] = $rs->version;
+                $this->stack[$rs->f('module')] = $rs->f('version');
             }
         }
 
-        return isset($this->versions[$module]) ? (string) $this->versions[$module] : null;
+        return isset($this->stack[$module]) ? (string) $this->stack[$module] : null;
     }
 
     /**
-     * Sets the version of a module.
+     * Set the version of a module.
      *
      * @param   string  $module     The module
      * @param   string  $version    The version
@@ -62,13 +60,13 @@ class Version
         $cur->setField('module', $module);
         $cur->setField('version', $version);
 
-        if ($this->get($module) === null) {
+        if (null === $this->get($module)) {
             $cur->insert();
         } else {
             $cur->update("WHERE module='" . dotclear()->con()->escape($module) . "'");
         }
 
-        $this->versions[$module] = $version;
+        $this->stack[$module] = $version;
     }
 
     /**
@@ -78,25 +76,25 @@ class Version
      */
     public function delete(string $module): void
     {
-        $sql = new DeleteStatement('CoreDelVersion');
-        $sql->from(dotclear()->prefix . $this->table)
+        DeleteStatement::init('CoreDelVersion')
+            ->from(dotclear()->prefix . $this->table)
             ->where("module = '" . dotclear()->con()->escape($module) . "'")
             ->delete();
 
-        if (is_array($this->versions)) {
-            unset($this->versions[$module]);
+        if (is_array($this->stack)) {
+            unset($this->stack[$module]);
         }
     }
 
     /**
      * Compare two versions with option of using only main numbers.
      *
-     * @param  string    $current_version    Current version
-     * @param  string    $required_version    Required version
-     * @param  string    $operator            Comparison operand
-     * @param  boolean    $strict                Use full version
+     * @param   string  $current_version    Current version
+     * @param   string  $required_version   Required version
+     * @param   string  $operator           Comparison operand
+     * @param   bool    $strict             Use full version
      *
-     * @return boolean    True if comparison success
+     * @return  bool                        True if comparison success
      */
     public function compare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
     {

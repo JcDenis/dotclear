@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+use Dotclear\Database\Statement\SqlStatement;
+
 /**
  * Join (sub)Statement : small utility to build join query fragments
  */
@@ -20,6 +22,11 @@ class JoinStatement extends SqlStatement
         $this->type = null;
 
         parent::__construct($ctx);
+    }
+
+    public static function init(string $ctx = null): JoinStatement
+    {
+        return new self($ctx);
     }
 
     /**

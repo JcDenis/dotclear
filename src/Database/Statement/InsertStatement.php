@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+use Dotclear\Database\Statement\SqlStatement;
+
 /**
  * Insert Statement : small utility to build insert queries
  */
@@ -20,6 +22,11 @@ class InsertStatement extends SqlStatement
         $this->lines = [];
 
         parent::__construct($ctx);
+    }
+
+    public static function init(string $ctx = null): InsertStatement
+    {
+        return new self($ctx);
     }
 
     /**

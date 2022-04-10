@@ -3,11 +3,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+use Dotclear\Database\Statement\SqlStatement;
+
 /**
  * Delete Statement : small utility to build delete queries
  */
 class DeleteStatement extends SqlStatement
 {
+    public static function init(string $ctx = null): DeleteStatement
+    {
+        return new self($ctx);
+    }
+
     /**
      * Returns the delete statement
      *

@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Session;
 
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
+
 class Session
 {
     /** @var    string  $table  Session table name */
@@ -31,7 +34,7 @@ class Session
     private $cookie_secure;
 
     /** @var    string  $ttl    Session time to live */
-    private $ttl       = '-120 minutes';
+    private $ttl = '-120 minutes';
 
     /** @var    bool    $transient  Session transient */
     private $transient = false;
@@ -70,7 +73,7 @@ class Session
         $ttl = dotclear()->config()->get('session_ttl');
         if (!is_null($ttl)) {
             $tll = (string) $ttl;
-            if (substr(trim($ttl), 0, 1) != '-') {
+            if ('-' != substr(trim($ttl), 0, 1)) {
                 // We requires negative session TTL
                 $ttl = '-' . trim($ttl);
             }
@@ -179,34 +182,33 @@ class Session
 
     public function _read($ses_id)
     {
-        $strReq = 'SELECT ses_value FROM ' . $this->table . ' ' .
-        'WHERE ses_id = \'' . $this->checkID($ses_id) . '\' ';
+        $rs = SelectStatement::init('CoreReadSession')
+            ->columns(['ses_value'])
+            ->from($this->table)
+            ->where("ses_id = '" . $this->checkID($ses_id) . "'")
+            ->select();
 
-        $rs = dotclear()->con()->select($strReq);
-
-        if ($rs->isEmpty()) {
-            return '';
-        }
-
-        return $rs->f('ses_value');
+        return $rs->isEmpty() ? '' : $rs->f('ses_value');
     }
 
     public function _write($ses_id, $data)
     {
-        $strReq = 'SELECT ses_id ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE ses_id = '" . $this->checkID($ses_id) . "' ";
+        $ses_id = $this->checkID($ses_id);
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = SelectStatement::init('CoreWriteSession')
+            ->columns(['ses_id'])
+            ->from($this->table)
+            ->where("ses_id = '" . $ses_id . "'")
+            ->select();
 
         $cur = dotclear()->con()->openCursor($this->table);
         $cur->setField('ses_time', (string) time());
         $cur->setField('ses_value', (string) $data);
 
         if (!$rs->isEmpty()) {
-            $cur->update("WHERE ses_id = '" . $this->checkID($ses_id) . "' ");
+            $cur->update("WHERE ses_id = '" . $ses_id . "' ");
         } else {
-            $cur->setField('ses_id', (string) $this->checkID($ses_id));
+            $cur->setField('ses_id', (string) $ses_id);
             $cur->setField('ses_start', (string) time());
 
             $cur->insert();
@@ -217,10 +219,10 @@ class Session
 
     public function _destroy($ses_id)
     {
-        $strReq = 'DELETE FROM ' . $this->table . ' ' .
-        'WHERE ses_id = \'' . $this->checkID($ses_id) . '\' ';
-
-        dotclear()->con()->execute($strReq);
+        DeleteStatement::init('CoreDeleteSession')
+            ->from($this->table)
+            ->where("ses_id = '" . $this->checkID($ses_id) . "'")
+            ->delete();
 
         if (!$this->transient) {
             $this->_optimize();
@@ -231,12 +233,10 @@ class Session
 
     public function _gc()
     {
-        $ses_life = strtotime($this->ttl);
-
-        $strReq = 'DELETE FROM ' . $this->table . ' ' .
-            'WHERE ses_time < ' . $ses_life . ' ';
-
-        dotclear()->con()->execute($strReq);
+        DeleteStatement::init('CoreCleanSession')
+            ->from($this->table)
+            ->where('ses_time < ' . strtotime($this->ttl))
+            ->delete();
 
         if (0 < dotclear()->con()->changes()) {
             $this->_optimize();
@@ -252,10 +252,6 @@ class Session
 
     private function checkID($id)
     {
-        if (!preg_match('/^([0-9a-f]{40})$/i', (string) $id)) {
-            return;
-        }
-
-        return $id;
+        return !preg_match('/^([0-9a-f]{40})$/i', (string) $id) ? null : $id;
     }
 }

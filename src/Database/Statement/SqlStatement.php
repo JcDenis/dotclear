@@ -17,18 +17,30 @@ class SqlStatement
     /**
      * Class constructor
      *
-     * @param   string|null     $ctx    optional context
+     * @param   string|null     $ctx    Optional context
      */
     public function __construct(protected string|null $ctx = null)
     {
     }
 
     /**
+     * Staticaly contsruct statement
+     *
+     * @param   string|null     $ctx    Optional context
+     *
+     * @return  self
+     */
+    public static function init(string $ctx = null): SqlStatement
+    {
+        return new self($ctx);
+    }
+
+    /**
      * Magic getter method
      *
-     * @param      string  $property  The property
+     * @param   string  $property   The property
      *
-     * @return     mixed   property value if property exists
+     * @return  mixed               Property value if property exists
      */
     public function __get(string $property)
     {
@@ -41,10 +53,10 @@ class SqlStatement
     /**
      * Magic setter method
      *
-     * @param      string  $property  The property
-     * @param      mixed   $value     The value
+     * @param   string  $property  The property
+     * @param   mixed   $value     The value
      *
-     * @return     self
+     * @return  self
      */
     public function __set(string $property, $value)
     {
@@ -60,9 +72,9 @@ class SqlStatement
     /**
      * Magic isset method
      *
-     * @param      string  $property  The property
+     * @param   string  $property   The property
      *
-     * @return     bool
+     * @return  bool
      */
     public function __isset(string $property): bool
     {
@@ -76,7 +88,7 @@ class SqlStatement
     /**
      * Magic unset method
      *
-     * @param      string  $property  The property
+     * @param   string  $property   The property
      */
     public function __unset(string $property)
     {
@@ -90,7 +102,7 @@ class SqlStatement
      *
      * Alias of statement()
      *
-     * @return     string
+     * @return  string
      */
     public function __invoke(): string
     {
@@ -100,7 +112,7 @@ class SqlStatement
     /**
      * Returns a SQL dummy statement
      *
-     * @return string the statement
+     * @return  string  The statement
      */
     public function statement(): string
     {
@@ -110,9 +122,9 @@ class SqlStatement
     /**
      * Adds context
      *
-     * @param mixed     $c      the context(s)
+     * @param   mixed   $c  The context(s)
      *
-     * @return  static    enabling to chain calls
+     * @return  static      Enabling to chain calls
      */
     public function ctx($c): static
     {
@@ -124,10 +136,10 @@ class SqlStatement
     /**
      * Adds column(s)
      *
-     * @param mixed     $c      the column(s)
-     * @param boolean   $reset  reset previous column(s) first
+     * @param   mixed   $c      The column(s)
+     * @param   bool    $reset  Reset previous column(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function columns($c, bool $reset = false): static
     {
@@ -146,10 +158,10 @@ class SqlStatement
     /**
      * columns() alias
      *
-     * @param mixed     $c      the column(s)
-     * @param boolean   $reset  reset previous column(s) first
+     * @param   mixed   $c      The column(s)
+     * @param   bool    $reset  Reset previous column(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function fields($c, bool $reset = false): static
     {
@@ -159,10 +171,10 @@ class SqlStatement
     /**
      * columns() alias
      *
-     * @param      mixed    $c      the column(s)
-     * @param      boolean  $reset  reset previous column(s) first
+     * @param   mixed   $c      The column(s)
+     * @param   bool    $reset  Reset previous column(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function column($c, bool $reset = false): static
     {
@@ -172,10 +184,10 @@ class SqlStatement
     /**
      * column() alias
      *
-     * @param      mixed    $c      the column(s)
-     * @param      boolean  $reset  reset previous column(s) first
+     * @param   mixed   $c      The column(s)
+     * @param   bool    $reset  Reset previous column(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function field($c, bool $reset = false): static
     {
@@ -185,11 +197,11 @@ class SqlStatement
     /**
      * Adds FROM clause(s)
      *
-     * @param mixed     $c      the from clause(s)
-     * @param boolean   $reset  reset previous from(s) first
-     * @param boolean   $first  put the from clause(s) at top of list
+     * @param   mixed   $c      The from clause(s)
+     * @param   bool    $reset  Reset previous from(s) first
+     * @param   bool    $first  Put the from clause(s) at top of list
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function from($c, bool $reset = false, bool $first = false): static
     {
@@ -220,10 +232,10 @@ class SqlStatement
     /**
      * Adds WHERE clause(s) condition (each will be AND combined in statement)
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous where(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous where(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function where($c, bool $reset = false): static
     {
@@ -245,10 +257,10 @@ class SqlStatement
     /**
      * from() alias
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous where(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous where(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function on($c, bool $reset = false): static
     {
@@ -258,10 +270,10 @@ class SqlStatement
     /**
      * Adds additional WHERE clause condition(s) (including an operator at beginning)
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous condition(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous condition(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function cond($c, bool $reset = false): static
     {
@@ -280,10 +292,10 @@ class SqlStatement
     /**
      * Adds additional WHERE AND clause condition(s)
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous condition(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous condition(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function and($c, bool $reset = false): static
     {
@@ -293,9 +305,9 @@ class SqlStatement
     /**
      * Helper to group some AND parts
      *
-     * @param      mixed  $c      the parts}
+     * @param   mixed   $c  The parts}
      *
-     * @return     string
+     * @return  string
      */
     public function andGroup($c): string
     {
@@ -307,10 +319,10 @@ class SqlStatement
     /**
      * Adds additional WHERE OR clause condition(s)
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous condition(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous condition(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function or($c, bool $reset = false): static
     {
@@ -320,9 +332,9 @@ class SqlStatement
     /**
      * Helper to group some OR parts
      *
-     * @param      mixed  $c      the parts}
+     * @param   mixed   $c  The parts}
      *
-     * @return     string
+     * @return  string
      */
     public function orGroup($c): string
     {
@@ -334,10 +346,10 @@ class SqlStatement
     /**
      * Adds generic clause(s)
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous generic clause(s) first
+     * @param   mixed   $c      The clause(s)
+     * @param   bool    $reset  Reset previous generic clause(s) first
      *
-     * @return  static    enabling to chain calls
+     * @return  static          Enabling to chain calls
      */
     public function sql($c, bool $reset = false): static
     {
@@ -358,9 +370,9 @@ class SqlStatement
     /**
      * Escape a value
      *
-     * @param      string  $value  The value
+     * @param   string  $value  The value
      *
-     * @return     string
+     * @return  string
      */
     public function escape(string $value): string
     {
@@ -370,10 +382,10 @@ class SqlStatement
     /**
      * Quote and escape a value if necessary (type string)
      *
-     * @param      mixed    $value   The value
-     * @param      boolean  $escape  The escape
+     * @param   mixed   $value      The value
+     * @param   bool    $escape     The escape
      *
-     * @return     string
+     * @return  string
      */
     public function quote($value, bool $escape = true): string
     {
@@ -383,11 +395,11 @@ class SqlStatement
     /**
      * Return an SQL IN (…) fragment
      *
-     * @param      mixed  $list   The list
-     * @param      mixed  $list   The list of values
-     * @param      string $cast   Cast given not null values to specified type
+     * @param   mixed   $list   The list
+     * @param   mixed   $list   The list of values
+     * @param   string  $cast   Cast given not null values to specified type
      *
-     * @return     string
+     * @return  string
      */
     public function in($list, string $cast = ''): string
     {
@@ -418,10 +430,10 @@ class SqlStatement
     /**
      * Return an SQL formatted date
      *
-     * @param   string    $field     Field name
-     * @param   string    $pattern   Date format
+     * @param   string  $field      Field name
+     * @param   string  $pattern    Date format
      *
-     * @return     string
+     * @return  string
      */
     public function dateFormat(string $field, string $pattern): string
     {
@@ -431,10 +443,10 @@ class SqlStatement
     /**
      * Return an SQL formatted like
      *
-     * @param      string  $field    The field
-     * @param      string  $pattern  The pattern
+     * @param   string  $field      The field
+     * @param   string  $pattern    The pattern
      *
-     * @return     string
+     * @return  string
      */
     public function like(string $field, string $pattern): string
     {
@@ -444,9 +456,9 @@ class SqlStatement
     /**
      * Return an SQL formatted REGEXP clause
      *
-     * @param      string  $value  The value
+     * @param   string  $value  The value
      *
-     * @return     string
+     * @return  string
      */
     public function regexp(string $value): string
     {
@@ -465,9 +477,9 @@ class SqlStatement
     /**
      * Return an DISTINCT clause
      *
-     * @param      string       $field     The field
+     * @param   string  $field  The field
      *
-     * @return     string
+     * @return  string
      */
     public function unique(string $field): string
     {
@@ -477,11 +489,11 @@ class SqlStatement
     /**
      * Return an COUNT(…) clause
      *
-     * @param      string       $field     The field
-     * @param      null|string  $as        Optional alias
-     * @param      bool         $unique    Unique values only
+     * @param   string          $field      The field
+     * @param   null|string     $as         Optional alias
+     * @param   bool            $unique     Unique values only
      *
-     * @return     string
+     * @return  string
      */
     public function count(string $field, ?string $as = null, bool $unique = false): string
     {
@@ -491,10 +503,10 @@ class SqlStatement
     /**
      * Return an AVG(…) clause
      *
-     * @param      string       $field     The field
-     * @param      null|string  $as        Optional alias
+     * @param   string          $field  The field
+     * @param   null|string     $as     Optional alias
      *
-     * @return     string
+     * @return  string
      */
     public function avg(string $field, ?string $as = null): string
     {
@@ -504,10 +516,10 @@ class SqlStatement
     /**
      * Return an MAX(…) clause
      *
-     * @param      string       $field     The field
-     * @param      null|string  $as        Optional alias
+     * @param   string          $field  The field
+     * @param   null|string     $as     Optional alias
      *
-     * @return     string
+     * @return  string
      */
     public function max(string $field, ?string $as = null): string
     {
@@ -517,10 +529,10 @@ class SqlStatement
     /**
      * Return an MIN(…) clause
      *
-     * @param      string       $field     The field
-     * @param      null|string  $as        Optional alias
+     * @param   string          $field  The field
+     * @param   null|string     $as     Optional alias
      *
-     * @return     string
+     * @return  string
      */
     public function min(string $field, ?string $as = null): string
     {
@@ -530,10 +542,10 @@ class SqlStatement
     /**
      * Return an SUM(…) clause
      *
-     * @param      string       $field     The field
-     * @param      null|string  $as        Optional alias
+     * @param   string          $field  The field
+     * @param   null|string     $as      Optional alias
      *
-     * @return     string
+     * @return  string
      */
     public function sum(string $field, ?string $as = null): string
     {
@@ -549,10 +561,10 @@ class SqlStatement
      *     trigger_error('SQL statement error: ' . $sql->statement() . ' / ' . $strReq, E_USER_ERROR);
      * }
      *
-     * @param      string   $local     The local
-     * @param      string   $external  The external
+     * @param   string  $local      The local
+     * @param   string  $external   The external
      *
-     * @return     boolean  True if same, False otherwise.
+     * @return  bool                True if same, False otherwise.
      */
     public function isSame(string $local, string $external): bool
     {
@@ -577,12 +589,12 @@ class SqlStatement
     /**
      * Compare local statement and external one
      *
-     * @param      string   $external       The external
-     * @param      bool     $trigger_error  True to trigger an error if compare failsl
-     * @param      bool     $dump           True to var_dump() all if compare fails
-     * @param      bool     $print          True to print_r() all if compare fails
+     * @param   string  $external       The external
+     * @param   bool    $trigger_error  True to trigger an error if compare failsl
+     * @param   bool    $dump           True to var_dump() all if compare fails
+     * @param   bool    $print          True to print_r() all if compare fails
      *
-     * @return     bool
+     * @return  bool
      */
     public function compare(string $external, bool $trigger_error = false, bool $dump = false, bool $print = false): bool
     {

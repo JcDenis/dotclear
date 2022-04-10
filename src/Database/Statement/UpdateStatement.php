@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Statement\SqlStatement;
 
 /**
  * Update Statement : small utility to build update queries
@@ -20,6 +21,11 @@ class UpdateStatement extends SqlStatement
     public function __construct($ctx = null)
     {
         parent::__construct($ctx);
+    }
+
+    public static function init(string $ctx = null): UpdateStatement
+    {
+        return new self($ctx);
     }
 
     /**

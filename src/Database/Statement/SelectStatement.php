@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+use Dotclear\Database\Statement\SqlStatement;
+
 /**
  * Select Statement : small utility to build select queries
  */
@@ -30,6 +32,11 @@ class SelectStatement extends SqlStatement
         $this->distinct = false;
 
         parent::__construct($ctx);
+    }
+
+    public static function init(string $ctx = null): SelectStatement
+    {
+        return new self($ctx);
     }
 
     /**
