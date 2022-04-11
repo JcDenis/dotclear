@@ -20,7 +20,7 @@ class UserContainer extends AbstractContainer
 {
     protected $id = 'user';
 
-    /** @var array  User info */
+    /** @var    array<string, mixed>    $info   User properties */
     protected $info = [
         'user_id' => '',
         'user_super' =>  0,
@@ -44,7 +44,8 @@ class UserContainer extends AbstractContainer
     {
         parent::fromRecord($rs);
 
-        if ($rs && $rs->exists('user_options')) {
+        # Use custom method for user options
+        if (null != $rs && $rs->exists('user_options')) {
             $this->setOptions($rs->call('options'));
         }
     }
@@ -83,7 +84,7 @@ class UserContainer extends AbstractContainer
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
-     * @return  array   User default settings.
+     * @return  array<string, mixed>    User default options.
      */
     public static function defaultOptions(): array
     {
@@ -96,6 +97,13 @@ class UserContainer extends AbstractContainer
         ];
     }
 
+    /**
+     * Set user options
+     * 
+     * @param   array<string, mixed>    $arg    User options
+     * 
+     * @return  array<string, mixed>            User options
+     */
     private function setOptions(array $arg): array
     {
         $this->set('user_options', serialize(array_merge($this->getOptions(), $arg)));
@@ -103,11 +111,24 @@ class UserContainer extends AbstractContainer
         return $this->getOptions();
     }
 
+    /**
+     * Get user options
+     *
+     * @return  array<string, mixed>    User options.
+     */
     public function getOptions(): array
     {
         return array_merge($this->defaultOptions(), empty($this->get('user_options')) ? [] : unserialize($this->get('user_options')));
     }
 
+    /**
+     * Set a user option
+     * 
+     * @param   string  $key    Option key
+     * @param   mixed   $val    Option value
+     * 
+     * @return  mixed           Option value
+     */
     public function setOption(string $key, mixed $val): mixed
     {
         $this->setOptions([$key => $val]);
@@ -115,6 +136,13 @@ class UserContainer extends AbstractContainer
         return $val;
     }
 
+    /**
+     * Get a user option
+     * 
+     * @param   string  $key    Option key
+     * 
+     * @return  mixed           Option value
+     */
     public function getOption(string $key): mixed
     {
         $opt = $this->getOptions();

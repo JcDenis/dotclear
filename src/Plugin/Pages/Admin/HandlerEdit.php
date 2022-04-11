@@ -114,26 +114,26 @@ class HandlerEdit extends AbstractPage
                 dotclear()->error()->add(__('This page does not exist.'));
                 $this->can_view_page = false;
             } else {
-                $this->post_id            = (int) $this->post->post_id;
-                $this->post_dt            = date('Y-m-d H:i', strtotime($this->post->post_dt));
-                $this->post_format        = $this->post->post_format;
-                $this->post_password      = $this->post->post_password;
-                $this->post_url           = $this->post->post_url;
-                $this->post_lang          = $this->post->post_lang;
-                $this->post_title         = $this->post->post_title;
-                $this->post_excerpt       = $this->post->post_excerpt;
-                $this->post_excerpt_xhtml = $this->post->post_excerpt_xhtml;
-                $this->post_content       = $this->post->post_content;
-                $this->post_content_xhtml = $this->post->post_content_xhtml;
-                $this->post_notes         = $this->post->post_notes;
-                $this->post_status        = $this->post->post_status;
-                $this->post_position      = (int) $this->post->post_position;
-                $this->post_open_comment  = (bool) $this->post->post_open_comment;
-                $this->post_open_tb       = (bool) $this->post->post_open_tb;
-                $this->post_selected      = (bool) $this->post->post_selected;
+                $this->post_id            = $this->post->fInt('post_id');
+                $this->post_dt            = date('Y-m-d H:i', strtotime($this->post->f('post_dt')));
+                $this->post_format        = $this->post->f('post_format');
+                $this->post_password      = $this->post->f('post_password');
+                $this->post_url           = $this->post->f('post_url');
+                $this->post_lang          = $this->post->f('post_lang');
+                $this->post_title         = $this->post->f('post_title');
+                $this->post_excerpt       = $this->post->f('post_excerpt');
+                $this->post_excerpt_xhtml = $this->post->f('post_excerpt_xhtml');
+                $this->post_content       = $this->post->f('post_content');
+                $this->post_content_xhtml = $this->post->f('post_content_xhtml');
+                $this->post_notes         = $this->post->f('post_notes');
+                $this->post_status        = $this->post->f('post_status');
+                $this->post_position      = (int) $this->post->fInt('post_position');
+                $this->post_open_comment  = (bool) $this->post->fInt('post_open_comment');
+                $this->post_open_tb       = (bool) $this->post->fInt('post_open_tb');
+                $this->post_selected      = (bool) $this->post->fInt('post_selected');
 
-                $this->can_edit_page = $this->post->isEditable();
-                $this->can_delete    = $this->post->isDeletable();
+                $this->can_edit_page = $this->post->call('isEditable');
+                $this->can_delete    = $this->post->call('isDeletable');
 
                 $next_rs = dotclear()->blog()->posts()->getNextPost($this->post, 1);
                 $prev_rs = dotclear()->blog()->posts()->getNextPost($this->post, -1);
@@ -141,30 +141,30 @@ class HandlerEdit extends AbstractPage
                 if ($next_rs !== null) {
                     $this->next_link = sprintf(
                         $post_link,
-                        $next_rs->post_id,
-                        Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
+                        $next_rs->fInt('post_id'),
+                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
                         __('Next page') . '&nbsp;&#187;'
                     );
                     $next_headlink = sprintf(
                         $post_headlink,
                         'next',
-                        Html::escapeHTML(trim(Html::clean($next_rs->post_title))),
-                        $next_rs->post_id
+                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
+                        $next_rs->fInt('post_id')
                     );
                 }
 
                 if ($prev_rs !== null) {
                     $this->prev_link = sprintf(
                         $post_link,
-                        $prev_rs->post_id,
-                        Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
+                        $prev_rs->fInt('post_id'),
+                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
                         '&#171;&nbsp;' . __('Previous page')
                     );
                     $prev_headlink = sprintf(
                         $post_headlink,
                         'previous',
-                        Html::escapeHTML(trim(Html::clean($prev_rs->post_title))),
-                        $prev_rs->post_id
+                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
+                        $prev_rs->fInt('post_id')
                     );
                 }
 
@@ -246,25 +246,25 @@ class HandlerEdit extends AbstractPage
             # Magic tweak :)
             dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
-            $cur->post_type          = 'page';
-            $cur->post_dt            = $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '';
-            $cur->post_format        = $this->post_format;
-            $cur->post_password      = $this->post_password;
-            $cur->post_lang          = $this->post_lang;
-            $cur->post_title         = $this->post_title;
-            $cur->post_excerpt       = $this->post_excerpt;
-            $cur->post_excerpt_xhtml = $this->post_excerpt_xhtml;
-            $cur->post_content       = $this->post_content;
-            $cur->post_content_xhtml = $this->post_content_xhtml;
-            $cur->post_notes         = $this->post_notes;
-            $cur->post_status        = $this->post_status;
-            $cur->post_position      = $this->post_position;
-            $cur->post_open_comment  = (int) $this->post_open_comment;
-            $cur->post_open_tb       = (int) $this->post_open_tb;
-            $cur->post_selected      = (int) $this->post_selected;
+            $cur->setField('post_type', 'page');
+            $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
+            $cur->setField('post_format', $this->post_format);
+            $cur->setField('post_password', $this->post_password);
+            $cur->setField('post_lang', $this->post_lang);
+            $cur->setField('post_title', $this->post_title);
+            $cur->setField('post_excerpt', $this->post_excerpt);
+            $cur->setField('post_excerpt_xhtml', $this->post_excerpt_xhtml);
+            $cur->setField('post_content', $this->post_content);
+            $cur->setField('post_content_xhtml', $this->post_content_xhtml);
+            $cur->setField('post_notes', $this->post_notes);
+            $cur->setField('post_status', $this->post_status);
+            $cur->setField('post_position', $this->post_position);
+            $cur->setField('post_open_comment', (int) $this->post_open_comment);
+            $cur->setField('post_open_tb', (int) $this->post_open_tb);
+            $cur->setField('post_selected', (int) $this->post_selected);
 
             if (isset($_POST['post_url'])) {
-                $cur->post_url = $this->post_url;
+                $cur->setField('post_url', $this->post_url);
             }
 
             // Back to UTC in order to keep UTC datetime for creadt/upddt
@@ -286,7 +286,7 @@ class HandlerEdit extends AbstractPage
                     dotclear()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->user_id = dotclear()->user()->userID();
+                $cur->setField('user_id', dotclear()->user()->userID());
 
                 try {
                     # --BEHAVIOR-- adminBeforePageCreate
@@ -425,7 +425,7 @@ class HandlerEdit extends AbstractPage
             dotclear()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
-        if ($this->post_id && $this->post->post_status == 1) {
+        if ($this->post_id && 1 == $this->post->fInt('post_status')) {
             echo '<p><a class="onblog_link outgoing" href="' . $this->post->getURL() . '" title="' . Html::escapeHTML(trim(Html::clean($this->post_title))) . '">' . __('Go to this page on the site') . ' <img src="?df=images/outgoing-link.svg" alt="" /></a></p>';
         }
         if ($this->post_id) {
@@ -609,7 +609,7 @@ class HandlerEdit extends AbstractPage
                     'pagespreview',
                     dotclear()->user()->userID() . '/' .
                     Http::browserUID(dotclear()->config()->get('master_key') . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
-                    '/' . $this->post->post_url
+                    '/' . $this->post->f('post_url')
                 );
 
                 // Prevent browser caching on preview

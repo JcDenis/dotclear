@@ -175,9 +175,9 @@ class BreadcrumbTemplate
                 // Search
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                 if ($page == 0) {
-                    $ret .= $separator . __('Search:') . ' ' . $GLOBALS['_search'];
+                    $ret .= $separator . __('Search:') . ' ' . dotclear()->url()->search_string;
                 } else {
-                    $ret .= $separator . '<a href="' . dotclear()->blog()->url . '?q=' . rawurlencode($GLOBALS['_search']) . '">' . __('Search:') . ' ' . $GLOBALS['_search'] . '</a>';
+                    $ret .= $separator . '<a href="' . dotclear()->blog()->url . '?q=' . rawurlencode(dotclear()->url()->search_string) . '">' . __('Search:') . ' ' . dotclear()->url()->search_string . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 

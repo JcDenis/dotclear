@@ -76,9 +76,9 @@ class Version
      */
     public function delete(string $module): void
     {
-        DeleteStatement::init('CoreDelVersion')
-            ->from(dotclear()->prefix . $this->table)
-            ->where("module = '" . dotclear()->con()->escape($module) . "'")
+        $sql = new DeleteStatement('CoreDelVersion');
+        $sql->from(dotclear()->prefix . $this->table)
+            ->where('module = ' . $sql->quote($module))
             ->delete();
 
         if (is_array($this->stack)) {

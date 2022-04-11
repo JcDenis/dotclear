@@ -50,6 +50,12 @@ class Url
     /** @var    string  $args   URL args */
     public $args;
 
+    /** @var    string  $search_string  Search string */
+    public $search_string = null;
+
+    /** @var    int     $search_count   Search count */
+    public $search_count = null;
+
     /**
      * Constructor
      * 
@@ -546,11 +552,11 @@ class Url
         } else {
             dotclear()->url()->type = 'search';
 
-            $GLOBALS['_search'] = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
-            if ($GLOBALS['_search']) {
-                $params = new ArrayObject(['search' => $GLOBALS['_search']]);
+            dotclear()->url()->search_string = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
+            if (dotclear()->url()->search_string) {
+                $params = new ArrayObject(['search' => dotclear()->url()->search_string]);
                 dotclear()->behavior()->call('publicBeforeSearchCount', $params);
-                $GLOBALS['_search_count'] = dotclear()->blog()->posts()->getPosts($params, true)->fInt();
+                dotclear()->url()->search_count = dotclear()->blog()->posts()->getPosts($params, true)->fInt();
             }
 
             $this->serveDocument('search.html');

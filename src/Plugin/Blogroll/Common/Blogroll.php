@@ -75,25 +75,24 @@ class Blogroll
 
     public function addLink(string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
     {
-        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('blog_id', dotclear()->blog()->id);
+        $cur->setField('link_title', $title);
+        $cur->setField('link_href', $href);
+        $cur->setField('link_desc', $desc);
+        $cur->setField('link_lang', $lang);
+        $cur->setField('link_xfn', $xfn);
 
-        $cur->blog_id    = dotclear()->blog()->id;
-        $cur->link_title = $title;
-        $cur->link_href  = $href;
-        $cur->link_desc  = $desc;
-        $cur->link_lang  = $lang;
-        $cur->link_xfn   = $xfn;
-
-        if ($cur->link_title == '') {
+        if ('' == $cur->getField('link_title')) {
             throw new ModuleException(__('You must provide a link title'));
         }
 
-        if ($cur->link_href == '') {
+        if ('' == $cur->getField('link_href')) {
             throw new ModuleException(__('You must provide a link URL'));
         }
 
         $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
-        $cur->link_id = dotclear()->con()->select($strReq)->fInt() + 1;
+        $cur->setField('link_id', dotclear()->con()->select($strReq)->fInt() + 1);
 
         $cur->insert();
         dotclear()->blog()->triggerBlog();
@@ -102,61 +101,59 @@ class Blogroll
     public function updateLink(int $id, string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
     {
         $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('link_title', $title);
+        $cur->setField('link_href', $href);
+        $cur->setField('link_desc', $desc);
+        $cur->setField('link_lang', $lang);
+        $cur->setField('link_xfn', $xfn);
 
-        $cur->link_title = $title;
-        $cur->link_href  = $href;
-        $cur->link_desc  = $desc;
-        $cur->link_lang  = $lang;
-        $cur->link_xfn   = $xfn;
-
-        if ($cur->link_title == '') {
+        if ('' == $cur->getField('link_title')) {
             throw new ModuleException(__('You must provide a link title'));
         }
 
-        if ($cur->link_href == '') {
+        if ('' == $cur->getField('link_href')) {
             throw new ModuleException(__('You must provide a link URL'));
         }
 
-        $cur->update('WHERE link_id = ' . (int) $id .
+        $cur->update('WHERE link_id = ' . $id .
             " AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'");
         dotclear()->blog()->triggerBlog();
     }
 
     public function updateCategory(int $id, string $desc): void
     {
-        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('link_desc', $desc);
 
-        $cur->link_desc = $desc;
-
-        if ($cur->link_desc == '') {
+        if ('' == $cur->getField('link_desc')) {
             throw new ModuleException(__('You must provide a category title'));
         }
 
-        $cur->update('WHERE link_id = ' . (int) $id .
+        $cur->update('WHERE link_id = ' . $id .
             " AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'");
         dotclear()->blog()->triggerBlog();
     }
 
     public function addCategory(string $title): int
     {
-        $cur =dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('blog_id', dotclear()->blog()->id);
+        $cur->setField('link_desc', $title);
+        $cur->setField('link_href', '');
+        $cur->setField('link_title', '');
 
-        $cur->blog_id    = dotclear()->blog()->id;
-        $cur->link_desc  = $title;
-        $cur->link_href  = '';
-        $cur->link_title = '';
-
-        if ($cur->link_desc == '') {
+        if ('' == $cur->getField('link_desc')) {
             throw new ModuleException(__('You must provide a category title'));
         }
 
-        $strReq       = 'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table;
-        $cur->link_id = dotclear()->con()->select($strReq)->fInt() + 1;
+        $cur->set('link_id', dotclear()->con()->select(
+            'SELECT MAX(link_id) FROM ' . dotclear()->prefix . $this->table
+        )->fInt() + 1);
 
         $cur->insert();
         dotclear()->blog()->triggerBlog();
 
-        return $cur->link_id;
+        return $cur->fInt('link_id');
     }
 
     public function delItem(int $id): void
@@ -171,8 +168,8 @@ class Blogroll
 
     public function updateOrder(int $id, int $position): void
     {
-        $cur                = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->link_position = $position;
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur->setField('link_position', $position);
 
         $cur->update('WHERE link_id = ' . $id .
             " AND blog_id = '" .dotclear()->con()->escape(dotclear()->blog()->id) . "'");

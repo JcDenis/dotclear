@@ -32,8 +32,8 @@ class Cursor
      * <code>
      * <?php
      *    $cur = $con->openCursor('table');
-     *    $cur->field1 = 1;
-     *    $cur->field2 = 'foo';
+     *    $cur->setField('field1', 1);
+     *    $cur->setField('field2', 'foo');
      *    $cur->insert(); // Insert field ...
      *
      *    $cur->update('WHERE field3 = 4'); // ... or update field

@@ -131,12 +131,12 @@ class Log
 
         try {
             # Get ID
-            $sql = new SelectStatement('dcLogAddLog');
-            $sql
+            $id = SelectStatement::init('dcLogAddLog')
                 ->column('MAX(log_id)')
-                ->from(dotclear()->prefix . $this->log_table);
+                ->from(dotclear()->prefix . $this->log_table)
+                ->select()->fInt();
 
-            $cur->setField('log_id', $sql->select()->fInt() + 1);
+            $cur->setField('log_id', $id + 1);
             $cur->setField('blog_id', (string) dotclear()->blog()->id);
             $cur->setField('log_dt', date('Y-m-d H:i:s'));
 

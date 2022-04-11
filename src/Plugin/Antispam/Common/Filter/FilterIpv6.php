@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
-
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 class FilterIpv6 extends Spamfilter
 {
@@ -52,12 +50,12 @@ class FilterIpv6 extends Spamfilter
         }
 
         # White list check
-        if ($this->checkIP($ip, 'whitev6') !== false) {
+        if (false !== $this->checkIP($ip, 'whitev6')) {
             return false;
         }
 
         # Black list check
-        if (($s = $this->checkIP($ip, 'blackv6')) !== false) {
+        if (false !== ($s = $this->checkIP($ip, 'blackv6'))) {
             $status = $s;
 
             return true;
@@ -70,7 +68,7 @@ class FilterIpv6 extends Spamfilter
     {
         # Set current type and tab
         $ip_type = 'blackv6';
-        if (!empty($_REQUEST['ip_type']) && $_REQUEST['ip_type'] == 'whitev6') {
+        if (!empty($_REQUEST['ip_type']) && 'whitev6' == $_REQUEST['ip_type']) {
             $ip_type = 'whitev6';
         }
         $this->tab = 'tab_' . $ip_type;
@@ -144,25 +142,24 @@ class FilterIpv6 extends Spamfilter
             $res_global = '';
             $res_local  = '';
             while ($rs->fetch()) {
-                $pattern = $rs->rule_content;
 
                 $disabled_ip = false;
                 $p_style     = '';
-                if (!$rs->blog_id) {
+                if (!$rs->f('blog_id')) {
                     $disabled_ip = !dotclear()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->rule_id . '">' .
-                Form::checkbox(['delip[]', $type . '-ip-' . $rs->rule_id], $rs->rule_id,
+                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
+                Form::checkbox(['delip[]', $type . '-ip-' . $rs->f('rule_id')], $rs->f('rule_id'),
                     [
                         'disabled' => $disabled_ip
                     ]
                 ) . ' ' .
-                Html::escapeHTML($pattern) .
+                Html::escapeHTML($rs->f('rule_content')) .
                     '</label></p>';
 
-                if ($rs->blog_id) {
+                if ($rs->f('blog_id')) {
                     // local list
                     if ($res_local == '') {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
@@ -201,21 +198,21 @@ class FilterIpv6 extends Spamfilter
         if ($old->isEmpty()) {
             $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
 
-            $cur->rule_id      = $id;
-            $cur->rule_type    = (string) $type;
-            $cur->rule_content = (string) $pattern;
+            $cur->setField('rule_id', $id);
+            $cur->setField('rule_type', (string) $type);
+            $cur->setField('rule_content', (string) $pattern);
 
             if ($global && dotclear()->user()->isSuperAdmin()) {
-                $cur->blog_id = null;
+                $cur->setField('blog_id', null);
             } else {
-                $cur->blog_id = dotclear()->blog()->id;
+                $cur->setField('blog_id', dotclear()->blog()->id);
             }
 
             $cur->insert();
         } else {
-            $cur->rule_type    = (string) $type;
-            $cur->rule_content = (string) $pattern;
-            $cur->update('WHERE rule_id = ' . (int) $old->rule_id);
+            $cur->setField('rule_type', (string) $type);
+            $cur->setField('rule_content', (string) $pattern);
+            $cur->update('WHERE rule_id = ' . $old->fInt('rule_id'));
         }
     }
 
@@ -254,7 +251,7 @@ class FilterIpv6 extends Spamfilter
 
         $rs = dotclear()->con()->select($strReq);
         while ($rs->fetch()) {
-            $pattern = $rs->rule_content;
+            $pattern = $rs->f('rule_content');
             if ($this->inrange($cip, $pattern)) {
                 return $pattern;
             }

@@ -53,27 +53,15 @@ class DefaultFilter
     }
 
     /**
-     * Magic isset filter properties
+     * Check if filter property exists
      *
      * @param   string  $property   The property
      *
      * @return  bool                Is set
      */
-    public function __isset(string $property): bool
+    public function exists(string $property): bool
     {
         return isset($this->properties[$property]);
-    }
-
-    /**
-     * Magic get
-     *
-     * @param   string  $property   The property
-     *
-     * @return  mixed               Property
-     */
-    public function __get(string $property): mixed
-    {
-        return $this->get($property);
     }
 
     /**
@@ -86,19 +74,6 @@ class DefaultFilter
     public function get(string $property): mixed
     {
         return $this->properties[$property] ?? null;
-    }
-
-    /**
-     * Magic set
-     *
-     * @param   string          $property   The property
-     * @param   mixed           $value      The value
-     *
-     * @return  DefaultFilter               The filter instance
-     */
-    public function __set(string $property, mixed $value)
-    {
-        return $this->set($property, $value);
     }
 
     /**

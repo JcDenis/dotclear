@@ -1291,8 +1291,8 @@ class Template extends BaseTemplate
                 "\$params['post_lang'] = dotclear()->context()->get('langs')->f('post_lang'); " .
                 "}\n";
 
-            $p .= 'if (isset($_search)) { ' .
-                "\$params['search'] = \$_search; " .
+            $p .= 'if (dotclear()->url()->search_string) { ' .
+                "\$params['search'] = dotclear()->url()->search_string; " .
                 "}\n";
         }
 
@@ -3106,7 +3106,7 @@ class Template extends BaseTemplate
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
-            $if[] = '(isset($_search_count) && $_search_count ' . Html::decodeEntities($attr['search_count']) . ')';
+            $if[] = '(dotclear()->url()->search_string && dotclear()->url()->search_count ' . Html::decodeEntities($attr['search_count']) . ')';
         }
 
         if (isset($attr['jquery_needed'])) {
@@ -3183,7 +3183,7 @@ class Template extends BaseTemplate
     {
         $s = $attr['string'] ?? '%1$s';
 
-        return '<?php if (isset($_search)) { echo sprintf(__(\'' . $s . '\'),' . sprintf($this->getFilters($attr), '$_search') . ',$_search_count);} ?>';
+        return '<?php if (dotclear()->url()->search_string) { echo sprintf(__(\'' . $s . '\'),' . sprintf($this->getFilters($attr), 'dotclear()->url()->search_string') . ',dotclear()->url()->search_count);} ?>';
     }
 
     public function SysSelfURI(ArrayObject $attr): string

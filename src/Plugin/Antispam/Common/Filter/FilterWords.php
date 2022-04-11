@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
-
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 class FilterWords extends Spamfilter
 {
@@ -51,7 +49,7 @@ class FilterWords extends Spamfilter
         $rs = $this->getRules();
 
         while ($rs->fetch()) {
-            $word = $rs->rule_content;
+            $word = $rs->f('rule_content');
 
             if (substr($word, 0, 1) == '/' && substr($word, -1, 1) == '/') {
                 $reg = substr(substr($word, 1), 0, -1);
@@ -137,21 +135,21 @@ class FilterWords extends Spamfilter
 
                 $p_style = '';
 
-                if (!$rs->blog_id) {
+                if (!$rs->f('blog_id')) {
                     $disabled_word = !dotclear()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->rule_id . '">' .
-                Form::checkbox(['swd[]', 'word-' . $rs->rule_id], $rs->rule_id,
+                $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->f('rule_id') . '">' .
+                Form::checkbox(['swd[]', 'word-' . $rs->f('rule_id')], $rs->f('rule_id'),
                     [
                         'disabled' => $disabled_word
                     ]
                 ) . ' ' .
-                Html::escapeHTML($rs->rule_content) .
+                Html::escapeHTML($rs->f('rule_content')) .
                     '</label></p>';
 
-                if ($rs->blog_id) {
+                if ($rs->f('blog_id')) {
                     // local list
                     if ($res_local == '') {
                         $res_local = '<h4>' . __('Local words (used only for this blog)') . '</h4>';
@@ -213,20 +211,20 @@ class FilterWords extends Spamfilter
             throw new \Exception(__('This word exists'));
         }
 
-        $cur               = dotclear()->con()->openCursor($this->table);
-        $cur->rule_type    = 'word';
-        $cur->rule_content = (string) $content;
+        $cur = dotclear()->con()->openCursor($this->table);
+        $cur->setField('rule_type', 'word');
+        $cur->setField('rule_content', (string) $content);
 
         if ($general && dotclear()->user()->isSuperAdmin()) {
-            $cur->blog_id = null;
+            $cur->setField('blog_id', null);
         } else {
-            $cur->blog_id = dotclear()->blog()->id;
+            $cur->setField('blog_id', dotclear()->blog()->id);
         }
 
         if (!$rs->isEmpty() && $general) {
-            $cur->update('WHERE rule_id = ' . $rs->rule_id);
+            $cur->update('WHERE rule_id = ' . $rs->fInt('rule_id'));
         } else {
-            $cur->rule_id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
+            $cur->set('rule_id', dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1);
             $cur->insert();
         }
     }

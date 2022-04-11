@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Dotclear\Core\Trackback;
 
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -41,11 +43,11 @@ class Trackback
      */
     public function getPostPings(int $post_id): Record
     {
-        $strReq = 'SELECT ping_url, ping_dt ' .
-        'FROM ' . dotclear()->prefix . $this->table . ' ' .
-        'WHERE post_id = ' . (int) $post_id;
-
-        return dotclear()->con()->select($strReq);
+        return SelectStatement::init('CoreGetPostPings')
+            ->columns(['ping_url', 'ping_dt'])
+            ->from(dotclear()->prefix . $this->table)
+            ->where('post_id = ' . $post_id)
+            ->select();
     }
 
     /**
@@ -67,12 +69,13 @@ class Trackback
             return false;
         }
 
-        # Check for previously done trackback
-        $strReq = 'SELECT post_id, ping_url FROM ' . dotclear()->prefix . $this->table . ' ' .
-        'WHERE post_id = ' . $post_id . ' ' .
-        "AND ping_url = '" . dotclear()->con()->escape($url) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement('CorePing');
+        $rs = $sql
+            ->columns(['post_id', 'ping_url'])
+            ->from(dotclear()->prefix . $this->table)
+            ->where('post_id = ' . $post_id)
+            ->and('ping_url = ' . $sql->quote($url))
+            ->select();
 
         if (!$rs->isEmpty()) {
             throw new CoreException(sprintf(__('%s has still been pinged'), $url));
@@ -153,7 +156,7 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
-        $cur  = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
         $cur->setField('post_id', $post_id);
         $cur->setField('ping_url', $url);
         $cur->SetField('ping_dt', date('Y-m-d H:i:s'));
@@ -499,12 +502,12 @@ class Trackback
      */
     private function delBacklink(int $post_id, string $url): void
     {
-        dotclear()->con()->execute(
-            'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-            'WHERE post_id = ' . $post_id . ' ' .
-            "AND comment_site = '" . dotclear()->con()->escape($url) . "' " .
-            'AND comment_trackback = 1 '
-        );
+        $sql = new DeleteStatement('CoreDelBacklink');
+        $sql->from(dotclear()->prefix . $this->table)
+            ->where("post_id = " . $post_id)
+            ->and('comment_site = ' . $sql->quote($url))
+            ->and('comment_trackback = 1')
+            ->delete();
     }
 
     /**

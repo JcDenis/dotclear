@@ -83,7 +83,7 @@ abstract class Component
     }
 */
     /**
-     * Magic isset method
+     * Check if a property exists
      *
      * @param      string  $property  The property
      *
@@ -100,7 +100,7 @@ abstract class Component
     }
 */
     /**
-     * Magic unset method
+     * Remove a property
      *
      * @param      string  $property  The property
      */
@@ -115,7 +115,7 @@ abstract class Component
     }
 */
     /**
-     * Magic call method
+     * Call a component method
      *
      * If the method exists, call it and return it's return value
      * If not, if there is no argument ($argument empty array), assume that it's a get

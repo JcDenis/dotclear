@@ -118,11 +118,11 @@ class Filter extends Filters
         $res = [];
         foreach ($this->filters as $id => $filter) {
             if ($ui_only) {
-                if (in_array($id, ['sortby', 'order', 'nb']) || $filter->html != '') {
-                    $res[$id] = $filter->value;
+                if (in_array($id, ['sortby', 'order', 'nb']) || '' != $filter->get('html')) {
+                    $res[$id] = $filter->get('value');
                 }
             } else {
-                $res[$id] = $filter->value;
+                $res[$id] = $filter->get('value');
             }
         }
 
@@ -139,7 +139,7 @@ class Filter extends Filters
      */
     public function value(string $id, mixed $undefined = null): mixed
     {
-        return isset($this->filters[$id]) ? $this->filters[$id]->value : $undefined;
+        return isset($this->filters[$id]) ? $this->filters[$id]->get('value') : $undefined;
     }
 
     /**
@@ -156,18 +156,6 @@ class Filter extends Filters
     public function set(string $id, mixed $value, mixed $undefined = null): mixed
     {
         return isset($this->filters[$id]) ? $this->filters[$id]->value($value) : $undefined;
-    }
-
-    /**
-     * Magic get filter value
-     *
-     * @param   string  $id     The filter id
-     *
-     * @return  mixed           The filter value
-     */
-    public function __get(string $id): mixed
-    {
-        return $this->value($id);
     }
 
     /**
@@ -288,7 +276,7 @@ class Filter extends Filters
      */
     public function show(bool $set = false): bool
     {
-        if ($set === true) {
+        if (true === $set) {
             $this->show = true;
         }
 

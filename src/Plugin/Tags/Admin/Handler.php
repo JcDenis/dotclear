@@ -135,7 +135,7 @@ class Handler extends AbstractPage
             $cols        = ['', ''];
             $col         = 0;
             while ($tags->fetch()) {
-                $letter = mb_strtoupper(mb_substr($tags->meta_id_lower, 0, 1));
+                $letter = mb_strtoupper(mb_substr($tags->f('meta_id_lower'), 0, 1));
 
                 if ($last_letter != $letter) {
                     if ($tags->index() >= round($tags->count() / 2)) {
@@ -145,10 +145,10 @@ class Handler extends AbstractPage
                 }
 
                 $cols[$col] .= '<tr class="line">' .
-                '<td class="maximal"><a href="' . dotclear()->adminurl()->get('admin.plugin.Tags', ['tag' => rawurlencode($tags->meta_id)]) . '">' .
-                    $tags->meta_id . '</a></td>' .
-                '<td class="nowrap count"><strong>' . $tags->count . '</strong> ' .
-                    (($tags->count == 1) ? __('entry') : __('entries')) . '</td>' .
+                '<td class="maximal"><a href="' . dotclear()->adminurl()->get('admin.plugin.Tags', ['tag' => rawurlencode($tags->f('meta_id'))]) . '">' .
+                    $tags->f('meta_id') . '</a></td>' .
+                '<td class="nowrap count"><strong>' . $tags->f('count') . '</strong> ' .
+                    (($tags->fInt('count') == 1) ? __('entry') : __('entries')) . '</td>' .
                     '</tr>';
 
                 $last_letter = $letter;

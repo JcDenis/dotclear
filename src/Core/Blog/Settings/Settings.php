@@ -16,12 +16,9 @@ namespace Dotclear\Core\Blog\Settings;
 use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\MagicTrait;
 
 class Settings
 {
-    use MagicTrait;
-
     /** @var    string  Setting table name */
     protected $table;
 

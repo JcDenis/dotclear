@@ -149,12 +149,12 @@ class ImportFeed extends Module
         dotclear()->con()->begin();
         foreach ($feed->items as $item) {
             $cur->clean();
-            $cur->user_id      = dotclear()->user()->userID();
-            $cur->post_content = $item->content ?: $item->description;
-            $cur->post_title   = $item->title ?: Text::cutString(Html::clean($cur->post_content), 60);
-            $cur->post_format  = 'xhtml';
-            $cur->post_status  = -2;
-            $cur->post_dt      = @strftime('%Y-%m-%d %H:%M:%S', $item->TS);
+            $cur->setField('user_id', dotclear()->user()->userID());
+            $cur->setField('post_content', $item->content ?: $item->description);
+            $cur->setField('post_title', $item->title ?: Text::cutString(Html::clean($cur->getField('post_content')), 60));
+            $cur->setField('post_format', 'xhtml');
+            $cur->setField('post_status', -2);
+            $cur->setField('post_dt', @strftime('%Y-%m-%d %H:%M:%S', $item->TS));
 
             try {
                 $post_id = dotclear()->blog()->addPost($cur);

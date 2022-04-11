@@ -15,11 +15,10 @@ namespace Dotclear\Helper;
 
 use Dotclear\Exception\UtilsException;
 use Dotclear\Helper\ErrorTrait;
-use Dotclear\Helper\MagicTrait;
 
 class Configuration
 {
-    use ErrorTrait, MagicTrait;
+    use ErrorTrait;
 
     /** @var    array   Read files */
     protected static $file = [];

@@ -15,12 +15,9 @@ namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\MagicTrait;
 
 class Workspace
 {
-    use MagicTrait;
-
     /** @var    string      Preferences table name */
     protected $table;
 

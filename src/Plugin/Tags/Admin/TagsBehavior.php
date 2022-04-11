@@ -117,7 +117,7 @@ class TagsBehavior
         if (!empty($_POST['post_tags'])) {
             $value = $_POST['post_tags'];
         } else {
-            $value = $post ? dotclear()->meta()->getMetaStr((string) $post->post_meta, 'tag') : '';
+            $value = $post ? dotclear()->meta()->getMetaStr((string) $post->f('post_meta'), 'tag') : '';
         }
         $sidebar['metas-box']['items']['post_tags'] = '<h5><label class="s-tags" for="post_tags">' . __('Tags') . '</label></h5>' .
         '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
@@ -367,7 +367,9 @@ class TagsBehavior
     public function setTagListFormat($cur, $user_id = null)
     {
         if (!is_null($user_id)) {
-            $cur->user_options['tag_list_format'] = $_POST['user_tag_list_format'];
+            $opt = $cur->getField('user_options');
+            $opt['tag_list_format'] = $_POST['user_tag_list_format'];
+            $cur->setField('user_options', $opt);
         }
     }
 }

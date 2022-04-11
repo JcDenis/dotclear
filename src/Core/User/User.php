@@ -125,7 +125,7 @@ class User
             } else {
                 // Check if pwd still stored in old fashion way
                 $ret = password_get_info($rs->f('user_pwd'));
-                if (is_array($ret) && isset($ret['algo']) && $ret['algo'] == 0) {
+                if (is_array($ret) && isset($ret['algo']) && 0 == $ret['algo']) {
                     // hash not done with password_hash() function, check by old fashion way
                     if ($user_pwd == Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo'))) {
                         // Password Ok, need to store it in new fashion way
@@ -376,12 +376,11 @@ class User
 
         if ($this->container->get('user_super')) {
             $sql = new SelectStatement('coreAuthGetPermissions');
-            $sql
+            $rs = $sql
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
-                ->where('blog_id = ' . $sql->quote($blog_id));
-
-            $rs = $sql->select();
+                ->where('blog_id = ' . $sql->quote($blog_id))
+                ->select();
 
             $this->blogs[$blog_id] = $rs->isEmpty() ? false : ['admin' => true];
 
@@ -389,7 +388,7 @@ class User
         }
 
         $sql = new SelectStatement('coreAuthGetPermissions');
-        $sql
+        $rs = $sql
             ->column('permissions')
             ->from(dotclear()->prefix . $this->perm_table)
             ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
@@ -398,9 +397,8 @@ class User
                 $sql->like('permissions', '%|usage|%'),
                 $sql->like('permissions', '%|admin|%'),
                 $sql->like('permissions', '%|contentadmin|%'),
-            ]));
-
-        $rs = $sql->select();
+            ]))
+            ->select();
 
         $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->f('permissions'));
 
@@ -580,13 +578,12 @@ class User
     public function setRecoverKey(string $user_id, string $user_email): string
     {
         $sql = new SelectStatement('coreAuthSetRecoverKey');
-        $sql
+        $rs = $sql
             ->column('user_id')
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
-            ->and('user_email = ' . $sql->quote($user_email));
-
-        $rs = $sql->select();
+            ->and('user_email = ' . $sql->quote($user_email))
+            ->select();
 
         if ($rs->isEmpty()) {
             throw new CoreException(__('That user does not exist in the database.'));
@@ -619,12 +616,11 @@ class User
     public function recoverUserPassword(string $recover_key): array
     {
         $sql = new SelectStatement('coreAuthRecoverUserPassword');
-        $sql
+        $rs = $sql
             ->columns(['user_id', 'user_email'])
             ->from(dotclear()->prefix . $this->user_table)
-            ->where('user_recover_key = ' . $sql->quote($recover_key));
-
-        $rs = $sql->select();
+            ->where('user_recover_key = ' . $sql->quote($recover_key))
+            ->select();
 
         if ($rs->isEmpty()) {
             throw new CoreException(__('That key does not exist in the database.'));
@@ -632,7 +628,7 @@ class User
 
         $new_pass = Crypt::createPassword();
 
-        $cur  = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
         $cur->setField('user_pwd', $this->crypt($new_pass));
         $cur->setField('user_recover_key', null);
         $cur->setField('user_change_pwd', 1); // User will have to change this temporary password at next login

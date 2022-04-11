@@ -107,8 +107,8 @@ class PagesAction extends PostAction
 
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-            $cur->post_position = (int) $value - 1;
-            $cur->post_upddt    = date('Y-m-d H:i:s');
+            $cur->setField('post_position', (int) $value - 1);
+            $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
             $cur->update($strReq);
             dotclear()->blog()->triggerBlog();

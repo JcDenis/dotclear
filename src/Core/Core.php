@@ -39,17 +39,15 @@ use Dotclear\Helper\Behavior;
 use Dotclear\Helper\Configuration;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Dt;
-use Dotclear\Helper\Error;
+use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\L10n;
-use Dotclear\Helper\MagicTrait;
 use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
 use Dotclear\Helper\File\Path;
 
 class Core
 {
-    # Prevent use of undefined properties
-    use MagicTrait;
+    use Errortrait;
 
     /** @var    Autoload   Autoload instance */
     private $autoload;
@@ -68,9 +66,6 @@ class Core
 
     /** @var    Configuration   Configuration instance */
     private $config;
-
-    /** @var    Error   Error instance */
-    private $error;
 
     /** @var    Formater   Formater instance */
     private $formater;
@@ -336,20 +331,6 @@ class Core
         }
 
         return $this->config;
-    }
-
-    /**
-     * Get error instance
-     *
-     * @return  Error   Error instance
-     */
-    public function error(): Error
-    {
-        if (!($this->error instanceof Error)) {
-            $this->error = new Error();
-        }
-
-        return $this->error;
     }
 
     /**

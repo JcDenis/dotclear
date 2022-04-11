@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
-
 use Dotclear\Helper\Text;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskIndexcomments extends MaintenanceTask
 {
@@ -68,14 +67,13 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $strReq = 'SELECT COUNT(comment_id) ' .
-        'FROM ' . dotclear()->prefix . 'comment';
-        $count = dotclear()->con()->select($strReq)->fInt();
+        $count = dotclear()->con()->select(
+            'SELECT COUNT(comment_id) FROM ' . dotclear()->prefix . 'comment'
+        )->fInt();
 
-        $strReq = 'SELECT comment_id, comment_content ' .
-        'FROM ' . dotclear()->prefix . 'comment ';
+        $strReq = 'SELECT comment_id, comment_content FROM ' . dotclear()->prefix . 'comment ';
 
-        if ($start !== null && $limit !== null) {
+        if (null !== $start && null !== $limit) {
             $strReq .= dotclear()->con()->limit($start, $limit);
         }
 
@@ -84,15 +82,11 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
         while ($rs->fetch()) {
-            $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
-            $cur->update('WHERE comment_id = ' . (int) $rs->comment_id);
+            $cur->setField('comment_words', implode(' ', Text::splitWords($rs->f('comment_content'))));
+            $cur->update('WHERE comment_id = ' . $rs->fInt('comment_id'));
             $cur->clean();
         }
 
-        if ($start + $limit > $count) {
-            return null;
-        }
-
-        return $start + $limit;
+        return $start + $limit > $count ? null : $start + $limit;
     }
 }

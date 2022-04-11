@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
-
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 class FilterIp extends Spamfilter
 {
@@ -52,12 +50,12 @@ class FilterIp extends Spamfilter
         }
 
         # White list check
-        if ($this->checkIP($ip, 'white') !== false) {
+        if (false !== $this->checkIP($ip, 'white')) {
             return false;
         }
 
         # Black list check
-        if (($s = $this->checkIP($ip, 'black')) !== false) {
+        if (false !== ($s = $this->checkIP($ip, 'black'))) {
             $status = $s;
 
             return true;
@@ -70,7 +68,7 @@ class FilterIp extends Spamfilter
     {
         # Set current type and tab
         $ip_type = 'black';
-        if (!empty($_REQUEST['ip_type']) && $_REQUEST['ip_type'] == 'white') {
+        if (!empty($_REQUEST['ip_type']) && 'white' == $_REQUEST['ip_type']) {
             $ip_type = 'white';
         }
         $this->tab = 'tab_' . $ip_type;
@@ -144,20 +142,20 @@ class FilterIp extends Spamfilter
             $res_global = '';
             $res_local  = '';
             while ($rs->fetch()) {
-                $bits    = explode(':', $rs->rule_content);
+                $bits    = explode(':', $rs->f('rule_content'));
                 $pattern = $bits[0];
                 $ip      = $bits[1];
                 $bitmask = $bits[2];
 
                 $disabled_ip = false;
                 $p_style     = '';
-                if (!$rs->blog_id) {
+                if (!$rs->f('blog_id')) {
                     $disabled_ip = !dotclear()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->rule_id . '">' .
-                form::checkbox(['delip[]', $type . '-ip-' . $rs->rule_id], $rs->rule_id,
+                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
+                form::checkbox(['delip[]', $type . '-ip-' . $rs->f('rule_id')], $rs->f('rule_id'),
                     [
                         'disabled' => $disabled_ip
                     ]
@@ -165,7 +163,7 @@ class FilterIp extends Spamfilter
                 html::escapeHTML($pattern) .
                     '</label></p>';
 
-                if ($rs->blog_id) {
+                if ($rs->f('blog_id')) {
                     // local list
                     if ($res_local == '') {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
@@ -207,7 +205,7 @@ class FilterIp extends Spamfilter
 
         $ip = ip2long($bits[0]);
 
-        if (!$ip || $ip == -1) {
+        if (!$ip || -1 == $ip) {
             throw new \Exception('Invalid IP address');
         }
 
@@ -227,7 +225,7 @@ class FilterIp extends Spamfilter
     public function addIP($type, $pattern, $global)
     {
         $this->ipmask($pattern, $ip, $mask);
-        $pattern = long2ip($ip) . ($mask != -1 ? '/' . long2ip($mask) : '');
+        $pattern = long2ip($ip) . (-1 != $mask ? '/' . long2ip($mask) : '');
         $content = $pattern . ':' . $ip . ':' . $mask;
 
         $old = $this->getRuleCIDR($type, $global, $ip, $mask);
@@ -236,21 +234,21 @@ class FilterIp extends Spamfilter
         if ($old->isEmpty()) {
             $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
 
-            $cur->rule_id      = $id;
-            $cur->rule_type    = (string) $type;
-            $cur->rule_content = (string) $content;
+            $cur->setField('rule_id', $id);
+            $cur->setField('rule_type', (string) $type);
+            $cur->setField('rule_content', (string) $content);
 
             if ($global && dotclear()->user()->isSuperAdmin()) {
-                $cur->blog_id = null;
+                $cur->setField('blog_id', null);
             } else {
-                $cur->blog_id = dotclear()->blog()->id;
+                $cur->setField('blog_id', dotclear()->blog()->id);
             }
 
             $cur->insert();
         } else {
-            $cur->rule_type    = (string) $type;
-            $cur->rule_content = (string) $content;
-            $cur->update('WHERE rule_id = ' . (int) $old->rule_id);
+            $cur->setField('rule_type', (string) $type);
+            $cur->setField('rule_content', (string) $content);
+            $cur->update('WHERE rule_id = ' . $old->fInt('rule_id'));
         }
     }
 

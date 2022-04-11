@@ -65,7 +65,7 @@ class WidgetsStack
             return '';
         }
 
-        $value = isset($GLOBALS['_search']) ? Html::escapeHTML($GLOBALS['_search']) : '';
+        $value = dotclear()->url()->search_string ? Html::escapeHTML(dotclear()->url()->search_string) : '';
 
         return $widget->renderDiv($widget->get('content_only'), $widget->get('class'), 'id="search"',
             ($widget->get('title') ? $widget->renderTitle('<label for="q">' . Html::escapeHTML($widget->get('title')) . '</label>', false) : '') .

@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 use Dotclear\Helper\Text;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskIndexposts extends MaintenanceTask
 {
@@ -74,7 +74,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
         'FROM ' . dotclear()->prefix . 'post ';
 
-        if ($start !== null && $limit !== null) {
+        if (null !== $start && null !== $limit) {
             $strReq .= dotclear()->con()->limit($start, $limit);
         }
 
@@ -83,18 +83,16 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
         while ($rs->fetch()) {
-            $words = $rs->post_title . ' ' . $rs->post_excerpt_xhtml . ' ' .
-            $rs->post_content_xhtml;
+            $words = 
+                $rs->f('post_title') . ' ' . 
+                $rs->f('post_excerpt_xhtml') . ' ' . 
+                $rs->f('post_content_xhtml');
 
-            $cur->post_words = implode(' ', Text::splitWords($words));
-            $cur->update('WHERE post_id = ' . (int) $rs->post_id);
+            $cur->setField('post_words', implode(' ', Text::splitWords($words)));
+            $cur->update('WHERE post_id = ' . $rs->fInt('post_id'));
             $cur->clean();
         }
 
-        if ($start + $limit > $count) {
-            return null;
-        }
-
-        return $start + $limit;
+        return $start + $limit > $count ? null : $start + $limit;
     }
 }

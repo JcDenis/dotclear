@@ -214,7 +214,7 @@ class Maintenance
 
         $logs = [];
         while ($rs->fetch()) {
-            $logs[] = $rs->log_id;
+            $logs[] = $rs->fInt('log_id');
         }
 
         // Delete old logs
@@ -224,10 +224,9 @@ class Maintenance
 
         // Add new log
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'log');
-
-        $cur->log_msg   = $id;
-        $cur->log_table = 'maintenance';
-        $cur->user_id   = dotclear()->user()->userID();
+        $cur->setField('log_msg', $id);
+        $cur->setField('log_table', 'maintenance');
+        $cur->setField('user_id', dotclear()->user()->userID());
 
         dotclear()->log()->add($cur);
     }
@@ -245,7 +244,7 @@ class Maintenance
 
         $logs = [];
         while ($rs->fetch()) {
-            $logs[] = $rs->log_id;
+            $logs[] = $rs->fInt('log_id');
         }
 
         // Delete old logs
@@ -268,7 +267,7 @@ class Maintenance
      */
     public function getLogs()
     {
-        if ($this->logs === null) {
+        if (null === $this->logs) {
             $rs = dotclear()->log()->get([
                 'log_table' => 'maintenance',
                 'blog_id'   => '*',
@@ -276,9 +275,9 @@ class Maintenance
 
             $this->logs = [];
             while ($rs->fetch()) {
-                $this->logs[$rs->log_msg] = [
-                    'ts'   => strtotime($rs->log_dt),
-                    'blog' => $rs->blog_id == dotclear()->blog()->id,
+                $this->logs[$rs->f('log_msg')] = [
+                    'ts'   => strtotime($rs->f('log_dt')),
+                    'blog' => $rs->f('blog_id') == dotclear()->blog()->id,
                 ];
             }
         }

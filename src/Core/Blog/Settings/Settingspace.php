@@ -15,12 +15,9 @@ namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\MagicTrait;
 
 class Settingspace
 {
-    use MagicTrait;
-
     /** @var    string     Settings table name */
     protected $table;
 

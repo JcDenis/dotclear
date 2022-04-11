@@ -15,12 +15,9 @@ namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\MagicTrait;
 
 class Preference
 {
-    use MagicTrait;
-
     /** @var    string  $table  Prefs table name */
     protected $table;
 

@@ -18,11 +18,23 @@ use Dotclear\Database\Record;
 
 class AbstractContainer
 {
+    /** @var    string  $id     Container id */
     protected $id    = '';
+
+    /** @var    array<string, mixed>    $info   Default properties */
     protected $info  = [];
+
+    /** @var    array<string, mixed>    $row    Properties */
     private $row     = [];
+
+    /** @var    array<string, mixed>    $change     Modified properties */
     private $change  = [];
 
+    /**
+     * Constructor
+     * 
+     * @param   Record  $rs     A record
+     */
     public function __construct(Record $rs = null)
     {
         foreach($this->info() as $key => $value) {
@@ -32,6 +44,11 @@ class AbstractContainer
         $this->fromRecord($rs);
     }
 
+    /**
+     * Update properties from record
+     * 
+     * @param   Record  $rs     A record
+     */
     public function fromRecord(Record $rs = null): void
     {
         if ($rs && !$rs->isEmpty()) {
@@ -43,6 +60,16 @@ class AbstractContainer
         }
     }
 
+    /**
+     * Apply container properties to a cursor
+     * 
+     * Only modified values compared to default properties 
+     * will be added to cursor.
+     * 
+     * @param   Cursor  $cur    A cursor
+     * 
+     * @return  Cursor
+     */
     public function toCursor(Cursor $cur): Cursor
     {
         foreach($this->change as $key => $value) {
@@ -52,17 +79,45 @@ class AbstractContainer
         return $cur;
     }
 
+    /**
+     * Get container id
+     * 
+     * @return  string
+     */
+    public function id(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get container properties
+     * 
+     * @return  array<string, mixed>
+     */
     public function row(): array
     {
         return $this->row;
     }
 
+    /**
+     * Get container default properties
+     *
+     * @return  array<string, mixed>
+     */
     public function info(): array
     {
         return $this->info;
     }
 
-    public function add(string $key, mixed $value): AbstractContainer
+    /**
+     * Add a property
+     * 
+     * @param   string  $key    The key
+     * @param   mixed   $value  The value
+     * 
+     * @return  static          Self instance
+     */
+    public function add(string $key, mixed $value): static
     {
         if (!$this->exists($key)) {
             $this->row[$key] = $value;
@@ -71,6 +126,14 @@ class AbstractContainer
         return $this;
     }
 
+    /**
+     * Set a propety
+     * 
+     * @param   string  $key    The key
+     * @param   mixed   $value  The value
+     * 
+     * @return  mixed           The value
+     */
     public function set(string $key, mixed $value): mixed
     {
         $this->exists($key, true);
@@ -82,11 +145,13 @@ class AbstractContainer
         return $this->row[$key];
     }
 
-    public function __set(string $key, mixed $value)
-    {
-        return $this->set($key, $value);
-    }
-
+    /**
+     * Get a property
+     * 
+     * @param   string  $key    The key
+     *
+     * @return  mixed           The value
+     */
     public function get(string $key): mixed
     {
         $this->exists($key, true);
@@ -94,11 +159,14 @@ class AbstractContainer
         return $this->row[$key];
     }
 
-    public function __get(string $key)
-    {
-        return $this->get($key);
-    }
-
+    /**
+     * Check if a property exists
+     * 
+     * @param   string  $key    The key
+     * @param   bool    $throw  Throw error if key does not exist
+     * 
+     * @return bool
+     */
     public function exists(string $key, bool $throw = false): bool
     {
         if (!($exists = array_key_exists($key, $this->row)) && $throw) {
@@ -107,10 +175,4 @@ class AbstractContainer
 
         return $exists;
     }
-
-    public function __isset(string $key)
-    {
-        return $this->exists($key);
-    }
-
 }

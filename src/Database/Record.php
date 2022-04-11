@@ -21,11 +21,19 @@ use Dotclear\Database\StaticRecord;
 
 class Record implements Iterator, Countable
 {
-    protected $__link;             ///< resource: Database resource link
-    protected $__extend = []; ///< array: List of static functions that extend record
-    protected $__index  = 0;       ///< integer: Current result position
-    protected $__row    = false;   ///< array: Current result row content
+    /** @var    mixed   $__link     atabase resource link */
+    protected $__link;
 
+    /** @var    array<string, callable>     $__extend   List of static functions that extend recor */
+    protected $__extend = [];
+
+    /** @var    int     $__index    Current result position */
+    protected $__index  = 0;
+
+    /** @var    array|false   $__row  Current result row content */
+    protected $__row    = false;
+
+    /** @var    bool    $__fetch    Fetch method position mark */
     private $__fetch = false;
 
     /**

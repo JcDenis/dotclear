@@ -316,26 +316,26 @@ class ImportDc1 extends Module
             dotclear()->con()->begin();
 
             while ($rs->fetch()) {
-                if (!dotclear()->users()->userExists($rs->user_id)) {
-                    $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
-                    $cur->user_id          = $rs->user_id;
-                    $cur->user_name        = $rs->user_nom;
-                    $cur->user_firstname   = $rs->user_prenom;
-                    $cur->user_displayname = $rs->user_pseudo;
-                    $cur->user_pwd         = Crypt::createPassword();
-                    $cur->user_email       = $rs->user_email;
-                    $cur->user_lang        = $rs->user_lang;
-                    $cur->user_tz          = dotclear()->blog()->settings()->get('system')->get('blog_timezone');
-                    $cur->user_post_status = $rs->user_post_pub ? 1 : -2;
-                    $cur->user_options     = new ArrayObject([
-                        'edit_size'   => (int) $rs->user_edit_size,
-                        'post_format' => $rs->user_post_format,
-                    ]);
+                if (!dotclear()->users()->userExists($rs->f('user_id'))) {
+                    $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                    $cur->setField('user_id', $rs->f('user_id'));
+                    $cur->setField('user_name', $rs->f('user_nom'));
+                    $cur->setField('user_firstname', $rs->f('user_prenom'));
+                    $cur->setField('user_displayname', $rs->f('user_pseudo'));
+                    $cur->setField('user_pwd', Crypt::createPassword());
+                    $cur->setField('user_email', $rs->f('user_email'));
+                    $cur->setField('user_lang', $rs->f('user_lang'));
+                    $cur->setField('user_tz', dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+                    $cur->setField('user_post_status', $rs->f('user_post_pub') ? 1 : -2);
+                    $cur->setField('user_options', new ArrayObject([
+                        'edit_size'   => $rs->fInt('user_edit_size'),
+                        'post_format' => $rs->f('user_post_format'),
+                    ]));
 
                     $permissions = [];
-                    switch ($rs->user_level) {
+                    switch ($rs->f('user_level')) {
                         case '0':
-                            $cur->user_status = 0;
+                            $cur->setField('user_status', 0);
 
                             break;
                         case '1': # editor
@@ -356,7 +356,7 @@ class ImportDc1 extends Module
 
                     dotclear()->users()->addUser($cur);
                     dotclear()->users()->setUserBlogPermissions(
-                        $rs->user_id,
+                        $rs->f('user_id'),
                         dotclear()->blog()->id,
                         $permissions
                     );
@@ -388,18 +388,17 @@ class ImportDc1 extends Module
 
             $ord = 2;
             while ($rs->fetch()) {
-                $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-                $cur->blog_id   = dotclear()->blog()->id;
-                $cur->cat_title = $this->cleanStr(htmlspecialchars_decode($rs->cat_libelle));
-                $cur->cat_desc  = $this->cleanStr($rs->cat_desc);
-                $cur->cat_url   = $this->cleanStr($rs->cat_libelle_url);
-                $cur->cat_lft   = $ord++;
-                $cur->cat_rgt   = $ord++;
-
-                $cur->cat_id = dotclear()->con()->select(
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur->setField('cat_title', $this->cleanStr(htmlspecialchars_decode($rs->f('cat_libelle'))));
+                $cur->setField('cat_desc', $this->cleanStr($rs->f('cat_desc')));
+                $cur->setField('cat_url', $this->cleanStr($rs->f('cat_libelle_url')));
+                $cur->setField('cat_lft', $ord++);
+                $cur->setField('cat_rgt', $ord++);
+                $cur->setField('cat_id', dotclear()->con()->select(
                     'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
-                )->fInt() + 1;
-                $this->vars['cat_ids'][$rs->cat_id] = $cur->cat_id;
+                )->fInt() + 1);
+                $this->vars['cat_ids'][$rs->fInt('cat_id')] = $cur->getField('cat_id');
                 $cur->insert();
             }
 
@@ -425,18 +424,17 @@ class ImportDc1 extends Module
             );
 
             while ($rs->fetch()) {
-                $cur                = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
-                $cur->blog_id       = dotclear()->blog()->id;
-                $cur->link_href     = $this->cleanStr($rs->href);
-                $cur->link_title    = $this->cleanStr($rs->label);
-                $cur->link_desc     = $this->cleanStr($rs->title);
-                $cur->link_lang     = $this->cleanStr($rs->lang);
-                $cur->link_xfn      = $this->cleanStr($rs->rel);
-                $cur->link_position = (int) $rs->position;
-
-                $cur->link_id = dotclear()->con()->select(
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
+                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur->setField('link_href', $this->cleanStr($rs->f('href')));
+                $cur->setField('link_title', $this->cleanStr($rs->f('label')));
+                $cur->setField('link_desc', $this->cleanStr($rs->f('title')));
+                $cur->setField('link_lang', $this->cleanStr($rs->f('lang')));
+                $cur->setField('link_xfn', $this->cleanStr($rs->f('rel')));
+                $cur->setField('link_position', $rs->fInt('position'));
+                $cur->setField('link_id', dotclear()->con()->select(
                     'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
-                )->fInt() + 1;
+                )->fInt() + 1);
                 $cur->insert();
             }
 
@@ -494,54 +492,54 @@ class ImportDc1 extends Module
 
     protected function importPost($rs, $db)
     {
-        $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-        $cur->blog_id     = dotclear()->blog()->id;
-        $cur->user_id     = $rs->user_id;
-        $cur->cat_id      = (int) $this->vars['cat_ids'][$rs->cat_id];
-        $cur->post_dt     = $rs->post_dt;
-        $cur->post_creadt = $rs->post_creadt;
-        $cur->post_upddt  = $rs->post_upddt;
-        $cur->post_title  = Html::decodeEntities($this->cleanStr($rs->post_titre));
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur->setField('blog_id', dotclear()->blog()->id);
+        $cur->setField('user_id', $rs->f('user_id'));
+        $cur->setField('cat_id', (int) $this->vars['cat_ids'][$rs->fInt('cat_id')]);
+        $cur->setField('post_dt', $rs->f('post_dt'));
+        $cur->setField('post_creadt', $rs->f('post_creadt'));
+        $cur->setField('post_upddt', $rs->f('post_upddt'));
+        $cur->setField('post_title', Html::decodeEntities($this->cleanStr($rs->f('post_titre'))));
 
-        $cur->post_url = date('Y/m/d/', strtotime($cur->post_dt)) . $rs->post_id . '-' . $rs->post_titre_url;
-        $cur->post_url = substr($cur->post_url, 0, 255);
+        $cur->setField('post_url', date('Y/m/d/', strtotime($cur->getField('post_dt'))) . $rs->f('post_id') . '-' . $rs->f('post_titre_url'));
+        $cur->setField('post_url', substr($cur->getField('post_url'), 0, 255));
 
-        $cur->post_format        = $rs->post_content_wiki == '' ? 'xhtml' : 'wiki';
-        $cur->post_content_xhtml = $this->cleanStr($rs->post_content);
-        $cur->post_excerpt_xhtml = $this->cleanStr($rs->post_chapo);
+        $cur->setField('post_format', '' == $rs->f('post_content_wiki') ? 'xhtml' : 'wiki');
+        $cur->setField('post_content_xhtml', $this->cleanStr($rs->f('post_content')));
+        $cur->setField('post_excerpt_xhtml', $this->cleanStr($rs->f('post_chapo')));
 
-        if ($cur->post_format == 'wiki') {
-            $cur->post_content = $this->cleanStr($rs->post_content_wiki);
-            $cur->post_excerpt = $this->cleanStr($rs->post_chapo_wiki);
+        if ('wiki' == $cur->getField('post_format')) {
+            $cur->setField('post_content', $this->cleanStr($rs->f('post_content_wiki')));
+            $cur->setField('post_excerpt', $this->cleanStr($rs->f('post_chapo_wiki')));
         } else {
-            $cur->post_content = $this->cleanStr($rs->post_content);
-            $cur->post_excerpt = $this->cleanStr($rs->post_chapo);
+            $cur->setField('post_content', $this->cleanStr($rs->f('post_content')));
+            $cur->setField('post_excerpt', $this->cleanStr($rs->f('post_chapo')));
         }
 
-        $cur->post_notes        = $this->cleanStr($rs->post_notes);
-        $cur->post_status       = (int) $rs->post_pub;
-        $cur->post_selected     = (int) $rs->post_selected;
-        $cur->post_open_comment = (int) $rs->post_open_comment;
-        $cur->post_open_tb      = (int) $rs->post_open_tb;
-        $cur->post_lang         = $rs->post_lang;
+        $cur->setField('post_notes', $this->cleanStr($rs->f('post_notes')));
+        $cur->setField('post_status', $rs->fInt('post_pub'));
+        $cur->setField('post_selected', $rs->fInt('post_selected'));
+        $cur->setField('post_open_comment', $rs->fInt('post_open_comment'));
+        $cur->setField('post_open_tb', $rs->fInt('post_open_tb'));
+        $cur->setField('post_lang', $rs->f('post_lang'));
 
-        $cur->post_words = implode(' ', Text::splitWords(
-            $cur->post_title . ' ' .
-            $cur->post_excerpt_xhtml . ' ' .
-            $cur->post_content_xhtml
-        ));
+        $cur->setField('post_words', implode(' ', Text::splitWords(
+            $cur->getField('post_title') . ' ' .
+            $cur->getField('post_excerpt_xhtml') . ' ' .
+            $cur->getField('post_content_xhtml')
+        )));
 
-        $cur->post_id = dotclear()->con()->select(
+        $cur->setField('post_id', dotclear()->con()->select(
             'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
-        )->fInt() + 1;
+        )->fInt() + 1);
 
         $cur->insert();
-        $this->importComments($rs->post_id, $cur->post_id, $db);
-        $this->importPings($rs->post_id, $cur->post_id, $db);
+        $this->importComments($rs->fInt('post_id'), $cur->getField('post_id'), $db);
+        $this->importPings($rs->fInt('post_id'), $cur->getField('post_id'), $db);
 
         # Load meta if we have some in DC1
         if (isset($this->has_table[$this->vars['db_prefix'] . 'post_meta'])) {
-            $this->importMeta($rs->post_id, $cur->post_id, $db);
+            $this->importMeta($rs->fInt('post_id'), $cur->getField('post_id'), $db);
         }
     }
 
@@ -556,42 +554,41 @@ class ImportDc1 extends Module
         );
 
         while ($rs->fetch()) {
-            $cur                    = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
-            $cur->post_id           = (int) $new_post_id;
-            $cur->comment_author    = $this->cleanStr($rs->comment_auteur);
-            $cur->comment_status    = (int) $rs->comment_pub;
-            $cur->comment_dt        = $rs->comment_dt;
-            $cur->comment_upddt     = $rs->comment_upddt;
-            $cur->comment_email     = $this->cleanStr($rs->comment_email);
-            $cur->comment_content   = $this->cleanStr($rs->comment_content);
-            $cur->comment_ip        = $rs->comment_ip;
-            $cur->comment_trackback = (int) $rs->comment_trackback;
-
-            $cur->comment_site = $this->cleanStr($rs->comment_site);
-            if ($cur->comment_site != '' && !preg_match('!^http(s)?://.*$!', $cur->comment_site)) {
-                $cur->comment_site = substr('http://' . $cur->comment_site, 0, 255);
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+            $cur->setField('post_id', (int) $new_post_id);
+            $cur->setField('comment_author', $this->cleanStr($rs->f('comment_auteur')));
+            $cur->setField('comment_status', $rs->fInt('comment_pub'));
+            $cur->setField('comment_dt', $rs->f('comment_dt'));
+            $cur->setField('comment_upddt', $rs->f('comment_upddt'));
+            $cur->setField('comment_email', $this->cleanStr($rs->f('comment_email')));
+            $cur->setField('comment_content', $this->cleanStr($rs->f('comment_content')));
+            $cur->setField('comment_ip', $rs->f('comment_ip'));
+            $cur->setField('comment_trackback', $rs->fInt('comment_trackback'));
+            $cur->setField('comment_site', $this->cleanStr($rs->f('comment_site')));
+            if ('' != $cur->getField('comment_site') && !preg_match('!^http(s)?://.*$!', $cur->getField('comment_site'))) {
+                $cur->setField('comment_site', substr('http://' . $cur->getField('comment_site'), 0, 255));
             }
 
-            if ($rs->exists('spam') && $rs->spam && $rs->comment_status == 0) {
-                $cur->comment_status = -2;
+            if ($rs->exists('spam') && $rs->f('spam') && 0 == $rs->fInt('comment_status')) {
+                $cur->setField('comment_status', -2);
             }
 
-            $cur->comment_words = implode(' ', Text::splitWords($cur->comment_content));
+            $cur->setField('comment_words', implode(' ', Text::splitWords($cur->f('comment_content'))));
 
-            $cur->comment_id = dotclear()->con()->select(
+            $cur->setField('comment_id', dotclear()->con()->select(
                 'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
-            )->fInt() + 1;
+            )->fInt() + 1);
 
             $cur->insert();
 
-            if ($cur->comment_trackback && $cur->comment_status == 1) {
+            if ($cur->getField('comment_trackback') && 1 == $cur->getField('comment_status')) {
                 $count_t++;
-            } elseif ($cur->comment_status == 1) {
+            } elseif (1 == $cur->getField('comment_status')) {
                 $count_c++;
             }
         }
 
-        if ($count_t > 0 || $count_c > 0) {
+        if (0 < $count_t || 0 < $count_c) {
             dotclear()->con()->execute(
                 'UPDATE ' . dotclear()->prefix . 'post SET ' .
                 'nb_comment = ' . $count_c . ', ' .
@@ -612,15 +609,15 @@ class ImportDc1 extends Module
         );
 
         while ($rs->fetch()) {
-            $url = $this->cleanStr($rs->ping_url);
+            $url = $this->cleanStr($rs->f('ping_url'));
             if (isset($urls[$url])) {
                 continue;
             }
 
-            $cur           = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
-            $cur->post_id  = (int) $new_post_id;
-            $cur->ping_url = $url;
-            $cur->ping_dt  = $rs->ping_dt;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
+            $cur->setField('post_id', (int) $new_post_id);
+            $cur->setField('ping_url', $url);
+            $cur->setField('ping_dt', $rs->f('ping_dt'));
             $cur->insert();
 
             $urls[$url] = true;
@@ -640,7 +637,7 @@ class ImportDc1 extends Module
         }
 
         while ($rs->fetch()) {
-            dotclear()->meta()->setPostMeta($new_post_id, $this->cleanStr($rs->meta_key), $this->cleanStr($rs->meta_value));
+            dotclear()->meta()->setPostMeta($new_post_id, $this->cleanStr($rs->f('meta_key')), $this->cleanStr($rs->f('meta_value')));
         }
     }
 }

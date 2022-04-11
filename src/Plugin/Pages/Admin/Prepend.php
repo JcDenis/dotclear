@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
-
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
@@ -48,8 +47,8 @@ class Prepend extends AbstractPrepend
                 'permissions'  => 'contentadmin,pages',
                 'dashboard_cb' => function ($v) {
                     $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->fInt();
-                    if ($page_count > 0) {
-                        $str_pages  = ($page_count > 1) ? __('%d pages') : __('%d page');
+                    if (0 < $page_count) {
+                        $str_pages  = (1 < $page_count) ? __('%d pages') : __('%d page');
                         $v['title'] = sprintf($str_pages, $page_count);
                     }
                 },
@@ -61,7 +60,7 @@ class Prepend extends AbstractPrepend
                 'large-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
                 'active_cb'   => function () {
-                    return dotclear()->adminurl()->called() == 'admin.plugin.Page' && empty($_REQUEST['id']);
+                    return 'admin.plugin.Page' == dotclear()->adminurl()->called() && empty($_REQUEST['id']);
                 }
             ]);
         });
@@ -98,14 +97,14 @@ class Prepend extends AbstractPrepend
         new PagesUrl();
 
         # Widgets
-        if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
+        if ('admin.plugin.Widgets' == dotclear()->adminurl()->called()) {
             new PagesWidgets();
         }
     }
 
     public function installModule(): ?bool
     {
-        if (dotclear()->version()->get('pages') != null) {
+        if (null != dotclear()->version()->get('pages')) {
             return null;
         }
 
@@ -115,19 +114,19 @@ class Prepend extends AbstractPrepend
         ) {
             dotclear()->blog()->settings()->get('pages')->put('firstpage', true, 'boolean');
 
-            $cur                     = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-            $cur->user_id            = dotclear()->user()->userID();
-            $cur->post_type          = 'page';
-            $cur->post_format        = 'xhtml';
-            $cur->post_lang          = dotclear()->blog()->settings()->get('system')->get('lang');
-            $cur->post_title         = __('My first page');
-            $cur->post_content       = '<p>' . __('This is your first page. When you\'re ready to blog, log in to edit or delete it.') . '</p>';
-            $cur->post_content_xhtml = $cur->post_content;
-            $cur->post_excerpt       = '';
-            $cur->post_excerpt_xhtml = $cur->post_excerpt;
-            $cur->post_status        = -2; // Pending status
-            $cur->post_open_comment  = 0;
-            $cur->post_open_tb       = 0;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $cur->setField('user_id', dotclear()->user()->userID());
+            $cur->setField('post_type', 'page');
+            $cur->setField('post_format', 'xhtml');
+            $cur->setField('post_lang', dotclear()->blog()->settings()->get('system')->get('lang'));
+            $cur->setField('post_title', __('My first page'));
+            $cur->setField('post_content', '<p>' . __('This is your first page. When you\'re ready to blog, log in to edit or delete it.') . '</p>');
+            $cur->setField('post_content_xhtml', $cur->getField('post_content'));
+            $cur->setField('post_excerpt', '');
+            $cur->setField('post_excerpt_xhtml', $cur->getField('post_excerpt'));
+            $cur->setField('post_status', -2); // Pending status
+            $cur->setField('post_open_comment', 0);
+            $cur->setField('post_open_tb', 0);
 
             # Magic tweak :)
             $old_url_format = dotclear()->blog()->settings()->get('system')->get('post_url_format');

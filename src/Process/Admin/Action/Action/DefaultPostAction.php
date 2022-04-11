@@ -266,8 +266,8 @@ abstract class DefaultPostAction extends Action
                 throw new AdminException(__('This user does not exist'));
             }
 
-            $cur          = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-            $cur->user_id = $new_user_id;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $cur->setField('user_id', $new_user_id);
             $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
             dotclear()->notice()->addSuccessNotice(sprintf(
                 __(
@@ -327,9 +327,8 @@ abstract class DefaultPostAction extends Action
             throw new AdminException(__('No entry selected'));
         }
         if (isset($post['new_lang'])) {
-            $new_lang       = $post['new_lang'];
-            $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-            $cur->post_lang = $new_lang;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $cur->setField('post_lang', $post['new_lang']);
             $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
             dotclear()->notice()->addSuccessNotice(sprintf(
                 __(
@@ -338,7 +337,7 @@ abstract class DefaultPostAction extends Action
                     count($posts_ids)
                 ),
                 count($posts_ids),
-                Html::escapeHTML(L10n::getLanguageName($new_lang)))
+                Html::escapeHTML(L10n::getLanguageName($post['new_lang'])))
             );
             $ap->redirect(true);
         } else {

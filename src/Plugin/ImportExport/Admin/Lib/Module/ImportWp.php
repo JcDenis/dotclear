@@ -363,45 +363,45 @@ class ImportWp extends Module
             dotclear()->con()->begin();
 
             while ($rs->fetch()) {
-                $user_login                      = preg_replace('/[^A-Za-z0-9@._-]/', '-', $rs->user_login);
-                $this->vars['user_ids'][$rs->ID] = $user_login;
+                $user_login                      = preg_replace('/[^A-Za-z0-9@._-]/', '-', $rs->f('user_login'));
+                $this->vars['user_ids'][$rs->f('ID')] = $user_login;
                 if (!dotclear()->users()->userExists($user_login)) {
-                    $cur                   = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
-                    $cur->user_id          = $user_login;
-                    $cur->user_pwd         = Crypt::createPassword();
-                    $cur->user_displayname = $rs->user_nicename;
-                    $cur->user_email       = $rs->user_email;
-                    $cur->user_url         = $rs->user_url;
-                    $cur->user_creadt      = $rs->user_registered;
-                    $cur->user_lang        = dotclear()->blog()->settings()->get('system')->get('lang');
-                    $cur->user_tz          = dotclear()->blog()->settings()->get('system')->get('blog_timezone');
-                    $permissions           = [];
+                    $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                    $cur->setField('user_id', $user_login);
+                    $cur->setField('user_pwd', Crypt::createPassword());
+                    $cur->setField('user_displayname', $rs->f('user_nicename'));
+                    $cur->setField('user_email', $rs->f('user_email'));
+                    $cur->setField('user_url', $rs->f('user_url'));
+                    $cur->setField('user_creadt', $rs->f('user_registered'));
+                    $cur->setField('user_lang', dotclear()->blog()->settings()->get('system')->get('lang'));
+                    $cur->setField('user_tz', dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+                    $permissions = [];
 
-                    $rs_meta = $db->select('SELECT * FROM ' . $prefix . 'usermeta WHERE user_id = ' . $rs->ID);
+                    $rs_meta = $db->select('SELECT * FROM ' . $prefix . 'usermeta WHERE user_id = ' . $rs->fInt('ID'));
                     while ($rs_meta->fetch()) {
-                        switch ($rs_meta->meta_key) {
+                        switch ($rs_meta->f('meta_key')) {
                             case 'first_name':
-                                $cur->user_firstname = $this->cleanStr($rs_meta->meta_value);
+                                $cur->setField('user_firstname', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
                             case 'last_name':
-                                $cur->user_name = $this->cleanStr($rs_meta->meta_value);
+                                $cur->setField('user_name', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
                             case 'description':
-                                $cur->user_desc = $this->cleanStr($rs_meta->meta_value);
+                                $cur->setField('user_desc', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
                             case 'rich_editing':
-                                $cur->user_options = new ArrayObject([
-                                    'enable_wysiwyg' => $rs_meta->meta_value == 'true' ? true : false,
-                                ]);
+                                $cur->setField('user_options', new ArrayObject([
+                                    'enable_wysiwyg' => 'true' == $rs_meta->f('meta_value') ? true : false,
+                                ]));
 
                                 break;
                             case 'wp_user_level':
-                                switch ($rs_meta->meta_value) {
+                                switch ($rs_meta->f('meta_value')) {
                                     case '0': # Subscriber
-                                        $cur->user_status = 0;
+                                        $cur->setField('user_status', 0);
 
                                         break;
                                     case '1': # Contributor
@@ -440,7 +440,7 @@ class ImportWp extends Module
                     }
                     dotclear()->users()->addUser($cur);
                     dotclear()->users()->setUserBlogPermissions(
-                        $cur->user_id,
+                        $cur->getField('user_id'),
                         dotclear()->blog()->id,
                         $permissions
                     );
@@ -477,18 +477,18 @@ class ImportWp extends Module
 
             $ord = 2;
             while ($rs->fetch()) {
-                $cur            = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-                $cur->blog_id   = dotclear()->blog()->id;
-                $cur->cat_title = $this->cleanStr($rs->name);
-                $cur->cat_desc  = $this->cleanStr($rs->description);
-                $cur->cat_url   = $this->cleanStr($rs->slug);
-                $cur->cat_lft   = $ord++;
-                $cur->cat_rgt   = $ord++;
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur->setField('cat_title', $this->cleanStr($rs->f('name')));
+                $cur->setField('cat_desc', $this->cleanStr($rs->f('description')));
+                $cur->setField('cat_url', $this->cleanStr($rs->f('slug')));
+                $cur->setField('cat_lft', $ord++);
+                $cur->setField('cat_rgt', $ord++);
 
-                $cur->cat_id = dotclear()->con()->select(
+                $cur->setField('cat_id', dotclear()->con()->select(
                     'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
-                )->fInt() + 1;
-                $this->vars['cat_ids'][$rs->term_id] = $cur->cat_id;
+                )->fInt() + 1);
+                $this->vars['cat_ids'][$rs->f('term_id')] = $cur->getField('cat_id');
                 $cur->insert();
             }
 
@@ -514,16 +514,15 @@ class ImportWp extends Module
             );
 
             while ($rs->fetch()) {
-                $cur             = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
-                $cur->blog_id    = dotclear()->blog()->id;
-                $cur->link_href  = $this->cleanStr($rs->link_url);
-                $cur->link_title = $this->cleanStr($rs->link_name);
-                $cur->link_desc  = $this->cleanStr($rs->link_description);
-                $cur->link_xfn   = $this->cleanStr($rs->link_rel);
-
-                $cur->link_id = dotclear()->con()->select(
+                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
+                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur->setField('link_href', $this->cleanStr($rs->f('link_url')));
+                $cur->setField('link_title', $this->cleanStr($rs->f('link_name')));
+                $cur->setField('link_desc', $this->cleanStr($rs->f('link_description')));
+                $cur->setField('link_xfn', $this->cleanStr($rs->f('link_rel')));
+                $cur->setField('link_id', dotclear()->con()->select(
                     'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
-                )->fInt() + 1;
+                )->fInt() + 1);
                 $cur->insert();
             }
 
@@ -544,7 +543,7 @@ class ImportWp extends Module
         $plink = $db->select(
             'SELECT option_value FROM ' . $prefix . 'options ' .
             "WHERE option_name = 'permalink_structure'"
-        )->option_value;
+        )->f('option_value');
         if ($plink) {
             $this->vars['permalink_template'] = substr($plink, 1);
         }
@@ -557,7 +556,7 @@ class ImportWp extends Module
         );
 
         try {
-            if ($this->post_offset == 0) {
+            if (0 == $this->post_offset) {
                 dotclear()->con()->execute(
                     'DELETE FROM ' . dotclear()->prefix . 'post ' .
                     "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
@@ -589,23 +588,23 @@ class ImportWp extends Module
 
     protected function importPost($rs, $db)
     {
-        $post_date = !@strtotime($rs->post_date) ? '1970-01-01 00:00' : $rs->post_date;
-        if (!isset($this->vars['user_ids'][$rs->post_author])) {
+        $post_date = !@strtotime($rs->f('post_date')) ? '1970-01-01 00:00' : $rs->f('post_date');
+        if (!isset($this->vars['user_ids'][$rs->f('post_author')])) {
             $user_id = dotclear()->user()->userID();
         } else {
-            $user_id = $this->vars['user_ids'][$rs->post_author];
+            $user_id = $this->vars['user_ids'][$rs->f('post_author')];
         }
 
-        $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-        $cur->blog_id     = dotclear()->blog()->id;
-        $cur->user_id     = $user_id;
-        $cur->post_dt     = $post_date;
-        $cur->post_creadt = $post_date;
-        $cur->post_upddt  = $rs->post_modified;
-        $cur->post_title  = $this->cleanStr($rs->post_title);
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur->setField('blog_id', dotclear()->blog()->id);
+        $cur->setField('user_id', $user_id);
+        $cur->setField('post_dt', $post_date);
+        $cur->setField('post_creadt', $post_date);
+        $cur->setField('post_upddt', $rs->f('post_modified'));
+        $cur->setField('post_title', $this->cleanStr($rs->f('post_title')));
 
-        if (!$cur->post_title) {
-            $cur->post_title = 'No title';
+        if (!$cur->getField('post_title')) {
+            $cur->setField('post_title', 'No title');
         }
 
         if ($this->vars['cat_import'] || $this->vars['cat_as_tags']) {
@@ -617,85 +616,84 @@ class ImportWp extends Module
                 ($this->vars['ignore_first_cat'] ? 'AND t.term_id <> 1 ' : '') .
                 'AND x.taxonomy = \'category\' ' .
                 'AND t.term_id = r.term_taxonomy_id ' .
-                'AND r.object_id =' . $rs->ID .
+                'AND r.object_id =' . $rs->fInt('ID') .
                 ' ORDER BY t.term_id ASC '
             );
             if (!$old_cat_ids->isEmpty() && $this->vars['cat_import']) {
-                $cur->cat_id = $this->vars['cat_ids'][(int) $old_cat_ids->term_id];
+                $cur->setField('cat_id', $this->vars['cat_ids'][$old_cat_ids->fInt('term_id')]);
             }
         }
 
         $permalink_infos = [
-            date('Y', strtotime($cur->post_dt)),
-            date('m', strtotime($cur->post_dt)),
-            date('d', strtotime($cur->post_dt)),
-            date('H', strtotime($cur->post_dt)),
-            date('i', strtotime($cur->post_dt)),
-            date('s', strtotime($cur->post_dt)),
-            $rs->post_name,
-            $rs->ID,
-            $cur->cat_id,
-            $cur->user_id,
+            date('Y', strtotime($cur->getField('post_dt'))),
+            date('m', strtotime($cur->getField('post_dt'))),
+            date('d', strtotime($cur->getField('post_dt'))),
+            date('H', strtotime($cur->getField('post_dt'))),
+            date('i', strtotime($cur->getField('post_dt'))),
+            date('s', strtotime($cur->getField('post_dt'))),
+            $rs->f('post_name'),
+            $rs->fInt('ID'),
+            $cur->fInt('cat_id'),
+            $cur->f('user_id'),
         ];
-        $cur->post_url = str_replace(
+        $cur->setField('post_url', str_replace(
             $this->vars['permalink_tags'],
             $permalink_infos,
-            $rs->post_type == 'post' ? $this->vars['permalink_template'] : '%postname%'
-        );
-        $cur->post_url = substr($cur->post_url, 0, 255);
+            'post' == $rs->f('post_type') ? $this->vars['permalink_template'] : '%postname%'
+        ));
+        $cur->setField('post_url', substr($cur->getField('post_url'), 0, 255));
 
-        if (!$cur->post_url) {
-            $cur->post_url = $rs->ID;
+        if (!$cur->getField('post_url')) {
+            $cur->setField('post_url', $rs->fInt('ID'));
         }
 
-        $cur->post_format = $this->vars['post_formater'];
-        $_post_content    = explode('<!--more-->', $rs->post_content, 2);
+        $cur->setField('post_format', $this->vars['post_formater']);
+        $_post_content = explode('<!--more-->', $rs->f('post_content'), 2);
         if (count($_post_content) == 1) {
-            $cur->post_excerpt = null;
-            $cur->post_content = $this->cleanStr(array_shift($_post_content));
+            $cur->setField('post_excerpt', null);
+            $cur->setField('post_content', $this->cleanStr(array_shift($_post_content)));
         } else {
-            $cur->post_excerpt = $this->cleanStr(array_shift($_post_content));
-            $cur->post_content = $this->cleanStr(array_shift($_post_content));
+            $cur->setField('post_excerpt', $this->cleanStr(array_shift($_post_content)));
+            $cur->setField('post_content', $this->cleanStr(array_shift($_post_content)));
         }
 
-        $cur->post_content_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->post_content);
-        $cur->post_excerpt_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->post_excerpt);
+        $cur->setField('post_content_xhtml', dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->f('post_content')));
+        $cur->setField('post_excerpt_xhtml', dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['post_formater'], $cur->f('post_excerpt')));
 
-        $cur->post_status = match ($rs->post_status) {
+        $cur->setField('post_status', match ($rs->fint('post_status')) {
             'publish' => 1,
             'draft'   => 0,
-            'pending' => -2,
             default   => -2,
-        };
-        $cur->post_type         = $rs->post_type;
-        $cur->post_password     = $rs->post_password ?: null;
-        $cur->post_open_comment = $rs->comment_status == 'open' ? 1 : 0;
-        $cur->post_open_tb      = $rs->ping_status    == 'open' ? 1 : 0;
+        });
+        $cur->setField('post_type', $rs->f('post_type'));
+        $cur->setField('post_password', $rs->f('post_password') ?: null);
+        $cur->setField('post_open_comment', $rs->f('comment_status') == 'open' ? 1 : 0);
+        $cur->setField('post_open_tb', $rs->f('ping_status') == 'open' ? 1 : 0);
 
-        $cur->post_words = implode(' ', Text::splitWords(
-            $cur->post_title . ' ' .
-            $cur->post_excerpt_xhtml . ' ' .
-            $cur->post_content_xhtml
-        ));
+        $cur->setField('post_words', implode(' ', Text::splitWords(
+            $cur->getField('post_title') . ' ' .
+            $cur->getField('post_excerpt_xhtml') . ' ' .
+            $cur->getField('post_content_xhtml')
+        )));
 
-        $cur->post_id = dotclear()->con()->select(
+        $cur->setField('post_id', dotclear()->con()->select(
             'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
-        )->fInt() + 1;
+        )->fInt() + 1);
 
-        $cur->post_url = dotclear()->blog()->posts()->getPostURL($cur->post_url, $cur->post_dt, $cur->post_title, (int) $cur->post_id);
+        $cur->setField('post_url', dotclear()->blog()->posts()->getPostURL($cur->getField('post_url'), $cur->getField('post_dt'), $cur->getField('post_title'), (int) $cur->getField('post_id')));
 
         $cur->insert();
-        $this->importComments($rs->ID, $cur->post_id, $db);
-        $this->importPings($rs->ID, $cur->post_id, $db);
+        $this->importComments($rs->fInt('ID'), $cur->getField('post_id'), $db);
+        $this->importPings($rs->fInt('ID'), $cur->getField('post_id'), $db);
 
         # Create tags
-        $this->importTags($rs->ID, $cur->post_id, $db);
+        $this->importTags($rs->fInt('ID'), $cur->getField('post_id'), $db);
 
         if (isset($old_cat_ids)) {
             if (!$old_cat_ids->isEmpty() && $this->vars['cat_as_tags']) {
                 $old_cat_ids->moveStart();
                 while ($old_cat_ids->fetch()) {
-                    dotclear()->meta()->setPostMeta($cur->post_id, 'tag', $this->cleanStr($this->vars['cat_tags_prefix'] . $old_cat_ids->name));
+                    dotclear()->meta()->setPostMeta($cur->fInt('post_id'), 'tag', $this->cleanStr($this->vars['cat_tags_prefix'] . $old_cat_ids->f('name')));
                 }
             }
         }
@@ -712,35 +710,35 @@ class ImportWp extends Module
         );
 
         while ($rs->fetch()) {
-            $cur                    = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
-            $cur->post_id           = (int) $new_post_id;
-            $cur->comment_author    = $this->cleanStr($rs->comment_author);
-            $cur->comment_status    = (int) $rs->comment_approved;
-            $cur->comment_dt        = $rs->comment_date;
-            $cur->comment_email     = $this->cleanStr($rs->comment_author_email);
-            $cur->comment_content   = dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['comment_formater'], $this->cleanStr($rs->comment_content));
-            $cur->comment_ip        = $rs->comment_author_IP;
-            $cur->comment_trackback = $rs->comment_type == 'trackback' ? 1 : 0;
-            $cur->comment_site      = substr($this->cleanStr($rs->comment_author_url), 0, 255);
-            if ($cur->comment_site == '') {
-                $cur->comment_site = null;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+            $cur->setField('post_id', (int) $new_post_id);
+            $cur->setField('comment_author', $this->cleanStr($rs->f('comment_author')));
+            $cur->setField('comment_status', $rs->fInt('comment_approved'));
+            $cur->setField('comment_dt', $rs->f('comment_date'));
+            $cur->setField('comment_email', $this->cleanStr($rs->f('comment_author_email')));
+            $cur->setField('comment_content', dotclear()->formater()->callEditorFormater('LegacyEditor', $this->vars['comment_formater'], $this->cleanStr($rs->f('comment_content'))));
+            $cur->setField('comment_ip', $rs->f('comment_author_IP'));
+            $cur->setField('comment_trackback', $rs->f('comment_type') == 'trackback' ? 1 : 0);
+            $cur->setField('comment_site', substr($this->cleanStr($rs->f('comment_author_url')), 0, 255));
+            if ('' == $cur->getField('comment_site')) {
+                $cur->setField('comment_site', null);
             }
 
-            if ($rs->comment_approved == 'spam') {
-                $cur->comment_status = -2;
+            if ('spam' == $rs->f('comment_approved')) {
+                $cur->setField('comment_status', -2);
             }
 
-            $cur->comment_words = implode(' ', Text::splitWords($cur->comment_content));
+            $cur->setField('comment_words', implode(' ', Text::splitWords($cur->f('comment_content'))));
 
-            $cur->comment_id = dotclear()->con()->select(
+            $cur->setField('comment_id', dotclear()->con()->select(
                 'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
-            )->fInt() + 1;
+            )->fInt() + 1);
 
             $cur->insert();
 
-            if ($cur->comment_trackback && $cur->comment_status == 1) {
+            if ($cur->getField('comment_trackback') && 1 == $cur->getField('comment_status')) {
                 $count_t++;
-            } elseif ($cur->comment_status == 1) {
+            } elseif (1 == $cur->getField('comment_status')) {
                 $count_c++;
             }
         }
@@ -765,7 +763,7 @@ class ImportWp extends Module
             'SELECT pinged FROM ' . $this->vars['db_prefix'] . 'posts ' .
             'WHERE ID = ' . (int) $post_id
         );
-        $pings = explode("\n", $rs->pinged);
+        $pings = explode("\n", $rs->f('pinged'));
         unset($pings[0]);
 
         foreach ($pings as $ping_url) {
@@ -774,9 +772,9 @@ class ImportWp extends Module
                 continue;
             }
 
-            $cur           = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
-            $cur->post_id  = (int) $new_post_id;
-            $cur->ping_url = $url;
+            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
+            $cur->setField('post_id', (int) $new_post_id);
+            $cur->setField('ping_url', $url);
             $cur->insert();
 
             $urls[$url] = true;
@@ -802,7 +800,7 @@ class ImportWp extends Module
         }
 
         while ($rs->fetch()) {
-            dotclear()->meta()->setPostMeta($new_post_id, 'tag', $this->cleanStr($rs->name));
+            dotclear()->meta()->setPostMeta($new_post_id, 'tag', $this->cleanStr($rs->f('name')));
         }
     }
 }

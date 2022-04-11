@@ -488,7 +488,7 @@ class Media extends Manager
         $privates = [];
         while ($rsp->fetch()) {
             # File in subdirectory, forget about it!
-            if ('.' != dirname($rsp->media_file) && $this->relpwd != dirname($rsp->media_file)) {
+            if ('.' != dirname($rsp->f('media_file')) && $this->relpwd != dirname($rsp->f('media_file'))) {
                 continue;
             }
             if ($f = $this->fileRecord($rsp)) {
@@ -773,8 +773,8 @@ class Media extends Manager
 
         $del_ids = [];
         while ($rs->fetch()) {
-            if (!is_file($this->root . '/' . $rs->media_file)) {
-                $del_ids[] = (int) $rs->media_id;
+            if (!is_file($this->root . '/' . $rs->f('media_file'))) {
+                $del_ids[] = $rs->fInt('media_id');
             }
         }
         if (!empty($del_ids)) {
@@ -1062,8 +1062,8 @@ class Media extends Manager
 
         $rs = $sql->select();
         while ($rs->fetch()) {
-            if (is_dir($this->root . '/' . $rs->media_dir)) {
-                $dir[] = ('.' == $rs->media_dir ? '' : $rs->media_dir);
+            if (is_dir($this->root . '/' . $rs->f('media_dir'))) {
+                $dir[] = ('.' == $rs->f('media_dir') ? '' : $rs->f('media_dir'));
             }
         }
 

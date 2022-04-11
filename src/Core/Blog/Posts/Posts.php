@@ -328,7 +328,7 @@ class Posts
      * according to the post ID.
      * $dir could be 1 (next post) or -1 (previous post).
      *
-     * @param   Record  $post                   The post ID
+     * @param   Record  $post                   The post Record
      * @param   int     $dir                    The search direction
      * @param   bool    $restrict_to_category   Restrict to same category
      * @param   bool    $restrict_to_lang       Restrict to same language

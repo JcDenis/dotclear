@@ -20,13 +20,12 @@ namespace Dotclear\Module;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\ErrorTrait;
-use Dotclear\Helper\MagicTrait;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 
 abstract class AbstractDefine
 {
-    use ErrorTrait, MagicTrait;
+    use ErrorTrait;
 
     /** @var    array<string, mixed>   Module cleaned properties */
     protected $properties = [

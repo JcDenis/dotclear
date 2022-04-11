@@ -59,9 +59,9 @@ abstract class DefaultBlogAction extends Action
             default   => 1,
         };
 
-        $cur              = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
-        $cur->blog_status = $status;
-        //$cur->blog_upddt = date('Y-m-d H:i:s');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+        $cur->setField('blog_status', $status);
+        //$cur->setField('blog_upddt', date('Y-m-d H:i:s'));
         $cur->update('WHERE blog_id ' . dotclear()->con()->in($ids));
 
         dotclear()->notice()->addSuccessNotice(__('Selected blogs have been successfully updated.'));
