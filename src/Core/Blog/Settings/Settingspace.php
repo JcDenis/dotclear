@@ -14,6 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
 class Settingspace
@@ -71,16 +75,24 @@ class Settingspace
     private function getSettings(Record $rs = null): bool
     {
         if ($rs == null) {
-            $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
-            'setting_type, setting_label, setting_ns ' .
-            'FROM ' . $this->table . ' ' .
-            "WHERE (blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' " .
-            'OR blog_id IS NULL) ' .
-            "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' " .
-                'ORDER BY setting_id DESC ';
-
             try {
-                $rs = dotclear()->con()->select($strReq);
+                $sql = new SelectStatement(__METHOD__);
+                $rs = $sql
+                    ->columns([
+                        'blog_id', 
+                        'setting_id',
+                        'setting_value',
+                        'setting_type',
+                        'setting_label',
+                        'setting_ns',
+                    ])
+                    ->from($this->table)
+                    ->where($sql->orGroup([
+                        'blog_id = ' . $sql->quote($this->blog_id),
+                        'blog_id IS NULL'
+                    ]))
+                    ->and('setting_ns = ' . $sql->quote($this->ns))
+                    ->order('setting_id DESC');
             } catch (\Exception) {
                 trigger_error(__('Unable to retrieve settings:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
@@ -262,10 +274,10 @@ class Settingspace
             $value = json_encode($value);
         }
 
-        $cur = dotclear()->con()->openCursor($this->table);
-        $cur->setField('setting_value', ($type == 'boolean') ? (string) (int) $value : (string) $value);
-        $cur->setField('setting_type', $type);
-        $cur->setField('setting_label', $label);
+        $cur = dotclear()->con()->openCursor($this->table)
+            ->setField('setting_value', ($type == 'boolean') ? (string) (int) $value : (string) $value)
+            ->setField('setting_type', $type)
+            ->setField('setting_label', $label);
 
         #If we are local, compare to global value
         if (!$global && $this->settingExists($id, true)) {
@@ -281,14 +293,16 @@ class Settingspace
         }
 
         if ($this->settingExists($id, $global) && $this->ns == $this->settings[$id]['ns']) {
-            if ($global) {
-                $where = 'WHERE blog_id IS NULL ';
-            } else {
-                $where = "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
-            }
-
-            $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($id) . "' AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ");
+            $sql = new UpdateStatement(__METHOD__);
+            $sql->where($global ?
+                    'blog_id IS NULL' :
+                    'blog_id = ' . $sql->quote($this->blog_id)
+                )
+                ->and('setting_id = ' . $sql->quote($id)) 
+                ->and('setting_ns = ' . $sql->quote($this->ns))
+                ->update($cur);
         } else {
+            //! todo: use InsertStatement
             $cur->setField('setting_id', $id);
             $cur->setField('blog_id', $global ? null : $this->blog_id);
             $cur->setField('setting_ns', $this->ns);
@@ -326,11 +340,12 @@ class Settingspace
         unset($this->settings[$oldId]);
 
         // Rename the setting in the database
-        $strReq = 'UPDATE ' . $this->table .
-        " SET setting_id = '" . dotclear()->con()->escape($newId) . "' " .
-        " WHERE setting_ns = '" . dotclear()->con()->escape($this->ns) . "' " .
-        " AND setting_id = '" . dotclear()->con()->escape($oldId) . "' ";
-        dotclear()->con()->execute($strReq);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->from($this->table)
+            ->set('setting_id = ' . $sql->quote($newId))
+            ->where('setting_ns = ' . $sql->quote($this->ns))
+            ->and('setting_id = '. $sql->quote($oldId))
+            ->update();
 
         return true;
     }
@@ -348,18 +363,15 @@ class Settingspace
             throw new CoreException(__('No namespace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
-
-        if ($this->blog_id === null) {
-            $strReq .= 'WHERE blog_id IS NULL ';
-        } else {
-            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
-        }
-
-        $strReq .= "AND setting_id = '" . dotclear()->con()->escape($id) . "' ";
-        $strReq .= "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from($this->table)
+            ->where(null === $this->blog_id ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($this->blog_id)
+            )
+            ->and('setting_id = ' . $sql->quote($id))
+            ->and('setting_ns = ' . $sql->quote($this->ns))
+            ->delete();
     }
 
     /**
@@ -376,13 +388,16 @@ class Settingspace
             throw new CoreException(__('No namespace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' WHERE ';
-        if (!$global) {
-            $strReq .= 'blog_id IS NOT NULL AND ';
-        }
-        $strReq .= "setting_id = '" . dotclear()->con()->escape($id) . "' AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from($this->table)
+            ->where('setting_id = ' . $sql->quote($id))
+            ->and('setting_ns = ' . $sql->quote($this->ns));
 
-        dotclear()->con()->execute($strReq);
+        if (!$global) {
+            $sql->and('blog_id IS NOT NULL');
+        }
+
+        $sql->delete();
     }
 
     /**
@@ -398,19 +413,16 @@ class Settingspace
             throw new CoreException(__('No namespace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $global = $force_global || null === $this->blog_id;
 
-        if (($force_global) || ($this->blog_id === null)) {
-            $strReq .= 'WHERE blog_id IS NULL ';
-            $global = true;
-        } else {
-            $strReq .= "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' ";
-            $global = false;
-        }
-
-        $strReq .= "AND setting_ns = '" . dotclear()->con()->escape($this->ns) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from($this->table)
+            ->where($global ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($this->blog_id)
+            )
+            ->and('setting_ns = ' . $sql->quote($this->ns))
+            ->delete();
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_settings'});

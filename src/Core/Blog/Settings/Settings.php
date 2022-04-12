@@ -55,7 +55,7 @@ class Settings
     private function loadSettings(): void
     {
         try {
-            $sql = new SelectStatement('coreBlogLoadSettings');
+            $sql = new SelectStatement(__METHOD__);
             $rs = $sql
                 ->columns([
                     'blog_id', 
@@ -133,7 +133,7 @@ class Settings
         unset($this->namespaces[$oldNs]);
 
         # Rename the namespace in the database
-        $sql = new UpdateStatement('coreBlogRenNamespace');
+        $sql = new UpdateStatement(__METHOD__);
         $sql->from($this->table)
             ->set('setting_ns = ' . $sql->quote($newNs))
             ->where('setting_ns = ' . $sql->quote($oldNs))
@@ -159,7 +159,7 @@ class Settings
         unset($this->namespaces[$ns]);
 
         # Delete all settings from the namespace in the database
-        $sql = new DeleteStatement('CoreBlogDelNamespace');
+        $sql = new DeleteStatement(__METHOD__);
         $sql->from($this->table)
             ->where('setting_ns = ' . $sql->quote($ns))
             ->delete();
@@ -215,7 +215,7 @@ class Settings
      */
     public function getGlobalSettings(array $params = []): Record
     {
-        $sql = SelectStatement::init('coreBlogLoadSettings')
+        $sql = SelectStatement::init(__METHOD__)
             ->from($this->table)
             ->column('*')
             ->where('1 = 1')
@@ -252,7 +252,7 @@ class Settings
             ->setField('blog_id', $rs->f('blog_id'))
             ->setField('setting_ns', $rs->f('setting_ns'));
 
-        $sql = new UpdateStatement('coreBlogUpdateSetting');
+        $sql = new UpdateStatement(__METHOD__);
         $sql->where(null == $cur->getField('blog_id') ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote($cur->getField('blog_id'))
@@ -271,7 +271,7 @@ class Settings
      */
     public function dropSetting(Record $rs): int
     {
-        $sql = new DeleteStatement('coreBlogDropSetting');
+        $sql = new DeleteStatement(__METHOD__);
         $sql->from($this->table)
             ->where(null == $rs->f('blog_id') ?
                 'blog_id IS NULL' :
