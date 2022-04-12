@@ -18,10 +18,11 @@ use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Dt;
 
 class Blog
 {
@@ -307,14 +308,12 @@ class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog')
+            ->setField('blog_upddt', date('Y-m-d H:i:s'));
 
-        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
-
-        $sql = new UpdateStatement('dcBlogTriggerBlog');
-        $sql->where('blog_id = ' . $sql->quote($this->id, true));
-
-        $sql->update($cur);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote($this->id))
+            ->update($cur);
 
         # --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
@@ -348,55 +347,61 @@ class Blog
 
         # Get posts affected by comments edition
         if (empty($affected_posts)) {
-            $strReq = 'SELECT post_id ' .
-            'FROM ' . dotclear()->prefix . 'comment ' .
-            'WHERE comment_id' . dotclear()->con()->in($comments_ids) .
-                'GROUP BY post_id';
-
-            $rs = dotclear()->con()->select($strReq);
+            $sql = new SelectStatement(__METHOD__ . 'Id');
+            $rs = $sql
+                ->from(dotclear()->prefix . 'comment ')
+                ->where('comment_id' . $sql->in($comments_ids))
+                ->group('post_id')
+                ->select();
 
             $affected_posts = [];
             while ($rs->fetch()) {
-                $affected_posts[] = (int) $rs->f('post_id');
+                $affected_posts[] = $rs->fInt('post_id');
             }
         }
 
-        if (!is_array($affected_posts) || empty($affected_posts)) {
+        if (empty($affected_posts)) {
             return;
         }
 
         # Count number of comments if exists for affected posts
-        $strReq = 'SELECT post_id, COUNT(post_id) AS nb_comment, comment_trackback ' .
-        'FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_status = 1 ' .
-        'AND post_id' . dotclear()->con()->in($affected_posts) .
-            'GROUP BY post_id,comment_trackback';
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__ . 'Count');
+        $rs = $sql
+            ->columns([
+                'post_id',
+                $sql->count('post_id', 'nb_comment'),
+                'comment_trackback',
+            ])
+            ->from(dotclear()->prefix . 'comment ')
+            ->where('comment_status = 1')
+            ->and('post_id' . $sql->in($affected_posts))
+            ->group(['post_id', 'comment_trackback'])
+            ->select();
 
         $posts = [];
         while ($rs->fetch()) {
-            if ($rs->f('comment_trackback')) {
-                $posts[$rs->f('post_id')]['trackback'] = $rs->f('nb_comment');
+            if ($rs->fInt('comment_trackback')) {
+                $posts[$rs->fInt('post_id')]['trackback'] = $rs->fInt('nb_comment');
             } else {
-                $posts[$rs->f('post_id')]['comment'] = $rs->f('nb_comment');
+                $posts[$rs->fInt('post_id')]['comment'] = $rs->fInt('nb_comment');
             }
         }
 
         # Update number of comments on affected posts
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
         foreach ($affected_posts as $post_id) {
-            $cur->clean();
+            $sql = UpdateStatement::init(__METHOD__ . $post_id)
+                ->from(dotclear()->prefix . 'post')
+                ->where('post_id = ' . $post_id);
 
-            if (!array_key_exists($post_id, $posts)) {
-                $cur->setField('nb_trackback', 0);
-                $cur->setField('nb_comment', 0);
+            if (array_key_exists($post_id, $posts)) {
+                $sql->set('nb_trackback = ' . ($posts[$post_id]['trackback'] ?: 0));
+                $sql->set('nb_comment = ' . ($posts[$post_id]['comment'] ?: 0));
             } else {
-                $cur->setField('nb_trackback', empty($posts[$post_id]['trackback']) ? 0 : $posts[$post_id]['trackback']);
-                $cur->setField('nb_comment', empty($posts[$post_id]['comment']) ? 0 : $posts[$post_id]['comment']);
+                $sql->set('nb_trackback = 0');
+                $sql->set('nb_comment = 0');
             }
 
-            $cur->update('WHERE post_id = ' . $post_id);
+            $sql->update();
         }
     }
     //@}

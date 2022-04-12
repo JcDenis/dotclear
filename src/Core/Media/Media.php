@@ -436,7 +436,7 @@ class Media extends Manager
 
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new SelectStatement('dcMediaGetDir');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns([
                 'media_file',
@@ -465,7 +465,7 @@ class Media extends Manager
         $rs = $sql->select();
 
         // Get list of private files in dir
-        $sql = new SelectStatement('dcMediaGetDir');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns([
                 'media_file',
@@ -524,7 +524,7 @@ class Media extends Manager
                     if (isset($f_reg[$rs->f('media_file')])) {
                         # That media is duplicated in the database,
                         # time to do a bit of house cleaning.
-                        $sql = new DeleteStatement('dcMediaGetDir');
+                        $sql = new DeleteStatement(__METHOD__);
                         $sql
                             ->from($this->table)
                             ->where('media_id = ' . $this->fileRecord($rs)->media_id);
@@ -540,7 +540,7 @@ class Media extends Manager
                 # Because we don't want to erase everything on
                 # dotclear upgrade, do it only if there are files
                 # in directory and directory is root
-                $sql = new DeleteStatement('dcMediaGetDir');
+                $sql = new DeleteStatement(__METHOD__);
                 $sql
                     ->from($this->table)
                     ->where('media_path = ' . $sql->quote($this->path, true))
@@ -583,7 +583,7 @@ class Media extends Manager
      */
     public function getFile(int $id): ?Item
     {
-        $sql = new SelectStatement('dcMediaGetFile');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->columns([
@@ -627,7 +627,7 @@ class Media extends Manager
             return false;
         }
 
-        $sql = new SelectStatement('dcMediaGetFile');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->columns([
@@ -759,7 +759,7 @@ class Media extends Manager
     {
         $media_dir = $pwd ?: '.';
 
-        $sql = new SelectStatement('dcMediaRebuildDB');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->columns([
@@ -778,7 +778,7 @@ class Media extends Manager
             }
         }
         if (!empty($del_ids)) {
-            $sql = new DeleteStatement('dcMediaRebuildDB');
+            $sql = new DeleteStatement(__METHOD__);
             $sql
                 ->from(dotclear())
                 ->where('media_id' . $sql->in($del_ids));
@@ -828,7 +828,7 @@ class Media extends Manager
 
         $cur = dotclear()->con()->openCursor($this->table);
 
-        $sql = new SelectStatement('dcMediaCreateFile');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->column('media_id')
@@ -841,7 +841,7 @@ class Media extends Manager
             dotclear()->con()->writeLock($this->table);
 
             try {
-                $sql = new SelectStatement('dcMediaCreateFile');
+                $sql = new SelectStatement(__METHOD__);
                 $sql
                     ->from($this->table)
                     ->column($sql->max('media_id'));
@@ -877,7 +877,7 @@ class Media extends Manager
 
             $cur->setField('media_upddt', date('Y-m-d H:i:s'));
 
-            $sql = new UpdateStatement('dcMediaCreateFile');
+            $sql = new UpdateStatement(__METHOD__);
             $sql->where('media_id = ' . $media_id);
 
             $sql->update($cur);
@@ -947,7 +947,7 @@ class Media extends Manager
             $cur->setField('media_meta', $newFile->media_meta->asXML());
         }
 
-        $sql = new UpdateStatement('dcMediaCreateFile');
+        $sql = new UpdateStatement(__METHOD__);
         $sql->where('media_id = ' . $id);
 
         $sql->update($cur);
@@ -1019,7 +1019,7 @@ class Media extends Manager
 
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $f) : Path::clean($f);
 
-        $sql = new DeleteStatement('dcMediaRemoveFile');
+        $sql = new DeleteStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->where('media_path = ' . $sql->quote($this->path, true))
@@ -1054,7 +1054,7 @@ class Media extends Manager
         $dir       = [];
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new SelectStatement('dcMediaGetDBDirs');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->column('distinct media_dir')
@@ -1328,7 +1328,7 @@ class Media extends Manager
         # --BEHAVIOR-- coreBeforeImageMetaCreate
         dotclear()->behavior()->call('coreBeforeImageMetaCreate', $c);
 
-        $sql = new UpdateStatement('dcMediaImageMetaCreate');
+        $sql = new UpdateStatement(__METHOD__);
         $sql->where('media_id = ' . $id);
 
         $sql->update($c);

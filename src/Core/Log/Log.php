@@ -49,7 +49,8 @@ class Log
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
-        $sql = new SelectStatement('dcLogGetLogs');
+        $sql = SelectStatement::init(__METHOD__)
+            ->from(dotclear()->prefix . $this->log_table . ' L');
 
         if ($count_only) {
             $sql->column($sql->count('log_id'));
@@ -67,23 +68,17 @@ class Log
                 'U.user_displayname',
                 'U.user_url',
             ]);
-        }
-
-        $sql->from(dotclear()->prefix . $this->log_table . ' L');
-
-        if (!$count_only) {
             $sql->join(
-                (new JoinStatement('dcLogGetLogs'))
-                ->type('LEFT')
-                ->from(dotclear()->prefix . $this->user_table . ' U')
-                ->on('U.user_id = L.user_id')
-                ->statement()
+                JoinStatement::init(__METHOD__)
+                    ->type('LEFT')
+                    ->from(dotclear()->prefix . $this->user_table . ' U')
+                    ->on('U.user_id = L.user_id')
+                    ->statement()
             );
         }
 
         if (!empty($params['blog_id'])) {
-            if ($params['blog_id'] === '*') {
-            } else {
+            if ('*' != $params['blog_id']) {
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
@@ -101,11 +96,10 @@ class Log
         }
 
         if (!$count_only) {
-            if (!empty($params['order'])) {
-                $sql->order($sql->escape($params['order']));
-            } else {
-                $sql->order('log_dt DESC');
-            }
+            $sql->order(empty($params['order']) ?
+                'log_dt DESC' :
+                $sql->escape($params['order'])
+            );
         }
 
         if (!empty($params['limit'])) {
@@ -131,7 +125,7 @@ class Log
 
         try {
             # Get ID
-            $id = SelectStatement::init('dcLogAddLog')
+            $id = SelectStatement::init(__METHOD__)
                 ->column('MAX(log_id)')
                 ->from(dotclear()->prefix . $this->log_table)
                 ->select()->fInt();
@@ -168,17 +162,15 @@ class Log
     public function delete(int|array $id, bool $all = false): void
     {
         if ($all) {
-            $sql = new TruncateStatement('dcLogDelLogs');
-            $sql
-                ->from(dotclear()->prefix . $this->log_table);
+            $sql = TruncateStatement::init(__METHOD__);
         } else {
-            $sql = new DeleteStatement('dcLogDelLogs');
-            $sql
-                ->from(dotclear()->prefix . $this->log_table)
-                ->where('log_id ' . $sql->in($id));
+            $sql = new DeleteStatement(__METHOD__);
+            $sql->where('log_id ' . $sql->in($id));
         }
 
-        $sql->run();
+        $sql
+            ->from(dotclear()->prefix . $this->log_table)
+            ->run();
     }
 
     /**

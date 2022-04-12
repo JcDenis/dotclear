@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Version;
 
+use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 
@@ -35,7 +36,7 @@ class Version
     {
         # Fetch versions if needed
         if (!is_array($this->stack)) {
-            $rs = SelectStatement::init('CoreGetVersion')
+            $rs = SelectStatement::init(__METHOD__)
                 ->columns(['module', 'version'])
                 ->from(dotclear()->prefix . $this->table)
                 ->select();
@@ -56,15 +57,17 @@ class Version
      */
     public function set(string $module, string $version): void
     {
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->setField('module', $module);
-        $cur->setField('version', $version);
-
-        if (null === $this->get($module)) {
-            $cur->insert();
-        } else {
-            $cur->update("WHERE module='" . dotclear()->con()->escape($module) . "'");
+        if (null !== $this->get($module)) {
+            $this->delete($module);
         }
+
+        $sql = new InsertStatement(__METHOD__);
+        $sql->from(dotclear()->prefix . $this->table)
+            ->lines([
+                'module = ' . $sql->quote($module),
+                'version = ' . $sql->quote($version),
+            ])
+            ->insert();
 
         $this->stack[$module] = $version;
     }
@@ -76,7 +79,7 @@ class Version
      */
     public function delete(string $module): void
     {
-        $sql = new DeleteStatement('CoreDelVersion');
+        $sql = new DeleteStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
             ->where('module = ' . $sql->quote($module))
             ->delete();

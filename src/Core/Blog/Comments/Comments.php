@@ -21,8 +21,8 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 
 class Comments
@@ -263,12 +263,14 @@ class Comments
 
         try {
             # Get ID
-            $rs = dotclear()->con()->select(
-                'SELECT MAX(comment_id) ' .
-                'FROM ' . dotclear()->prefix . 'comment '
-            );
+            $sql = new SelectStatement('dcBlogAddComment');
+            $id = $sql
+                ->column($sql->max('comment_id'))
+                ->from(dotclear()->prefix . 'comment')
+                ->select()
+                ->fInt();
 
-            $cur->setField('comment_id', $rs->fInt() + 1);
+            $cur->setField('comment_id', $id + 1);
             $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
 
             $offset = Dt::getTimeOffset(dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
@@ -427,12 +429,13 @@ class Comments
 
         # Retrieve posts affected by comments edition
         $affected_posts = [];
-        $strReq         = 'SELECT post_id ' .
-        'FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_id' . dotclear()->con()->in($co_ids) .
-            'GROUP BY post_id';
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement('dcBlogDelComments');
+        $rs = $sql
+            ->column('post_id')
+            ->from(dotclear()->prefix . 'comment')
+            ->where('comment_id' . $sql->in($co_ids))
+            ->group('post_id')
+            ->select();
 
         while ($rs->fetch()) {
             $affected_posts[] = $rs->fInt('post_id');
