@@ -74,9 +74,11 @@ class Cursor
      * @param   string  $n  Field name
      * @param   mixed   $v  Field value
      */
-    public function setField(string $n, mixed $v): void
+    public function setField(string $n, mixed $v): Cursor
     {
         $this->__data[$n] = $v;
+
+        return $this;
     }
 
     /**
