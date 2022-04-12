@@ -92,7 +92,8 @@ class Settingspace
                         'blog_id IS NULL'
                     ]))
                     ->and('setting_ns = ' . $sql->quote($this->ns))
-                    ->order('setting_id DESC');
+                    ->order('setting_id DESC')
+                    ->select();
             } catch (\Exception) {
                 trigger_error(__('Unable to retrieve settings:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
             }
