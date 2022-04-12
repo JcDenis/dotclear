@@ -63,10 +63,14 @@ class Version
 
         $sql = new InsertStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
-            ->lines([
-                'module = ' . $sql->quote($module),
-                'version = ' . $sql->quote($version),
+            ->columns([
+                'module', 
+                'version',
             ])
+            ->line([[
+                $sql->quote($module), 
+                $sql->quote($version),
+            ]])
             ->insert();
 
         $this->stack[$module] = $version;

@@ -17,6 +17,7 @@ namespace Dotclear\Core\Media;
 
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 
@@ -34,8 +35,7 @@ class PostMedia
      */
     public function getPostMedia(array $params = []): Record
     {
-        $sql = new SelectStatement('dcPostMediaGetPostMedia');
-        $sql
+        $sql = SelectStatement::init(__METHOD__)
             ->columns([
                 'M.media_file',
                 'M.media_id',
@@ -48,21 +48,19 @@ class PostMedia
                 'M.media_private',
                 'M.user_id',
                 'PM.post_id',
-            ]);
+            ])
+            ->from(dotclear()->prefix . 'media M')
+            ->join(
+                JoinStatement::init(__METHOD__)
+                    ->type('INNER')
+                    ->from(dotclear()->prefix . $this->table . ' PM')
+                    ->on('M.media_id = PM.media_id')
+                    ->statement()
+            );
 
         if (!empty($params['columns']) && is_array($params['columns'])) {
             $sql->columns($params['columns']);
         }
-
-        $sql
-            ->from(dotclear()->prefix . 'media M')
-            ->join(
-                (new JoinStatement('dcPostMediaGetPostMedia'))
-                ->type('INNER')
-                ->from(dotclear()->prefix . $this->table . ' PM')
-                ->on('M.media_id = PM.media_id')
-                ->statement()
-            );
 
         if (!empty($params['from'])) {
             $sql->from($params['from']);
@@ -106,12 +104,20 @@ class PostMedia
             return;
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->setField('post_id', $post_id);
-        $cur->setField('media_id', $media_id);
-        $cur->setField('link_type', $link_type);
+        $sql = new InsertStatement(__METHOD__);
+        $sql->from(dotclear()->prefix . $this->table)
+            ->columns([
+                'post_id', 
+                'media_id', 
+                'link_type',
+            ])
+            ->line([[
+                $post_id, 
+                $media_id, 
+                $sql->quote($link_type),
+            ]])
+            ->insert();
 
-        $cur->insert();
         dotclear()->blog()->triggerBlog();
     }
 
@@ -124,8 +130,7 @@ class PostMedia
      */
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
-        $sql = new DeleteStatement('dcPostMediaRemovePostMedia');
-        $sql
+        $sql = DeleteStatement::init(__METHOD__)
             ->from(dotclear()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('media_id = ' . $media_id);
