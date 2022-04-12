@@ -15,6 +15,9 @@ namespace Dotclear\Core\Blog\Settings;
 
 use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
 class Settings
@@ -51,22 +54,27 @@ class Settings
      */
     private function loadSettings(): void
     {
-        $strReq = 'SELECT blog_id, setting_id, setting_value, ' .
-        'setting_type, setting_label, setting_ns ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' " .
-            'OR blog_id IS NULL ' .
-            'ORDER BY setting_ns ASC, setting_id DESC';
-
-        $rs = null;
-
         try {
-            $rs = dotclear()->con()->select($strReq);
+            $sql = new SelectStatement('coreBlogLoadSettings');
+            $rs = $sql
+                ->columns([
+                    'blog_id', 
+                    'setting_id',
+                    'setting_value',
+                    'setting_type',
+                    'setting_label',
+                    'setting_ns',
+                ])
+                ->from($this->table)
+                ->where('blog_id = ' . $sql->quote($this->blog_id))
+                ->or('blog_id IS NULL')
+                ->order(['setting_ns ASC', 'setting_id DESC'])
+                ->select();
         } catch (\Exception) {
             trigger_error(__('Unable to retrieve namespaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
         }
 
-        /* Prevent empty tables (install phase, for instance) */
+        # Prevent empty tables (install phase, for instance)
         if ($rs->isEmpty()) {
             return;
         }
@@ -74,8 +82,8 @@ class Settings
         do {
             $ns = trim($rs->f('setting_ns'));
             if (!$rs->isStart()) {
-                // we have to go up 1 step, since namespaces construction performs a fetch()
-                // at very first time
+                # we have to go up 1 step, since namespaces construction performs 
+                # a fetch() at very first time
                 $rs->movePrev();
             }
             $this->namespaces[$ns] = new Settingspace($this->blog_id, $ns, $rs);
@@ -120,15 +128,16 @@ class Settings
             throw new CoreException(sprintf(__('Invalid setting namespace: %s'), $newNs));
         }
 
-        // Rename the namespace in the namespace array
+        # Rename the namespace in the namespace array
         $this->namespaces[$newNs] = $this->namespaces[$oldNs];
         unset($this->namespaces[$oldNs]);
 
-        // Rename the namespace in the database
-        $strReq = 'UPDATE ' . $this->table .
-        " SET setting_ns = '" . dotclear()->con()->escape($newNs) . "' " .
-        " WHERE setting_ns = '" . dotclear()->con()->escape($oldNs) . "' ";
-        dotclear()->con()->execute($strReq);
+        # Rename the namespace in the database
+        $sql = new UpdateStatement('coreBlogRenNamespace');
+        $sql->from($this->table)
+            ->set('setting_ns = ' . $sql->quote($newNs))
+            ->where('setting_ns = ' . $sql->quote($oldNs))
+            ->update();
 
         return true;
     }
@@ -146,13 +155,14 @@ class Settings
             return false;
         }
 
-        // Remove the namespace from the namespace array
+        # Remove the namespace from the namespace array
         unset($this->namespaces[$ns]);
 
-        // Delete all settings from the namespace in the database
-        $strReq = 'DELETE FROM ' . $this->table .
-        " WHERE setting_ns = '" . dotclear()->con()->escape($ns) . "' ";
-        dotclear()->con()->execute($strReq);
+        # Delete all settings from the namespace in the database
+        $sql = new DeleteStatement('CoreBlogDelNamespace');
+        $sql->from($this->table)
+            ->where('setting_ns = ' . $sql->quote($ns))
+            ->delete();
 
         return true;
     }
@@ -205,27 +215,26 @@ class Settings
      */
     public function getGlobalSettings(array $params = []): Record
     {
-        $strReq = 'SELECT * from ' . $this->table . ' ';
-        $where  = [];
+        $sql = SelectStatement::init('coreBlogLoadSettings')
+            ->from($this->table)
+            ->column('*')
+            ->where('1 = 1')
+            ->order('blog_id');
+
         if (!empty($params['ns'])) {
-            $where[] = "setting_ns = '" . dotclear()->con()->escape($params['ns']) . "'";
+            $sql->and('setting_ns = ' . $sql->quote($params['ns']));
         }
         if (!empty($params['id'])) {
-            $where[] = "setting_id = '" . dotclear()->con()->escape($params['id']) . "'";
+            $sql->and('setting_id = ' . $sql->quote($params['id']));
         }
         if (isset($params['blog_id'])) {
-            if (!empty($params['blog_id'])) {
-                $where[] = "blog_id = '" . dotclear()->con()->escape($params['blog_id']) . "'";
-            } else {
-                $where[] = 'blog_id IS NULL';
-            }
+            $sql->and(empty($params['blog_id']) ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($params['blog_id'])
+            );
         }
-        if (count($where) != 0) {
-            $strReq .= ' WHERE ' . join(' AND ', $where);
-        }
-        $strReq .= ' ORDER by blog_id';
 
-        return dotclear()->con()->select($strReq);
+        return $sql->select();
     }
 
     /**
@@ -235,19 +244,22 @@ class Settings
      */
     public function updateSetting(Record $rs): void
     {
-        $cur = dotclear()->con()->openCursor($this->table);
-        $cur->setField('setting_id', $rs->f('setting_id'));
-        $cur->setField('setting_value', $rs->f('setting_value'));
-        $cur->setField('setting_type', $rs->f('setting_type'));
-        $cur->setField('setting_label', $rs->f('setting_label'));
-        $cur->setField('blog_id', $rs->f('blog_id'));
-        $cur->setField('setting_ns', $rs->f('setting_ns'));
+        $cur = dotclear()->con()->openCursor($this->table)
+            ->setField('setting_id', $rs->f('setting_id'))
+            ->setField('setting_value', $rs->f('setting_value'))
+            ->setField('setting_type', $rs->f('setting_type'))
+            ->setField('setting_label', $rs->f('setting_label'))
+            ->setField('blog_id', $rs->f('blog_id'))
+            ->setField('setting_ns', $rs->f('setting_ns'));
 
-        $where = null == $cur->getField('blog_id') ?
-            'WHERE blog_id IS NULL ' :
-            "WHERE blog_id = '" . dotclear()->con()->escape($cur->getField('blog_id')) . "' ";
-
-        $cur->update($where . "AND setting_id = '" . dotclear()->con()->escape($cur->getField('setting_id')) . "' AND setting_ns = '" . dotclear()->con()->escape($cur->getField('setting_ns')) . "' ");
+        $sql = new UpdateStatement('coreBlogUpdateSetting');
+        $sql->where(null == $cur->getField('blog_id') ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($cur->getField('blog_id'))
+            )
+            ->and('setting_id = ' . $sql->quote($cur->getField('setting_id')))
+            ->and('setting_ns = ' . $sql->quote($cur->getField('setting_ns')))
+            ->update($cur);
     }
 
     /**
@@ -259,15 +271,15 @@ class Settings
      */
     public function dropSetting(Record $rs): int
     {
-        $strReq = 
-            'DELETE FROM ' . $this->table . ' ' .
-            (null == $rs->f('blog_id') ?
-                'WHERE blog_id IS NULL ' :
-                "WHERE blog_id = '" . dotclear()->con()->escape($rs->f('blog_id')) . "' "
-            ) .
-            "AND setting_id = '" . dotclear()->con()->escape($rs->f('setting_id')) . "' AND setting_ns = '" . dotclear()->con()->escape($rs->f('setting_ns')) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement('coreBlogDropSetting');
+        $sql->from($this->table)
+            ->where(null == $rs->f('blog_id') ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($rs->f('blog_id'))
+            )
+            ->and('setting_id = ' . $sql->quote($rs->f('setting_id')))
+            ->and('setting_ns = ' . $sql->quote($rs->f('setting_ns')))
+            ->delete();
 
         return dotclear()->con()->changes();
     }
