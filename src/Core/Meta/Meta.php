@@ -407,7 +407,8 @@ class Meta
             return;
         }
 
-        InsertStatement::init(__METHOD__)
+        $sql = new InsertStatement(__METHOD__);
+        $sql
             ->from(dotclear()->prefix . $this->table)
             ->columns([
                 'post_id',
@@ -416,8 +417,8 @@ class Meta
             ])
             ->line([[
                 $post_id,
-                $value,
-                $type
+                $sql->quote($value),
+                $sql->quote($type)
             ]])
             ->insert();
 

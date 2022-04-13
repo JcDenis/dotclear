@@ -275,12 +275,7 @@ class Settingspace
             $value = json_encode($value);
         }
 
-        $cur = dotclear()->con()->openCursor($this->table)
-            ->setField('setting_value', ($type == 'boolean') ? (string) (int) $value : (string) $value)
-            ->setField('setting_type', $type)
-            ->setField('setting_label', $label);
-
-        #If we are local, compare to global value
+        # If we are local, compare to global value
         if (!$global && $this->settingExists($id, true)) {
             $g            = $this->global_settings[$id];
             $same_setting = ($g['ns'] == $this->ns && $g['value'] == $value && $g['type'] == $type && $g['label'] == $label);
@@ -293,22 +288,45 @@ class Settingspace
             }
         }
 
+        # Update
         if ($this->settingExists($id, $global) && $this->ns == $this->settings[$id]['ns']) {
             $sql = new UpdateStatement(__METHOD__);
-            $sql->where($global ?
+            $sql
+                ->set([
+                    'setting_value = ' .  $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                    'setting_type = ' . $sql->quote($type),
+                    'setting_label = ' . $sql->quote($label),
+                ])
+                ->where($global ?
                     'blog_id IS NULL' :
                     'blog_id = ' . $sql->quote($this->blog_id)
                 )
                 ->and('setting_id = ' . $sql->quote($id)) 
                 ->and('setting_ns = ' . $sql->quote($this->ns))
-                ->update($cur);
+                ->from($this->table)
+                ->update();
+        # Insert
         } else {
-            //! todo: use InsertStatement
-            $cur->setField('setting_id', $id);
-            $cur->setField('blog_id', $global ? null : $this->blog_id);
-            $cur->setField('setting_ns', $this->ns);
-
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'setting_value',
+                    'setting_type',
+                    'setting_label',
+                    'setting_id',
+                    'blog_id',
+                    'setting_ns',
+                ])
+                ->line([[
+                    $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                    $sql->quote($type),
+                    $sql->quote($label),
+                    $sql->quote($id),
+                    $global ? 'NULL' : $sql->quote($this->blog_id),
+                    $sql->quote($this->ns),
+                ]])
+                ->from($this->table)
+                ->insert();
         }
     }
 

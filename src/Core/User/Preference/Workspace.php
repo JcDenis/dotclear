@@ -14,6 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
 class Workspace
@@ -75,16 +79,26 @@ class Workspace
     private function getPrefs(?Record $rs = null): bool
     {
         if ($rs == null) {
-            $strReq = 'SELECT user_id, pref_id, pref_value, ' .
-            'pref_type, pref_label, pref_ws ' .
-            'FROM ' . $this->table . ' ' .
-            "WHERE (user_id = '" . dotclear()->con()->escape($this->user_id) . "' " .
-            'OR user_id IS NULL) ' .
-            "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' " .
-                'ORDER BY pref_id ASC ';
-
             try {
-                $rs = dotclear()->con()->select($strReq);
+                $sql = new SelectStatement(__METHOD__);
+                $rs = $sql
+                    ->columns([
+                        'user_id',
+                        'pref_id',
+                        'pref_value',
+                        'pref_type',
+                        'pref_label',
+                        'pref_ws',
+                    ])
+                    ->from($this->table)
+                    ->where($sql->orGroup([
+                        'user_id = ' . $sql->quote($this->user_id),
+                        'user_id IS NULL',
+                    ]))
+                    ->and('pref_ws = ' . $sql->quote($this->ws))
+                    ->order('pref_id ASC')
+                    ->select();
+
             } catch (\Exception $e) {
                 throw $e;
             }
@@ -262,11 +276,6 @@ class Workspace
             $value = json_encode($value);
         }
 
-        $cur = dotclear()->con()->openCursor($this->table);
-        $cur->setField('pref_value', ($type == 'boolean') ? (string) (int) $value : (string) $value);
-        $cur->setField('pref_type', $type);
-        $cur->setField('pref_label', $label);
-
         #If we are local, compare to global value
         if (!$global && $this->prefExists($id, true)) {
             $g         = $this->global_prefs[$id];
@@ -280,20 +289,45 @@ class Workspace
             }
         }
 
+        # Update
         if ($this->prefExists($id, $global) && $this->ws == $this->prefs[$id]['ws']) {
-            if ($global) {
-                $where = 'WHERE user_id IS NULL ';
-            } else {
-                $where = "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
-            }
-
-            $cur->update($where . "AND pref_id = '" . dotclear()->con()->escape($id) . "' AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ");
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set([
+                    'pref_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                    'pref_type = ' . $sql->quote($type),
+                    'pref_label = ' . $sql->quote($label),
+                ])
+                ->where($global ?
+                    'user_id IS NULL' :
+                    'user_id = ' . $sql->quote($this->user_id)
+                )
+                ->and('pref_id = ' . $sql->quote($id))
+                ->and('pref_ws = ' . $sql->quote($this->ws))
+                ->from($this->table)
+                ->update();
+        # Insert
         } else {
-            $cur->setField('pref_id', $id);
-            $cur->setField('user_id', $global ? null : $this->user_id);
-            $cur->setField('pref_ws', $this->ws);
-
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'pref_value',
+                    'pref_type',
+                    'pref_label',
+                    'pref_id',
+                    'user_id',
+                    'pref_ws',
+                ])
+                ->line([[
+                    $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                    $sql->quote($type),
+                    $sql->quote($label),
+                    $sql->quote($id),
+                    $global ? 'NULL' : $sql->quote($this->user_id),
+                    $sql->quote($this->ws)
+                ]])
+                ->from($this->table)
+                ->insert();
         }
     }
 
@@ -321,16 +355,18 @@ class Workspace
             throw new CoreException(sprintf(__('%s is not a valid pref id'), $newId));
         }
 
-        // Rename the pref in the prefs array
+        # Rename the pref in the prefs array
         $this->prefs[$newId] = $this->prefs[$oldId];
         unset($this->prefs[$oldId]);
 
-        // Rename the pref in the database
-        $strReq = 'UPDATE ' . $this->table .
-        " SET pref_id = '" . dotclear()->con()->escape($newId) . "' " .
-        " WHERE pref_ws = '" . dotclear()->con()->escape($this->ws) . "' " .
-        " AND pref_id = '" . dotclear()->con()->escape($oldId) . "' ";
-        dotclear()->con()->execute($strReq);
+        # Rename the pref in the database
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('pref_id = ' . $sql->quote($newId))
+            ->where('pref_ws = ' . $sql->quote($this->ws))
+            ->and('pref_id = ' . $sql->quote($oldId))
+            ->from($this->table)
+            ->update();
 
         return true;
     }
@@ -349,20 +385,18 @@ class Workspace
             throw new CoreException(__('No workspace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $global = $force_global || null === $this->user_id;
 
-        if ($force_global || null === $this->user_id) {
-            $strReq .= 'WHERE user_id IS NULL ';
-            $global = true;
-        } else {
-            $strReq .= "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
-            $global = false;
-        }
-
-        $strReq .= "AND pref_id = '" . dotclear()->con()->escape($id) . "' ";
-        $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where($global ?
+                'user_id IS NULL' :
+                'user_id = ' . $sql->quote($this->user_id)
+            )
+            ->and('pref_id = ' . $sql->quote($id))
+            ->and('pref_ws = ' . $sql->quote($this->ws))
+            ->from($this->table)
+            ->delete();
 
         if ($this->prefExists($id, $global)) {
             $array = $global ? 'global' : 'local';
@@ -387,13 +421,18 @@ class Workspace
             throw new CoreException(__('No workspace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' WHERE ';
-        if (!$global) {
-            $strReq .= 'user_id IS NOT NULL AND ';
-        }
-        $strReq .= "pref_id = '" . dotclear()->con()->escape($id) . "' AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where('pref_id = ' . $sql->quote($id))
+            ->and('pref_ws = ' . $sql->quote($this->ws));
 
-        dotclear()->con()->execute($strReq);
+        if (!$global) {
+            $sql->and('user_id IS NOT NULL');
+        }
+
+        $sql
+            ->from($this->table)
+            ->delete();
     }
 
     /**
@@ -409,19 +448,17 @@ class Workspace
             throw new CoreException(__('No workspace specified'));
         }
 
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $global = $force_global || null === $this->user_id;
 
-        if (($force_global) || ($this->user_id === null)) {
-            $strReq .= 'WHERE user_id IS NULL ';
-            $global = true;
-        } else {
-            $strReq .= "WHERE user_id = '" . dotclear()->con()->escape($this->user_id) . "' ";
-            $global = false;
-        }
-
-        $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($this->ws) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where($global ?
+                'user_id IS NULL' : 
+                'user_id = ' . $sql->quote($this->user_id)
+            )
+            ->and('pref_ws = ' . $sql->quote($this->ws))
+            ->from($this->table)
+            ->delete();
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_prefs'});

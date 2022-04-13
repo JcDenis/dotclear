@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Core\User\Preference;
 
 use Dotclear\Core\User\Preference\Workspace;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
 class Preference
@@ -54,17 +57,32 @@ class Preference
      */
     private function loadPrefs($workspace = null): void
     {
-        $strReq = 'SELECT user_id, pref_id, pref_value, ' .
-        'pref_type, pref_label, pref_ws ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE (user_id = '" . dotclear()->con()->escape($this->user_id) . "' " . 'OR user_id IS NULL ) ';
-        if ($workspace !== null) {
-            $strReq .= "AND pref_ws = '" . dotclear()->con()->escape($workspace) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->columns([
+                'user_id',
+                'pref_id',
+                'pref_value',
+                'pref_type',
+                'pref_label',
+                'pref_ws',
+            ])
+            ->from($this->table)
+            ->where($sql->orGroup([
+                'user_id = ' . $sql->quote($this->user_id),
+                'user_id IS NULL',
+            ]))
+            ->order([
+                'pref_ws ASC',
+                'pref_id ASC',
+            ]);
+
+        if (null !== $workspace) {
+            $sql->and('pref_ws = ' . $sql->quote($workspace));
         }
-        $strReq .= 'ORDER BY pref_ws ASC, pref_id ASC';
 
         try {
-            $rs = dotclear()->con()->select($strReq);
+            $rs = $sql->select();
         } catch (\Exception $e) {
             throw $e;
         }
@@ -126,10 +144,12 @@ class Preference
         unset($this->workspaces[$oldWs]);
 
         // Rename the workspace in the database
-        $strReq = 'UPDATE ' . $this->table .
-        " SET pref_ws = '" . dotclear()->con()->escape($newWs) . "' " .
-        " WHERE pref_ws = '" . dotclear()->con()->escape($oldWs) . "' ";
-        dotclear()->con()->execute($strReq);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('pref_ws = ' . $sql->quote($newWs))
+            ->from($this->table)
+            ->where('pref_ws = ' . $sql->quote($oldWs))
+            ->update();
 
         return true;
     }
@@ -151,9 +171,11 @@ class Preference
         unset($this->workspaces[$ws]);
 
         // Delete all preferences from the workspace in the database
-        $strReq = 'DELETE FROM ' . $this->table .
-        " WHERE pref_ws = '" . dotclear()->con()->escape($ws) . "' ";
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->from($this->table)
+            ->where('pref_ws = ' . $sql->quote($ws))
+            ->delete();
 
         return true;
     }
