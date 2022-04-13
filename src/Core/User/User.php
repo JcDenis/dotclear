@@ -91,7 +91,7 @@ class User
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
         # Check user and password
-        $sql = new SelectStatement('coreAuthCheckUser');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns(array_keys($this->container->row()))
             ->from(dotclear()->prefix . $this->user_table)
@@ -146,13 +146,12 @@ class User
             }
             if ($rehash) {
                 // Store new hash in DB
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-                $cur->setField('user_pwd', (string) $user_pwd);
-
                 $sql = new UpdateStatement('coreAuthCheckUser');
-                $sql->where('user_id = ' . $sql->quote($rs->f('user_id')));
-
-                $sql->update($cur);
+                $sql
+                    ->set('user_pwd = ' . $sql->quote($user_pwd))
+                    ->from(dotclear()->prefix . $this->user_table)
+                    ->where('user_id = ' . $sql->quote($rs->f('user_id')))
+                    ->update();
             }
         } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
@@ -375,7 +374,7 @@ class User
         }
 
         if ($this->container->get('user_super')) {
-            $sql = new SelectStatement('coreAuthGetPermissions');
+            $sql = new SelectStatement(__METHOD__);
             $rs = $sql
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
@@ -387,7 +386,7 @@ class User
             return $this->blogs[$blog_id];
         }
 
-        $sql = new SelectStatement('coreAuthGetPermissions');
+        $sql = new SelectStatement(__METHOD__);
         $rs = $sql
             ->column('permissions')
             ->from(dotclear()->prefix . $this->perm_table)
@@ -432,7 +431,7 @@ class User
             return $blog_id;
         }
 
-        $sql = new SelectStatement('coreAuthFindUserBlog');
+        $sql = new SelectStatement(__METHOD__);
 
         if ($this->container->get('user_super')) {
             $sql
@@ -577,7 +576,7 @@ class User
      */
     public function setRecoverKey(string $user_id, string $user_email): string
     {
-        $sql = new SelectStatement('coreAuthSetRecoverKey');
+        $sql = new SelectStatement(__METHOD__);
         $rs = $sql
             ->column('user_id')
             ->from(dotclear()->prefix . $this->user_table)
@@ -591,13 +590,12 @@ class User
 
         $key = md5(uniqid('', true));
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-        $cur->setField('user_recover_key', $key);
-
-        $sql = new UpdateStatement('coreAuthSetRecoverKey');
-        $sql->where('user_id = ' . $sql->quote($user_id));
-
-        $sql->update($cur);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('user_recover_key = ' . $sql->quote($key))
+            ->from(dotclear()->prefix . $this->user_table)
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->update();
 
         return $key;
     }
@@ -615,7 +613,7 @@ class User
      */
     public function recoverUserPassword(string $recover_key): array
     {
-        $sql = new SelectStatement('coreAuthRecoverUserPassword');
+        $sql = new SelectStatement(__METHOD__);
         $rs = $sql
             ->columns(['user_id', 'user_email'])
             ->from(dotclear()->prefix . $this->user_table)
@@ -628,15 +626,14 @@ class User
 
         $new_pass = Crypt::createPassword();
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->user_table);
-        $cur->setField('user_pwd', $this->crypt($new_pass));
-        $cur->setField('user_recover_key', null);
-        $cur->setField('user_change_pwd', 1); // User will have to change this temporary password at next login
-
-        $sql = new UpdateStatement('coreAuthRecoverUserPassword');
-        $sql->where('user_recover_key = ' . $sql->quote($recover_key));
-
-        $sql->update($cur);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)))
+            ->set('user_recover_key = NULL')
+            ->set('user_change_pwd = 1') // User will have to change this temporary password at next login
+            ->from(dotclear()->prefix . $this->user_table)
+            ->where('user_recover_key = ' . $sql->quote($recover_key))
+            ->update();
 
         return ['user_email' => $rs->f('user_email'), 'user_id' => $rs->f('user_id'), 'new_pass' => $new_pass];
     }

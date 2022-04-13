@@ -18,6 +18,7 @@ namespace Dotclear\Core\Trackback;
 
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
@@ -43,8 +44,11 @@ class Trackback
      */
     public function getPostPings(int $post_id): Record
     {
-        return SelectStatement::init('CoreGetPostPings')
-            ->columns(['ping_url', 'ping_dt'])
+        return SelectStatement::init(__METHOD__)
+            ->columns([
+                'ping_url',
+                'ping_dt'
+            ])
             ->from(dotclear()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->select();
@@ -69,9 +73,12 @@ class Trackback
             return false;
         }
 
-        $sql = new SelectStatement('CorePing');
+        $sql = new SelectStatement(__METHOD__);
         $rs = $sql
-            ->columns(['post_id', 'ping_url'])
+            ->columns([
+                'post_id',
+                'ping_url'
+            ])
             ->from(dotclear()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('ping_url = ' . $sql->quote($url))
@@ -156,12 +163,19 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         # Notify ping result in database
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . $this->table);
-        $cur->setField('post_id', $post_id);
-        $cur->setField('ping_url', $url);
-        $cur->SetField('ping_dt', date('Y-m-d H:i:s'));
-
-        $cur->insert();
+        $sql = new InsertStatement(__METHOD__);
+        $sql
+            ->columns([
+                'post_id',
+                'ping_url',
+                'ping_dt',
+            ])
+            ->line([[
+                $post_id,
+                $sql->quote($url),
+                $sql->quote(date('Y-m-d H:i:s')),
+            ]])
+            ->insert();
 
         return true;
     }
@@ -502,7 +516,7 @@ class Trackback
      */
     private function delBacklink(int $post_id, string $url): void
     {
-        $sql = new DeleteStatement('CoreDelBacklink');
+        $sql = new DeleteStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
             ->where("post_id = " . $post_id)
             ->and('comment_site = ' . $sql->quote($url))

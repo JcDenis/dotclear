@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Core\Session;
 
 use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 
 class Session
 {
@@ -168,21 +170,21 @@ class Session
         ];
     }
 
-    public function _open($path, $name)
+    public function _open(string $path, string $name): bool
     {
         return true;
     }
 
-    public function _close()
+    public function _close(): bool
     {
         $this->_gc();
 
         return true;
     }
 
-    public function _read($ses_id)
+    public function _read(string $ses_id): string
     {
-        $rs = SelectStatement::init('CoreReadSession')
+        $rs = SelectStatement::init(__METHOD__)
             ->columns(['ses_value'])
             ->from($this->table)
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
@@ -191,35 +193,49 @@ class Session
         return $rs->isEmpty() ? '' : $rs->f('ses_value');
     }
 
-    public function _write($ses_id, $data)
+    public function _write(string $ses_id, string $data): bool
     {
         $ses_id = $this->checkID($ses_id);
 
-        $rs = SelectStatement::init('CoreWriteSession')
+        $rs = SelectStatement::init(__METHOD__)
             ->columns(['ses_id'])
             ->from($this->table)
             ->where("ses_id = '" . $ses_id . "'")
             ->select();
 
-        $cur = dotclear()->con()->openCursor($this->table);
-        $cur->setField('ses_time', (string) time());
-        $cur->setField('ses_value', (string) $data);
-
         if (!$rs->isEmpty()) {
-            $cur->update("WHERE ses_id = '" . $ses_id . "' ");
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->from($this->table)
+                ->where('ses_id = ' . $sql->quote($ses_id))
+                ->set('ses_time = ' . time())
+                ->set('ses_value = ' . $sql->quote($data))
+                ->update();
         } else {
-            $cur->setField('ses_id', (string) $ses_id);
-            $cur->setField('ses_start', (string) time());
-
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->from($this->table)
+                ->columns([
+                    'ses_id',
+                    'ses_start',
+                    'ses_time',
+                    'ses_value',
+                ])
+                ->line([[
+                    $sql->quote($ses_id),
+                    time(),
+                    time(),
+                    $sql->quote($data),
+                ]])
+                ->insert();
         }
 
         return true;
     }
 
-    public function _destroy($ses_id)
+    public function _destroy(string $ses_id): bool
     {
-        DeleteStatement::init('CoreDeleteSession')
+        DeleteStatement::init(__METHOD__)
             ->from($this->table)
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
             ->delete();
@@ -231,9 +247,9 @@ class Session
         return true;
     }
 
-    public function _gc()
+    public function _gc(): bool
     {
-        DeleteStatement::init('CoreCleanSession')
+        DeleteStatement::init(__METHOD__)
             ->from($this->table)
             ->where('ses_time < ' . strtotime($this->ttl))
             ->delete();
@@ -245,12 +261,12 @@ class Session
         return true;
     }
 
-    private function _optimize()
+    private function _optimize(): void
     {
         dotclear()->con()->vacuum($this->table);
     }
 
-    private function checkID($id)
+    private function checkID(string $id): ?string
     {
         return !preg_match('/^([0-9a-f]{40})$/i', (string) $id) ? null : $id;
     }
