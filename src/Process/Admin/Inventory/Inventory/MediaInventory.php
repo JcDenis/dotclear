@@ -14,15 +14,14 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Inventory\Inventory;
-use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
+use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Page\Pager;
 
 class MediaInventory extends Inventory
 {

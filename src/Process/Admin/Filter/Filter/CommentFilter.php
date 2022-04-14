@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
-
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
@@ -49,7 +48,7 @@ class CommentFilter extends Filter
      */
     public function getCommentAuthorFilter(): DefaultFilter
     {
-        return (new DefaultFilter('author'))
+        return DefaultFilter::init('author')
             ->param('q_author')
             ->form('input')
             ->title(__('Author:'));
@@ -60,7 +59,7 @@ class CommentFilter extends Filter
      */
     public function getCommentTypeFilter(): DefaultFilter
     {
-        return (new DefaultFilter('type'))
+        return DefaultFilter::init('type')
             ->param('comment_trackback', [$this, 'getCommentTypeParam'])
             ->title(__('Type:'))
             ->options([
@@ -81,7 +80,7 @@ class CommentFilter extends Filter
      */
     public function getCommentStatusFilter(): DefaultFilter
     {
-        return (new DefaultFilter('status'))
+        return DefaultFilter::init('status')
             ->param('comment_status')
             ->title(__('Status:'))
             ->options(array_merge(
@@ -100,7 +99,7 @@ class CommentFilter extends Filter
             return null;
         }
 
-        return (new DefaultFilter('ip'))
+        return DefaultFilter::init('ip')
             ->param('comment_ip')
             ->form('input')
             ->title(__('IP address:'));

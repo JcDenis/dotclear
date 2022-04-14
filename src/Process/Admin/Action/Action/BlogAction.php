@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
 
 class BlogAction extends DefaultBlogAction
 {

@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Combo;
 
 use ArrayObject;
-
 use Dotclear\Container\UserContainer;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\FormSelectOption;

@@ -14,12 +14,11 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Page\Pager;
-use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Page\Pager;
 
 class PostInventory extends Inventory
 {

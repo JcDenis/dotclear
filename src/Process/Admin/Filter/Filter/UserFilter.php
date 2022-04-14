@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
-
 use Dotclear\Process\Admin\Filter\Filter;
 
 class UserFilter extends Filter

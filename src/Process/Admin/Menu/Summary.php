@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Menu;
 
 use ArrayObject;
-
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Process\Admin\Menu\Menu;
@@ -29,7 +28,7 @@ class Summary extends ArrayObject
     public function __construct()
     {
         if (!self::$iconset) {
-            self::$iconset   = (string) @dotclear()->user()->preference()->get('interface')->get('iconset');
+            self::$iconset = (string) dotclear()->user()->preference()->get('interface')->get('iconset');
         }
 
         parent::__construct();
@@ -73,7 +72,7 @@ class Summary extends ArrayObject
     {
         $match = dotclear()->adminurl()->called() == $adminurl;
         if ($strict && $match) {
-            $match = count($_GET) == 1;
+            $match = 1 == count($_GET);
         }
 
         $this->offsetGet($section)->prependItem(
@@ -111,15 +110,15 @@ class Summary extends ArrayObject
             $light_img = $img ?: ($fallback ? $unknown_img : '');  // Fallback to no icon if necessary
         }
 
-        $title = $title !== '' ? ' title="' . $title . '"' : '';
-        if ($light_img !== '' && $dark_img !== '') {
+        $title = '' !== $title ? ' title="' . $title . '"' : '';
+        if ('' !== $light_img && '' !== $dark_img) {
             $icon = '<img src="' . $this->getIconURL($light_img) .
-            '" class="light-only' . ($class !== '' ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
+            '" class="light-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
                 '<img src="' . $this->getIconURL($dark_img) .
-            '" class="dark-only' . ($class !== '' ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
-        } elseif ($light_img !== '') {
+            '" class="dark-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
+        } elseif ('' !== $light_img) {
             $icon = '<img src="' . $this->getIconURL($light_img) .
-            '" class="' . ($class !== '' ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
+            '" class="' . ('' !== $class ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } else {
             $icon = '';
         }
@@ -148,9 +147,9 @@ class Summary extends ArrayObject
             if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?df=(.+)(\..*)$/', $img, $m))) {
                 $name = $m[1] ?? '';
                 $ext  = $m[2] ?? '';
-                if ($name !== '' && $ext !== '') {
+                if ('' !== $name && '' !== $ext) {
                     $icon = Path::real(self::$iconset . '/resources/' . $name . $ext, true);
-                    if ($icon !== false) {
+                    if (false !== $icon) {
                         # Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
                             return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
@@ -159,7 +158,7 @@ class Summary extends ArrayObject
                     # Look for other extensions
                     foreach ($allow_types as $ext) {
                         $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext, true);
-                        if ($icon !== false) {
+                        if (false !== $icon) {
                             if (is_file($icon) && is_readable($icon)) {
                                 return '?df=Iconset/' . $module . '/resources/' . $name . '.' . $ext;
                             }
@@ -168,7 +167,7 @@ class Summary extends ArrayObject
                     /*
                     # Not in iconset nor in Dotclear
                     $icon = Path::implodeRoot('Process', 'Admin', 'resources', $img);
-                    if ($icon === false || !is_file($icon) || !is_readable($icon)) {
+                    if (false === $icon || !is_file($icon) || !is_readable($icon)) {
                         $img = 'images/menu/no-icon.svg';
                     }
                     //*/
@@ -273,7 +272,7 @@ class Summary extends ArrayObject
             __('Blogs'),
             'admin.blogs',
             ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-            dotclear()->user()->isSuperAdmin() || dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id) && dotclear()->user()->getBlogCount() > 1
+            dotclear()->user()->isSuperAdmin() || dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id) && 1 < dotclear()->user()->getBlogCount()
         );
     }
 }

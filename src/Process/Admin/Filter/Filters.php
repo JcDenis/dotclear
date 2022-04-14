@@ -28,7 +28,7 @@ class Filters
      */
     public function getInputFilter(string $id, string $title, ?string $param = null): DefaultFilter
     {
-        return (new DefaultFilter($id))
+        return DefaultFilter::init($id)
             ->param($param ?: $id)
             ->form('input')
             ->title($title);
@@ -43,7 +43,7 @@ class Filters
             return null;
         }
 
-        return (new DefaultFilter($id))
+        return DefaultFilter::init($id)
             ->param($param ?: $id)
             ->title($title)
             ->options($options);
@@ -54,7 +54,7 @@ class Filters
      */
     public function getPageFilter(string $id = 'page'): DefaultFilter
     {
-        return (new DefaultFilter($id))
+        return DefaultFilter::init($id)
             ->value(!empty($_GET[$id]) ? max(1, (int) $_GET[$id]) : 1)
             ->param('limit', function ($f) { return [(($f[0] - 1) * $f['nb']), $f['nb']]; });
     }
@@ -64,7 +64,7 @@ class Filters
      */
     public function getSearchFilter(): DefaultFilter
     {
-        return (new DefaultFilter('q'))
+        return DefaultFilter::init('q')
             ->param('q', function ($f) { return $f['q']; })
             ->form('input')
             ->title(__('Search:'))

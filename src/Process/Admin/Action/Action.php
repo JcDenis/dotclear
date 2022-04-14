@@ -15,11 +15,11 @@ namespace Dotclear\Process\Admin\Action;
 
 use ArrayObject;
 use Closure;
-use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Process\Admin\Page\Page;
 
 abstract class Action extends Page
 {
@@ -75,7 +75,7 @@ abstract class Action extends Page
         $this->actions         = new ArrayObject();
         $this->combo           = [];
         $this->redirect_fields = [];
-        $this->caction          = '';
+        $this->caction         = '';
         $this->cb_title        = __('Title');
         $this->entries         = [];
         $this->from            = new ArrayObject($_POST);

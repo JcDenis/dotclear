@@ -19,10 +19,10 @@ use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form\Label;
 use Dotclear\Helper\Html\Form\Number;
 use Dotclear\Helper\Html\Form\Select;
+use Dotclear\Helper\Html\Html;
 
 class Filter extends Filters
 {
@@ -68,8 +68,8 @@ class Filter extends Filters
         }
 
         if (!empty($options[1])) {
-            $this->filters['sortby'] = new DefaultFilter('sortby', $this->userOptions('sortby'));
-            $this->filters['sortby']->options($options[1]);
+            $this->filters['sortby'] = DefaultFilter::init('sortby', $this->userOptions('sortby'))
+                ->options($options[1]);
 
             if (!empty($_GET['sortby'])
                 && in_array($_GET['sortby'], $options[1], true)
@@ -80,8 +80,8 @@ class Filter extends Filters
             }
         }
         if (!empty($options[3])) {
-            $this->filters['order'] = new DefaultFilter('order', $this->userOptions('order'));
-            $this->filters['order']->options(dotclear()->combo()->getOrderCombo());
+            $this->filters['order'] = DefaultFilter::init('order', $this->userOptions('order'))
+                ->options(dotclear()->combo()->getOrderCombo());
 
             if (!empty($_GET['order'])
                 && in_array($_GET['order'], dotclear()->combo()->getOrderCombo(), true)
@@ -92,8 +92,8 @@ class Filter extends Filters
             }
         }
         if (!empty($options[4])) {
-            $this->filters['nb'] = new DefaultFilter('nb', $this->userOptions('nb'));
-            $this->filters['nb']->title($options[4][0]);
+            $this->filters['nb'] = DefaultFilter::init('nb', $this->userOptions('nb'))
+                ->title($options[4][0]);
 
             if (!empty($_GET['nb'])
                 && (int) $_GET['nb'] > 0

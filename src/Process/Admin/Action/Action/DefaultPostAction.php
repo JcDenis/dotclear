@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtUser;
-use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Dotclear\Process\Admin\Action\Action;
 
 abstract class DefaultPostAction extends Action
 {
@@ -219,9 +219,9 @@ abstract class DefaultPostAction extends Action
             );
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)      => '',
-                $ap->getCallerTitle()                    => $ap->getRedirection(true),
-                __('Change category for this selection') => ''
+                Html::escapeHTML(dotclear()->blog()->name) => '',
+                $ap->getCallerTitle()                      => $ap->getRedirection(true),
+                __('Change category for this selection')   => ''
             ]);
 
             $ap->setPageContent(
@@ -266,9 +266,13 @@ abstract class DefaultPostAction extends Action
                 throw new AdminException(__('This user does not exist'));
             }
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-            $cur->setField('user_id', $new_user_id);
-            $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set('user_id = ' . $sql->quote($new_user_id))
+                ->where('post_id' . $sql->in($posts_ids))
+                ->from(dotclear()->prefix . 'post')
+                ->update();
+
             dotclear()->notice()->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to user "%s"',
@@ -298,9 +302,9 @@ abstract class DefaultPostAction extends Action
             }
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)    => '',
-                $ap->getCallerTitle()                  => $ap->getRedirection(true),
-                __('Change author for this selection') => ''
+                Html::escapeHTML(dotclear()->blog()->name) => '',
+                $ap->getCallerTitle()                      => $ap->getRedirection(true),
+                __('Change author for this selection')     => ''
             ]);
             $ap->setPageHead(
                 dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
@@ -327,9 +331,13 @@ abstract class DefaultPostAction extends Action
             throw new AdminException(__('No entry selected'));
         }
         if (isset($post['new_lang'])) {
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-            $cur->setField('post_lang', $post['new_lang']);
-            $cur->update('WHERE post_id ' . dotclear()->con()->in($posts_ids));
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set('post_lang = ' . $sql->quote($post['new_lang']))
+                ->where('post_id' . $sql->in($posts_ids))
+                ->from(dotclear()->prefix . 'post')
+                ->update();
+
             dotclear()->notice()->addSuccessNotice(sprintf(
                 __(
                     '%d entry has been successfully set to language "%s"',
@@ -355,9 +363,9 @@ abstract class DefaultPostAction extends Action
             unset($all_langs, $rs);
 
             $ap->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)      => '',
-                $ap->getCallerTitle()                    => $ap->getRedirection(true),
-                __('Change language for this selection') => ''
+                Html::escapeHTML(dotclear()->blog()->name) => '',
+                $ap->getCallerTitle()                      => $ap->getRedirection(true),
+                __('Change language for this selection')   => ''
             ]);
 
             $ap->setPageContent(

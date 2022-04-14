@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Validator;
 use Dotclear\Helper\Html\XmlTag;
-use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Helper\Network\Feed\Reader;
-use Dotclear\Process\Admin\Service\Updater;
-use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
+use Dotclear\Module\Store\Repository\Repository;
+use Dotclear\Process\Admin\Service\Updater;
 
 class RestMethods
 {
@@ -129,7 +129,7 @@ class RestMethods
                         '<dd><p><strong>' . Dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
                         '<em>' . Text::cutString(Html::clean($item->content), 120) . '...</em></p></dd>';
                         $i++;
-                        if ($i > 2) {
+                        if (2 < $i) {
                             break;
                         }
                     }
@@ -230,10 +230,10 @@ class RestMethods
             throw new AdminException('No store type');
         }
 
-        if ($post['store'] == 'themes') {
+        if ('themes' == $post['store']) {
             $mod = dotclear()->themes();
             $url = dotclear()->blog()->settings()->get('system')->get('store_theme_url');
-        } elseif ($post['store'] == 'plugins') {
+        } elseif ('plugins' == $post['store']) {
             $mod = dotclear()->plugins();
             $url = dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
         } else {
@@ -521,7 +521,7 @@ class RestMethods
         } catch (\Exception) {
         }
 
-        if ($file === null || $file->type != 'application/zip' || !$file->editable) {
+        if (null === $file || 'application/zip' != $file->type || !$file->editable) {
             throw new AdminException('Not a valid file');
         }
 
@@ -612,7 +612,7 @@ class RestMethods
             throw new AdminException('No post ID');
         }
 
-        if (empty($post['meta']) && $post['meta'] != '0') {
+        if (empty($post['meta']) && '0' != $post['meta']) {
             throw new AdminException('No meta');
         }
 
@@ -652,7 +652,7 @@ class RestMethods
             throw new AdminException('No post ID');
         }
 
-        if (empty($post['metaId']) && $post['metaId'] != '0') {
+        if (empty($post['metaId']) && '0' != $post['metaId']) {
             throw new AdminException('No meta ID');
         }
 
@@ -708,7 +708,7 @@ class RestMethods
         $rsp = new XmlTag();
 
         while ($rs->fetch()) {
-            if (stripos($rs->f('meta_id'), $q) === 0) {
+            if (0 === stripos($rs->f('meta_id'), $q)) {
                 $metaTag = new XmlTag('meta');
                 $metaTag->insertAttr('type', $rs->f('meta_type'));
                 $metaTag->insertAttr('uri', rawurlencode($rs->f('meta_id')));
@@ -739,7 +739,7 @@ class RestMethods
         }
 
         $section = $post['section'];
-        $status  = isset($post['value']) && ($post['value'] != 0);
+        $status  = isset($post['value']) && 0 != $post['value'];
         if (dotclear()->user()->preference()->get('toggles')->prefExists('unfolded_sections')) {
             $toggles = explode(',', trim((string) dotclear()->user()->preference()->get('toggles')->get('unfolded_sections')));
         } else {
@@ -748,12 +748,12 @@ class RestMethods
         $k = array_search($section, $toggles);
         if ($status) {
             // true == Fold section ==> remove it from unfolded list
-            if ($k !== false) {
+            if (false !== $k) {
                 unset($toggles[$k]);
             }
         } else {
             // false == unfold section ==> add it to unfolded list
-            if ($k === false) {
+            if (false !== $k) {
                 $toggles[] = $section;
             };
         }
@@ -853,13 +853,13 @@ class RestMethods
         $list   = $get['list'];
         $module = [];
 
-        if ($list == 'plugin-activate') {
+        if ('plugin-activate' == $list) {
             $modules = dotclear()->plugins()->getModules();
             if (empty($modules) || !isset($modules[$id])) {
                 throw new AdminException('Unknown module ID');
             }
             $module = $modules[$id];
-        } elseif ($list == 'plugin-new') {
+        } elseif ('plugin-new' == $list) {
             $store = new Repository(
                 dotclear()->plugins(),
                 dotclear()->blog()->settings()->get('system')->get('store_plugin_url')

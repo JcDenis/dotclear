@@ -53,6 +53,19 @@ class DefaultFilter
     }
 
     /**
+     * Create default filter instance
+     *
+     * @param   string  $id     The filter id
+     * @param   mixed   $value  The filter value
+     * 
+     * @return  DefaultFilter   Self instance
+     */
+    public static function init(string $id, mixed $value = null): DefaultFilter
+    {
+        return new self($id, $value);
+    }
+
+    /**
      * Check if filter property exists
      *
      * @param   string  $property   The property

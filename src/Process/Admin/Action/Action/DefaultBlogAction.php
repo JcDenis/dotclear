@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
+use Dotclear\Process\Admin\Action\Action;
 
 abstract class DefaultBlogAction extends Action
 {
@@ -47,22 +47,25 @@ abstract class DefaultBlogAction extends Action
             return;
         }
 
-        $action = $ap->getAction();
-        $ids    = $ap->getIDs();
+        $ids = $ap->getIDs();
         if (empty($ids)) {
             throw new AdminException(__('No blog selected'));
         }
-        $status = match ($action) {
+
+        $status = match ($ap->getAction()) {
             'online'  => 1,
             'offline' => 0,
             'remove'  => -1,
             default   => 1,
         };
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
-        $cur->setField('blog_status', $status);
-        //$cur->setField('blog_upddt', date('Y-m-d H:i:s'));
-        $cur->update('WHERE blog_id ' . dotclear()->con()->in($ids));
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->from(dotclear()->prefix . 'blog')
+            ->set('blog_status = ' . $sql->quote($status))
+            //->set('blog_upddt = ' . $sql->quote(date('Y-m-d H:i:s')))
+            ->where('blog_id' . $sql->in($ids))
+            ->update();
 
         dotclear()->notice()->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);

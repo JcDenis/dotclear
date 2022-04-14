@@ -14,17 +14,16 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Page;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Statistic;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Inventory\Inventory;
 
 abstract class Page
 {

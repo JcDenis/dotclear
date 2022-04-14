@@ -36,14 +36,14 @@ class Menu
     /**
      * Adds an item.
      *
-     * @param      string           $title      The title
-     * @param      string|array     $url        The url
-     * @param      string|array     $img        The image
-     * @param      bool             $active     The active flag
-     * @param      bool             $show       The show flag
-     * @param      string|null      $id         The identifier
-     * @param      string|null      $class      The class
-     * @param      bool             $pinned     The pinned flag
+     * @param   string          $title      The title
+     * @param   string|array    $url        The url
+     * @param   string|array    $img        The image
+     * @param   bool            $active     The active flag
+     * @param   bool            $show       The show flag
+     * @param   string|null     $id         The identifier
+     * @param   string|null     $class      The class
+     * @param   bool            $pinned     The pinned flag
      */
     public function addItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
@@ -60,14 +60,14 @@ class Menu
     /**
      * Prepends an item.
      *
-     * @param      string           $title      The title
-     * @param      string|array     $url        The url
-     * @param      string|array     $img        The image
-     * @param      bool             $active     The active flag
-     * @param      bool             $show       The show flag
-     * @param      string|null      $id         The identifier
-     * @param      string|null      $class      The class
-     * @param      bool             $pinned     The pinned flag
+     * @param   string          $title      The title
+     * @param   string|array    $url        The url
+     * @param   string|array    $img        The image
+     * @param   bool            $active     The active flag
+     * @param   bool            $show       The show flag
+     * @param   string|null     $id         The identifier
+     * @param   string|null     $class      The class
+     * @param   bool            $pinned     The pinned flag
      */
     public function prependItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
@@ -88,7 +88,7 @@ class Menu
      */
     public function draw(): string
     {
-        if (count($this->items) + count($this->pinned) == 0) {
+        if (0== count($this->items) + count($this->pinned)) {
             return '';
         }
 
@@ -98,7 +98,7 @@ class Menu
 
         // 1. Display pinned items (unsorted)
         for ($i = 0; $i < count($this->pinned); $i++) {
-            if ($i + 1 < count($this->pinned) && $this->itemSpace != '') {
+            if ($i + 1 < count($this->pinned) && '' != $this->itemSpace) {
                 $res .= preg_replace('|</li>$|', $this->itemSpace . '</li>', $this->pinned[$i]);
                 $res .= "\n";
             } else {
@@ -110,7 +110,7 @@ class Menu
         $i = 0;
         Lexical::lexicalKeySort($this->items);
         foreach ($this->items as $title => $item) {
-            if ($i + 1 < count($this->items) && $this->itemSpace != '') {
+            if ($i + 1 < count($this->items) && '' != $this->itemSpace) {
                 $res .= preg_replace('|</li>$|', $this->itemSpace . '</li>', $item);
                 $res .= "\n";
             } else {

@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-
+use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Exception\AdminException;
 
 abstract class DefaultCommentAction extends Action
 {
@@ -46,29 +45,17 @@ abstract class DefaultCommentAction extends Action
 
     public function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
     {
-        $action = $ap->getAction();
         $co_ids = $ap->getIDs();
         if (empty($co_ids)) {
             throw new AdminException(__('No comment selected'));
         }
-        switch ($action) {
-            case 'unpublish':
-                $status = 0;
 
-                break;
-            case 'pending':
-                $status = -1;
-
-                break;
-            case 'junk':
-                $status = -2;
-
-                break;
-            default:
-                $status = 1;
-
-                break;
-        }
+        $status  = match($ap->getAction()) {
+            'unpublish' => 0,
+            'pending'   => -1,
+            'junk'      => -2,
+            default     => 1,
+        };
 
         dotclear()->blog()->comments()->updCommentsStatus($co_ids, $status);
 

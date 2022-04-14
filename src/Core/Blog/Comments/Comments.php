@@ -155,7 +155,7 @@ class Comments
         }
 
         if (!empty($params['post_type'])) {
-            $sql->and('post_type ' . $sql->in($params['post_type']));
+            $sql->and('post_type' . $sql->in($params['post_type']));
         }
 
         if (isset($params['post_id']) && '' !== $params['post_id']) {
@@ -172,7 +172,7 @@ class Comments
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
-            $sql->and('comment_id ' . $sql->in($params['comment_id']));
+            $sql->and('comment_id' . $sql->in($params['comment_id']));
         }
 
         if (isset($params['comment_email'])) {
@@ -388,7 +388,7 @@ class Comments
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('comment_status = ' . $status)
-            ->where('comment_id ' . $sql->in($co_ids))
+            ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
             ->from(dotclear()->prefix . 'comment')
             ->update();
@@ -431,7 +431,7 @@ class Comments
         $sql = new SelectStatement(__METHOD__);
         $rs = $sql
             ->column('post_id')
-            ->where('comment_id ' . $sql->in($co_ids))
+            ->where('comment_id' . $sql->in($co_ids))
             ->group('post_id')
             ->from(dotclear()->prefix . 'comment')
             ->select();
@@ -442,7 +442,7 @@ class Comments
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->where('comment_id ' . $sql->in($co_ids))
+            ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id ' . $this->getPostOwnerStatement())
             ->from(dotclear()->prefix . 'comment')
             ->delete();

@@ -16,11 +16,11 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
-
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
+
 class PostFilter extends Filter
 {
     public function __construct(string $type = 'posts', protected string $post_type = 'post')
@@ -78,7 +78,7 @@ class PostFilter extends Filter
         $combo = dotclear()->combo()->getUsersCombo($users);
         Lexical::lexicalKeySort($combo);
 
-        return (new DefaultFilter('user_id'))
+        return DefaultFilter::init('user_id')
             ->param()
             ->title(__('Author:'))
             ->options(array_merge(
@@ -117,7 +117,7 @@ class PostFilter extends Filter
             ] = (string) $categories->f('cat_id');
         }
 
-        return (new DefaultFilter('cat_id'))
+        return DefaultFilter::init('cat_id')
             ->param()
             ->title(__('Category:'))
             ->options($combo)
@@ -129,7 +129,7 @@ class PostFilter extends Filter
      */
     public function getPostStatusFilter(): DefaultFilter
     {
-        return (new DefaultFilter('status'))
+        return DefaultFilter::init('status')
             ->param('post_status')
             ->title(__('Status:'))
             ->options(array_merge(
@@ -152,7 +152,7 @@ class PostFilter extends Filter
             }
         }
 
-        return (new DefaultFilter('format'))
+        return DefaultFilter::init('format')
             ->param('where', [$this, 'getPostFormatParam'])
             ->title(__('Format:'))
             ->options(array_merge(
@@ -172,7 +172,7 @@ class PostFilter extends Filter
      */
     public function getPostPasswordFilter(): DefaultFilter
     {
-        return (new DefaultFilter('password'))
+        return DefaultFilter::init('password')
             ->param('where', [$this, 'getPostPasswordParam'])
             ->title(__('Password:'))
             ->options([
@@ -193,7 +193,7 @@ class PostFilter extends Filter
      */
     public function getPostSelectedFilter(): DefaultFilter
     {
-        return (new DefaultFilter('selected'))
+        return DefaultFilter::init('selected')
             ->param('post_selected')
             ->title(__('Selected:'))
             ->options([
@@ -208,7 +208,7 @@ class PostFilter extends Filter
      */
     public function getPostAttachmentFilter(): DefaultFilter
     {
-        return (new DefaultFilter('attachment'))
+        return DefaultFilter::init('attachment')
             ->param('media')
             ->param('link_type', 'attachment')
             ->title(__('Attachments:'))
@@ -240,7 +240,7 @@ class PostFilter extends Filter
             return null;
         }
 
-        return (new DefaultFilter('month'))
+        return DefaultFilter::init('month')
             ->param('post_month', [$this, 'getPostMonthParam'])
             ->param('post_year', [$this, 'getPostYearParam'])
             ->title(__('Month:'))
@@ -278,7 +278,7 @@ class PostFilter extends Filter
             return null;
         }
 
-        return (new DefaultFilter('lang'))
+        return DefaultFilter::init('lang')
             ->param('post_lang')
             ->title(__('Lang:'))
             ->options(array_merge(
@@ -292,7 +292,7 @@ class PostFilter extends Filter
      */
     public function getPostCommentFilter(): DefaultFilter
     {
-        return (new DefaultFilter('comment'))
+        return DefaultFilter::init('comment')
             ->param('where', [$this, 'getPostCommentParam'])
             ->title(__('Comments:'))
             ->options([
@@ -312,7 +312,7 @@ class PostFilter extends Filter
      */
     public function getPostTrackbackFilter(): DefaultFilter
     {
-        return (new DefaultFilter('trackback'))
+        return DefaultFilter::init('trackback')
             ->param('where', [$this, 'getPostTrackbackParam'])
             ->title(__('Trackbacks:'))
             ->options([

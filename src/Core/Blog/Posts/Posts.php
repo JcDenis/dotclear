@@ -500,7 +500,7 @@ class Posts
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type ' . dotclear()->con()->in($params['post_type']) . ' ';
+            $strReq .= 'AND post_type' . dotclear()->con()->in($params['post_type']) . ' ';
         } else {
             $strReq .= "AND post_type = 'post' ";
         }
@@ -699,7 +699,7 @@ class Posts
         $posts_ids = dotclear()->blog()->cleanIds($ids);
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id ' . dotclear()->con()->in($posts_ids);
+        'AND post_id' . dotclear()->con()->in($posts_ids);
 
         #If user can only publish, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -745,7 +745,7 @@ class Posts
         $posts_ids = dotclear()->blog()->cleanIds($ids);
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id ' . dotclear()->con()->in($posts_ids);
+        'AND post_id' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -789,7 +789,7 @@ class Posts
         $posts_ids = dotclear()->blog()->cleanIds($ids);
 
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id ' . dotclear()->con()->in($posts_ids);
+        'AND post_id' . dotclear()->con()->in($posts_ids);
 
         # If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -862,7 +862,7 @@ class Posts
 
         $strReq = 'DELETE FROM ' . dotclear()->prefix . 'post ' .
         "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id ' . dotclear()->con()->in($posts_ids);
+        'AND post_id' . dotclear()->con()->in($posts_ids);
 
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
@@ -912,7 +912,7 @@ class Posts
             $strReq = 'UPDATE ' . dotclear()->prefix . 'post SET ' .
             'post_status = 1 ' .
             "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
+            'AND post_id' . dotclear()->con()->in((array) $to_change) . ' ';
             dotclear()->con()->execute($strReq);
             dotclear()->blog()->triggerBlog();
 
@@ -945,7 +945,7 @@ class Posts
             $strReq = 'UPDATE ' . dotclear()->prefix . 'post ' .
             'SET post_firstpub = 1 ' .
             "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND post_id ' . dotclear()->con()->in((array) $to_change) . ' ';
+            'AND post_id' . dotclear()->con()->in((array) $to_change) . ' ';
             dotclear()->con()->execute($strReq);
 
             # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array

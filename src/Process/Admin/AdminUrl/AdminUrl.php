@@ -35,7 +35,7 @@ class AdminUrl
     public function __construct()
     {
         $this->root_url = dotclear()->config()->get('admin_url');
-        $this->urls = new ArrayObject();
+        $this->urls     = new ArrayObject();
     }
 
     /**
@@ -105,7 +105,7 @@ class AdminUrl
         }
         $url       = $this->urls[$orig];
         $url['qs'] = array_merge($url['qs'], $params);
-        if ($newclass != '') {
+        if ('' != $newclass) {
             $url['class'] = $newclass;
         }
         $this->urls[$name] = $url;

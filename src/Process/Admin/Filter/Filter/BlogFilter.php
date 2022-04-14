@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
-
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
@@ -45,7 +44,7 @@ class BlogFilter extends Filter
      */
     public function getBlogStatusFilter(): DefaultFilter
     {
-        return (new DefaultFilter('status'))
+        return DefaultFilter::init('status')
             ->param('blog_status')
             ->title(__('Status:'))
             ->options(array_merge(

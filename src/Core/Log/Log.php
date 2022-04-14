@@ -165,7 +165,7 @@ class Log
             $sql = TruncateStatement::init(__METHOD__);
         } else {
             $sql = new DeleteStatement(__METHOD__);
-            $sql->where('log_id ' . $sql->in($id));
+            $sql->where('log_id' . $sql->in($id));
         }
 
         $sql

@@ -152,11 +152,10 @@ class Notice
         try {
             # Get ID
             $sql = new SelectStatement('NoticesAdd');
-            $sql
+            $rs = $sql
                 ->column($sql->max('notice_id'))
-                ->from($this->table);
-
-            $rs = $sql->select();
+                ->from($this->table)
+                ->select();
 
             $cur->setField('notice_id', $rs->fInt() + 1);
             $cur->setField('ses_id', (string) session_id());
@@ -190,15 +189,12 @@ class Notice
     {
         $sql = new DeleteStatement('NoticesDel');
         $sql
-            ->from($this->table);
-
-        if ($delete_all) {
-            $sql->where('ses_id = ' . $sql->quote((string) session_id()));
-        } else {
-            $sql->where('notice_id' . $sql->in($notice_id));
-        }
-
-        $sql->delete();
+            ->from($this->table)
+            ->where($delete_all ? 
+                'ses_id = ' . $sql->quote((string) session_id()) :
+                'notice_id' . $sql->in($notice_id)
+            )
+            ->delete();
     }
 
     /**
@@ -257,7 +253,7 @@ class Notice
         # Should retrieve static notices first, then others
         $step = 2;
         do {
-            if ($step == 2) {
+            if (2 == $step) {
                 // Static notifications
                 $params = [
                     'notice_type' => 'static'

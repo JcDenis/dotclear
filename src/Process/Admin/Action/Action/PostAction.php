@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
 
 class PostAction extends DefaultPostAction
 {
@@ -36,8 +35,8 @@ class PostAction extends DefaultPostAction
         $this->setPageHead(dotclear()->resource()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',
-            $this->getCallerTitle()                   => $this->getRedirection(true),
-            __('Posts actions')                       => ''
+            $this->getCallerTitle()                    => $this->getRedirection(true),
+            __('Posts actions')                        => ''
         ]);
     }
 

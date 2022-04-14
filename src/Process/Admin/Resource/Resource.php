@@ -22,10 +22,25 @@ class Resource
     /** @var    array   Stack to keep track of loaded files */
     private static $stack  = [];
 
+    /**
+     * Constructor
+     * 
+     * @param   string  $query  The query parameter name
+     */
     public function __construct(protected string $query = 'df')
     {
     }
 
+    /**
+     * Parse ressource URL
+     * 
+     * @param   string          $src    The source
+     * @param   string|null     $type   The type
+     * @param   string|null     $id     The id
+     * @param   string|null     $ext    The extension
+     * 
+     * @return  string                  The URL
+     */
     public function url(string $src, ?string $type = null, ?string $id = null, ?string $ext = null): string
     {
         if (str_starts_with($src, 'http')) {
@@ -45,26 +60,91 @@ class Resource
         return dotclear()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query .'=' . $src;
     }
 
+    /**
+     * Parse ressource css URL
+     * 
+     * @see     self::parse();
+     * 
+     * @param   string          $src        The source
+     * @param   string|null     $type       The type
+     * @param   string|null     $id         The id
+     * @param   string|null     $version    The version
+     * 
+     * @return  string                      The URL
+     */
     public function css(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
         return $this->parse($src, $type, $id, null, false, 'css', $version);
     }
 
+    /**
+     * Parse ressource js URL
+     * 
+     * @see     self::parse();
+     * 
+     * @param   string          $src        The source
+     * @param   string|null     $type       The type
+     * @param   string|null     $id         The id
+     * @param   string|null     $version    The version
+     * 
+     * @return  string                      The URL
+     */
     public function js(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
         return $this->parse($src, $type, $id, null, false, 'js', $version);
     }
 
+    /**
+     * Parse ressource load URL
+     * 
+     * @see     self::parse();
+     * 
+     * @param   string          $src        The source
+     * @param   string|null     $type       The type
+     * @param   string|null     $id         The id
+     * @param   string|null     $option     The option
+     * @param   string|null     $version    The version
+     * 
+     * @return  string                      The URL
+     */
     public function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
         return $this->parse($src, $type, $id, $option, false, null, $version);
     }
 
+    /**
+     * Parse ressource preload URL
+     * 
+     * @see     self::parse();
+     * 
+     * @param   string          $src        The source
+     * @param   string|null     $type       The type
+     * @param   string|null     $id         The id
+     * @param   string|null     $option     The option
+     * @param   string|null     $version    The version
+     * 
+     * @return  string                      The URL
+     */
     public function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
         return $this->parse($src, $type, $id, $option, true, null, $version);
     }
 
+    /**
+     * Parse ressource URL
+     * 
+     * This keep track of (pre)load ressource to serve their URL HTML code once.
+     * 
+     * @param   string          $src        The source
+     * @param   string|null     $type       The type
+     * @param   string|null     $id         The id
+     * @param   string|null     $option     The option
+     * @param   bool            $preload    Preload
+     * @param   string|null     $ext        The extension
+     * @param   string|null     $version    The version
+     * 
+     * @return  string                      The URL
+     */
     private function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null, ?string $version = null): string
     {
         $src_ext = Files::getExtension($src);
@@ -95,6 +175,9 @@ class Resource
         }
     }
 
+    /**
+     * Serve a ressource
+     */
     public function serve(): void
     {
         if (empty($_GET[$this->query])) {
@@ -146,6 +229,14 @@ class Resource
         Files::serveFile($src, $dirs, dotclear()->config()->get('file_sever_type'));
     }
 
+    /**
+     * Get json HTML code
+     * 
+     * @param   string  $id     The id
+     * @param   mixed   $vars   The vars
+     * 
+     * @return  string
+     */
     public function json(string $id, mixed $vars): string
     {
         $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
@@ -157,7 +248,7 @@ class Resource
     /**
      * Get HTML code to load common JS for admin pages
      *
-     * @return     string
+     * @return  string
      */
     public function common(): string
     {
@@ -272,7 +363,7 @@ class Resource
     /**
      * Get HTML code to load toggles JS
      *
-     * @return     string
+     * @return  string
      */
     public function toggles(): string
     {
@@ -294,10 +385,10 @@ class Resource
     /**
      * Get HTML to load Upload JS utility
      *
-     * @param      array        $params    The parameters
-     * @param      string|null  $base_url  The base url
+     * @param   array           $params     The parameters
+     * @param   string|null     $base_url   The base url
      *
-     * @return     string
+     * @return  string
      */
     public function upload(array $params = [], ?string $base_url = null): string
     {
@@ -356,7 +447,7 @@ class Resource
     /**
      * Get HTML code to load Magnific popup JS
      *
-     * @return     string
+     * @return  string
      */
     public function modal()
     {
@@ -367,9 +458,9 @@ class Resource
     /**
      * Get HTML code to load ConfirmClose JS
      *
-     * @param      string  ...$args  The arguments
+     * @param   string  ...$args    The arguments
      *
-     * @return     string
+     * @return  string
      */
     public function confirmClose(string ...$args): string
     {
@@ -386,9 +477,9 @@ class Resource
     /**
      * Get HTML code to load page tabs JS
      *
-     * @param      mixed   $default  The default
+     * @param   mixed   $default    The default
      *
-     * @return     string
+     * @return  string
      */
     public function pageTabs($default = null): string
     {
@@ -405,7 +496,7 @@ class Resource
     /**
      * Get HTML code to load meta editor
      *
-     * @return     string
+     * @return  string
      */
     public function metaEditor()
     {
@@ -415,11 +506,11 @@ class Resource
     /**
      * Get HTML code to load Codemirror
      *
-     * @param      string  $theme  The theme
-     * @param      bool    $multi  Is multiplex?
-     * @param      array   $modes  The modes
+     * @param   string  $theme  The theme
+     * @param   bool    $multi  Is multiplex?
+     * @param   array   $modes  The modes
      *
-     * @return     string
+     * @return  string
      */
     public function loadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
     {
@@ -435,7 +526,7 @@ class Resource
         $this->load('codemirror/addon/edit/matchbrackets.js') .
         $this->js('codemirror/addon/display/fullscreen.css') .
         $this->load('codemirror/addon/display/fullscreen.js');
-        if ($theme != '' && $theme !== 'default') {
+        if ('' != $theme && 'default' !== $theme) {
             $ret .= $this->js('codemirror/theme/' . $theme . '.css');
         }
 
@@ -445,12 +536,12 @@ class Resource
     /**
      * Get HTML code to run Codemirror
      *
-     * @param      mixed        $name   The HTML name attribute
-     * @param      mixed        $id     The HTML id attribute
-     * @param      mixed        $mode   The Codemirror mode
-     * @param      string       $theme  The theme
+     * @param   mixed   $name   The HTML name attribute
+     * @param   mixed   $id     The HTML id attribute
+     * @param   mixed   $mode   The Codemirror mode
+     * @param   string  $theme  The theme
      *
-     * @return     string
+     * @return  string
      */
     public function runCodeMirror($name, $id = null, $mode = null, $theme = ''): string
     {
@@ -473,16 +564,16 @@ class Resource
     /**
      * Gets the codemirror themes list.
      *
-     * @return     array  The code mirror themes.
+     * @return  array   The code mirror themes.
      */
     public function getCodeMirrorThemes(): array
     {
         $themes      = [];
         $themes_root = Path::implodeRoot('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
-            if (($d = @dir($themes_root)) !== false) {
-                while (($entry = $d->read()) !== false) {
-                    if ($entry != '.' && $entry != '..' && substr($entry, 0, 1) != '.' && is_readable($themes_root . '/' . $entry)) {
+            if (false !== ($d = @dir($themes_root))) {
+                while (false !== ($entry = $d->read())) {
+                    if (!in_array($entry, ['.', '..']) && '.' != substr($entry, 0, 1) && is_readable($themes_root . '/' . $entry)) {
                         $themes[] = substr($entry, 0, -4); // remove .css extension
                     }
                 }
