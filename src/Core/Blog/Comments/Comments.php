@@ -17,8 +17,10 @@ use ArrayObject;
 use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Exception\DeprecatedException;
 use Dotclear\Helper\Dt;
@@ -58,7 +60,7 @@ class Comments
     public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
     {
         if (!$sql) {
-            $sql = new SelectStatement('dcBlogGetComments');
+            $sql = new SelectStatement(__METHOD__);
         }
 
         if ($count_only) {
@@ -108,18 +110,18 @@ class Comments
         $sql
             ->from(dotclear()->prefix . 'comment C')
             ->join(
-                (new JoinStatement('dcBlogGetComments'))
-                ->type('INNER')
-                ->from(dotclear()->prefix . 'post P')
-                ->on('C.post_id = P.post_id')
-                ->statement()
+                JoinStatement::init(__METHOD__)
+                    ->type('INNER')
+                    ->from(dotclear()->prefix . 'post P')
+                    ->on('C.post_id = P.post_id')
+                    ->statement()
             )
             ->join(
-                (new JoinStatement('dcBlogGetComments'))
-                ->type('INNER')
-                ->from(dotclear()->prefix . 'user U')
-                ->on('P.user_id = U.user_id')
-                ->statement()
+                JoinStatement::init(__METHOD__)
+                    ->type('INNER')
+                    ->from(dotclear()->prefix . 'user U')
+                    ->on('P.user_id = U.user_id')
+                    ->statement()
             );
 
         if (!empty($params['from'])) {
@@ -153,7 +155,7 @@ class Comments
         }
 
         if (!empty($params['post_type'])) {
-            $sql->and('post_type' . $sql->in($params['post_type']));
+            $sql->and('post_type ' . $sql->in($params['post_type']));
         }
 
         if (isset($params['post_id']) && '' !== $params['post_id']) {
@@ -170,16 +172,16 @@ class Comments
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
-            $sql->and('comment_id' . $sql->in($params['comment_id']));
+            $sql->and('comment_id ' . $sql->in($params['comment_id']));
         }
 
         if (isset($params['comment_email'])) {
-            $comment_email = dotclear()->con()->escape(str_replace('*', '%', $params['comment_email']));
+            $comment_email = $sql->escape(str_replace('*', '%', $params['comment_email']));
             $sql->and($sql->like('comment_email', $comment_email));
         }
 
         if (isset($params['comment_site'])) {
-            $comment_site = dotclear()->con()->escape(str_replace('*', '%', $params['comment_site']));
+            $comment_site = $sql->escape(str_replace('*', '%', $params['comment_site']));
             $sql->and($sql->like('comment_site', $comment_site));
         }
 
@@ -196,12 +198,12 @@ class Comments
         }
 
         if (isset($params['comment_ip'])) {
-            $comment_ip = dotclear()->con()->escape(str_replace('*', '%', $params['comment_ip']));
+            $comment_ip = $sql->escape(str_replace('*', '%', $params['comment_ip']));
             $sql->and($sql->like('comment_ip', $comment_ip));
         }
 
         if (isset($params['q_author'])) {
-            $q_author = dotclear()->con()->escape(str_replace('*', '%', strtolower($params['q_author'])));
+            $q_author = $sql->escape(str_replace('*', '%', strtolower($params['q_author'])));
             $sql->and($sql->like('LOWER(comment_author)', $q_author));
         }
 
@@ -263,7 +265,7 @@ class Comments
 
         try {
             # Get ID
-            $sql = new SelectStatement('dcBlogAddComment');
+            $sql = new SelectStatement(__METHOD__);
             $id = $sql
                 ->column($sql->max('comment_id'))
                 ->from(dotclear()->prefix . 'comment')
@@ -383,17 +385,14 @@ class Comments
 
         $co_ids = dotclear()->blog()->cleanIds($ids);
 
-        $strReq = 'UPDATE ' . dotclear()->prefix . 'comment ' .
-            'SET comment_status = ' . $status . ' ';
-        $strReq .= 'WHERE comment_id' . dotclear()->con()->in($co_ids) .
-        'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . dotclear()->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
-        }
-        $strReq .= ')';
-        dotclear()->con()->execute($strReq);
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('comment_status = ' . $status)
+            ->where('comment_id ' . $sql->in($co_ids))
+            ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
+            ->from(dotclear()->prefix . 'comment')
+            ->update();
+
         dotclear()->blog()->triggerComments($co_ids);
         dotclear()->blog()->triggerBlog();
     }
@@ -429,29 +428,25 @@ class Comments
 
         # Retrieve posts affected by comments edition
         $affected_posts = [];
-        $sql = new SelectStatement('dcBlogDelComments');
+        $sql = new SelectStatement(__METHOD__);
         $rs = $sql
             ->column('post_id')
-            ->from(dotclear()->prefix . 'comment')
-            ->where('comment_id' . $sql->in($co_ids))
+            ->where('comment_id ' . $sql->in($co_ids))
             ->group('post_id')
+            ->from(dotclear()->prefix . 'comment')
             ->select();
 
         while ($rs->fetch()) {
             $affected_posts[] = $rs->fInt('post_id');
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_id' . dotclear()->con()->in($co_ids) . ' ' .
-        'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . dotclear()->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
-        #If user can only delete, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
-        }
-        $strReq .= ')';
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where('comment_id ' . $sql->in($co_ids))
+            ->and('post_id ' . $this->getPostOwnerStatement())
+            ->from(dotclear()->prefix . 'comment')
+            ->delete();
+
         dotclear()->blog()->triggerComments($co_ids, true, $affected_posts);
         dotclear()->blog()->triggerBlog();
     }
@@ -467,18 +462,30 @@ class Comments
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_status = -2 ' .
-        'AND post_id in (SELECT tp.post_id ' .
-        'FROM ' . dotclear()->prefix . 'post tp ' .
-        "WHERE tp.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where('comment_status = -2')
+            ->and('post_id ' . $this->getPostOwnerStatement())
+            ->from(dotclear()->prefix . 'comment')
+            ->delete();
+
+        dotclear()->blog()->triggerBlog();
+    }
+
+    private function getPostOwnerStatement()
+    {
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->column('tp.post_id')
+            ->where('tp.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->from(dotclear()->prefix . 'post tp');
+
         #If user can only delete, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND tp.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+            $sql->and('tp.user_id = ' . $sql->quote(dotclear()->user()->userID()));
         }
-        $strReq .= ')';
-        dotclear()->con()->execute($strReq);
-        dotclear()->blog()->triggerBlog();
+
+        return $sql->statement();
     }
 
     /**
