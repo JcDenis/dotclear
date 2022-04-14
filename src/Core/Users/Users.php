@@ -18,6 +18,11 @@ use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
 class Users
@@ -52,46 +57,89 @@ class Users
      */
     public function getUsers(array|ArrayObject $params = [], bool $count_only = false): Record
     {
+        $sql = new SelectStatement(__METHOD__);
+
         if ($count_only) {
-            $strReq = 'SELECT count(U.user_id) ' .
-            'FROM ' . dotclear()->prefix . 'user U ' .
-                'WHERE NULL IS NULL ';
+            $sql->column($sql->count('U.user_id'));
         } else {
-            $strReq = 'SELECT U.user_id,user_super,user_status,user_pwd,user_change_pwd,' .
-                'user_name,user_firstname,user_displayname,user_email,user_url,' .
-                'user_desc, user_lang,user_tz, user_post_status,user_options, ' .
-                'count(P.post_id) AS nb_post ';
-            if (!empty($params['columns'])) {
-                $strReq .= ',';
-                if (is_array($params['columns'])) {
-                    $strReq .= implode(',', $params['columns']);
-                } else {
-                    $strReq .= $params['columns'];
-                }
-                $strReq .= ' ';
+            if (!empty($params['columns']) && is_array($params['columns'])) {
+                $sql->columns($params['columns']);
             }
-            $strReq .= 'FROM ' . dotclear()->prefix . 'user U ' .
-            'LEFT JOIN ' . dotclear()->prefix . 'post P ON U.user_id = P.user_id ' .
-                'WHERE NULL IS NULL ';
+            $sql->columns([
+                'U.user_id',
+                'user_super',
+                'user_status',
+                'user_pwd',
+                'user_change_pwd',
+                'user_name',
+                'user_firstname',
+                'user_displayname',
+                'user_email',
+                'user_url',
+                'user_desc',
+                'user_lang',
+                'user_tz',
+                'user_post_status',
+                'user_options',
+                $sql->count('P.post_id', 'nb_post'),
+            ])
+            ->join(
+                JoinStatement::init(__METHOD__)
+                    ->type('LEFT')
+                    ->from(dotclear()->prefix . 'post P')
+                    ->on('U.user_id = P.user_id')
+                    ->statement()
+            );
+        }
+
+        $sql->from(dotclear()->prefix . 'user U', false, true);
+
+        if (!empty($params['join'])) {
+            $sql->join($params['join']);
+        }
+
+        if (!empty($params['from'])) {
+            $sql->from($params['from']);
+        }
+
+        if (!empty($params['where'])) {
+            # Cope with legacy code
+            $sql->where($params['where']);
+        } else {
+            $sql->where('NULL IS NULL');
         }
 
         if (!empty($params['q'])) {
-            $q = dotclear()->con()->escape(str_replace('*', '%', strtolower($params['q'])));
-            $strReq .= 'AND (' .
-                "LOWER(U.user_id) LIKE '" . $q . "' " .
-                "OR LOWER(user_name) LIKE '" . $q . "' " .
-                "OR LOWER(user_firstname) LIKE '" . $q . "' " .
-                ') ';
+            $q = str_replace('*', '%', strtolower($params['q']));
+            $sql->and($sql->orGroup([
+                $sql->like('LOWER(U.user_id)', $q),
+                $sql->like('LOWER(user_name)', $q),
+                $sql->like('LOWER(user_firstname)', $q),
+            ]));
         }
 
         if (!empty($params['user_id'])) {
-            $strReq .= "AND U.user_id = '" . dotclear()->con()->escape($params['user_id']) . "' ";
+            $sql->and('U.user_id = ' . $sql->quote($params['user_id']));
         }
 
         if (!$count_only) {
-            $strReq .= 'GROUP BY U.user_id,user_super,user_status,user_pwd,user_change_pwd,' .
-                'user_name,user_firstname,user_displayname,user_email,user_url,' .
-                'user_desc, user_lang,user_tz,user_post_status,user_options ';
+            $sql->group([
+                'U.user_id',
+                'user_super',
+                'user_status',
+                'user_pwd',
+                'user_change_pwd',
+                'user_name',
+                'user_firstname',
+                'user_displayname',
+                'user_email',
+                'user_url',
+                'user_desc',
+                'user_lang',
+                'user_tz',
+                'user_post_status',
+                'user_options',
+            ]);
 
             if (!empty($params['order'])) {
                 if (preg_match('`^([^. ]+) (?:asc|desc)`i', $params['order'], $matches)) {
@@ -100,19 +148,20 @@ class Users
                     } else {
                         $table_prefix = ''; // order = nb_post (asc|desc)
                     }
-                    $strReq .= 'ORDER BY ' . $table_prefix . dotclear()->con()->escape($params['order']) . ' ';
+                    $sql->order($table_prefix . $sql->escape($params['order']));
                 } else {
-                    $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
+                    $sql->order($sql->escape($params['order']));
                 }
             } else {
-                $strReq .= 'ORDER BY U.user_id ASC ';
+                $sql->order('U.user_id ASC');
             }
         }
 
         if (!$count_only && !empty($params['limit'])) {
-            $strReq .= dotclear()->con()->limit($params['limit']);
+            $sql->limit($params['limit']);
         }
-        $rs = dotclear()->con()->select($strReq);
+
+        $rs = $sql->select();
         $rs->extend(new RsExtUser());
 
         return $rs;
@@ -172,7 +221,10 @@ class Users
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $cur->update("WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ");
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->update($cur);
 
         dotclear()->user()->afterUpdUser($user_id, $cur);
 
@@ -181,10 +233,12 @@ class Users
         }
 
         # Updating all user's blogs
-        $rs = dotclear()->con()->select(
-            'SELECT DISTINCT(blog_id) FROM ' . dotclear()->prefix . 'post ' .
-            "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' "
-        );
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->distinct()
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->from(dotclear()->prefix . 'post')
+            ->select();
 
         while ($rs->fetch()) {
             $b = new Blog($rs->f('blog_id'));
@@ -218,10 +272,11 @@ class Users
             return;
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'user ' .
-        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->from(dotclear()->prefix . 'user')
+            ->delete();
 
         dotclear()->user()->afterDelUser($user_id);
     }
@@ -235,11 +290,12 @@ class Users
      */
     public function userExists(string $user_id): bool
     {
-        $strReq = 'SELECT user_id ' .
-        'FROM ' . dotclear()->prefix . 'user ' .
-        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->column('user_id')
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->from(dotclear()->prefix . 'user')
+            ->select();
 
         return !$rs->isEmpty();
     }
@@ -260,12 +316,24 @@ class Users
      */
     public function getUserPermissions(string $user_id): array
     {
-        $strReq = 'SELECT B.blog_id, blog_name, blog_url, permissions ' .
-        'FROM ' . dotclear()->prefix . 'permissions P ' .
-        'INNER JOIN ' . dotclear()->prefix . 'blog B ON P.blog_id = B.blog_id ' .
-        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->columns([
+                'B.blog_id',
+                'blog_name',
+                'blog_url',
+                'permissions',
+            ])
+            ->from(dotclear()->prefix . 'permissions P')
+            ->join(
+                JoinStatement::init(__METHOD__)
+                    ->type('INNER')
+                    ->from(dotclear()->prefix . 'blog B')
+                    ->on('P.blog_id = B.blog_id')
+                    ->statement()
+            )
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->select();
 
         $res = [];
 
@@ -298,10 +366,11 @@ class Users
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'permissions ' .
-        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->from(dotclear()->prefix . 'permissions')
+            ->delete();
 
         foreach ($perms as $blog_id => $p) {
             $this->setUserBlogPermissions($user_id, $blog_id, $p, false);
@@ -326,23 +395,30 @@ class Users
 
         $no_perm = empty($perms);
 
-        $perms = '|' . implode('|', array_keys($perms)) . '|';
-
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'permissions');
-        $cur->setField('user_id', $user_id);
-        $cur->setField('blog_id', $blog_id);
-        $cur->setField('permissions', $perms);
-
         if ($delete_first || $no_perm) {
-            $strReq = 'DELETE FROM ' . dotclear()->prefix . 'permissions ' .
-            "WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "' " .
-            "AND user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-            dotclear()->con()->execute($strReq);
+            $sql = new DeleteStatement(__METHOD__);
+            $sql
+                ->where('blog_id = ' . $sql->quote($blog_id))
+                ->and('user_id = ' . $sql->quote($user_id))
+                ->from(dotclear()->prefix . 'permissions')
+                ->delete();
         }
 
         if (!$no_perm) {
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'user_id',
+                    'blog_id',
+                    'permissions',
+                ])
+                ->line([[
+                    $sql->quote($user_id),
+                    $sql->quote($blog_id),
+                    $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
+                ]])
+                ->from(dotclear()->prefix . 'permissions')
+                ->insert();
         }
     }
 
@@ -356,11 +432,11 @@ class Users
      */
     public function setUserDefaultBlog(string $user_id, string $blog_id): void
     {
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
-
-        $cur->setField('user_default_blog', $blog_id);
-
-        $cur->update("WHERE user_id = '" . dotclear()->con()->escape($user_id) . "'");
+        $sql = new UpdateStatement(__METHOD__);
+        $sql
+            ->set('user_default_blog = ' . $sql->quote($blog_id))
+            ->from(dotclear()->prefix . 'user')
+            ->update();
     }
 
     /**
