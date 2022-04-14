@@ -73,7 +73,7 @@ class Posts
         dotclear()->behavior()->call('coreBlogBeforeGetPosts', $params);
 
         if (!$sql) {
-            $sql = new SelectStatement('dcBlogGetPosts');
+            $sql = new SelectStatement(__METHOD__);
         }
 
         if ($count_only) {
@@ -132,18 +132,18 @@ class Posts
         $sql
             ->from(dotclear()->prefix . 'post P', false, true)
             ->join(
-                (new JoinStatement('dcBlogGetPosts'))
-                ->type('INNER')
-                ->from(dotclear()->prefix . 'user U')
-                ->on('U.user_id = P.user_id')
-                ->statement()
+                JoinStatement::init(__METHOD__)
+                    ->type('INNER')
+                    ->from(dotclear()->prefix . 'user U')
+                    ->on('U.user_id = P.user_id')
+                    ->statement()
             )
             ->join(
-                (new JoinStatement('dcBlogGetPosts'))
-                ->type('LEFT OUTER')
-                ->from(dotclear()->prefix . 'category C')
-                ->on('P.cat_id = C.cat_id')
-                ->statement()
+                JoinStatement::init(__METHOD__)
+                    ->type('LEFT OUTER')
+                    ->from(dotclear()->prefix . 'category C')
+                    ->on('P.cat_id = C.cat_id')
+                    ->statement()
             );
 
         if (!empty($params['join'])) {
@@ -276,8 +276,7 @@ class Posts
         }
 
         if (isset($params['media'])) {
-            $sqlExists = new SelectStatement('dcBlogGetPosts');
-            $sqlExists
+            $sqlExists = SelectStatement::init(__METHOD__)
                 ->from(dotclear()->prefix . 'post_media M')
                 ->column('M.post_id')
                 ->where('M.post_id = P.post_id');

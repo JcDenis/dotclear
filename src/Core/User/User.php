@@ -146,7 +146,7 @@ class User
             }
             if ($rehash) {
                 // Store new hash in DB
-                $sql = new UpdateStatement('coreAuthCheckUser');
+                $sql = new UpdateStatement(__METHOD__);
                 $sql
                     ->set('user_pwd = ' . $sql->quote($user_pwd))
                     ->from(dotclear()->prefix . $this->user_table)

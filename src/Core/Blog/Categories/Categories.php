@@ -15,9 +15,11 @@ namespace Dotclear\Core\Blog\Categories;
 
 use ArrayObject;
 use Dotclear\Core\Blog\Categories\CategoriesTree;
-use Dotclear\Database\StaticRecord;
-use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
@@ -234,22 +236,32 @@ class Categories
      */
     private function getCategoriesCounter(array|ArrayObject $params = []): array
     {
-        $strReq = 'SELECT  C.cat_id, COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . dotclear()->prefix . 'category AS C ' .
-        'JOIN ' . dotclear()->prefix . "post P ON (C.cat_id = P.cat_id AND P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ) " .
-        "WHERE C.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->columns([
+                'C.cat_id',
+                $sql->count('P.post_id', 'nb_post'),
+            ])
+            ->from(dotclear()->prefix . 'category AS C')
+            ->join(
+                JoinStatement::init(__METHOD__)
+                    ->from(dotclear()->prefix . 'post P')
+                    ->on('C.cat_id = P.cat_id')
+                    ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+                    ->statement()
+            )
+            ->where('C.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->group('C.cat_id');
 
         if (!dotclear()->user()->userID()) {
-            $strReq .= 'AND P.post_status = 1 ';
+            $sql->and('P.post_status = 1');
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND P.post_type ' . dotclear()->con()->in($params['post_type']);
+            $sql->and('P.post_type' . $sql->in($params['post_type']));
         }
 
-        $strReq .= 'GROUP BY C.cat_id ';
-
-        $rs       = dotclear()->con()->select($strReq);
+        $rs       = $sql->select();
         $counters = [];
         while ($rs->fetch()) {
             $counters[$rs->f('cat_id')] = $rs->f('nb_post');
@@ -410,12 +422,13 @@ class Categories
             throw new CoreException(__('You are not allowed to delete categories'));
         }
 
-        $strReq = 'SELECT COUNT(post_id) AS nb_post ' .
-        'FROM ' . dotclear()->prefix . 'post ' .
-        'WHERE cat_id = ' . (int) $id . ' ' .
-        "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->column($sql->count('post_id', 'nb_post'))
+            ->from(dotclear()->prefix . 'post')
+            ->where('cat_id = ' . $id)
+            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->select();
 
         if (0 < $rs->f('nb_post')) {
             throw new CoreException(__('This category is not empty.'));
@@ -449,30 +462,34 @@ class Categories
      */
     private function checkCategory(string $title, string $url, ?int $id = null): string
     {
-        # Let's check if URL is taken...
-        $strReq = 'SELECT cat_url FROM ' . dotclear()->prefix . 'category ' .
-        "WHERE cat_url = '" . dotclear()->con()->escape($url) . "' " .
-        ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-        "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'ORDER BY cat_url DESC';
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->column('cat_url')
+            ->from(dotclear()->prefix . 'category')
+            ->where('cat_url = ' . $sql->quote($url))
+            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->order('cat_url DESC');
 
-        $rs = dotclear()->con()->select($strReq);
+        if (null !== $id) {
+            $sql->and('cat_id <> ' . $id);
+        }
+
+        $rs = $sql->select();
 
         if (!$rs->isEmpty()) {
-            if ('mysql' == dotclear()->con()->syntax()) {
-                $clause = "REGEXP '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
-            } elseif ('pgsql' == dotclear()->con()->driver()) {
-                $clause = "~ '^" . dotclear()->con()->escape($url) . "[0-9]+$'";
-            } else {
-                $clause = "LIKE '" . dotclear()->con()->escape($url) . "%'";
-            }
-            $strReq = 'SELECT cat_url FROM ' . dotclear()->prefix . 'category ' .
-            'WHERE cat_url ' . $clause . ' ' .
-            ($id ? 'AND cat_id <> ' . (int) $id . ' ' : '') .
-            "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-                'ORDER BY cat_url DESC ';
+            $sql = new SelectStatement(__METHOD__);
+            $sql
+                ->column('cat_url')
+                ->from(dotclear()->prefix . 'category')
+                ->where('cat_url' . $sql->regexp($url))
+                ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+                ->order('cat_url DESC');
 
-            $rs = dotclear()->con()->select($strReq);
+            if (null !== $id) {
+                $sql->and('cat_id <> ' . $id);
+            }
+
+            $rs = $sql->select();
 
             if ($rs->isEmpty()) {
                 return $url;

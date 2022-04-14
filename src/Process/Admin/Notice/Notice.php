@@ -80,7 +80,7 @@ class Notice
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
-        $sql = new SelectStatement('NoticesGet');
+        $sql = new SelectStatement(__METHOD__);
         $sql
             ->from($this->table);
 
@@ -151,7 +151,7 @@ class Notice
 
         try {
             # Get ID
-            $sql = new SelectStatement('NoticesAdd');
+            $sql = new SelectStatement(__METHOD__);
             $rs = $sql
                 ->column($sql->max('notice_id'))
                 ->from($this->table)
@@ -187,7 +187,7 @@ class Notice
      */
     public function del(?int $notice_id, bool $delete_all = false): void
     {
-        $sql = new DeleteStatement('NoticesDel');
+        $sql = new DeleteStatement(__METHOD__);
         $sql
             ->from($this->table)
             ->where($delete_all ? 
