@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -51,7 +56,7 @@ class FilterWords extends Spamfilter
         while ($rs->fetch()) {
             $word = $rs->f('rule_content');
 
-            if (substr($word, 0, 1) == '/' && substr($word, -1, 1) == '/') {
+            if ('/' == substr($word, 0, 1) && '/' == substr($word, -1, 1)) {
                 $reg = substr(substr($word, 1), 0, -1);
             } else {
                 $reg = preg_quote($word, '/');
@@ -185,72 +190,104 @@ class FilterWords extends Spamfilter
         return $res;
     }
 
-    private function getRules()
+    private function getRules(string $type = 'all'): Record
     {
-        $strReq = 'SELECT rule_id, blog_id, rule_content ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = 'word' " .
-        "AND ( blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'OR blog_id IS NULL ) ' .
-            'ORDER BY blog_id ASC, rule_content ASC ';
+        $sql = new SelectStatement(__METHOD__);
 
-        return dotclear()->con()->select($strReq);
+        return $sql
+            ->columns([
+                'rule_id',
+                'blog_id',
+                'rule_content',
+            ])
+            ->where('rule_type = ' . $sql->quote('word'))
+            ->and($sql->orGroup([
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id IS NULL',
+            ]))
+            ->order([
+                'blog_id ASC',
+                'rule_content ASC'
+            ])
+            ->from($this->table)
+            ->select();
     }
 
-    private function addRule($content, $general = false)
+    private function addRule(string $content, bool $general = false): void
     {
-        $strReq = 'SELECT rule_id FROM ' . $this->table . ' ' .
-        "WHERE rule_type = 'word' " .
-        "AND rule_content = '" . dotclear()->con()->escape($content) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->from($this->table)
+            ->where('rule_type = ' . $sql->quote('word'))
+            ->and('rule_content = ' . $sql->quote($content));
+
         if (!$general) {
-            $strReq .= ' AND blog_id = \'' . dotclear()->blog()->id . '\'';
+            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
         }
-        $rs = dotclear()->con()->select($strReq);
+
+        $rs = $sql->select();
 
         if (!$rs->isEmpty() && !$general) {
             throw new \Exception(__('This word exists'));
         }
 
-        $cur = dotclear()->con()->openCursor($this->table);
-        $cur->setField('rule_type', 'word');
-        $cur->setField('rule_content', (string) $content);
-
-        if ($general && dotclear()->user()->isSuperAdmin()) {
-            $cur->setField('blog_id', null);
-        } else {
-            $cur->setField('blog_id', dotclear()->blog()->id);
-        }
-
         if (!$rs->isEmpty() && $general) {
-            $cur->update('WHERE rule_id = ' . $rs->fInt('rule_id'));
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set('rule_type = ' . $sql->quote('word'))
+                ->set('rule_content = ' . $sql->quote($content))
+                ->set(true === $general && dotclear()->user()->isSuperAdmin() ?
+                    'blog_id = NULL' :
+                    'blog_id = ' . $sql->quote(dotclear()->blog()->id)
+                )
+                ->where('rule_id = ' . $rs->fInt('rule_id'))
+                ->update();
         } else {
-            $cur->set('rule_id', dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1);
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'rule_type',
+                    'rule_content',
+                    'blog_id',
+                    'rule_id',
+                ])
+                ->line([[
+                    'word',
+                    $content,
+                    $general && dotclear()->user()->isSuperAdmin() ? null : dotclear()->blog()->id,
+                    SelectStatement::init(__METHOD__)
+                        ->column($sql->max('rule_id'))
+                        ->from($this->table)
+                        ->select()
+                        ->fInt() + 1,
+                ]])
+                ->insert();
         }
     }
 
-    private function removeRule($ids)
+    private function removeRule(int|array $ids): void
     {
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $sql = new DeleteStatement(__METHOD__);
 
         if (is_array($ids)) {
             foreach ($ids as &$v) {
                 $v = (int) $v;
             }
-            $strReq .= 'WHERE rule_id IN (' . implode(',', $ids) . ') ';
+            $sql->where('rule_id' . $sql->in($ids));
         } else {
-            $ids = (int) $ids;
-            $strReq .= 'WHERE rule_id = ' . $ids . ' ';
+            $sql->where('rule_id = ' . $ids);
         }
 
         if (!dotclear()->user()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
         }
 
-        dotclear()->con()->execute($strReq);
+        $sql
+            ->from($this->table)
+            ->delete();
     }
 
-    public function defaultWordsList()
+    public function defaultWordsList(): void
     {
         $words = [
             '/-credit(\s+|$)/',

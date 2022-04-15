@@ -114,7 +114,7 @@ class Handler extends AbstractPage
 
         # Page setup
         $this
-            ->setPageTitle(($this->a_gui !== false ? sprintf(__('%s configuration'), $filter->name) . ' - ' : '') . __('Antispam'))
+            ->setPageTitle((false !== $this->a_gui ? sprintf(__('%s configuration'), $filter->name) . ' - ' : '') . __('Antispam'))
             ->setPageHead(dotclear()->resource()->pageTabs($this->a_tab))
         ;
 
@@ -130,7 +130,7 @@ class Handler extends AbstractPage
             dotclear()->resource()->load('style.css', 'Plugin','Antispam')
         );
 
-        if ($this->a_gui !== false) {
+        if (false !== $this->a_gui) {
             $this
                 ->setPageBreadcrumb([
                     __('Plugins')                                         => '',
@@ -154,7 +154,7 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if ($this->a_gui !== false) {
+        if (false !== $this->a_gui) {
             echo '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" class="back">' . __('Back to filters list') . '</a></p>' . $this->a_gui;
 
             return;
@@ -177,13 +177,13 @@ class Handler extends AbstractPage
             $published_count . '</li>' .
             '</ul>';
 
-        if ($spam_count > 0) {
+        if (0 < $spam_count) {
             echo
             '<p>' .
             Form::hidden('ts', time()) .
             '<input name="delete_all" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
         }
-        if ($moderationTTL != null && $moderationTTL >= 0) {
+        if (null != $moderationTTL && 0 <= $moderationTTL) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $moderationTTL) . ' ' .
             sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
                 '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
@@ -262,7 +262,7 @@ class Handler extends AbstractPage
         '</form>';
 
         # Syndication
-        if (dotclear()->config()->get('admin_url') != '') {
+        if ('' != dotclear()->config()->get('admin_url')) {
             $ham_feed = dotclear()->blog()->getURLFor(
                 'hamfeed',
                 $code = $this->a_antispam->getUserCode()

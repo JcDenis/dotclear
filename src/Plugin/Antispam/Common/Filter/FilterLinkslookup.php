@@ -50,7 +50,7 @@ class FilterLinkslookup extends Spamfilter
             $domain_elem = explode('.', $domain);
 
             $i = count($domain_elem) - 1;
-            if ($i == 0) {
+            if (0 == $i) {
                 // "domain" is 1 word long, don't check it
                 return null;
             }
@@ -59,7 +59,7 @@ class FilterLinkslookup extends Spamfilter
                 $host = $domain_elem[$i - 1] . '.' . $host;
                 $i--;
                 $response = gethostbyname($host . '.' . $this->server);
-                if (substr($response, 0, 3) === '127' && substr($response, 8) !== '1') {
+                if ('127' === substr($response, 0, 3) && '1' !== substr($response, 8)) {
                     $status = substr($domain, 0, 128);
 
                     return true;
@@ -70,7 +70,7 @@ class FilterLinkslookup extends Spamfilter
         return null;
     }
 
-    private function getLinks($text)
+    private function getLinks(string $text): array
     {
         // href attribute on "a" tags is second match
         preg_match_all('|<a.*?href="(http.*?)"|', $text, $parts);

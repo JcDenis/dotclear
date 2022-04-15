@@ -21,6 +21,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\SelectStatement;
 
 class RsExtComment extends RsExtend
 {
@@ -36,8 +37,8 @@ class RsExtComment extends RsExtend
 
     private function spamField(string $field): ? string
     {
-        $rspam = dotclear()->con()->select('SELECT ' . $field . ' FROM ' . dotclear()->prefix . "comment WHERE comment_id = " . $this->rs->fInt('comment_id') . " LIMIT 1 ");
+        $rs = SelectStatement::init(__METHOD__)->column($field)->from(dotclear()->prefix . 'comment')->where('comment_id = ' . $this->rs->fInt('comment_id'))->limit(1)->select();
 
-        return $rspam->isEmpty() ? null : $rspam->{$field};
+        return $rs->isEmpty() ? null : $rs->f($field);
     }
 }

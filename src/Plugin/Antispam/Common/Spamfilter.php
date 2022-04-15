@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
-use Dotclear\Helper\Html\Html;
 use Dotclear\Database\Record;
+use Dotclear\Helper\Html\Html;
 
 class Spamfilter
 {

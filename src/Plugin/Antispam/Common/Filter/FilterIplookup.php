@@ -102,10 +102,10 @@ class FilterIplookup extends Spamfilter
         return $res;
     }
 
-    private function getServers()
+    private function getServers(): string
     {
         $bls = dotclear()->blog()->settings()->get('antispam')->get('antispam_dnsbls');
-        if ($bls === null) {
+        if (null === $bls) {
             dotclear()->blog()->settings()->get('antispam')->put('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
 
             return $this->default_bls;
@@ -114,15 +114,12 @@ class FilterIplookup extends Spamfilter
         return $bls;
     }
 
-    private function dnsblLookup($ip, $bl)
+    private function dnsblLookup(string $ip, string $bl): bool
     {
         $revIp = implode('.', array_reverse(explode('.', $ip)));
 
         $host = $revIp . '.' . $bl . '.';
-        if (gethostbyname($host) != $host) {
-            return true;
-        }
 
-        return false;
+        return $host != gethostbyname($host);
     }
 }

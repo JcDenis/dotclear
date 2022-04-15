@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 class Spamfilters
 {
@@ -118,7 +117,7 @@ class Spamfilters
 
     public function saveFilterOpts(array $opts, bool $global = false): void
     {
-        if ($global) {
+        if (true === $global) {
             dotclear()->blog()->settings()->get('antispam')->drop('antispam_filters');
         }
         dotclear()->blog()->settings()->get('antispam')->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
@@ -145,7 +144,7 @@ class Spamfilters
         }
     }
 
-    private function orderCallBack(Spamfilter $a, Spamfilter $b)
+    private function orderCallBack(Spamfilter $a, Spamfilter $b): int
     {
         if ($a->order == $b->order) {
             return 0;

@@ -46,7 +46,7 @@ class FilterAkismet extends Spamfilter
         return sprintf(__('Filtered by %s.'), $this->guiLink());
     }
 
-    private function akInit()
+    private function akInit(): Akismet|false
     {
         if (!dotclear()->blog()->settings()->get('akismet')->get('ak_key')) {
             return false;
@@ -57,7 +57,7 @@ class FilterAkismet extends Spamfilter
 
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
-        if (($ak = $this->akInit()) === false) {
+        if (false === ($ak = $this->akInit())) {
             return null;
         }
 
@@ -89,13 +89,13 @@ class FilterAkismet extends Spamfilter
     public function trainFilter(string $status, string $filter, string $type, string $author, string $email, string $site, string $ip, string $content, Record $rs): void
     {
         # We handle only false positive from akismet
-        if ($status == 'spam' && $filter != 'dcFilterAkismet') {
+        if ('spam' == $status && 'dcFilterAkismet' != $filter) {
             return;
         }
 
-        $f = $status == 'spam' ? 'submit_spam' : 'submit_ham';
+        $f = 'spam' == $status ? 'submit_spam' : 'submit_ham';
 
-        if (($ak = $this->akInit()) === false) {
+        if (false === ($ak = $this->akInit())) {
             return;
         }
 
@@ -138,17 +138,14 @@ class FilterAkismet extends Spamfilter
         '<p><label for="ak_key" class="classic">' . __('Akismet API key:') . '</label> ' .
         Form::field('ak_key', 12, 128, $ak_key);
 
-        if ($ak_verified !== null) {
-            if ($ak_verified) {
-                $res .= ' <img src="?df=images/check-on.png" alt="" /> ' . __('API key verified');
-            } else {
-                $res .= ' <img src="?df=images/check-off.png" alt="" /> ' . __('API key not verified');
-            }
+        if (null !== $ak_verified) {
+            $res .= $ak_verified ?
+                ' <img src="?df=images/check-on.png" alt="" /> ' . __('API key verified') :
+                ' <img src="?df=images/check-off.png" alt="" /> ' . __('API key not verified');
         }
 
-        $res .= '</p>';
-
-        $res .= '<p><a href="https://akismet.com/">' . __('Get your own API key') . '</a></p>' .
+        $res .= '</p>' .
+        '<p><a href="https://akismet.com/">' . __('Get your own API key') . '</a></p>' .
         '<p><input type="submit" value="' . __('Save') . '" />' .
         dotclear()->nonce()->form() . '</p>' .
             '</form>';

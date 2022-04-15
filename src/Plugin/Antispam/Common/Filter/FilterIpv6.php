@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -110,7 +115,7 @@ class FilterIpv6 extends Spamfilter
         return $this->tab;
     }
 
-    private function displayForms($url, $type, $title)
+    private function displayForms(string $url, string $type, string $title): string
     {
         $res = '<div class="multi-part" id="tab_' . $type . '" title="' . $title . '">' .
 
@@ -188,7 +193,7 @@ class FilterIpv6 extends Spamfilter
         return $res;
     }
 
-    public function addIP($type, $pattern, $global)
+    public function addIP(string $type, string $pattern, bool $global): void
     {
         $pattern = $this->compact($pattern);
 
@@ -196,60 +201,99 @@ class FilterIpv6 extends Spamfilter
         $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
+            $sql = new SelectStatement(__METHOD__);
+            $id = $sql
+                ->columns($sql->max('rule_id'))
+                ->from($this->table)
+                ->select()
+                ->fInt() + 1;
 
-            $cur->setField('rule_id', $id);
-            $cur->setField('rule_type', (string) $type);
-            $cur->setField('rule_content', (string) $pattern);
-
-            if ($global && dotclear()->user()->isSuperAdmin()) {
-                $cur->setField('blog_id', null);
-            } else {
-                $cur->setField('blog_id', dotclear()->blog()->id);
-            }
-
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'rule_id',
+                    'rule_type',
+                    'rule_content',
+                    'blog_id'
+                ])
+                ->line([[
+                    $id,
+                    $type,
+                    $pattern,
+                    $global && dotclear()->user()->isSuperAdmin() ? null : dotclear()->blog()->id,
+                ]])
+                ->from($this->table)
+                ->insert();
         } else {
-            $cur->setField('rule_type', (string) $type);
-            $cur->setField('rule_content', (string) $pattern);
-            $cur->update('WHERE rule_id = ' . $old->fInt('rule_id'));
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set('rule_type = ' . $sql->quote($type))
+                ->set('rule_content = ' . $sql->quote($pattern))
+                ->where('rule_id = ' . $old->fInt('rule_id'))
+                ->from($this->table)
+                ->update();
         }
     }
 
-    private function getRules($type = 'all')
+    private function getRules(string $type = 'all'): Record
     {
-        $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
-            'ORDER BY blog_id ASC, rule_content ASC ';
+        $sql = new SelectStatement(__METHOD__);
 
-        return dotclear()->con()->select($strReq);
+        return $sql
+            ->columns([
+                'rule_id',
+                'rule_type',
+                'blog_id',
+                'rule_content',
+            ])
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->orGroup([
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id IS NULL',
+            ]))
+            ->order([
+                'blog_id ASC',
+                'rule_content ASC'
+            ])
+            ->from($this->table)
+            ->select();
     }
 
-    private function getRuleCIDR($type, $global, $pattern)
+    private function getRuleCIDR(string $type, bool $global, string $pattern): Record
     {
         // Search if we already have a rule for the given IP (ignoring mask in pattern if any)
         $this->ipmask($pattern, $ip, $mask);
         $ip = $this->long2ip_v6($ip);
 
-        $strReq = 'SELECT * FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND rule_content LIKE '" . $ip . "%' " .
-        'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog()->id . "' ");
+        $sql = new SelectStatement(__METHOD__);
 
-        return dotclear()->con()->select($strReq);
+        return $sql
+            ->column('*')
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->like('rule_content',  $ip . "%"))
+            ->and($global ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id)
+            )
+            ->from($this->table)
+            ->select();
     }
 
-    private function checkIP($cip, $type)
+    private function checkIP(string $cip, string $type): string|false
     {
-        $strReq = 'SELECT DISTINCT(rule_content) ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
-            'ORDER BY rule_content ASC ';
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->distinct()
+            ->column('rule_content')
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->orGroup([
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id IS NULL',
+            ]))
+            ->order('rule_content ASC')
+            ->from($this->table)
+            ->select();
 
-        $rs = dotclear()->con()->select($strReq);
         while ($rs->fetch()) {
             $pattern = $rs->f('rule_content');
             if ($this->inrange($cip, $pattern)) {
@@ -260,28 +304,29 @@ class FilterIpv6 extends Spamfilter
         return false;
     }
 
-    private function removeRule($ids)
+    private function removeRule(int|array $ids): void
     {
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $sql = new DeleteStatement(__METHOD__);
 
         if (is_array($ids)) {
             foreach ($ids as $i => $v) {
                 $ids[$i] = (int) $v;
             }
-            $strReq .= 'WHERE rule_id IN (' . implode(',', $ids) . ') ';
+            $sql->where('rule_id' . $sql->in($ids));
         } else {
-            $ids = (int) $ids;
-            $strReq .= 'WHERE rule_id = ' . $ids . ' ';
+            $sql->where('rule_id = ' . $ids);
         }
 
         if (!dotclear()->user()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->blog()->id . "' ";
+            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
         }
 
-        dotclear()->con()->execute($strReq);
+        $sql
+            ->from($this->table)
+            ->delete();
     }
 
-    private function compact($pattern)
+    private function compact(string $pattern): string
     {
         // Compact the IP(s) in pattern
         $this->ipmask($pattern, $ip, $mask);
@@ -294,7 +339,7 @@ class FilterIpv6 extends Spamfilter
         } elseif (strpos($bits[1], ':')) {
             // End IP address
             return $ip . '/' . $mask;
-        } elseif ($mask === '1') {
+        } elseif ('1' === $mask) {
             // Ignore mask
             return $ip;
         }
@@ -302,7 +347,7 @@ class FilterIpv6 extends Spamfilter
         return $ip . '/' . $bits[1];
     }
 
-    private function inrange($value, $pattern)
+    private function inrange(string $value, string $pattern): bool
     {
         // Check if an IP is inside the range given by the pattern
         $this->ipmask($pattern, $ipmin, $mask);
@@ -337,10 +382,10 @@ class FilterIpv6 extends Spamfilter
             trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
         }
 
-        return (($min >= 0) && ($max <= 0));
+        return 0 <= $min && 0 >= $max;
     }
 
-    private function ipmask($pattern, &$ip, &$mask)
+    private function ipmask(string $pattern, &$ip, &$mask): void
     {
         // Analyse pattern returning IP and mask if any
         // returned mask = IP address or number of addresses in range
@@ -378,7 +423,7 @@ class FilterIpv6 extends Spamfilter
         }
     }
 
-    private function ip2long_v6($ip)
+    private function ip2long_v6(string $ip): string
     {
         // Convert IP v6 to long integer
         $ip_n = inet_pton($ip);
@@ -401,7 +446,7 @@ class FilterIpv6 extends Spamfilter
         trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
     }
 
-    private function long2ip_v6($dec)
+    private function long2ip_v6(string $dec): string
     {
         $bin = '';
         // Convert long integer to IP v6

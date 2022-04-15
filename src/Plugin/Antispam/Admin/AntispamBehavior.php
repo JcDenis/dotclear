@@ -42,14 +42,14 @@ class AntispamBehavior
     {
         $str = '';
         # Check if it is comments favs
-        if ($name == 'comments') {
+        if ('comments' == $name) {
             # Hack comments title if there is at least one spam
-            if (($count = (new Antispam())->countSpam()) > 0) {
+            if (0 < ($count = (new Antispam())->countSpam())) {
                 $str = '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
-                    sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
+                    sprintf((1 < $count) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
             }
 
-            if ($str != '') {
+            if ('' != $str) {
                 $icon[0] .= $str;
             }
         }
@@ -59,7 +59,7 @@ class AntispamBehavior
     {
         $found = false;
         foreach ($blocks as $block) {
-            if ($block == 'core_comments') {
+            if ('core_comments' == $block) {
                 $found = true;
 
                 break;
@@ -74,7 +74,7 @@ class AntispamBehavior
     public function behaviorAdminCommentsSpamForm(): void
     {
         $ttl = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
-        if ($ttl != null && $ttl >= 0) {
+        if (null != $ttl && 0 <= $ttl) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $ttl) . ' ' .
             sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
                 '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
@@ -82,7 +82,7 @@ class AntispamBehavior
         }
     }
 
-    public function behaviorAdminBlogPreferencesForm(Settings $settings)
+    public function behaviorAdminBlogPreferencesForm(Settings $settings): void
     {
         echo
         '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
@@ -95,7 +95,7 @@ class AntispamBehavior
             '</div>';
     }
 
-    public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings)
+    public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
         $settings->get('antispam')->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
     }
@@ -110,11 +110,9 @@ class AntispamBehavior
     public function restGetSpamsCount($get): XmlTag
     {
         $count = (new Antispam())->countSpam();
-        if ($count > 0) {
-            $str = sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
-        } else {
-            $str = '';
-        }
+        $str  = 0 < $count ?
+            sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count) :
+            '';
 
         $rsp = new xmlTag('count');
         $rsp->insertAttr('ret', $str);

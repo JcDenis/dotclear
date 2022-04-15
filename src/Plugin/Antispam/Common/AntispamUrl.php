@@ -14,11 +14,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
-
-use Dotclear\Plugin\Antispam\Common\Antispam;
-
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Plugin\Antispam\Common\Antispam;
 
 class AntispamUrl extends Url
 {
@@ -28,21 +26,21 @@ class AntispamUrl extends Url
         dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$this, 'hamFeed']);
     }
 
-    public function hamFeed($args)
+    public function hamFeed(?string $args): void
     {
-        $this->genFeed('ham', $args);
+        $this->genFeed('ham', (string) $args);
     }
 
-    public function spamFeed($args)
+    public function spamFeed(?string $args): void
     {
-        $this->genFeed('spam', $args);
+        $this->genFeed('spam', (string) $args);
     }
 
-    private function genFeed($type, $args)
+    private function genFeed(string $type, string $args): void
     {
         $user_id = (new Antispam())->checkUserCode($args);
 
-        if ($user_id === false) {
+        if (false === $user_id) {
             dotclear()->url()->p404();
 
             return;
@@ -55,7 +53,7 @@ class AntispamUrl extends Url
         $title   = dotclear()->blog()->name . ' - ' . __('Spam moderation') . ' - ';
         $params  = [];
         $end_url = '';
-        if ($type == 'spam') {
+        if ('spam' == $type) {
             $title .= __('Spam');
             $params['comment_status'] = -2;
             $end_url                  = '&status=-2';
@@ -71,8 +69,7 @@ class AntispamUrl extends Url
         'xmlns:content="http://purl.org/rss/1.0/modules/content/">' . "\n" .
         '<channel>' . "\n" .
         '<title>' . html::escapeHTML($title) . '</title>' . "\n" .
-        /* @phpstan-ignore-next-line */
-        '<link>' . (dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
+        '<link>' . ('' != dotclear()->config()->get('admin_url') ? dotclear()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
         $rs       = dotclear()->blog()->comments()->getComments($params);
@@ -82,21 +79,21 @@ class AntispamUrl extends Url
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             $nbitems++;
             /* @phpstan-ignore-next-line */
-            $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->comment_id : 'about:blank';
-            $author = $rs->comment_author;
-            $title  = $rs->post_title . ' - ' . $author;
-            if ($type == 'spam') {
-                $title .= '(' . $rs->comment_spam_filter . ')';
+            $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
+            $author = $rs->f('comment_author');
+            $title  = $rs->f('post_title') . ' - ' . $author;
+            if ('spam' == $type) {
+                $title .= '(' . $rs->f('comment_spam_filter') . ')';
             }
-            $id = $rs->getFeedID();
+            $id = $rs->call('getFeedID');
 
-            $content = '<p>IP: ' . $rs->comment_ip;
+            $content = '<p>IP: ' . $rs->f('comment_ip');
 
-            if (trim($rs->comment_site)) {
-                $content .= '<br />URL: <a href="' . $rs->comment_site . '">' . $rs->comment_site . '</a>';
+            if (trim($rs->f('comment_site'))) {
+                $content .= '<br />URL: <a href="' . $rs->f('comment_site') . '">' . $rs->f('comment_site') . '</a>';
             }
             $content .= "</p><hr />\n";
-            $content .= $rs->comment_content;
+            $content .= $rs->f('comment_content');
 
             echo
             '<item>' . "\n" .

@@ -14,15 +14,17 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
-
 use Dotclear\Core\Blog;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Plugin\Antispam\Common\Spamfilters;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
+use Dotclear\Plugin\Antispam\Common\Spamfilters;
 use Dotclear\Process\Admin\Action\Action;
 
 class Antispam
@@ -59,7 +61,7 @@ class Antispam
         $this->filters->init($spamfilters);
     }
 
-    public function defaultFilters()
+    public function defaultFilters(): array
     {
         $ns = __NAMESPACE__ . '\\Filter\\';
         $defaultfilters = [
@@ -86,17 +88,17 @@ class Antispam
     {
         $status = null;
         # From ham to spam
-        if ($rs->fInt('comment_status') != -2 && $cur->getField('comment_status') == -2) {
+        if (-2 != $rs->fInt('comment_status') && -2 == $cur->getField('comment_status')) {
             $status = 'spam';
         }
 
         # From spam to ham
-        if ($rs->f('comment_status') == -2 && $cur->getField('comment_status') == 1) {
+        if (-2 == $rs->f('comment_status') && 1 == $cur->getField('comment_status')) {
             $status = 'ham';
         }
 
         # the status of this comment has changed
-        if ($status) {
+        if (null !== $status) {
             $filter_name = $rs->call('spamFilter') ?: null;
 
             $this->initFilters();
@@ -106,7 +108,7 @@ class Antispam
 
     public function statusMessage(Record $rs): string
     {
-        if ($rs->exists('comment_status') && $rs->fInt('comment_status') == -2) {
+        if ($rs->exists('comment_status') && -2 == $rs->fInt('comment_status')) {
             $filter_name = $rs->call('spamFilter') ?: null;
 
             $this->initFilters();
@@ -136,16 +138,24 @@ class Antispam
 
     public function delAllSpam(?string $beforeDate = null): void
     {
-        $strReq = 'SELECT comment_id ' .
-        'FROM ' . dotclear()->prefix . 'comment C ' .
-        'JOIN ' . dotclear()->prefix . 'post P ON P.post_id = C.post_id ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND comment_status = -2 ';
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->column('comment_id')
+            ->from(dotclear()->prefix . 'comment C')
+            ->join(
+                JoinStatement::init(__METHOD__)
+                    ->from(dotclear()->prefix . 'post P')
+                    ->on('P.post_id = C.post_id')
+                    ->statement()
+            )
+            ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->and('comment_status = -2');
+
         if ($beforeDate) {
-            $strReq .= 'AND comment_dt < \'' . $beforeDate . '\' ';
+            $sql->and('comment_dt < ' . $sql->quote($beforeDate));
         }
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = $sql->select();
         $r  = [];
         while ($rs->fetch()) {
             $r[] = $rs->fInt('comment_id');
@@ -155,10 +165,11 @@ class Antispam
             return;
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'comment ' .
-        'WHERE comment_id ' . dotclear()->con()->in($r) . ' ';
-
-        dotclear()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->from(dotclear()->prefix . 'comment')
+            ->where('comment_id' . $sql->in($r))
+            ->delete();
     }
 
     public function getUserCode(): string
@@ -176,15 +187,19 @@ class Antispam
         $user_id = trim(@pack('a32', substr($code, 0, 32)));
         $pwd     = substr($code, 32);
 
-        if ($user_id === '' || $pwd === '') {
+        if ('' === $user_id || '' === $pwd) {
             return false;
         }
 
-        $strReq = 'SELECT user_id, user_pwd ' .
-        'FROM ' . dotclear()->prefix . 'user ' .
-        "WHERE user_id = '" . dotclear()->con()->escape($user_id) . "' ";
-
-        $rs = dotclear()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->columns([
+                'user_id',
+                'user_pwd',
+            ])
+            ->where('user_id = ' . $sql->quote($user_id))
+            ->from(dotclear()->prefix . 'user')
+            ->select();
 
         if ($rs->isEmpty()) {
             return false;
@@ -210,13 +225,13 @@ class Antispam
         $init                 = false;
 
         $dateLastPurge = dotclear()->blog()->settings()->get('antispam')->get('antispam_date_last_purge');
-        if ($dateLastPurge === null) {
+        if (null === $dateLastPurge) {
             $init = true;
             dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
             $dateLastPurge = $defaultDateLastPurge;
         }
         $moderationTTL = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
-        if ($moderationTTL === null) {
+        if (null === $moderationTTL) {
             dotclear()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
             $moderationTTL = $defaultModerationTTL;
         }
@@ -227,7 +242,7 @@ class Antispam
         }
 
         // we call the purge every day
-        if ((time() - $dateLastPurge) > (86400)) {
+        if (86400 < (time() - $dateLastPurge)) {
             // update dateLastPurge
             if (!$init) {
                 dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', time(), null, null, true, false);
@@ -267,7 +282,7 @@ class Antispam
     public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
-        if (dotclear()->blog()->settings()->get('antispam')->get('antispam_filters') !== null) {
+        if (null !== dotclear()->blog()->settings()->get('antispam')->get('antispam_filters')) {
             $filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
             if (is_array($filters_opt)) {
                 $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && $filters_opt['FilterIp'][0] == 1;
@@ -303,7 +318,7 @@ class Antispam
         $ip_filter_v6 = new FilterIpv6();
 
         while ($rs->fetch()) {
-            if (filter_var($rs->f('comment_ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+            if (false !== filter_var($rs->f('comment_ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                 // IP is an IPv6
                 $ip_filter_v6->addIP('blackv6', $rs->f('comment_ip'), $global);
             } else {

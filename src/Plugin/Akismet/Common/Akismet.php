@@ -31,7 +31,7 @@ class Akismet extends NetHttp
         parent::__construct($this->ak_host, 80, dotclear()->config()->get('query_timeout'));
     }
 
-    public function verify()
+    public function verify(): bool
     {
         $this->host = $this->base_host;
         $path       = sprintf($this->ak_path, 'verify-key');
@@ -42,13 +42,13 @@ class Akismet extends NetHttp
         ];
 
         if ($this->post($path, $data, 'UTF-8')) {
-            return $this->getContent() == 'valid';
+            return 'valid' == $this->getContent();
         }
 
         return false;
     }
 
-    public function comment_check($permalink, $type, $author, $email, $url, $content)
+    public function comment_check(string $permalink, string $type, string $author, string $email, string $url, string $content): mixed
     {
         $info_ignore = ['HTTP_COOKIE'];
         $info        = [];
@@ -62,21 +62,21 @@ class Akismet extends NetHttp
         return $this->callFunc('comment-check', $permalink, $type, $author, $email, $url, $content, $info);
     }
 
-    public function submit_spam($permalink, $type, $author, $email, $url, $content)
+    public function submit_spam(string $permalink, string $type, string $author, string $email, string $url, string $content): bool
     {
         $this->callFunc('submit-spam', $permalink, $type, $author, $email, $url, $content);
 
         return true;
     }
 
-    public function submit_ham($permalink, $type, $author, $email, $url, $content)
+    public function submit_ham(string $permalink, string $type, string $author, string $email, string $url, string $content): bool
     {
         $this->callFunc('submit-ham', $permalink, $type, $author, $email, $url, $content);
 
         return true;
     }
 
-    protected function callFunc($function, $permalink, $type, $author, $email, $url, $content, $info = [])
+    protected function callFunc(string $function, string $permalink, string $type, string $author, string $email, string $url, string $content, array $info = []): bool
     {
         $ua      = $info['HTTP_USER_AGENT'] ?? '';
         $referer = $info['HTTP_REFERER']    ?? '';
@@ -104,6 +104,6 @@ class Akismet extends NetHttp
             throw new \Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
         }
 
-        return $this->getContent() == 'true';
+        return 'true' == $this->getContent();
     }
 }

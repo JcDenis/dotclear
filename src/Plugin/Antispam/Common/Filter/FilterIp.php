@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\InsertStatement;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
 Use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -110,7 +115,7 @@ class FilterIp extends Spamfilter
         return $this->tab;
     }
 
-    private function displayForms($url, $type, $title)
+    private function displayForms(string $url, string $type, string $title): string
     {
         $res = '<div class="multi-part" id="tab_' . $type . '" title="' . $title . '">' .
 
@@ -192,7 +197,7 @@ class FilterIp extends Spamfilter
         return $res;
     }
 
-    private function ipmask($pattern, &$ip, &$mask)
+    private function ipmask(string $pattern, &$ip, &$mask): void
     {
         $bits = explode('/', $pattern);
 
@@ -222,7 +227,7 @@ class FilterIp extends Spamfilter
         }
     }
 
-    public function addIP($type, $pattern, $global)
+    public function addIP(string $type, string $pattern, bool $global): void
     {
         $this->ipmask($pattern, $ip, $mask);
         $pattern = long2ip($ip) . (-1 != $mask ? '/' . long2ip($mask) : '');
@@ -232,58 +237,97 @@ class FilterIp extends Spamfilter
         $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $id = dotclear()->con()->select('SELECT MAX(rule_id) FROM ' . $this->table)->fInt() + 1;
+            $sql = new SelectStatement(__METHOD__);
+            $id = $sql
+                ->columns($sql->max('rule_id'))
+                ->from($this->table)
+                ->select()
+                ->fInt() + 1;
 
-            $cur->setField('rule_id', $id);
-            $cur->setField('rule_type', (string) $type);
-            $cur->setField('rule_content', (string) $content);
-
-            if ($global && dotclear()->user()->isSuperAdmin()) {
-                $cur->setField('blog_id', null);
-            } else {
-                $cur->setField('blog_id', dotclear()->blog()->id);
-            }
-
-            $cur->insert();
+            $sql = new InsertStatement(__METHOD__);
+            $sql
+                ->columns([
+                    'rule_id',
+                    'rule_type',
+                    'rule_content',
+                    'blog_id'
+                ])
+                ->line([[
+                    $id,
+                    $type,
+                    $content,
+                    $global && dotclear()->user()->isSuperAdmin() ? null : dotclear()->blog()->id,
+                ]])
+                ->from($this->table)
+                ->insert();
         } else {
-            $cur->setField('rule_type', (string) $type);
-            $cur->setField('rule_content', (string) $content);
-            $cur->update('WHERE rule_id = ' . $old->fInt('rule_id'));
+            $sql = new UpdateStatement(__METHOD__);
+            $sql
+                ->set('rule_type = ' . $sql->quote($type))
+                ->set('rule_content = ' . $sql->quote($content))
+                ->where('rule_id = ' . $old->fInt('rule_id'))
+                ->from($this->table)
+                ->update();
         }
     }
 
-    private function getRules($type = 'all')
+    private function getRules(string $type = 'all'): Record
     {
-        $strReq = 'SELECT rule_id, rule_type, blog_id, rule_content ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
-            'ORDER BY blog_id ASC, rule_content ASC ';
+        $sql = new SelectStatement(__METHOD__);
 
-        return dotclear()->con()->select($strReq);
+        return $sql
+            ->columns([
+                'rule_id',
+                'rule_type',
+                'blog_id',
+                'rule_content',
+            ])
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->orGroup([
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id IS NULL',
+            ]))
+            ->order([
+                'blog_id ASC',
+                'rule_content ASC'
+            ])
+            ->from($this->table)
+            ->select();
     }
 
-    private function getRuleCIDR($type, $global, $ip, $mask)
+    private function getRuleCIDR(string $type, bool $global, $ip, $mask): Record
     {
-        $strReq = 'SELECT * FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND rule_content LIKE '%:" . (int) $ip . ':' . (int) $mask . "' " .
-            'AND blog_id ' . ($global ? 'IS NULL ' : "= '" . dotclear()->blog()->id . "' ");
+        $sql = new SelectStatement(__METHOD__);
 
-        return dotclear()->con()->select($strReq);
+        return $sql
+            ->column('*')
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->like('rule_content',  "%:" . (int) $ip . ':' . (int) $mask))
+            ->and($global ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id)
+            )
+            ->from($this->table)
+            ->select();
     }
 
-    private function checkIP($cip, $type)
+    private function checkIP(string $cip, string $type): string|false
     {
-        $strReq = 'SELECT DISTINCT(rule_content) ' .
-        'FROM ' . $this->table . ' ' .
-        "WHERE rule_type = '" . dotclear()->con()->escape($type) . "' " .
-        "AND (blog_id = '" . dotclear()->blog()->id . "' OR blog_id IS NULL) " .
-            'ORDER BY rule_content ASC ';
+        $sql = new SelectStatement(__METHOD__);
+        $rs = $sql
+            ->distinct()
+            ->column('rule_content')
+            ->where('rule_type = ' . $sql->quote($type))
+            ->and($sql->orGroup([
+                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id IS NULL',
+            ]))
+            ->order('rule_content ASC')
+            ->from($this->table)
+            ->select();
 
-        $rs = dotclear()->con()->select($strReq);
         while ($rs->fetch()) {
-            list($pattern, $ip, $mask) = explode(':', $rs->rule_content);
+            list($pattern, $ip, $mask) = explode(':', $rs->f('rule_content'));
             if ((ip2long($cip) & (int) $mask) == ((int) $ip & (int) $mask)) {
                 return $pattern;
             }
@@ -292,24 +336,25 @@ class FilterIp extends Spamfilter
         return false;
     }
 
-    private function removeRule($ids)
+    private function removeRule(int|array $ids): void
     {
-        $strReq = 'DELETE FROM ' . $this->table . ' ';
+        $sql = new DeleteStatement(__METHOD__);
 
         if (is_array($ids)) {
             foreach ($ids as $i => $v) {
                 $ids[$i] = (int) $v;
             }
-            $strReq .= 'WHERE rule_id IN (' . implode(',', $ids) . ') ';
+            $sql->where('rule_id' . $sql->in($ids));
         } else {
-            $ids = (int) $ids;
-            $strReq .= 'WHERE rule_id = ' . $ids . ' ';
+            $sql->where('rule_id = ' . $ids);
         }
 
         if (!dotclear()->user()->isSuperAdmin()) {
-            $strReq .= "AND blog_id = '" . dotclear()->blog()->id . "' ";
+            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
         }
 
-        dotclear()->con()->execute($strReq);
+        $sql
+            ->from($this->table)
+            ->delete();
     }
 }
