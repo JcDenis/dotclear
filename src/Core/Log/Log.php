@@ -39,6 +39,7 @@ class Log
      * - user_id: Get logs belonging to given user ID
      * - log_ip: Get logs belonging to given IP address
      * - log_table: Get logs belonging to given log table
+     * - log_msg: Get logs belonging to a given message
      * - order: Order of results (default "ORDER BY log_dt DESC")
      * - limit: Limit parameter
      *
@@ -93,6 +94,9 @@ class Log
         }
         if (!empty($params['log_table'])) {
             $sql->and('log_table' . $sql->in($params['log_table']));
+        }
+        if (!empty($params['log_msg'])) {
+            $sql->and('log_msg' . $sql->in($params['log_msg']));
         }
 
         if (!$count_only) {

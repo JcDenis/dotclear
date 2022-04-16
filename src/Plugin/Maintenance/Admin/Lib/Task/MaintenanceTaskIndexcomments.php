@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Text;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -23,7 +25,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
     protected $limit = 500;
     protected $step_task;
 
-    protected function init()
+    protected function init(): void
     {
         $this->name      = __('Search engine index');
         $this->task      = __('Index all comments for search engine');
@@ -35,24 +37,24 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         $this->description = __('Index all comments and trackbacks in search engine index. This operation is necessary, after importing content in your blog, to use internal search engine, on public and private pages.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         $this->code = $this->indexAllComments($this->code, $this->limit);
 
         return $this->code ?: true;
     }
 
-    public function task()
+    public function task(): string
     {
         return $this->code ? $this->step_task : $this->task;
     }
 
-    public function step()
+    public function step(): ?string
     {
         return $this->code ? sprintf($this->step, $this->code - $this->limit, $this->code) : null;
     }
 
-    public function success()
+    public function success(): string
     {
         return $this->code ? sprintf($this->step, $this->code - $this->limit, $this->code) : $this->success;
     }
@@ -67,24 +69,32 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $count = dotclear()->con()->select(
-            'SELECT COUNT(comment_id) FROM ' . dotclear()->prefix . 'comment'
-        )->fInt();
-
-        $strReq = 'SELECT comment_id, comment_content FROM ' . dotclear()->prefix . 'comment ';
+        $sql = new SelectStatement(__METHOD__);
+        $count = $sql
+            ->column($sql->count('comment_id'))
+            ->from(dotclear()->prefix . 'comment')
+            ->select()
+            ->fInt();
 
         if (null !== $start && null !== $limit) {
-            $strReq .= dotclear()->con()->limit($start, $limit);
+            $sql->limit([$start, $limit]);
         }
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = $sql
+            ->columns([
+                'comment_id',
+                'comment_content',
+            ], true) # Re-use statement
+            ->select();
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+        $sql = UpdateStatement::init(__METHOD__)
+            ->from(dotclear()->prefix . 'comment');
 
         while ($rs->fetch()) {
-            $cur->setField('comment_words', implode(' ', Text::splitWords($rs->f('comment_content'))));
-            $cur->update('WHERE comment_id = ' . $rs->fInt('comment_id'));
-            $cur->clean();
+            $sql
+                ->set('comment_words = ' . $sql->quote(implode(' ', Text::splitWords($rs->f('comment_content')))), true)
+                ->where('comment_id = ' . $rs->fInt('comment_id'), true)
+                ->update();
         }
 
         return $start + $limit > $count ? null : $start + $limit;

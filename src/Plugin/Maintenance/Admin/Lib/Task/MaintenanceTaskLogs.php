@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskLogs extends MaintenanceTask
@@ -21,7 +22,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
 
     protected $group = 'purge';
 
-    protected function init()
+    protected function init(): void
     {
         $this->task    = __('Delete all logs');
         $this->success = __('Logs deleted.');
@@ -30,13 +31,13 @@ class MaintenanceTaskLogs extends MaintenanceTask
         $this->description = __('Logs record all activity and connection to your blog history. Unless you need to keep this history, consider deleting these logs from time to time.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         if (static::$keep_maintenance_logs) {
-            dotclear()->con()->execute(
-                'DELETE FROM ' . dotclear()->prefix . 'log ' .
-                "WHERE log_table <> 'maintenance' "
-            );
+            DeleteStatement::init(__METHOD__)
+                ->from(dotclear()->prefix . 'log')
+                ->where("log_table <> 'maintenance'")
+                ->delete();
         } else {
             dotclear()->log()->delete(null, true);
         }

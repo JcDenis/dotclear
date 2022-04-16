@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
+use ArrayObject;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
@@ -27,7 +28,7 @@ class PingsBehavior
         dotclear()->behavior()->add('adminAfterPostUpdate', [$this, 'doPings']);
 
         # Admin help
-        dotclear()->behavior()->add('adminPageHelpBlock', function ($blocks) {
+        dotclear()->behavior()->add('adminPageHelpBlock', function (ArrayObject $blocks): void {
             $found = false;
             foreach ($blocks as $block) {
                 if ($block == 'core_post') {

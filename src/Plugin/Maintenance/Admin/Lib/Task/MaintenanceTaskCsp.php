@@ -20,7 +20,7 @@ class MaintenanceTaskCSP extends MaintenanceTask
 {
     protected $group = 'purge';
 
-    protected function init()
+    protected function init(): void
     {
         $this->task    = __('Delete the Content-Security-Policy report file');
         $this->success = __('Content-Security-Policy report file has been deleted.');
@@ -29,7 +29,7 @@ class MaintenanceTaskCSP extends MaintenanceTask
         $this->description = __('Remove the Content-Security-Policy report file.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         $csp_file = Path::real(dotclear()->config()->get('var_dir')) . '/csp/csp_report.json';
         if (file_exists($csp_file)) {

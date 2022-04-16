@@ -22,59 +22,59 @@ but in futur it could be completed with advance methods.
 class MaintenanceDescriptor
 {
     /**
-     * Constructs a new instance.
+     * Constructs a new instance
      *
-     * @param      string  $id       The identifier
-     * @param      string  $name     The name
-     * @param      array   $options  The options
+     * @param   string                  $id         The identifier
+     * @param   string                  $name       The name
+     * @param   array<string, string>   $options    The options
      */
     public function __construct(protected string $id, protected string $name, protected array $options = [])
     {
     }
 
     /**
-     * Get ID.
+     * Get ID
      *
-     * @return string    ID
+     * @return  string  ID
      */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
     /**
-     * Get name.
+     * Get name
      *
-     * @return string    Name
+     * @return  string  Name
      */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
     /**
-     * Get option.
+     * Get option
      *
-     * Option called "summary" and "description" are used.
+     * Option called "summary" and "description" are used
      *
-     * @param      string  $key    Option key
+     * @param   string  $key    Option key
      *
-     * @return     string  Option value
+     * @return  string|null     Option value
      */
-    public function option($key)
+    public function option(string $key): ?string
     {
         return $this->options[$key] ?? null;
     }
 
-    /* @ignore */
-    public function __get($key)
+    /**
+     * Check if an option exists
+     * 
+     * @param   string  $key    The key
+     * 
+     * @return  bool
+     */
+    public function exists(string $key): bool
     {
-        return $this->option($key);
-    }
-
-    /* @ignore */
-    public function __isset($key)
-    {
-        return isset($this->options[$key]);
+        return array_key_exists($key, $this->options);
     }
 }

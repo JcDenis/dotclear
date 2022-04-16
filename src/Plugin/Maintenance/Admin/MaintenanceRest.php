@@ -35,14 +35,14 @@ class MaintenanceRest
     /**
      * Serve method to do step by step task for maintenance.
      *
-     * @param      array      $get    cleaned $_GET
-     * @param      array      $post   cleaned $_POST
+     * @param   array   $get    Cleaned $_GET
+     * @param   array   $post   Cleaned $_POST
      *
-     * @throws     AdminException  (description)
+     * @throws  AdminException  
      *
-     * @return     xmlTag     XML representation of response.
+     * @return  XmlTag          XML representation of response.
      */
-    public function step($get, $post)
+    public function step(array $get, array $post): XmlTag
     {
         if (!isset($post['task'])) {
             throw new AdminException('No task ID');
@@ -52,12 +52,12 @@ class MaintenanceRest
         }
 
         $maintenance = new Maintenance();
-        if (($task = $maintenance->getTask($post['task'])) === null) {
+        if (null === ($task = $maintenance->getTask($post['task']))) {
             throw new AdminException('Unknown task ID');
         }
 
         $task->code((int) $post['code']);
-        if (($code = $task->execute()) === true) {
+        if (true === ($code = $task->execute())) {
             $maintenance->setLog($task->id());
             $code = 0;
         }

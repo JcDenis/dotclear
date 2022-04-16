@@ -39,7 +39,7 @@ abstract class Page
     /** @var string         Page content */
     private $page_content = '';
 
-    /** @var array          Help blocks names */
+    /** @var array<int, string|ArrayObject>     Help blocks names */
     private $page_help = [];
 
     /** @var array          Page breadcrumb (brut)) */
@@ -500,8 +500,11 @@ abstract class Page
 
         $content = '';
         foreach ($args as $v) {
-            if (is_object($v) && isset($v->content)) {
-                $content .= $v->content;
+            if (empty($v)) {
+                continue;
+            }
+            if ($v instanceof ArrayObject && isset($v['content'])) {
+                $content .= $v['content'];
 
                 continue;
             }
@@ -776,9 +779,9 @@ abstract class Page
      *
      * This must be set before page opening
      *
-     * @param   string|Object  ...$page_help   The help blocks names
+     * @param   string|ArrayObject  ...$page_help   The help blocks names
      */
-    final public function setPageHelp(string|Object ...$page_help): Page
+    final public function setPageHelp(string|ArrayObject ...$page_help): Page
     {
         $this->page_help = $page_help;
 

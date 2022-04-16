@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
-
 use Dotclear\Helper\File\Zip\Zip;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskZipmedia extends MaintenanceTask
 {
@@ -24,17 +23,17 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
     protected $tab   = 'backup';
     protected $group = 'zipblog';
 
-    protected function init()
+    protected function init(): void
     {
         $this->task = __('Download media folder of current blog');
 
         $this->description = __('It may be useful to backup your media folder. This compress all content of media folder into a single zip file. Notice : with some hosters, the media folder cannot be compressed with this plugin if it is too big.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         if (!dotclear()->media()) {
-            return;
+            return false;
         }
 
         // Instance media

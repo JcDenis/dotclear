@@ -77,7 +77,7 @@ class TagsBehavior
         ];
     }
 
-    public function adminPageHelpBlock($blocks)
+    public function adminPageHelpBlock(ArrayObject $blocks): void
     {
         $found = false;
         foreach ($blocks as $block) {

@@ -21,7 +21,7 @@ class MaintenanceTaskBuildtools extends MaintenanceTask
     protected $tab   = 'dev';
     protected $group = 'l10n';
 
-    protected function init()
+    protected function init(): void
     {
         $this->task        = __('Generate fake l10n');
         $this->success     = __('fake l10n file generated.');
@@ -29,7 +29,7 @@ class MaintenanceTaskBuildtools extends MaintenanceTask
         $this->description = __('Generate a php file that contents strings to translate that are not be done with core tools.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         /*
         $widget = dotclear()->plugins()?->getModules('widgets');

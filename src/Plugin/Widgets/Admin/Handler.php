@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
-use stdClass;
+use ArrayObject;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -311,21 +311,20 @@ class Handler extends AbstractPage
         dotclear()->resource()->confirmClose('sidebarsWidgets');
     }
 
-    private function widgetsHelp(): stdClass
+    private function widgetsHelp(): ArrayObject
     {
-        $widget_elements          = new stdClass;
-        $widget_elements->content = '<dl>';
+        $help = '<dl>';
         foreach (WidgetsStack::$__widgets->elements() as $w) {
-            $widget_elements->content .= '<dt><strong>' . Html::escapeHTML($w->name()) . '</strong> (' .
+            $help .= '<dt><strong>' . Html::escapeHTML($w->name()) . '</strong> (' .
             __('Widget ID:') . ' <strong>' . Html::escapeHTML($w->id()) . '</strong>)' .
                 ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') . '</dt>' .
                 '<dd>';
 
             $w_settings = $w->settings();
             if (empty($w_settings)) {
-                $widget_elements->content .= '<p>' . __('No setting for this widget') . '</p>';
+                $help .= '<p>' . __('No setting for this widget') . '</p>';
             } else {
-                $widget_elements->content .= '<ul>';
+                $help .= '<ul>';
                 foreach ($w->settings() as $n => $s) {
                     switch ($s['type']) {
                         case 'check':
@@ -345,18 +344,18 @@ class Handler extends AbstractPage
                             break;
                     }
 
-                    $widget_elements->content .= '<li>' .
+                    $help .= '<li>' .
                     __('Setting name:') . ' <strong>' . Html::escapeHTML($n) . '</strong>' .
                         ' (' . $s_type . ')' .
                         '</li>';
                 }
-                $widget_elements->content .= '</ul>';
+                $help .= '</ul>';
             }
-            $widget_elements->content .= '</dd>';
+            $help .= '</dd>';
         }
-        $widget_elements->content .= '</dl></div>';
+        $help .= '</dl></div>';
 
-        return $widget_elements;
+        return new ArrayObject(['content' => $help]);
     }
 
     private function sidebarWidgets(string $id, string $title, ?Widgets $widgets, string $pr, Widgets $default_widgets, int &$j): string

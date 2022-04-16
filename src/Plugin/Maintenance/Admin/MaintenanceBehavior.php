@@ -14,11 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
-use Dotclear\Helper\Dt;
+use Dotclear\Process\Admin\Favorite\Favorite;
 
 class MaintenanceBehavior
 {
@@ -105,7 +104,7 @@ class MaintenanceBehavior
         $maintenance = new Maintenance();
         $count       = 0;
         foreach ($maintenance->getTasks() as $t) {
-            if ($t->expired() !== false) {
+            if (false !== $t->expired()) {
                 $count++;
             }
         }
@@ -134,11 +133,11 @@ class MaintenanceBehavior
         $lines = [];
         foreach ($maintenance->getTasks() as $t) {
             $ts = $t->expired();
-            if ($ts === false) {
+            if (false === $ts) {
                 continue;
             }
 
-            $lines[] = '<li title="' . ($ts === null ?
+            $lines[] = '<li title="' . (null === $ts ?
                 __('This task has never been executed.')
                 :
                 sprintf(__('Last execution of this task was on %s.'),
@@ -211,11 +210,11 @@ class MaintenanceBehavior
      *
      * @param   ArrayObject     $blocks     The blocks
      */
-    public function behaviorAdminPageHelpBlock(ArrayObject $blocks)
+    public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
     {
         $found = false;
         foreach ($blocks as $block) {
-            if ($block == 'maintenancetasks') {
+            if ('maintenancetasks' == $block) {
                 $found = true;
 
                 break;
@@ -243,7 +242,7 @@ class MaintenanceBehavior
                     }
                 }
                 if (!empty($res_task)) {
-                    $desc = $group_obj->description ?: $group_obj->summary;
+                    $desc = $group_obj->option('description') ?: $group_obj->option('summary');
 
                     $res_group .= '<h5>' . $group_obj->name() . '</h5>' .
                         ($desc ? '<p>' . $desc . '</p>' : '') .
@@ -251,7 +250,7 @@ class MaintenanceBehavior
                 }
             }
             if (!empty($res_group)) {
-                $desc = $tab_obj->description ?: $tab_obj->summary;
+                $desc = $tab_obj->option('description') ?: $tab_obj->option('summary');
 
                 $res_tab .= '<h4>' . $tab_obj->name() . '</h4>' .
                     ($desc ? '<p>' . $desc . '</p>' : '') .
@@ -260,7 +259,7 @@ class MaintenanceBehavior
         }
         if (!empty($res_tab)) {
             $res          = new ArrayObject();
-            $res->content = $res_tab;   // @phpstan-ignore-line
+            $res->offsetSet('content', $res_tab);
             $blocks[]     = $res;
         }
     }

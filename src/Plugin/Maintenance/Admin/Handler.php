@@ -36,7 +36,7 @@ class Handler extends AbstractPage
     {
         $this->m_maintenance = new Maintenance();
         $this->m_tasks       = $this->m_maintenance->getTasks();
-        $this->m_code        = empty($_POST['code']) ? null : (int) $_POST['code'];
+        $this->m_code        = empty($_POST['code']) ? 0 : (int) $_POST['code'];
         $this->m_tab         = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
 
         # Get task object

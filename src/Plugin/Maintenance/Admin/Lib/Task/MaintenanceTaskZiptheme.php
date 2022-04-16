@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
-
 use Dotclear\Helper\File\Zip\Zip;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskZiptheme extends MaintenanceTask
 {
@@ -24,14 +23,14 @@ class MaintenanceTaskZiptheme extends MaintenanceTask
     protected $tab   = 'backup';
     protected $group = 'zipblog';
 
-    protected function init()
+    protected function init(): void
     {
         $this->task = __('Download active theme of current blog');
 
         $this->description = __('It may be useful to backup the active theme before any change or update. This compress theme folder into a single zip file.');
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         // Get theme path
         $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));

@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
-
 use Dotclear\Database\AbstractSchema;
+use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class MaintenanceTaskVacuum extends MaintenanceTask
 {
     protected $group = 'optimize';
 
-    protected function init()
+    protected function init(): void
     {
         $this->name    = __('Optimise database');
         $this->task    = __('optimize tables');
@@ -31,7 +30,7 @@ class MaintenanceTaskVacuum extends MaintenanceTask
         $this->description = __("After numerous delete or update operations on Dotclear's database, it gets fragmented. Optimizing will allow to defragment it. It has no incidence on your data's integrity. It is recommended to optimize before any blog export.");
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
         $schema = AbstractSchema::init(dotclear()->con());
 

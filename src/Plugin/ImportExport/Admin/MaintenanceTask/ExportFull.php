@@ -27,7 +27,7 @@ class ExportFull extends MaintenanceTask
     protected $export_name;
     protected $export_type;
 
-    protected function init()
+    protected function init(): void
     {
         $this->name = __('Database export');
         $this->task = __('Download database of all blogs');
@@ -36,10 +36,8 @@ class ExportFull extends MaintenanceTask
         $this->export_type = 'export_all';
     }
 
-    public function execute()
+    public function execute(): int|bool
     {
-        global $core;
-
         // Create zip file
         if (!empty($_POST['file_name'])) {
             if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
@@ -52,6 +50,8 @@ class ExportFull extends MaintenanceTask
             $ie = new ExportFlat();
             $ie->setURL($this->id);
             $ie->process($this->export_type);
+
+            exit(1);
         }
         // Go to step and show form
         else {
@@ -59,7 +59,7 @@ class ExportFull extends MaintenanceTask
         }
     }
 
-    public function step()
+    public function step(): ?string
     {
         // Download zip file
         if (isset($_SESSION['export_file']) && file_exists($_SESSION['export_file'])) {
@@ -70,6 +70,8 @@ class ExportFull extends MaintenanceTask
             $ie = new ExportFlat();
             $ie->setURL($this->id);
             $ie->process('ok');
+            
+            exit(1);
         } else {
             return
             '<p><label for="file_name">' . __('File name:') . '</label>' .

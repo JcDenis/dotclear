@@ -22,25 +22,56 @@ Every task of maintenance must extend this class.
  */
 class MaintenanceTask
 {
-    protected $p_url;
-    protected $code;
-    protected $ts      = 0;
-    protected $expired = 0;
-    protected $ajax    = false;
-    protected $blog    = false;
-    protected $perm    = null;
+    /** @var    string  $p_url  Plugin URL */
+    protected $p_url = '';
 
-    protected $id;
-    protected $sid;
-    protected $name;
-    protected $description;
-    protected $tab   = 'maintenance';
+    /** @var    int     $code   Code for stepped task */
+    protected $code = 0;
+
+    /** @var    int     $ts     Timestamp between task execution */
+    protected $ts = 0;
+
+    /** @var    int|false|null  $expired    Task expired */
+    protected $expired = 0;
+
+    /** @var    bool    $ajax   Use ajax */
+    protected $ajax = false;
+
+    /** @var    bool    $blog   Is limited to current blog */
+    protected $blog = false;
+
+    /** @var    string|null     $perm   Permission to use task */
+    protected $perm = null;
+
+    /** @var    string  $id     Task ID */
+    protected $id = '';
+
+    /** @var    string  $sid    Task sanitized ID */
+    protected $sid = '';
+
+    /** @var    string  $anme   Task name */
+    protected $name = '';
+
+    /** @var    string  $decription     Task description */
+    protected $description = '';
+
+    /** @var    string|null   Task tab */  
+    protected $tab = 'maintenance';
+
+    /** @var    string|null     $group  Task group */
     protected $group = 'other';
 
-    protected $task;
-    protected $step;
-    protected $error;
-    protected $success;
+    /** @var    string|null     Task execution message */
+    protected $step = null;
+
+    /** @var    string  $task   Task form button message */
+    protected $task = '';
+
+    /** @var    string  $error  Task error message */
+    protected $error = '';
+
+    /** @var    string  $success    Task success message */
+    protected $success = '';
 
     /**
      * Constructor.
@@ -53,9 +84,8 @@ class MaintenanceTask
     final public function __construct(protected Maintenance $maintenance)
     {
         $this->init();
-        $this->id = null;
 
-        if ($this->perm() === null && !dotclear()->user()->isSuperAdmin()
+        if (null === $this->perm() && !dotclear()->user()->isSuperAdmin()
             || !dotclear()->user()->check((string) $this->perm(), dotclear()->blog()->id)) {
             return;
         }
@@ -63,19 +93,18 @@ class MaintenanceTask
         $this->p_url = $maintenance->p_url;
         $this->id    = join('', array_slice(explode('\\', get_class($this)), -1));
 
-        if (!$this->name) {
+        if ('' == $this->name) {
             $this->name = get_class($this);
         }
-        if (!$this->error) {
+
+        if (empty($this->error)) {
             $this->error = __('Failed to execute task.');
         }
-        if (!$this->success) {
+        if (empty($this->success)) {
             $this->success = __('Task successfully executed.');
         }
 
-        $ts = dotclear()->blog()->settings()->get('maintenance')->get('ts_' . $this->id);
-
-        $this->ts = abs((int) $ts);
+        $this->ts = abs((int) dotclear()->blog()->settings()->get('maintenance')->get('ts_' . $this->id));
     }
 
     /**
@@ -84,7 +113,7 @@ class MaintenanceTask
      * Better to set translated messages here than
      * to rewrite constructor.
      */
-    protected function init()
+    protected function init(): void
     {
     }
 
@@ -94,9 +123,9 @@ class MaintenanceTask
      * Return user permission required to run this task
      * or null for super admin.
      *
-     * @return mixed Permission.
+     * @return  string|null   Permission.
      */
-    public function perm()
+    public function perm(): ?string
     {
         return $this->perm;
     }
@@ -106,9 +135,9 @@ class MaintenanceTask
      *.
      * Is task limited to current blog.
      *
-     * @return boolean Limit to blog
+     * @return  bool    Limit to blog
      */
-    public function blog()
+    public function blog(): bool
     {
         return $this->blog;
     }
@@ -116,21 +145,21 @@ class MaintenanceTask
     /**
      * Set $code for task having multiple steps.
      *
-     * @param    integer $code    Code used for task execution
+     * @param   int     $code   Code used for task execution
      */
-    public function code($code)
+    public function code(int $code = 0): void
     {
-        $this->code = (int) $code;
+        $this->code = $code;
     }
 
     /**
      * Get timestamp between maintenances.
      *
-     * @return     integer  Timestamp
+     * @return  int   Timestamp
      */
-    public function ts()
+    public function ts(): int
     {
-        return $this->ts === false ? false : abs((int) $this->ts);
+        return abs((int) $this->ts);
     }
 
     /**
@@ -141,11 +170,11 @@ class MaintenanceTask
      * - False if it not expired or has no recall time
      * - Null if it has never been executed
      *
-     * @return    mixed    Last update
+     * @return    int|false|null    Last update
      */
-    public function expired()
+    public function expired(): int|false|null
     {
-        if ($this->expired === 0) {
+        if (0 === $this->expired) {
             if (!$this->ts()) {
                 $this->expired = false;
             } else {
@@ -167,9 +196,9 @@ class MaintenanceTask
     /**
      * Get task ID.
      *
-     * @return    string    Task ID (class name)
+     * @return  string  Task ID (class name)
      */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
@@ -177,9 +206,9 @@ class MaintenanceTask
     /**
      * Get task name.
      *
-     * @return    string    Task name
+     * @return  string  Task name
      */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
@@ -187,9 +216,9 @@ class MaintenanceTask
     /**
      * Get task description.
      *
-     * @return    string    Description
+     * @return  string  Description
      */
-    public function description()
+    public function description(): string
     {
         return $this->description;
     }
@@ -197,9 +226,9 @@ class MaintenanceTask
     /**
      * Get task tab.
      *
-     * @return    mixed    Task tab ID or null
+     * @return  string|null     Task tab ID or null
      */
-    public function tab()
+    public function tab(): ?string
     {
         return $this->tab;
     }
@@ -210,9 +239,9 @@ class MaintenanceTask
      * If task required a full tab,
      * this must be returned null.
      *
-     * @return    mixed    Task group ID or null
+     * @return  string|null     Task group ID or null
      */
-    public function group()
+    public function group(): ?string
     {
         return $this->group;
     }
@@ -223,9 +252,9 @@ class MaintenanceTask
      * Is task use maintenance ajax script
      * for steps process.
      *
-     * @return    boolean    Use ajax
+     * @return  bool    Use ajax
      */
-    public function ajax()
+    public function ajax(): bool
     {
         return (bool) $this->ajax;
     }
@@ -235,9 +264,9 @@ class MaintenanceTask
      *
      * This message is used on form button.
      *
-     * @return    string    Message
+     * @return  string  Message
      */
-    public function task()
+    public function task(): string
     {
         return $this->task;
     }
@@ -247,9 +276,9 @@ class MaintenanceTask
      *
      * This message is displayed during task step execution.
      *
-     * @return    mixed    Message or null
+     * @return  string|null     Message or null
      */
-    public function step()
+    public function step(): ?string
     {
         return $this->step;
     }
@@ -259,9 +288,9 @@ class MaintenanceTask
      *
      * This message is displayed when task is accomplished.
      *
-     * @return    mixed    Message or null
+     * @return  string  Message
      */
-    public function success()
+    public function success(): string
     {
         return $this->success;
     }
@@ -271,9 +300,9 @@ class MaintenanceTask
      *
      * This message is displayed on error.
      *
-     * @return    mixed    Message or null
+     * @return  string  Message
      */
-    public function error()
+    public function error(): string
     {
         return $this->error;
     }
@@ -283,10 +312,11 @@ class MaintenanceTask
      *
      * Headers required on maintenance page.
      *
-     * @return     mixed    Message or null
+     * @return  string|null     Message or null
      */
-    public function header()
+    public function header(): ?string
     {
+        return null;
     }
 
     /**
@@ -294,22 +324,24 @@ class MaintenanceTask
      *
      * Content for full tab task.
      *
-     * @return    mixed    Tab's content
+     * @return  string|null     Tab's content
      */
-    public function content()
+    public function content(): ?string
     {
+        return null;
     }
 
     /**
      * Execute task.
      *
-     * @return    mixed    :
+     * @return    int|bool    :
      *    - FALSE on error,
      *    - TRUE if task is finished
      *    - INTEGER if task required a next step
      */
-    public function execute()
+    public function execute(): int|bool
     {
+        return false;
     }
 
     /**
@@ -318,7 +350,7 @@ class MaintenanceTask
      * Sometimes we need to log task execution
      * direct from task itself.
      */
-    protected function log()
+    protected function log(): void
     {
         $this->maintenance->setLog($this->id);
     }
@@ -326,7 +358,7 @@ class MaintenanceTask
     /**
      * Help function.
      */
-    public function help()
+    public function help(): void
     {
     }
 }

@@ -167,7 +167,7 @@ class Spamfilter
         return null;
     }
 
-    public function help()
+    public function help(): void
     {
     }
 }
