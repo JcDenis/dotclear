@@ -22,14 +22,14 @@ class LegacyEditorRest
         dotclear()->rest()->addFunction('wikiConvert', [$this, 'convert']);
     }
 
-    public function convert($get, $post)
+    public function convert(array $get, array $post): XmlTag
     {
         $wiki = $post['wiki'] ?? '';
         $rsp  = new XmlTag('wiki');
 
         $ret  = false;
         $html = '';
-        if ($wiki !== '') {
+        if ('' !== $wiki) {
             dotclear()->wiki()->initWikiPost();
             $html = dotclear()->formater()->callEditorFormater('LegacyEditor', 'wiki', $wiki);
             $ret  = strlen($html) > 0;

@@ -37,12 +37,12 @@ class CKEditorBehavior
      * @param      array   $tags     The array of ids to inject editor
      * @param      string  $syntax   The wanted syntax (wiki,markdown,...)
      *
-     * @return     mixed
+     * @return     string
      */
-    public function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = 'xhtml')
+    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = 'xhtml'): string
     {
-        if (empty($editor) || $editor != 'CKEditor' || $syntax != 'xhtml') {
-            return;
+        if (empty($editor) || 'CKEditor' != $editor || 'xhtml' != $syntax) {
+            return '';
         }
 
         $config_js = dotclear()->adminurl()->get('admin.plugin.CKEditorPost', [], '&');
@@ -79,41 +79,29 @@ class CKEditorBehavior
         return $res;
     }
 
-    public function adminPopupMedia($editor = '')
+    public function adminPopupMedia(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'dcCKEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
+        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminPopupLink($editor = '')
+    public function adminPopupLink(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'dcCKEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
+        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminPopupPosts($editor = '')
+    public function adminPopupPosts(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'dcCKEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
+        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminMediaURLParams($p)
+    public function adminMediaURLParams(ArrayObject $p): void
     {
         if (!empty($_GET['editor'])) {
             $p['editor'] = Html::sanitizeURL($_GET['editor']);
         }
     }
 
-    public function adminPageHTTPHeaderCSP($csp)
+    public function adminPageHTTPHeaderCSP(ArrayObject $csp): void
     {
         // add 'unsafe-inline' for CSS, add 'unsafe-eval' for scripts as far as CKEditor 4.x is used
         if (!str_contains($csp['style-src'], 'unsafe-inline')) {

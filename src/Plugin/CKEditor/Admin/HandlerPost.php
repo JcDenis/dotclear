@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 use ArrayObject;
-
 use Dotclear\Module\AbstractPage;
 
 class HandlerPost extends AbstractPage

@@ -33,12 +33,12 @@ class LegacyEditorBehavior
      * @param      array   $tags     The array of ids to inject editor
      * @param      string  $syntax   The wanted syntax (wiki,markdown,...)
      *
-     * @return     mixed
+     * @return     string
      */
-    public function adminPostEditor($editor = '', $context = '', array $tags = [], $syntax = '')
+    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
-        if (empty($editor) || $editor != 'LegacyEditor') {
-            return;
+        if ('LegacyEditor' != $editor) {
+            return '';
         }
 
         $js = [
@@ -53,36 +53,24 @@ class LegacyEditorBehavior
         dotclear()->resource()->load('_post_editor.js', 'Plugin', 'LegacyEditor');
     }
 
-    public function adminPopupMedia($editor = '')
+    public function adminPopupMedia(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'LegacyEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
     }
 
-    public function adminPopupLink($editor = '')
+    public function adminPopupLink(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'LegacyEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
     }
 
-    public function adminPopupPosts($editor = '')
+    public function adminPopupPosts(string $editor = ''): string
     {
-        if (empty($editor) || $editor != 'LegacyEditor') {
-            return;
-        }
-
-        return dotclear()->resource()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
     }
 
-    protected function jsToolBar()
+    protected function jsToolBar(): string
     {
-        $rtl = L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl' ? 'direction: rtl;' : '';
+        $rtl = 'rtl' == L10n::getLanguageTextDirection(dotclear()->lang()) ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;
