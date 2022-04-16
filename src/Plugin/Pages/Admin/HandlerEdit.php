@@ -14,16 +14,15 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Dt;
+use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\CommentAction;
 
 class HandlerEdit extends AbstractPage
 {
@@ -138,7 +137,7 @@ class HandlerEdit extends AbstractPage
                 $next_rs = dotclear()->blog()->posts()->getNextPost($this->post, 1);
                 $prev_rs = dotclear()->blog()->posts()->getNextPost($this->post, -1);
 
-                if ($next_rs !== null) {
+                if (null !== $next_rs) {
                     $this->next_link = sprintf(
                         $post_link,
                         $next_rs->fInt('post_id'),
@@ -153,7 +152,7 @@ class HandlerEdit extends AbstractPage
                     );
                 }
 
-                if ($prev_rs !== null) {
+                if (null !== $prev_rs) {
                     $this->prev_link = sprintf(
                         $post_link,
                         $prev_rs->fInt('post_id'),
@@ -193,7 +192,7 @@ class HandlerEdit extends AbstractPage
             } else {
                 try {
                     $this->post_dt = strtotime($_POST['post_dt']);
-                    if ($this->post_dt == false || $this->post_dt == -1) {
+                    if (false == $this->post_dt || -1 == $this->post_dt) {
                         $this->bad_dt = true;
 
                         throw new AdminException(__('Invalid publication date'));
@@ -786,11 +785,11 @@ class HandlerEdit extends AbstractPage
             return true;
         }
         if ($com) {
-            if ((dotclear()->blog()->settings()->get('system')->get('comments_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400 < $dt)) {
+            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if ((dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') == 0) || (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400 < $dt)) {
+            if (0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -818,12 +817,12 @@ class HandlerEdit extends AbstractPage
         }
 
         while ($rs->fetch()) {
-            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->comment_id]);
+            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
             $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
             $sts_class  = '';
-            switch ($rs->comment_status) {
+            switch ($rs->fInt('comment_status')) {
                 case 1:
                     $this->img_status = sprintf($img, __('Published'), 'check-on.png');
                     $sts_class  = 'sts-online';
@@ -847,22 +846,22 @@ class HandlerEdit extends AbstractPage
             }
 
             echo
-            '<tr class="line ' . ($rs->comment_status != 1 ? ' offline ' : '') . $sts_class . '"' .
-            ' id="c' . $rs->comment_id . '">' .
+            '<tr class="line ' . (1 != $rs->fInt('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            ' id="c' . $rs->f('comment_id') . '">' .
 
             '<td class="nowrap">' .
             ($has_action ? Form::checkbox(
                 ['comments[]'],
-                $rs->comment_id,
+                $rs->f('comment_id'),
                 [
-                    'checked'    => isset($comments[$rs->comment_id]),
+                    'checked'    => isset($comments[$rs->f('comment_id')]),
                     'extra_html' => 'title="' . __('select this comment') . '"',
                 ]
             ) : '') . '</td>' .
-            '<td class="maximal">' . Html::escapeHTML($rs->comment_author) . '</td>' .
-            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->comment_dt) . '</td>' .
+            '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
+            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->comment_ip]) . '">' . $rs->comment_ip . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

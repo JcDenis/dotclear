@@ -18,6 +18,7 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
+use Dotclear\Process\Admin\Favorite\Favorite;
 
 class Prepend extends AbstractPrepend
 {
@@ -38,14 +39,14 @@ class Prepend extends AbstractPrepend
         $this->addStandardMenu('Blog');
 
         # Add favorites
-        dotclear()->behavior()->add('adminDashboardFavorites', function ($favs) {
+        dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
             $favs->register('pages', [
                 'title'        => __('Pages'),
                 'url'          => dotclear()->adminurl()->get('admin.plugin.Pages'),
                 'small-icon'   => ['?df=Plugin/Pages/icon.svg', '?df=Plugin/Pages/icon-dark.svg'],
                 'large-icon'   => ['?df=Plugin/Pages/icon.svg', '?df=Plugin/Pages/icon-dark.svg'],
                 'permissions'  => 'contentadmin,pages',
-                'dashboard_cb' => function ($v) {
+                'dashboard_cb' => function (ArrayObject $v): void {
                     $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->fInt();
                     if (0 < $page_count) {
                         $str_pages  = (1 < $page_count) ? __('%d pages') : __('%d page');
@@ -59,9 +60,7 @@ class Prepend extends AbstractPrepend
                 'small-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'large-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
-                'active_cb'   => function () {
-                    return 'admin.plugin.Page' == dotclear()->adminurl()->called() && empty($_REQUEST['id']);
-                }
+                'active_cb'   => fn () => 'admin.plugin.Page' == dotclear()->adminurl()->called() && empty($_REQUEST['id']),
             ]);
         });
 
@@ -72,7 +71,7 @@ class Prepend extends AbstractPrepend
         );
 
         # Add user pref list columns
-        dotclear()->behavior()->add('adminColumnsLists', function ($cols) {
+        dotclear()->behavior()->add('adminColumnsLists', function (ArrayObject $cols): void {
             // Set optional columns in pages lists
             $cols['pages'] = [__('Pages'), [
                 'date'       => [true, __('Date')],
@@ -83,7 +82,7 @@ class Prepend extends AbstractPrepend
         });
 
         # Add user pref list filters
-        dotclear()->behavior()->add('adminFiltersLists', function ($sorts) {
+        dotclear()->behavior()->add('adminFiltersLists', function (ArrayObject $sorts): void {
             $sorts['pages'] = [
                 __('Pages'),
                 null,

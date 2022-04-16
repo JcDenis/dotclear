@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
-use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Pages\Admin\PagesAction;
 use Dotclear\Plugin\Pages\Admin\PagesInventory;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Inventory\Inventory;
 
 class Handler extends AbstractPage
 {
@@ -42,10 +42,10 @@ class Handler extends AbstractPage
             'post_type' => 'page',
         ];
 
-        $this->p_page        = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $this->p_page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $this->p_nbbp = dotclear()->listoption()->getUserFilters('pages', 'nb');
 
-        if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
+        if (!empty($_GET['nb']) && 0 < (int) $_GET['nb']) {
             $this->p_nbbp = (int) $_GET['nb'];
         }
 

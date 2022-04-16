@@ -62,11 +62,9 @@ class PagesInventory extends Inventory
                 $html_block = sprintf($enclose_block, $html_block);
             }
 
-            echo $pager->getLinks();
-
             $blocks = explode('%s', $html_block);
 
-            echo $blocks[0];
+            echo $pager->getLinks() . $blocks[0];
 
             $count = 0;
             while ($this->rs->fetch()) {
@@ -87,9 +85,7 @@ class PagesInventory extends Inventory
                 $fmt(__('Attachments'), 'attach.png') .
                 '</p>';
 
-            echo $blocks[2];
-
-            echo $pager->getLinks();
+            echo $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -133,12 +129,12 @@ class PagesInventory extends Inventory
 
         $attach   = '';
         $nb_media = $this->rs->call('countMedia');
-        if ($nb_media > 0) {
+        if (0 < $nb_media) {
             $attach_str = $nb_media == 1 ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png', 'attach');
         }
 
-        $res = '<tr class="line ' . ($this->rs->fInt('post_status') != 1 ? 'offline ' : '') . $sts_class . '"' .
+        $res = '<tr class="line ' . (1 != $this->rs->fInt('post_status') ? 'offline ' : '') . $sts_class . '"' .
         ' id="p' . $this->rs->f('post_id') . '">';
 
         $cols = [

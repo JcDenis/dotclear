@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\Action\PostAction;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\Action\PostAction;
 
 class PagesAction extends PostAction
 {
@@ -97,20 +97,23 @@ class PagesAction extends PostAction
                 throw new AdminException(__('You are not allowed to change this entry status'));
             }
 
-            $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND post_id ' . dotclear()->con()->in($post_id);
+            $sql = new UpdateStatement(__METHOD__);
 
             #If user can only publish, we need to check the post's owner
             if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-                $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+                $sql->and('user_id = ' . $sql->quote(dotclear()->user()->userID()));
             }
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $sql
+                ->sets([
+                    'post_position = ' . ((int) $value - 1),
+                    'post_upddt = ' .  $sql->quote(date('Y-m-d H:i:s')),
+                ])
+                ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+                ->and('post_id' . $sql->in($post_id))
+                ->from(dotclear()->prefix . 'post')
+                ->update();
 
-            $cur->setField('post_position', (int) $value - 1);
-            $cur->setField('post_upddt', date('Y-m-d H:i:s'));
-
-            $cur->update($strReq);
             dotclear()->blog()->triggerBlog();
         }
 

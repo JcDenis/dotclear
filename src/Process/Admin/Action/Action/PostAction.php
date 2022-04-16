@@ -77,7 +77,7 @@ class PostAction extends DefaultPostAction
 
         $posts = dotclear()->blog()->posts()->getPosts($params);
         while ($posts->fetch()) {
-            $this->entries[$posts->post_id] = $posts->post_title;
+            $this->entries[$posts->fInt('post_id')] = $posts->f('post_title');
         }
         $this->rs = $posts;
     }

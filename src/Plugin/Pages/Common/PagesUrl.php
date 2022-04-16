@@ -14,11 +14,10 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Common;
 
 use ArrayObject;
-
 use Dotclear\Core\Url\Url;
+use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
-use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 
