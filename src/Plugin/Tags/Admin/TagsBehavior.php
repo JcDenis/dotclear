@@ -14,11 +14,12 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 use ArrayObject;
+use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Action\Action;
 
 class TagsBehavior
 {
@@ -41,13 +42,13 @@ class TagsBehavior
 
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
-        if (($editor != 'dcLegacyEditor' && $editor != 'dcCKEditor') || $context != 'post') {
+        if (!in_array($editor, ['LegacyEditor', 'CKEditor']) || 'post' != $context) {
             return '';
         }
 
         $tag_url = dotclear()->blog()->getURLFor('tag');
 
-        if ('dcLegacyEditor' == $editor) {
+        if ('LegacyEditor' == $editor) {
             return
             dotclear()->resource()->json('legacy_editor_tags', [
                 'tag' => [
@@ -65,9 +66,9 @@ class TagsBehavior
         }
     }
 
-    public function ckeditorExtraPlugins(ArrayObject $extraPlugins, $context)
+    public function ckeditorExtraPlugins(ArrayObject $extraPlugins, string $context): void
     {
-        if ($context != 'post') {
+        if ('post' != $context) {
             return;
         }
         $extraPlugins[] = [
@@ -81,7 +82,7 @@ class TagsBehavior
     {
         $found = false;
         foreach ($blocks as $block) {
-            if ($block == 'core_post') {
+            if ('core_post' == $block) {
                 $found = true;
 
                 break;
@@ -93,26 +94,7 @@ class TagsBehavior
         $blocks[] = 'tag_post';
     }
 
-    public function coreInitWikiPost($wiki2xhtml)
-    {
-        $wiki2xhtml->registerFunction('url:tag', [__CLASS__, 'wiki2xhtmlTag']);
-    }
-
-    public function wiki2xhtmlTag($url, $content)
-    {
-        $url = substr($url, 4);
-        if (str_starts_with($content, 'tag:')) {
-            $content = substr($content, 4);
-        }
-
-        $tag_url        = Html::stripHostURL(dotclear()->blog()->getURLFor('tag'));
-        $res['url']     = $tag_url . '/' . rawurlencode(dotclear()->meta()::sanitizeMetaID($url));
-        $res['content'] = $content;
-
-        return $res;
-    }
-
-    public function tagsField($main, $sidebar, $post)
+    public function tagsField(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
     {
         if (!empty($_POST['post_tags'])) {
             $value = $_POST['post_tags'];
@@ -123,10 +105,8 @@ class TagsBehavior
         '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
     }
 
-    public function setTags($cur, $post_id)
+    public function setTags(Cursor $cur, int $post_id): void
     {
-        $post_id = (int) $post_id;
-
         if (isset($_POST['post_tags'])) {
             $tags = $_POST['post_tags'];
             dotclear()->meta()->delPostMeta($post_id, 'tag');
@@ -137,7 +117,7 @@ class TagsBehavior
         }
     }
 
-    public function adminPostsActionsPage($ap)
+    public function adminPostsActionsPage(Action $ap)
     {
         $ap->addAction(
             [__('Tags') => [__('Add tags') => 'tags']],
@@ -152,7 +132,7 @@ class TagsBehavior
         }
     }
 
-    public function adminAddTags(Action $ap, $post)
+    public function adminAddTags(Action $ap, ArrayObject $post): void
     {
         if (!empty($post['new_tags'])) {
             $tags  = dotclear()->meta()->splitMetaValues($post['new_tags']);
@@ -233,7 +213,8 @@ class TagsBehavior
             );
         }
     }
-    public function adminRemoveTags(Action $ap, $post)
+
+    public function adminRemoveTags(Action $ap, ArrayObject $post): void
     {
         if (!empty($post['meta_id']) && dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $posts = $ap->getRS();
@@ -310,7 +291,7 @@ class TagsBehavior
         }
     }
 
-    public function postHeaders()
+    public function postHeaders(): string
     {
         $tag_url = dotclear()->blog()->getURLFor('tag');
 
@@ -341,9 +322,9 @@ class TagsBehavior
         dotclear()->resource()->load('style.css', 'Plugin', 'Tags');
     }
 
-    public function adminUserForm($args = null)
+    public function adminUserForm(?Record $args = null): void
     {
-        if ($args === null) {
+        if (null === $args) {
             $opts = dotclear()->user()->getOptions();
         } elseif ($args instanceof Record) {
             $opts = $args->call('options');
@@ -364,7 +345,7 @@ class TagsBehavior
             '</p></div>';
     }
 
-    public function setTagListFormat($cur, $user_id = null)
+    public function setTagListFormat(Cursor $cur, ?int $user_id = null): void
     {
         if (!is_null($user_id)) {
             $opt = $cur->getField('user_options');

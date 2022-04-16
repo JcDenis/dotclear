@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
+use Dotclear\Database\Cursor;
+use Dotclear\Core\Xmlrpc\Xmlrpc;
+
 class TagsXmlrpc
 {
     public function __construct()
@@ -22,7 +25,7 @@ class TagsXmlrpc
         dotclear()->behavior()->add('xmlrpcAfterEditPost', [$this, 'editPost']);
     }
 
-    public function getPostInfo($x, $type, $res)
+    public function getPostInfo(Xmlrpc $x, string $type, array $res): void
     {
         $res = &$res[0];
 
@@ -39,7 +42,7 @@ class TagsXmlrpc
     }
 
     # Same function for newPost and editPost
-    public function editPost($x, $post_id, $cur, $content, $struct, $publish)
+    public function editPost(Xmlrpc $x, int $post_id, Cursor $cur, string $content, array $struct, int $publish): void
     {
         # Check if we have mt_keywords in struct
         if (isset($struct['mt_keywords'])) {

@@ -95,7 +95,7 @@ class Wiki
 
         $this->wiki2xhtml()->registerFunction('url:post', [$this, 'wikiPostLink']);
 
-        # --BEHAVIOR-- coreInitWikiPost, Dotclear\Helper\Html\Wiki2xhtml
+        # --BEHAVIOR-- coreInitWikiPost, Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 

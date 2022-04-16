@@ -18,7 +18,7 @@ use Dotclear\Helper\Network\Xmlrpc\Client;
 
 class PingsAPI extends Client
 {
-    public static function doPings($srv_uri, $site_name, $site_url)
+    public static function doPings(string $srv_uri, string $site_name, string $site_url): bool
     {
         $o          = new self($srv_uri);
         $o->timeout = 3;

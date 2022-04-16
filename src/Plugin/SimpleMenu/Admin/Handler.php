@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
-use stdClass;
 use ArrayObject;
-
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -53,7 +51,7 @@ class Handler extends AbstractPage
         $this->sm_categories_combo = dotclear()->combo()->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
-            $categories_label[$rs->cat_url] = Html::escapeHTML($rs->cat_title);
+            $categories_label[$rs->f('cat_url')] = Html::escapeHTML($rs->f('cat_title'));
         }
 
         # Liste des langues utilisées
@@ -70,11 +68,11 @@ class Handler extends AbstractPage
 
         $first_year = $last_year = 0;
         while ($rs->fetch()) {
-            if (($first_year == 0) || ($rs->year() < $first_year)) {
+            if (0 == $first_year || $rs->year() < $first_year) {
                 $first_year = $rs->year();
             }
 
-            if (($last_year == 0) || ($rs->year() > $last_year)) {
+            if (0 == $last_year || $rs->year() > $last_year) {
                 $last_year = $rs->year();
             }
         }
@@ -84,7 +82,7 @@ class Handler extends AbstractPage
         try {
             $rs = dotclear()->blog()->posts()->getPosts(['post_type' => 'page']);
             while ($rs->fetch()) {
-                $this->sm_pages_combo[$rs->post_title] = $rs->getURL();
+                $this->sm_pages_combo[$rs->f('post_title')] = $rs->getURL();
             }
             unset($rs);
         } catch (\Exception) {
@@ -92,10 +90,10 @@ class Handler extends AbstractPage
 
         # Liste des tags -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs                         = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
+            $rs = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
-                $this->sm_tags_combo[$rs->meta_id] = $rs->meta_id;
+                $this->sm_tags_combo[$rs->f('meta_id')] = $rs->f('meta_id');
             }
             unset($rs);
         } catch (\Exception) {
@@ -109,13 +107,13 @@ class Handler extends AbstractPage
             $this->sm_items['posts'] = new ArrayObject([__('Posts'), false]);
         }
 
-        if (count($this->sm_langs_combo) > 1) {
+        if (1 < count($this->sm_langs_combo)) {
             $this->sm_items['lang'] = new ArrayObject([__('Language'), true]);
         }
         if (count($this->sm_categories_combo)) {
             $this->sm_items['category'] = new ArrayObject([__('Category'), true]);
         }
-        if (count($this->sm_months_combo) > 1) {
+        if (1 < count($this->sm_months_combo)) {
             $this->sm_items['archive'] = new ArrayObject([__('Archive'), true]);
         }
         if (dotclear()->plugins()->hasModule('pages')) {
@@ -124,7 +122,7 @@ class Handler extends AbstractPage
             }
         }
         if (dotclear()->plugins()->hasModule('tags')) {
-            if (count($this->sm_tags_combo) > 1) {
+            if (1 < count($this->sm_tags_combo)) {
                 $this->sm_items['tags'] = new ArrayObject([__('Tags'), true]);
             }
         }
@@ -165,8 +163,8 @@ class Handler extends AbstractPage
             $this->sm_item_url    = $_POST['item_url']    ?? '';
             $item_targetBlank     = isset($_POST['item_targetBlank']) ? (empty($_POST['item_targetBlank'])) ? false : true : false;
             # Traitement
-            $this->sm_step = (!empty($_GET['add']) ? (int) $_GET['add'] : 0);
-            if (($this->sm_step > 4) || ($this->sm_step < 0)) {
+            $this->sm_step = (!empty($_REQUEST['add']) ? (int) $_REQUEST['add'] : 0);
+            if (4 < $this->sm_step || 0 > $this->sm_step) {
                 $this->sm_step = 0;
             }
 
@@ -269,7 +267,7 @@ class Handler extends AbstractPage
                     case 4:
                         // Fourth step, menu item to be added
                         try {
-                            if (($this->sm_item_label != '') && ($this->sm_item_url != '')) {
+                            if ('' != $this->sm_item_label && '' != $this->sm_item_url) {
                                 // Add new item menu in menu array
                                 $this->sm_menu[] = [
                                     'label'       => $this->sm_item_label,
@@ -423,11 +421,7 @@ class Handler extends AbstractPage
                         break;
                     }
                 case 3:
-                    if ($this->sm_items[$this->sm_item_type][1]) {
-                        $step_label = __('Step #3');
-                    } else {
-                        $step_label = __('Step #2');
-                    }
+                    $step_label = $this->sm_items[$this->sm_item_type][1] ? __('Step #3') : __('Step #2');
 
                     break;
             }
@@ -435,9 +429,9 @@ class Handler extends AbstractPage
             $this->setPageBreadcrumb(
                 [
                     Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Simple menu')                         => dotclear()->adminurl()->get('admin.plugin.SimpleMenu'),
-                    __('Add item')                            => '',
-                    $step_label                               => ''
+                    __('Simple menu')                          => dotclear()->adminurl()->get('admin.plugin.SimpleMenu'),
+                    __('Add item')                             => '',
+                    $step_label                                => ''
                 ],
                 ['hl_pos' => -2]
             );
@@ -565,8 +559,8 @@ class Handler extends AbstractPage
 
         // Liste des items
         if (!$this->sm_step) {
-            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->root() . '&amp;add=1" method="post">';
-            echo '<p class="top-add">' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true);
+            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->root() . '" method="post">';
+            echo '<p class="top-add">' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 1], true);
             echo '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }

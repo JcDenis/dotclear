@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Admin;
 
-use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Action\Action\PostAction;
+use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 
 class Handler extends AbstractPage
 {

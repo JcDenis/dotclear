@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\SimpleMenu\Common;
 
 use ArrayObject;
-
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -52,7 +51,7 @@ class SimpleMenuWidgets
     }
 
     # Template function
-    public function simpleMenu($attr)
+    public function simpleMenu(ArrayObject $attr): string
     {
         if (!(bool) dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')) {
             return '';
@@ -101,7 +100,7 @@ class SimpleMenuWidgets
         );
     }
 
-    public function displayMenu($class = '', $id = '', $description = '')
+    public function displayMenu(string $class = '', string $id = '', string $description = ''): string
     {
         $ret = '';
 

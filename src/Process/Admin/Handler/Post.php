@@ -322,12 +322,12 @@ class Post extends Page
             # Update post
             if ($this->post_id) {
                 try {
-                    # --BEHAVIOR-- adminBeforePostUpdate
+                    # --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
                     dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
                     dotclear()->blog()->posts()->updPost($this->post_id, $cur);
 
-                    # --BEHAVIOR-- adminAfterPostUpdate
+                    # --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
                     dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
                     dotclear()->notice()->addSuccessNotice(sprintf(
                         __('The post "%s" has been successfully updated'), 
@@ -344,12 +344,12 @@ class Post extends Page
                 $cur->setField('user_id', dotclear()->user()->userID());
 
                 try {
-                    # --BEHAVIOR-- adminBeforePostCreate
+                    # --BEHAVIOR-- adminBeforePostCreate, Cursor
                     dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
                     $return_id = dotclear()->blog()->posts()->addPost($cur);
 
-                    # --BEHAVIOR-- adminAfterPostCreate
+                    # --BEHAVIOR-- adminAfterPostCreate, Cursor, int
                     dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
                     dotclear()->notice()->addSuccessNotice(__('Entry has been successfully created.'));
@@ -668,7 +668,7 @@ class Post extends Page
                 ]
             );
 
-            # --BEHAVIOR-- adminPostFormItems
+            # --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
             dotclear()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .

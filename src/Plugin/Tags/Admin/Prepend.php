@@ -38,7 +38,7 @@ class Prepend extends AbstractPrepend
         new TagsXmlrpc();
 
         # Widgets
-        if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
+        if ('admin.plugin.Widgets' == dotclear()->adminurl()->called()) {
             new TagsWidgets();
         }
     }

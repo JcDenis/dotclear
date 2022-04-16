@@ -22,7 +22,7 @@ class PingsCore
         dotclear()->behavior()->add('coreFirstPublicationEntries', [$this, 'doPings']);
     }
 
-    public function doPings($blog, $ids)
+    public function doPings($posts, $ids): void
     {
         if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
             return;

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
+use Dotclear\Core\Wiki\Wiki2xhtml;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
@@ -20,12 +21,12 @@ class TagsCore
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('coreInitWikiPost', function ($wiki2xhtml) {
+        dotclear()->behavior()->add('coreInitWikiPost', function (Wiki2xhtml $wiki2xhtml): void {
             $wiki2xhtml->registerFunction('url:tag', [$this, 'wiki2xhtmlTag']);
         });
     }
 
-    public function wiki2xhtmlTag($url, $content)
+    public function wiki2xhtmlTag(string $url, string $content): array
     {
         $url = substr($url, 4);
         if (str_starts_with($content, 'tag:')) {

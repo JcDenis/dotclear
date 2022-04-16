@@ -81,17 +81,17 @@ class CKEditorBehavior
 
     public function adminPopupMedia(string $editor = ''): string
     {
-        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
     }
 
     public function adminPopupLink(string $editor = ''): string
     {
-        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
     }
 
     public function adminPopupPosts(string $editor = ''): string
     {
-        return 'dcCKEditor' != $editor ? '' : dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
     public function adminMediaURLParams(ArrayObject $p): void

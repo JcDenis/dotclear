@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Admin;
 
 use ArrayObject;
+use Dotclear\Database\Cursor;
+use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
@@ -44,12 +46,12 @@ class PingsBehavior
         });
     }
 
-    public function pingJS()
+    public function pingJS(): string
     {
         return dotclear()->resource()->load('post.js', 'Plugin', 'Pings');
     }
 
-    public function pingsFormItems($main, $sidebar, $post)
+    public function pingsFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
     {
         if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
@@ -77,7 +79,7 @@ class PingsBehavior
         $sidebar['options-box']['items']['pings'] = $item;
     }
 
-    public function doPings($cur, $post_id)
+    public function doPings(Cursor $cur, int $post_id): void
     {
         if (empty($_POST['pings_do']) || !is_array($_POST['pings_do'])) {
             return;

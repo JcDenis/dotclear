@@ -544,7 +544,7 @@ class RestMethods
      */
     public function getMeta(array $get): XmlTag
     {
-        $postid   = !empty($get['postId']) ? $get['postId'] : null;
+        $postid   = !empty($get['postId']) ? (int) $get['postId'] : null;
         $limit    = !empty($get['limit']) ? $get['limit'] : null;
         $metaId   = !empty($get['metaId']) ? $get['metaId'] : null;
         $metaType = !empty($get['metaType']) ? $get['metaType'] : null;
@@ -623,7 +623,7 @@ class RestMethods
         # Get previous meta for post
         $post_meta = dotclear()->meta()->getMetadata([
             'meta_type' => $post['metaType'],
-            'post_id'   => $post['postId'], ]);
+            'post_id'   => (int) $post['postId'], ]);
         $pm = [];
         while ($post_meta->fetch()) {
             $pm[] = $post_meta->f('meta_id');
@@ -631,7 +631,7 @@ class RestMethods
 
         foreach (dotclear()->meta()->splitMetaValues($post['meta']) as $m) {
             if (!in_array($m, $pm)) {
-                dotclear()->meta()->setPostMeta($post['postId'], $post['metaType'], $m);
+                dotclear()->meta()->setPostMeta((int) $post['postId'], $post['metaType'], $m);
             }
         }
 
@@ -660,7 +660,7 @@ class RestMethods
             throw new AdminException('No meta type');
         }
 
-        dotclear()->meta()->delPostMeta($post['postId'], $post['metaType'], $post['metaId']);
+        dotclear()->meta()->delPostMeta((int) $post['postId'], $post['metaType'], $post['metaId']);
 
         return true;
     }

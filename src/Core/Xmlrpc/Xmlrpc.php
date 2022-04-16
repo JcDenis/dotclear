@@ -410,12 +410,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         }
 
         if ('post' == $cur->getField('post_type')) {
-            # --BEHAVIOR-- xmlrpcBeforeNewPost
+            # --BEHAVIOR-- xmlrpcBeforeNewPost, Xmlrpc, Cursor, string, array, int
             dotclear()->behavior()->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
             $post_id = dotclear()->blog()->posts()->addPost($cur);
 
-            # --BEHAVIOR-- xmlrpcAfterNewPost
+            # --BEHAVIOR-- xmlrpcAfterNewPost, Xmlrpc, int, Cursor, string, array, int
             dotclear()->behavior()->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ('page' == $cur->getField('post_type')) {
             if (isset($struct['wp_page_order'])) {
