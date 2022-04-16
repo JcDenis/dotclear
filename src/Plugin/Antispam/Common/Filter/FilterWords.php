@@ -252,9 +252,9 @@ class FilterWords extends Spamfilter
                     'rule_id',
                 ])
                 ->line([[
-                    'word',
-                    $content,
-                    $general && dotclear()->user()->isSuperAdmin() ? null : dotclear()->blog()->id,
+                    $sql->quote('word'),
+                    $sql->quote($content),
+                    $general && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
                     SelectStatement::init(__METHOD__)
                         ->column($sql->max('rule_id'))
                         ->from($this->table)

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Public;
 
 use ArrayObject;
-
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
@@ -27,7 +26,7 @@ class BlogrollTemplate
         dotclear()->template()->addValue('BlogrollXbelLink', [$this, 'blogrollXbelLink']);
     }
 
-    public function blogroll($attr)
+    public function blogroll(ArrayObject $attr): string
     {
         $category = '<h3>%s</h3>';
         $block    = '<ul>%s</ul>';
@@ -56,21 +55,18 @@ class BlogrollTemplate
             '?>';
     }
 
-    public function blogrollXbelLink($attr)
+    public function blogrollXbelLink(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->blog()->getURLFor("xbel")') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("xbel")') . '; ?>';
     }
 
-    public static function getList($cat_title = '<h3>%s</h3>', $block = '<ul>%s</ul>', $item = '<li>%s</li>', $category = null)
+    public static function getList(string $cat_title = '<h3>%s</h3>', string $block = '<ul>%s</ul>', string $item = '<li>%s</li>', ?string $category = null): string
     {
-        $blogroll = new Blogroll();
-
         try {
+            $blogroll = new Blogroll();
             $links = $blogroll->getLinks();
         } catch (\Exception) {
-            return false;
+            return '';
         }
 
         $res = '';
@@ -85,7 +81,7 @@ class BlogrollTemplate
         }
 
         foreach ($hierarchy as $k => $v) {
-            if ($k != '') {
+            if ('' != $k) {
                 $res .= sprintf($cat_title, Html::escapeHTML($k)) . "\n";
             }
 
@@ -95,7 +91,7 @@ class BlogrollTemplate
         return $res;
     }
 
-    private static function getLinksList($links, $block = '<ul>%s</ul>', $item = '<li%2$s>%1$s</li>')
+    private static function getLinksList(array $links, string $block = '<ul>%s</ul>', string $item = '<li%2$s>%1$s</li>'): string
     {
         $list = '';
 

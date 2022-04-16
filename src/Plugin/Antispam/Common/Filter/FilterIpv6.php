@@ -201,13 +201,6 @@ class FilterIpv6 extends Spamfilter
         $cur = dotclear()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
-            $sql = new SelectStatement(__METHOD__);
-            $id = $sql
-                ->columns($sql->max('rule_id'))
-                ->from($this->table)
-                ->select()
-                ->fInt() + 1;
-
             $sql = new InsertStatement(__METHOD__);
             $sql
                 ->columns([
@@ -217,10 +210,14 @@ class FilterIpv6 extends Spamfilter
                     'blog_id'
                 ])
                 ->line([[
-                    $id,
-                    $type,
-                    $pattern,
-                    $global && dotclear()->user()->isSuperAdmin() ? null : dotclear()->blog()->id,
+                    SelectStatement::init(__METHOD__)
+                        ->columns($sql->max('rule_id'))
+                        ->from($this->table)
+                        ->select()
+                        ->fInt() + 1,
+                    $sql->quote($type),
+                    $sql->quote($pattern),
+                    $global && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
                 ]])
                 ->from($this->table)
                 ->insert();

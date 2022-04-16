@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 use StdClass;
-
 use Dotclear\Exception\ModuleException;
 
 class BlogrollImport
 {
-    protected $entries = null;
+    /** @var    array<int, string>     $entries    Imported entries */
+    protected $entries = [];
 
-    public static function loadFile($file)
+    public static function loadFile(string $file): array
     {
         if (file_exists($file) && is_readable($file)) {
             $importer = new BlogrollImport();
@@ -30,10 +30,10 @@ class BlogrollImport
             return $importer->getAll();
         }
 
-        return false;
+        return [];
     }
 
-    public function parse($data)
+    public function parse(string $data): void
     {
         if (preg_match('!<xbel(\s+version)?!', $data)) {
             $this->_parseXBEL($data);
@@ -44,7 +44,7 @@ class BlogrollImport
         }
     }
 
-    protected function _parseOPML($data)
+    protected function _parseOPML(string $data): void
     {
         $xml = @simplexml_load_string($data);
         if (!$xml) {
@@ -74,7 +74,7 @@ class BlogrollImport
         }
     }
 
-    protected function _parseXBEL($data)
+    protected function _parseXBEL(string $data): void
     {
         $xml = @simplexml_load_string($data);
         if (!$xml) {
@@ -100,12 +100,8 @@ class BlogrollImport
         }
     }
 
-    public function getAll()
+    public function getAll(): array
     {
-        if (!$this->entries) {
-            return;
-        }
-
         return $this->entries;
     }
 }

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Attachments\Admin;
 
 use ArrayObject;
-
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -36,7 +35,7 @@ class AttachmentsBehavior
     {
         $found = false;
         foreach ($blocks as $block) {
-            if ($block == 'core_post') {
+            if ('core_post' == $block) {
                 $found = true;
 
                 break;
@@ -55,14 +54,14 @@ class AttachmentsBehavior
 
     public function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
     {
-        if ($post !== null && dotclear()->media()) {
+        if (null !== $post && dotclear()->media()) {
             $post_media = dotclear()->media()->getPostMedia($post->fInt('post_id'), null, 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);
             $item       = '<h5 class="clear s-attachments">' . $title . '</h5>';
             foreach ($post_media as $f) {
                 $ftitle = $f->media_title;
-                if (strlen($ftitle) > 18) {
+                if (18 < strlen($ftitle)) {
                     $ftitle = substr($ftitle, 0, 16) . '...';
                 }
                 $item .= '<div class="media-item s-attachments">' .
@@ -101,7 +100,7 @@ class AttachmentsBehavior
 
     public function behaviorAdminPostAfterForm(?Record $post)
     {
-        if ($post !== null) {
+        if (null !== $post) {
             echo
             '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
             '<div>' .

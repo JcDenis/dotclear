@@ -145,9 +145,7 @@ class AttachmentsTemplate
      */
     public function AttachmentMimeType(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '$attach_f->type') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->type') . '; ?>';
     }
 
     /*dtd
@@ -155,9 +153,7 @@ class AttachmentsTemplate
      */
     public function AttachmentType(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '$attach_f->media_type') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_type') . '; ?>';
     }
 
     /*dtd
@@ -165,9 +161,7 @@ class AttachmentsTemplate
      */
     public function AttachmentFileName(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '$attach_f->basename') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->basename') . '; ?>';
     }
 
     /*dtd
@@ -178,12 +172,10 @@ class AttachmentsTemplate
      */
     public function AttachmentSize(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-        if (!empty($attr['full'])) {
-            return '<?php echo ' . sprintf($f, '$attach_f->size') . '; ?>';
-        }
-
-        return '<?php echo ' . sprintf($f, 'Dotclear\Helper\File\Files::size($attach_f->size)') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), empty($attr['full']) ?
+            'Dotclear\Helper\File\Files::size($attach_f->size)' :
+            '$attach_f->size'
+        ) . '; ?>';
     }
 
     /*dtd
@@ -191,9 +183,7 @@ class AttachmentsTemplate
      */
     public function AttachmentTitle(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '$attach_f->media_title') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_title') . '; ?>';
     }
 
     /*dtd
@@ -201,12 +191,10 @@ class AttachmentsTemplate
      */
     public function AttachmentThumbnailURL(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
         return
         '<?php ' .
         'if (isset($attach_f->media_thumb[\'sq\'])) {' .
-        'echo ' . sprintf($f, '$attach_f->media_thumb[\'sq\']') . ';' .
+        'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_thumb[\'sq\']') . ';' .
             '}' .
             '?>';
     }
@@ -216,16 +204,12 @@ class AttachmentsTemplate
      */
     public function AttachmentURL(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, '$attach_f->file_url') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->file_url') . '; ?>';
     }
 
     public function MediaURL(ArrayObject $attr): string
     {
-        $f = dotclear()->template()->getFilters($attr);
-
-        return '<?php echo ' . sprintf($f, 'dotclear()->context()->get("file_url")') . '; ?>';
+        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("file_url")') . '; ?>';
     }
 
     /*dtd
@@ -252,7 +236,7 @@ class AttachmentsTemplate
 
     public function tplIfConditions(string $tag, ArrayObject $attr, string $content, ArrayObject $if): void
     {
-        if ($tag == 'EntryIf' && isset($attr['has_attachment'])) {
+        if ('EntryIf' == $tag && isset($attr['has_attachment'])) {
             $sign = (bool) $attr['has_attachment'] ? '' : '!';
             $if[] = $sign . 'dotclear()->context()->get("posts")->countMedia(\'attachment\')';
         }

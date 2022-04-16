@@ -37,7 +37,7 @@ class Prepend extends AbstractPrepend
         dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));
 
         # Widgets
-        if (dotclear()->adminurl()->called() == 'admin.plugin.Widgets') {
+        if ('admin.plugin.Widgets' == dotclear()->adminurl()->called()) {
             new BlogrollWidgets();
         }
     }

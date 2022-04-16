@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\Attachments\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-
 use Dotclear\Plugin\Attachments\Public\AttachmentsTemplate;
 
 class Prepend extends AbstractPrepend
