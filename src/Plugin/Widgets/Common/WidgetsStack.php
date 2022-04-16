@@ -433,7 +433,7 @@ class WidgetsStack
      */
     public function lastcomments(Widget $widget): string
     {
-        if ($widget->isOffline()) || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
