@@ -59,7 +59,7 @@ class WidgetsStack
     public function search(Widget $widget): string
     {
         if (dotclear()->blog()->settings()->get('system')->get('no_search')
-            || $widget->get('offline')
+            || $widget->isOffline()
             || !$widget->checkHomeOnly(dotclear()->url()->type)
         ) {
             return '';
@@ -86,7 +86,7 @@ class WidgetsStack
      */
     public function navigation(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -128,7 +128,7 @@ class WidgetsStack
      */
     public function categories(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -180,7 +180,7 @@ class WidgetsStack
      */
     public function bestof(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -221,7 +221,7 @@ class WidgetsStack
      */
     public function langs(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -262,7 +262,7 @@ class WidgetsStack
      */
     public function subscribe(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -304,7 +304,7 @@ class WidgetsStack
      */
     public function feed(Widget $widget): string
     {
-        if (!$widget->get('url') || $widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if (!$widget->get('url') || $widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '' ;
         }
 
@@ -357,7 +357,7 @@ class WidgetsStack
      */
     public function text(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -378,7 +378,7 @@ class WidgetsStack
      */
     public function lastposts(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 
@@ -433,7 +433,7 @@ class WidgetsStack
      */
     public function lastcomments(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline()) || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 

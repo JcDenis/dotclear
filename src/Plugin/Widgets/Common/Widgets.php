@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+use Dotclear\Helper\Lexical;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\Widget;
-use Dotclear\Helper\Lexical;
 
 class Widgets
 {

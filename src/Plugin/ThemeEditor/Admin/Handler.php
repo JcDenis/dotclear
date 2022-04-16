@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use stdClass;
 use ArrayObject;
-
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
@@ -102,8 +100,8 @@ class Handler extends AbstractPage
             ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')                  => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Edit theme files')                 => ''
+                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
+                __('Edit theme files')                     => ''
             ])
         ;
 
@@ -155,7 +153,7 @@ class Handler extends AbstractPage
         '<div id="file-box">' .
         '<div id="file-editor">';
 
-        if ($this->te_file['c'] === null) {
+        if (null === $this->te_file['c']) {
             echo '<p>' . __('Please select a file to edit.') . '</p>';
         } else {
             echo
@@ -216,10 +214,10 @@ class Handler extends AbstractPage
         '</div>';
     }
 
-    private function isEditableTheme()
+    private function isEditableTheme(): bool
     {
         $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
-        if ($theme && $theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
+        if ($theme && 'default' != $theme->id() && dotclear()->user()->isSuperAdmin()) {
             $path = dotclear()->themes()->getModulesPath();
 
             return !dotclear()->production()

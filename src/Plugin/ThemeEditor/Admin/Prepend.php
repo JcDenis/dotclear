@@ -34,7 +34,7 @@ class Prepend extends AbstractPrepend
 
     public function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
     {
-        if ($theme->id() != 'default' && dotclear()->user()->isSuperAdmin()) {
+        if ('default' != $theme->id() && dotclear()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = dotclear()->themes()->getModulesPath();
             if (!dotclear()->production()
@@ -79,7 +79,7 @@ class Prepend extends AbstractPrepend
         Form::checkbox('colorsyntax', 1, (int) dotclear()->user()->preference()->get('interface')->get('colorsyntax')) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
-        if (count($themes_combo) > 1) {
+        if (1 < count($themes_combo)) {
             echo
             '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
             Form::combo('colorsyntax_theme', $themes_combo,

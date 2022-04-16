@@ -78,7 +78,7 @@ class SimpleMenuWidgets
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
         if (!dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')
-            || $widget->get('offline') 
+            || $widget->isOffline() 
             || !$widget->checkHomeOnly(dotclear()->url()->type)
         ) {
             return '';

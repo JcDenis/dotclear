@@ -17,8 +17,8 @@ use ArrayObject;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Dotclear\Plugin\Widgets\Common\Widgets;
+use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 
 class Handler extends AbstractPage
@@ -421,10 +421,6 @@ class Handler extends AbstractPage
 
     private function literalNullString(mixed $v): mixed
     {
-        if ('' == $v) {
-            return '&lt;' . __('empty string') . '&gt;';
-        }
-
-        return $v;
+        return '' == $v ? '&lt;' . __('empty string') . '&gt;' : $v;
     }
 }

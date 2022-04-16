@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Helper\L10n;
+use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Exception\AdminException;
+use Dotclear\Helper\L10n;
 
 class ThemeEditor
 {
@@ -57,7 +57,7 @@ class ThemeEditor
 
         # Parent theme
         $parent = dotclear()->themes()->getModule((string) $module->parent());
-        if ($parent != null) {
+        if (null != $parent) {
             $this->parent_theme = Path::real($parent->root());
             $this->parent_name  = $parent->name();
         }
@@ -69,7 +69,7 @@ class ThemeEditor
         $this->findCodes();
     }
 
-    public function filesList($type, $item = '%1$s', $split = true)
+    public function filesList(string $type, string $item = '%1$s', bool $split = true): string
     {
         $files = $this->getFilesFromType($type);
 
@@ -115,7 +115,7 @@ class ThemeEditor
         return sprintf('<ul>%s</ul>', $list);
     }
 
-    public function getFileContent($type, $f)
+    public function getFileContent(string $type, string $f): array
     {
         $files = $this->getFilesFromType($type);
 
@@ -136,7 +136,7 @@ class ThemeEditor
         ];
     }
 
-    public function writeFile($type, $f, $content)
+    public function writeFile(string $type, string $f, string $content): void
     {
         $files = $this->getFilesFromType($type);
 
@@ -147,15 +147,15 @@ class ThemeEditor
         try {
             $dest = $this->getDestinationFile($type, $f);
 
-            if ($dest == false) {
+            if (false == $dest) {
                 throw new \Exception();
             }
 
-            if ($type == 'tpl' && !is_dir(dirname($dest))) {
+            if ('tpl' == $type && !is_dir(dirname($dest))) {
                 Files::makeDir(dirname($dest));
             }
 
-            if ($type == 'po' && !is_dir(dirname($dest))) {
+            if ('po' == $type && !is_dir(dirname($dest))) {
                 Files::makeDir(dirname($dest));
             }
 
@@ -177,9 +177,9 @@ class ThemeEditor
         }
     }
 
-    public function deletableFile($type, $f)
+    public function deletableFile(string $type, string $f): bool
     {
-        if ($type != 'tpl') {
+        if ('tpl' != $type) {
             // Only tpl files may be deleted
             return false;
         }
@@ -200,9 +200,9 @@ class ThemeEditor
         return false;
     }
 
-    public function deleteFile($type, $f)
+    public function deleteFile(string $type, string $f): void
     {
-        if ($type != 'tpl') {
+        if ('tpl' != $type) {
             // Only tpl files may be deleted
             return;
         }
@@ -226,11 +226,11 @@ class ThemeEditor
         }
     }
 
-    protected function getDestinationFile($type, $f)
+    protected function getDestinationFile(string $type, string $f): string|false
     {
-        if ($type == 'tpl') {
+        if ('tpl' == $type) {
             $dest = $this->user_theme . '/templates/tpl/' . $f;
-        } elseif ($type == 'po') {
+        } elseif ('po' == $type) {
             $dest = $this->user_theme . '/locales/' . $f;
         } else {
             $dest = $this->user_theme . '/' . $f;
@@ -240,13 +240,13 @@ class ThemeEditor
             return $dest;
         }
 
-        if ($type == 'tpl' && !is_dir(dirname($dest))) {
+        if ('tpl' == $type && !is_dir(dirname($dest))) {
             if (is_writable($this->user_theme)) {
                 return $dest;
             }
         }
 
-        if ($type == 'po' && !is_dir(dirname($dest))) {
+        if ('po' == $type && !is_dir(dirname($dest))) {
             if (is_writable($this->user_theme)) {
                 return $dest;
             }
@@ -259,7 +259,7 @@ class ThemeEditor
         return false;
     }
 
-    protected function getFilesFromType($type)
+    protected function getFilesFromType(string $type): array
     {
         return match ($type) {
             'tpl'   => $this->tpl,
@@ -271,7 +271,7 @@ class ThemeEditor
         };
     }
 
-    protected function updateFileInList($type, $f, $file)
+    protected function updateFileInList(string $type, string $f, string $file): void
     {
         $list = match ($type) {
             'tpl'   => $this->tpl,
@@ -287,7 +287,7 @@ class ThemeEditor
         }
     }
 
-    protected function findTemplates()
+    protected function findTemplates(): void
     {
         $this->tpl = array_merge(
             $this->getFilesInDir($this->tplset_theme),
@@ -311,20 +311,20 @@ class ThemeEditor
         uksort($this->tpl, [$this, 'sortFilesHelper']);
     }
 
-    protected function findStyles()
+    protected function findStyles(): void
     {
         $this->css = $this->getFilesInDir($this->user_theme . '/resources', 'css');
         $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/resources/style', 'css', 'resources/css/'));
         $this->css = array_merge($this->css, $this->getFilesInDir($this->user_theme . '/resources/css', 'css', 'resources/css/'));
     }
 
-    protected function findScripts()
+    protected function findScripts(): void
     {
         $this->js = $this->getFilesInDir($this->user_theme . '/resources', 'js');
         $this->js = array_merge($this->js, $this->getFilesInDir($this->user_theme . '/resources/js', 'js', 'resources/js/'));
     }
 
-    protected function findLocales()
+    protected function findLocales(): void
     {
         $langs = L10n::getISOcodes(true, true);
         foreach ($langs as $k => $v) {
@@ -335,12 +335,12 @@ class ThemeEditor
         }
     }
 
-    protected function findCodes()
+    protected function findCodes(): void
     {
         $this->php = $this->getFilesInDir($this->user_theme, 'php');
     }
 
-    protected function getFilesInDir($dir, $ext = null, $prefix = '', $model = null)
+    protected function getFilesInDir(string $dir, ?string $ext = null, string $prefix = '', ?string $model = null): array
     {
         $dir = Path::real($dir);
         if (!$dir || !is_dir($dir) || !is_readable($dir)) {
@@ -349,7 +349,7 @@ class ThemeEditor
 
         $d   = dir($dir);
         $res = [];
-        while (($f = $d->read()) !== false) {
+        while (false !== ($f = $d->read())) {
             if (is_file($dir . '/' . $f) && !preg_match('/^\./', $f) && (!$ext || preg_match('/\.' . preg_quote($ext) . '$/i', $f))) {
                 if (!$model || preg_match('/^' . preg_quote($model) . '$/i', $f)) {
                     $res[$prefix . $f] = $dir . '/' . $f;
@@ -360,7 +360,7 @@ class ThemeEditor
         return $res;
     }
 
-    protected function sortFilesHelper($a, $b)
+    protected function sortFilesHelper(string $a, string $b): int
     {
         if ($a == $b) {
             return 0;

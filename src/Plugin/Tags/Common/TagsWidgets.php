@@ -69,7 +69,7 @@ class TagsWidgets
 
     public function tagsWidget(Widget $widget): string
     {
-        if ($widget->get('offline') || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
             return '';
         }
 

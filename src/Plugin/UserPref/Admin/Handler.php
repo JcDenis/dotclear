@@ -42,7 +42,7 @@ class Handler extends AbstractPage
             try {
                 foreach ($_POST['s'] as $ws => $s) {
                     foreach ($s as $k => $v) {
-                        if ($_POST['s_type'][$ws][$k] == 'array') {
+                        if ('array' == $_POST['s_type'][$ws][$k]) {
                             $v = json_decode($v, true);
                         }
                         dotclear()->user()->preference()->get($ws)->put($k, $v);
@@ -61,7 +61,7 @@ class Handler extends AbstractPage
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
                     foreach ($s as $k => $v) {
-                        if ($_POST['gs_type'][$ws][$k] == 'array') {
+                        if ('array' == $_POST['gs_type'][$ws][$k]) {
                             $v = json_decode($v, true);
                         }
                         dotclear()->user()->preference()->get($ws)->put($k, $v, null, null, true, true);
@@ -84,9 +84,9 @@ class Handler extends AbstractPage
                 dotclear()->resource()->load('index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
-                __('System')                                  => '',
+                __('System')                                   => '',
                 Html::escapeHTML(dotclear()->user()->userID()) => '',
-                __('user:preferences')                        => ''
+                __('user:preferences')                         => ''
             ])
         ;
 
@@ -107,7 +107,7 @@ class Handler extends AbstractPage
         }
         ksort($prefs);
 
-        if (count($prefs) > 0) {
+        if (0 < count($prefs)) {
             $ws_combo = [];
             foreach ($prefs as $ws => $s) {
                 $ws_combo[$ws] = '#l_' . $ws;
@@ -130,7 +130,7 @@ class Handler extends AbstractPage
         }
         ksort($prefs);
 
-        if (count($prefs) > 0) {
+        if (0 < count($prefs)) {
             $ws_combo = [];
             foreach ($prefs as $ws => $s) {
                 $ws_combo[$ws] = '#g_' . $ws;
@@ -186,7 +186,7 @@ class Handler extends AbstractPage
         '</form>';
     }
 
-    private function prefLine($id, $s, $ws, $field_name, $strong_label)
+    private function prefLine(string $id, array $s, string $ws, string $field_name, bool $strong_label): string
     {
         $field = match ($s['type']) {
             'boolean' => 

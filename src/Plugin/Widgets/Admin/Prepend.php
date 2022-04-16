@@ -42,17 +42,17 @@ class Prepend extends AbstractPrepend
     {
         $widgets  = new Widgets();
         $settings = dotclear()->blog()->settings();
-        if ($settings->get('widgets')->widgets_nav != null) {
+        if (null != $settings->get('widgets')->get('widgets_nav')) {
             $settings->get('widgets')->put('widgets_nav', $widgets->load($settings->get('widgets')->get('widgets_nav'))->store());
         } else {
             $settings->get('widgets')->put('widgets_nav', '', 'string', 'Navigation widgets', false);
         }
-        if ($settings->get('widgets')->widgets_extra != null) {
+        if (null != $settings->get('widgets')->get('widgets_extra')) {
             $settings->get('widgets')->put('widgets_extra', $widgets->load($settings->get('widgets')->get('widgets_extra'))->store());
         } else {
             $settings->get('widgets')->put('widgets_extra', '', 'string', 'Extra widgets', false);
         }
-        if ($settings->get('widgets')->widgets_custom != null) {
+        if (null != $settings->get('widgets')->get('widgets_custom')) {
             $settings->get('widgets')->put('widgets_custom', $widgets->load($settings->get('widgets')->get('widgets_custom'))->store());
         } else {
             $settings->get('widgets')->put('widgets_custom', '', 'string', 'Custom widgets', false);
