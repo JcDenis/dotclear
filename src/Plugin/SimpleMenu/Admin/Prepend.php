@@ -28,7 +28,7 @@ class Prepend extends AbstractPrepend
         $this->addStandardFavorites();
 
         # Widgets
-        if ('admin.plugin.Widgets' == dotclear()->adminurl()->called()) {
+        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new SimpleMenuWidgets();
         }
     }

@@ -59,6 +59,18 @@ class AdminUrl
     }
 
     /**
+     * Check called URL handler
+     * 
+     * @param   string  $name   The URL handler name to check
+     * 
+     * @return  bool
+     */
+    public function is(string $name): bool
+    {
+        return $name == $this->called();
+    }
+
+    /**
      * Register a new URL class
      *
      * @param   string  $name     The URL handler name

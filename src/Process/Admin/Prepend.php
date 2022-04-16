@@ -217,7 +217,7 @@ class Prepend extends Core
         header('Pragma: no-cache'); # HTTP/1.0
 
         # csp report do not need extra stuff
-        if ($this->adminurl()->called() == 'admin.cspreport') {
+        if ($this->adminurl()->is('admin.cspreport')) {
             $this->adminLoadPage();
             exit;
         }
@@ -357,7 +357,7 @@ class Prepend extends Core
             }
 
         # No user session and not on auth page, go on
-        } elseif ($this->adminurl()->called() != 'admin.auth') {
+        } elseif (!$this->adminurl()->is('admin.auth')) {
             $this->adminurl()->redirect('admin.auth');
             exit;
         }

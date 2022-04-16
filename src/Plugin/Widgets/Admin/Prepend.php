@@ -30,7 +30,7 @@ class Prepend extends AbstractPrepend
         $this->addStandardFavorites();
 
         # Load widgets stack only on widget admin page
-        if (dotclear()->adminurl()->called('admin.plugin.Widgets')) {
+        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
                 $rte['widgets_text'] = [true, __('Widget\'s textareas')];
             });

@@ -69,7 +69,7 @@ trait TraitPrependAdmin
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
-            dotclear()->adminurl()->called() == 'admin.plugin.' . $this->define()->id(),
+            dotclear()->adminurl()->is('admin.plugin.' . $this->define()->id()),
             $permissions === null ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
         );
     }

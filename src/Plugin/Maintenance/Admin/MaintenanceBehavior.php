@@ -80,7 +80,7 @@ class MaintenanceBehavior
             'small-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'large-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
-            'active_cb'    => dotclear()->adminurl()->called() == 'admin.plugin.Maintenance',
+            'active_cb'    => dotclear()->adminurl()->is('admin.plugin.Maintenance'),
             'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback']
         ]);
     }

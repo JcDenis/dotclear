@@ -60,7 +60,7 @@ class Prepend extends AbstractPrepend
                 'small-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'large-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
-                'active_cb'   => fn () => 'admin.plugin.Page' == dotclear()->adminurl()->called() && empty($_REQUEST['id']),
+                'active_cb'   => fn () => dotclear()->adminurl()->is('admin.plugin.Page') && empty($_REQUEST['id']),
             ]);
         });
 
@@ -96,7 +96,7 @@ class Prepend extends AbstractPrepend
         new PagesUrl();
 
         # Widgets
-        if ('admin.plugin.Widgets' == dotclear()->adminurl()->called()) {
+        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new PagesWidgets();
         }
     }

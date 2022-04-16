@@ -180,7 +180,7 @@ class Favorite
             } else {
                 parse_str(parse_url($v['url'], PHP_URL_QUERY), $url);
                 $handler = $url['handler'] ?: null;
-                $v['active'] = $handler == dotclear()->adminurl()->called();
+                $v['active'] = dotclear()->adminurl()->is($handler);
             }
         }
     }
@@ -454,7 +454,7 @@ class Favorite
      */
     public function cbNewpostActive(): bool
     {
-        return dotclear()->adminurl()->called() == 'admin.post' && !isset($_REQUEST['id']);
+        return dotclear()->adminurl()->is('admin.post') && !isset($_REQUEST['id']);
     }
 
     /**

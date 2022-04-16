@@ -70,7 +70,7 @@ class Summary extends ArrayObject
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
-        $match = dotclear()->adminurl()->called() == $adminurl;
+        $match = dotclear()->adminurl()->is($adminurl);
         if ($strict && $match) {
             $match = 1 == count($_GET);
         }

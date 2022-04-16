@@ -47,7 +47,7 @@ class ModulesTheme extends AbstractModules
             'permissions' => 'admin'
         ]);
 
-        return dotclear()->adminurl()->called() == 'admin.blog.theme';
+        return dotclear()->adminurl()->is('admin.blog.theme');
     }
 
     public function getModulesURL(array $param = []): string

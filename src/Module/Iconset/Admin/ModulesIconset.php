@@ -40,7 +40,7 @@ class ModulesIconset extends AbstractModules
             'large-icon' => 'images/menu/no-icon.svg'
         ]);
 
-        return dotclear()->adminurl()->called() == 'admin.iconset';
+        return dotclear()->adminurl()->is('admin.iconset');
     }
 
     public function getModulesURL(array $param = []): string

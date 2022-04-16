@@ -40,7 +40,7 @@ class ModulesPlugin extends AbstractModules
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
         ]);
 
-        return dotclear()->adminurl()->called() == 'admin.plugins';
+        return dotclear()->adminurl()->is('admin.plugins');
     }
 
     public function getModulesURL(array $param = []): string
