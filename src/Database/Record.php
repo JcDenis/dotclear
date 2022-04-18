@@ -15,7 +15,7 @@ use ReflectionClass;
 use ReturnTypeWillChange;
 
 /**
- * @Database record.
+ * Database record.
  *
  * \Dotclear\Database\Record
  *

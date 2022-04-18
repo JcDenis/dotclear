@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Store\Repository\RepositoryParser
- * @brief Repository modules XML feed parse
- *
- * Provides an object to parse XML feed of modules from repository.
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,15 @@ namespace Dotclear\Module\Store\Repository;
 use SimpleXMLElement;
 use Dotclear\Exception\CoreException;
 
+/**
+ * Repository modules XML feed parser.
+ *
+ * \Dotclear\Module\Store\Repository\RepositoryParser
+ *
+ * Provides an object to parse XML feed of modules from repository.
+ *
+ * @ingroup  Module Store
+ */
 class RepositoryParser
 {
     /** @var false|SimpleXMLElement XML object of feed contents */

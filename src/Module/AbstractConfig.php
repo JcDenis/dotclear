@@ -1,12 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\AbstractConfig
- * @brief Dotclear Module abstract Config
- *
- * If exists, Module Config class must extends this class.
- * It provides a simple way to add an admin form to configure module.
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +11,16 @@ namespace Dotclear\Module;
 
 use Dotclear\Helper\Network\Http;
 
+/**
+ * Module abstract Config.
+ *
+ * \Dotclear\Module\AbstractConfig
+ *
+ * If exists, Module Config class must extends this class.
+ * It provides a simple way to add an admin form to configure module.
+ *
+ * @ingroup  Module Admin
+ */
 abstract class AbstractConfig
 {
     /**

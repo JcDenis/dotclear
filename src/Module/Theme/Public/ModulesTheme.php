@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Theme\Public\ModulesTheme
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +13,13 @@ use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesPublic;
 use Dotclear\Module\Theme\TraitModulesTheme;
 
+/**
+ * Theme modules public methods.
+ *
+ * \Dotclear\Module\Theme\Public\ModulesTheme
+ *
+ * @ingroup  Module Public Theme
+ */
 class ModulesTheme extends AbstractModules
 {
     use TraitModulesPublic;

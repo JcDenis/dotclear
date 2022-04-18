@@ -1,13 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Theme\Admin\ConfigTheme
- * @brief Helper for theme configurators.
- *
- * @since 2.7
- *
- * Provides helper tools for theme configurators.
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +15,17 @@ use Dotclear\Helper\File\Files;
 use Exception;
 use ArrayObject;
 
+/**
+ * Helper for theme configurators.
+ *
+ * \Dotclear\Module\Theme\Admin\ConfigTheme
+ *
+ * Provides helper tools for theme configurators.
+ *
+ * @since 2.7
+ *
+ * @ingroup  Module Theme
+ */
 class ConfigTheme
 {
     /**

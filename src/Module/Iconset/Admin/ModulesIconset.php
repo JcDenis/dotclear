@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Iconset\Admin\ModulesIconset
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +13,13 @@ use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Iconset\TraitModulesIconset;
 
+/**
+ * Iconset modules admin methods.
+ *
+ * \Dotclear\Module\Iconset\Admin\ModulesIconset
+ *
+ * @ingroup  Module Admin Iconset
+ */
 class ModulesIconset extends AbstractModules
 {
     use TraitModulesAdmin;

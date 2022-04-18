@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Theme\Admin\ModulesTheme
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +20,13 @@ use Dotclear\Module\Theme\TraitModulesTheme;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Theme modules admin methods.
+ *
+ * \Dotclear\Module\Theme\Admin\ModulesTheme
+ *
+ * @ingroup  Module Admin Theme
+ */
 class ModulesTheme extends AbstractModules
 {
     use TraitModulesAdmin;

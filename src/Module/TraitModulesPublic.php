@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\TraitModulesPublic
- * @brief Dotclear Module Public specific methods
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+/**
+ * Dotclear Module Public specific methods.
+ *
+ * \Dotclear\Module\TraitModulesPublic
+ *
+ * @ingroup  Module Public
+ */
 trait TraitModulesPublic
 {
     /**

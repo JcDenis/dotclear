@@ -1,14 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\AbstractDefine
- * @brief Dotclear Module define default structure
- *
- * This class provides all necessary informations about Module.
- * It includes file on load. This file must be a valid php file
- * and content calls to Define methods.
- * ie: $this->setName('MyPluginName') ...
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +14,17 @@ use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 
+/**
+ * Module define default structure.
+ *
+ * \Dotclear\Module\AbstractDefine
+ *
+ * This class provides all necessary informations about Module.
+ * Module definition must be on a define.xml file
+ * into the module root path.
+ *
+ * @ingroup  Module
+ */
 abstract class AbstractDefine
 {
     use ErrorTrait;

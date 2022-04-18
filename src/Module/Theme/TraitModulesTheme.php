@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Theme\TraitModulesTheme
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,6 +11,13 @@ namespace Dotclear\Module\Theme;
 
 use Dotclear\Helper\File\Path;
 
+/**
+ * Theme modules methods.
+ *
+ * \Dotclear\Module\Theme\TraitModulesTheme
+ *
+ * @ingroup  Module Theme
+ */
 trait TraitModulesTheme
 {
     public function getModulesType(): string

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Store\Repository\Repository
- * @brief Repository modules manager
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
 use Exception;
 
+/**
+ * Repository modules manager.
+ *
+ * \Dotclear\Module\Store\Repository\Repository
+ *
+ * @ingroup  Module Store
+ */
 class Repository
 {
     /** @var array Modules fields to search on and their weighting */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Plugin\Admin\HandlerPlugin
- * @brief Dotclear admin plugins page
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Plugin modules admin page.
+ *
+ * \Dotclear\Module\Plugin\Admin\HandlerPlugin
+ *
+ * @ingroup  Module Admin Plugin
+ */
 class HandlerPlugin extends AbstractPage
 {
     /** @var array freashly installed modules */

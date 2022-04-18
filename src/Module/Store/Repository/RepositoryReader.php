@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Store\Repository\RepositoryReader
- * @brief Repository modules XML feed reader
- *
- * Provides an object to parse XML feed of modules from repository.
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,15 @@ namespace Dotclear\Module\Store\Repository;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
+/**
+ * Repository modules XML feed reader.
+ *
+ * \Dotclear\Module\Store\Repository\RepositoryReader
+ *
+ * Provides an object to parse XML feed of modules from repository.
+ *
+ * @ingroup  Module Store
+ */
 class RepositoryReader extends NetHttp
 {
     /** @var string User agent used to query repository */

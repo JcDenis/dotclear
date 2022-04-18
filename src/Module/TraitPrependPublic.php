@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\TraitPrependPublic
- * @brief Dotclear Module public trait Prepend
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+/**
+ * Module public trait Prepend.
+ *
+ * \Dotclear\Module\TraitPrependPublic
+ *
+ * @ingroup  Module Public
+ */
 trait TraitPrependPublic
 {
     /**

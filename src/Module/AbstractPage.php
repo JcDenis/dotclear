@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\AbstractPage
- * @brief module abstract admin page.
- *
- * If exists, Default plugin page must extends this class.
- * It provides automatic url registration and configuration links.
- *
- * note: plugins default admin page namespace should be:
- * Dotclear\Plugins\Xxx\Admin\Handler
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,7 +11,22 @@ namespace Dotclear\Module;
 
 use Dotclear\Process\Admin\Page\AbstractPage as AdminPage;
 
+/**
+ * Module abstract admin page.
+ *
+ * \Dotclear\Module\AbstractPage
+ *
+ * If exists, default plugin admin page must extend this class.
+ * It provides automatic URL registration and configuration links.
+ *
+ * @note
+ * Plugins default admin page namespace should be:
+ * Dotclear\Plugins\Xxx\Admin\Handler
+ *
+ * @see Dotclear\Process\Admin\Page\AbstractPage for all others methods
+ *
+ * @ingroup  Module Admin
+ */
 abstract class AbstractPage extends AdminPage
 {
-    // @see Dotclear\Process\Admin\Page\AbstarctPage for all others methods
 }

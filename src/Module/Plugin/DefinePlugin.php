@@ -12,7 +12,7 @@ namespace Dotclear\Module\Plugin;
 use Dotclear\Module\AbstractDefine;
 
 /**
- * Module plugin definition.
+ * Plugin module definition.
  *
  * \Dotclear\Module\Plugin\DefinePlugin
  *

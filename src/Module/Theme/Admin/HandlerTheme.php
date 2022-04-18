@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Theme\Admin\HandlerTheme
- * @brief Dotclear admin themes page
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Theme modules admin page.
+ *
+ * \Dotclear\Module\Theme\Admin\HandlerTheme
+ *
+ * @ingroup  Module Admin Theme
+ */
 class HandlerTheme extends AbstractPage
 {
     /** @var array freashly installed modules */

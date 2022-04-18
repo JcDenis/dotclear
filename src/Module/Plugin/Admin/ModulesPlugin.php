@@ -14,11 +14,11 @@ use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Plugin\TraitModulesPlugin;
 
 /**
- * Admin plugins prepend helper.
+ * Plugin modules admin methods.
  *
  * \Dotclear\Module\Plugin\Admin\ModulesPlugin
  *
- * @ingroup  Module Plugin Admin
+ * @ingroup  Module Admin Plugin
  */
 class ModulesPlugin extends AbstractModules
 {

@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Iconset\DefineIconset
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,6 +11,13 @@ namespace Dotclear\Module\Iconset;
 
 use Dotclear\Module\AbstractDefine;
 
+/**
+ * Iconset module definition.
+ *
+ * \Dotclear\Module\Iconset\DefineIconset
+ *
+ * @ingroup  Module Iconset
+ */
 class DefineIconset extends AbstractDefine
 {
     protected $type = 'Iconset';

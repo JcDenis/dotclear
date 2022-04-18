@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Iconset\Admin\HandlerIconset
- * @brief Dotclear admin icon set page
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Iconset modules admin page.
+ *
+ * \Dotclear\Module\Iconset\Admin\HandlerIconset
+ *
+ * @ingroup  Module Admin Iconset
+ */
 class HandlerIconset extends AbstractPage
 {
     /** @var array freashly installed modules */

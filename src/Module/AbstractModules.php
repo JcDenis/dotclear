@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\AbstractModules
- * @brief Helper for admin list of modules.
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Helper for admin list of modules.
+ *
+ * \Dotclear\Module\AbstractModules
+ *
+ * @ingroup  Module
+ */
 abstract class AbstractModules
 {
     use ErrorTrait;

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\TraitPrependAdmin
- * @brief Dotclear Module public trait Prepend
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Module;
 
 use Dotclear\Process\Admin\Favorite\Favorite;
 
+/**
+ * Module admin trait Prepend.
+ *
+ * \Dotclear\Module\TraitPrependAdmin
+ *
+ * @ingroup  Module Admin
+ */
 trait TraitPrependAdmin
 {
     /** @var array Module Favorites */

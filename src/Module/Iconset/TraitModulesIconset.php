@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\Iconset\TraitModulesIconset
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -11,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset;
 
+/**
+ * Iconset modules methods.
+ *
+ * \Dotclear\Module\Iconset\TraitModulesIconset
+ *
+ * @ingroup  Module Iconset
+ */
 trait TraitModulesIconset
 {
     public function getModulesType(): string

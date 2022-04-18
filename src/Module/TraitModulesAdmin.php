@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Module\TraitModulesAdmin
- * @brief Dotclear Module Admin specific methods
- *
- * @ingroup  Module
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Module Admin specific methods.
+ *
+ * \Dotclear\Module\TraitModulesAdmin
+ *
+ * @ingroup  Module Admin
+ */
 trait TraitModulesAdmin
 {
     /** @var Repository Store instance */
