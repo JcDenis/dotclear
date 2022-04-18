@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 /**
  * Insert Statement : small utility to build insert queries.
+ *
+ * \Dotclear\Database\Statement\InsertStatement
+ *
+ * @ingroup Database Statement
  */
 class InsertStatement extends SqlStatement
 {

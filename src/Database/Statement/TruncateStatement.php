@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 /**
  * Truncate Statement : small utility to build truncate queries.
+ *
+ * \Dotclear\Database\Statement\TruncateStatement
+ *
+ * @ingroup Database Statement
  */
 class TruncateStatement extends SqlStatement
 {

@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Mysqlimb4\Connection
- * @brief Mysql mb4 connection driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +14,15 @@ use Dotclear\Exception\DatabaseException;
 use mysqli_result;
 use mysqli;
 
+/**
+ * Mysql mb4 connection driver.
+ *
+ * \Dotclear\Database\Driver\Mysqlimb4\Connection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection Mysql
+ */
 class Connection extends BaseConnection
 {
     public static $weak_locks = true; // /< boolean: Enables weak locks if true

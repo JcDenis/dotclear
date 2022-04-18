@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 /**
  * SQL Statement : small utility to build SQL queries.
+ *
+ * \Dotclear\Database\Statement\SqlStatement
+ *
+ * @ingroup Database Statement
  */
 class SqlStatement
 {

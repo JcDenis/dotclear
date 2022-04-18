@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Record
- * @brief Database record
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +14,15 @@ use Countable;
 use ReflectionClass;
 use ReturnTypeWillChange;
 
+/**
+ * @Database record.
+ *
+ * \Dotclear\Database\Record
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Record
+ */
 class Record implements Iterator, Countable
 {
     /** @var mixed atabase resource link */

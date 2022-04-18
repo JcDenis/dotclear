@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Sqlite\Connection
- * @brief Sqlite connection driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +17,15 @@ use PDOStatement;
 use PDO;
 use Collator;
 
+/**
+ * Sqlite connection driver.
+ *
+ * \Dotclear\Database\Driver\Sqlite\Connection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection Sqlite
+ */
 class Connection extends AbstractConnection
 {
     protected $__driver = 'sqlite';

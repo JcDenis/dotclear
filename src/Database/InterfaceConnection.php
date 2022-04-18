@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\InterfaceConnection
- * @brief PHP Interface for connector
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+/**
+ * PHP Interface for connector.
+ *
+ * \Dotclear\Database\InterfaceConnection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection
+ */
 interface InterfaceConnection
 {
     /**

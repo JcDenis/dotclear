@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Sqlite\Schema
- * @brief Sqlite schema driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,15 @@ namespace Dotclear\Database\Driver\Sqlite;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\DatabaseException;
 
+/**
+ * Sqlite schema driver.
+ *
+ * \Dotclear\Database\Driver\Sqlite\Schema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Schema Sqlite
+ */
 class Schema extends AbstractSchema
 {
     private $table_hist = [];

@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\AbstractSchema
- * @brief Database schema manipulator
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+/**
+ * Database schema manipulator.
+ *
+ * \Dotclear\Database\AbstractSchema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Schema
+ */
 abstract class AbstractSchema implements InterfaceSchema
 {
     /**

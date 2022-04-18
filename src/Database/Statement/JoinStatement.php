@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 /**
  * Join (sub)Statement : small utility to build join query fragments.
+ *
+ * \Dotclear\Database\Statement\JoinStatement
+ *
+ * @ingroup Database Statement
  */
 class JoinStatement extends SqlStatement
 {

@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Pgsql\Schema
- * @brief Pgsql schema driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database\Driver\Pgsql;
 
 use Dotclear\Database\AbstractSchema;
 
+/**
+ * Pgsql schema driver.
+ *
+ * \Dotclear\Database\Driver\Pgsql\Schema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Schema Pgsql
+ */
 class Schema extends AbstractSchema
 {
     protected $ref_actions_map = [

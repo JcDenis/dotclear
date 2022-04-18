@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Table
- * @brief Database table structure manipulator
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database;
 
 use Dotclear\Exception\DatabaseException;
 
+/**
+ * Database table structure manipulator.
+ *
+ * \Dotclear\Database\Table
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Structure
+ */
 class Table
 {
     /** @var bool Table has primary key */

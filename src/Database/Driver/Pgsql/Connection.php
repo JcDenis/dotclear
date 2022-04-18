@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Pgsql\Connection
- * @brief Pgsql connection driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,15 @@ use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\DatabaseException;
 
+/**
+ * Pgsql connection driver.
+ *
+ * \Dotclear\Database\Driver\Pgsql\Connection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection Pgsql
+ */
 class Connection extends AbstractConnection
 {
     protected $__driver = 'pgsql';

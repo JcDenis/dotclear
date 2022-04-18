@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Mysqli\Connection
- * @brief Mysql connection driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +14,15 @@ use Dotclear\Exception\DatabaseException;
 use mysqli_result;
 use mysqli;
 
+/**
+ * Mysql connection driver.
+ *
+ * \Dotclear\Database\Driver\Mysqli\Connection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection Mysql
+ */
 class Connection extends AbstractConnection
 {
     protected $__driver = 'mysqli';

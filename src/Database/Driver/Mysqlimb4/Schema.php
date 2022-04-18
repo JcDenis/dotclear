@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Mysqlimb4\Schema
- * @brief Mysql mb4 schema driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database\Driver\Mysqlimb4;
 
 use Dotclear\Database\Driver\Mysqli\Schema as BaseSchema;
 
+/**
+ * Mysql mb4 schema driver.
+ *
+ * \Dotclear\Database\Driver\Mysqlimb4\Schema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Schema Mysql
+ */
 class Schema extends BaseSchema
 {
     public function db_create_table(string $name, array $fields): void

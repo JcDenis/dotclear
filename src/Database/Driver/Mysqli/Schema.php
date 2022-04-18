@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Driver\Mysqli\Schema
- * @brief Mysql schema driver
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database\Driver\Mysqli;
 
 use Dotclear\Database\AbstractSchema;
 
+/**
+ * Mysql schema driver.
+ *
+ * \Dotclear\Database\Driver\Mysqli\Schema
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Schema Mysql
+ */
 class Schema extends AbstractSchema
 {
     public function dbt2udt(string $type, ?int &$len, mixed &$default): string

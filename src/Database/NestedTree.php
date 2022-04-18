@@ -1,12 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\NestedTree
- * @brief Database helper to construct nested tree
- *
- * nestedTree class is based on excellent work of Kuzma Feskov
- * (http://php.russofile.ru/ru/authors/sql/nestedsets01/)
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +12,16 @@ namespace Dotclear\Database;
 use Dotclear\Exception\DatabaseException;
 use Exception;
 
+/**
+ * Database helper to construct nested tree.
+ *
+ * \Dotclear\Database\NestedTree
+ *
+ * nestedTree class is based on excellent work of Kuzma Feskov
+ * (http://php.russofile.ru/ru/authors/sql/nestedsets01/)
+ *
+ * @ingroup  Database Helper
+ */
 abstract class NestedTree
 {
     protected $table;
@@ -365,7 +369,7 @@ abstract class NestedTree
         if ($target_left < $node_left && $target_right > $node_right && $node_level - 1 > $target_level) {
             $sql = 'UPDATE ' . $this->table . ' SET '
             . $this->f_right . ' = CASE '
-            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right       + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right                                                    + 1) . ' AND ' . ($target_right - 1) . ' '
             . 'THEN ' . $this->f_right . '-(' . ($node_right                                              - $node_left + 1) . ') '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_right . '+' . ((($target_right - $node_right - $node_level + $target_level) / 2) * 2 + $node_level - $target_level - 1) . ' '
@@ -373,7 +377,7 @@ abstract class NestedTree
             . $this->f_right . ' '
             . 'END, '
             . $this->f_left . ' = CASE '
-            . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($node_right       + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($node_right                                                    + 1) . ' AND ' . ($target_right - 1) . ' '
             . 'THEN ' . $this->f_left . '-(' . ($node_right                                              - $node_left + 1) . ') '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_left . '+' . ((($target_right - $node_right - $node_level + $target_level) / 2) * 2 + $node_level - $target_level - 1) . ' '
@@ -408,7 +412,7 @@ abstract class NestedTree
             . 'ELSE ' . $this->f_left . ' '
             . 'END, '
             . $this->f_right . ' = CASE '
-            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right      + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right                                                   + 1) . ' AND ' . ($target_right - 1) . ' '
             . 'THEN ' . $this->f_right . '-' . ($node_right                                              - $node_left + 1) . ' '
             . 'WHEN ' . $this->f_right . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_right . '+' . ($target_right - 1 - $node_right) . ' '
@@ -473,20 +477,20 @@ abstract class NestedTree
                 . 'WHERE ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . $A_right;
             } else {
                 $sql = 'UPDATE ' . $this->table . ' SET '
-                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . (($B_left                                                            - $A_left)                                                            - ($A_right                                                            - $A_left + 1)) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                              + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_right . ' - (' . (($A_right - $A_left                                                                                                                              + 1)) . ') ELSE ' . $this->f_right . ' END, '
+                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . (($B_left                                                            - $A_left)                                                            - ($A_right                                                            - $A_left       + 1)) . ' '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                                                                                                                                                                                                                     + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_right . ' - (' . (($A_right - $A_left                                                                                                                                                                                                                                                                                                                     + 1)) . ') ELSE ' . $this->f_right . ' END, '
                 . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' + ' . (($B_left                                                              - $A_left)                                                              - ($A_right                                                              - $A_left   + 1)) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                              + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_left . ' - (' . ($A_right - $A_left                                                                                                                              + 1) . ') ELSE ' . $this->f_left . ' END '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                                                                                                                                                                                                                     + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_left . ' - (' . ($A_right - $A_left                                                                                                                                                                                                                                                                                                                     + 1) . ') ELSE ' . $this->f_left . ' END '
                 . 'WHERE ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . ($B_left                                                                                                                                    - 1);
             }
         } else {
             if ($A_left > $B_left) {
                 $sql = 'UPDATE ' . $this->table . ' SET '
-                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' - (' . ($A_left                                                           - $B_left                                                           - ($B_right                                                           - $B_left + 1)) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                             + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right - $A_left                                                                                                                             + 1) . ' ELSE ' . $this->f_right . ' END, '
+                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' - (' . ($A_left                                                           - $B_left                                                           - ($B_right                                                           - $B_left       + 1)) . ') '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                                                                                                                                                                                                                 + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right - $A_left                                                                                                                                                                                                                                                                                                                 + 1) . ' ELSE ' . $this->f_right . ' END, '
                 . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' - (' . ($A_left                                                             - $B_left                                                             - ($B_right                                                             - $B_left   + 1)) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                             + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right - $A_left                                                                                                                             + 1) . ' ELSE ' . $this->f_left . ' END '
-                . 'WHERE ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                            + 1) . ' AND ' . $A_right;
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                                                                                                                                                                                                                 + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right - $A_left                                                                                                                                                                                                                                                                                                                 + 1) . ' ELSE ' . $this->f_left . ' END '
+                . 'WHERE ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                                                                                                                                                                                                                + 1) . ' AND ' . $A_right;
             } else {
                 $sql = 'UPDATE ' . $this->table . ' SET '
                 . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . ($B_right - $A_right) . ' '

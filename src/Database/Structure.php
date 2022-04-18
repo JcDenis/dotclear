@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Structure
- * @brief Database structure manipulator
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database;
 
 use Dotclear\Exception\DatabaseException;
 
+/**
+ * Database structure manipulator.
+ *
+ * \Dotclear\Database\Structure
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Structure
+ */
 class Structure
 {
     /** @var array Tables */

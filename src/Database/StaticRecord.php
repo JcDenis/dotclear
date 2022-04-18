@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\StaticRecord
- * @brief Database static record
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database;
 
 use Dotclear\Helper\Lexical;
 
+/**
+ * Database static record.
+ *
+ * \Dotclear\Database\StaticRecord
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Record
+ */
 class StaticRecord extends Record
 {
     /** @var array The record data */

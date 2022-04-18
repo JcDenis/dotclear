@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\AbstractConnection
- * @brief Database connector
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+/**
+ * Database connector.
+ *
+ * \Dotclear\Database\AbstractConnection
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Connection
+ */
 abstract class AbstractConnection implements InterfaceConnection
 {
     /** @var string Drvier name */

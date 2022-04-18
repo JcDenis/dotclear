@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 /**
  * Delete Statement : small utility to build delete queries.
+ *
+ * \Dotclear\Database\Statement\DeleteStatement
+ *
+ * @ingroup Database Statement
  */
 class DeleteStatement extends SqlStatement
 {

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\RecordExtend
- * @brief Database record extension
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+/**
+ * Database record extension.
+ *
+ * \Dotclear\Database\RecordExtend
+ *
+ * @ingroup  Database Record
+ */
 abstract class RecordExtend
 {
     /** @var Record The record */

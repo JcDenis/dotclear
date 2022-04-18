@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Database\Cursor
- * @brief Database cursor
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Database
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Database;
 
 use Dotclear\Exception\DatabaseException;
 
+/**
+ * Database cursor.
+ *
+ * \Dotclear\Database\Cursor
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Database Cursor
+ */
 class Cursor
 {
     private $__data = [];
